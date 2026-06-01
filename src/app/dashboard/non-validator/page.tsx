@@ -63,34 +63,6 @@ export default function NonValidatorDashboardPage() {
     );
   }
 
-  if (activeHash === "#refer-earn") {
-    const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
-    const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;
-    const referralRecords = [
-      { name: "Riya S.", joinedAt: "12 May 2026", status: "Completed course", eligible: true },
-      { name: "Aman K.", joinedAt: "14 May 2026", status: "Completed course", eligible: true },
-      { name: "Neha P.", joinedAt: "16 May 2026", status: "In progress", eligible: false },
-      { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
-      { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
-      { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
-    ] as const;
-    const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
-    const withdrawUnlocked = successfulReferrals >= 5;
-
-    return (
-      <DashboardShell role="non-validator" title="Refer & Earn">
-        <div className="space-y-6">
-          <ReferAndEarnTab
-            referralCode={referralCode}
-            referralLink={referralLink}
-            referralRecords={referralRecords}
-            successfulReferrals={successfulReferrals}
-            withdrawUnlocked={withdrawUnlocked}
-          />
-        </div>
-      </DashboardShell>
-    );
-  }
 
   if (activeHash === "#assessments") {
     return (

@@ -32,7 +32,6 @@ const getSidebarNav = (role: string) => [
   { href: "/learn", icon: TreePine, label: "Learning Tree" },
   { href: `/dashboard/${role}#assessments`, icon: ClipboardCheck, label: "Assessments" },
   { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
-  { href: `#refer-earn`, icon: Gift, label: "Refer & Earn" },
   { href: `#profile`, icon: User, label: "Profile" },
 ];
 

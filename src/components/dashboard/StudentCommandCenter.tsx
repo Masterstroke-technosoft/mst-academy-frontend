@@ -52,8 +52,22 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
+  BarChart3,
 } from "lucide-react";
-import { ReferAndEarnTab } from "./ReferAndEarnTab";
+import { StudentProfile } from "@/components/dashboard/StudentProfile";
+
+function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-sm min-h-[400px]">
+      <div className="rounded-2xl bg-mst-red/10 p-4">
+        <Icon className="h-10 w-10 text-mst-red" />
+      </div>
+      <h2 className="mt-6 text-2xl font-black text-[var(--text)]">{title}</h2>
+      <p className="mt-3 max-w-sm text-sm text-[var(--text-muted)]">{description}</p>
+    </div>
+  );
+}
 
 function GlassCard({
   children,
@@ -106,27 +120,29 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const router = useRouter();
   const { user, ready, logout, isAdmin } = useAuth();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "refer">(() => {
+  const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
-      if (window.location.hash === "#refer-earn") return "refer";
+      const hash = window.location.hash;
+      if (hash === "#assessments") return "assessments";
+      if (hash === "#progress") return "progress";
+      if (hash === "#profile") return "profile";
     }
     return "overview";
   });
   const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => {
-    // Check immediately on mount in case of soft navigation
-    if (window.location.hash === "#refer-earn") {
-      setActiveTab("refer");
-    }
-
     const handleHashChange = () => {
-      if (window.location.hash === "#refer-earn") setActiveTab("refer");
+      const hash = window.location.hash;
+      if (hash === "#assessments") setActiveTab("assessments");
+      else if (hash === "#progress") setActiveTab("progress");
+      else if (hash === "#profile") setActiveTab("profile");
+      else setActiveTab("overview");
     };
+
+    handleHashChange();
     window.addEventListener("hashchange", handleHashChange);
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
   useEffect(() => setMounted(true), []);
@@ -206,40 +222,62 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           {/* nav */}
           <nav className="flex-1 space-y-1 px-3 py-4">
               {[
-                { id: "overview", icon: LayoutDashboard, label: "Command Center" },
-                { href: "/learn", icon: TreePine, label: "Learning Roadmap" },
-                { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+                { id: "overview", href: "/dashboard/student", icon: LayoutDashboard, label: "Overview" },
+                { href: "/learn", icon: TreePine, label: "Learning Tree" },
+                { id: "assessments", href: "/dashboard/student#assessments", icon: ClipboardCheck, label: "Assessments" },
+                { id: "progress", href: "/dashboard/student#progress", icon: BarChart3, label: "Progress" },
+                { id: "profile", href: "/dashboard/student#profile", icon: User, label: "Profile" },
               ].map((item) => {
-                if (item.id || item.onClick) {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id || item.href}
-                      onClick={() => {
-                        if (item.onClick) item.onClick();
-                        else if (item.id) setActiveTab(item.id as "overview" | "refer");
-                      }}
-                      className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
-                        ? "bg-mst-red/10 text-mst-red"
-                        : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
-                        }`}
-                    >
-                      <item.icon size={16} />
-                      {item.label}
-                    </button>
-                  );
-                }
+                const isActive = item.id ? activeTab === item.id : false;
                 return (
                   <Link
                     key={item.href}
-                    href={item.href!}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                    href={item.href}
+                    onClick={() => {
+                      if (item.id && item.id !== "overview") {
+                        setTimeout(() => window.dispatchEvent(new HashChangeEvent("hashchange")), 50);
+                      } else if (item.id === "overview") {
+                        window.history.pushState(null, "", "/dashboard/student");
+                        setTimeout(() => window.dispatchEvent(new HashChangeEvent("hashchange")), 50);
+                      }
+                    }}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                      isActive
+                        ? "bg-mst-red/10 text-mst-red"
+                        : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                    }`}
                   >
                     <item.icon size={16} />
                     {item.label}
                   </Link>
                 );
               })}
+
+              {isAdmin && (
+                <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
+                  <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                    Admin Dashboards
+                  </p>
+                  {[
+                    { role: "student", href: "/dashboard/student", label: "Student" },
+                    { role: "validator", href: "/dashboard/validator", label: "Validator" },
+                    { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
+                  ].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                        "student" === link.role
+                          ? "bg-mst-red/10 text-mst-red"
+                          : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                      }`}
+                    >
+                      <BookOpen size={16} />
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </nav>
             <div className="mt-auto border-t border-[var(--border)] px-3 py-4">
               <button
@@ -280,20 +318,24 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 <ThemeToggle />
               </div>
 
-            {activeTab === 'refer' ? (
-              <div className="space-y-6">
-                <ReferAndEarnTab
-                  referralCode={referralCode}
-                  referralLink={referralLink}
-                  referralRecords={referralRecords}
-                  successfulReferrals={successfulReferrals}
-                  withdrawUnlocked={withdrawUnlocked}
+              {activeTab === 'profile' ? (
+                <StudentProfile user={user} />
+              ) : activeTab === 'assessments' ? (
+                <PlaceholderTab 
+                  title="My Assessments" 
+                  icon={ClipboardCheck} 
+                  description="Complete modules on your Learning Roadmap to unlock assessments and certify your skills." 
                 />
-              </div>
-            ) : (
-              <>
-                {/* Hero */}
-                <motion.section
+              ) : activeTab === 'progress' ? (
+                <PlaceholderTab 
+                  title="Learning Progress" 
+                  icon={BarChart3} 
+                  description="Track your course completion, activity heatmap, and performance analytics here as you learn." 
+                />
+              ) : (
+                <>
+                  {/* Hero */}
+                  <motion.section
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="group relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] to-[var(--surface)]/40 p-6 backdrop-blur-3xl sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-all duration-500 hover:shadow-[0_20px_80px_rgba(168,85,247,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
@@ -387,15 +429,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         {analytics.insights[0] ?? "Start your first lesson to unlock personalized insights."}
                       </span>
                     </p>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <a
-                      href="#refer-earn"
-                      className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-500 transition hover:bg-emerald-500/20"
-                    >
-                      <Gift className="h-3.5 w-3.5" />
-                      Open Refer & Earn
-                    </a>
                   </div>
                 </motion.section>
 
@@ -733,8 +766,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     Continue on Learning Roadmap
                   </Link>
                 </div>
-              </>
-            )}
+                </>
+              )}
             </div>
           </main>
         </div>

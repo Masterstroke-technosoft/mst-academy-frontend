@@ -9,25 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default async function AcademyOverviewPage() {
-  let result;
-  const token = "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTA4MWI4MTM2YjI4NzJmYzk5NjdjMjYiLCJlbWFpbCI6ImFkaXR5YTExMkBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MDEzMTc1MywiZXhwIjoxNzgwNzM2NTUzfQ.hhPiWUrifjyEOoo_3y5ar9LWxjOVBIK9j7daTDjlELc; Path=/; HttpOnly; Expires=Sat, 06 Jun 2026 09:02:31 GMT";
-  const response = await fetch("https://1hcz5xh5-3000.inc1.devtunnels.ms/api/academy-overview", {
-    method: "GET",
-    headers: {
-      "Cookie": token,
-      // "Authorization" : `Bearer ${token}`,
-      "Content-Type": "application/json"
-    }
-  })
-  try {
-    if (!response.ok) {
-      throw new Error(`Response Status : ${response.status}`);
-    }
-    result = await response.json();
-    console.log(result[0]);
-  } catch (error: any) {
-    console.error(error.message);
-  }
-  return <AcademyOverview curriculum={result[0]} />
-  // return (<>{result.phases}</>)
+  return <AcademyOverview curriculum={getCurriculum()} />;
 }

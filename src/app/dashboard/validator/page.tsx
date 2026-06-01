@@ -24,12 +24,15 @@ export default function ValidatorDashboardPage() {
           { icon: Network, label: "Network Role", value: "Validator", color: "text-purple-500", bg: "bg-purple-500/10" },
           { icon: Award, label: "Certifications", value: "In Progress", color: "text-amber-500", bg: "bg-amber-500/10" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
-            <div className={`inline-flex rounded-xl ${stat.bg} p-2.5`}>
-              <stat.icon size={20} className={stat.color} />
+          <div key={stat.label} className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-mst-red/30 hover:shadow-lg hover:shadow-mst-red/5">
+            <div className="absolute inset-0 bg-gradient-to-br from-mst-red/0 via-transparent to-mst-red/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="relative z-10">
+              <div className={`inline-flex rounded-xl ${stat.bg} p-2.5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                <stat.icon size={20} className={stat.color} />
+              </div>
+              <p className="mt-3 text-2xl font-black text-[var(--text)]">{stat.value}</p>
+              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{stat.label}</p>
             </div>
-            <p className="mt-3 text-2xl font-black text-[var(--text)]">{stat.value}</p>
-            <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">{stat.label}</p>
           </div>
         ))}
       </div>
