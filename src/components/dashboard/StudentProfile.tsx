@@ -6,22 +6,30 @@ import { useAuth } from "@/components/AuthProvider";
 import { motion } from "framer-motion";
 import { Camera, CheckCircle2, Copy, Save, User } from "lucide-react";
 
-export function StudentProfile({ user }: { user: AuthUser }) {
+export function StudentProfile({ user }: { user: AuthUser | null }) {
   const { updateProfile } = useAuth();
+  const safeUser = user ?? {
+    id: "",
+    email: "",
+    fullName: "",
+    role: "student" as const,
+    registeredAt: new Date().toISOString(),
+  };
+
   const [formData, setFormData] = useState({
-    fullName: user.fullName || "",
-    phone: user.phone || "",
-    linkedin: user.linkedin || "",
-    github: user.github || "",
-    walletAddress: user.walletAddress || "",
-    portfolio: user.portfolio || "",
+    fullName: safeUser.fullName || "",
+    phone: safeUser.phone || "",
+    linkedin: safeUser.linkedin || "",
+    github: safeUser.github || "",
+    walletAddress: safeUser.walletAddress || "",
+    portfolio: safeUser.portfolio || "",
   });
-  const [photo, setPhoto] = useState<string | null>(user.profilePhoto || null);
+  const [photo, setPhoto] = useState<string | null>(safeUser.profilePhoto || null);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
+  const referralCode = `MST-${safeUser.id.slice(-6).toUpperCase()}`;
   const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +144,7 @@ export function StudentProfile({ user }: { user: AuthUser }) {
               </label>
               <input
                 type="email"
-                value={user.email}
+                value={safeUser.email}
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />

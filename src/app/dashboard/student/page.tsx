@@ -241,9 +241,9 @@ export default function StudentDashboardPage({
       return;
     }
 
-    setPhases(phases.map(p => ({
+    setPhases(phases.map((p: any) => ({
       ...p,
-      modules: p.modules.map(m => ({
+      modules: p.modules.map((m: any) => ({
         ...m,
         submodules: m.submodules.map((sub: any) => {
           if (sub.id === addingQuestionTo) {
@@ -794,7 +794,7 @@ export default function StudentDashboardPage({
                       {phase.modules.length === 0 ? (
                         <p className="text-sm font-medium text-[var(--text-muted)] pl-[4.25rem] py-2">No modules yet. Add one to get started.</p>
                       ) : (
-                        phase.modules.map(mod => (
+                        phase.modules.map((mod: any) => (
                           <div key={mod.id} className="ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm overflow-hidden transition-all hover:border-[var(--border)]">
                             <div
                               className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-[var(--border)]/20 transition-colors"
@@ -826,7 +826,7 @@ export default function StudentDashboardPage({
                                 {mod.submodules.length === 0 ? (
                                   <p className="text-xs font-medium text-[var(--text-muted)] py-2">No submodules added.</p>
                                 ) : (
-                                  mod.submodules.map(sub => (
+                                  mod.submodules.map((sub: any) => (
                                     <div key={sub.id} className="group flex items-center justify-between rounded-lg p-2.5 hover:bg-[var(--surface)] border border-transparent hover:border-[var(--border)]/60 transition-all">
                                       <div className="flex items-start gap-2.5">
                                         <FileText className="h-3.5 w-3.5 text-emerald-500 mt-0.5" />
@@ -896,7 +896,7 @@ export default function StudentDashboardPage({
                       {phase.modules.length === 0 ? (
                         <p className="text-sm font-medium text-[var(--text-muted)] pl-[4.25rem] py-2">No modules available.</p>
                       ) : (
-                        phase.modules.map(mod => (
+                        phase.modules.map((mod: any) => (
                           <div key={`assess-mod-${mod.id}`} className="ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm overflow-hidden transition-all hover:border-[var(--border)]">
                             <div
                               className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-[var(--border)]/20 transition-colors"
@@ -914,7 +914,7 @@ export default function StudentDashboardPage({
                                 {mod.submodules.length === 0 ? (
                                   <p className="text-xs font-medium text-[var(--text-muted)] py-2">No submodules added.</p>
                                 ) : (
-                                  mod.submodules.map(sub => (
+                                  mod.submodules.map((sub: any) => (
                                     <div key={`assess-sub-${sub.id}`} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl p-3 sm:p-4 bg-[var(--surface)] border border-[var(--border)]/60 hover:border-purple-500/40 hover:shadow-md hover:shadow-purple-500/5 transition-all">
                                       <div className="flex items-start gap-3">
                                         <div className="mt-0.5 rounded-lg bg-emerald-500/10 p-2">
