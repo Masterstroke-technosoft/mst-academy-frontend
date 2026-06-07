@@ -19,7 +19,11 @@ export interface AuthUser {
   walletAddress?: string;
   portfolio?: string;
   profilePhoto?: string;
-  registeredAt: string;
+  registeredAt?: string;
+  isActive?: boolean;
+  isStudentVerified?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface RegisterStudentInput {
