@@ -1,6 +1,6 @@
 "use client";
 
-export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL";
+export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional";
 
 export type BlockchainLevel = "Beginner" | "Intermediate" | "Expert";
 
@@ -447,12 +447,19 @@ export async function registerAdmin(input: {
 export function roleLabel(role: UserRole | string): string {
   switch (role) {
     case "student":
+    case "STUDENT":
       return "Student";
     case "validator":
+    case "VALIDATOR":
       return "Validator";
     case "non-validator":
+    case "COURSE_ONLY":
       return "Web3 Enthusiast";
+    case "working-professional":
+    case "WORKING_PROFESSIONAL":
+      return "Working Professional";
     case "admin":
+    case "ADMIN":
       return "Admin";
     default:
       return String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase();
@@ -470,8 +477,10 @@ export function dashboardPath(role: UserRole | string | undefined): string {
       return "/dashboard/validator";
     case "non-validator":
     case "COURSE_ONLY":
-    case "WORKING_PROFESSIONAL":
       return "/dashboard/non-validator";
+    case "working-professional":
+    case "WORKING_PROFESSIONAL":
+      return "/dashboard/working-professional";
     case "admin":
     case "ADMIN":
       return "/dashboard/admin";
@@ -480,11 +489,11 @@ export function dashboardPath(role: UserRole | string | undefined): string {
   }
 }
 
-export function canAccessDashboard(role: UserRole): boolean {
+export function canAccessDashboard(role: UserRole | string): boolean {
   const user = getSession();
   if (!user) return false;
-  if (user.role === "admin") return true;
-  return user.role === role;
+  if (user.role === "admin" || user.role === "ADMIN") return true;
+  return user.role.toLowerCase() === role.toLowerCase();
 }
 
 export function updateUser(id: string, updates: Partial<AuthUser>) {

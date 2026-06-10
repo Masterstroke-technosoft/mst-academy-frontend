@@ -43,7 +43,7 @@ export function AuthShell({
 
 export function DemoFeeNote() {
   return (
-    <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+    <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold" style={{ color: "#854d0e" }}>
       Fee display only. Payment gateway integration pending.
     </p>
   );

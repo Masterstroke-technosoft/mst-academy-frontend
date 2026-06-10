@@ -29,7 +29,7 @@ import {
   SubmitButton,
   TextInput,
 } from "./AuthShell";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Upload } from "lucide-react";
 
 type PlanId = "student" | "validator" | "normal" | "courseOnly";
 
@@ -457,20 +457,27 @@ export function RegisterForm() {
                 <FieldLabel htmlFor="studentId" required>
                   Student ID Card Upload
                 </FieldLabel>
-                <TextInput
-                  id="studentId"
-                  type="file"
-                  accept="image/*,.pdf"
-                  required
-                  onChange={(e) =>
-                    setStudentIdFile(e.target.files?.[0] ?? null)
-                  }
-                />
-                {studentIdFile && (
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">
-                    Selected: {studentIdFile.name}
-                  </p>
-                )}
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="studentId"
+                    className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                  >
+                    Choose File
+                  </label>
+                  <span className="text-sm text-[var(--text-muted)] truncate">
+                    {studentIdFile ? studentIdFile.name : "No file chosen"}
+                  </span>
+                  <input
+                    id="studentId"
+                    type="file"
+                    accept="image/*,.pdf"
+                    required
+                    className="hidden"
+                    onChange={(e) =>
+                      setStudentIdFile(e.target.files?.[0] ?? null)
+                    }
+                  />
+                </div>
               </div>
             </>
           )}
@@ -481,20 +488,27 @@ export function RegisterForm() {
                 <FieldLabel htmlFor="validatorId" required>
                   Validator ID Card Upload
                 </FieldLabel>
-                <TextInput
-                  id="validatorId"
-                  type="file"
-                  accept="image/*,.pdf"
-                  required
-                  onChange={(e) =>
-                    setValidatorIdFile(e.target.files?.[0] ?? null)
-                  }
-                />
-                {validatorIdFile && (
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">
-                    Selected: {validatorIdFile.name}
-                  </p>
-                )}
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="validatorId"
+                    className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                  >
+                    Choose File
+                  </label>
+                  <span className="text-sm text-[var(--text-muted)] truncate">
+                    {validatorIdFile ? validatorIdFile.name : "No file chosen"}
+                  </span>
+                  <input
+                    id="validatorId"
+                    type="file"
+                    accept="image/*,.pdf"
+                    required
+                    className="hidden"
+                    onChange={(e) =>
+                      setValidatorIdFile(e.target.files?.[0] ?? null)
+                    }
+                  />
+                </div>
               </div>
 
               <p className="text-sm text-[var(--text-muted)]">

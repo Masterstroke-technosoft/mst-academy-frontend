@@ -439,7 +439,7 @@ export function FullscreenAssessment({
     sessionStorage.removeItem(storageKey);
 
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
 
     window.location.href = `/module/${moduleId}/${subSlug}/assessment/results`;
@@ -628,7 +628,7 @@ export function FullscreenAssessment({
   function handleExitAttempt() {
     if (!codingQuestionActive) {
       if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
       router.push(`/module/${moduleId}/${subSlug}`);
       return;
@@ -645,7 +645,7 @@ export function FullscreenAssessment({
     }
 
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
     router.push(`/module/${moduleId}/${subSlug}`);
   }
@@ -728,9 +728,8 @@ export function FullscreenAssessment({
           )}
           <div className="text-right">
             <p className="text-[10px] uppercase text-[var(--text-muted)] font-bold">Time Remaining</p>
-            <p className={`flex items-center gap-1 font-mono text-sm font-black ${
-              timeLeft < 60 ? "text-mst-red animate-pulse" : "text-[var(--text)]"
-            }`}>
+            <p className={`flex items-center gap-1 font-mono text-sm font-black ${timeLeft < 60 ? "text-mst-red animate-pulse" : "text-[var(--text)]"
+              }`}>
               <Clock size={14} /> {formatTime(timeLeft)}
             </p>
           </div>
@@ -813,11 +812,10 @@ export function FullscreenAssessment({
                         <button
                           type="button"
                           onClick={() => { playSelect(); setAnswer(current, opt.text, opt.key); }}
-                          className={`w-full rounded-xl border-2 px-5 py-4 text-left text-sm transition font-medium ${
-                            sel
+                          className={`w-full rounded-xl border-2 px-5 py-4 text-left text-sm transition font-medium ${sel
                               ? "border-mst-red bg-mst-red/10 text-[var(--text)] shadow-sm"
                               : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-muted)]"
-                          }`}
+                            }`}
                         >
                           <span className="mr-3 font-bold text-mst-red">
                             {opt.key}.
@@ -833,57 +831,56 @@ export function FullscreenAssessment({
               {/* True/False with potential justification */}
               {(current.type === "true_false" ||
                 current.type === "true_false_justification") && (
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    {["TRUE", "FALSE"].map((v) => {
-                      const sel = currentAnswer?.value?.startsWith(v);
-                      return (
-                        <button
-                          key={v}
-                          type="button"
-                          onClick={() => {
-                            playSelect();
-                            const just =
-                              (currentAnswer?.value || "").split("\n---\n")[1] ||
-                              "";
-                            setAnswer(
-                              current,
-                              current.type === "true_false_justification"
-                                ? `${v}\n---\n${just}`
-                                : v,
-                              v
-                            );
-                          }}
-                          className={`flex-1 rounded-xl border-2 py-4 font-bold transition text-center ${
-                            sel
-                              ? "border-mst-red bg-mst-red/15 text-[var(--text)]"
-                              : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--bg-muted)] hover:border-[var(--border-strong)]"
-                          }`}
-                        >
-                          {v}
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-4">
+                    <div className="flex gap-4">
+                      {["TRUE", "FALSE"].map((v) => {
+                        const sel = currentAnswer?.value?.startsWith(v);
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => {
+                              playSelect();
+                              const just =
+                                (currentAnswer?.value || "").split("\n---\n")[1] ||
+                                "";
+                              setAnswer(
+                                current,
+                                current.type === "true_false_justification"
+                                  ? `${v}\n---\n${just}`
+                                  : v,
+                                v
+                              );
+                            }}
+                            className={`flex-1 rounded-xl border-2 py-4 font-bold transition text-center ${sel
+                                ? "border-mst-red bg-mst-red/15 text-[var(--text)]"
+                                : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--bg-muted)] hover:border-[var(--border-strong)]"
+                              }`}
+                          >
+                            {v}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {current.type === "true_false_justification" && (
+                      <textarea
+                        rows={5}
+                        placeholder="Mandatory justification (at least 40 characters)…"
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                        style={{ userSelect: "text", WebkitUserSelect: "text" } as React.CSSProperties}
+                        value={
+                          (currentAnswer?.value || "").split("\n---\n")[1] || ""
+                        }
+                        onChange={(e) => {
+                          const verdict =
+                            (currentAnswer?.value || "").split("\n---\n")[0] ||
+                            "";
+                          setAnswer(current, `${verdict}\n---\n${e.target.value}`);
+                        }}
+                      />
+                    )}
                   </div>
-                  {current.type === "true_false_justification" && (
-                    <textarea
-                      rows={5}
-                      placeholder="Mandatory justification (at least 40 characters)…"
-                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:border-mst-red focus:outline-none"
-                      style={{ userSelect: "text", WebkitUserSelect: "text" } as React.CSSProperties}
-                      value={
-                        (currentAnswer?.value || "").split("\n---\n")[1] || ""
-                      }
-                      onChange={(e) => {
-                        const verdict =
-                          (currentAnswer?.value || "").split("\n---\n")[0] ||
-                          "";
-                        setAnswer(current, `${verdict}\n---\n${e.target.value}`);
-                      }}
-                    />
-                  )}
-                </div>
-              )}
+                )}
 
               {/* Descriptive / Project answers */}
               {(current.type === "descriptive" ||

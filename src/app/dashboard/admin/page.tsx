@@ -1,7 +1,5 @@
-import { getCurriculum } from "@/lib/curriculum";
-import { StudentDashboardClient } from "@/components/dashboard/StudentDashboardClient";
+import StudentDashboardPage from "../student/page";
 
 export default function AdminDashboardPage() {
-  const curriculum = getCurriculum();
-  return <StudentDashboardClient curriculum={curriculum} />;
+  return <StudentDashboardPage role="student" title="Student Hub" />;
 }

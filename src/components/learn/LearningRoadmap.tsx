@@ -230,10 +230,10 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
       <Handle type="source" position={Position.Right} id="right-source" className="opacity-0" />
       <div
         className={`w-[min(100vw-3rem,480px)] max-w-[480px] rounded-3xl border bg-[var(--surface)]/80 backdrop-blur-md p-6 shadow-md transition-all duration-300 ${active
-            ? "border-[var(--border-strong)]"
-            : locked
-              ? "border-[var(--border)] opacity-80"
-              : "border-[var(--border)] hover:shadow-xl hover:-translate-y-1"
+          ? "border-[var(--border-strong)]"
+          : locked
+            ? "border-[var(--border)] opacity-80"
+            : "border-[var(--border)] hover:shadow-xl hover:-translate-y-1"
           }`}
         style={{
           borderColor: active ? tint(color, "80") : undefined,
@@ -338,10 +338,10 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
       <Handle type="source" position={Position.Right} id="right-source" className="opacity-0" />
       <div
         className={`w-[min(100vw-3rem,400px)] max-w-[400px] rounded-2xl border bg-[var(--surface)]/80 backdrop-blur-md p-5 shadow-sm transition-all duration-300 ${active
-            ? "border-[var(--border-strong)] shadow-xl"
-            : locked
-              ? "opacity-70"
-              : "hover:-translate-y-0.5 hover:shadow-md"
+          ? "border-[var(--border-strong)] shadow-xl"
+          : locked
+            ? "opacity-70"
+            : "hover:-translate-y-0.5 hover:shadow-md"
           }`}
         style={{
           borderColor: active ? tint(color, "85") : undefined,
@@ -409,7 +409,19 @@ function CameraController({ targetNodeIds }: { targetNodeIds: string[] }) {
   return null;
 }
 
-function computeProgressPctForSubmodule(moduleId: number, slug: string) {
+async function fetchWithAuth(url: string) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return fetch(url, {
+    credentials: "include",
+    headers,
+  });
+}
+
+function computeProgressPctForSubmodule(moduleId: string | number, slug: string) {
   const p = getSubmoduleProgress(moduleId, slug);
   const base = (p.lessonComplete ? 50 : 0) + (p.assessmentComplete ? 50 : 0);
   return Math.min(100, Math.round(base));
@@ -501,7 +513,7 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
-export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
+export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum: Curriculum }) {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const { user } = useAuth();
@@ -519,6 +531,224 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
     backToModule,
     backToPhase,
   } = useRoadmapStore();
+
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+  const courseId = "6a1a8a4b72fa89699a4f016a";
+
+  const [fetchedPhases, setFetchedPhases] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("roadmap_phases");
+      if (cached) return JSON.parse(cached);
+    }
+    return [];
+  });
+
+  const [fetchedModules, setFetchedModules] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("roadmap_modules");
+      if (cached) return JSON.parse(cached);
+    }
+    return [];
+  });
+
+  const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("roadmap_submodules");
+      if (cached) return JSON.parse(cached);
+    }
+    return {};
+  });
+
+  // Fetch course phases & single phases on mount
+  useEffect(() => {
+    async function loadPhases() {
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/phases/course/${courseId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+
+            // Single phase API implementation (fetch details for each phase)
+            const detailedPhases = await Promise.all(
+              sorted.map(async (phase: any) => {
+                try {
+                  const phaseRes = await fetchWithAuth(`${baseURL}/api/phases/${phase._id || phase.id}`);
+                  if (phaseRes.ok) {
+                    const phaseJson = await phaseRes.json();
+                    if (phaseJson && phaseJson.success && phaseJson.data) {
+                      return phaseJson.data;
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error fetching single phase:", e);
+                }
+                return phase;
+              })
+            );
+
+            setFetchedPhases(detailedPhases);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("roadmap_phases", JSON.stringify(detailedPhases));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching course phases:", err);
+      }
+    }
+    loadPhases();
+  }, [baseURL, courseId]);
+
+  // Fetch modules & single modules when activePhaseId is set
+  const activePhaseDbId = useMemo(() => {
+    if (!activePhaseId) return null;
+    if (activePhaseId.startsWith("phase-")) {
+      const idx = parseInt(activePhaseId.split("-")[1], 10) - 1;
+      const ph = fetchedPhases[idx];
+      return ph ? (ph._id || ph.id) : null;
+    }
+    return activePhaseId;
+  }, [activePhaseId, fetchedPhases]);
+
+  useEffect(() => {
+    if (!activePhaseDbId) return;
+
+    async function loadModules() {
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/modules/phase/${activePhaseDbId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+
+            // Single module API implementation
+            const detailedModules = await Promise.all(
+              sorted.map(async (mod: any) => {
+                try {
+                  const modRes = await fetchWithAuth(`${baseURL}/api/modules/${mod._id || mod.id}`);
+                  if (modRes.ok) {
+                    const modJson = await modRes.json();
+                    if (modJson && modJson.success && modJson.data) {
+                      return modJson.data;
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error fetching single module:", e);
+                }
+                return mod;
+              })
+            );
+
+            setFetchedModules((prev) => {
+              const filtered = prev.filter((pm) => String(pm.phaseId) !== String(activePhaseDbId));
+              const next = [...filtered, ...detailedModules];
+              if (typeof window !== "undefined") {
+                localStorage.setItem("roadmap_modules", JSON.stringify(next));
+              }
+              return next;
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching modules by phase:", err);
+      }
+    }
+    loadModules();
+  }, [baseURL, activePhaseDbId]);
+
+  // Fetch submodules & single submodules when activeModuleId is set
+  useEffect(() => {
+    if (!activeModuleId) return;
+
+    async function loadSubmodules() {
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/submodules/module/${activeModuleId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+
+            // Single submodule API implementation
+            const detailedSubmodules = await Promise.all(
+              sorted.map(async (sub: any) => {
+                try {
+                  const subRes = await fetchWithAuth(`${baseURL}/api/submodules/${sub._id || sub.id}`);
+                  if (subRes.ok) {
+                    const subJson = await subRes.json();
+                    if (subJson && subJson.success && subJson.data) {
+                      return subJson.data;
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error fetching single submodule:", e);
+                }
+                return sub;
+              })
+            );
+
+            setFetchedSubmodules((prev) => {
+              const next = { ...prev, [String(activeModuleId)]: detailedSubmodules };
+              if (typeof window !== "undefined") {
+                localStorage.setItem("roadmap_submodules", JSON.stringify(next));
+              }
+              return next;
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching submodules by module:", err);
+      }
+    }
+    loadSubmodules();
+  }, [baseURL, activeModuleId]);
+
+  // Build the dynamic curriculum object
+  const curriculum = useMemo(() => {
+    if (fetchedPhases.length === 0) {
+      return initialCurriculum;
+    }
+
+    const sortedPhases = [...fetchedPhases].sort((a, b) => (a.index || 0) - (b.index || 0));
+
+    const phases = sortedPhases.map((p, idx) => {
+      const uiId = `phase-${idx + 1}`;
+      const phaseModules = fetchedModules.filter((m) => String(m.phaseId) === String(p._id || p.id));
+      return {
+        id: uiId,
+        title: p.title || `Phase ${idx + 1}`,
+        modules: phaseModules.map((m) => m._id || m.id),
+      };
+    });
+
+    const modules = fetchedModules.map((m) => {
+      const phaseIdx = sortedPhases.findIndex((p) => String(p._id || p.id) === String(m.phaseId));
+      const uiPhaseId = phaseIdx !== -1 ? `phase-${phaseIdx + 1}` : m.phaseId;
+
+      const subList = fetchedSubmodules[m._id || m.id] || [];
+      const submodules = subList.map((s: any) => ({
+        id: s.id || s._id,
+        slug: s.slug || s._id || s.id,
+        filename: s.contentFile || "",
+        title: s.title || "",
+        subtitle: s.description || s.subtitle || "",
+        hasAssessment: s.hasAssessment || false,
+        totalMarks: s.totalMarks || 0,
+        toc: s.toc || [],
+      }));
+
+      return {
+        id: m._id || m.id,
+        slug: m.slug || String(m._id || m.id),
+        title: m.title || "",
+        phaseId: uiPhaseId,
+        description: m.description || "",
+        submodules,
+      };
+    });
+
+    return { phases, modules };
+  }, [initialCurriculum, fetchedPhases, fetchedModules, fetchedSubmodules]);
 
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
   const [viewportW, setViewportW] = useState(1200);
@@ -542,7 +772,7 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
   const isTablet = viewportW >= 640 && viewportW < 1024;
 
   const phaseById = useMemo(() => {
-    const map = new Map<string, { id: string; title: string; modules: number[] }>();
+    const map = new Map<string, { id: string; title: string; modules: any[] }>();
     for (const p of curriculum.phases) map.set(p.id, p);
     return map;
   }, [curriculum.phases]);
@@ -550,17 +780,17 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
   const activePhase = activePhaseId ? phaseById.get(activePhaseId) : undefined;
   const modulesInActivePhase = useMemo(() => {
     if (!activePhaseId) return [];
-    return curriculum.modules.filter((m) => m.phaseId === activePhaseId);
+    return curriculum.modules.filter((m) => String(m.phaseId) === String(activePhaseId));
   }, [activePhaseId, curriculum.modules]);
 
   const activeModule = useMemo(() => {
     if (!activeModuleId) return undefined;
-    return curriculum.modules.find((m) => m.id === activeModuleId);
+    return curriculum.modules.find((m) => String(m.id) === String(activeModuleId));
   }, [activeModuleId, curriculum.modules]);
 
   const activeSubmodule = useMemo(() => {
     if (!activeModule || !activeSubmoduleSlug) return undefined;
-    return activeModule.submodules.find((s) => s.slug === activeSubmoduleSlug);
+    return activeModule.submodules.find((s) => String(s.slug) === String(activeSubmoduleSlug));
   }, [activeModule, activeSubmoduleSlug]);
 
   const nodesAndEdges = useMemo(() => {
@@ -568,8 +798,8 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
     const edges: Edge[] = [];
     const phaseOrder = ["phase-1", "phase-2", "phase-3", "phase-4"];
     const allModuleIds = curriculum.modules.map((m) => m.id);
-    const getSlugs = (id: number) =>
-      curriculum.modules.find((mm) => mm.id === id)?.submodules.map((s) => s.slug) ?? [];
+    const getSlugs = (id: any) =>
+      curriculum.modules.find((mm) => String(mm.id) === String(id))?.submodules.map((s) => s.slug) ?? [];
 
     const cardW = isMobile ? 280 : isTablet ? 300 : 320;
     let moduleGapY = isMobile ? 220 : 240;
@@ -830,7 +1060,7 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
       activeModule.id,
       curriculum.modules.map((m) => m.id),
       activeModule.submodules.map((s) => s.slug),
-      (id) => curriculum.modules.find((mm) => mm.id === id)?.submodules.map((s) => s.slug) ?? []
+      (id) => curriculum.modules.find((mm) => String(mm.id) === String(id))?.submodules.map((s) => s.slug) ?? []
     )
     : null;
 
@@ -1199,8 +1429,8 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
                     <Link
                       href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
                       className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
-                          ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                          : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
+                        ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                        : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
                         }`}
                       aria-disabled={subLocked}
                       onClick={(e) => {
@@ -1214,8 +1444,8 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
                       <Link
                         href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
                         className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
-                            ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
-                            : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
+                          ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
+                          : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
                           }`}
                         aria-disabled={subLocked}
                         onClick={(e) => {
@@ -1281,8 +1511,8 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
                     <Link
                       href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
                       className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
-                          ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                          : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
+                        ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                        : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
                         }`}
                       aria-disabled={subLocked}
                       onClick={(e) => {
@@ -1296,8 +1526,8 @@ export function LearningRoadmap({ curriculum }: { curriculum: Curriculum }) {
                       <Link
                         href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
                         className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
-                            ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
-                            : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
+                          ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
+                          : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
                           }`}
                         aria-disabled={subLocked}
                         onClick={(e) => {

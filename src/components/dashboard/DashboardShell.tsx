@@ -10,6 +10,7 @@ import {
   type UserRole,
 } from "@/lib/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import {
   LayoutDashboard,
   TreePine,
@@ -25,6 +26,7 @@ import {
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
   { role: "student", href: "/dashboard/student", label: "Student" },
   { role: "validator", href: "/dashboard/validator", label: "Validator" },
+  { role: "working-professional", href: "/dashboard/working-professional", label: "Working Professional" },
   { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
 ];
 
@@ -37,6 +39,7 @@ const getSidebarNav = (role: string, isAdmin: boolean) => [
     ? [
       { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
       { href: "/admin/users", icon: Users, label: "User Management" },
+      { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
     ]
     : []),
   ...(!isAdmin && role !== "admin"
@@ -238,22 +241,24 @@ export function DashboardShell({
             </div>
 
             {/* page header */}
-            <div className="mb-8">
-              <p className="text-xs font-bold uppercase tracking-widest text-mst-red">
-                {roleLabel(role)} Dashboard
-                {isAdmin && (
-                  <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-amber-700 dark:text-amber-300">
-                    Admin Access
-                  </span>
-                )}
-              </p>
-              <h1 className="mt-2 text-2xl font-black text-[var(--text)] sm:text-3xl">
-                {title}
-              </h1>
-              <p className="mt-1 text-sm text-[var(--text-muted)]">
-                Signed in as {user.fullName} ({user.email})
-              </p>
-            </div>
+            {activeHash !== "#profile" && (
+              <div className="mb-8">
+                <p className="text-xs font-bold uppercase tracking-widest text-mst-red">
+                  {roleLabel(role)} Dashboard
+                  {isAdmin && (
+                    <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-amber-700 dark:text-amber-300">
+                      Admin Access
+                    </span>
+                  )}
+                </p>
+                <h1 className="mt-2 text-2xl font-black text-[var(--text)] sm:text-3xl">
+                  {title}
+                </h1>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  Signed in as {user.fullName} ({user.email})
+                </p>
+              </div>
+            )}
 
             {/* admin nav (mobile) */}
             {isAdmin && (
@@ -274,7 +279,15 @@ export function DashboardShell({
             )}
 
             {/* content */}
-            <div className="space-y-6">{children}</div>
+            <div className="space-y-6">
+              {activeHash === "#profile" ? (
+                <div className="animate-in fade-in duration-300">
+                  <StudentProfile user={user} />
+                </div>
+              ) : (
+                children
+              )}
+            </div>
           </div>
         </main>
       </div >

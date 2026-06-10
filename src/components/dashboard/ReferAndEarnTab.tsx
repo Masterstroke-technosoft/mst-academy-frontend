@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Gift, Copy, Wallet, CheckCircle2, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/components/AuthProvider";
 
 function GlassCard({
   children,
@@ -37,9 +38,25 @@ export function ReferAndEarnTab({
   successfulReferrals: number;
   withdrawUnlocked: boolean;
 }) {
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [withdrawRequested, setWithdrawRequested] = useState(false);
+  const [requestStatus, setRequestStatus] = useState("Pending");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && user) {
+      const existing = localStorage.getItem("referral_withdrawal_requests");
+      if (existing) {
+        const list = JSON.parse(existing);
+        const myRequest = list.find((r: any) => r.email === user.email);
+        if (myRequest) {
+          setWithdrawRequested(true);
+          setRequestStatus(myRequest.status);
+        }
+      }
+    }
+  }, [user]);
 
   return (
     <>
@@ -165,9 +182,13 @@ export function ReferAndEarnTab({
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500 shadow-inner">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-black text-[var(--text)]">Withdrawal Requested</h3>
+              <h3 className="text-xl font-black text-[var(--text)]">
+                {requestStatus === "Confirmed" ? "Withdrawal Confirmed" : "Withdrawal Requested"}
+              </h3>
               <p className="text-sm text-[var(--text-muted)] max-w-sm">
-                We have received your bank details securely. The amount will be processed and credited to your account within <strong>3-5 business days</strong>.
+                {requestStatus === "Confirmed"
+                  ? "Your request has been verified and confirmed by the administrator. The reward of ₹1,500 has been successfully sent!"
+                  : "We have received your bank details securely. The amount will be processed and credited to your account within 3-5 business days."}
               </p>
             </motion.div>
           ) : (
@@ -243,7 +264,42 @@ export function ReferAndEarnTab({
                   className="space-y-5" 
                   onSubmit={(e) => { 
                     e.preventDefault(); 
+                    const form = e.target as any;
+                    
+                    const newRequest = {
+                      id: "req-" + Date.now(),
+                      userName: user?.fullName || "Anonymous",
+                      email: user?.email || "",
+                      amount: successfulReferrals * 500,
+                      status: "Pending",
+                      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+                      bankDetails: {
+                        holderName: form[0].value,
+                        accountNumber: form[1].value,
+                        ifsc: form[2].value,
+                        branch: form[3].value,
+                        upi: form[4]?.value || "",
+                      },
+                      referrals: referralRecords.map(r => ({
+                        name: r.name,
+                        status: r.status,
+                        eligible: r.eligible
+                      }))
+                    };
+                    
+                    if (typeof window !== "undefined") {
+                      const existing = localStorage.getItem("referral_withdrawal_requests");
+                      const list = existing ? JSON.parse(existing) : [];
+                      
+                      // Remove existing requests for the same user if any, to overwrite with the new one
+                      const filteredList = list.filter((r: any) => r.email !== user?.email);
+                      filteredList.push(newRequest);
+                      
+                      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(filteredList));
+                    }
+                    
                     setWithdrawRequested(true); 
+                    setRequestStatus("Pending");
                     setShowWithdrawForm(false); 
                   }}
                 >

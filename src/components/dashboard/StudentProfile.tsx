@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AuthUser } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
 import { motion } from "framer-motion";
@@ -28,6 +28,42 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const response = await fetch(`${baseURL}/api/users/profile`, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.user) {
+            // Update state with API response data if available
+            setFormData(prev => ({
+              ...prev,
+              fullName: data.user.fullName || data.user.name || prev.fullName,
+              phone: data.user.phone || prev.phone,
+              linkedin: data.user.linkedin || prev.linkedin,
+              github: data.user.github || prev.github,
+              walletAddress: data.user.walletAddress || prev.walletAddress,
+              portfolio: data.user.portfolio || prev.portfolio,
+            }));
+            if (data.user.profilePhoto) {
+              setPhoto(data.user.profilePhoto);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const referralCode = `MST-${safeUser.id.slice(-6).toUpperCase()}`;
   const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;

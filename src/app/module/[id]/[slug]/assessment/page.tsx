@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { FullscreenAssessment } from "@/components/assessment/FullscreenAssessment";
-import { getAssessment, getSubmodule } from "@/lib/curriculum";
+import { getSubmodule } from "@/lib/curriculum";
+import { getAssessment } from "@/lib/curriculum.server";
 import { getCardSubmoduleTitle } from "@/lib/display-titles";
 
 export default async function AssessmentPage({

@@ -286,15 +286,16 @@ function VoiceReader({ articleRef }: { articleRef: React.RefObject<HTMLDivElemen
 }
 
 interface LessonViewerProps {
-  moduleId: number;
-  mod: ModuleMeta;
-  submodule: SubmoduleMeta;
+  moduleId: any;
+  mod: any;
+  submodule: any;
   html: string;
   prevSlug?: string;
   nextSlug?: string;
   phaseId: string;
-  allModuleIds: number[];
-  moduleSlugMap: Record<number, string[]>;
+  allModuleIds: any[];
+  moduleSlugMap: Record<string | number, string[]>;
+  contentFile?: string;
 }
 
 export function LessonViewer({
@@ -306,10 +307,11 @@ export function LessonViewer({
   nextSlug,
   allModuleIds,
   moduleSlugMap,
+  contentFile,
 }: LessonViewerProps) {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
-  const [validToc, setValidToc] = useState(submodule.toc);
+  const [validToc, setValidToc] = useState<{ id: string; title: string }[]>(submodule.toc || []);
   const [tocOpen, setTocOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
@@ -324,7 +326,7 @@ export function LessonViewer({
     [moduleSlugMap]
   );
 
-  const slugs = mod.submodules.map((s) => s.slug);
+  const slugs = mod.submodules.map((s: any) => s.slug);
   const modStatus = mounted && allModuleIds
     ? getModuleStatus(moduleId, allModuleIds, slugs, getSlugs)
     : "active";
@@ -392,6 +394,10 @@ export function LessonViewer({
   }, []);
 
   useEffect(() => {
+    if (contentFile) {
+      setValidToc(submodule.toc || []);
+      return;
+    }
     // When active heading changes, ensure the corresponding TOC item is visible and centered
     if (!navRef.current || !activeHeading) return;
     try {
@@ -452,7 +458,7 @@ export function LessonViewer({
     });
 
     const matchedItems = submodule.toc
-      .map((item) => {
+      .map((item: any) => {
         const normalizedItem = normalizeText(item.title);
         const match = uniqueRecords.find((record) => {
           return (
@@ -469,7 +475,7 @@ export function LessonViewer({
         }
         return null;
       })
-      .filter((item): item is { id: string; title: string } => Boolean(item));
+      .filter((item: any): item is { id: string; title: string } => Boolean(item));
 
     if (matchedItems.length > 0) {
       setValidToc(matchedItems);
@@ -483,7 +489,7 @@ export function LessonViewer({
     }
 
     const observeTargets = matchedItems.length > 0
-      ? uniqueRecords.filter((r) => matchedItems.some((m) => {
+      ? uniqueRecords.filter((r) => matchedItems.some((m: any) => {
         const el = document.getElementById(m.id);
         return el === r.heading;
       }))
@@ -594,12 +600,12 @@ export function LessonViewer({
                       type="button"
                       onClick={() => scrollToHeading(item.id)}
                       className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition ${activeHeading === item.id
-                          ? "bg-mst-red/15 text-mst-red font-semibold"
-                          : "text-white/60 hover:bg-white/5 hover:text-white"
+                        ? "bg-mst-red/15 text-mst-red font-semibold"
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
                         }`}>
                       <span className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold ${activeHeading === item.id
-                          ? "bg-mst-red text-white"
-                          : "bg-white/10 text-white/40 group-hover:bg-white/15"
+                        ? "bg-mst-red text-white"
+                        : "bg-white/10 text-white/40 group-hover:bg-white/15"
                         }`}>
                         {idx + 1}
                       </span>
@@ -699,8 +705,8 @@ export function LessonViewer({
                       setTocOpen(false);
                     }}
                     className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition ${activeHeading === item.id
-                        ? "bg-mst-red/10 text-mst-red font-semibold"
-                        : "text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text)]"
+                      ? "bg-mst-red/10 text-mst-red font-semibold"
+                      : "text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-[var(--text)]"
                       }`}
                   >
                     {item.title}
@@ -713,17 +719,23 @@ export function LessonViewer({
 
         {/* Article content */}
         <article ref={articleRef} className="flex-1 px-4 py-8 lg:px-12 lg:py-10">
-          <div className="mx-auto max-w-4xl">
-            {mounted ? (
-              <LessonContent html={html} />
-            ) : (
-              <div
-                className="lesson-content space-y-4"
-                dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
-                suppressHydrationWarning
-              />
-            )}
-          </div>
+          {contentFile ? (
+            <div className="mx-auto max-w-4xl">
+              <div className="lesson-content w-full" dangerouslySetInnerHTML={{ __html: html }} />
+            </div>
+          ) : (
+            <div className="mx-auto max-w-4xl">
+              {mounted ? (
+                <LessonContent html={html} />
+              ) : (
+                <div
+                  className="lesson-content space-y-4"
+                  dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
+                  suppressHydrationWarning
+                />
+              )}
+            </div>
+          )}
 
           {/* Scroll to top */}
           {readProgress > 20 && (

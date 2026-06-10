@@ -1,0 +1,227 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
+import { Users, CheckCircle2, XCircle, Clock, Wallet, Check, AlertCircle } from "lucide-react";
+
+interface WithdrawalRequest {
+  id: string;
+  userName: string;
+  email: string;
+  amount: number;
+  status: string;
+  date: string;
+  bankDetails: {
+    holderName: string;
+    accountNumber: string;
+    ifsc: string;
+    branch: string;
+    upi?: string;
+  };
+  referrals: { name: string; status: string; eligible: boolean }[];
+}
+
+export default function ReferralAnalyticsPage() {
+  const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Load requests from localStorage
+    const loadRequests = () => {
+      if (typeof window !== "undefined") {
+        const existing = localStorage.getItem("referral_withdrawal_requests");
+        let list: WithdrawalRequest[] = existing ? JSON.parse(existing) : [];
+        
+        // If there are no requests yet, let's create a default mock one for validator2
+        if (list.length === 0) {
+          const defaultRequest: WithdrawalRequest = {
+            id: "req-mock-1",
+            userName: "validator2",
+            email: "validator2@masterstroke.academy",
+            amount: 1500,
+            status: "Pending",
+            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+            bankDetails: {
+              holderName: "validator2",
+              accountNumber: "918273645012",
+              ifsc: "HDFC0001234",
+              branch: "Koramangala, Bangalore",
+              upi: "validator2@paytm"
+            },
+            referrals: [
+              { name: "Riya S.", status: "Purchased course", eligible: true },
+              { name: "Aman K.", status: "Purchased course", eligible: true },
+              { name: "Neha P.", status: "Registered", eligible: false },
+              { name: "Vikram T.", status: "Purchased course", eligible: true },
+              { name: "Priya M.", status: "Registered", eligible: false }
+            ]
+          };
+          list = [defaultRequest];
+          localStorage.setItem("referral_withdrawal_requests", JSON.stringify(list));
+        }
+        
+        setRequests(list);
+      }
+    };
+
+    loadRequests();
+  }, []);
+
+  const handleConfirmRequest = (requestId: string) => {
+    const updated = requests.map(req => {
+      if (req.id === requestId) {
+        return { ...req, status: "Confirmed" };
+      }
+      return req;
+    });
+    setRequests(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(updated));
+    }
+  };
+
+  if (!mounted) return null;
+
+  return (
+    <DashboardShell role="admin" title="Referral Analytics">
+      <div className="space-y-6">
+        {/* Page summary header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-emerald-500/10 p-2.5">
+              <Wallet size={22} className="text-emerald-500" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-[var(--text)]">Withdrawal &amp; Referral Requests</h2>
+              <p className="text-sm text-[var(--text-muted)]">Verify course purchases and confirm referral reward payouts</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Request cards list */}
+        <div className="space-y-6">
+          {requests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center text-[var(--text-muted)]">
+              <AlertCircle className="h-10 w-10 text-[var(--text-muted)] opacity-50 mb-3" />
+              <p className="text-sm font-semibold">No referral withdrawal requests found.</p>
+            </div>
+          ) : (
+            requests.map((req) => (
+              <div 
+                key={req.id} 
+                className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-all duration-300 hover:border-emerald-500/30"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-[var(--text)]">{req.userName}</span>
+                      <span className="text-xs text-[var(--text-muted)]">({req.email})</span>
+                    </div>
+                    <p className="mt-1 text-xs text-[var(--text-muted)]">Requested on {req.date}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl font-black text-[var(--text)]">₹{req.amount}</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      req.status === "Confirmed" 
+                        ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                        : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
+                    }`}>
+                      {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                      {req.status}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-6 mt-6 md:grid-cols-2">
+                  {/* Bank Details section */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Bank Details</h3>
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)]">Holder Name</span>
+                        <span className="font-semibold text-[var(--text)]">{req.bankDetails.holderName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)]">Account Number</span>
+                        <span className="font-mono font-semibold text-[var(--text)]">{req.bankDetails.accountNumber}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)]">IFSC Code</span>
+                        <span className="font-mono font-semibold text-[var(--text)]">{req.bankDetails.ifsc}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)]">Branch</span>
+                        <span className="font-semibold text-[var(--text)]">{req.bankDetails.branch}</span>
+                      </div>
+                      {req.bankDetails.upi && (
+                        <div className="flex justify-between border-t border-[var(--border)]/50 pt-2">
+                          <span className="text-[var(--text-muted)]">UPI ID</span>
+                          <span className="font-semibold text-[var(--text)]">{req.bankDetails.upi}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Referrals & Verification section */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Referrals Status</h3>
+                    <div className="space-y-2">
+                      {req.referrals?.map((ref, idx) => (
+                        <div 
+                          key={idx} 
+                          className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 px-4 py-2.5 text-sm"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-[var(--text)]">{ref.name}</span>
+                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              ref.eligible 
+                                ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                                : "bg-gray-500/10 text-gray-500 border border-gray-500/20"
+                            }`}>
+                              {ref.status}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            {ref.eligible ? (
+                              <span className="text-xs font-bold text-green-500 flex items-center gap-1">
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Valid (+₹500)
+                              </span>
+                            ) : (
+                              <span className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1">
+                                <XCircle className="h-3.5 w-3.5" />
+                                No Reward
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Confirm Action Button */}
+                {req.status !== "Confirmed" && (
+                  <div className="mt-6 flex justify-end border-t border-[var(--border)]/50 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmRequest(req.id)}
+                      className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] hover:bg-emerald-600 hover:shadow-xl"
+                    >
+                      <Check className="h-4 w-4" />
+                      Verify &amp; Confirm Request (Payout ₹{req.amount})
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </DashboardShell>
+  );
+}

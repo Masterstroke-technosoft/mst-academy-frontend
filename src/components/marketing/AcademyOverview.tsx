@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { Curriculum, ModuleMeta, Phase, SubmoduleMeta } from "@/lib/types";
 import { getCardSubmoduleTitle } from "@/lib/display-titles";
 import { Typewriter } from "@/components/marketing/Typewriter";
@@ -94,10 +94,10 @@ function Expandable({
       style={
         accent
           ? {
-              borderLeftWidth: 4,
-              borderLeftColor: accent,
-              boxShadow: open ? `0 8px 32px ${accent}18` : undefined,
-            }
+            borderLeftWidth: 4,
+            borderLeftColor: accent,
+            boxShadow: open ? `0 8px 32px ${accent}18` : undefined,
+          }
           : undefined
       }
     >
@@ -113,18 +113,16 @@ function Expandable({
           }}
         >
           <ChevronDown
-            className={`h-5 w-5 transition-transform duration-300 ${
-              open ? "rotate-180" : ""
-            }`}
+            className={`h-5 w-5 transition-transform duration-300 ${open ? "rotate-180" : ""
+              }`}
             style={{ color: accent ?? "var(--text-muted)" }}
           />
         </div>
         <div className="min-w-0 flex-1">{header}</div>
       </button>
       <div
-        className={`grid transition-all duration-500 ease-in-out ${
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        }`}
+        className={`grid transition-all duration-500 ease-in-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
       >
         <div className="overflow-hidden">
           <div className="border-t border-[var(--border)] px-5 py-4">{children}</div>
@@ -139,18 +137,23 @@ function SubmoduleCard({
   sub,
   accent,
 }: {
-  mod: ModuleMeta;
-  sub: SubmoduleMeta;
+  mod: any;
+  sub: any;
   accent?: string;
 }) {
   const title = getCardSubmoduleTitle(sub.title);
   const desc =
+    sub.description?.trim() ||
     sub.subtitle?.trim() ||
     `Deep dive into ${title.toLowerCase()} with hands-on examples.`;
 
+  const subSlug = sub.slug || sub.index || sub._id || sub.id;
+  const subIdText = sub.id || sub.index || sub._id;
+  const moduleId = mod._id || mod.id;
+
   return (
     <Link
-      href={`/module/${mod.id}/${sub.slug}`}
+      href={`/module/${moduleId}/${subSlug}`}
       className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-mst-red/40 hover:shadow-md"
     >
       <div
@@ -165,7 +168,7 @@ function SubmoduleCard({
             backgroundColor: `${accent ?? "var(--mst-red)"}18`,
           }}
         >
-          {sub.id}
+          {subIdText}
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-[var(--text)] transition group-hover:text-mst-red">
@@ -184,25 +187,235 @@ function SubmoduleCard({
   );
 }
 
+async function fetchWithAuth(url: string) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return fetch(url, {
+    credentials: "include",
+    headers,
+  });
+}
+
+function ModuleSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((n) => (
+        <div
+          key={n}
+          className="animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--surface)]/80 p-5"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex-1 space-y-2.5">
+              <div className="h-3 w-16 rounded bg-[var(--border-strong)]/30" />
+              <div className="h-4 w-1/3 rounded bg-[var(--border-strong)]/40" />
+              <div className="h-3 w-2/3 rounded bg-[var(--border-strong)]/30" />
+            </div>
+            <div className="h-6 w-16 rounded-full bg-[var(--border-strong)]/30" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SubmoduleSkeleton() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 animate-pulse">
+      {[1, 2].map((n) => (
+        <div
+          key={n}
+          className="rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4"
+        >
+          <div className="flex items-start gap-3">
+            <div className="h-6 w-8 rounded bg-[var(--border-strong)]/30 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-1/2 rounded bg-[var(--border-strong)]/40" />
+              <div className="h-3 w-5/6 rounded bg-[var(--border-strong)]/30" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ModuleSubmodulesList({
+  mod,
+  isOpen,
+  baseURL,
+  color,
+}: {
+  mod: any;
+  isOpen: boolean;
+  baseURL: string;
+  color: string;
+}) {
+  const moduleId = mod._id || mod.id;
+  const [submodules, setSubmodules] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem(`academy_overview_submodules_${moduleId}`);
+      if (cached) return JSON.parse(cached);
+    }
+    return mod.submodules || [];
+  });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    async function fetchSubmodules() {
+      if (typeof window !== "undefined" && localStorage.getItem(`academy_overview_submodules_${moduleId}`)) {
+        return;
+      }
+      setLoading(true);
+      try {
+        //Get single module
+        const moduleRes = await fetchWithAuth(`${baseURL}/api/modules/${moduleId}`);
+        if (moduleRes.ok) {
+          const moduleJson = await moduleRes.json();
+        }
+
+        // Get submodules by module
+        const res = await fetchWithAuth(`${baseURL}/api/submodules/module/${moduleId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+
+            //Get single submodule
+            const detailedSubmodules = await Promise.all(
+              sorted.map(async (sub: any) => {
+                try {
+                  const subRes = await fetchWithAuth(`${baseURL}/api/submodules/${sub._id || sub.id}`);
+                  if (subRes.ok) {
+                    const subJson = await subRes.json();
+                    if (subJson && subJson.success && subJson.data) {
+                      return subJson.data;
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error fetching single submodule:", e);
+                }
+                return sub;
+              })
+            );
+
+            setSubmodules(detailedSubmodules);
+            if (typeof window !== "undefined") {
+              localStorage.setItem(`academy_overview_submodules_${moduleId}`, JSON.stringify(detailedSubmodules));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching submodules:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSubmodules();
+  }, [isOpen, moduleId, baseURL]);
+
+  if (loading && submodules.length === 0) {
+    return <SubmoduleSkeleton />;
+  }
+
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {submodules.map((sub) => (
+          <SubmoduleCard
+            key={sub.slug || sub._id || sub.id}
+            mod={mod}
+            sub={sub}
+            accent={color}
+          />
+        ))}
+      </div>
+      <div className="mt-4 text-right">
+        <Link
+          href={`/module/${moduleId}`}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-mst-red transition hover:gap-2"
+        >
+          View module hub
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </>
+  );
+}
+
 function PhaseSection({
   phase,
-  modules,
+  modules: initialModules,
   index,
+  baseURL,
 }: {
-  phase: Phase;
-  modules: ModuleMeta[];
+  phase: any;
+  modules: any[];
   index: number;
+  baseURL: string;
 }) {
+  const phaseId = phase._id || phase.id;
   const [open, setOpen] = useState(index === 0);
-  const [openModules, setOpenModules] = useState<Set<number>>(
-    () => new Set(index === 0 && modules[0] ? [modules[0].id] : [])
+  const [modules, setModules] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem(`academy_overview_modules_${phaseId}`);
+      if (cached) return JSON.parse(cached);
+    }
+    return initialModules;
+  });
+  const [loading, setLoading] = useState(false);
+  const [openModules, setOpenModules] = useState<Set<string | number>>(
+    () => new Set()
   );
-  const meta = PHASE_HOURS[phase.id];
-  const subCount = modules.reduce((n, m) => n + m.submodules.length, 0);
+
+  useEffect(() => {
+    if (!open) return;
+
+    async function fetchModules() {
+      if (typeof window !== "undefined" && localStorage.getItem(`academy_overview_modules_${phaseId}`)) {
+        return;
+      }
+      setLoading(true);
+      try {
+        //Get single phase
+        const phaseRes = await fetchWithAuth(`${baseURL}/api/phases/${phaseId}`);
+        if (phaseRes.ok) {
+          const phaseJson = await phaseRes.json();
+        }
+
+        // Get modules by phase
+        const res = await fetchWithAuth(`${baseURL}/api/modules/phase/${phaseId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+            setModules(sorted);
+            if (typeof window !== "undefined") {
+              localStorage.setItem(`academy_overview_modules_${phaseId}`, JSON.stringify(sorted));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching phase modules:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchModules();
+  }, [open, phaseId, baseURL]);
+
+  const meta = PHASE_HOURS[phaseId] || PHASE_HOURS[phase.id];
+  const subCount = modules.reduce((n, m) => n + (m.submoduleCount || m.submodules?.length || 0), 0);
   const color = PHASE_COLORS[index] ?? "var(--mst-red)";
   const PhaseIcon = PHASE_ICONS[index] ?? Blocks;
 
-  const toggleModule = (id: number) => {
+  const toggleModule = (id: string | number) => {
     setOpenModules((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -234,23 +447,23 @@ function PhaseSection({
                   Phase {index + 1}
                 </p>
                 <h3 className="text-lg font-bold text-[var(--text)] sm:text-xl">
-                  {phase.title}
+                  {phase.title} {phase.description ? `: ${phase.description}` : ""}
                 </h3>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
-                {modules.length} modules
+                {modules.length || phase.moduleCount || 0} modules
               </span>
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
                 {subCount} submodules
               </span>
-              {meta && (
+              {(phase.estimatedTime || meta) && (
                 <span
                   className="rounded-full px-3 py-1"
                   style={{ backgroundColor: `${color}18`, color }}
                 >
-                  ~{meta.hours} hrs
+                  ~{phase.estimatedTime || meta?.hours}
                 </span>
               )}
             </div>
@@ -258,49 +471,44 @@ function PhaseSection({
         }
       >
         <div className="space-y-3">
-          {modules.map((mod) => (
-            <Expandable
-              key={mod.id}
-              open={openModules.has(mod.id)}
-              onToggle={() => toggleModule(mod.id)}
-              header={
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold text-mst-red">
-                      Module {String(mod.id).padStart(2, "0")}
-                    </p>
-                    <p className="font-semibold text-[var(--text)]">{mod.title}</p>
-                    <p className="mt-1 line-clamp-2 text-sm text-[var(--text-muted)]">
-                      {mod.description}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
-                    {mod.submodules.length} lessons
-                  </span>
-                </div>
-              }
-            >
-              <div className="grid gap-3 sm:grid-cols-2">
-                {mod.submodules.map((sub) => (
-                  <SubmoduleCard
-                    key={sub.slug}
-                    mod={mod}
-                    sub={sub}
-                    accent={color}
-                  />
-                ))}
-              </div>
-              <div className="mt-4 text-right">
-                <Link
-                  href={`/module/${mod.id}`}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-mst-red transition hover:gap-2"
+          {loading && modules.length === 0 ? (
+            <ModuleSkeleton />
+          ) : (
+            modules.map((mod) => {
+              const modId = mod._id || mod.id;
+              const subCount = mod.submoduleCount || mod.submodules?.length || 0;
+              return (
+                <Expandable
+                  key={modId}
+                  open={openModules.has(modId)}
+                  onToggle={() => toggleModule(modId)}
+                  header={
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-bold text-mst-red">
+                          Module {String(mod.index || mod.id).padStart(2, "0")}
+                        </p>
+                        <p className="font-semibold text-[var(--text)]">{mod.title}</p>
+                        <p className="mt-1 line-clamp-2 text-sm text-[var(--text-muted)]">
+                          {mod.description}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
+                        {subCount} lessons
+                      </span>
+                    </div>
+                  }
                 >
-                  View module hub
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </Expandable>
-          ))}
+                  <ModuleSubmodulesList
+                    mod={mod}
+                    isOpen={openModules.has(modId)}
+                    baseURL={baseURL}
+                    color={color}
+                  />
+                </Expandable>
+              );
+            })
+          )}
         </div>
       </Expandable>
     </RevealSection>
@@ -308,27 +516,58 @@ function PhaseSection({
 }
 
 export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+  const courseId = "6a1a8a4b72fa89699a4f016a";
+
+  const [phases, setPhases] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("academy_overview_phases");
+      if (cached) return JSON.parse(cached);
+    }
+    return curriculum?.phases || [];
+  });
+  const [loading, setLoading] = useState(false);
+
+  //Get phases by course
+  useEffect(() => {
+    async function loadPhases() {
+      if (typeof window !== "undefined" && localStorage.getItem("academy_overview_phases")) {
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/phases/course/${courseId}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
+            setPhases(sorted);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("academy_overview_phases", JSON.stringify(sorted));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching course phases:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPhases();
+  }, [baseURL, courseId]);
+
   const moduleMap = useMemo(() => {
     const map = new Map<string, ModuleMeta>();
-    for (const m of curriculum.modules) map.set(String(m.id), m);
+    if (curriculum?.modules) {
+      for (const m of curriculum.modules) map.set(String(m.id), m);
+    }
     return map;
-  }, [curriculum.modules]);
+  }, [curriculum?.modules]);
 
-  const phasesWithModules = useMemo(
-    () =>
-      curriculum.phases.map((phase) => ({
-        phase,
-        modules: phase.modules
-          .map((id) => moduleMap.get(String(id)))
-          .filter((m): m is ModuleMeta => m != null),
-      })),
-    [curriculum.phases, moduleMap]
-  );
-  console.log("TTTTTTTT",phasesWithModules);
-  const totalSubmodules = curriculum.modules.reduce(
-    (n, m) => n + m.submodules.length,
-    0
-  );
+  const totalSubmodules = useMemo(() => {
+    if (!curriculum?.modules) return 0;
+    return curriculum.modules.reduce((n, m) => n + m.submodules.length, 0);
+  }, [curriculum?.modules]);
 
   const statsRef = useInView(0.25);
 
@@ -399,9 +638,8 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className={`rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 p-6 text-center backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl ${
-                  statsRef.visible ? "animate-scale-in" : "opacity-0"
-                }`}
+                className={`rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 p-6 text-center backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl ${statsRef.visible ? "animate-scale-in" : "opacity-0"
+                  }`}
                 style={{ animationDelay: `${i * 0.12}s` }}
               >
                 <p className="text-4xl font-black text-gradient-red sm:text-5xl">
@@ -525,14 +763,25 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
           </RevealSection>
 
           <div className="space-y-4">
-            {phasesWithModules.map(({ phase, modules }, i) => (
-              <PhaseSection key={phase.id} phase={phase} modules={modules} index={i} />
-            ))}
+            {phases.map((phase, i) => {
+              const initialMods = curriculum?.modules?.filter(
+                (m) => String(m.phaseId) === String(phase._id || phase.id)
+              ) || [];
+              return (
+                <PhaseSection
+                  key={phase._id || phase.id}
+                  phase={phase}
+                  modules={initialMods}
+                  index={i}
+                  baseURL={baseURL}
+                />
+              );
+            })}
           </div>
         </div>
       </section>
 
-      
+
 
       {/* Assessment */}
       <section

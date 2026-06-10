@@ -6,15 +6,17 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, BookOpen, ChevronDown, ChevronRight, FileText, LayoutList, X, Save, CheckCircle2, Upload } from "lucide-react";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
+import { getCurriculum } from "@/lib/curriculum";
+import { StudentCommandCenter } from "@/components/dashboard/StudentCommandCenter";
 
 export default function StudentDashboardPage({
   role = "student",
   title = "Student Hub"
 }: {
-  role?: "student" | "validator" | "non-validator",
+  role?: "student" | "validator" | "non-validator" | "working-professional",
   title?: string
 } = {}) {
-  const { user, isAdmin } = useAuth();
+  const { user, ready, isAdmin } = useAuth();
 
   const [activeHash, setActiveHash] = useState("");
 
@@ -732,6 +734,11 @@ export default function StudentDashboardPage({
       });
     }
   };
+
+  if (ready && user && !isAdmin) {
+    const curriculum = getCurriculum();
+    return <StudentCommandCenter curriculum={curriculum} />;
+  }
 
   return (
     <DashboardShell role={role} title={title}>

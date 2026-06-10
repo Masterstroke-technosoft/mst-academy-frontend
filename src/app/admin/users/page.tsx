@@ -75,6 +75,40 @@ export default function UserManagementPage() {
     fetchUsers();
   }, [currentPage]);
 
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+
+  const handleVerifyStudent = async (studentId: string) => {
+    try {
+      setVerifyingId(studentId);
+      let baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/auth/verify-student/${studentId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to verify student: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === studentId ? { ...u, isStudentVerified: true } : u
+        )
+      );
+
+      alert(data.message || "Student verified successfully");
+    } catch (error: any) {
+      alert(error.message || "An error occurred during verification");
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     if (filterRole === "all") return users;
     return users.filter(u => u.role === filterRole);
@@ -234,9 +268,19 @@ export default function UserManagementPage() {
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
-                          {user.isStudentVerified ? 'Verified' : 'No'}
-                        </span>
+                        {user.role === 'student' && !user.isStudentVerified ? (
+                          <button
+                            onClick={() => handleVerifyStudent(user.id)}
+                            disabled={verifyingId === user.id}
+                            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 hover:bg-amber-500/20 disabled:opacity-50 transition-colors cursor-pointer"
+                          >
+                            {verifyingId === user.id ? 'Verifying...' : 'Verify Student'}
+                          </button>
+                        ) : (
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
+                            {user.isStudentVerified ? 'Verified' : 'No'}
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}

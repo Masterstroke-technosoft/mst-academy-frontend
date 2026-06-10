@@ -164,7 +164,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       router.replace("/login?role=student");
       return;
     }
-    if (!canAccessDashboard("student")) router.replace("/login");
+    if (!canAccessDashboard("student") && !canAccessDashboard("validator") && !canAccessDashboard("working-professional") && !canAccessDashboard("non-validator")) {
+      router.replace("/login");
+    }
   }, [ready, user, router]);
 
   const analytics = useMemo(() => {
@@ -183,16 +185,22 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const firstName = user.fullName.split(" ")[0];
   const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
   const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;
-  const referralRecords = [
-    { name: "Riya S.", joinedAt: "12 May 2026", status: "Completed course", eligible: true },
-    { name: "Aman K.", joinedAt: "14 May 2026", status: "Completed course", eligible: true },
-    { name: "Neha P.", joinedAt: "16 May 2026", status: "In progress", eligible: false },
-    { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
-    { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
-    { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
-  ] as const;
+
+  // Custom referrals based on validator2 vs another user
+  const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");
+
+  const referralRecords = isAnotherUser ? [
+    { name: "Suresh M.", joinedAt: "22 May 2026", status: "Registered", eligible: false },
+  ] : [
+    { name: "Riya S.", joinedAt: "12 May 2026", status: "Purchased course", eligible: true },
+    { name: "Aman K.", joinedAt: "14 May 2026", status: "Purchased course", eligible: true },
+    { name: "Neha P.", joinedAt: "16 May 2026", status: "Registered", eligible: false },
+    { name: "Vikram T.", joinedAt: "18 May 2026", status: "Purchased course", eligible: true },
+    { name: "Priya M.", joinedAt: "21 May 2026", status: "Registered", eligible: false },
+  ];
+
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
-  const withdrawUnlocked = successfulReferrals >= 5;
+  const withdrawUnlocked = successfulReferrals > 0;
   const xpPct = Math.round(
     ((analytics.xp % 120) / Math.max(analytics.xpToNext, 1)) * 100
   );
@@ -241,6 +249,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             ...(isAdmin ? [
               { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
               { href: "/admin/users", icon: Users, label: "User Management" },
+              { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
             ] : []),
             { id: "profile", href: `${basePath}#profile`, icon: User, label: "Profile" },
           ].map((item) => {
@@ -273,6 +282,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               {[
                 { role: "student", href: "/dashboard/student", label: "Student" },
                 { role: "validator", href: "/dashboard/validator", label: "Validator" },
+                { role: "working-professional", href: "/dashboard/working-professional", label: "Working Professional" },
                 { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
               ].map((link) => (
                 <Link

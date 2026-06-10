@@ -7,11 +7,11 @@ export type RoadmapPhaseId = string | null;
 
 export type RoadmapUIState = {
   activePhaseId: RoadmapPhaseId;
-  activeModuleId: number | null;
+  activeModuleId: string | number | null;
   activeSubmoduleSlug: string | null;
 
   setPhase: (phaseId: string) => void;
-  setModule: (moduleId: number) => void;
+  setModule: (moduleId: string | number) => void;
   setSubmodule: (slug: string) => void;
 
   backToPhase: () => void;

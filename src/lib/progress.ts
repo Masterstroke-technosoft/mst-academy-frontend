@@ -26,7 +26,7 @@ function key(path: string) {
 }
 
 export function getSubmoduleProgress(
-  moduleId: number,
+  moduleId: string | number,
   slug: string
 ): SubmoduleProgress {
   if (typeof window === "undefined") {
@@ -42,7 +42,7 @@ export function getSubmoduleProgress(
 }
 
 export function saveSubmoduleProgress(
-  moduleId: number,
+  moduleId: string | number,
   slug: string,
   data: Partial<SubmoduleProgress>
 ) {
@@ -53,7 +53,7 @@ export function saveSubmoduleProgress(
   );
 }
 
-export function markLessonComplete(moduleId: number, slug: string) {
+export function markLessonComplete(moduleId: string | number, slug: string) {
   saveSubmoduleProgress(moduleId, slug, {
     lessonComplete: true,
     completedAt: new Date().toISOString(),
@@ -65,7 +65,7 @@ export function markLessonComplete(moduleId: number, slug: string) {
 }
 
 export function markAssessmentComplete(
-  moduleId: number,
+  moduleId: string | number,
   slug: string,
   score: number,
   maxScore: number,
@@ -91,7 +91,7 @@ export function setActivePhaseId(phaseId: string) {
 }
 
 export function isModuleFullyComplete(
-  moduleId: number,
+  moduleId: string | number,
   submoduleSlugs: string[]
 ): boolean {
   if (!submoduleSlugs.length) return false;
@@ -102,10 +102,17 @@ export function isModuleFullyComplete(
 }
 
 export function getGlobalActiveModuleId(
-  allModuleIds: number[],
-  getSlugs: (id: number) => string[]
-): number {
-  const sorted = [...allModuleIds].sort((a, b) => a - b);
+  allModuleIds: any[],
+  getSlugs: (id: any) => string[]
+): any {
+  const sorted = [...allModuleIds].sort((a, b) => {
+    const numA = Number(a);
+    const numB = Number(b);
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return numA - numB;
+    }
+    return 0; // Keep original index order for ObjectIDs
+  });
   for (const id of sorted) {
     if (!isModuleFullyComplete(id, getSlugs(id))) return id;
   }
@@ -113,26 +120,38 @@ export function getGlobalActiveModuleId(
 }
 
 export function getModuleStatus(
-  moduleId: number,
-  allModuleIds: number[],
+  moduleId: any,
+  allModuleIds: any[],
   submoduleSlugs: string[],
-  getSlugs: (id: number) => string[]
+  getSlugs: (id: any) => string[]
 ): ModuleStatus {
   if (adminBypass()) {
-    if (isModuleFullyComplete(moduleId, submoduleSlugs)) return "completed";
+    if (isModuleCompletePlaceholder(moduleId, submoduleSlugs)) return "completed";
     return "active";
   }
   const activeId = getGlobalActiveModuleId(allModuleIds, getSlugs);
   if (isModuleFullyComplete(moduleId, submoduleSlugs)) return "completed";
-  if (moduleId === activeId) return "active";
-  if (moduleId < activeId) return "completed";
+  if (String(moduleId) === String(activeId)) return "active";
+  
+  const idxModule = allModuleIds.findIndex(id => String(id) === String(moduleId));
+  const idxActive = allModuleIds.findIndex(id => String(id) === String(activeId));
+  if (idxModule !== -1 && idxActive !== -1 && idxModule < idxActive) return "completed";
+
+  if (typeof moduleId === "number" && typeof activeId === "number") {
+    if (moduleId < activeId) return "completed";
+  }
   return "locked";
+}
+
+// helper check for completed
+function isModuleCompletePlaceholder(moduleId: any, slugs: string[]) {
+  return isModuleFullyComplete(moduleId, slugs);
 }
 
 export function isSubmoduleLocked(
   moduleLocked: boolean,
   subIndex: number,
-  moduleId: number,
+  moduleId: string | number,
   submodules: { slug: string }[]
 ): boolean {
   if (adminBypass()) return false;
@@ -146,7 +165,7 @@ export function isSubmoduleLocked(
 }
 
 export function getModuleProgressPercent(
-  moduleId: number,
+  moduleId: string | number,
   submoduleSlugs: string[]
 ): number {
   if (!submoduleSlugs.length) return 0;

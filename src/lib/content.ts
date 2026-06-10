@@ -28,7 +28,6 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
     "td",
     "sup",
     "sub",
-    "style",
     "br",
     "hr",
     "figure",
