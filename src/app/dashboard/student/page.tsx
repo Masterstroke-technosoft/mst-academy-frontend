@@ -110,7 +110,7 @@ export default function StudentDashboardPage({
     try {
       setLoadingCurriculum(true);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-      const courseId = "6a1a8a4b72fa89699a4f016a";
+      const courseId = "6a2934912b48a13769669f8e";
       const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) {
@@ -238,14 +238,20 @@ export default function StudentDashboardPage({
   const togglePhase = async (id: string) => {
     const isExpanding = !expandedPhases[id];
     setExpandedPhases(prev => ({ ...prev, [id]: isExpanding }));
+    console.log("togglePhase")
     if (isExpanding && !id.startsWith("assess-")) {
       await fetchPhaseFull(id);
     }
   };
 
   const toggleModule = (id: string | number) => {
+    console.log("toggleModule")
     setExpandedModules(prev => ({ ...prev, [id]: !prev[id] }));
   };
+
+  const toggleSubmodule = () => {
+    console.log("ToggleSubmodule")
+  }
 
   const handleOpenAssessment = async (submoduleId: string, submoduleTitle: string, openAddQuestionDirectly = false) => {
     try {
@@ -1025,7 +1031,7 @@ export default function StudentDashboardPage({
         description = phase.description || "";
         estimatedTime = phase.estimatedTime || "";
         index = phase.index || 1;
-        parentId = phase.courseId || "6a1a8a4b72fa89699a4f016a";
+        parentId = phase.courseId || "6a2934912b48a13769669f8e";
       }
     } else if (type === "Module") {
       const phase = phases.find(p => p.id === phaseId);
@@ -1337,10 +1343,10 @@ export default function StudentDashboardPage({
                                         <div>
                                           <span className="block text-sm font-bold text-[var(--text)]">{sub.title}</span>
                                           <span className="mt-1 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]">
-                                            <span className={`flex items-center gap-1 ${sub.hasAssessment ? 'text-emerald-500' : 'text-orange-500'}`}>
+                                            <span className={`flex items-center gap-1 ${sub.assessmentCount ? 'text-emerald-500' : 'text-orange-500'}`}>
                                               <span className="relative flex h-2 w-2">
-                                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sub.hasAssessment ? 'bg-emerald-400' : 'bg-orange-400'}`}></span>
-                                                <span className={`relative inline-flex rounded-full h-2 w-2 ${sub.hasAssessment ? 'bg-emerald-500' : 'bg-orange-500'}`}></span>
+                                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sub.assessmentCount ? 'bg-emerald-400' : 'bg-orange-400'}`}></span>
+                                                <span className={`relative inline-flex rounded-full h-2 w-2 ${sub.assessmentCount ? 'bg-emerald-500' : 'bg-orange-500'}`}></span>
                                               </span>
                                               {sub.hasAssessment ? 'Assessment Enabled' : 'No Assessment'}
                                             </span>

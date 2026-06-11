@@ -149,7 +149,7 @@ export function LandingPage({
 
     const fetchCourseDetails = async () => {
       try {
-        let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
         const courseId = "6a2934912b48a13769669f8e";
         const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
           method: "GET",
@@ -446,20 +446,20 @@ export function LandingPage({
                   "1 fraction + daily MSTC rewards",
                 ],
               },
-              {
-                id: "courseOnly",
-                detailHref: "/plans/course-only",
-                title: "Course Only",
-                price: "Rs 4,999",
-                original: "Rs 9,999",
-                gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
-                tag: "Foundation track offer",
-                bullets: [
-                  "Lifetime course access",
-                  "No fraction / no internship",
-                  "Guided curriculum + assessments",
-                ],
-              },
+              // {
+              //   id: "courseOnly",
+              //   detailHref: "/plans/course-only",
+              //   title: "Course Only",
+              //   price: "Rs 4,999",
+              //   original: "Rs 9,999",
+              //   gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
+              //   tag: "Foundation track offer",
+              //   bullets: [
+              //     "Lifetime course access",
+              //     "No fraction / no internship",
+              //     "Guided curriculum + assessments",
+              //   ],
+              // },
             ].map((card, i) => {
               let apiPrice = card.price;
               let apiOriginal = card.original;
