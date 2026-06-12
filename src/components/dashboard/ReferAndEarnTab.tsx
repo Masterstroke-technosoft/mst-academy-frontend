@@ -43,19 +43,68 @@ export function ReferAndEarnTab({
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   const [withdrawRequested, setWithdrawRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState("Pending");
+  const [bankDetails, setBankDetails] = useState({
+    accountHolderName: "",
+    accountNumber: "",
+    ifscCode: "",
+    branchName: "",
+    upiId: "",
+  });
+  const [hasExistingDetails, setHasExistingDetails] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && user) {
-      const existing = localStorage.getItem("referral_withdrawal_requests");
-      if (existing) {
-        const list = JSON.parse(existing);
-        const myRequest = list.find((r: any) => r.email === user.email);
-        if (myRequest) {
-          setWithdrawRequested(true);
-          setRequestStatus(myRequest.status);
+    const fetchRequests = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch("/api/referrals/requests", {
+          headers: {
+            "x-user-id": user.id || "",
+            "x-user-email": user.email || "",
+            "x-user-name": user.fullName || "",
+          },
+        });
+        if (res.ok) {
+          const list = await res.json();
+          const myRequest = list.find((r: any) => r.email === user.email);
+          if (myRequest) {
+            setWithdrawRequested(true);
+            setRequestStatus(myRequest.status);
+          }
         }
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
       }
-    }
+    };
+    fetchRequests();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchBankDetails = async () => {
+      if (!user) return;
+      try {
+        const res = await fetch("/api/bank-details/me", {
+          headers: {
+            "x-user-id": user.id || "",
+            "x-user-email": user.email || "",
+            "x-user-name": user.fullName || "",
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setBankDetails({
+            accountHolderName: data.accountHolderName || "",
+            accountNumber: data.accountNumber || "",
+            ifscCode: data.ifscCode || "",
+            branchName: data.branchName || "",
+            upiId: data.upiId || "",
+          });
+          setHasExistingDetails(true);
+        }
+      } catch (err) {
+        console.error("Failed to load bank details", err);
+      }
+    };
+    fetchBankDetails();
   }, [user]);
 
   return (
@@ -262,9 +311,8 @@ export function ReferAndEarnTab({
                 
                 <form 
                   className="space-y-5" 
-                  onSubmit={(e) => { 
+                  onSubmit={async (e) => { 
                     e.preventDefault(); 
-                    const form = e.target as any;
                     
                     const newRequest = {
                       id: "req-" + Date.now(),
@@ -274,11 +322,11 @@ export function ReferAndEarnTab({
                       status: "Pending",
                       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
                       bankDetails: {
-                        holderName: form[0].value,
-                        accountNumber: form[1].value,
-                        ifsc: form[2].value,
-                        branch: form[3].value,
-                        upi: form[4]?.value || "",
+                        holderName: bankDetails.accountHolderName,
+                        accountNumber: bankDetails.accountNumber,
+                        ifsc: bankDetails.ifscCode,
+                        branch: bankDetails.branchName,
+                        upi: bankDetails.upiId,
                       },
                       referrals: referralRecords.map(r => ({
                         name: r.name,
@@ -287,15 +335,40 @@ export function ReferAndEarnTab({
                       }))
                     };
                     
-                    if (typeof window !== "undefined") {
-                      const existing = localStorage.getItem("referral_withdrawal_requests");
-                      const list = existing ? JSON.parse(existing) : [];
-                      
-                      // Remove existing requests for the same user if any, to overwrite with the new one
-                      const filteredList = list.filter((r: any) => r.email !== user?.email);
-                      filteredList.push(newRequest);
-                      
-                      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(filteredList));
+                    // Call the API first
+                    try {
+                      const url = hasExistingDetails ? "/api/bank-details/me" : "/api/bank-details";
+                      const method = hasExistingDetails ? "PATCH" : "POST";
+                      const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                          "Content-Type": "application/json",
+                          "x-user-id": user?.id || "",
+                          "x-user-email": user?.email || "",
+                          "x-user-name": user?.fullName || "",
+                        },
+                        body: JSON.stringify(bankDetails),
+                      });
+                      if (response.ok) {
+                        setHasExistingDetails(true);
+                      }
+                    } catch (error) {
+                      console.error("Error saving bank details to API:", error);
+                    }
+
+                    try {
+                      await fetch("/api/referrals/requests", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "x-user-id": user?.id || "",
+                          "x-user-email": user?.email || "",
+                          "x-user-name": user?.fullName || "",
+                        },
+                        body: JSON.stringify(newRequest),
+                      });
+                    } catch (error) {
+                      console.error("Error saving referral request to API:", error);
                     }
                     
                     setWithdrawRequested(true); 
@@ -311,6 +384,8 @@ export function ReferAndEarnTab({
                       <input 
                         type="text" 
                         required 
+                        value={bankDetails.accountHolderName}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountHolderName: e.target.value }))}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10" 
                         placeholder="e.g. John Doe" 
                       />
@@ -322,6 +397,8 @@ export function ReferAndEarnTab({
                       <input 
                         type="text" 
                         required 
+                        value={bankDetails.accountNumber}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10" 
                         placeholder="e.g. 1234567890" 
                       />
@@ -333,6 +410,8 @@ export function ReferAndEarnTab({
                       <input 
                         type="text" 
                         required 
+                        value={bankDetails.ifscCode}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, ifscCode: e.target.value }))}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10" 
                         placeholder="e.g. ABCD0123456" 
                       />
@@ -344,6 +423,8 @@ export function ReferAndEarnTab({
                       <input 
                         type="text" 
                         required 
+                        value={bankDetails.branchName}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, branchName: e.target.value }))}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10" 
                         placeholder="e.g. Main Branch" 
                       />
@@ -354,6 +435,8 @@ export function ReferAndEarnTab({
                       </label>
                       <input 
                         type="text" 
+                        value={bankDetails.upiId}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, upiId: e.target.value }))}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10" 
                         placeholder="e.g. name@upi" 
                       />

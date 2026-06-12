@@ -27,49 +27,87 @@ export default function ReferralAnalyticsPage() {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Load requests from localStorage
-    const loadRequests = () => {
-      if (typeof window !== "undefined") {
-        const existing = localStorage.getItem("referral_withdrawal_requests");
-        let list: WithdrawalRequest[] = existing ? JSON.parse(existing) : [];
-        
-        // If there are no requests yet, let's create a default mock one for validator2
-        if (list.length === 0) {
-          const defaultRequest: WithdrawalRequest = {
-            id: "req-mock-1",
-            userName: "validator2",
-            email: "validator2@masterstroke.academy",
-            amount: 1500,
-            status: "Pending",
-            date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-            bankDetails: {
-              holderName: "validator2",
-              accountNumber: "918273645012",
-              ifsc: "HDFC0001234",
-              branch: "Koramangala, Bangalore",
-              upi: "validator2@paytm"
-            },
-            referrals: [
-              { name: "Riya S.", status: "Purchased course", eligible: true },
-              { name: "Aman K.", status: "Purchased course", eligible: true },
-              { name: "Neha P.", status: "Registered", eligible: false },
-              { name: "Vikram T.", status: "Purchased course", eligible: true },
-              { name: "Priya M.", status: "Registered", eligible: false }
-            ]
-          };
-          list = [defaultRequest];
-          localStorage.setItem("referral_withdrawal_requests", JSON.stringify(list));
+
+    // Load requests from the API and merge with latest API bank details
+    const loadRequestsAndBankDetails = async () => {
+      try {
+        const resRequests = await fetch("/api/referrals/requests", {
+          headers: {
+            "x-user-role": "admin"
+          }
+        });
+        if (!resRequests.ok) return;
+        let list: WithdrawalRequest[] = await resRequests.json();
+
+        try {
+          const resDetails = await fetch("/api/bank-details/admin/all");
+          if (resDetails.ok) {
+            const apiBankDetails = await resDetails.json();
+            const updatedRequests = await Promise.all(
+              list.map(async (req) => {
+                const matched = apiBankDetails.find(
+                  (bd: any) =>
+                    (bd.userEmail && bd.userEmail.toLowerCase() === req.email.toLowerCase()) ||
+                    (bd.userName && bd.userName.toLowerCase() === req.userName.toLowerCase())
+                );
+                if (matched && matched.userId) {
+                  try {
+                    const resUserDetail = await fetch(`/api/bank-details/admin/${matched.userId}`);
+                    if (resUserDetail.ok) {
+                      const userDetail = await resUserDetail.json();
+                      return {
+                        ...req,
+                        bankDetails: {
+                          holderName: userDetail.accountHolderName || "",
+                          accountNumber: userDetail.accountNumber || "",
+                          ifsc: userDetail.ifscCode || "",
+                          branch: userDetail.branchName || "",
+                          upi: userDetail.upiId || "",
+                        }
+                      };
+                    }
+                  } catch (err) {
+                    console.error(`Failed to load bank details for user ${matched.userId}`, err);
+                  }
+                  return {
+                    ...req,
+                    bankDetails: {
+                      holderName: matched.accountHolderName || "",
+                      accountNumber: matched.accountNumber || "",
+                      ifsc: matched.ifscCode || "",
+                      branch: matched.branchName || "",
+                      upi: matched.upiId || "",
+                    }
+                  };
+                }
+                return {
+                  ...req,
+                  bankDetails: {
+                    holderName: "",
+                    accountNumber: "",
+                    ifsc: "",
+                    branch: "",
+                    upi: "",
+                  }
+                };
+              })
+            );
+            list = updatedRequests;
+          }
+        } catch (err) {
+          console.error("Failed to load bank details from API", err);
         }
-        
+
         setRequests(list);
+      } catch (error) {
+        console.error("Failed to load requests from API", error);
       }
     };
 
-    loadRequests();
+    loadRequestsAndBankDetails();
   }, []);
 
-  const handleConfirmRequest = (requestId: string) => {
+  const handleConfirmRequest = async (requestId: string) => {
     const updated = requests.map(req => {
       if (req.id === requestId) {
         return { ...req, status: "Confirmed" };
@@ -77,8 +115,20 @@ export default function ReferralAnalyticsPage() {
       return req;
     });
     setRequests(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(updated));
+
+    try {
+      await fetch("/api/referrals/requests", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: requestId,
+          status: "Confirmed"
+        })
+      });
+    } catch (error) {
+      console.error("Failed to confirm request via API", error);
     }
   };
 
@@ -93,6 +143,7 @@ export default function ReferralAnalyticsPage() {
             <div className="rounded-xl bg-emerald-500/10 p-2.5">
               <Wallet size={22} className="text-emerald-500" />
             </div>
+
             <div>
               <h2 className="text-lg font-bold text-[var(--text)]">Withdrawal &amp; Referral Requests</h2>
               <p className="text-sm text-[var(--text-muted)]">Verify course purchases and confirm referral reward payouts</p>
@@ -109,8 +160,8 @@ export default function ReferralAnalyticsPage() {
             </div>
           ) : (
             requests.map((req) => (
-              <div 
-                key={req.id} 
+              <div
+                key={req.id}
                 className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-all duration-300 hover:border-emerald-500/30"
               >
                 <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
@@ -121,14 +172,13 @@ export default function ReferralAnalyticsPage() {
                     </div>
                     <p className="mt-1 text-xs text-[var(--text-muted)]">Requested on {req.date}</p>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <span className="text-xl font-black text-[var(--text)]">₹{req.amount}</span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                      req.status === "Confirmed" 
-                        ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${req.status === "Confirmed"
+                        ? "bg-green-500/10 text-green-500 border border-green-500/20"
                         : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
-                    }`}>
+                      }`}>
                       {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
                       {req.status}
                     </span>
@@ -170,21 +220,20 @@ export default function ReferralAnalyticsPage() {
                     <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Referrals Status</h3>
                     <div className="space-y-2">
                       {req.referrals?.map((ref, idx) => (
-                        <div 
-                          key={idx} 
+                        <div
+                          key={idx}
                           className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 px-4 py-2.5 text-sm"
                         >
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-[var(--text)]">{ref.name}</span>
-                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              ref.eligible 
-                                ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${ref.eligible
+                                ? "bg-green-500/10 text-green-500 border border-green-500/20"
                                 : "bg-gray-500/10 text-gray-500 border border-gray-500/20"
-                            }`}>
+                              }`}>
                               {ref.status}
                             </span>
                           </div>
-                          
+
                           <div className="flex items-center">
                             {ref.eligible ? (
                               <span className="text-xs font-bold text-green-500 flex items-center gap-1">
