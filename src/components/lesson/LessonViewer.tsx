@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -315,11 +316,37 @@ export function LessonViewer({
   const [tocOpen, setTocOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
+  const [assessmentLoading, setAssessmentLoading] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
   const readTime = estimateReadTime(html);
 
   useEffect(() => { setMounted(true); }, []);
+
+  const handleAssessment = useCallback(async () => {
+    if (assessmentLoading) return;
+    setAssessmentLoading(true);
+    try {
+      console.log("Initiating assessment for submodule IDDDDDDDDDDDDDDD:", submodule);
+      const response = await fetch(`https://mst-academy-backend-production-6ccb.up.railway.app/api/assignments/submodule/${submodule._id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`Unable to load assessment: ${response.statusText}`);
+      }
+      await response.json();
+      router.push(`/module/${moduleId}/${submodule._id}/assessment`);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setAssessmentLoading(false);
+    }
+  }, [assessmentLoading, moduleId, router, submodule.slug]);
 
   const getSlugs = useCallback(
     (id: number) => moduleSlugMap?.[id] ?? [],
@@ -518,8 +545,8 @@ export function LessonViewer({
     return () => observer.disconnect();
   }, [submodule.toc, html, mounted]);
 
-  const lessonTitle = getLessonDisplayTitle(submodule.title, submodule.id);
-
+  const lessonTitle = getLessonDisplayTitle(submodule.title, "Topic: ");
+  console.log("Submodule in LessonViewerrrrrrrrrrrrrrrrrrr5555555555555555555555555:", lessonTitle);
   // Build TOC and insert an 'Assessment' link after the Glossary entry when present
   const tocWithAssessment: any[] = (() => {
     const arr: any[] = Array.isArray(validToc) ? [...(validToc as any[])] : [];
@@ -554,7 +581,7 @@ export function LessonViewer({
           </Link>
           <div className="mt-3 flex items-center gap-3">
             <span className="rounded-lg bg-mst-red/20 px-2.5 py-1 text-xs font-bold text-mst-red">
-              {submodule.id}
+              {submodule.index}
             </span>
             <span className="flex items-center gap-1 text-[10px] text-white/40">
               <Clock size={10} />
@@ -657,7 +684,7 @@ export function LessonViewer({
               </Link>
               <ChevronRight size={14} />
               <span className="font-semibold text-[var(--text)]">
-                {submodule.id}
+                {submodule.index}
               </span>
             </div>
             <h1 className="mt-1.5 text-xl font-black text-[var(--text)] lg:text-2xl">
@@ -761,7 +788,7 @@ export function LessonViewer({
           ) : (
             <span />
           )}
-          <Link
+          {/* <Link
             href={`/module/${moduleId}/${submodule.slug}/assessment`}
             className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40"
           >
@@ -769,7 +796,15 @@ export function LessonViewer({
               <ClipboardCheck size={16} />
               Continue to Assessment
             </span>
-          </Link>
+          </Link> */}
+          <button
+            type="button"
+            onClick={handleAssessment}
+            disabled={assessmentLoading}
+            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
+          </button>
           {nextSlug ? (
             <Link
               href={`/module/${moduleId}/${nextSlug}`}
