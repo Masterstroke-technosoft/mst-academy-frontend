@@ -169,10 +169,113 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     }
   }, [ready, user, router]);
 
+  const [apiData, setApiData] = useState<any>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const fetchDashboardData = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/dashboard/${user.id}`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setApiData(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      }
+    };
+    fetchDashboardData();
+  }, [user?.id]);
+
   const analytics = useMemo(() => {
     if (!mounted) return null;
-    return computeStudentAnalytics(curriculum);
-  }, [mounted, curriculum]);
+    const local = computeStudentAnalytics(curriculum);
+    if (apiData) {
+      if (apiData.courseProgress) {
+        local.overallProgress = Math.round(apiData.courseProgress.progressPercentage || 0);
+        local.modulesCompleted = apiData.courseProgress.completedModules || 0;
+        local.totalModules = apiData.courseProgress.totalModules || local.totalModules;
+
+        // Recalculate completionDonut dynamically using completed, in progress and locked modules
+        const completed = local.modulesCompleted;
+        const unlockedIds = apiData.courseProgress.unlockedModuleIds || [];
+        const inProgress = Math.max(0, unlockedIds.length - completed);
+        const locked = Math.max(0, local.totalModules - completed - inProgress);
+
+        local.completionDonut = [
+          { name: "Completed", value: completed, color: "#22c55e" },
+          { name: "In Progress", value: inProgress, color: "#f97316" },
+          { name: "Locked", value: locked, color: "#64748b" },
+        ];
+      }
+      if (apiData.averageScore !== undefined && apiData.averageScore !== null) {
+        local.averageScore = apiData.averageScore;
+      }
+      if (apiData.totalStudyMinutes !== undefined && apiData.totalStudyMinutes !== null) {
+        local.totalStudyHours = Math.round((apiData.totalStudyMinutes / 60) * 10) / 10;
+      }
+      if (apiData.percentile !== undefined && apiData.percentile !== null) {
+        local.percentile = apiData.percentile;
+      }
+      if (apiData.rank !== undefined && apiData.rank !== null) {
+        local.rank = apiData.rank;
+      }
+      if (apiData.currentStreak !== undefined && apiData.currentStreak !== null) {
+        local.streakDays = apiData.currentStreak;
+      }
+      if (apiData.modulePerformance && Array.isArray(apiData.modulePerformance)) {
+        local.moduleScores = apiData.modulePerformance.map((item: any) => ({
+          name: item.moduleTitle || `M${item.moduleId}`,
+          score: item.averageScore || item.totalScore || 0,
+          moduleId: item.moduleId,
+        }));
+      }
+
+      // Recompute activityHeatmap based on apiData.activityDates
+      if (apiData.activityDates && Array.isArray(apiData.activityDates)) {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const activeDatesSet = new Set([
+          ...apiData.activityDates.map((d: string) => d.slice(0, 10)),
+          todayStr
+        ]);
+
+        local.activityHeatmap = local.activityHeatmap.map((item) => ({
+          date: item.date,
+          count: activeDatesSet.has(item.date) ? 1 : 0,
+        }));
+
+        // Recompute dailyStudy based on activeDatesSet and selectedDate
+        local.dailyStudy = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          const key = d.toISOString().slice(0, 10);
+          const dayName = d.toLocaleString('en-US', { weekday: 'short' });
+          const dayDate = d.getDate();
+          
+          let logins = activeDatesSet.has(key) ? 1 : 0;
+          if (key === selectedDate) {
+            logins = 2; // Increase logins when selected
+          }
+          
+          let minutes = activeDatesSet.has(key) ? Math.round((apiData.totalStudyMinutes || 55) / Math.max(1, activeDatesSet.size)) : 0;
+          if (key === selectedDate) {
+            minutes = Math.round(minutes * 1.5) + 15; // Increase graph study time for selected date
+          }
+          
+          return {
+            day: `${dayName} ${dayDate}`,
+            minutes,
+            logins,
+          };
+        });
+      }
+    }
+    return local;
+  }, [mounted, curriculum, apiData, selectedDate]);
 
   if (!ready || !user || !analytics) {
     return (
@@ -480,7 +583,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     { label: "Study Time", value: `${analytics.totalStudyHours}h`, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
                     // { label: "Focus", value: `${analytics.focusScore}%`, icon: Zap, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
                     //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
-                    { label: "Coins", value: analytics.coinBalance, icon: Flame, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
+                    { label: "Coins", value: "—", icon: Flame, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
                     { label: "Percentile", value: `Top ${analytics.percentile}%`, icon: Trophy, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                   ].map((s, i) => (
                     <GlassCard key={s.label} className="!p-6 flex flex-col gap-3 group cursor-default">
@@ -633,10 +736,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     </div>
                     <div className="mt-5 flex flex-wrap gap-2 sm:gap-2.5">
                       {monthData.map((d) => (
-                        <div
+                        <button
                           key={d.date}
                           title={`${d.date}: ${d.count} activities`}
-                          className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110"
+                          onClick={() => setSelectedDate(d.date)}
+                          className={`h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110 focus:outline-none cursor-pointer ${
+                            selectedDate === d.date ? "ring-2 ring-[var(--text)] ring-offset-2 ring-offset-[var(--surface)] scale-105" : ""
+                          }`}
                           style={{
                             background:
                               d.count === 0
@@ -646,6 +752,20 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         />
                       ))}
                     </div>
+                    {selectedDate && (
+                      <div className="mt-4 p-3 rounded-xl bg-[var(--surface)]/80 border border-[var(--border)] text-xs text-[var(--text-muted)] flex justify-between items-center animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div>
+                          <span className="font-bold text-[var(--text)]">Selected Date:</span> {selectedDate} &bull;{" "}
+                          <span className="font-bold text-[var(--text)]">Activities:</span> {monthData.find(m => m.date === selectedDate)?.count || 0}
+                        </div>
+                        <button 
+                          onClick={() => setSelectedDate(null)} 
+                          className="text-[10px] uppercase font-bold text-mst-red hover:underline"
+                        >
+                          Clear Selection
+                        </button>
+                      </div>
+                    )}
                   </GlassCard>
 
                   <GlassCard>
@@ -770,7 +890,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       </p>
                       <p className="flex justify-between">
                         <span className="text-[var(--text-muted)]">Coin balance</span>
-                        <span className="font-bold text-amber-500">{analytics.coinBalance} $MSTC</span>
+                        <span className="font-bold text-amber-500">— $MSTC</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-[var(--text-muted)]">Current module</span>
