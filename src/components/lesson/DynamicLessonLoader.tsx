@@ -35,6 +35,7 @@ function extractContent(htmlStr: string): string {
 }
 
 export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
+  let mockMod;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [html, setHtml] = useState<string>("");
@@ -43,15 +44,35 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
     async function loadHtml() {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const contentFile = "uploads/learning-content-files/1780482835900-671635248.html";
-        const fileUrl = `${baseURL}/${contentFile}`;
-        const fileRes = await fetch(fileUrl);
-        if (!fileRes.ok) throw new Error("Failed to load HTML content file");
-        const htmlText = await fileRes.text();
+        const fileUrl = `${baseURL}/api/submodules/${slug}`;
+        const fileResponse = await fetch(fileUrl, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        const fileRes1 = await fileResponse.json()
+        const fileRes = fileRes1.data.contentFile
+        console.log("Anuja2 ", fileRes);
 
+        const textFile = await fetch(`${baseURL}/${fileRes}`)
+
+        const htmlText = await textFile.text();
         // Extract only the core lesson content
         const extractedHtml = extractContent(htmlText);
         setHtml(cleanLessonHtml(extractedHtml));
+
+        const moduleData = await fetch(`${baseURL}/api/modules/full/${id}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        const moduleDataResult = await moduleData.json()
+        console.log(moduleDataResult, "sdsdsdeeeeeeeeee");
+        mockMod = moduleDataResult.module
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -83,18 +104,18 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
     );
   }
 
-  const mockMod = {
-    id: 1,
-    title: "Introduction to Blockchain",
-    phaseId: "phase-1",
-    submodules: [
-      {
-        id: "1.1",
-        slug: "1.1",
-        title: "The Birth of the Internet",
-      }
-    ]
-  };
+  // const mockMod = {
+  //   id: 1,
+  //   title: "Introduction to Blockchain",
+  //   phaseId: "phase-1",
+  //   submodules: [
+  //     {
+  //       id: "1.1",
+  //       slug: "1.1",
+  //       title: "The Birth of the Internet",
+  //     }
+  //   ]
+  // };
 
   const mockSubmodule = {
     id: "1.1",
