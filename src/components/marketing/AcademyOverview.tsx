@@ -147,8 +147,8 @@ function SubmoduleCard({
     sub.subtitle?.trim() ||
     `Deep dive into ${title.toLowerCase()} with hands-on examples.`;
 
-  const subSlug = sub.slug || sub.index || sub._id || sub.id;
-  const subIdText = sub.id || sub.index || sub._id;
+  const subSlug = sub.slug || sub._id || sub.id || sub.index;
+  const subIdText = sub.index ?? sub.id ?? sub._id;
   const moduleId = mod._id || mod.id;
 
   return (
@@ -372,6 +372,7 @@ function PhaseSection({
     if (typeof window !== "undefined") {
       const cached = localStorage.getItem(`academy_overview_modules_${phaseId}`);
       if (cached) {
+        console.log("Loading modules for phase", phaseId, cached, "from cache");
         setModules(JSON.parse(cached));
         return;
       }
@@ -473,8 +474,10 @@ function PhaseSection({
             <ModuleSkeleton />
           ) : (
             modules.map((mod) => {
+              console.log("Rendering module", mod.index);
               const modId = mod._id || mod.id;
               const subCount = mod.submoduleCount || mod.submodules?.length || 0;
+              const moduleLabel = mod.index != null ? String(mod.index).padStart(2, "") : "";
               return (
                 <Expandable
                   key={modId}
@@ -484,7 +487,7 @@ function PhaseSection({
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="text-xs font-bold text-mst-red">
-                          Module {String(mod.index || mod.id).padStart(2, "0")}
+                          Module {moduleLabel ? ` ${moduleLabel}` : ""}
                         </p>
                         <p className="font-semibold text-[var(--text)]">{mod.title}</p>
                         <p className="mt-1 line-clamp-2 text-sm text-[var(--text-muted)]">

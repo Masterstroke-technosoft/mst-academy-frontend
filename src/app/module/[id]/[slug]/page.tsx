@@ -11,6 +11,7 @@ export async function generateMetadata({
   params: Promise<{ id: string; slug: string }>;
 }): Promise<Metadata> {
   const { id, slug } = await params;
+  console.log("Generating metadata for lesson", { id, slug });
   const isNumeric = /^\d+$/.test(id);
 
   if (isNumeric) {
@@ -54,6 +55,7 @@ export default async function LessonPage({
   params: Promise<{ id: string; slug: string }>;
 }) {
   const { id, slug } = await params;
+  console.log("Rendering lesson page forrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", { id, slug });
   const isNumeric = /^\d+$/.test(id);
 
   if (isNumeric) {
