@@ -45,6 +45,7 @@ export function ModuleDetail({
   }, [authReady, isAdmin]);
 
   useEffect(() => {
+    console.log("ModuleDetail received submodulesssssssssss:", mod.submodules);
     setLocalSubmodules(mod.submodules);
 
     async function syncAssignments() {

@@ -14,6 +14,8 @@ function cleanLessonHtml(htmlStr: string): string {
   let clean = htmlStr.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
   // Strip link tags
   clean = clean.replace(/<link[^>]*>/gi, "");
+  // Strip table of contents sections
+  clean = clean.replace(/<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*table-of-contents")[^>]*>[\s\S]*?<\/(?:div|section)>/gi, "");
   return clean;
 }
 
@@ -34,15 +36,55 @@ function extractContent(htmlStr: string): string {
   return htmlStr;
 }
 
+function extractTableOfContents(htmlStr: string): Array<{ id: string; title: string }> {
+  const toc: Array<{ id: string; title: string }> = [];
+  
+  // Look for table of contents section
+  const tocMatch = htmlStr.match(/<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*toc)[^>]*>([\s\S]*?)<\/(?:div|section)>/i);
+  const tocContent = tocMatch ? tocMatch[1] : htmlStr;
+  
+  // Extract all anchor tags from TOC section
+  const anchorRegex = /<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>/gi;
+  let match;
+  
+  while ((match = anchorRegex.exec(tocContent)) !== null) {
+    const href = match[1];
+    const title = match[2].trim();
+    
+    // Use the href as id if it's a hash link, otherwise create one from title
+    const id = href.startsWith('#') ? href.substring(1) : title.toLowerCase().replace(/\s+/g, '-');
+    
+    if (title && id) {
+      toc.push({ id, title });
+    }
+  }
+  
+  // If we didn't find TOC items via links, try to find headings
+  if (toc.length === 0) {
+    const headingRegex = /<h[1-6][^>]*id="([^"]*)"[^>]*>([^<]+)<\/h[1-6]>/gi;
+    while ((match = headingRegex.exec(htmlStr)) !== null) {
+      const id = match[1];
+      const title = match[2].trim();
+      if (title && id) {
+        toc.push({ id, title });
+      }
+    }
+  }
+  
+  return toc;
+}
+
 export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [html, setHtml] = useState<string>("");
   const [mockMod, setMockMod] = useState<any>(null);
+  const [mockSubmodule, setMockSubmodule] = useState<any>(null);
 
   useEffect(() => {
     async function loadHtml() {
       try {
+        console.log("Loading lesson content for module ID:", id, "and slug:", slug);
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
         const fileUrl = `${baseURL}/api/submodules/${slug}`;
         const fileResponse = await fetch(fileUrl, {
@@ -55,13 +97,26 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
         const fileRes1 = await fileResponse.json()
         const fileRes = fileRes1.data.contentFile
         console.log("Anuja2 ", fileRes);
+        
+        // Set the submodule data from the API response
+        setMockSubmodule(fileRes1.data);
 
         const textFile = await fetch(`${baseURL}/${fileRes}`)
 
         const htmlText = await textFile.text();
         // Extract only the core lesson content
         const extractedHtml = extractContent(htmlText);
-        setHtml(cleanLessonHtml(extractedHtml));
+        const cleanedHtml = cleanLessonHtml(extractedHtml);
+        setHtml(cleanedHtml);
+        
+        // Extract table of contents from the HTML
+        const extractedToc = extractTableOfContents(htmlText);
+        
+        // Set the submodule data with the extracted TOC
+        setMockSubmodule({
+          ...fileRes1.data,
+          toc: extractedToc.length > 0 ? extractedToc : fileRes1.data.toc
+        });
 
         const moduleData = await fetch(`${baseURL}/api/modules/full/${id}`, {
           method: "GET",
@@ -104,38 +159,20 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
     );
   }
 
-  // const mockMod = {
-  //   id: 1,
-  //   title: "Introduction to Blockchain",
-  //   phaseId: "phase-1",
-  //   submodules: [
-  //     {
-  //       id: "1.1",
-  //       slug: "1.1",
-  //       title: "The Birth of the Internet",
-  //     }
-  //   ]
-  // };
-
-  const mockSubmodule = {
-    id: "1.1",
-    slug: "1.1",
-    title: "The Birth of the Internet",
-    subtitle: "From a Cold War military experiment to a global network that changed everything — and why its original design still matters for blockchain.",
-    toc: [
-      { id: "section-1", title: "Learning Objectives" },
-      { id: "section-2", title: "1.1: The Birth of the Internet" },
-      { id: "section-3", title: "1.2: A Decentralized Network" },
-      { id: "section-4", title: "1.3: How TCP/IP Works" },
-      { id: "section-5", title: "1.4: Glossary & Key Terms" }
-    ]
+  // Default fallback submodule structure in case API data is missing
+  const defaultSubmodule = mockSubmodule || {
+    id: slug,
+    slug: slug,
+    title: "Lesson",
+    subtitle: "",
+    toc: []
   };
 
   return (
     <LessonViewer
       moduleId={1}
       mod={mockMod}
-      submodule={mockSubmodule}
+      submodule={defaultSubmodule}
       html={html}
       prevSlug={undefined}
       nextSlug={undefined}
