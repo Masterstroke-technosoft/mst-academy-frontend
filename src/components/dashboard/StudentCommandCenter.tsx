@@ -239,7 +239,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (apiData.activityDates && Array.isArray(apiData.activityDates)) {
         const todayStr = new Date().toISOString().slice(0, 10);
         const activeDatesSet = new Set([
-          ...apiData.activityDates.map((d: string) => d.slice(0, 10)),
+          ...apiData.activityDates.map((d: any) => {
+            if (typeof d === "string") return d.slice(0, 10);
+            if (d && typeof d.toISOString === "function") return d.toISOString().slice(0, 10);
+            if (d && typeof d.slice === "function") return d.slice(0, 10);
+            return "";
+          }).filter(Boolean),
           todayStr
         ]);
 

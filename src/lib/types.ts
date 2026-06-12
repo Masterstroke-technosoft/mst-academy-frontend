@@ -54,6 +54,7 @@ export interface ModuleMeta {
   phaseId: string;
   description: string;
   submodules: SubmoduleMeta[];
+  index?: number;
 }
 
 export interface Phase {

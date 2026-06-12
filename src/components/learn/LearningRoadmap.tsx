@@ -253,7 +253,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                Module {module.id}
+                Module {module.index}
               </p>
               <h4 className="mt-1 line-clamp-2 text-lg font-extrabold text-[var(--text)]">
                 {title}
@@ -310,7 +310,7 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
 }: {
   data: SubmoduleNodeVisual;
 }) {
-  const { sub, locked, active, dimmed, color, progressPct } = data;
+  const { module, index, sub, locked, active, dimmed, color, progressPct } = data;
   const title = getCardSubmoduleTitle(sub.title);
 
   return (
@@ -351,7 +351,7 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-              {sub.id}
+              {module.index || 1}.{index + 1}
             </p>
             <p className="mt-1 line-clamp-2 text-base font-bold text-[var(--text)]">{title}</p>
           </div>
@@ -749,7 +749,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       const phaseModules = fetchedModules.filter((m) => String(m.phaseId) === String(p._id || p.id));
       return {
         id: uiId,
-        title: p.title || `Phase ${idx + 1}`,
+        title: p.description || p.title || `Phase ${idx + 1}`,
         modules: phaseModules.map((m) => m._id || m.id),
       };
     });
@@ -777,6 +777,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         phaseId: uiPhaseId,
         description: m.description || "",
         submodules,
+        index: m.index,
       };
     });
 
@@ -1088,6 +1089,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       ? computeProgressPctForSubmodule(activeModule.id, activeSubmodule.slug)
       : 0;
 
+  const activeSubIndex =
+    activeModule && activeSubmodule
+      ? activeModule.submodules.findIndex((s) => s.slug === activeSubmodule.slug)
+      : -1;
+
   const activeModuleStatus = activeModule
     ? getModuleStatus(
       activeModule.id,
@@ -1286,8 +1292,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       {/* Graph — viewport height so less scrolling */}
       <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
         <div
-          className={`roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md ${activePhaseId === "phase-3" && !activeModuleId ? "overflow-y-auto overflow-x-hidden custom-scrollbar" : "overflow-hidden"
-            }`}
+          className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-y-auto overflow-x-hidden custom-scrollbar"
           style={{
             height: activePhaseId === "phase-3" && !activeModuleId
               ? (isMobile ? "72vh" : "calc(100vh - 280px)")
@@ -1303,14 +1308,15 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.12), transparent 70%)",
             }}
           />
-          <div style={{ height: activePhaseId === "phase-3" && !activeModuleId ? graphHeight : "100%", width: "100%" }}>
+          <div style={{ height: graphHeight, width: "100%" }}>
+
             <ReactFlow
               nodes={nodes}
               edges={edges}
               nodeTypes={nodeTypes}
               nodesDraggable={false}
-              panOnDrag={false}
-              panOnScroll={false}
+              panOnDrag={true}
+              panOnScroll={true}
               zoomOnScroll={false}
               zoomOnPinch={false}
               zoomOnDoubleClick={false}
@@ -1354,7 +1360,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                      {activeSubmodule.id}
+                      {activeModule?.index || 1}.{activeSubIndex + 1}
                     </p>
                     <h3 className="mt-1 truncate text-lg font-black text-[var(--text)]">
                       {getCardSubmoduleTitle(activeSubmodule.title)}
@@ -1505,7 +1511,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
                   <div className="min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                      {activeSubmodule.id}
+                      {activeModule?.index || 1}.{activeSubIndex + 1}
                     </p>
                     <h3 className="mt-1 truncate text-base font-black text-[var(--text)]">
                       {getCardSubmoduleTitle(activeSubmodule.title)}
