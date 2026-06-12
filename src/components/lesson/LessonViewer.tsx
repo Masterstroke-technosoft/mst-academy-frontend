@@ -325,8 +325,8 @@ export function LessonViewer({
     (id: number) => moduleSlugMap?.[id] ?? [],
     [moduleSlugMap]
   );
-
-  const slugs = mod.submodules.map((s: any) => s.slug);
+  console.log("Prakhar", mod)
+  const slugs = mod.submodules.data.map((s: any) => s.slug);
   const modStatus = mounted && allModuleIds
     ? getModuleStatus(moduleId, allModuleIds, slugs, getSlugs)
     : "active";

@@ -35,10 +35,10 @@ function extractContent(htmlStr: string): string {
 }
 
 export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
-  let mockMod;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [html, setHtml] = useState<string>("");
+  const [mockMod, setMockMod] = useState<any>(null);
 
   useEffect(() => {
     async function loadHtml() {
@@ -71,8 +71,8 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
           }
         })
         const moduleDataResult = await moduleData.json()
-        console.log(moduleDataResult, "sdsdsdeeeeeeeeee");
-        mockMod = moduleDataResult.module
+        setMockMod(moduleDataResult.module)
+        console.log(moduleDataResult.module, "sdsdsdeeeeeeeeee");
       } catch (err: any) {
         setError(err.message);
       } finally {
