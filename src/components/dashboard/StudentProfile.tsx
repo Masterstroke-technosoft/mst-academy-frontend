@@ -23,6 +23,18 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     github: safeUser.github || "",
     walletAddress: safeUser.walletAddress || "",
     portfolio: safeUser.portfolio || "",
+    _id: "",
+    name: "",
+    email: "",
+    role: "",
+    isActive: false,
+    isStudentVerified: false,
+    referredBy: null as string | null,
+    referrals: [] as any[],
+    createdAt: "",
+    updatedAt: "",
+    __v: 0,
+    referralCode: "",
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profilePhoto || null);
   const [saving, setSaving] = useState(false);
@@ -50,6 +62,18 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               github: data.user.github || prev.github,
               walletAddress: data.user.walletAddress || prev.walletAddress,
               portfolio: data.user.portfolio || prev.portfolio,
+              _id: data.user._id || prev._id,
+              name: data.user.name || prev.name,
+              email: data.user.email || prev.email,
+              role: data.user.role || prev.role,
+              isActive: data.user.isActive !== undefined ? data.user.isActive : prev.isActive,
+              isStudentVerified: data.user.isStudentVerified !== undefined ? data.user.isStudentVerified : prev.isStudentVerified,
+              referredBy: data.user.referredBy !== undefined ? data.user.referredBy : prev.referredBy,
+              referrals: data.user.referrals || prev.referrals,
+              createdAt: data.user.createdAt || prev.createdAt,
+              updatedAt: data.user.updatedAt || prev.updatedAt,
+              __v: data.user.__v !== undefined ? data.user.__v : prev.__v,
+              referralCode: data.user.referralCode || prev.referralCode,
             }));
             if (data.user.profilePhoto) {
               setPhoto(data.user.profilePhoto);
@@ -64,7 +88,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     fetchProfile();
   }, []);
 
-  const referralCode = `MST-${safeUser.id.slice(-6).toUpperCase()}`;
+  const referralCode = formData.referralCode || (safeUser.id ? `MST-${safeUser.id.slice(-6).toUpperCase()}` : "");
   const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -257,6 +281,123 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 onChange={handleChange}
                 placeholder="0x..."
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+              />
+            </div>
+
+            {/* User ID */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                User ID
+              </label>
+              <input
+                type="text"
+                value={formData._id}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Role
+              </label>
+              <input
+                type="text"
+                value={formData.role}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Account Status */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Account Status (Active)
+              </label>
+              <input
+                type="text"
+                value={formData.isActive ? "Yes" : "No"}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Student Verified Status */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Student Verified
+              </label>
+              <input
+                type="text"
+                value={formData.isStudentVerified ? "Verified" : "Not Verified"}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Referred By */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Referred By
+              </label>
+              <input
+                type="text"
+                value={formData.referredBy || "None"}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Referrals Count */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Total Referrals
+              </label>
+              <input
+                type="text"
+                value={formData.referrals ? formData.referrals.length : 0}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Created At */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Created At
+              </label>
+              <input
+                type="text"
+                value={formData.createdAt ? new Date(formData.createdAt).toLocaleString() : ""}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Updated At */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Updated At
+              </label>
+              <input
+                type="text"
+                value={formData.updatedAt ? new Date(formData.updatedAt).toLocaleString() : ""}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Version */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Version (__v)
+              </label>
+              <input
+                type="text"
+                value={formData.__v}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
             </div>
           </div>

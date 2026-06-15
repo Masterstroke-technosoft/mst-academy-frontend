@@ -260,17 +260,17 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           const key = d.toISOString().slice(0, 10);
           const dayName = d.toLocaleString('en-US', { weekday: 'short' });
           const dayDate = d.getDate();
-          
+
           let logins = activeDatesSet.has(key) ? 1 : 0;
           if (key === selectedDate) {
             logins = 2; // Increase logins when selected
           }
-          
+
           let minutes = activeDatesSet.has(key) ? Math.round((apiData.totalStudyMinutes || 55) / Math.max(1, activeDatesSet.size)) : 0;
           if (key === selectedDate) {
             minutes = Math.round(minutes * 1.5) + 15; // Increase graph study time for selected date
           }
-          
+
           return {
             day: `${dayName} ${dayDate}`,
             minutes,
@@ -298,13 +298,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");
 
   const referralRecords = isAnotherUser ? [
-    { name: "Suresh M.", joinedAt: "22 May 2026", status: "Registered", eligible: false },
+    //   { name: "Suresh M.", joinedAt: "22 May 2026", status: "Registered", eligible: false },
   ] : [
-    { name: "Riya S.", joinedAt: "12 May 2026", status: "Purchased course", eligible: true },
-    { name: "Aman K.", joinedAt: "14 May 2026", status: "Purchased course", eligible: true },
-    { name: "Neha P.", joinedAt: "16 May 2026", status: "Registered", eligible: false },
-    { name: "Vikram T.", joinedAt: "18 May 2026", status: "Purchased course", eligible: true },
-    { name: "Priya M.", joinedAt: "21 May 2026", status: "Registered", eligible: false },
+    //   { name: "Riya S.", joinedAt: "12 May 2026", status: "Purchased course", eligible: true },
+    //   { name: "Aman K.", joinedAt: "14 May 2026", status: "Purchased course", eligible: true },
+    //   { name: "Neha P.", joinedAt: "16 May 2026", status: "Registered", eligible: false },
+    //   { name: "Vikram T.", joinedAt: "18 May 2026", status: "Purchased course", eligible: true },
+    //   { name: "Priya M.", joinedAt: "21 May 2026", status: "Registered", eligible: false },
   ];
 
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
@@ -745,9 +745,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           key={d.date}
                           title={`${d.date}: ${d.count} activities`}
                           onClick={() => setSelectedDate(d.date)}
-                          className={`h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110 focus:outline-none cursor-pointer ${
-                            selectedDate === d.date ? "ring-2 ring-[var(--text)] ring-offset-2 ring-offset-[var(--surface)] scale-105" : ""
-                          }`}
+                          className={`h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110 focus:outline-none cursor-pointer ${selectedDate === d.date ? "ring-2 ring-[var(--text)] ring-offset-2 ring-offset-[var(--surface)] scale-105" : ""
+                            }`}
                           style={{
                             background:
                               d.count === 0
@@ -763,8 +762,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <span className="font-bold text-[var(--text)]">Selected Date:</span> {selectedDate} &bull;{" "}
                           <span className="font-bold text-[var(--text)]">Activities:</span> {monthData.find(m => m.date === selectedDate)?.count || 0}
                         </div>
-                        <button 
-                          onClick={() => setSelectedDate(null)} 
+                        <button
+                          onClick={() => setSelectedDate(null)}
                           className="text-[10px] uppercase font-bold text-mst-red hover:underline"
                         >
                           Clear Selection

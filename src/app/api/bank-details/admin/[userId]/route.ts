@@ -18,19 +18,18 @@ function readBankDetails(): any[] {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> | { userId: string } }
+  { params }: { params: { userId: string } }
 ) {
   try {
-    const resolvedParams = await params;
-    const { userId } = resolvedParams;
-    const records = readBankDetails();
-    const found = records.find((r) => r.userId === userId);
-
-    if (!found) {
+    const { userId } = params;
+    const list = readBankDetails();
+    const detail = list.find((item: any) => item.userId === userId);
+    
+    if (!detail) {
       return NextResponse.json({ message: "Bank details not found" }, { status: 404 });
     }
-
-    return NextResponse.json(found);
+    
+    return NextResponse.json(detail);
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Server error" },

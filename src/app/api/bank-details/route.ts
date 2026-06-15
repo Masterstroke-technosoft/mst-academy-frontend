@@ -30,62 +30,45 @@ function writeBankDetails(data: any[]) {
 
 export async function POST(req: NextRequest) {
   try {
+    const userId = req.headers.get("x-user-id");
+    const userEmail = req.headers.get("x-user-email");
+    const userName = req.headers.get("x-user-name");
+
+    if (!userId || !userEmail) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { accountHolderName, accountNumber, ifscCode, branchName, upiId } = body;
 
-    const userId = req.headers.get("x-user-id") || "6a23f5b2dd1a0b2bf3c3cfc3";
-    const userName = req.headers.get("x-user-name") || "Demo Admin";
-    const userEmail = req.headers.get("x-user-email") || "abc111@gmail.com";
+    if (!accountHolderName || !accountNumber || !ifscCode || !branchName) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
 
-    const records = readBankDetails();
+    const bankDetailsList = readBankDetails();
     
-    // Check if user already has bank details
-    const existingIndex = records.findIndex((r) => r.userId === userId);
-    
-    const now = new Date().toISOString();
-    const newRecord = {
-      _id: existingIndex >= 0 ? records[existingIndex]._id : "6a2bebdd" + Math.random().toString(16).slice(2, 18),
+    // Remove existing details for the same user to ensure unique entry
+    const filteredList = bankDetailsList.filter((item: any) => item.userId !== userId && item.userEmail !== userEmail);
+
+    const newDetails = {
+      _id: "6a2bebdd" + Math.random().toString(16).substring(2, 10) + Math.random().toString(16).substring(2, 10),
       userId,
-      userName,
+      userName: userName || "Demo Admin",
       userEmail,
       accountHolderName,
       accountNumber,
       ifscCode,
       branchName,
       upiId: upiId || "",
-      createdAt: existingIndex >= 0 ? records[existingIndex].createdAt : now,
-      updatedAt: now,
-      __v: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      __v: 0
     };
 
-    if (existingIndex >= 0) {
-      records[existingIndex] = newRecord;
-    } else {
-      records.push(newRecord);
-    }
+    filteredList.push(newDetails);
+    writeBankDetails(filteredList);
 
-    writeBankDetails(records);
-
-    // POST returns only the requested fields
-    return NextResponse.json({
-      accountHolderName,
-      accountNumber,
-      ifscCode,
-      branchName,
-      upiId: upiId || "",
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { message: error instanceof Error ? error.message : "Server error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(req: NextRequest) {
-  try {
-    const records = readBankDetails();
-    return NextResponse.json(records);
+    return NextResponse.json(newDetails);
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Server error" },

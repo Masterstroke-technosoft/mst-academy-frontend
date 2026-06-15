@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
@@ -28,17 +26,56 @@ export default function StudentDashboardPage({
     window.addEventListener("hashchange", handleHash);
     return () => window.removeEventListener("hashchange", handleHash);
   }, []);
-
-  const referralCode = user ? `MST-${user.id.slice(-6).toUpperCase()}` : "";
-  const referralLink = user ? `https://masterstroke.academy/register?ref=${referralCode}` : "";
-  const referralRecords = [
+  let referralRecords = [
     { name: "Riya S.", joinedAt: "12 May 2026", status: "Completed course", eligible: true },
     { name: "Aman K.", joinedAt: "14 May 2026", status: "Completed course", eligible: true },
     { name: "Neha P.", joinedAt: "16 May 2026", status: "In progress", eligible: false },
     { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
     { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
     { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
-  ] as const;
+  ] as const;;
+  const referralCode = user ? `MST-${user.id.slice(-6).toUpperCase()}` : "";
+  const referralLink = user ? `https://masterstroke.academy/register?ref=${referralCode}` : "";
+  // let [referralRecords, setReferralRecords] = useState([]);
+
+  // api call 
+  const [userBankDetails, setUserBankDetails] = useState<any>(null);
+
+  useEffect(() => {
+    async function BankUser() {
+      if (!user) return;
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+      try {
+        const response = await fetch("/api/bank-details/me", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "x-user-id": user.id,
+            "x-user-email": user.email,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Response Status : ${response.status}`);
+        }
+        const result = await response.json();
+        setUserBankDetails(result);
+        console.log("sssssssssssssssssss", result);
+      } catch (error: any) {
+        console.error(error?.message ?? error);
+      }
+    }
+
+    if (user) {
+      BankUser();
+    }
+  }, [user]);
+
+
+
+  // setReferralRecords()
+
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
   const withdrawUnlocked = successfulReferrals >= 5;
 
@@ -1397,6 +1434,7 @@ export default function StudentDashboardPage({
           referralRecords={referralRecords}
           successfulReferrals={successfulReferrals}
           withdrawUnlocked={withdrawUnlocked}
+          initialBankDetails={userBankDetails}
         />
       ) : activeHash === "#profile" ? (
         <StudentProfile user={user} />

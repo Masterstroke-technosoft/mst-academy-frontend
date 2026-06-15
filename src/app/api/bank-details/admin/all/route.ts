@@ -18,8 +18,8 @@ function readBankDetails(): any[] {
 
 export async function GET(req: NextRequest) {
   try {
-    const records = readBankDetails();
-    return NextResponse.json(records);
+    const list = readBankDetails();
+    return NextResponse.json(list);
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Server error" },

@@ -30,44 +30,21 @@ function writeBankDetails(data: any[]) {
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.headers.get("x-user-id") || "6a23f5b2dd1a0b2bf3c3cfc3";
-    const userName = req.headers.get("x-user-name") || "Demo Admin";
-    const userEmail = req.headers.get("x-user-email") || "abc111@gmail.com";
+    const userId = req.headers.get("x-user-id");
+    const userEmail = req.headers.get("x-user-email");
 
-    const records = readBankDetails();
-    const found = records.find((r) => r.userId === userId);
-
-    if (!found) {
-      return NextResponse.json({
-        _id: "6a2bebdd" + Math.random().toString(16).slice(2, 18),
-        userId: userId,
-        userName: userName,
-        userEmail: userEmail,
-        accountHolderName: "",
-        accountNumber: "",
-        ifscCode: "",
-        branchName: "",
-        upiId: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        __v: 0
-      });
+    if (!userId || !userEmail) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({
-      _id: found._id,
-      userId: found.userId,
-      userName: found.userName || userName,
-      userEmail: found.userEmail || userEmail,
-      accountHolderName: found.accountHolderName,
-      accountNumber: found.accountNumber,
-      ifscCode: found.ifscCode,
-      branchName: found.branchName,
-      upiId: found.upiId,
-      createdAt: found.createdAt,
-      updatedAt: found.updatedAt,
-      __v: found.__v || 0,
-    });
+    const bankDetailsList = readBankDetails();
+    const details = bankDetailsList.find((item: any) => item.userId === userId || item.userEmail === userEmail);
+
+    if (!details) {
+      return NextResponse.json(null);
+    }
+
+    return NextResponse.json(details);
   } catch (error) {
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Server error" },
@@ -78,64 +55,40 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const userId = req.headers.get("x-user-id");
+    const userEmail = req.headers.get("x-user-email");
+
+    if (!userId || !userEmail) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { accountHolderName, accountNumber, ifscCode, branchName, upiId } = body;
 
-    const userId = req.headers.get("x-user-id") || "6a23f5b2dd1a0b2bf3c3cfc3";
-    const userName = req.headers.get("x-user-name") || "Demo Admin";
-    const userEmail = req.headers.get("x-user-email") || "abc111@gmail.com";
+    const bankDetailsList = readBankDetails();
+    const index = bankDetailsList.findIndex((item: any) => item.userId === userId || item.userEmail === userEmail);
 
-    const records = readBankDetails();
-    const existingIndex = records.findIndex((r) => r.userId === userId);
-
-    const now = new Date().toISOString();
-    let record;
-
-    if (existingIndex >= 0) {
-      record = records[existingIndex];
-      record.accountHolderName = accountHolderName ?? record.accountHolderName;
-      record.accountNumber = accountNumber ?? record.accountNumber;
-      record.ifscCode = ifscCode ?? record.ifscCode;
-      record.branchName = branchName ?? record.branchName;
-      record.upiId = upiId ?? record.upiId;
-      record.updatedAt = now;
-      records[existingIndex] = record;
-    } else {
-      record = {
-        _id: "6a2bebdd" + Math.random().toString(16).slice(2, 18),
-        userId,
-        userName,
-        userEmail,
-        accountHolderName: accountHolderName || "",
-        accountNumber: accountNumber || "",
-        ifscCode: ifscCode || "",
-        branchName: branchName || "",
-        upiId: upiId || "",
-        createdAt: now,
-        updatedAt: now,
-        __v: 0,
-      };
-      records.push(record);
+    if (index === -1) {
+      return NextResponse.json({ message: "Bank details not found" }, { status: 404 });
     }
 
-    writeBankDetails(records);
+    // Update matching fields
+    const updatedDetails = {
+      ...bankDetailsList[index],
+      accountHolderName: accountHolderName ?? bankDetailsList[index].accountHolderName,
+      accountNumber: accountNumber ?? bankDetailsList[index].accountNumber,
+      ifscCode: ifscCode ?? bankDetailsList[index].ifscCode,
+      branchName: branchName ?? bankDetailsList[index].branchName,
+      upiId: upiId ?? bankDetailsList[index].upiId,
+      updatedAt: new Date().toISOString()
+    };
+
+    bankDetailsList[index] = updatedDetails;
+    writeBankDetails(bankDetailsList);
 
     return NextResponse.json({
       message: "Bank details updated successfully",
-      bankDetails: {
-        _id: record._id,
-        userId: record.userId,
-        userName: record.userName || userName,
-        userEmail: record.userEmail || userEmail,
-        accountHolderName: record.accountHolderName,
-        accountNumber: record.accountNumber,
-        ifscCode: record.ifscCode,
-        branchName: record.branchName,
-        upiId: record.upiId,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
-        __v: record.__v || 0,
-      },
+      bankDetails: updatedDetails
     });
   } catch (error) {
     return NextResponse.json(
@@ -143,8 +96,4 @@ export async function PATCH(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-export async function POST(req: NextRequest) {
-  // Allow POST /api/bank-details/me as fallback
-  return PATCH(req);
 }

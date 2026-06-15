@@ -69,7 +69,30 @@ export default function AssessmentViewer({
     }
   }, [currentQuestionIndex]);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    try {
+      const response = await fetch(`${baseURL}/api/assignment-submissions`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          moduleId,
+          slug,
+          answers,
+          assessment,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Response Status : ${response.status}`);
+      }
+      let result = await response.json();
+    } catch (error: any) {
+      console.error(error?.message ?? error);
+    }
+
     sessionStorage.setItem(
       `assessment-${moduleId}-${slug}`,
       JSON.stringify({ answers, assessment })
@@ -135,9 +158,8 @@ export default function AssessmentViewer({
             </div>
             <div className="h-2 bg-[var(--bg)] rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all ${
-                  passed ? "bg-green-500" : "bg-yellow-500"
-                }`}
+                className={`h-full transition-all ${passed ? "bg-green-500" : "bg-yellow-500"
+                  }`}
                 style={{ width: `${percentage}%` }}
               />
             </div>
@@ -150,11 +172,10 @@ export default function AssessmentViewer({
             {results.map((result) => (
               <div
                 key={result.qNum}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  result.isCorrect
+                className={`flex items-center justify-between p-3 rounded-lg ${result.isCorrect
                     ? "bg-green-500/10 border border-green-500/20"
                     : "bg-red-500/10 border border-red-500/20"
-                }`}
+                  }`}
               >
                 <span className="text-sm">
                   Question {result.qNum}:{" "}
@@ -167,9 +188,8 @@ export default function AssessmentViewer({
                   </span>
                 </span>
                 <span
-                  className={`font-semibold ${
-                    result.isCorrect ? "text-green-500" : "text-red-500"
-                  }`}
+                  className={`font-semibold ${result.isCorrect ? "text-green-500" : "text-red-500"
+                    }`}
                 >
                   {result.isCorrect ? result.marks : 0}/{result.marks}
                 </span>
@@ -217,11 +237,10 @@ export default function AssessmentViewer({
             <button
               key={q.questionNumber}
               onClick={() => setCurrentQuestionIndex(idx)}
-              className={`w-full text-left p-3 rounded-lg transition text-sm ${
-                idx === currentQuestionIndex
+              className={`w-full text-left p-3 rounded-lg transition text-sm ${idx === currentQuestionIndex
                   ? "bg-mst-red/20 border border-mst-red text-mst-red font-semibold"
                   : "border border-transparent hover:bg-[var(--bg-muted)]"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium">Q{q.questionNumber}</span>
@@ -231,11 +250,10 @@ export default function AssessmentViewer({
                 {q.questionText || q.statement}
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <span className={`text-[10px] font-semibold uppercase ${
-                  q.difficulty === "Easy" ? "text-green-500" :
-                  q.difficulty === "Medium" ? "text-yellow-500" :
-                  "text-red-500"
-                }`}>
+                <span className={`text-[10px] font-semibold uppercase ${q.difficulty === "Easy" ? "text-green-500" :
+                    q.difficulty === "Medium" ? "text-yellow-500" :
+                      "text-red-500"
+                  }`}>
                   {q.difficulty}
                 </span>
                 {answers[q.questionNumber] ? (
@@ -310,89 +328,86 @@ export default function AssessmentViewer({
         {/* Scrollable Question Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 mb-8">
-          {/* Question Number & Difficulty */}
-          <div className="flex items-start justify-between mb-4">
-            <span className="inline-block rounded-lg bg-mst-red/20 px-3 py-1 text-sm font-bold text-mst-red">
-              Q{currentQuestion.questionNumber} • {currentQuestion.marks} marks •{" "}
-              {currentQuestion.difficulty}
-            </span>
-            {isAnswered && (
-              <span className="text-sm font-semibold text-green-500">
-                ✓ Answered
-              </span>
-            )}
-          </div>
-
-          {/* Question Text */}
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text)] mb-6">
-            {currentQuestion.questionText || currentQuestion.statement}
-          </h2>
-
-          {/* Options */}
-          {currentQuestion.options && (
-            <div className="space-y-3">
-              {currentQuestion.options.map((option) => (
-                <button
-                  key={option.label}
-                  onClick={() => handleOptionSelect(option.label)}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                    answers[currentQuestion.questionNumber] === option.label
-                      ? "border-mst-red bg-mst-red/5"
-                      : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                        answers[currentQuestion.questionNumber] === option.label
-                          ? "border-mst-red bg-mst-red"
-                          : "border-[var(--border)]"
-                      }`}
-                    >
-                      {answers[currentQuestion.questionNumber] === option.label && (
-                        <span className="text-xs font-bold text-white">✓</span>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-[var(--text)]">
-                        {option.label}
-                      </div>
-                      <div className="text-sm text-[var(--text-muted)]">
-                        {option.text}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* True/False with Justification */}
-          {currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" && (
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                {["True", "False"].map((val) => (
-                  <button
-                    key={val}
-                    onClick={() => handleOptionSelect(val)}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 font-semibold transition ${
-                      answers[currentQuestion.questionNumber] === val
-                        ? "border-mst-red bg-mst-red text-white"
-                        : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
-                    }`}
-                  >
-                    {val}
-                  </button>
-                ))}
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 mb-8">
+              {/* Question Number & Difficulty */}
+              <div className="flex items-start justify-between mb-4">
+                <span className="inline-block rounded-lg bg-mst-red/20 px-3 py-1 text-sm font-bold text-mst-red">
+                  Q{currentQuestion.questionNumber} • {currentQuestion.marks} marks •{" "}
+                  {currentQuestion.difficulty}
+                </span>
+                {isAnswered && (
+                  <span className="text-sm font-semibold text-green-500">
+                    ✓ Answered
+                  </span>
+                )}
               </div>
-              <textarea
-                placeholder="Justify your answer..."
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
-              />
+
+              {/* Question Text */}
+              <h2 className="text-xl sm:text-2xl font-bold text-[var(--text)] mb-6">
+                {currentQuestion.questionText || currentQuestion.statement}
+              </h2>
+
+              {/* Options */}
+              {currentQuestion.options && (
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option) => (
+                    <button
+                      key={option.label}
+                      onClick={() => handleOptionSelect(option.label)}
+                      className={`w-full text-left p-4 rounded-lg border-2 transition ${answers[currentQuestion.questionNumber] === option.label
+                          ? "border-mst-red bg-mst-red/5"
+                          : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${answers[currentQuestion.questionNumber] === option.label
+                              ? "border-mst-red bg-mst-red"
+                              : "border-[var(--border)]"
+                            }`}
+                        >
+                          {answers[currentQuestion.questionNumber] === option.label && (
+                            <span className="text-xs font-bold text-white">✓</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-[var(--text)]">
+                            {option.label}
+                          </div>
+                          <div className="text-sm text-[var(--text-muted)]">
+                            {option.text}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* True/False with Justification */}
+              {currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" && (
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    {["True", "False"].map((val) => (
+                      <button
+                        key={val}
+                        onClick={() => handleOptionSelect(val)}
+                        className={`flex-1 py-3 px-4 rounded-lg border-2 font-semibold transition ${answers[currentQuestion.questionNumber] === val
+                            ? "border-mst-red bg-mst-red text-white"
+                            : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
+                          }`}
+                      >
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    placeholder="Justify your answer..."
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
           </div>
         </div>
 
@@ -414,7 +429,7 @@ export default function AssessmentViewer({
                 disabled={answeredCount === 0}
                 className="ml-auto rounded-lg bg-gradient-to-r from-mst-red to-red-600 px-6 py-3 text-sm font-bold text-white transition hover:shadow-lg hover:shadow-mst-red/30 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Submit Assessment
+                Submitttttt Assessment
               </button>
             ) : (
               <button

@@ -177,12 +177,12 @@ export default function UserManagementPage() {
           <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5 text-red-500 shadow-sm">
             <h3 className="font-bold text-lg mb-2">Error Fetching Users</h3>
             <pre className="whitespace-pre-wrap text-sm mb-4">{errorMsg}</pre>
-            <div className="bg-white/50 dark:bg-black/20 p-3 rounded text-sm text-black dark:text-white font-mono break-all">
+            {/* <div className="bg-white/50 dark:bg-black/20 p-3 rounded text-sm text-black dark:text-white font-mono break-all">
               <strong>Your Token:</strong> {typeof window !== "undefined" ? (localStorage.getItem("admin-token") || "NULL / MISSING (You need to logout and login again!)") : "loading..."}
-            </div>
-            <p className="mt-3 text-sm font-semibold">
+            </div> */}
+            {/* <p className="mt-3 text-sm font-semibold">
               If your token is NULL, click your profile, sign out, and sign back in as admin.
-            </p>
+            </p> */}
           </div>
         )}
 

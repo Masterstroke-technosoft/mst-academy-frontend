@@ -813,8 +813,8 @@ export function FullscreenAssessment({
                           type="button"
                           onClick={() => { playSelect(); setAnswer(current, opt.text, opt.key); }}
                           className={`w-full rounded-xl border-2 px-5 py-4 text-left text-sm transition font-medium ${sel
-                              ? "border-mst-red bg-mst-red/10 text-[var(--text)] shadow-sm"
-                              : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-muted)]"
+                            ? "border-mst-red bg-mst-red/10 text-[var(--text)] shadow-sm"
+                            : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:border-[var(--border-strong)] hover:bg-[var(--bg-muted)]"
                             }`}
                         >
                           <span className="mr-3 font-bold text-mst-red">
@@ -853,8 +853,8 @@ export function FullscreenAssessment({
                               );
                             }}
                             className={`flex-1 rounded-xl border-2 py-4 font-bold transition text-center ${sel
-                                ? "border-mst-red bg-mst-red/15 text-[var(--text)]"
-                                : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--bg-muted)] hover:border-[var(--border-strong)]"
+                              ? "border-mst-red bg-mst-red/15 text-[var(--text)]"
+                              : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--bg-muted)] hover:border-[var(--border-strong)]"
                               }`}
                           >
                             {v}
