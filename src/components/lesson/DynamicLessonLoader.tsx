@@ -38,27 +38,27 @@ function extractContent(htmlStr: string): string {
 
 function extractTableOfContents(htmlStr: string): Array<{ id: string; title: string }> {
   const toc: Array<{ id: string; title: string }> = [];
-  
+
   // Look for table of contents section
   const tocMatch = htmlStr.match(/<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*toc)[^>]*>([\s\S]*?)<\/(?:div|section)>/i);
   const tocContent = tocMatch ? tocMatch[1] : htmlStr;
-  
+
   // Extract all anchor tags from TOC section
   const anchorRegex = /<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>/gi;
   let match;
-  
+
   while ((match = anchorRegex.exec(tocContent)) !== null) {
     const href = match[1];
     const title = match[2].trim();
-    
+
     // Use the href as id if it's a hash link, otherwise create one from title
     const id = href.startsWith('#') ? href.substring(1) : title.toLowerCase().replace(/\s+/g, '-');
-    
+
     if (title && id) {
       toc.push({ id, title });
     }
   }
-  
+
   // If we didn't find TOC items via links, try to find headings
   if (toc.length === 0) {
     const headingRegex = /<h[1-6][^>]*id="([^"]*)"[^>]*>([^<]+)<\/h[1-6]>/gi;
@@ -70,7 +70,7 @@ function extractTableOfContents(htmlStr: string): Array<{ id: string; title: str
       }
     }
   }
-  
+
   return toc;
 }
 
@@ -97,7 +97,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
         const fileRes1 = await fileResponse.json()
         const fileRes = fileRes1.data.contentFile
         console.log("Anuja2 ", fileRes);
-        
+
         // Set the submodule data from the API response
         setMockSubmodule(fileRes1.data);
 
@@ -108,10 +108,10 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
         const extractedHtml = extractContent(htmlText);
         const cleanedHtml = cleanLessonHtml(extractedHtml);
         setHtml(cleanedHtml);
-        
+
         // Extract table of contents from the HTML
         const extractedToc = extractTableOfContents(htmlText);
-        
+
         // Set the submodule data with the extracted TOC
         setMockSubmodule({
           ...fileRes1.data,

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Award } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 
 interface Question {
   questionNumber: number;
@@ -37,9 +38,36 @@ export default function AssessmentViewer({
   moduleId,
   slug,
 }: AssessmentViewerProps) {
+  const { user } = useAuth();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [justifications, setJustifications] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [dbUserId, setDbUserId] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const response = await fetch(`${baseURL}/api/users/profile`, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.user) {
+            setDbUserId(data.user._id || data.user.id || "");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile in AssessmentViewer:", error);
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
   const currentQuestion = assessment.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
@@ -71,6 +99,33 @@ export default function AssessmentViewer({
 
   const handleSubmit = useCallback(async () => {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+    const formattedAnswers = assessment.questions.map((q, idx) => {
+      const isTrueFalse = q.type === "TRUE_FALSE_WITH_JUSTIFICATION";
+      const answerVal = answers[q.questionNumber];
+      if (isTrueFalse) {
+        return {
+          questionNumber: q.questionNumber,
+          questionType: q.type,
+          selectedAnswer: answerVal === "True" ? true : answerVal === "False" ? false : "",
+          justification: justifications[q.questionNumber] || "",
+        };
+      } else {
+        return {
+          questionNumber: q.questionNumber,
+          questionType: q.type,
+          selectedOption: answerVal || "",
+        };
+      }
+    });
+
+    const payload = {
+      userId: dbUserId || user?.id || user?._id || "",
+      assignmentId: assessment._id || "",
+      submoduleId: assessment.submoduleId || "",
+      totalQuestions: assessment.questions.length,
+      answers: formattedAnswers,
+    };
+
     try {
       const response = await fetch(`${baseURL}/api/assignment-submissions`, {
         method: "POST",
@@ -78,17 +133,14 @@ export default function AssessmentViewer({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          moduleId,
-          slug,
-          answers,
-          assessment,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
         throw new Error(`Response Status : ${response.status}`);
       }
-      let result = await response.json();
+      const result = await response.json();
+      console.log(result)
+      setSubmissionResult(result.submission || result);
     } catch (error: any) {
       console.error(error?.message ?? error);
     }
@@ -98,22 +150,30 @@ export default function AssessmentViewer({
       JSON.stringify({ answers, assessment })
     );
     setSubmitted(true);
-  }, [answers, assessment, moduleId, slug]);
+  }, [answers, assessment, moduleId, slug, user, justifications, dbUserId]);
 
   const isAnswered = answers[currentQuestion.questionNumber];
   const answeredCount = Object.keys(answers).length;
 
   if (submitted) {
-    const results = Object.entries(answers).map(([qNum, answer]) => {
-      const q = assessment.questions[parseInt(qNum) - 1];
+    const results = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
+      const q = assessment.questions[idx] || {};
+      return {
+        qNum: idx + 1,
+        answer: ans.selectedOption || (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : ""),
+        isCorrect: ans.isCorrect,
+        marks: q.marks || 0
+      };
+    }) : assessment.questions.map((q, idx) => {
+      const answer = answers[q.questionNumber];
       const isCorrect = answer === q.correctAnswer;
-      return { qNum, answer, isCorrect, marks: q.marks };
+      return { qNum: idx + 1, answer: answer || "", isCorrect, marks: q.marks };
     });
 
-    const totalEarned = results.reduce(
+    const totalEarned = submissionResult?.score !== undefined ? submissionResult.score : (submissionResult?.partialScore !== undefined ? submissionResult.partialScore : results.reduce(
       (sum, r) => sum + (r.isCorrect ? r.marks : 0),
       0
-    );
+    ));
     const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);
     const passed = percentage >= 75;
 
@@ -132,7 +192,7 @@ export default function AssessmentViewer({
               <>
                 <div className="text-6xl mb-4">⚠️</div>
                 <h2 className="text-3xl font-black text-yellow-500 mb-2">
-                  Assessment Incomplete
+                  Assessment Not Passed
                 </h2>
               </>
             )}
@@ -173,8 +233,8 @@ export default function AssessmentViewer({
               <div
                 key={result.qNum}
                 className={`flex items-center justify-between p-3 rounded-lg ${result.isCorrect
-                    ? "bg-green-500/10 border border-green-500/20"
-                    : "bg-red-500/10 border border-red-500/20"
+                  ? "bg-green-500/10 border border-green-500/20"
+                  : "bg-red-500/10 border border-red-500/20"
                   }`}
               >
                 <span className="text-sm">
@@ -238,12 +298,12 @@ export default function AssessmentViewer({
               key={q.questionNumber}
               onClick={() => setCurrentQuestionIndex(idx)}
               className={`w-full text-left p-3 rounded-lg transition text-sm ${idx === currentQuestionIndex
-                  ? "bg-mst-red/20 border border-mst-red text-mst-red font-semibold"
-                  : "border border-transparent hover:bg-[var(--bg-muted)]"
+                ? "bg-mst-red/20 border border-mst-red text-mst-red font-semibold"
+                : "border border-transparent hover:bg-[var(--bg-muted)]"
                 }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium">Q{q.questionNumber}</span>
+                <span className="font-medium">Q{idx + 1}</span>
                 <span className="text-xs">{q.marks}m</span>
               </div>
               <div className="mt-1 text-xs text-[var(--text-muted)] line-clamp-2">
@@ -251,8 +311,8 @@ export default function AssessmentViewer({
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className={`text-[10px] font-semibold uppercase ${q.difficulty === "Easy" ? "text-green-500" :
-                    q.difficulty === "Medium" ? "text-yellow-500" :
-                      "text-red-500"
+                  q.difficulty === "Medium" ? "text-yellow-500" :
+                    "text-red-500"
                   }`}>
                   {q.difficulty}
                 </span>
@@ -332,7 +392,7 @@ export default function AssessmentViewer({
               {/* Question Number & Difficulty */}
               <div className="flex items-start justify-between mb-4">
                 <span className="inline-block rounded-lg bg-mst-red/20 px-3 py-1 text-sm font-bold text-mst-red">
-                  Q{currentQuestion.questionNumber} • {currentQuestion.marks} marks •{" "}
+                  Q{currentQuestionIndex + 1} • {currentQuestion.marks} marks •{" "}
                   {currentQuestion.difficulty}
                 </span>
                 {isAnswered && (
@@ -355,15 +415,15 @@ export default function AssessmentViewer({
                       key={option.label}
                       onClick={() => handleOptionSelect(option.label)}
                       className={`w-full text-left p-4 rounded-lg border-2 transition ${answers[currentQuestion.questionNumber] === option.label
-                          ? "border-mst-red bg-mst-red/5"
-                          : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
+                        ? "border-mst-red bg-mst-red/5"
+                        : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
                         }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${answers[currentQuestion.questionNumber] === option.label
-                              ? "border-mst-red bg-mst-red"
-                              : "border-[var(--border)]"
+                            ? "border-mst-red bg-mst-red"
+                            : "border-[var(--border)]"
                             }`}
                         >
                           {answers[currentQuestion.questionNumber] === option.label && (
@@ -393,8 +453,8 @@ export default function AssessmentViewer({
                         key={val}
                         onClick={() => handleOptionSelect(val)}
                         className={`flex-1 py-3 px-4 rounded-lg border-2 font-semibold transition ${answers[currentQuestion.questionNumber] === val
-                            ? "border-mst-red bg-mst-red text-white"
-                            : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
+                          ? "border-mst-red bg-mst-red text-white"
+                          : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
                           }`}
                       >
                         {val}
@@ -403,6 +463,15 @@ export default function AssessmentViewer({
                   </div>
                   <textarea
                     placeholder="Justify your answer..."
+                    value={justifications[currentQuestion.questionNumber] || ""}
+                    onChange={(e) => {
+                      if (!submitted) {
+                        setJustifications((prev) => ({
+                          ...prev,
+                          [currentQuestion.questionNumber]: e.target.value,
+                        }));
+                      }
+                    }}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
                   />
                 </div>

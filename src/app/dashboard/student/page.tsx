@@ -27,12 +27,12 @@ export default function StudentDashboardPage({
     return () => window.removeEventListener("hashchange", handleHash);
   }, []);
   let referralRecords = [
-    { name: "Riya S.", joinedAt: "12 May 2026", status: "Completed course", eligible: true },
-    { name: "Aman K.", joinedAt: "14 May 2026", status: "Completed course", eligible: true },
-    { name: "Neha P.", joinedAt: "16 May 2026", status: "In progress", eligible: false },
-    { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
-    { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
-    { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
+    // { name: "Riya S.", joinedAt: "12 May 2026", status: "Completed course", eligible: true },
+    // { name: "Aman K.", joinedAt: "14 May 2026", status: "Completed course", eligible: true },
+    // { name: "Neha P.", joinedAt: "16 May 2026", status: "In progress", eligible: false },
+    // { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
+    // { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
+    // { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
   ] as const;;
   const referralCode = user ? `MST-${user.id.slice(-6).toUpperCase()}` : "";
   const referralLink = user ? `https://masterstroke.academy/register?ref=${referralCode}` : "";
@@ -46,7 +46,7 @@ export default function StudentDashboardPage({
       if (!user) return;
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
       try {
-        const response = await fetch("/api/bank-details/me", {
+        const response = await fetch(`${baseURL}/api/bank-details/me`, {
           method: "GET",
           credentials: "include",
           headers: {

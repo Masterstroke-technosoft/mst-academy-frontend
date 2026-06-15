@@ -497,8 +497,7 @@ export function ReferAndEarnTab({
                             method: "PATCH",
                             credentials: "include",
                             headers: {
-                              "x-user-id": user.id,
-                              "x-user-email": user.email,
+
                               "Content-Type": "application/json",
                             },
                             body: JSON.stringify({
@@ -512,7 +511,7 @@ export function ReferAndEarnTab({
                           if (!response.ok) {
                             throw new Error(`Response Status : ${response.status}`);
                           }
-                          let result = await response.json();
+                          const result = await response.json();
                           console.log("Bank details updated:", result);
                         } catch (error: any) {
                           console.error(error?.message ?? error);
