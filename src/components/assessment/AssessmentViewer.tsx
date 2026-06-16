@@ -190,8 +190,8 @@ export default function AssessmentViewer({
     const passed = percentage >= 75;
 
     return (
-      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
+      <div className="min-h-screen bg-[var(--bg)] flex justify-center items-start py-8 px-4 overflow-y-auto">
+        <div className="max-w-2xl w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 text-center my-auto">
           <div className="mb-6">
             {passed ? (
               <>
@@ -269,10 +269,10 @@ export default function AssessmentViewer({
             ))}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href={`/module/${moduleId}`}
-              className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)]"
+              className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
               Back to Module
             </Link>
@@ -394,11 +394,11 @@ export default function AssessmentViewer({
             </div>
             {/* Violation Banner */}
             {warningCount > 0 && (
-                <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2">
+              <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2">
                 <div className="max-w-4xl mx-auto text-sm text-red-500 font-medium">
-                ⚠️ Proctoring alert: {violations[0]?.message}
+                  ⚠️ Proctoring alert: {violations[0]?.message}
                 </div>
-                </div>
+              </div>
             )}
             <div className="mt-2 text-xs text-[var(--text-muted)]">
               Question {currentQuestionIndex + 1} of {assessment.questions.length}{" "}
@@ -555,12 +555,12 @@ export default function AssessmentViewer({
                 />
               </svg>
             </div>
-            
+
             {/* Warning Alert Title */}
             <h3 className="text-xl font-extrabold text-[var(--text)] mb-3">
               Proctoring Alert
             </h3>
-            
+
             {/* Warning Message Box - Identical style and text to the original warning box */}
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 text-sm text-left font-medium">
               Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.

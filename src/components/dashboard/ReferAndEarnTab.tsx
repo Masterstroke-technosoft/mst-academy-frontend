@@ -29,11 +29,11 @@ function GlassCard({
 }
 
 export function ReferAndEarnTab({
-  referralCode,
-  referralLink,
-  referralRecords,
-  successfulReferrals,
-  withdrawUnlocked,
+  referralCode: propReferralCode,
+  referralLink: propReferralLink,
+  referralRecords: propReferralRecords,
+  successfulReferrals: propSuccessfulReferrals,
+  withdrawUnlocked: propWithdrawUnlocked,
   initialBankDetails,
 }: {
   referralCode: string;
@@ -56,6 +56,52 @@ export function ReferAndEarnTab({
     branchName: "",
     upiId: "",
   });
+
+  const [dynamicReferralCode, setDynamicReferralCode] = useState(propReferralCode);
+  const [dynamicReferrals, setDynamicReferrals] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const response = await fetch(`${baseURL}/api/users/profile`, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.user) {
+            if (data.user.referralCode) {
+              setDynamicReferralCode(data.user.referralCode);
+            }
+            if (data.user.referrals) {
+              setDynamicReferrals(data.user.referrals);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile in ReferAndEarnTab:", error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const referralCode = dynamicReferralCode || propReferralCode;
+  //const referralLink = referralCode ? `https://masterstroke.academy/register?ref=${referralCode}` : propReferralLink;
+
+  const referralRecords = dynamicReferrals.length > 0
+    ? dynamicReferrals.map(r => ({
+      name: r.name || "Anonymous",
+      joinedAt: r.joinedAt ? new Date(r.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A",
+      status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
+      eligible: r.status === "verified",
+    }))
+    : propReferralRecords;
+
+  const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
+  const withdrawUnlocked = successfulReferrals >= 5;
 
   useEffect(() => {
     if (typeof window !== "undefined" && user) {
@@ -121,26 +167,26 @@ export function ReferAndEarnTab({
                 </p>
               </div>
             </div>
-            <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+            {/* <p className="mt-8 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
               Share link
-            </p>
+            </p> */}
             <div className="mt-3 relative group">
               <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-[var(--border)] to-[var(--border)] opacity-20 transition duration-300 group-hover:opacity-50" />
-              <p className="relative break-all rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/80 px-4 py-3.5 text-xs font-medium leading-relaxed text-[var(--text-muted)] backdrop-blur-sm">
-                {referralLink}
-              </p>
+              {/* <p className="relative break-all rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/80 px-4 py-3.5 text-xs font-medium leading-relaxed text-[var(--text-muted)] backdrop-blur-sm">
+                {referralCode}
+              </p> */}
             </div>
             <button
               type="button"
               onClick={async () => {
-                await navigator.clipboard.writeText(referralLink);
+                await navigator.clipboard.writeText(referralCode);
                 setCopied(true);
                 window.setTimeout(() => setCopied(false), 2000);
               }}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#e31e24] px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#e31e24]/20 transition-all hover:scale-[1.02] hover:bg-red-600 hover:shadow-xl active:scale-95"
             >
               {copied ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Link Copied!" : "Copy Referral Link"}
+              {copied ? "Code Copied!" : "Copy Referral Code"}
             </button>
             <div className="mt-6 rounded-xl bg-emerald-500/5 px-4 py-3 text-center border border-emerald-500/10">
               <p className="text-xs text-[var(--text-muted)]">

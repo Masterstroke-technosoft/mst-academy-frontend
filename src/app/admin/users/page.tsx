@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -76,6 +76,14 @@ export default function UserManagementPage() {
   }, [currentPage]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [togglingActiveId, setTogglingActiveId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [confirmToggle, setConfirmToggle] = useState<{ userId: string; currentStatus: boolean; userName: string } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const handleVerifyStudent = async (studentId: string) => {
     try {
@@ -101,11 +109,44 @@ export default function UserManagementPage() {
         )
       );
 
-      alert(data.message || "Student verified successfully");
+      showToast(data.message || "Student verified successfully", "success");
     } catch (error: any) {
-      alert(error.message || "An error occurred during verification");
+      showToast(error.message || "An error occurred during verification", "error");
     } finally {
       setVerifyingId(null);
+    }
+  };
+
+  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+    try {
+      setTogglingActiveId(userId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/admin/users/${userId}/deactive`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive: !currentStatus })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to toggle user status: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === userId ? { ...u, isActive: !currentStatus } : u
+        )
+      );
+
+      showToast(data.message || "User status updated successfully", "success");
+    } catch (error: any) {
+      showToast(error.message || "An error occurred while updating status", "error");
+    } finally {
+      setTogglingActiveId(null);
     }
   };
 
@@ -206,7 +247,7 @@ export default function UserManagementPage() {
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
                   <th className="px-3 py-3">Verified</th>
                   <th className="px-3 py-3">Created</th>
-                  <th className="px-3 py-3">Updated</th>
+                  <th className="px-3 py-3">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
@@ -235,7 +276,7 @@ export default function UserManagementPage() {
                         <div className="h-4 w-20 rounded bg-[var(--bg-muted)]" />
                       </td>
                       <td className="px-3 py-4">
-                        <div className="h-4 w-20 rounded bg-[var(--bg-muted)]" />
+                        <div className="h-5 w-16 rounded bg-[var(--bg-muted)]" />
                       </td>
                     </tr>
                   ))
@@ -286,7 +327,13 @@ export default function UserManagementPage() {
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-3 py-3">
-                        {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'N/A'}
+                        <button
+                          onClick={() => setConfirmToggle({ userId: user.id, currentStatus: user.isActive !== false, userName: user.fullName || "this user" })}
+                          disabled={togglingActiveId === user.id}
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 ${user.isActive === false ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20'}`}
+                        >
+                          {togglingActiveId === user.id ? '...' : (user.isActive === false ? 'Unblock' : 'Block')}
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -345,6 +392,51 @@ export default function UserManagementPage() {
           </div>
         </div>
       </div>
+      {confirmToggle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">
+              Do you really want to {confirmToggle.currentStatus ? "block" : "unblock"} the user <span className="font-bold text-[var(--text)]">{confirmToggle.userName}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmToggle(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleToggleActive(confirmToggle.userId, confirmToggle.currentStatus);
+                  setConfirmToggle(null);
+                }}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer ${
+                  confirmToggle.currentStatus ? "bg-mst-red hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
+                }`}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${
+          toast.type === "success" 
+            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400" 
+            : "border-red-500/30 bg-red-950/95 text-red-400"
+        }`}>
+          {toast.type === "success" ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-red-400" />
+          )}
+          <span className="text-sm font-extrabold">{toast.message}</span>
+        </div>
+      )}
     </DashboardShell>
   );
 }

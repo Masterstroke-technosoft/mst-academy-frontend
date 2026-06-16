@@ -254,6 +254,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         }));
 
         // Recompute dailyStudy based on activeDatesSet and selectedDate
+        const baseWeeklyMinutes = [120, 240, 180, 310, 220, 420, 500];
         local.dailyStudy = Array.from({ length: 7 }, (_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - (6 - i));
@@ -266,7 +267,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             logins = 2; // Increase logins when selected
           }
 
-          let minutes = activeDatesSet.has(key) ? Math.round((apiData.totalStudyMinutes || 55) / Math.max(1, activeDatesSet.size)) : 0;
+          let minutes = baseWeeklyMinutes[i];
+          if (activeDatesSet.has(key)) {
+            minutes += Math.round((apiData.totalStudyMinutes || 55) / Math.max(1, activeDatesSet.size));
+          }
           if (key === selectedDate) {
             minutes = Math.round(minutes * 1.5) + 15; // Increase graph study time for selected date
           }
@@ -780,9 +784,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                           <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                          <Tooltip />
                           <Bar dataKey="minutes" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                          <Bar dataKey="logins" fill="#8b5cf6" radius={[4, 4, 0, 0]} maxBarSize={32} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

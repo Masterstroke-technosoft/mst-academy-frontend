@@ -1058,10 +1058,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   }, [activeModuleId, activeModule, activePhaseId, modulesInActivePhase.length, isMobile]);
 
   const targetFitIds = useMemo(() => {
-    if (activeSubmoduleSlug && activeModule) {
-      return [`sub-${activeModule.id}-${activeSubmoduleSlug}`];
+    if (activeModuleId && activeModule) {
+      return [
+        `module-${activeModuleId}`,
+        ...activeModule.submodules.map((sub) => `sub-${activeModuleId}-${sub.slug}`)
+      ];
     }
-    if (activeModuleId) return [`module-${activeModuleId}`];
     if (activePhaseId) {
       const moduleIds = curriculum.modules
         .filter((m) => m.phaseId === activePhaseId)
@@ -1292,7 +1294,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       {/* Graph — viewport height so less scrolling */}
       <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
         <div
-          className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-y-auto overflow-x-hidden custom-scrollbar"
+          className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-hidden"
           style={{
             height: activePhaseId === "phase-3" && !activeModuleId
               ? (isMobile ? "72vh" : "calc(100vh - 280px)")
