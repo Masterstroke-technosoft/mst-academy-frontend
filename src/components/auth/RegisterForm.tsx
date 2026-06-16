@@ -17,6 +17,10 @@ import {
   isPhoneVerified,
   sendOtp,
   verifyOtp,
+  isValidEmail,
+  isEmailVerified,
+  sendEmailOtp,
+  verifyEmailOtp,
 } from "@/lib/otp";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -135,7 +139,7 @@ export function RegisterForm() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [demoOtp, setDemoOtp] = useState("");
-  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
   const selectedPlan = useMemo(
@@ -158,7 +162,7 @@ export function RegisterForm() {
   function handleSendOtp() {
     setError("");
     setOtpLoading(true);
-    const result = sendOtp(phone);
+    const result = sendEmailOtp(email);
     setOtpLoading(false);
     if (!result.ok) {
       setError(result.error);
@@ -166,13 +170,13 @@ export function RegisterForm() {
     }
     setOtpSent(true);
     setDemoOtp(result.demoCode);
-    setPhoneVerified(false);
+    setEmailVerified(false);
   }
 
   function handleVerifyOtp() {
     setError("");
-    if (verifyOtp(phone, otpCode)) {
-      setPhoneVerified(true);
+    if (verifyEmailOtp(email, otpCode)) {
+      setEmailVerified(true);
       setDemoOtp("");
     } else {
       setError("Invalid or expired OTP. Please try again.");
@@ -184,9 +188,9 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
-    if (!phoneVerified && !isPhoneVerified(phone)) {
+    if (!emailVerified && !isEmailVerified(email)) {
       setLoading(false);
-      setError("Please verify your mobile number with OTP first.");
+      setError("Please verify your email address with OTP first.");
       return;
     }
 
@@ -294,54 +298,40 @@ export function RegisterForm() {
           <FieldLabel htmlFor="email" required>
             Email
           </FieldLabel>
-          <TextInput
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <FieldLabel htmlFor="phone" required>
-            Mobile Number
-          </FieldLabel>
           <div className="flex gap-2">
             <TextInput
-              id="phone"
-              type="tel"
+              id="email"
+              type="email"
               required
-              value={phone}
+              value={email}
               onChange={(e) => {
-                setPhone(e.target.value);
-                setPhoneVerified(false);
+                setEmail(e.target.value);
+                setEmailVerified(false);
                 setOtpSent(false);
               }}
-              placeholder="10-digit mobile number"
+              placeholder="you@example.com"
               className="flex-1"
-              disabled={phoneVerified}
+              disabled={emailVerified}
             />
-            {!phoneVerified && (
+            {!emailVerified && (
               <button
                 type="button"
                 onClick={handleSendOtp}
-                disabled={otpLoading || !isValidIndianMobile(phone)}
+                disabled={otpLoading || !isValidEmail(email)}
                 className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50"
               >
                 {otpLoading ? "…" : otpSent ? "Resend" : "Send OTP"}
               </button>
             )}
           </div>
-          {phoneVerified && (
+          {emailVerified && (
             <p className="mt-2 text-xs font-semibold text-green-600 dark:text-green-400">
-              ✓ Mobile verified
+              ✓ Email verified
             </p>
           )}
         </div>
 
-        {otpSent && !phoneVerified && (
+        {otpSent && !emailVerified && (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4">
             <FieldLabel htmlFor="otp" required>
               Enter OTP
@@ -375,6 +365,20 @@ export function RegisterForm() {
             )}
           </div>
         )}
+
+        <div>
+          <FieldLabel htmlFor="phone" required>
+            Mobile Number
+          </FieldLabel>
+          <TextInput
+            id="phone"
+            type="tel"
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="10-digit mobile number"
+          />
+        </div>
 
         {/* Plan toggle */}
         <div>
