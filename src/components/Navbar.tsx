@@ -100,7 +100,7 @@ export function Navbar() {
                 type="button"
                 onClick={async () => {
                   try {
-                    let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+                    const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
                     await fetch(`${baseURL}/api/auth/logout`, {
                       method: "POST",
                       credentials: "include",
@@ -216,29 +216,7 @@ export function Navbar() {
                     <p className="text-xs text-[var(--nav-text)]/50">{user.email}</p>
                   </div>
                 </Link>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-                      await fetch(`${baseURL}/api/auth/logout`, {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                      });
-                    } catch (e) {
-                      console.error(e);
-                    }
-                    await logout();
-                    setMobileOpen(false);
-                  }}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
-                >
-                  <LogOut size={18} />
-                  Sign Out
-                </button>
+
               </>
             ) : (
               <>

@@ -144,7 +144,7 @@ export async function login(
 ): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   if (isAdminCredentials(email, password)) {
     try {
-      let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
       const response = await fetch(`${baseURL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

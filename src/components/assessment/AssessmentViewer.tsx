@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Award } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useProctoring } from "@/hooks/useProctoring";
+import { getModule } from "@/lib/curriculum";
 
 interface Question {
   questionNumber: number;
@@ -297,6 +298,14 @@ export default function AssessmentViewer({
             >
               Back to Module
             </Link>
+            {passed && getModule(moduleId + 1) && (
+              <Link
+                href={`/module/${moduleId + 1}`}
+                className="flex-1 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 text-center"
+              >
+                Next Module
+              </Link>
+            )}
             <button
               onClick={() => {
                 setCurrentQuestionIndex(0);

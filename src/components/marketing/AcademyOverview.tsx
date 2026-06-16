@@ -583,7 +583,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               Programme Overview
             </p>
 
-            <h1 className="text-display mt-10 font-black text-[var(--text)]">
+            <h1 className="text-display mt-10 font-black text-[var(--text)] sm:whitespace-nowrap">
               Full{" "}
               <Typewriter
                 strings={[
@@ -594,7 +594,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
                 ]}
                 speedMs={38}
                 pauseMs={900}
-                className="text-gradient-red animate-gradient"
+                className="text-gradient-red animate-gradient inline-block whitespace-nowrap"
               />
             </h1>
 
@@ -676,7 +676,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
       </section>
 
       {/* Sticky nav */}
-      <nav className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--nav-bg)]/95 backdrop-blur-xl">
+      {/* <nav className="sticky top-16 z-40 border-b border-[var(--border)] bg-[var(--nav-bg)]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 py-2 sm:px-6">
           {NAV_SECTIONS.map((s) => (
             <a
@@ -688,7 +688,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             </a>
           ))}
         </div>
-      </nav>
+      </nav> */}
 
       {/* Outcomes */}
       <section id="outcomes" className="border-b border-[var(--border)] py-24 sm:py-32">

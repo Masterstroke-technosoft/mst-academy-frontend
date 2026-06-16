@@ -52,7 +52,7 @@ export function NavbarCoinStreak() {
   return (
     <div className="relative flex items-center gap-1.5">
       {/* Streak */}
-      <div
+      {/* <div
         className="hidden items-center gap-1 rounded-lg border border-orange-500/30 bg-orange-500/10 px-2 py-1.5 sm:flex"
         title="Day streak"
       >
@@ -62,7 +62,7 @@ export function NavbarCoinStreak() {
         <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
           {streak}
         </span>
-      </div>
+      </div> */}
 
       {/* Coins */}
       <button
@@ -74,11 +74,10 @@ export function NavbarCoinStreak() {
             ? `Claim ${nextReward} $MSTC coins today`
             : `${balance} $MSTC coins · ${streak} day streak`
         }
-        className={`relative flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-all ${
-          canClaim
-            ? "coin-claim-ready border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:scale-105"
-            : "border-white/10 bg-white/5"
-        } ${burst ? "coin-burst" : ""}`}
+        className={`relative flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-all ${canClaim
+          ? "coin-claim-ready border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:scale-105"
+          : "border-white/10 bg-white/5"
+          } ${burst ? "coin-burst" : ""}`}
       >
         <Coins
           className={`h-4 w-4 text-amber-400 ${canClaim ? "animate-coin-wiggle" : ""}`}
