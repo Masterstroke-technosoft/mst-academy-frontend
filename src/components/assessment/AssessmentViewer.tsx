@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Award } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { useProctoring } from "@/hooks/useProctoring";
 
 interface Question {
   questionNumber: number;
@@ -68,6 +69,8 @@ export default function AssessmentViewer({
     };
     fetchUserProfile();
   }, []);
+
+  const { violations, warningCount } = useProctoring();
 
   const currentQuestion = assessment.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
@@ -366,6 +369,12 @@ export default function AssessmentViewer({
                   {assessment.totalMarks} marks
                 </div>
               </div>
+                {warningCount > 0 && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+                Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.
+                </div>
+                )}
+
             </div>
             <h1 className="text-2xl font-black text-[var(--text)]">
               {assessment.title}
@@ -378,6 +387,14 @@ export default function AssessmentViewer({
                 }}
               />
             </div>
+            {/* Violation Banner */}
+            {warningCount > 0 && (
+                <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2">
+                <div className="max-w-4xl mx-auto text-sm text-red-500 font-medium">
+                ⚠️ Proctoring alert: {violations[0]?.message}
+                </div>
+                </div>
+            )}
             <div className="mt-2 text-xs text-[var(--text-muted)]">
               Question {currentQuestionIndex + 1} of {assessment.questions.length}{" "}
               • Answered: {answeredCount}/{assessment.questions.length}

@@ -149,6 +149,7 @@ function VoiceReader({ articleRef }: { articleRef: React.RefObject<HTMLDivElemen
   const activeRef = useRef(false);
 
   useEffect(() => {
+     
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     setSupported(true);
 
@@ -410,6 +411,23 @@ export function LessonViewer({
   }, [moduleId, submodule.slug]);
 
   useEffect(() => {
+    const article = articleRef.current;
+    if (!article) return;
+    const handleClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest("a");
+      if (!anchor) return;
+      const text = anchor.textContent?.toLowerCase() ?? "";
+      const href = anchor.getAttribute("href") ?? "";
+      if (text.includes("assessment") || href.toLowerCase().includes("assessment")) {
+        e.preventDefault();
+        handleAssessment();
+      }
+    };
+    article.addEventListener("click", handleClick);
+    return () => article.removeEventListener("click", handleClick);
+  }, [handleAssessment]);
+
+  useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollMax = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -547,20 +565,9 @@ export function LessonViewer({
 
   const lessonTitle = getLessonDisplayTitle(submodule.title, "Topic: ");
   console.log("Submodule in LessonViewerrrrrrrrrrrrrrrrrrr5555555555555555555555555:", lessonTitle);
-  // Build TOC and insert an 'Assessment' link after the Glossary entry when present
-  const tocWithAssessment: any[] = (() => {
-    const arr: any[] = Array.isArray(validToc) ? [...(validToc as any[])] : [];
-    const idx = arr.findIndex((it) => {
-      const t = normalizeText(it.title);
-      return t.includes("glossary") || t.includes("key terms") || t.includes("glossary key");
-    });
-    if (idx !== -1) {
-      arr.splice(idx + 1, 0, { id: "assessment-link", title: "Assessment", isAssessment: true });
-    }
-    return arr;
-  })();
 
   return (
+    
     <div className="flex min-h-[calc(100vh-4rem)] bg-[var(--bg)]" suppressHydrationWarning>
       {/* Left Sidebar */}
       <aside className="hidden w-72 shrink-0 border-r border-[var(--border)] bg-[var(--sidebar-bg)] lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:overflow-y-auto lg:self-start">
@@ -606,12 +613,13 @@ export function LessonViewer({
             </button>
             {leftTocOpen && (
               <nav ref={navRef as any} className="px-3 pb-3 space-y-0.5 max-h-[40vh] overflow-y-auto">
-                {tocWithAssessment.map((item, idx) => {
-                  if ((item as any).isAssessment) {
+                {validToc.map((item, idx) => {
+                  const isAssessmentItem = normalizeText(item.title).includes("assessment");
+                  if (isAssessmentItem) {
                     return (
                       <Link
                         key={item.id}
-                        href={`/module/${moduleId}/${submodule.slug}/assessment`}
+                        href={`/module/${moduleId}/${submodule._id}/assessment`}
                         className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition text-white/60 hover:bg-white/5 hover:text-white`}
                       >
                         <span className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold bg-white/10 text-white/40`}>
