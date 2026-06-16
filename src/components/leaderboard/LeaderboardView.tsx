@@ -2,7 +2,31 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getLeaderboard, type LeaderboardEntry } from "@/lib/leaderboard";
+import { getLeaderboard, getCurrentUserEntry, type LeaderboardEntry } from "@/lib/leaderboard";
+
+interface BackendLeaderboardEntry {
+  _id: string | null;
+  name: string | null;
+  score?: number;
+  modulesDone?: number;
+  totalModules?: number;
+  streak?: number;
+  coins?: number;
+  rank?: number;
+}
+
+function mapBackendEntry(e: BackendLeaderboardEntry): LeaderboardEntry {
+  return {
+    id: e._id ?? "",
+    name: e.name ?? "Unknown",
+    score: e.score ?? 0,
+    modulesDone: e.modulesDone ?? 0,
+    totalModules: e.totalModules ?? 21,
+    streak: e.streak ?? 0,
+    coins: e.coins ?? 0,
+    rank: e.rank,
+  };
+}
 import { MarketingHeroBackground } from "@/components/marketing/MarketingHeroBackground";
 import { RevealSection } from "@/components/marketing/RevealSection";
 import {
@@ -59,8 +83,27 @@ export function LeaderboardView() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setEntries(getLeaderboard());
-    setMounted(true);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    fetch(`${baseUrl}/api/leaderboard`, {
+      method: "GET",
+      credentials: "include"
+    })
+      .then((r) => r.json())
+      .then((raw: BackendLeaderboardEntry[]) => {
+        const valid = raw.filter((e) => e._id != null && e.name != null);
+        const seed: LeaderboardEntry[] = valid.map(mapBackendEntry);
+        const you = getCurrentUserEntry();
+        const list = you
+          ? [...seed.filter((e) => e.id !== you.id && e.name !== you.name), you]
+          : [...seed];
+        list.sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
+          return (a.rank ?? 999) - (b.rank ?? 999);
+        });
+        setEntries(list);
+      })
+      .finally(() => setMounted(true));
   }, []);
 
   const podium = podiumOrder(entries);
@@ -146,8 +189,8 @@ export function LeaderboardView() {
                   >
                     {/* Left: Rank Box & Info */}
                     <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors">
-                        #{idx + 1}
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors ${row.isYou ? "border-[#e31e24]/30 bg-[#e31e24]/5 text-[#e31e24]" : ""}`}>
+                        #{row.rank ?? idx + 1}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">

@@ -274,7 +274,7 @@ export function LandingPage({
                   const color = PHASE_COLORS[i];
                   const phaseId = phase._id || phase.id;
                   const hours = phase.estimatedTime ?? PHASE_HOURS[phaseId]?.hours;
-                  const moduleCount = phase.moduleCount ?? phase.modules?.length ?? 0;
+                  const moduleCount = phase.realmodulecount ?? phase.modules?.length ?? 0;
                   return (
                     <div
                       key={phaseId}
@@ -316,7 +316,7 @@ export function LandingPage({
                       const color = PHASE_COLORS[expandedPhase];
                       const phaseId = phase._id || phase.id;
                       const hours = details.estimatedTime ?? PHASE_HOURS[phaseId]?.hours;
-                      const moduleCount = details.moduleCount ?? details.modules?.length ?? 0;
+                      const moduleCount = details.realmodulecount ?? details.modules?.length ?? 0;
                       return (
                         <div className="group relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8 transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl sm:p-10">
                           {isLoadingPhase && (

@@ -14,6 +14,7 @@ export interface LeaderboardEntry {
   streak: number;
   coins: number;
   isYou?: boolean;
+  rank?: number;
 }
 
 const curriculum = curriculumData as Curriculum;
@@ -35,7 +36,7 @@ function shortName(fullName: string): string {
   return `${parts[0]} ${parts[1][0]}.`;
 }
 
-function getCurrentUserEntry(): LeaderboardEntry | null {
+export function getCurrentUserEntry(): LeaderboardEntry | null {
   const user = getSession();
   if (!user) return null;
 

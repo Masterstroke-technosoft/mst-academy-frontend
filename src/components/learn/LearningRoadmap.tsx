@@ -1247,14 +1247,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   Tap a phase → pick a module → open lessons. Everything fits on screen - no clutter.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-[10px] font-bold text-purple-400">
-                  Neon map
-                </span>
-                <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-[10px] font-bold text-blue-400">
-                  Sound FX
-                </span>
-              </div>
             </div>
           </div>
         </motion.div>
