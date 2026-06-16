@@ -3,14 +3,14 @@ let fullscreenHandler:
   | null = null;
 
 export const startFullscreenMonitoring = (
-  onViolation: (type: string, message: string) => void
+  onViolation: (type: string, message: string) => void,
+  onResolve: (type: string) => void
 ) => {
   fullscreenHandler = () => {
     if (!document.fullscreenElement) {
-      onViolation(
-        "FULLSCREEN_EXIT",
-        "Fullscreen exited"
-      );
+      onViolation("FULLSCREEN_EXIT", "Fullscreen exited");
+    } else {
+      onResolve("FULLSCREEN_EXIT");
     }
   };
 

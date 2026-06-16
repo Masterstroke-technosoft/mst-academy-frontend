@@ -70,9 +70,11 @@ export default function AssessmentViewer({
     fetchUserProfile();
   }, []);
 
-  const { violations, warningCount } = useProctoring();
+  const { violations, warningCount, activeViolations, autoSubmitTriggered } = useProctoring();
   const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
+
+  const isViolationLocked = activeViolations.size > 0;
 
   useEffect(() => {
     if (warningCount > lastSeenWarningCount) {
@@ -80,6 +82,12 @@ export default function AssessmentViewer({
       setLastSeenWarningCount(warningCount);
     }
   }, [warningCount, lastSeenWarningCount]);
+
+  useEffect(() => {
+    if (isViolationLocked) {
+      setShowWarningPopup(true);
+    }
+  }, [isViolationLocked]);
 
   const currentQuestion = assessment.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
@@ -136,6 +144,7 @@ export default function AssessmentViewer({
       submoduleId: assessment.submoduleId || "",
       totalQuestions: assessment.questions.length,
       answers: formattedAnswers,
+      proctoringViolations: violations,
     };
 
     try {
@@ -162,7 +171,13 @@ export default function AssessmentViewer({
       JSON.stringify({ answers, assessment })
     );
     setSubmitted(true);
-  }, [answers, assessment, moduleId, slug, user, justifications, dbUserId]);
+  }, [answers, assessment, moduleId, slug, user, justifications, dbUserId, violations]);
+
+  useEffect(() => {
+    if (autoSubmitTriggered && !submitted) {
+      handleSubmit();
+    }
+  }, [autoSubmitTriggered]);
 
   const isAnswered = answers[currentQuestion.questionNumber];
   const answeredCount = Object.keys(answers).length;
@@ -560,18 +575,45 @@ export default function AssessmentViewer({
             <h3 className="text-xl font-extrabold text-[var(--text)] mb-3">
               Proctoring Alert
             </h3>
-
-            {/* Warning Message Box - Identical style and text to the original warning box */}
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 text-sm text-left font-medium">
+            
+            {/* Warning Message Box */}
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-2 text-sm text-left font-medium">
               Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.
             </div>
 
+            {/* Active sustained violation notice */}
+            {isViolationLocked && (
+              <div className="bg-red-50 border border-red-300 text-red-600 px-4 py-2 rounded mb-6 text-sm text-left font-medium">
+                {Array.from(activeViolations).map((type) => (
+                  <p key={type}>
+                    {
+                      {
+                        CAMERA_OFF: "Camera is blocked — please allow camera access to continue.",
+                        CAMERA_BLACK: "Camera appears covered or dark — uncover your camera to continue.",
+                        CAMERA_BLUR: "Camera feed is blurry or obstructed — fix your camera to continue.",
+                        TAB_SWITCH: "You switched tabs — return focus to continue.",
+                        MIC_OFF: "Microphone is blocked — please allow microphone access to continue.",
+                        FULLSCREEN_EXIT: "You exited fullscreen — re-enter fullscreen to continue.",
+                      }[type] ?? `Active violation: ${type}`
+                    }
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {!isViolationLocked && <div className="mb-6" />}
+
             {/* Acknowledge Button */}
             <button
-              onClick={() => setShowWarningPopup(false)}
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition duration-200 shadow-lg shadow-red-600/20 active:scale-95"
+              onClick={() => { if (!isViolationLocked) setShowWarningPopup(false); }}
+              disabled={isViolationLocked}
+              className={`w-full py-3 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 ${
+                isViolationLocked
+                  ? "bg-red-300 cursor-not-allowed shadow-red-200/20"
+                  : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+              }`}
             >
-              I Understand
+              {isViolationLocked ? "Resolve violation to continue" : "I Understand"}
             </button>
           </div>
         </div>

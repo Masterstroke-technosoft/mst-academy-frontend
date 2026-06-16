@@ -3,14 +3,14 @@ let visibilityHandler:
   | null = null;
 
 export const startTabMonitoring = (
-  onViolation: (type: string, message: string) => void
+  onViolation: (type: string, message: string) => void,
+  onResolve: (type: string) => void
 ) => {
   visibilityHandler = () => {
     if (document.hidden) {
-      onViolation(
-        "TAB_SWITCH",
-        "Tab switched or minimized"
-      );
+      onViolation("TAB_SWITCH", "Tab switched or minimized");
+    } else {
+      onResolve("TAB_SWITCH");
     }
   };
 

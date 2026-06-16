@@ -8,7 +8,8 @@ const BLUR_THRESHOLD = 80;       // laplacian variance below this = blurry
 function analyzeFrame(
   video: HTMLVideoElement,
   canvas: HTMLCanvasElement,
-  onViolation: (type: string, message: string) => void
+  onViolation: (type: string, message: string) => void,
+  onResolve: (type: string) => void
 ) {
   const ctx = canvas.getContext("2d");
   if (!ctx || video.readyState < 2) return;
@@ -31,6 +32,8 @@ function analyzeFrame(
   if (avgBrightness < DARK_THRESHOLD) {
     onViolation("CAMERA_BLACK", "Camera appears dark or covered");
     return;
+  } else {
+    onResolve("CAMERA_BLACK");
   }
 
   // Blur detection: Laplacian variance
@@ -58,11 +61,14 @@ function analyzeFrame(
 
   if (variance < BLUR_THRESHOLD) {
     onViolation("CAMERA_BLUR", "Camera feed appears blurry or obstructed");
+  } else {
+    onResolve("CAMERA_BLUR");
   }
 }
 
 export const startBlurCameraMonitoring = async (
-  onViolation: (type: string, message: string) => void
+  onViolation: (type: string, message: string) => void,
+  onResolve: (type: string) => void
 ) => {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -76,7 +82,7 @@ export const startBlurCameraMonitoring = async (
     const canvas = document.createElement("canvas");
 
     analysisInterval = setInterval(() => {
-      analyzeFrame(video, canvas, onViolation);
+      analyzeFrame(video, canvas, onViolation, onResolve);
     }, ANALYSIS_INTERVAL_MS);
 
     return stream;

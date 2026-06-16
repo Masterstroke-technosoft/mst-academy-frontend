@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   startKeyboardMonitoring,
@@ -34,73 +34,77 @@ import {
 } from "@/components/proctoring-service/blur-camera";
 
 
+const SUSTAINED_TYPES = new Set([
+  "CAMERA_OFF",
+  "CAMERA_BLACK",
+  "CAMERA_BLUR",
+  "TAB_SWITCH",
+  "MIC_OFF",
+  "FULLSCREEN_EXIT",
+]);
+
 export function useProctoring() {
-  const [violations, setViolations] =
-    useState<any[]>([]);
+  const [violations, setViolations] = useState<any[]>([]);
+  const [activeViolations, setActiveViolations] = useState<Set<string>>(new Set());
+  const [autoSubmitTriggered, setAutoSubmitTriggered] = useState(false);
 
-  const addViolation = (
-    type: string,
-    message: string
-  ) => {
-    setViolations((prev) => [
-      {
-        type,
-        message,
-        timestamp: new Date(),
-      },
-      ...prev,
-    ]);
+  const violationCountRef = useRef(0);
+  const activeViolationsRef = useRef<Set<string>>(new Set());
 
-    console.log(type, message);
+  const addViolation = useCallback((type: string, message: string) => {
+    const isSustained = SUSTAINED_TYPES.has(type);
 
-    // Send to NestJS here
-  };
+    if (isSustained && activeViolationsRef.current.has(type)) return;
+
+    if (isSustained) {
+      activeViolationsRef.current.add(type);
+      setActiveViolations(new Set(activeViolationsRef.current));
+    }
+
+    setViolations((prev) => [{ type, message, timestamp: new Date() }, ...prev]);
+
+    console.log("Violation:::::::", type, message);
+
+    violationCountRef.current += 1;
+    if (violationCountRef.current >= 3) {
+      setAutoSubmitTriggered(true);
+    }
+  }, []);
+
+  const resolveViolation = useCallback((type: string) => {
+    if (!activeViolationsRef.current.has(type)) return;
+    activeViolationsRef.current.delete(type);
+    setActiveViolations(new Set(activeViolationsRef.current));
+  }, []);
 
   useEffect(() => {
-    startKeyboardMonitoring(
-      addViolation
-    );
+    startKeyboardMonitoring(addViolation);
 
     enterFullscreen(document.documentElement).catch(console.error);
 
-    startTabMonitoring(
-      addViolation
-    );
+    startTabMonitoring(addViolation, resolveViolation);
 
-    startFullscreenMonitoring(
-      addViolation
-    );
+    startFullscreenMonitoring(addViolation, resolveViolation);
 
-    startCameraMonitoring(
-      addViolation
-    );
+    startCameraMonitoring(addViolation, resolveViolation);
 
-    startMicrophoneMonitoring(
-      addViolation
-    );
+    startMicrophoneMonitoring(addViolation, resolveViolation);
 
-    startBlurCameraMonitoring(
-      addViolation
-    );
+    startBlurCameraMonitoring(addViolation, resolveViolation);
 
     return () => {
       stopKeyboardMonitoring();
-
       stopTabMonitoring();
-
-      //   stopFullscreenMonitoring();
-
       stopCameraMonitoring();
-
       stopMicrophoneMonitoring();
-
       stopBlurCameraMonitoring();
     };
   }, []);
 
   return {
     violations,
-    warningCount:
-      violations.length,
+    activeViolations,
+    warningCount: violations.length,
+    autoSubmitTriggered,
   };
 }
