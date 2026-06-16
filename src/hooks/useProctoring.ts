@@ -29,9 +29,9 @@ import {
 } from "@/components/proctoring-service/microphone-monitor";
 
 import {
-    startBlurCameraMonitoring,
-    stopBlurCameraMonitoring
-}   from "@/components/proctoring-service/blur-camera";
+  startBlurCameraMonitoring,
+  stopBlurCameraMonitoring
+} from "@/components/proctoring-service/blur-camera";
 
 
 export function useProctoring() {
@@ -57,11 +57,11 @@ export function useProctoring() {
   };
 
   useEffect(() => {
-    // startKeyboardMonitoring(
-    //   addViolation
-    // );
+    startKeyboardMonitoring(
+      addViolation
+    );
 
-    // enterFullscreen(document.documentElement).catch(console.error);
+    enterFullscreen(document.documentElement).catch(console.error);
 
     startTabMonitoring(
       addViolation
@@ -71,9 +71,9 @@ export function useProctoring() {
       addViolation
     );
 
-    // startCameraMonitoring(
-    //   addViolation
-    // );
+    startCameraMonitoring(
+      addViolation
+    );
 
     startMicrophoneMonitoring(
       addViolation
@@ -84,11 +84,11 @@ export function useProctoring() {
     );
 
     return () => {
-    //   stopKeyboardMonitoring();
+      stopKeyboardMonitoring();
 
       stopTabMonitoring();
 
-    //   stopFullscreenMonitoring();
+      //   stopFullscreenMonitoring();
 
       stopCameraMonitoring();
 

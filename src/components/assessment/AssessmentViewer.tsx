@@ -71,6 +71,15 @@ export default function AssessmentViewer({
   }, []);
 
   const { violations, warningCount } = useProctoring();
+  const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
+  const [showWarningPopup, setShowWarningPopup] = useState(false);
+
+  useEffect(() => {
+    if (warningCount > lastSeenWarningCount) {
+      setShowWarningPopup(true);
+      setLastSeenWarningCount(warningCount);
+    }
+  }, [warningCount, lastSeenWarningCount]);
 
   const currentQuestion = assessment.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
@@ -369,11 +378,7 @@ export default function AssessmentViewer({
                   {assessment.totalMarks} marks
                 </div>
               </div>
-                {warningCount > 0 && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
-                Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.
-                </div>
-                )}
+
 
             </div>
             <h1 className="text-2xl font-black text-[var(--text)]">
@@ -529,6 +534,48 @@ export default function AssessmentViewer({
           </div>
         </div>
       </div>
+
+      {showWarningPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+          <div className="relative w-full max-w-md p-6 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl text-center transform scale-100 transition-all duration-300 animate-in fade-in zoom-in-95">
+            {/* Warning Icon */}
+            <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 bg-red-100 rounded-full dark:bg-red-900/30">
+              <svg
+                className="w-8 h-8 text-red-600 dark:text-red-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            
+            {/* Warning Alert Title */}
+            <h3 className="text-xl font-extrabold text-[var(--text)] mb-3">
+              Proctoring Alert
+            </h3>
+            
+            {/* Warning Message Box - Identical style and text to the original warning box */}
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-6 text-sm text-left font-medium">
+              Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.
+            </div>
+
+            {/* Acknowledge Button */}
+            <button
+              onClick={() => setShowWarningPopup(false)}
+              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition duration-200 shadow-lg shadow-red-600/20 active:scale-95"
+            >
+              I Understand
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
