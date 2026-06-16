@@ -70,11 +70,17 @@ export default function AssessmentViewer({
     fetchUserProfile();
   }, []);
 
-  const { violations, warningCount, activeViolations, autoSubmitTriggered } = useProctoring();
+  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring } = useProctoring();
   const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
 
   const isViolationLocked = activeViolations.size > 0;
+
+  useEffect(() => {
+    if (submitted && stopProctoring) {
+      stopProctoring();
+    }
+  }, [submitted, stopProctoring]);
 
   useEffect(() => {
     if (warningCount > lastSeenWarningCount) {
