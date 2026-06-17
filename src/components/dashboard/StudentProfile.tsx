@@ -89,7 +89,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   }, []);
 
   const referralCode = formData.referralCode || (safeUser.id ? `MST-${safeUser.id.slice(-6).toUpperCase()}` : "");
-  const referralLink = `https://masterstroke.academy/register?ref=${referralCode}`;
+  const referralLink = `Comming Soon`;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -415,6 +415,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               />
               <button
                 type="button"
+                disabled
                 onClick={copyReferral}
                 className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600"
               >

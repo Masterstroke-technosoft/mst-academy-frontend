@@ -573,7 +573,6 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
   return (
     <div className="overflow-hidden bg-[var(--bg)]">
       {/* Hero */}
-      sssssssssssssssssssssssssssssssssssssssssssssss
       <section className="bg-grid relative min-h-[85vh] overflow-hidden border-b border-[var(--border)]">
         <MarketingHeroBackground tall />
 
