@@ -12,24 +12,20 @@ export default async function AcademyOverviewPage() {
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
   let result: any = null;
   //const token = "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTA4MWI4MTM2YjI4NzJmYzk5NjdjMjYiLCJlbWFpbCI6ImFkaXR5YTExMkBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc4MDEzMTc1MywiZXhwIjoxNzgwNzM2NTUzfQ.hhPiWUrifjyEOoo_3y5ar9LWxjOVBIK9j7daTDjlELc; Path=/; HttpOnly; Expires=Sat, 06 Jun 2026 09:02:31 GMT";
-  const response = await fetch(`${baseURL}/api/academy-overview`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      //"Cookie": token,
-      // "Authorization" : `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
   try {
+    const response = await fetch(`${baseURL}/api/academy-overview`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     if (!response.ok) {
       throw new Error(`Response Status : ${response.status}`);
     }
     result = await response.json();
-    console.log(result);
   } catch (error: any) {
-    console.error(error?.message ?? error);
+    console.error("Failed to fetch academy overview:", error?.message ?? error);
   }
 
   const curriculum = Array.isArray(result) ? result[0] : result;

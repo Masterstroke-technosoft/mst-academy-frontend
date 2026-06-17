@@ -68,8 +68,8 @@ export function LoginForm() {
         setSession(loggedInUser);
         return { ok: true, user: loggedInUser };
       }
-    } catch {
-
+    } catch (err) {
+      console.error("Login API error, falling back to localStorage:", err);
     }
 
     const raw = localStorage.getItem("mst-academy-users");

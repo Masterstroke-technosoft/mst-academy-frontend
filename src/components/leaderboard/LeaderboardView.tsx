@@ -81,6 +81,7 @@ function podiumOrder(entries: LeaderboardEntry[]) {
 export function LeaderboardView() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -88,7 +89,10 @@ export function LeaderboardView() {
       method: "GET",
       credentials: "include"
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Leaderboard request failed: ${r.status}`);
+        return r.json();
+      })
       .then((raw: BackendLeaderboardEntry[]) => {
         const valid = raw.filter((e) => e._id != null && e.name != null);
         const seed: LeaderboardEntry[] = valid.map(mapBackendEntry);
@@ -103,6 +107,10 @@ export function LeaderboardView() {
         });
         setEntries(list);
       })
+      .catch((err) => {
+        console.error("Failed to load leaderboard:", err);
+        setFetchError(true);
+      })
       .finally(() => setMounted(true));
   }, []);
 
@@ -114,6 +122,13 @@ export function LeaderboardView() {
         {!mounted ? (
           <div className="flex h-full items-center justify-center">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[#e31e24]" />
+          </div>
+        ) : fetchError ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="text-base font-bold text-[var(--text)]">Could not load leaderboard</p>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">Please check your connection and try again.</p>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col gap-12 lg:flex-row lg:gap-16 h-full">
