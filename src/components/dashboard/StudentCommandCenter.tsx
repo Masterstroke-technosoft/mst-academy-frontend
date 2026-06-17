@@ -34,7 +34,7 @@ import {
   Flame,
   LayoutDashboard,
   LogOut,
-  Map,
+  Map as MapIcon,
   Play,
   Sparkles,
   Target,
@@ -238,24 +238,42 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       // Recompute activityHeatmap based on apiData.activityDates
       if (apiData.activityDates && Array.isArray(apiData.activityDates)) {
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const activeDatesSet = new Set([
-          ...apiData.activityDates.map((d: any) => {
-            if (typeof d === "string") return d.slice(0, 10);
-            if (d && typeof d.toISOString === "function") return d.toISOString().slice(0, 10);
-            if (d && typeof d.slice === "function") return d.slice(0, 10);
-            return "";
-          }).filter(Boolean),
-          todayStr
-        ]);
+        const activeDatesMap = new Map<string, number>();
+        apiData.activityDates.forEach((d: any) => {
+          let dateStr = "";
+          let count = 1;
+          if (typeof d === "string") {
+            dateStr = d.slice(0, 10);
+          } else if (d && typeof d.date === "string") {
+            dateStr = d.date.slice(0, 10);
+            if (typeof d.activityCount === "number") {
+              count = d.activityCount;
+            }
+          } else if (d && typeof d.toISOString === "function") {
+            dateStr = d.toISOString().slice(0, 10);
+          } else if (d && typeof d.slice === "function") {
+            dateStr = d.slice(0, 10);
+          }
+          if (dateStr) {
+            activeDatesMap.set(dateStr, count);
+          }
+        });
 
         local.activityHeatmap = local.activityHeatmap.map((item) => ({
           date: item.date,
-          count: activeDatesSet.has(item.date) ? 1 : 0,
+          count: activeDatesMap.has(item.date) ? activeDatesMap.get(item.date) || 0 : 0,
         }));
 
-        // Recompute dailyStudy based on activeDatesSet and selectedDate
-        const baseWeeklyMinutes = [120, 240, 180, 310, 220, 420, 500];
+        // Recompute dailyStudy based on activeDatesMap and selectedDate
+        const totalActivityCount = apiData.activityDates.reduce((sum: number, d: any) => {
+          let count = 0;
+          if (typeof d === "string") count = 1;
+          else if (d && typeof d.date === "string") count = d.activityCount || 1;
+          else if (d) count = 1;
+          return sum + count;
+        }, 0) || 1;
+        const totalStudyMinutes = apiData.totalStudyMinutes || 0;
+
         local.dailyStudy = Array.from({ length: 7 }, (_, i) => {
           const d = new Date();
           d.setDate(d.getDate() - (6 - i));
@@ -263,15 +281,21 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           const dayName = d.toLocaleString('en-US', { weekday: 'short' });
           const dayDate = d.getDate();
 
-          let logins = activeDatesSet.has(key) ? 1 : 0;
+          let logins = activeDatesMap.has(key) ? 1 : 0;
           if (key === selectedDate) {
             logins = 2; // Increase logins when selected
           }
 
-          let minutes = baseWeeklyMinutes[i];
-          if (activeDatesSet.has(key)) {
-            minutes += Math.round((apiData.totalStudyMinutes || 55) / Math.max(1, activeDatesSet.size));
+          let minutes = 0;
+          if (activeDatesMap.has(key)) {
+            const count = activeDatesMap.get(key) || 1;
+            if (totalStudyMinutes > 0) {
+              minutes = Math.round((count / totalActivityCount) * totalStudyMinutes);
+            } else {
+              minutes = count * 30; // fallback: 30 mins per activity
+            }
           }
+
           if (key === selectedDate) {
             minutes = Math.round(minutes * 1.5) + 15; // Increase graph study time for selected date
           }
@@ -848,7 +872,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-mst-red/0 via-mst-red/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                         <div className="relative z-10 flex items-center gap-3">
                           {action.icon === "play" && <Play className="h-5 w-5 text-mst-red transition-transform duration-300 group-hover:scale-110" />}
-                          {action.icon === "map" && <Map className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110" />}
+                          {action.icon === "map" && <MapIcon className="h-5 w-5 text-purple-400 transition-transform duration-300 group-hover:scale-110" />}
                           {action.icon === "brain" && <Brain className="h-5 w-5 text-blue-400 transition-transform duration-300 group-hover:scale-110" />}
                           {action.icon === "trophy" && <Trophy className="h-5 w-5 text-amber-500 transition-transform duration-300 group-hover:scale-110" />}
                           <span className="text-sm font-bold text-[var(--text)] group-hover:text-mst-red transition-colors">{action.label}</span>
