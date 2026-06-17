@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
+import { AssessmentsTab } from "@/components/dashboard/AssessmentsTab";
 
 function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
   return (
@@ -472,11 +473,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 withdrawUnlocked={withdrawUnlocked}
               />
             ) : activeTab === 'assessments' ? (
-              <PlaceholderTab
-                title="My Assessments"
-                icon={ClipboardCheck}
-                description="Complete modules on your Learning Roadmap to unlock assessments and certify your skills."
-              />
+              <AssessmentsTab />
             ) : activeTab === 'progress' ? (
               <PlaceholderTab
                 title="Learning Progress"
