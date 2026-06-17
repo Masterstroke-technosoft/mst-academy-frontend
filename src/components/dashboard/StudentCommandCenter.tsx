@@ -572,10 +572,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     <div className="absolute -left-px top-1/2 h-1/2 w-[3px] -translate-y-1/2 rounded-full bg-purple-500" />
                     <p className="flex items-start gap-3 text-sm text-[var(--text-muted)]">
                       <Sparkles className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-purple-400" />
-                      {/* <span className="leading-relaxed">
+                      <span className="leading-relaxed">
                         <strong className="font-extrabold tracking-wide text-[var(--text)]">AI Mentor:</strong>{" "}
                         {analytics.insights[0] ?? "Start your first lesson to unlock personalized insights."}
-                      </span> */}
+                      </span>
                     </p>
                   </div> */}
                 </motion.section>
