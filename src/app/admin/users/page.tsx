@@ -76,6 +76,7 @@ export default function UserManagementPage() {
   }, [currentPage]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
   const [togglingActiveId, setTogglingActiveId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [confirmToggle, setConfirmToggle] = useState<{ userId: string; currentStatus: boolean; userName: string } | null>(null);
@@ -88,7 +89,7 @@ export default function UserManagementPage() {
   const handleVerifyStudent = async (studentId: string) => {
     try {
       setVerifyingId(studentId);
-      let baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
       const response = await fetch(`${baseURL}/api/auth/verify-student/${studentId}`, {
         method: "PATCH",
         credentials: "include",
@@ -309,13 +310,13 @@ export default function UserManagementPage() {
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        {user.role === 'student' && !user.isStudentVerified ? (
+                        {((user.role === 'student' || user.role === 'validator') && !user.isStudentVerified) ? (
                           <button
-                            onClick={() => handleVerifyStudent(user.id)}
+                            onClick={() => setVerifyUserModal(user)}
                             disabled={verifyingId === user.id}
                             className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 hover:bg-amber-500/20 disabled:opacity-50 transition-colors cursor-pointer"
                           >
-                            {verifyingId === user.id ? 'Verifying...' : 'Verify Student'}
+                            {verifyingId === user.id ? 'Verifying...' : (user.role === 'validator' ? 'Verify Validator' : 'Verify Student')}
                           </button>
                         ) : (
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
@@ -413,9 +414,8 @@ export default function UserManagementPage() {
                   handleToggleActive(confirmToggle.userId, confirmToggle.currentStatus);
                   setConfirmToggle(null);
                 }}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer ${
-                  confirmToggle.currentStatus ? "bg-mst-red hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
-                }`}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer ${confirmToggle.currentStatus ? "bg-mst-red hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
               >
                 Yes
               </button>
@@ -423,12 +423,105 @@ export default function UserManagementPage() {
           </div>
         </div>
       )}
+      {verifyUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Verify {verifyUserModal.role?.toLowerCase() === 'validator' ? 'Validator' : 'Student'} ID Card
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-4">
+              Please review the uploaded ID card for <span className="font-bold text-[var(--text)]">{verifyUserModal.fullName}</span> ({verifyUserModal.email}).
+            </p>
+
+            <div className="flex-1 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] min-h-[300px] flex items-center justify-center p-2 relative mb-6">
+              {(() => {
+                const idCardUrl = (verifyUserModal as any).idCardImage || (verifyUserModal as any).idCardImageUrl || (verifyUserModal as any).idCard || (verifyUserModal as any).idCardPath;
+                if (!idCardUrl) {
+                  return (
+                    <div className="text-center p-4">
+                      <AlertCircle className="mx-auto h-12 w-12 text-amber-500 mb-2" />
+                      <p className="text-sm font-semibold text-[var(--text)]">No ID Card Found</p>
+                      <p className="text-xs text-[var(--text-muted)] mt-1">No ID card was uploaded or returned from the API for this user.</p>
+                    </div>
+                  );
+                }
+
+                const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+                const fullIdCardUrl = idCardUrl.startsWith('http') ? idCardUrl : `${baseURL}${idCardUrl.startsWith('/') ? '' : '/'}${idCardUrl}`;
+                const isPdf = idCardUrl.toLowerCase().endsWith('.pdf');
+
+                if (isPdf) {
+                  return (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+                      <iframe src={fullIdCardUrl} className="w-full h-[350px] border-0 rounded-lg mb-3 bg-white" />
+                      <a
+                        href={fullIdCardUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-mst-red/10 text-mst-red border border-mst-red/20 px-4 py-2 text-xs font-bold hover:bg-mst-red/20 transition-colors cursor-pointer"
+                      >
+                        Open PDF in New Tab
+                      </a>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="relative w-full h-full min-h-[350px] flex flex-col items-center justify-center">
+                    <img
+                      src={fullIdCardUrl}
+                      alt="ID Card"
+                      className="max-w-full max-h-[400px] object-contain rounded-lg shadow-sm"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const sibling = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (sibling) sibling.style.display = 'block';
+                      }}
+                    />
+                    <div className="hidden text-center p-4">
+                      <AlertCircle className="mx-auto h-12 w-12 text-amber-500 mb-2" />
+                      <p className="text-sm font-semibold text-[var(--text)]">Failed to load ID card image</p>
+                      <a
+                        href={fullIdCardUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-2 rounded-lg bg-mst-red/10 text-mst-red border border-mst-red/20 px-4 py-2 text-xs font-bold hover:bg-mst-red/20 transition-colors cursor-pointer"
+                      >
+                        Open Link directly
+                      </a>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="flex justify-end gap-3 shrink-0">
+              <button
+                onClick={() => setVerifyUserModal(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const userId = verifyUserModal.id;
+                  setVerifyUserModal(null);
+                  await handleVerifyStudent(userId);
+                }}
+                disabled={verifyingId === verifyUserModal.id}
+                className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {verifyingId === verifyUserModal.id ? 'Verifying...' : 'Verify'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {toast && (
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${
-          toast.type === "success" 
-            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400" 
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
+            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
             : "border-red-500/30 bg-red-950/95 text-red-400"
-        }`}>
+          }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="h-5 w-5 text-emerald-400" />
           ) : (

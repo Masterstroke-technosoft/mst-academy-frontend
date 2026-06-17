@@ -571,7 +571,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     </div>
                   </div>
 
-                  <div className="relative mt-8 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:from-purple-500/15">
+                  {/* <div className="relative mt-8 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:from-purple-500/15">
                     <div className="absolute -left-px top-1/2 h-1/2 w-[3px] -translate-y-1/2 rounded-full bg-purple-500" />
                     <p className="flex items-start gap-3 text-sm text-[var(--text-muted)]">
                       <Sparkles className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-purple-400" />
@@ -580,7 +580,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         {analytics.insights[0] ?? "Start your first lesson to unlock personalized insights."}
                       </span>
                     </p>
-                  </div>
+                  </div> */}
                 </motion.section>
 
                 {/* Stats grid */}
