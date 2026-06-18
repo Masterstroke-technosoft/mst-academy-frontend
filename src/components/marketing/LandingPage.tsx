@@ -461,7 +461,7 @@ export function LandingPage({
                 };
               });
 
-              return cardsToRender.map((card, i) => {
+              return cardsToRender.map((card: any, i: number) => {
                 const apiPrice = card.price;
                 const apiOriginal = card.original;
 
@@ -499,7 +499,7 @@ export function LandingPage({
                         </div>
 
                         <div className="mt-5 space-y-2 flex-1">
-                          {card.bullets.map((b) => (
+                          {card.bullets.map((b: string) => (
                             <div
                               key={b}
                               className="flex items-start gap-2 text-sm text-[var(--text-muted)]"
