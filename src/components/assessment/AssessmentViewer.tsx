@@ -146,7 +146,7 @@ export default function AssessmentViewer({
     });
 
     const payload = {
-      userId: dbUserId || user?.id || user?._id || "",
+      userId: dbUserId || user?.id || "",
       assignmentId: assessment._id || "",
       submoduleId: assessment.submoduleId || "",
       totalQuestions: assessment.questions.length,
@@ -190,7 +190,7 @@ export default function AssessmentViewer({
   const answeredCount = Object.keys(answers).length;
 
   if (submitted) {
-    const results = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
+    const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
       return {
         qNum: idx + 1,
@@ -205,7 +205,7 @@ export default function AssessmentViewer({
     });
 
     const totalEarned = submissionResult?.score !== undefined ? submissionResult.score : (submissionResult?.partialScore !== undefined ? submissionResult.partialScore : results.reduce(
-      (sum, r) => sum + (r.isCorrect ? r.marks : 0),
+      (sum: number, r: { isCorrect: boolean; marks: number }) => sum + (r.isCorrect ? r.marks : 0),
       0
     ));
     const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);

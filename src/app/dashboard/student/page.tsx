@@ -33,7 +33,7 @@ export default function StudentDashboardPage({
     // { name: "Vikram T.", joinedAt: "18 May 2026", status: "Completed course", eligible: true },
     // { name: "Priya M.", joinedAt: "21 May 2026", status: "Completed course", eligible: true },
     // { name: "Rohit D.", joinedAt: "24 May 2026", status: "Completed course", eligible: true },
-  ] as const;;
+  ] as { name: string; joinedAt: string; status: string; eligible: boolean }[];
   const referralCode = user ? `MST-${user.id.slice(-6).toUpperCase()}` : "";
   const referralLink = user ? `https://masterstroke.academy/register?ref=${referralCode}` : "";
   // let [referralRecords, setReferralRecords] = useState([]);

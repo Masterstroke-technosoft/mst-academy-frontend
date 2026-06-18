@@ -18,10 +18,10 @@ function readBankDetails(): any[] {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params;
+    const { userId } = await params;
     const list = readBankDetails();
     const detail = list.find((item: any) => item.userId === userId);
     

@@ -326,7 +326,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   // Custom referrals based on validator2 vs another user
   const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");
 
-  const referralRecords = isAnotherUser ? [
+  const referralRecords: { name: string; joinedAt: string; status: string; eligible: boolean }[] = isAnotherUser ? [
     //   { name: "Suresh M.", joinedAt: "22 May 2026", status: "Registered", eligible: false },
   ] : [
     //   { name: "Riya S.", joinedAt: "12 May 2026", status: "Purchased course", eligible: true },
