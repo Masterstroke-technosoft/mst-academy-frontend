@@ -132,7 +132,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 800));
     updateProfile({
-      ...formData,
+      fullName: formData.fullName,
+      phone: formData.phone,
+      linkedin: formData.linkedin,
+      github: formData.github,
+      walletAddress: formData.walletAddress,
+      portfolio: formData.portfolio,
       profilePhoto: photo || undefined,
     });
     setSaving(false);

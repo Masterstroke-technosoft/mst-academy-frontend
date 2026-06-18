@@ -101,10 +101,20 @@ export function useProctoring() {
     };
   }, []);
 
+  const stopProctoring = useCallback(() => {
+    stopKeyboardMonitoring();
+    stopTabMonitoring();
+    stopFullscreenMonitoring();
+    stopCameraMonitoring();
+    stopMicrophoneMonitoring();
+    stopBlurCameraMonitoring();
+  }, []);
+
   return {
     violations,
     activeViolations,
     warningCount: violations.length,
     autoSubmitTriggered,
+    stopProctoring,
   };
 }

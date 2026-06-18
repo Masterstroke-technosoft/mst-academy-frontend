@@ -10,18 +10,23 @@ import { Users, CheckCircle2, XCircle, Clock, Wallet, Check, AlertCircle } from 
 interface WithdrawalRequest {
   id: string;
   userName: string;
-  email: string;
-  amount: number;
-  status: string;
-  date: string;
-  bankDetails: {
+  email?: string;
+  amount?: number;
+  status?: string;
+  date?: string;
+  accountHolderName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  branchName?: string;
+  upiId?: string;
+  bankDetails?: {
     holderName: string;
     accountNumber: string;
     ifsc: string;
     branch: string;
     upi?: string;
   };
-  referrals: { name: string; status: string; eligible: boolean }[];
+  referrals?: { name: string; status: string; eligible: boolean }[];
 }
 
 const INITIAL_REQUESTS: WithdrawalRequest[] = [
