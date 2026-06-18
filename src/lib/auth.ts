@@ -24,6 +24,8 @@ export interface AuthUser {
   isStudentVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  cvFile?: string;
+  cvFileName?: string;
 }
 
 export interface RegisterStudentInput {

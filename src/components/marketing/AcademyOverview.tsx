@@ -568,22 +568,29 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
     return curriculum.modules.reduce((n, m) => n + m.submodules.length, 0);
   }, [curriculum?.modules]);
 
-  const statsRef = useInView(0.25);
+  const statsRef = useInView(0.05);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isVisible = mounted;
 
   return (
     <div className="overflow-hidden bg-[var(--bg)]">
       {/* Hero */}
-      <section className="bg-grid relative min-h-[85vh] overflow-hidden border-b border-[var(--border)]">
+      <section className="bg-grid relative overflow-hidden border-b border-[var(--border)] pb-6">
         <MarketingHeroBackground tall />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 sm:pb-24 sm:pt-32 lg:pt-36">
+        <div className="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
           <div className="mx-auto max-w-4xl text-center animate-fade-in">
             <p className="inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg backdrop-blur-md">
               <Sparkles className="h-4 w-4 animate-pulse-subtle" />
               Programme Overview
             </p>
 
-            <h1 className="text-display mt-10 font-black text-[var(--text)] sm:whitespace-nowrap">
+            <h1 className="text-display mt-4 font-black text-[var(--text)] sm:whitespace-nowrap">
               Full{" "}
               <Typewriter
                 strings={[
@@ -598,12 +605,12 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               />
             </h1>
 
-            <p className="animate-slide-up stagger-2 mx-auto mt-8 max-w-2xl text-xl leading-relaxed text-[var(--text-muted)] sm:text-2xl">
+            <p className="animate-slide-up stagger-2 mx-auto mt-2 max-w-2xl text-xl leading-relaxed text-[var(--text-muted)] sm:text-2xl">
               Every phase, module, and submodule — from internet foundations to
               capstone deployment, security audits, and Demo Day.
             </p>
 
-            <div className="animate-slide-up stagger-3 mt-12 flex flex-wrap items-center justify-center gap-4">
+            <div className="animate-slide-up stagger-3 mt-4 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/learn"
                 className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-mst-red to-red-600 px-10 py-4 text-lg font-bold text-white shadow-xl shadow-mst-red/30 transition hover:shadow-2xl"
@@ -627,7 +634,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
           {/* Stats */}
           <div
             ref={statsRef.ref}
-            className="relative mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-5 sm:grid-cols-4"
+            className="relative mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-5 sm:grid-cols-4"
           >
             {[
               { end: PROGRAMME_STATS.phases, suffix: "", label: "Phases" },
@@ -637,15 +644,15 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             ].map((stat, i) => (
               <div
                 key={stat.label}
-                className={`rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 p-6 text-center backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl ${statsRef.visible ? "animate-scale-in" : "opacity-0"
+                className={`rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 p-6 text-center backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl ${isVisible ? "animate-scale-in" : ""
                   }`}
                 style={{ animationDelay: `${i * 0.12}s` }}
               >
                 <p className="text-4xl font-black text-gradient-red sm:text-5xl">
-                  {statsRef.visible ? (
+                  {isVisible ? (
                     <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                   ) : (
-                    "0"
+                    <span>{stat.end}{stat.suffix}</span>
                   )}
                 </p>
                 <p className="mt-2 text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
@@ -655,13 +662,11 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* Badge marquee */}
-      <section className="overflow-hidden border-b border-[var(--border)] bg-[var(--surface)] py-6">
-        <div className="relative">
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-[var(--surface)] to-transparent" />
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-[var(--surface)] to-transparent" />
+        {/* Badge marquee */}
+        <div className="relative mt-8 overflow-hidden py-4">
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-[var(--bg)]/10 to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-[var(--bg)]/10 to-transparent" />
           <div className="marquee-track gap-3 px-3">
             {[...PROGRAMME_BADGES, ...PROGRAMME_BADGES].map((badge, i) => (
               <span

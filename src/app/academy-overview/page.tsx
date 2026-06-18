@@ -32,6 +32,8 @@ export default async function AcademyOverviewPage() {
     console.error(error?.message ?? error);
   }
 
-  const curriculum = Array.isArray(result) ? result[0] : result;
+  const curriculum = (result && result.success !== false && (Array.isArray(result) || typeof result === "object")) 
+    ? (Array.isArray(result) ? result[0] : result) 
+    : null;
   return <AcademyOverview curriculum={curriculum ?? getCurriculum()} />;
 }

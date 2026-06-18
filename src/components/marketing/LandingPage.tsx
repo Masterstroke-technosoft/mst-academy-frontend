@@ -123,7 +123,7 @@ export function LandingPage({
   useEffect(() => {
     const fetchCoursePhases = async () => {
       try {
-        let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
         const courseId = "6a2934912b48a13769669f8e";
         //const token = "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTFkMzJmZWYwOWIxMzYzYTI3NGM1NzYiLCJlbWFpbCI6ImFkbWluNEBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODA1NTgxNzcsImV4cCI6MTc4MTE2Mjk3N30.k5ZoO1kSV-qGJ8NvpuloYQ9UaZMiMfoaZUFepb-0Neo";
         const response = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
@@ -403,145 +403,128 @@ export function LandingPage({
           </div>
 
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                id: "validator",
-                detailHref: "/plans/validator",
-                title: "Validator Fellowship",
-                price: "Rs 9,999",
-                original: "Rs 14,999",
-                gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
-                tag: "Validator portal + stakeholder access",
-                bullets: [
-                  "Lifetime course access",
-                  "Dedicated validator portal",
-                  "1 fraction + daily MSTC rewards",
-                ],
-              },
-              {
-                id: "student",
-                detailHref: "/plans/student",
-                title: "Student Fellowship",
-                price: "Rs 14,999",
-                original: "Rs 24,999",
-                gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
-                tag: "Student ID scholarship",
-                bullets: [
-                  "Lifetime course access",
-                  "Paid internship with real-world projects",
-                  "1 fraction + daily MSTC rewards",
-                ],
-              },
-              {
-                id: "normal",
-                detailHref: "/plans/working-professional",
-                title: "Working Professional Fellowship",
-                price: "Rs 19,999",
-                original: "Rs 24,999",
-                gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
-                tag: "Career transition focused",
-                bullets: [
-                  "Lifetime course access",
-                  "Paid internship with industry mentors",
-                  "1 fraction + daily MSTC rewards",
-                ],
-              },
-              // {
-              //   id: "courseOnly",
-              //   detailHref: "/plans/course-only",
-              //   title: "Course Only",
-              //   price: "Rs 4,999",
-              //   original: "Rs 9,999",
-              //   gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
-              //   tag: "Foundation track offer",
-              //   bullets: [
-              //     "Lifetime course access",
-              //     "No fraction / no internship",
-              //     "Guided curriculum + assessments",
-              //   ],
-              // },
-            ].map((card, i) => {
-              let apiPrice = card.price;
-              let apiOriginal = card.original;
+            {(() => {
+              const courseData = courseDetails?.course || courseDetails?.data || courseDetails;
+              const apiPlans = courseData?.pricingPlans || [];
 
-              if (courseDetails?.plans && Array.isArray(courseDetails.plans)) {
-                const apiPlan = courseDetails.plans.find((p: any) =>
-                  p.id === card.id ||
-                  p.planType === card.id ||
-                  (p.title && p.title.toLowerCase().includes(card.id.toLowerCase()))
-                );
+              const cardsToRender = apiPlans.map((plan: any) => {
+                const role = plan.role || "";
 
-                if (apiPlan) {
-                  if (apiPlan.price !== undefined) apiPrice = `Rs ${apiPlan.price}`;
-                  if (apiPlan.originalPrice !== undefined) apiOriginal = `Rs ${apiPlan.originalPrice}`;
-                  else if (apiPlan.discountedFrom !== undefined) apiOriginal = `Rs ${apiPlan.discountedFrom}`;
-                }
-              } else if (courseDetails) {
-                const priceKey = `${card.id}Price`;
-                const originalKey = `${card.id}OriginalPrice`;
-                if (courseDetails[priceKey] !== undefined) apiPrice = `Rs ${courseDetails[priceKey]}`;
-                if (courseDetails[originalKey] !== undefined) apiOriginal = `Rs ${courseDetails[originalKey]}`;
-              }
+                // Format role name dynamically (e.g. VALIDATOR -> Validator Fellowship)
+                const formatRoleToTitle = (r: string) => {
+                  if (!r) return "";
+                  const words = r.toLowerCase().split("_");
+                  const titleCased = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+                  if (titleCased.toLowerCase().includes("only")) {
+                    return titleCased;
+                  }
+                  return `${titleCased} Fellowship`;
+                };
 
-              return (
-                <RevealSection key={card.id} delay={i * 70} className="h-full">
-                  <div
-                    className={`relative flex flex-col h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/30 hover:shadow-2xl`}
-                  >
-                    <div className={`absolute inset-0 opacity-90 ${card.gradient}`} />
-                    <div className="relative flex flex-col flex-1">
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] min-h-[32px]">
-                            {card.tag}
-                          </p>
-                          <h3 className="mt-3 text-xl font-black text-[var(--text)]">
-                            {card.title}
-                          </h3>
-                        </div>
-                        <div className="mt-2 border-b border-[var(--border)] pb-4">
-                          <div className="flex items-end justify-between">
-                            <p className="text-xs font-semibold text-[var(--text-muted)] line-through">
-                              {apiOriginal}
+                // Generate detail links dynamically based on role
+                const getDetailHref = (r: string) => {
+                  const slug = r.toLowerCase().replace(/_/g, "-");
+                  return `/plans/${slug}`;
+                };
+
+                // Generate sub-labels dynamically based on role
+                const getDefaultTag = (r: string) => {
+                  const normalized = r.toUpperCase();
+                  if (normalized === "VALIDATOR") return "Validator portal + stakeholder access";
+                  if (normalized === "STUDENT") return "Student ID scholarship";
+                  if (normalized === "WORKING_PROFESSIONAL" || normalized === "PROFESSIONAL") return "Career transition focused";
+                  return "Foundation track offer";
+                };
+
+                // Format price number or string to display standard currency symbol
+                const formatPrice = (p: any) => {
+                  if (p === undefined || p === null) return "";
+                  if (typeof p === "number") return `Rs ${p.toLocaleString()}`;
+                  return p.toString().startsWith("Rs") ? p : `Rs ${p}`;
+                };
+
+                const title = plan.title || plan.name || formatRoleToTitle(role);
+                const detailHref = plan.detailHref || plan.link || getDetailHref(role);
+                const tag = plan.tag || plan.description || getDefaultTag(role);
+                const price = formatPrice(plan.price);
+                const original = formatPrice(plan.originalPrice || plan.discountedFrom || plan.original) || "Rs --";
+
+                return {
+                  id: role.toLowerCase(),
+                  detailHref,
+                  title,
+                  price,
+                  original,
+                  gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
+                  tag,
+                  bullets: plan.perks || [],
+                };
+              });
+
+              return cardsToRender.map((card, i) => {
+                const apiPrice = card.price;
+                const apiOriginal = card.original;
+
+                return (
+                  <RevealSection key={card.id} delay={i * 70} className="h-full">
+                    <div
+                      className={`relative flex flex-col h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/30 hover:shadow-2xl`}
+                    >
+                      <div className={`absolute inset-0 opacity-90 ${card.gradient}`} />
+                      <div className="relative flex flex-col flex-1">
+                        <div className="flex flex-col gap-4">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] min-h-[32px]">
+                              {card.tag}
                             </p>
-                            <div className="text-right">
-                              <p className="text-2xl font-black text-gradient-red leading-none">
-                                {apiPrice}
+                            <h3 className="mt-3 text-xl font-black text-[var(--text)]">
+                              {card.title}
+                            </h3>
+                          </div>
+                          <div className="mt-2 border-b border-[var(--border)] pb-4">
+                            <div className="flex items-end justify-between">
+                              <p className="text-xs font-semibold text-[var(--text-muted)] line-through">
+                                {apiOriginal}
                               </p>
-                              <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                                One-time enrollment
-                              </p>
+                              <div className="text-right">
+                                <p className="text-2xl font-black text-gradient-red leading-none">
+                                  {apiPrice}
+                                </p>
+                                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                                  One-time enrollment
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="mt-5 space-y-2 flex-1">
-                        {card.bullets.map((b) => (
-                          <div
-                            key={b}
-                            className="flex items-start gap-2 text-sm text-[var(--text-muted)]"
+                        <div className="mt-5 space-y-2 flex-1">
+                          {card.bullets.map((b) => (
+                            <div
+                              key={b}
+                              className="flex items-start gap-2 text-sm text-[var(--text-muted)]"
+                            >
+                              <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-mst-red" />
+                              <span>{b}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-8 pt-4">
+                          <Link
+                            href={card.detailHref}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold text-[var(--text)] transition hover:border-mst-red hover:bg-[var(--bg-muted)]"
                           >
-                            <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-mst-red" />
-                            <span>{b}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-8 pt-4">
-                        <Link
-                          href={card.detailHref}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold text-[var(--text)] transition hover:border-mst-red hover:bg-[var(--bg-muted)]"
-                        >
-                          Explore this plan
-                          <ChevronRight className="h-4 w-4" />
-                        </Link>
+                            Explore this plan
+                            <ChevronRight className="h-4 w-4" />
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </RevealSection>
-              );
-            })}
+                  </RevealSection>
+                );
+              });
+            })()}
           </div>
 
           {/* Leaderboard */}

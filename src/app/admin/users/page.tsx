@@ -118,6 +118,38 @@ export default function UserManagementPage() {
     }
   };
 
+  const handleVerifyValidator = async (validatorId: string) => {
+    try {
+      setVerifyingId(validatorId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/auth/verify-validator/${validatorId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to verify validator: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === validatorId ? { ...u, isStudentVerified: true } : u
+        )
+      );
+
+      showToast(data.message || "Validator verified successfully", "success");
+    } catch (error: any) {
+      showToast(error.message || "An error occurred during verification", "error");
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
   const handleToggleActive = async (userId: string, currentStatus: boolean) => {
     try {
       setTogglingActiveId(userId);
@@ -505,8 +537,13 @@ export default function UserManagementPage() {
               <button
                 onClick={async () => {
                   const userId = verifyUserModal.id;
+                  const role = verifyUserModal.role?.toLowerCase();
                   setVerifyUserModal(null);
-                  await handleVerifyStudent(userId);
+                  if (role === "validator") {
+                    await handleVerifyValidator(userId);
+                  } else {
+                    await handleVerifyStudent(userId);
+                  }
                 }}
                 disabled={verifyingId === verifyUserModal.id}
                 className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"

@@ -52,7 +52,7 @@ export function NavbarCoinStreak() {
   return (
     <div className="relative flex items-center gap-1.5">
       {/* Streak */}
-      {/* <div
+      <div
         className="hidden items-center gap-1 rounded-lg border border-orange-500/30 bg-orange-500/10 px-2 py-1.5 sm:flex"
         title="Day streak"
       >
@@ -62,10 +62,10 @@ export function NavbarCoinStreak() {
         <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
           {streak}
         </span>
-      </div> */}
+      </div>
 
       {/* Coins */}
-      <button
+      {/* <button
         type="button"
         onClick={canClaim ? handleClaim : undefined}
         disabled={!canClaim || claiming}
@@ -91,7 +91,7 @@ export function NavbarCoinStreak() {
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
           </span>
         )}
-      </button>
+      </button> */}
 
       {floatAmount !== null && (
         <span className="coin-float-amount pointer-events-none absolute -top-6 right-0 text-xs font-black text-amber-400">

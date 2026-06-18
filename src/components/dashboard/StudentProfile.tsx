@@ -35,6 +35,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     updatedAt: "",
     __v: 0,
     referralCode: "",
+    cvFile: safeUser.cvFile || "",
+    cvFileName: safeUser.cvFileName || "",
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profilePhoto || null);
   const [saving, setSaving] = useState(false);
@@ -74,6 +76,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               updatedAt: data.user.updatedAt || prev.updatedAt,
               __v: data.user.__v !== undefined ? data.user.__v : prev.__v,
               referralCode: data.user.referralCode || prev.referralCode,
+              cvFile: data.user.cvFile || prev.cvFile,
+              cvFileName: data.user.cvFileName || prev.cvFileName,
             }));
             if (data.user.profilePhoto) {
               setPhoto(data.user.profilePhoto);
@@ -102,6 +106,21 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          cvFile: reader.result as string,
+          cvFileName: file.name
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -388,17 +407,29 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               />
             </div>
 
-            {/* Version */}
+            {/* Upload CV */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
-                Version (__v)
+                Upload CV
               </label>
-              <input
-                type="text"
-                value={formData.__v}
-                disabled
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
-              />
+              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+                <label
+                  htmlFor="cvUploadInput"
+                  className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                >
+                  Choose File
+                </label>
+                <span className="text-sm text-[var(--text-muted)] truncate">
+                  {formData.cvFileName ? formData.cvFileName : "No file chosen"}
+                </span>
+                <input
+                  id="cvUploadInput"
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={handleCvUpload}
+                />
+              </div>
             </div>
           </div>
 

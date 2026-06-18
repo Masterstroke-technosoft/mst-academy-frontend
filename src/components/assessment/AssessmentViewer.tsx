@@ -618,6 +618,24 @@ export default function AssessmentViewer({
 
             {!isViolationLocked && <div className="mb-6" />}
 
+            {/* Re-enter Fullscreen Button */}
+            {activeViolations.has("FULLSCREEN_EXIT") && (
+              <button
+                onClick={async () => {
+                  try {
+                    if (document.documentElement.requestFullscreen) {
+                      await document.documentElement.requestFullscreen();
+                    }
+                  } catch (err) {
+                    console.error("Failed to re-enter fullscreen:", err);
+                  }
+                }}
+                className="w-full mb-3 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 shadow-red-600/20"
+              >
+                Re-enter Fullscreen
+              </button>
+            )}
+
             {/* Acknowledge Button */}
             <button
               onClick={() => { if (!isViolationLocked) setShowWarningPopup(false); }}

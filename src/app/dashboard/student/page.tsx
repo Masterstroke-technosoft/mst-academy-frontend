@@ -236,6 +236,22 @@ export default function StudentDashboardPage({
     onConfirm: () => void;
   } | null>(null);
 
+  const [activeDropdownSubmoduleId, setActiveDropdownSubmoduleId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest(".add-question-container")) {
+        return;
+      }
+      setActiveDropdownSubmoduleId(null);
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
   const [editingItem, setEditingItem] = useState<{
     type: string;
     title: string;
@@ -290,7 +306,7 @@ export default function StudentDashboardPage({
     console.log("ToggleSubmodule")
   }
 
-  const handleOpenAssessment = async (submoduleId: string, submoduleTitle: string, openAddQuestionDirectly = false) => {
+  const handleOpenAssessment = async (submoduleId: string, submoduleTitle: string, openAddQuestionDirectly = false, setNum = 1) => {
     try {
       setLoadingAssessment(true);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -310,62 +326,64 @@ export default function StudentDashboardPage({
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
-          const raw = data[0];
-          const parsedQuestions = (raw.questions || []).map((q: any, qIdx: number) => {
-            const text = q.text || q.question_text || "";
-            const type = q.type || "mcq";
-            const marks = q.marks || 1;
-            const explanation = q.explanation || "";
+          const raw = data.find((a: any) => a.setNumber === setNum);
+          if (raw) {
+            const parsedQuestions = (raw.questions || []).map((q: any, qIdx: number) => {
+              const text = q.text || q.question_text || "";
+              const type = q.type || "mcq";
+              const marks = q.marks || 1;
+              const explanation = q.explanation || "";
 
-            let options: string[] = ["", "", "", ""];
-            let correctOptionIndex = 0;
+              let options: string[] = ["", "", "", ""];
+              let correctOptionIndex = 0;
 
-            if (Array.isArray(q.options)) {
-              q.options.forEach((opt: any, idx: number) => {
-                if (idx < 4) {
-                  if (typeof opt === "string") {
-                    const prefixPattern = /^[A-D]\.\s*/;
-                    options[idx] = opt.replace(prefixPattern, "");
-                  } else if (opt && typeof opt === "object") {
-                    options[idx] = opt.text || "";
-                    if (opt.isCorrect) {
-                      correctOptionIndex = idx;
+              if (Array.isArray(q.options)) {
+                q.options.forEach((opt: any, idx: number) => {
+                  if (idx < 4) {
+                    if (typeof opt === "string") {
+                      const prefixPattern = /^[A-D]\.\s*/;
+                      options[idx] = opt.replace(prefixPattern, "");
+                    } else if (opt && typeof opt === "object") {
+                      options[idx] = opt.text || "";
+                      if (opt.isCorrect) {
+                        correctOptionIndex = idx;
+                      }
                     }
                   }
-                }
-              });
-            }
+                });
+              }
 
-            const correctLetter = q.correctAnswer || q.correct_answer || "A";
-            const letterCode = correctLetter.charCodeAt(0) - 65;
-            if (letterCode >= 0 && letterCode < 4) {
-              correctOptionIndex = letterCode;
-            }
+              const correctLetter = q.correctAnswer || q.correct_answer || "A";
+              const letterCode = correctLetter.charCodeAt(0) - 65;
+              if (letterCode >= 0 && letterCode < 4) {
+                correctOptionIndex = letterCode;
+              }
 
-            return {
-              id: q.id || q._id || `q-${qIdx}-${Date.now()}`,
-              number: qIdx,
-              type,
-              marks,
-              text,
-              options,
-              correctOptionIndex,
-              explanation
+              return {
+                id: q.id || q._id || `q-${qIdx}-${Date.now()}`,
+                number: qIdx,
+                type,
+                marks,
+                text,
+                options,
+                correctOptionIndex,
+                explanation
+              };
+            });
+
+            loadedAssessment = {
+              ...raw,
+              questions: parsedQuestions
             };
-          });
-
-          loadedAssessment = {
-            ...raw,
-            questions: parsedQuestions
-          };
+          }
         }
       }
 
       if (!loadedAssessment) {
         loadedAssessment = {
           submoduleId,
-          setNumber: 1,
-          title: `${submoduleTitle} Assignment`,
+          setNumber: setNum,
+          title: `${submoduleTitle} Assignment - Set ${setNum}`,
           estimatedTime: 30,
           questions: []
         };
@@ -1379,31 +1397,46 @@ export default function StudentDashboardPage({
                                         </div>
                                         <div>
                                           <span className="block text-sm font-bold text-[var(--text)]">{sub.title}</span>
-                                          <span className="mt-1 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]">
-                                            <span className={`flex items-center gap-1 ${sub.assessmentCount ? 'text-emerald-500' : 'text-orange-500'}`}>
-                                              <span className="relative flex h-2 w-2">
-                                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${sub.assessmentCount ? 'bg-emerald-400' : 'bg-orange-400'}`}></span>
-                                                <span className={`relative inline-flex rounded-full h-2 w-2 ${sub.assessmentCount ? 'bg-emerald-500' : 'bg-orange-500'}`}></span>
-                                              </span>
-                                              {sub.hasAssessment ? 'Assessment Enabled' : 'No Assessment'}
-                                            </span>
-                                            • {sub.questionsCount || 0} Questions
-                                          </span>
                                         </div>
                                       </div>
                                       <div className="flex items-center gap-2 self-end sm:self-auto">
-                                        <button
-                                          onClick={() => handleOpenAssessment(sub.id, sub.title, true)}
-                                          className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
-                                        >
-                                          <Plus className="h-3.5 w-3.5" /> Add Question
-                                        </button>
-                                        <button
+                                        <div className="relative add-question-container">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setActiveDropdownSubmoduleId(activeDropdownSubmoduleId === sub.id ? null : sub.id);
+                                            }}
+                                            className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
+                                          >
+                                            <Plus className="h-3.5 w-3.5" /> Add Question
+                                          </button>
+                                          {activeDropdownSubmoduleId === sub.id && (
+                                            <div className="absolute right-0 mt-1.5 z-50 w-32 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl py-1 text-xs text-[var(--text)] overflow-hidden">
+                                              {[...Array(10)].map((_, i) => {
+                                                const setNum = i + 1;
+                                                return (
+                                                  <button
+                                                    key={setNum}
+                                                    onClick={async (e) => {
+                                                      e.stopPropagation();
+                                                      setActiveDropdownSubmoduleId(null);
+                                                      await handleOpenAssessment(sub.id, sub.title, true, setNum);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 hover:bg-[var(--border)]/30 font-semibold transition-colors text-[var(--text)]"
+                                                  >
+                                                    Set {setNum}
+                                                  </button>
+                                                );
+                                              })}
+                                            </div>
+                                          )}
+                                        </div>
+                                        {/* <button
                                           onClick={() => handleOpenAssessment(sub.id, sub.title, false)}
                                           className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
                                         >
                                           <Edit2 className="h-3.5 w-3.5" /> Edit
-                                        </button>
+                                        </button> */}
                                         <button
                                           onClick={() => handleDeleteAssessmentFromList(sub.id, sub.title)}
                                           className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
