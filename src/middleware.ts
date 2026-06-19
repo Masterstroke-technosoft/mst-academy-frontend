@@ -20,7 +20,8 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get("mst-session");
   if (!session) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
+    const search = request.nextUrl.search;
+    loginUrl.searchParams.set("next", pathname + search);
     return NextResponse.redirect(loginUrl);
   }
 

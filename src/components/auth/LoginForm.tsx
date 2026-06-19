@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { dashboardPath, setSession, type AuthUser, type UserRole } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -14,7 +14,6 @@ import {
 import { Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { refresh } = useAuth();
   const [email, setEmail] = useState("");
@@ -101,7 +100,8 @@ export function LoginForm() {
     }
     refresh();
     const next = searchParams.get("next");
-    router.push(next || dashboardPath(result.user.role));
+    const destination = next && next.startsWith("/") ? next : dashboardPath(result.user.role);
+    window.location.href = destination;
   }
 
   return (
