@@ -28,6 +28,7 @@ import {
   getModuleStatus,
 } from "@/lib/progress";
 import { getLessonDisplayTitle, getCardSubmoduleTitle } from "@/lib/display-titles";
+import { resolveContentFileUrl } from "@/lib/content-file";
 
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -354,7 +355,7 @@ export function LessonViewer({
     [moduleSlugMap]
   );
   console.log("Prakhar", mod)
-  const slugs = mod.submodules.data.map((s: any) => s.slug);
+  const slugs = mod?.submodules?.data?.map((s: any) => s.slug ?? s._id) ?? [];
   const modStatus = mounted && allModuleIds
     ? getModuleStatus(moduleId, allModuleIds, slugs, getSlugs)
     : "active";
@@ -566,8 +567,58 @@ export function LessonViewer({
   const lessonTitle = getLessonDisplayTitle(submodule.title, "Topic: ");
   console.log("Submodule in LessonViewerrrrrrrrrrrrrrrrrrr5555555555555555555555555:", lessonTitle);
 
+  if (contentFile) {
+    const contentUrl = resolveContentFileUrl(contentFile);
+
+    return (
+      <div className="flex h-[calc(100vh-4rem)] flex-col bg-[var(--bg)]" suppressHydrationWarning>
+        <iframe
+          key={contentUrl}
+          src={contentUrl}
+          title={lessonTitle}
+          className="w-full flex-1 min-h-0 border-0 bg-white"
+        />
+
+        <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 lg:px-8">
+          {prevSlug ? (
+            <Link
+              href={`/module/${moduleId}/${prevSlug}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-mst-red/40 hover:bg-[var(--bg-muted)]"
+            >
+              <ChevronLeft size={16} /> Previous Lesson
+            </Link>
+          ) : (
+            <Link
+              href={`/module/${moduleId}`}
+              className="inline-flex items-center gap-2 text-sm font-medium text-mst-red hover:underline"
+            >
+              <ChevronLeft size={16} /> Back to Module
+            </Link>
+          )}
+          <button
+            type="button"
+            onClick={handleAssessment}
+            disabled={assessmentLoading}
+            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
+          </button>
+          {nextSlug ? (
+            <Link
+              href={`/module/${moduleId}/${nextSlug}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:border-mst-red/40 hover:bg-[var(--bg-muted)]"
+            >
+              Next Lesson <ChevronRight size={16} />
+            </Link>
+          ) : (
+            <span />
+          )}
+        </footer>
+      </div>
+    );
+  }
+
   return (
-    
     <div className="flex min-h-[calc(100vh-4rem)] bg-[var(--bg)]" suppressHydrationWarning>
       {/* Left Sidebar */}
       <aside className="hidden w-72 shrink-0 border-r border-[var(--border)] bg-[var(--sidebar-bg)] lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:overflow-y-auto lg:self-start">
@@ -754,23 +805,17 @@ export function LessonViewer({
 
         {/* Article content */}
         <article ref={articleRef} className="flex-1 px-4 py-8 lg:px-12 lg:py-10">
-          {contentFile ? (
-            <div className="mx-auto max-w-4xl">
-              <div className="lesson-content w-full" dangerouslySetInnerHTML={{ __html: html }} />
-            </div>
-          ) : (
-            <div className="mx-auto max-w-4xl">
-              {mounted ? (
-                <LessonContent html={html} />
-              ) : (
-                <div
-                  className="lesson-content space-y-4"
-                  dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
-                  suppressHydrationWarning
-                />
-              )}
-            </div>
-          )}
+          <div className="mx-auto max-w-4xl">
+            {mounted ? (
+              <LessonContent html={html} />
+            ) : (
+              <div
+                className="lesson-content space-y-4"
+                dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
+                suppressHydrationWarning
+              />
+            )}
+          </div>
 
           {/* Scroll to top */}
           {readProgress > 20 && (

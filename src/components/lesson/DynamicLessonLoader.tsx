@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LessonViewer } from "./LessonViewer";
+import { normalizeContentFilePath } from "@/lib/content-file";
 
 interface DynamicLessonLoaderProps {
   id: string;
@@ -10,28 +11,29 @@ interface DynamicLessonLoaderProps {
 
 function cleanLessonHtml(htmlStr: string): string {
   if (!htmlStr) return "";
-  // Strip style tags and their contents
   let clean = htmlStr.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
-  // Strip link tags
   clean = clean.replace(/<link[^>]*>/gi, "");
-  // Strip table of contents sections
-  clean = clean.replace(/<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*table-of-contents")[^>]*>[\s\S]*?<\/(?:div|section)>/gi, "");
+  clean = clean.replace(
+    /<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*table-of-contents")[^>]*>[\s\S]*?<\/(?:div|section)>/gi,
+    ""
+  );
   return clean;
 }
 
 function extractContent(htmlStr: string): string {
-  // Try to find the inner lesson-content block first
-  const contentMatch = htmlStr.match(/<div[^>]*class="[^"]*lesson-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
-  if (contentMatch) {
-    // Return the inner contents of lesson-content div
-    return contentMatch[1];
-  }
+  const contentMatch = htmlStr.match(
+    /<div[^>]*class="[^"]*lesson-content[^"]*"[^>]*>([\s\S]*?)<\/div>/i
+  );
+  if (contentMatch) return contentMatch[1];
 
-  // Fallback to article tag content
+  const mainMatch = htmlStr.match(/<main[^>]*class="[^"]*main-content[^"]*"[^>]*>([\s\S]*?)<\/main>/i);
+  if (mainMatch) return mainMatch[1];
+
   const articleMatch = htmlStr.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
-  if (articleMatch) {
-    return articleMatch[1];
-  }
+  if (articleMatch) return articleMatch[1];
+
+  const bodyMatch = htmlStr.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) return bodyMatch[1];
 
   return htmlStr;
 }
@@ -39,35 +41,26 @@ function extractContent(htmlStr: string): string {
 function extractTableOfContents(htmlStr: string): Array<{ id: string; title: string }> {
   const toc: Array<{ id: string; title: string }> = [];
 
-  // Look for table of contents section
-  const tocMatch = htmlStr.match(/<(?:div|section)[^>]*(?:class="[^"]*toc|id="[^"]*toc)[^>]*>([\s\S]*?)<\/(?:div|section)>/i);
+  const tocMatch = htmlStr.match(
+    /<(?:div|section|aside|nav)[^>]*(?:class="[^"]*toc|class="[^"]*sidebar[^"]*")[^>]*>([\s\S]*?)<\/(?:div|section|aside|nav)>/i
+  );
   const tocContent = tocMatch ? tocMatch[1] : htmlStr;
 
-  // Extract all anchor tags from TOC section
-  const anchorRegex = /<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>/gi;
+  const anchorRegex = /<a[^>]*href="#([^"]*)"[^>]*>([^<]+)<\/a>/gi;
   let match;
 
   while ((match = anchorRegex.exec(tocContent)) !== null) {
-    const href = match[1];
+    const id = match[1].trim();
     const title = match[2].trim();
-
-    // Use the href as id if it's a hash link, otherwise create one from title
-    const id = href.startsWith('#') ? href.substring(1) : title.toLowerCase().replace(/\s+/g, '-');
-
-    if (title && id) {
-      toc.push({ id, title });
-    }
+    if (title && id) toc.push({ id, title });
   }
 
-  // If we didn't find TOC items via links, try to find headings
   if (toc.length === 0) {
     const headingRegex = /<h[1-6][^>]*id="([^"]*)"[^>]*>([^<]+)<\/h[1-6]>/gi;
     while ((match = headingRegex.exec(htmlStr)) !== null) {
       const id = match[1];
       const title = match[2].trim();
-      if (title && id) {
-        toc.push({ id, title });
-      }
+      if (title && id) toc.push({ id, title });
     }
   }
 
@@ -78,64 +71,101 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [html, setHtml] = useState<string>("");
+  const [contentFile, setContentFile] = useState<string | undefined>();
   const [mockMod, setMockMod] = useState<any>(null);
   const [mockSubmodule, setMockSubmodule] = useState<any>(null);
+  const [prevSlug, setPrevSlug] = useState<string | undefined>();
+  const [nextSlug, setNextSlug] = useState<string | undefined>();
 
   useEffect(() => {
     async function loadHtml() {
       try {
-        console.log("Loading lesson content for module ID:", id, "and slug:", slug);
+        setLoading(true);
+        setError(null);
+
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const fileUrl = `${baseURL}/api/submodules/${slug}`;
-        const fileResponse = await fetch(fileUrl, {
+        const subRes = await fetch(`${baseURL}/api/submodules/${slug}`, {
           method: "GET",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          }
-        })
-        const fileRes1 = await fileResponse.json()
-        const fileRes = fileRes1.data.contentFile
-        console.log("Anuja2 ", fileRes);
-
-        // Set the submodule data from the API response
-        setMockSubmodule(fileRes1.data);
-
-        const textFile = await fetch(`${baseURL}/${fileRes}`)
-
-        const htmlText = await textFile.text();
-        // Extract only the core lesson content
-        const extractedHtml = extractContent(htmlText);
-        const cleanedHtml = cleanLessonHtml(extractedHtml);
-        setHtml(cleanedHtml);
-
-        // Extract table of contents from the HTML
-        const extractedToc = extractTableOfContents(htmlText);
-
-        // Set the submodule data with the extracted TOC
-        setMockSubmodule({
-          ...fileRes1.data,
-          toc: extractedToc.length > 0 ? extractedToc : fileRes1.data.toc
+          headers: { "Content-Type": "application/json" },
         });
 
-        const moduleData = await fetch(`${baseURL}/api/modules/full/${id}`, {
+        if (!subRes.ok) {
+          throw new Error("Unable to load lesson details.");
+        }
+
+        const subJson = await subRes.json();
+        const subData = subJson.data;
+        if (!subData) {
+          throw new Error("Lesson not found.");
+        }
+
+        const modRes = await fetch(`${baseURL}/api/modules/full/${id}`, {
           method: "GET",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!modRes.ok) {
+          throw new Error("Unable to load module details.");
+        }
+
+        const modJson = await modRes.json();
+        const moduleData = modJson.module;
+        setMockMod(moduleData);
+
+        const submodules = moduleData?.submodules?.data || [];
+        const currentIndex = submodules.findIndex(
+          (sub: any) => String(sub._id || sub.id) === String(slug) || String(sub._id) === String(subData._id)
+        );
+
+        if (currentIndex > 0) {
+          setPrevSlug(String(submodules[currentIndex - 1]._id || submodules[currentIndex - 1].id));
+        } else {
+          setPrevSlug(undefined);
+        }
+
+        if (currentIndex >= 0 && currentIndex < submodules.length - 1) {
+          setNextSlug(String(submodules[currentIndex + 1]._id || submodules[currentIndex + 1].id));
+        } else {
+          setNextSlug(undefined);
+        }
+
+        const submodulePayload = {
+          ...subData,
+          slug: String(subData._id || slug),
+          index: subData.index ?? currentIndex + 1,
+        };
+
+        if (subData.contentFile) {
+          const normalizedContentFile = normalizeContentFilePath(String(subData.contentFile));
+          setContentFile(normalizedContentFile);
+          setHtml("");
+
+          const fileRes = await fetch(`${baseURL}/${normalizedContentFile}`, {
+            credentials: "include",
+          });
+
+          if (fileRes.ok) {
+            const htmlText = await fileRes.text();
+            submodulePayload.toc = extractTableOfContents(htmlText);
           }
-        })
-        const moduleDataResult = await moduleData.json()
-        setMockMod(moduleDataResult.module)
-        console.log(moduleDataResult.module, "sdsdsdeeeeeeeeee");
+
+          setMockSubmodule(submodulePayload);
+          return;
+        }
+
+        setContentFile(undefined);
+        throw new Error("This lesson has no content yet.");
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || "Failed to load lesson.");
       } finally {
         setLoading(false);
       }
     }
+
     loadHtml();
-  }, []);
+  }, [id, slug]);
 
   if (loading) {
     return (
@@ -148,7 +178,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
     );
   }
 
-  if (error || !html) {
+  if (error || (!html && !contentFile)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-[var(--bg)] p-6">
         <div className="text-center">
@@ -159,27 +189,26 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
     );
   }
 
-  // Default fallback submodule structure in case API data is missing
   const defaultSubmodule = mockSubmodule || {
     id: slug,
-    slug: slug,
+    slug,
     title: "Lesson",
     subtitle: "",
-    toc: []
+    toc: [],
   };
 
   return (
     <LessonViewer
-      moduleId={1}
+      moduleId={id}
       mod={mockMod}
       submodule={defaultSubmodule}
       html={html}
-      prevSlug={undefined}
-      nextSlug={undefined}
+      prevSlug={prevSlug}
+      nextSlug={nextSlug}
       phaseId="phase-1"
-      allModuleIds={[1]}
-      moduleSlugMap={{ 1: ["1.1"] }}
-      contentFile="dummy"
+      allModuleIds={[id]}
+      moduleSlugMap={{ [id]: mockMod?.submodules?.data?.map((s: any) => String(s._id || s.id)) || [] }}
+      contentFile={contentFile}
     />
   );
 }
