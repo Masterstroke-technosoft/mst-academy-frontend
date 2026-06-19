@@ -545,9 +545,7 @@ export function RegisterForm() {
 
             <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                  `upi://pay?pa=mstacademy@okicici&pn=MST%20Academy&am=${selectedPlan.price}&cu=INR`
-                )}`}
+                src="./MasterstrokePaymentQRCode.jpg"
                 alt="Payment QR Code"
                 className="h-[180px] w-[180px] object-contain"
               />

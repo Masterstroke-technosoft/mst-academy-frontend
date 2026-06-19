@@ -102,37 +102,13 @@ export function DashboardShell({
         }));
         setPaymentRequests(normalized);
       } else {
-        setPaymentRequests([
-          {
-            id: "mock-pay-1",
-            accountHolderName: "John Doe",
-            category: "STUDENT",
-            amountPaid: 2999,
-            paymentDate: "2026-06-18T11:40:00.000Z",
-            transactionId: "UTR987654321",
-            paymentMethod: "UPI",
-            paymentScreenshotUrl: "",
-            status: "PENDING",
-            additionalNotes: "Requesting access to course."
-          }
-        ]);
+        // No mock data – use an empty list if the endpoint returns a non‑OK status.
+        setPaymentRequests([]);
       }
     } catch (err) {
       console.error("Error fetching payment requests:", err);
-      setPaymentRequests([
-        {
-          id: "mock-pay-1",
-          accountHolderName: "John Doe",
-          category: "STUDENT",
-          amountPaid: 2999,
-          paymentDate: "2026-06-18T11:40:00.000Z",
-          transactionId: "UTR987654321",
-          paymentMethod: "UPI",
-          paymentScreenshotUrl: "",
-          status: "PENDING",
-          additionalNotes: "Requesting access to course."
-        }
-      ]);
+      // If an error occurs, clear the list to avoid showing stale mock data.
+      setPaymentRequests([]);
     } finally {
       setLoadingPayments(false);
     }
@@ -476,31 +452,18 @@ export function DashboardShell({
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
                             {req.paymentScreenshotUrl ? (
-                              <div className="flex items-center gap-2">
-                                <img
-                                  src={req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:') ? req.paymentScreenshotUrl : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`}
-                                  alt="Payment Screenshot"
-                                  className="h-12 w-auto object-cover rounded cursor-pointer"
-                                  onClick={() => {
-                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
-                                      ? req.paymentScreenshotUrl
-                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
-                                    setPreviewScreenshotUrl(fullUrl);
-                                  }}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
-                                      ? req.paymentScreenshotUrl
-                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
-                                    setPreviewScreenshotUrl(fullUrl);
-                                  }}
-                                  className="inline-flex items-center justify-center gap-1 font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap"
-                                >
-                                  View
-                                </button>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                    ? req.paymentScreenshotUrl
+                                    : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                  setPreviewScreenshotUrl(fullUrl);
+                                }}
+                                className="inline-flex items-center justify-center gap-1 font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                              >
+                                View
+                              </button>
                             ) : (
                               <span className="inline-flex items-center justify-center gap-1 text-xs bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-lg font-medium">No file</span>
                             )}
