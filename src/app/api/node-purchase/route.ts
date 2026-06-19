@@ -1,6 +1,6 @@
 // src/app/api/node-purchase/route.ts
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import type { NextRequest } from 'next/server';
 
 // In-memory store for demo purposes. In a real app, replace with DB integration.
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
     const newPurchase = {
-      _id: uuidv4(),
+      _id: randomUUID(),
       ...data,
       amountPaid: Number(data.amountPaid),
       createdAt: now.toISOString(),

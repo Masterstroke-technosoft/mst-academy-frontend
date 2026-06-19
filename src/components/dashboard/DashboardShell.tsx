@@ -476,18 +476,31 @@ export function DashboardShell({
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
                             {req.paymentScreenshotUrl ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
-                                    ? req.paymentScreenshotUrl
-                                    : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
-                                  setPreviewScreenshotUrl(fullUrl);
-                                }}
-                                className="inline-flex items-center justify-center gap-1 font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap"
-                              >
-                                View
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:') ? req.paymentScreenshotUrl : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`}
+                                  alt="Payment Screenshot"
+                                  className="h-12 w-auto object-cover rounded cursor-pointer"
+                                  onClick={() => {
+                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                      ? req.paymentScreenshotUrl
+                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                    setPreviewScreenshotUrl(fullUrl);
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                      ? req.paymentScreenshotUrl
+                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                    setPreviewScreenshotUrl(fullUrl);
+                                  }}
+                                  className="inline-flex items-center justify-center gap-1 font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                                >
+                                  View
+                                </button>
+                              </div>
                             ) : (
                               <span className="inline-flex items-center justify-center gap-1 text-xs bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-lg font-medium">No file</span>
                             )}
