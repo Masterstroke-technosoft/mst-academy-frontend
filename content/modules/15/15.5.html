@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 15.5 - Hands-On: Build a Simple DAO | MasterStroke Academy</title>
+<meta name="description" content="Put DAO theory into practice. Deploy a complete Governor and Timelock, create a governance token, submit proposals, vote, queue, and execute on MST Testnet — all for less than a rupee in gas. Your capstone DAO project starts here.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 15 &nbsp;·&nbsp; Sub-Module 15.5 of 5</div>
+<h1 class="module-title">Hands-On: Build a <span class="highlight">Simple DAO</span></h1>
+<p class="module-subtitle">Enough theory. Time to ship. In this capstone-style coding project, you'll deploy a fully functional DAO on MST Testnet - governance token, Governor, Timelock, proposals, voting, and execution - all using OpenZeppelin contracts. When you're done, you'll have a live DAO that anyone can join, vote in, and govern. Total cost: less than a rupee.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 50 Marks</div>
+  <div class="meta-chip">📋 Coding Project (deploy Governor contract + submit transaction logs)</div>
+  <div class="meta-chip green">Phase 4 · DAOs & Governance</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🛠️</div>
+    <div class="obj-text">
+      <strong>Deploy a complete on-chain DAO using OpenZeppelin contracts</strong>
+      Set up an ERC20Votes governance token, a TimelockController, and a Governor contract - all connected and ready for proposals.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗳️</div>
+    <div class="obj-text">
+      <strong>Submit proposals, cast votes, and execute them on-chain</strong>
+      Go through the entire governance lifecycle: create a proposal, wait for the voting delay, vote, queue in the timelock, and execute the result.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧪</div>
+    <div class="obj-text">
+      <strong>Write comprehensive Hardhat tests for the DAO</strong>
+      Test every stage of the proposal lifecycle, including quorum, voting power, and execution - ensuring your DAO works before anyone uses it.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Deploy to MST Testnet and share your DAO with the world</strong>
+      Experience real-world deployment at sub-paisa cost, submit transaction logs as proof, and add a live DAO to your portfolio.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DAO That Landed a Developer Her Dream Job</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, Sneha was interviewing for a senior smart-contract role at a DeFi protocol. The interviewer asked, "Have you ever deployed a DAO from scratch?" She hadn't. She knew the theory but had never wired up a Governor, a Timelock, and a token - and run a proposal through the full lifecycle. She spent the weekend following a tutorial, deploying to Goerli testnet. It worked, but the gas cost ₹2,000, and she could only afford one test transaction.</p>
+  <br>
+  <p>Then she discovered MST. She redeployed everything on MST Testnet for ₹0.04 total. She created proposals, voted, queued, and executed - over and over - until she understood every state. She screen-recorded the entire process and added the transaction logs to her GitHub. At her next interview, she shared the live DAO on MST and walked the team through her code. They were impressed not only by her knowledge but by the fact that she had a working, deployed DAO that cost less than a rupee to run. She got the job.</p>
+  <br>
+  <p>This sub-module is your chance to do the same. By the end, you'll have a live, deployed DAO on MST Testnet - a powerful portfolio piece that proves you can build the core infrastructure of Web3.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Why Building a DAO is the Ultimate Solidity Challenge</h2>
+<p>Building a DAO is the capstone of smart contract development because it integrates everything you've learned: tokens (ERC-20 with voting extensions), access control (Timelock roles, Governor parameters), state machines (proposal lifecycle), and testing (time-travel, snapshot queries). It's the project that shows you can not only write contracts, but architect a system.</p>
+<p>OpenZeppelin's Governor contracts, released in 2021, made building a DAO as easy as inheriting a few contracts and configuring parameters. Before that, every DAO wrote custom governance code - often with critical bugs. Today, the Governor + Timelock pattern is used by Uniswap, Compound, Aave, and thousands of other DAOs, securing over $25 billion in treasuries. When you build this project, you're building with the same audited contracts that power the largest protocols in DeFi.</p>
+<p>On MST, the economic advantage is transformative. On Ethereum, deploying the full DAO suite costs ₹5,000-₹10,000 in gas, and each proposal interaction costs ₹500-₹2,000. This prices out experimentation and learning. On MST, the full deployment costs less than ₹0.50, and every vote, queue, and execute costs ₹0.006. You can test, break, fix, and redeploy dozens of times - exactly how you learn best.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> This project isn't just a learning exercise. It's a template for any DAO you'll ever build on any EVM chain. The skills and code you gain here transfer directly to production.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Three Contracts You'll Deploy - And How They Talk</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏛️ The Analogy</div>
+  <p>Think of your DAO as a town hall. The <strong>Governance Token</strong> is the voter ID - it proves you're a citizen and how much voting power you have. The <strong>Governor</strong> contract is the town hall itself - it accepts proposals, counts votes, and announces results. The <strong>TimelockController</strong> is the safe that holds the town's money and can only be opened after a mandatory waiting period, giving everyone time to object. When a proposal passes, the Timelock waits, then automatically executes the town's decision.</p>
+</div>
+
+<p>Your project will deploy and connect these three contracts, then run a complete governance cycle. Here's what you'll build:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">T</div><div class="w5-word">TOKEN</div></div>
+    <div class="w5-content">
+      <div class="w5-q">GovernanceToken.sol (ERC20Votes)</div>
+      <div class="w5-a">An ERC-20 token with voting extensions. Holders can delegate their voting power to themselves or others. The token supply is minted to the deployer initially. It implements <code>ERC20Votes</code>, which tracks historical balances for snapshot-based voting.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">G</div><div class="w5-word">GOVERNOR</div></div>
+    <div class="w5-content">
+      <div class="w5-q">MyDAO.sol (Governor + TimelockControl)</div>
+      <div class="w5-a">The Governor contract, inheriting from OpenZeppelin's <code>Governor</code>, <code>GovernorCountingSimple</code>, <code>GovernorVotes</code>, <code>GovernorVotesQuorumFraction</code>, and <code>GovernorTimelockControl</code>. It manages the proposal lifecycle: creating proposals, voting, queuing, and execution.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">TIMELOCK</div></div>
+    <div class="w5-content">
+      <div class="w5-q">TimelockController (deployed separately)</div>
+      <div class="w5-a">The OpenZeppelin TimelockController contract. It enforces a minimum delay between a proposal passing and its execution. The Governor is granted the proposer and executor roles on the timelock.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 PROJECT SETUP & DEPLOYMENT WALKTHROUGH -->
+<div class="section-label">05 &nbsp; Project Setup &amp; Deployment</div>
+<h2 class="section-title">Step-by-Step: From Empty Folder to Live DAO</h2>
+<p>Let's build the entire project. You can follow along, and at the end you'll submit your GitHub repo and transaction logs.</p>
+
+<details>
+  <summary>📁 Step 1: Initialize a Hardhat project</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+mkdir my-dao && cd my-dao
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox dotenv
+npx hardhat init
+    </pre>
+    <p>Choose "Create a JavaScript project". This sets up <code>contracts/</code>, <code>test/</code>, and <code>scripts/</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📦 Step 2: Install OpenZeppelin contracts</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+npm install @openzeppelin/contracts
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>⚙️ Step 3: Configure hardhat.config.js for MST Testnet</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+  solidity: "0.8.20",
+  networks: {
+    mst_testnet: {
+      url: "https://testnet-rpc.mstblockchain.com",
+      chainId: 5000,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+    </pre>
+    <p>Create a <code>.env</code> file with <code>PRIVATE_KEY=your_testnet_private_key</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🪙 Step 4: Write the Governance Token (GovernanceToken.sol)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+contract GovernanceToken is ERC20Votes {
+    constructor() ERC20("MyDAO Token", "MDT") {
+        _mint(msg.sender, 1_000_000 * 10**decimals());
+    }
+
+    // Overrides required by Solidity
+    function _update(address from, address to, uint256 value) internal override(ERC20Votes) {
+        super._update(from, to, value);
+    }
+
+    function nonces(address owner) public view override returns (uint256) {
+        return super.nonces(owner);
+    }
+}
+    </pre>
+    <p>This token mints 1,000,000 MDT to the deployer and supports delegation and snapshot voting via <code>ERC20Votes</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🏛️ Step 5: Write the Governor Contract (MyDAO.sol)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+contract MyDAO is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyDAO")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4) // 4% quorum
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure override returns (uint256) { return 1 days; }
+    function votingPeriod() public pure override returns (uint256) { return 3 days; }
+    function proposalThreshold() public pure override returns (uint256) { return 10_000e18; }
+
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+        return super.quorum(blockNumber);
+    }
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
+        return super.state(proposalId);
+    }
+    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) internal override(Governor, GovernorTimelockControl) {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+    }
+    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+        return super._cancel(targets, values, calldatas, descriptionHash);
+    }
+    function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
+        return super._executor();
+    }
+    function supportsInterface(bytes4 interfaceId) public view override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+}
+    </pre>
+    <p>The parameters: 1-day voting delay, 3-day voting period, 4% quorum, and 10,000 token proposal threshold.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📜 Step 6: Write the Deployment Script (scripts/deploy.js)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const { ethers } = require("hardhat");
+
+async function main() {
+  // 1. Deploy GovernanceToken
+  const Token = await ethers.getContractFactory("GovernanceToken");
+  const token = await Token.deploy();
+  await token.waitForDeployment();
+  console.log("Token deployed to:", token.target);
+
+  // 2. Deploy TimelockController (minDelay = 2 days, proposers & executors initially empty)
+  const Timelock = await ethers.getContractFactory("TimelockController");
+  const timelock = await Timelock.deploy(2 * 24 * 3600, [], [], ethers.ZeroAddress);
+  await timelock.waitForDeployment();
+  console.log("Timelock deployed to:", timelock.target);
+
+  // 3. Deploy Governor
+  const MyDAO = await ethers.getContractFactory("MyDAO");
+  const governor = await MyDAO.deploy(token.target, timelock.target);
+  await governor.waitForDeployment();
+  console.log("Governor deployed to:", governor.target);
+
+  // 4. Grant roles on timelock
+  const PROPOSER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("PROPOSER_ROLE"));
+  const EXECUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("EXECUTOR_ROLE"));
+  const CANCELLER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("CANCELLER_ROLE"));
+  await timelock.grantRole(PROPOSER_ROLE, governor.target);
+  await timelock.grantRole(EXECUTOR_ROLE, governor.target);
+  await timelock.grantRole(CANCELLER_ROLE, governor.target);
+  console.log("Roles granted to governor");
+
+  // 5. Delegate voting power (optional, but needed for proposal threshold)
+  // The deployer automatically has tokens, but must delegate to themselves to have voting power.
+  const signer = await ethers.provider.getSigner();
+  await token.delegate(signer.address);
+  console.log("Delegated tokens to deployer");
+
+  console.log("\nDeployment complete! DAO is live on MST Testnet.");
+  console.log("Token:", token.target);
+  console.log("Timelock:", timelock.target);
+  console.log("Governor:", governor.target);
+}
+
+main().catch(console.error);
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 7: Deploy to MST Testnet</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+npx hardhat run scripts/deploy.js --network mst_testnet
+    </pre>
+    <p>Copy the output addresses. You'll need them for the proposal lifecycle. Total gas cost: ~₹0.30 (3 contract deployments + role grants).</p>
+  </div>
+</details>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.5-A · DAO Deployment Architecture</div>
+  <pre>
+  ┌─────────────────────┐
+  │   GovernanceToken    │  (ERC20Votes)
+  │   1,000,000 MDT      │
+  └─────────┬───────────┘
+            │ token address passed to Governor
+            ▼
+  ┌─────────────────────┐
+  │      Governor        │  (MyDAO.sol)
+  │  • votingDelay: 1 day│
+  │  • votingPeriod: 3d  │
+  │  • quorum: 4%        │
+  └─────────┬───────────┘
+            │ executor (granted role)
+            ▼
+  ┌─────────────────────┐
+  │  TimelockController  │  (minDelay: 2 days)
+  │  • proposer: Governor│
+  │  • executor: Governor│
+  └─────────────────────┘
+  </pre>
+  <div class="diagram-caption">The three contracts are linked: Token → Governor (voting power), Governor → Timelock (execution authority).</div>
+</div>
+
+<!-- 06 PROPOSAL LIFECYCLE WALKTHROUGH -->
+<div class="section-label">06 &nbsp; Proposal Lifecycle Walkthrough</div>
+<h2 class="section-title">From Idea to Execution - Run Your DAO</h2>
+<p>Now that your DAO is deployed, let's run a proposal through the entire lifecycle. You'll need the Governor address, the token address, and a target contract to interact with (we'll use a simple <code>Box</code> contract that stores a value).</p>
+
+<details>
+  <summary>📝 Step 8: Deploy a Target Contract (Box.sol)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+// contracts/Box.sol
+contract Box {
+    uint256 public value;
+    function store(uint256 _value) external {
+        value = _value;
+    }
+}
+    </pre>
+    <p>Deploy it to MST Testnet and note the address.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🗳️ Step 9: Create a Proposal to Change Box's Value</summary>
+  <div class="content">
+    <p>Write a script <code>scripts/propose.js</code>:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const governor = await ethers.getContractAt("MyDAO", governorAddress);
+const targets = [boxAddress];
+const values = [0];
+const calldatas = [new ethers.Interface(["function store(uint256)"]).encodeFunctionData("store", [42])];
+const description = "Proposal #1: Change Box value to 42";
+const tx = await governor.propose(targets, values, calldatas, description);
+const receipt = await tx.wait();
+const proposalId = receipt.logs[0].topics[1]; // proposal ID
+console.log("Proposal created with ID:", proposalId);
+    </pre>
+    <p>Run the script. The proposal enters the <strong>Pending</strong> state. Voting delay is 1 day (86400 seconds). You can fast-forward time using Hardhat's <code>evm_increaseTime</code> for testing.</p>
+  </div>
+</details>
+
+<details>
+  <summary>✅ Step 10: Vote on the Proposal</summary>
+  <div class="content">
+    <p>After the voting delay, the proposal becomes <strong>Active</strong>. Token holders can vote:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const tx = await governor.castVote(proposalId, 1); // 1 = For
+await tx.wait();
+    </pre>
+    <p>Wait for the voting period to end (or advance time). Then check the state:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const state = await governor.state(proposalId);
+console.log("State:", state); // 4 = Succeeded
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>⏳ Step 11: Queue in Timelock</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const descriptionHash = ethers.keccak256(ethers.toUtf8Bytes(description));
+const tx = await governor.queue(targets, values, calldatas, descriptionHash);
+await tx.wait();
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 12: Execute</summary>
+  <div class="content">
+    <p>After the timelock delay (2 days), anyone can execute:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const tx = await governor.execute(targets, values, calldatas, descriptionHash);
+await tx.wait();
+// Check Box value:
+const box = await ethers.getContractAt("Box", boxAddress);
+const val = await box.value();
+console.log("Box value:", val.toString()); // 42
+    </pre>
+  </div>
+</details>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.5-B · Full Proposal Lifecycle Timeline</div>
+  <pre>
+  t=0: propose()         t=1 day: voting starts    t=4 days: voting ends
+  ──────────────────────────────────────────────────────────────────▶
+  | Pending              | Active (3 days)                         |
+                         | token holders vote                     |
+                         ─────────────────────────────────────────
+                                                    t=4 days: queue()
+                                                    t=6 days: execute()
+  </pre>
+  <div class="diagram-caption">With 1-day voting delay, 3-day voting period, and 2-day timelock, the full cycle takes 6 days.</div>
+</div>
+
+<!-- 07 TESTING YOUR DAO -->
+<div class="section-label">07 &nbsp; Testing Your DAO</div>
+<h2 class="section-title">Prove Your DAO Works Before Anyone Uses It</h2>
+<p>Write comprehensive Hardhat tests that simulate the entire lifecycle using time manipulation. Here's a skeleton:</p>
+
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+const { expect } = require("chai");
+const { time } = require("@nomicfoundation/hardhat-network-helpers");
+
+describe("MyDAO", function () {
+  let token, timelock, governor, box;
+  let deployer, voter1, voter2;
+
+  beforeEach(async function () {
+    [deployer, voter1, voter2] = await ethers.getSigners();
+    // Deploy token
+    const Token = await ethers.getContractFactory("GovernanceToken");
+    token = await Token.deploy();
+    // Deploy timelock
+    const Timelock = await ethers.getContractFactory("TimelockController");
+    timelock = await Timelock.deploy(2 * 24 * 3600, [], [], ethers.ZeroAddress);
+    // Deploy governor
+    const Governor = await ethers.getContractFactory("MyDAO");
+    governor = await Governor.deploy(token.target, timelock.target);
+    // Grant roles
+    const PROPOSER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("PROPOSER_ROLE"));
+    const EXECUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("EXECUTOR_ROLE"));
+    await timelock.grantRole(PROPOSER_ROLE, governor.target);
+    await timelock.grantRole(EXECUTOR_ROLE, governor.target);
+    // Deploy Box
+    const Box = await ethers.getContractFactory("Box");
+    box = await Box.deploy();
+    // Delegate tokens to deployer
+    await token.delegate(deployer.address);
+    // Transfer some tokens to voter1 for testing
+    await token.transfer(voter1.address, ethers.parseEther("50000"));
+    await token.connect(voter1).delegate(voter1.address);
+  });
+
+  it("Should create a proposal, vote, queue, and execute", async function () {
+    const targets = [box.target];
+    const values = [0];
+    const calldatas = [box.interface.encodeFunctionData("store", [42])];
+    const description = "Set Box to 42";
+
+    const tx = await governor.propose(targets, values, calldatas, description);
+    const receipt = await tx.wait();
+    const proposalId = receipt.logs[0].topics[1];
+
+    // Advance time past voting delay
+    await time.increase(86400 + 1); // 1 day + 1 sec
+    await governor.castVote(proposalId, 1); // deployer votes For
+    await governor.connect(voter1).castVote(proposalId, 1); // voter1 votes For
+
+    // Advance past voting period
+    await time.increase(3 * 86400 + 1);
+    expect(await governor.state(proposalId)).to.equal(4); // Succeeded
+
+    // Queue
+    const descHash = ethers.keccak256(ethers.toUtf8Bytes(description));
+    await governor.queue(targets, values, calldatas, descHash);
+    expect(await governor.state(proposalId)).to.equal(5); // Queued
+
+    // Advance past timelock
+    await time.increase(2 * 86400 + 1);
+    await governor.execute(targets, values, calldatas, descHash);
+    expect(await governor.state(proposalId)).to.equal(7); // Executed
+
+    expect(await box.value()).to.equal(42);
+  });
+});
+</pre>
+
+<p>Run the tests: <code>npx hardhat test</code>. They should pass in seconds, simulating 6 days of real time in milliseconds.</p>
+
+<!-- 08 SUBMISSION CHECKLIST -->
+<div class="section-label">08 &nbsp; Submission Checklist</div>
+<h2 class="section-title">What to Include in Your GitHub Repo</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Contracts</div>
+      <div class="feature-desc"><code>contracts/GovernanceToken.sol</code>, <code>contracts/MyDAO.sol</code>, and any target contract (like <code>Box.sol</code>). Must compile with <code>npx hardhat compile</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Deployment Script</div>
+      <div class="feature-desc"><code>scripts/deploy.js</code> that deploys all three contracts and grants roles. Outputs addresses.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Test Suite</div>
+      <div class="feature-desc">At least 3 test cases: (a) successful proposal lifecycle, (b) proposal fails due to lack of quorum, (c) proposal execution to a target contract.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Transaction Logs</div>
+      <div class="feature-desc">Submit screenshots or text logs of the deployment transaction and at least one successful proposal execution on MST Testnet Explorer.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">README.md</div>
+      <div class="feature-desc">Clear instructions on how to deploy, test, and interact with the DAO. Include the deployed contract addresses on MST Testnet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 MST‑SPECIFIC ADVANTAGES -->
+<div class="section-label">09 &nbsp; MST-Specific Advantages</div>
+<h2 class="section-title">Why Building a DAO on MST Is a Game-Changer</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Deploy for paise, not lakhs</div>
+      <div class="feature-desc">Deploying the full DAO suite (token, timelock, governor) costs ~₹0.30 on MST versus ₹5,000-₹10,000 on Ethereum. You can deploy dozens of iterations while learning without financial stress.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Vote, queue, execute for ₹0.006 each</div>
+      <div class="feature-desc">Every governance action costs a fraction of a paisa. This means small token holders can participate actively, and the DAO can hold frequent votes without draining the treasury on gas.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Fast block times → near-instant finality</div>
+      <div class="feature-desc">MST's ~3-second block time means that proposal states update almost immediately. No waiting minutes for confirmations - the DAO feels responsive.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Full EVM compatibility</div>
+      <div class="feature-desc">OpenZeppelin Governor, TimelockController, and ERC20Votes contracts work identically. The skills and code you develop here transfer directly to any EVM chain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 COMMON PITFALLS -->
+<div class="section-label">10 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Avoid These Mistakes When Building Your DAO</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Forgetting to delegate tokens before voting</div>
+      <div class="feature-desc">In ERC20Votes, simply holding tokens does not give you voting power. You must call <code>delegate(address)</code> - either to yourself or to a representative. Many DAOs have failed proposals because holders forgot to delegate.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Not granting the governor proposer/executor roles on the timelock</div>
+      <div class="feature-desc">If the governor can't propose (queue) or execute on the timelock, proposals will be stuck in Succeeded state forever. Always grant the <code>PROPOSER_ROLE</code> and <code>EXECUTOR_ROLE</code> to the governor address after deployment.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Setting the timelock minDelay too short</div>
+      <div class="feature-desc">A very short timelock (e.g., 1 hour) defeats the purpose - token holders have no time to exit. Use at least 24 hours for a meaningful delay. For testing on MST, you can use shorter delays, but for production, longer is safer.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 CASE STUDIES -->
+<div class="section-label">11 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">DAOs That Started as Simple Projects</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Compound's Governor Alpha → OpenZeppelin Governor</div>
+      <div class="feature-desc">Compound launched the first widely-used Governor contract in 2020. It became the blueprint. OpenZeppelin later generalized it into the modular framework you used in this project. Thousands of DAOs now use it, proving that simple, well-designed contracts can have massive impact.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">⚖️</div>
+    <div class="feature-content">
+      <div class="feature-title">Nouns DAO - Daily Auctions, Infinite Governance</div>
+      <div class="feature-desc">Nouns DAO uses a similar Governor + Timelock architecture but with a twist: one NFT is auctioned every day, and the NFT holder gets one vote. This created a completely new governance model while relying on the same underlying contracts. Your project could be the seed for such an innovation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ASSESSMENT PREP -->
+<div class="section-label">12 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for Your Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">The DAO deployment requires three contracts: GovernanceToken (ERC20Votes), TimelockController, and Governor.</div>
+      <div class="feature-desc">They must be connected: token address to Governor, Governor as proposer/executor on Timelock.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Proposal lifecycle: Pending → Active → Succeeded → Queued → Executed.</div>
+      <div class="feature-desc">Each state transition requires specific actions and time delays.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees make iterative testing and real-world usage practical.</div>
+      <div class="feature-desc">Deploy and test for less than ₹0.50 total. Run dozens of proposals without worrying about gas.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 15.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">50</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Coding Project Submission</div>
+      <div class="q-section-meta">1 Question · 50 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">Coding Project</span><span class="q-diff hard">Hard</span><span class="q-marks">50 marks</span></div></div>
+      <div class="q-text">Deploy a fully functional DAO on MST Testnet using OpenZeppelin contracts. Submit your GitHub repository containing the contracts, deployment script, test suite, transaction logs, and a README.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">💻 REQUIREMENTS</div></div>
+        <div class="cc-scenario">Your DAO must include a governance token, a Governor contract, and a TimelockController. You must demonstrate a complete proposal lifecycle - from creation to execution - interacting with a target contract of your choice.</div>
+        <div class="cc-code">
+          <strong>Required deliverables:</strong><br>
+          (a) <code>contracts/GovernanceToken.sol</code> - ERC20Votes with initial supply.<br>
+          (b) <code>contracts/MyDAO.sol</code> - Governor with reasonable parameters (voting delay, period, quorum, threshold).<br>
+          (c) <code>scripts/deploy.js</code> - deploys all contracts, connects them, grants timelock roles.<br>
+          (d) <code>test/MyDAO.test.js</code> - at least 3 test cases demonstrating lifecycle, quorum failure, and execution.<br>
+          (e) Transaction logs (screenshots or text) from MST Testnet Explorer showing deployment and one successful proposal execution.<br>
+          (f) <code>README.md</code> - explains the project, setup instructions, and deployed addresses.
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">📊 Marking Rubric (50 marks)</div>
+          <p>
+            <strong>Contracts (10 marks):</strong> Token and Governor compile correctly. OpenZeppelin extensions used properly. No logic errors.<br>
+            <strong>Deployment script (8 marks):</strong> Deploys all contracts, grants roles, handles delegation. Outputs addresses.<br>
+            <strong>Testing (12 marks):</strong> At least 3 tests covering: (a) successful full lifecycle, (b) quorum not met, (c) execution to target contract. Tests pass.<br>
+            <strong>Transaction logs (10 marks):</strong> Clear evidence of deployment and at least one proposal executed on MST Testnet.<br>
+            <strong>Documentation (5 marks):</strong> README is clear, includes addresses and instructions.<br>
+            <strong>Code quality (5 marks):</strong> Clean formatting, NatSpec comments, meaningful variable names.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 15.5 Assessment Summary</div>
+      <div class="score-row">Coding Project (GitHub + MST Testnet Deployment) <span>(50 marks)</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">50</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 15.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">ERC20Votes</div><div class="glossary-def">An extension of ERC-20 that enables delegation of voting power and snapshot-based governance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Governor Contract</div><div class="glossary-def">OpenZeppelin's modular contract that manages the proposal lifecycle: creation, voting, queuing, and execution.</div></div>
+  <div class="glossary-item"><div class="glossary-term">TimelockController</div><div class="glossary-def">A contract that enforces a mandatory delay between proposal approval and execution, providing a safety window.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Proposal Threshold</div><div class="glossary-def">The minimum number of tokens a user must hold (or have delegated) to submit a proposal.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Quorum</div><div class="glossary-def">The minimum number of votes (or % of total supply) that must be cast for a proposal to be valid.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Snapshot</div><div class="glossary-def">The block number at which token balances are recorded to determine voting power for a proposal.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 15 · Sub-Module <strong>15.5</strong> of 5 &nbsp;·&nbsp; End of Module 15 - DAOs & Governance Complete ✅</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 5 &nbsp;·&nbsp; Sub-Module 5.3 of 6</div>
+<h1 class="module-title">Wallets &amp; <span class="highlight">Key Management</span></h1>
+<p class="module-subtitle">From twelve English words to a billion addresses - the cryptography that keeps your crypto safe, and why losing your seed phrase means losing everything forever.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 2 T/F with Justification (2 marks) + 1 Code-Completion (6 marks)</div>
+  <div class="meta-chip green">Phase 2 · Cryptocurrency &amp; Tokenomics</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔑</div>
+    <div class="obj-text">
+      <strong>Explain the private-key-to-address pipeline</strong>
+      From random entropy → mnemonic → seed → master key → child keys → public address, using BIP39, BIP32, and BIP44 standards.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Generate and validate mnemonics programmatically</strong>
+      Write Node.js code that uses `bip39` to create a 12-word seed phrase and derive the corresponding HD wallet root seed.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Secure keys against common threats</strong>
+      Identify risks like phishing, keylogging, insecure storage, and understand why hardware wallets and air-gapped signing are essential for large holdings.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔄</div>
+    <div class="obj-text">
+      <strong>Recover a wallet from nothing but a seed phrase</strong>
+      Know exactly how a 12-word backup can restore access to every address and token you've ever created on any EVM chain (including MST).
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD INTRODUCTION STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The ₹50 Lakh Mistake - A Seed Phrase Lost in a Fire</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a software developer in Bengaluru had accumulated 8 ETH (worth roughly ₹20 lakh at the time) over several years of trading and building dApps. He stored his 12-word seed phrase on a piece of paper tucked into a notebook on his desk. One evening, a kitchen fire spread to his home office. The notebook burned. His laptop - with the MetaMask wallet - was destroyed. He had no other backup. His 8 ETH, an ENS domain, and several valuable NFTs were now permanently inaccessible. Not because the blockchain went down, not because a hacker stole them, but because he lost the one piece of information that could prove ownership: his seed phrase.</p>
+  <br>
+  <p>This story is tragically common. Unlike a bank account where you can reset a password with a PAN card and a phone call, a blockchain wallet has no customer support, no password reset, no "forgot my seed phrase" button. The seed phrase <strong>is</strong> the wallet. Whoever holds it controls the assets - forever. This sub-module explains exactly what a seed phrase is, how it generates your private keys, and how to manage it safely. By the end, you'll know how to generate, store, and recover wallets like a professional - and why the words "abandon abandon abandon" can unlock a fortune.</p>
+</div>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Brain Wallets to BIP39 - The Quest for Recoverable Keys</h2>
+<p>In Bitcoin's earliest days, wallets were simply files containing randomly generated private keys. There was no standard way to back them up, no human-readable recovery mechanism, and no way to derive multiple keys from a single secret. If you lost your `wallet.dat` file, you lost your coins. If you wanted multiple addresses for privacy, you had to generate and store each private key separately. This was a usability disaster waiting to happen.</p>
+
+<p>The first major improvement came with <strong>Brain Wallets</strong> - the idea that a human-memorable passphrase could be hashed to produce a private key. The passphrase "correct horse battery staple" could be turned into a deterministic key. However, humans are terrible at generating entropy. Passphrases like "ilovebitcoin" or "password123" were cracked in seconds by attackers running dictionary attacks, resulting in millions of dollars in stolen Bitcoin.</p>
+
+<p>In 2012, Bitcoin Improvement Proposal 32 (<strong>BIP32</strong>) introduced <strong>Hierarchical Deterministic (HD) Wallets</strong>. Instead of random independent keys, an HD wallet uses a single master seed to derive a tree of key pairs. This means one backup (the seed) can recover every address the wallet will ever generate. BIP32 defined the mathematical structure: a root master private key and a chain code, from which child keys are derived using HMAC-SHA512. Each child can derive grandchildren, forming an infinite tree. A parent key can generate child public keys without exposing the parent private key, enabling powerful audit and accounting features.</p>
+
+<p>In 2013, <strong>BIP39</strong> (Mnemonic Code for Generating Deterministic Keys) added the crucial usability layer. Instead of backing up a long hex string like `0x1a2b3c...`, users could write down 12 or 24 common English words - like "abandon ability able about above absent absorb abstract absurd abuse access accident". These words encode a specific entropy, which is then combined with an optional passphrase to produce the BIP32 master seed. BIP39 also introduced a wordlist of 2048 words, each representing 11 bits of entropy. A 12-word mnemonic encodes 128 bits of entropy (plus 4 bits of checksum), providing 2¹²⁸ possible combinations - astronomically secure against brute force.</p>
+
+<p>Finally, <strong>BIP44</strong> (Multi-Account Hierarchy for Deterministic Wallets) defined a standard derivation path structure: `m / purpose' / coin_type' / account' / change / address_index`. This allowed a single seed to manage multiple cryptocurrencies (BTC, ETH, MSTC) across multiple accounts, with clear separation between external (receiving) and internal (change) addresses. The apostrophe indicates hardened derivation, which prevents child keys from being derived from parent public keys - a critical security feature.</p>
+
+<p>Today, nearly every wallet - MetaMask, Trust Wallet, Ledger, Trezor, and MST's own BridgeKey wallet - uses the BIP39 → BIP32 → BIP44 pipeline. A 12-word phrase written on a piece of paper is the root of a cryptographic tree that can generate billions of addresses across dozens of blockchains, all recoverable from those twelve words alone.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2011</div>
+      <div class="tl-body"><strong>Early Bitcoin wallets.</strong> Random private keys stored in `wallet.dat`. No recovery mechanism. Losing the file meant losing coins forever. Brain wallets introduced, but proven insecure.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2012</div>
+      <div class="tl-body"><strong>BIP32 - Hierarchical Deterministic Wallets.</strong> A single master seed generates a tree of key pairs. One backup restores all addresses. Introduced chain codes for hardened derivation.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2013</div>
+      <div class="tl-body"><strong>BIP39 - Mnemonic Seed Phrases.</strong> 12 - 24 English words encode 128 - 256 bits of entropy. Optional passphrase. Becomes the universal wallet backup standard.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2014</div>
+      <div class="tl-body"><strong>BIP44 - Multi-Asset HD Wallets.</strong> Standard derivation paths for multiple coins. A single mnemonic manages BTC, ETH, and eventually all EVM chains like MST.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST BridgeKey &amp; ecosystem.</strong> Fully BIP39/44 compatible. Same mnemonic works across MetaMask and BridgeKey. MST's low fees make wallet operations like key generation and recovery essentially free.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Twelve Words = Infinite Money - How a Seed Phrase Works</h2>
+<div class="callout analogy">
+  <div class="callout-label">🌱 The Analogy</div>
+  <p>Think of your seed phrase as a <strong>DNA sample</strong>. From a single strand of DNA, an entire organism can develop - every cell, every organ, every fingerprint. Similarly, from your 12-word seed phrase, your wallet can mathematically generate every private key, public key, and address you will ever need - across Bitcoin, Ethereum, MST, and hundreds of other chains. The seed phrase is the DNA; the wallet software is the developmental process; your addresses are the cells. If you have the DNA, you can rebuild the entire organism. If you lose the DNA, the organism can never be reconstructed.</p>
+</div>
+<p>Let's walk through the transformation chain step by step, starting from randomness and ending at a usable address:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">ENTROPY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is entropy and why does it matter?</div>
+      <div class="w5-a">Entropy is <strong>randomness</strong> - the unpredictability that makes your keys secure. A wallet starts by generating 128 bits (for 12 words) or 256 bits (for 24 words) of cryptographically random data. This randomness must come from a secure source - the operating system's random number generator (`/dev/urandom` on Linux, `crypto.randomBytes` in Node.js). If the entropy is predictable (e.g., based on the current time), an attacker can guess it and steal everything. The security of your entire wallet rests on the quality of these initial random bits.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">MNEMONIC</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is entropy turned into words?</div>
+      <div class="w5-a">The entropy is divided into 11-bit chunks. Each 11-bit number (0 - 2047) maps to a word from the BIP39 English wordlist - a standardized list of 2048 words. For 128 bits, that's 11 chunks (121 bits) plus a 4-bit checksum (the first 4 bits of SHA256(entropy)) to make 132 bits = 12 words. The wordlist is carefully chosen: no two words have the same first four letters, making it easy to auto-complete. Words like "abandon" and "zoo" are deliberately distinct. A 12-word mnemonic has 2¹²⁸ possible combinations - more than the number of atoms in the observable universe. Brute-forcing it is physically impossible.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">SEED</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the mnemonic become a seed?</div>
+      <div class="w5-a">The mnemonic is fed into <strong>PBKDF2</strong> (Password-Based Key Derivation Function 2) with HMAC-SHA512, using the string "mnemonic" + an optional passphrase as the salt, and iterating 2048 times. This produces a 512-bit seed. The passphrase is crucial: it acts as a "13th word" (or "25th word" for 24-word mnemonics). An empty passphrase yields the default wallet; a different passphrase yields a completely different wallet from the same mnemonic. This allows for plausible deniability: you can store a small amount in the default wallet and the real funds in a passphrase-protected wallet.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">④</div><div class="w5-word">MASTER KEY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the seed become a master key?</div>
+      <div class="w5-a">The 512-bit seed is split in half: the left 256 bits become the <strong>master private key</strong>, and the right 256 bits become the <strong>chain code</strong>. The master private key can be used to derive child keys; the chain code ensures that each child's derivation is unique and that children cannot be derived from public keys alone (when hardened). This master key pair is the root of the HD tree.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">⑤</div><div class="w5-word">CHILD KEYS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How are individual addresses created?</div>
+      <div class="w5-a">Using the BIP44 path `m/44'/60'/0'/0/0` (for the first Ethereum-compatible account on the first external address), the wallet iteratively applies HMAC-SHA512 to derive child private keys. The apostrophe (`'`) indicates hardened derivation, which means the parent private key is used - this prevents an attacker who knows a child private key and the parent chain code from deriving sibling keys. Each derived private key can then be converted to a public key using elliptic curve multiplication (secp256k1), and then hashed with Keccak-256 to produce the 20-byte address. The final address is the last 20 bytes of the hash, prefixed with `0x`. This whole process is deterministic: given the same mnemonic and path, you'll always get the same address.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Mathematics of HD Wallets - BIP32, BIP39, BIP44 in Code</h2>
+<p>Let's now examine the precise algorithms that turn twelve words into a secure, recoverable wallet. We'll focus on the most common implementation: Ethereum-compatible wallets (like MetaMask and MST's BridgeKey) that use the derivation path `m/44'/60'/0'/0/0`.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP39: Mnemonic Generation Step by Step</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Generate entropy.</strong> Produce 128 bits (16 bytes) of cryptographically secure random data. In Node.js: `const entropy = crypto.randomBytes(16);`</li>
+  <li><strong>Compute checksum.</strong> Take the SHA-256 hash of the entropy. The first `entropy_length / 32` bits are the checksum. For 128 bits, that's 4 bits. So checksum = `sha256(entropy).slice(0, 1) &gt;&gt; 4` (the first 4 bits of the first byte).</li>
+  <li><strong>Concatenate.</strong> Append the checksum bits to the entropy, resulting in 132 bits (128 + 4).</li>
+  <li><strong>Split into 11-bit chunks.</strong> 132 bits ÷ 11 bits = 12 chunks. Each chunk is an integer from 0 to 2047.</li>
+  <li><strong>Map to words.</strong> Each integer is used as an index into the BIP39 wordlist (a sorted array of 2048 English words). For example, index 0 → "abandon", index 1 → "ability", index 2047 → "zoo".</li>
+  <li><strong>Join with spaces.</strong> The 12 words are concatenated with a space separator, forming the mnemonic sentence.</li>
+</ol>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP39: Mnemonic to Seed (PBKDF2)</h3>
+<p>The mnemonic sentence is used to derive a 512-bit seed via PBKDF2:</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>seed = PBKDF2(password: mnemonic, salt: "mnemonic" + passphrase, iterations: 2048, keylen: 512 bits, hash: HMAC-SHA512)</strong></p>
+<p>The salt is the string `"mnemonic"` concatenated with the passphrase (which defaults to empty string if not provided). The 2048 iterations make brute-forcing the passphrase computationally expensive, adding a layer of security even if the mnemonic is exposed. The result is 64 bytes (512 bits) of pseudo-random data.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP32: Master Key Derivation from Seed</h3>
+<p>The 64-byte seed is used to generate the master private key and master chain code using HMAC-SHA512 with the key `"Bitcoin seed"` (yes, even for Ethereum, the string is literally `Bitcoin seed` - a historical artifact):</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>I = HMAC-SHA512(key: "Bitcoin seed", data: seed)</strong><br>
+<strong>master private key = I[0:32]</strong><br>
+<strong>master chain code = I[32:64]</strong></p>
+<p>The master private key is a 256-bit integer, which is then used as the starting point for the elliptic curve secp256k1. The master public key is derived by multiplying the generator point G by this integer: `master_public_key = master_private_key * G`.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP32: Child Key Derivation (CKD)</h3>
+<p>To derive a child key at index `i`, the parent's private key, chain code, and the index are used:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>If hardened (i &gt;= 2³¹):</strong> data = 0x00 || parent_private_key || i (big-endian 4 bytes). This uses the parent private key, so a child key cannot be derived from a parent public key - it's hardened.</li>
+  <li><strong>If non-hardened (i &lt; 2³¹):</strong> data = parent_public_key (compressed) || i. This allows public derivation (useful for watch-only wallets).</li>
+</ul>
+<p>The HMAC-SHA512 is computed with the chain code as the key: `I = HMAC-SHA512(key: chain_code, data: data)`. The left 32 bytes of I are the child private key (added to parent private key modulo the curve order), and the right 32 bytes become the child chain code. The process can be repeated to any depth.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP44: The Derivation Path</h3>
+<p>BIP44 defines a standardized path structure so that wallets from different vendors can generate the same addresses from the same mnemonic. The path for Ethereum (and all EVM chains like MST) is:</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>m / 44' / 60' / 0' / 0 / 0</strong></p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>`m` - master key</li>
+  <li>`44'` - purpose (BIP44)</li>
+  <li>`60'` - coin type (60 = Ethereum, also used by all EVM-compatible chains like MST, Polygon, BSC)</li>
+  <li>`0'` - account (first account; you can have multiple accounts: 0', 1', 2'...)</li>
+  <li>`0` - change (0 = external/receiving addresses, 1 = internal/change addresses)</li>
+  <li>`0` - address index (first address; increment for more addresses)</li>
+</ul>
+<p>The apostrophe means hardened derivation. The account level is hardened, so a compromised child private key at the address level cannot expose sibling addresses in the same account. This path is used by MetaMask, BridgeKey, and nearly every EVM wallet. A wallet that supports multiple blockchains simply uses different coin types (e.g., 0' for Bitcoin, 60' for Ethereum, and a custom coin type for MST if needed, though MST uses the same 60' path for EVM compatibility).</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 5.3-A · The Complete Key Derivation Pipeline</div>
+  <pre>┌────────────────────────────────────────────────────────────────────┐
+│                      1. ENTROPY GENERATION                          │
+│  crypto.randomBytes(16) → 128 bits of cryptographically random data │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      2. BIP39 MNEMONIC                             │
+│  Split entropy into 11‑bit chunks → map to 2048‑word wordlist      │
+│  Result: 12 English words (e.g., "abandon ability ...")            │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      3. PBKDF2 → SEED                              │
+│  seed = PBKDF2(mnemonic, "mnemonic"+passphrase, 2048, 512 bits)    │
+│  Result: 64‑byte deterministic seed                                 │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      4. BIP32 MASTER KEY                           │
+│  I = HMAC‑SHA512("Bitcoin seed", seed)                             │
+│  Master private key = I[0:32]; Chain code = I[32:64]               │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      5. BIP44 DERIVATION PATH                      │
+│  m/44'/60'/0'/0/0                                                  │
+│  Apply CKD function iteratively for each level                     │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      6. PRIVATE KEY → ADDRESS                      │
+│  Private key (32 bytes) × secp256k1 G → Public key (64 bytes)      │
+│  Keccak‑256(public key) → take last 20 bytes → 0x... address       │
+│  This address can receive MSTC, ERC‑20 tokens, NFTs                │
+└────────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">A single 12-word mnemonic, derived once, can generate billions of addresses across dozens of blockchains. The process is entirely deterministic: the same mnemonic always produces the same sequence of keys and addresses. This is why backing up the mnemonic is equivalent to backing up every wallet you will ever own.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Immutable Truth</div>
+  <p><strong>Not your keys, not your coins.</strong> A wallet does not "hold" your cryptocurrency. Your assets exist as entries on the blockchain. The wallet holds the private keys that allow you to sign transactions proving you own those assets. The mnemonic is the master key to all your private keys. Lose the mnemonic, and you lose the ability to prove ownership - forever. Share the mnemonic, and anyone who has it can take everything. There is no customer support, no recovery email, no KYC reset. The keys are the kingdom.</p>
+</div>
+
+<!-- ═══════════════ 06 WALLET TYPES & SECURITY ═══════════════ -->
+<div class="section-label">06 &nbsp; Wallet Types &amp; Security</div>
+<h2 class="section-title">Hot, Cold, Hardware, and Paper - The Spectrum of Key Custody</h2>
+<p>Wallets are categorized by how they store and use private keys. Understanding the trade-offs is essential for protecting funds of any significant value.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Software (Hot) Wallets</h3>
+<p>MetaMask, Trust Wallet, and MST's BridgeKey browser extension are <strong>hot wallets</strong> - they store keys encrypted on a device connected to the internet. They are convenient for daily use and dApp interaction, but they are vulnerable to malware, keyloggers, and phishing. A malicious browser extension can read your keystrokes or intercept transactions. Hot wallets are best for small, transactional amounts - what you'd carry in a physical wallet, not your life savings.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Hardware (Cold) Wallets</h3>
+<p>Ledger, Trezor, and similar devices are <strong>cold wallets</strong> - they store private keys on a dedicated hardware device that never exposes them to the internet. When you sign a transaction, the transaction data is sent to the device, which signs it internally and returns only the signature. The private key never leaves the device. This protects against malware and phishing, even if the computer is compromised. Hardware wallets are the gold standard for storing large amounts. They still use BIP39 mnemonics, so recovery is identical to hot wallets.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Paper Wallets &amp; Metal Backups</h3>
+<p>A <strong>paper wallet</strong> is simply a physical copy of a mnemonic or private key. Paper burns, gets wet, and fades. For long-term storage, metal backups (like Cryptosteel or stamped steel plates) are recommended - they survive fires, floods, and decades of neglect. Regardless of medium, the mnemonic must be stored securely, ideally in multiple geographically separated locations, and never in a digital photograph or cloud storage.</p>
+
+<div class="highlight-strip">
+  <strong>MST BridgeKey:</strong> MST's native wallet follows the BIP39/44 standards and integrates directly with the MST ecosystem. A mnemonic created in BridgeKey can be imported into MetaMask or any compliant wallet, and vice versa. Because MST is EVM-compatible, the same 0x address that receives MSTC can also receive any ERC-20 token deployed on MST. One mnemonic controls all assets on MST.
+</div>
+
+<!-- ═══════════════ 07 CASE STUDIES ═══════════════ -->
+<div class="section-label">07 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">When Key Management Goes Right - and Horribly Wrong</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">🔥</div>
+    <div class="feature-content">
+      <div class="feature-title">The Lost Hard Drive - 7,500 BTC in a Landfill</div>
+      <div class="feature-desc">In 2013, James Howells accidentally threw away a hard drive containing the private keys to 7,500 BTC (worth over ₹2,000 crore today). The hard drive is buried in a Newport landfill. Despite years of legal battles and offers to share the recovery with the city, the drive has never been found. The coins remain unspent on the blockchain, visible to everyone, but permanently inaccessible. This is the ultimate cautionary tale: <strong>a private key stored in only one place is a disaster waiting to happen.</strong> A simple mnemonic backup in a safety deposit box would have prevented this entirely.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🎣</div>
+    <div class="feature-content">
+      <div class="feature-title">The MetaMask Phishing Epidemic - "Enter Your Seed Phrase to Verify"</div>
+      <div class="feature-desc">Since 2020, phishing scams targeting MetaMask users have exploded. Victims receive a fake email or website that looks exactly like MetaMask, asking them to "verify their wallet" by entering their 12-word seed phrase. Once entered, the attacker immediately imports the seed into their own wallet and drains all assets. This is successful because many users do not understand that <strong>no legitimate service will ever ask for your seed phrase.</strong> The seed phrase is for you and you alone. It should never be typed into a website, shared on Telegram, or stored in a password manager. This attack vector has stolen hundreds of millions of dollars. Education - like this sub-module - is the only defense.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💼</div>
+    <div class="feature-content">
+      <div class="feature-title">The Institutional Custody Model - Multi-Sig and MPC</div>
+      <div class="feature-desc">For exchanges and institutions holding billions in customer funds, a single mnemonic is unacceptable. Instead, they use <strong>multi-signature (multi-sig) wallets</strong>, where multiple private keys are required to authorize a transaction (e.g., 3 of 5 signatures). More recently, <strong>Multi-Party Computation (MPC)</strong> has gained traction, where the private key is split into shares held by different parties, and no single party ever has the full key. Both approaches prevent a single point of failure. MST's smart contract platform supports multi-sig wallets natively - a simple Solidity multi-sig contract can be deployed with low gas fees, making it practical for team treasury management.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 08 ASSESSMENT PREPARATION ═══════════════ -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">BIP39 Mnemonic = Entropy + Checksum → 12/24 Words</div>
+      <div class="feature-desc">A 12-word mnemonic encodes 128 bits of entropy + 4 bits checksum. Each word is an index (0 - 2047) into a standardized 2048-word list. The words can be converted back to the seed using PBKDF2 with 2048 iterations.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">BIP32 HD Wallets: Master Seed → Tree of Keys</div>
+      <div class="feature-desc">A single 512-bit seed generates a master private key and chain code. Child keys are derived using HMAC-SHA512, either hardened (uses private key) or non-hardened (uses public key). Hardened derivation is marked with an apostrophe (e.g., 44').</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Standard EVM Derivation Path: m/44'/60'/0'/0/0</div>
+      <div class="feature-desc">This BIP44 path is used by MetaMask, BridgeKey, and all EVM-compatible wallets for the first external address. Coin type 60' = Ethereum and all EVM chains (MST, Polygon, BSC).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Seed Phrase = Unlimited Recovery. Lose It = Lose Everything.</div>
+      <div class="feature-desc">Anyone with the mnemonic can recreate every private key and address. There is no "forgot password" option. Store it offline, never digitally, and never share it with anyone - including support teams.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardware Wallets Sign Offline; Hot Wallets Are for Daily Use</div>
+      <div class="feature-desc">Use hardware wallets (Ledger, Trezor) for large holdings - they keep keys offline. Use hot wallets (MetaMask, BridgeKey) with small amounts for dApp interaction. Never enter your hardware wallet's seed phrase into a hot wallet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 5.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Private Key</div><div class="glossary-def">A 256-bit secret number that allows signing of transactions. Whoever knows the private key controls the associated assets. Never share it.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Public Key</div><div class="glossary-def">Derived from the private key using elliptic curve multiplication. Can be shared freely. Used to verify signatures and generate addresses.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Address</div><div class="glossary-def">A 20-byte hex string (0x...) derived from the public key via Keccak-256 hashing. Used to receive funds on EVM chains like MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Mnemonic (Seed Phrase)</div><div class="glossary-def">A set of 12 or 24 English words that encode entropy. Used to generate the master seed for an HD wallet. The ultimate backup.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP39</div><div class="glossary-def">Standard for mnemonic generation. Defines the wordlist, entropy encoding, and PBKDF2 seed derivation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP32</div><div class="glossary-def">Standard for Hierarchical Deterministic (HD) wallets. Defines how to derive a tree of child keys from a master seed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP44</div><div class="glossary-def">Defines the multi-asset derivation path structure: m / purpose' / coin_type' / account' / change / address_index.</div></div>
+  <div class="glossary-item"><div class="glossary-term">PBKDF2</div><div class="glossary-def">Password-Based Key Derivation Function 2. Used in BIP39 to convert a mnemonic + passphrase into a 512-bit seed, with 2048 iterations for brute-force resistance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardened Derivation</div><div class="glossary-def">Child key derivation that uses the parent private key, preventing a compromised child key from exposing parent or sibling keys. Marked with `'` in paths.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hot Wallet</div><div class="glossary-def">A wallet that stores keys on an internet-connected device. Convenient but vulnerable to malware. Use for small, daily amounts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Cold Wallet</div><div class="glossary-def">A wallet that keeps keys offline (hardware device, paper, metal). Much more secure; used for long-term storage of significant funds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BridgeKey</div><div class="glossary-def">MST's native wallet. Fully EVM-compatible, BIP39/44 compliant. Can import mnemonics from MetaMask and vice versa. Integrated with the MST ecosystem.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 5 · Sub-Module <strong>5.3</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 5.4 - Coins vs Tokens &amp; Gas →</p>
+</div>
+
+

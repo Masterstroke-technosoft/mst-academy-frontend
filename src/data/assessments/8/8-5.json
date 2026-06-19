@@ -1,0 +1,179 @@
+{
+  "submoduleId": "8.5",
+  "totalMarks": 15,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which Solidity data type is best suited for tracking how many tokens each address holds?",
+      "options": [
+        {
+          "key": "A",
+          "text": "address[] dynamic array of addresses",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "mapping(address => uint256)",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "string",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "bytes32",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "A mapping provides O(1) constant-time lookup and is the standard for balance tracking. Arrays would require loops and gas-heavy searches.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: B</div><p>A mapping provides O(1) constant-time lookup and is the standard for balance tracking. Arrays would require loops and gas-heavy searches.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What is the default value of a <code>uint256</code> state variable that has never been written to?",
+      "options": [
+        {
+          "key": "A",
+          "text": "undefined (reading it causes a revert)",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "0",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "1",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The contract's address",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "All value types in Solidity have a zero-value default: uint is 0, bool is false, address is 0x0. Mappings return the default for any unset key.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: B</div><p>All value types in Solidity have a zero-value default: <code>uint</code> is 0, <code>bool</code> is false, <code>address</code> is 0x0. Mappings return the default for any unset key.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Why is it recommended to use <code>calldata</code> instead of <code>memory</code> for read-only array parameters in external functions?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It avoids copying the entire array from calldata to memory, saving gas.",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "It allows the array to be modified within the function.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "It makes the array persistent across transactions.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "It automatically validates the array contents.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "memory triggers a copy from calldata; calldata reads directly from the transaction input. The gas savings are significant for large arrays.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p><code>memory</code> triggers a copy from calldata; <code>calldata</code> reads directly from the transaction input. The gas savings are significant for large arrays.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which statement about Solidity mappings is TRUE?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Mappings are stored in storage and cannot be iterated over.",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Mappings can be stored in memory for temporary calculations.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Mappings automatically track which keys have been set.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Mappings can be iterated using a for loop.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "Mappings are storage-only and have no length or iteration capability. Use an auxiliary array if you need to enumerate keys.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>Mappings are storage-only and have no length or iteration capability. Use an auxiliary array if you need to enumerate keys.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "How does the EVM store multiple <code>uint128</code> variables declared consecutively in a contract?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It packs them into a single 32-byte storage slot.",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Each uint128 occupies its own 32-byte slot.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "They are stored in memory, not storage.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Only one uint128 can exist per contract.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "The Solidity compiler packs consecutive small value types into single storage slots. Two uint128 values fit perfectly into one 32-byte slot, reducing storage costs.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>The Solidity compiler packs consecutive small value types into single storage slots. Two <code>uint128</code> values fit perfectly into one 32-byte slot, reducing storage costs.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "other",
+      "difficulty": "Medium",
+      "marks": 10,
+      "text": "Write a complete Solidity contract for a simple \"User Registry\" that stores user profiles. Follow the specifications below, using appropriate data types and storage locations to minimize gas costs."
+    }
+  ]
+}

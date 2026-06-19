@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 11.5 - RWA Tokenization & MST Orbitals | MasterStroke Academy</title>
+<meta name="description" content="Discover how real-world assets like real estate, invoices, and commodities are tokenized on the blockchain. Deep-dive into MST's RWA Orbitals, fractional ownership, legal structuring, and why Mumbai property can be globally accessible through MST.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .design-task {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .dt-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .dt-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .dt-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .dt-requirements { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .dt-rubric { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .dt-rubric-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .dt-rubric p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 11 &nbsp;·&nbsp; Sub-Module 11.5 of 6</div>
+<h1 class="module-title">RWA Tokenization &amp; <span class="highlight">MST Orbitals</span></h1>
+<p class="module-subtitle">Imagine owning a piece of a Mumbai apartment or a share of a solar farm in Rajasthan - with just ₹100. Real World Asset (RWA) tokenization turns physical value into digital tokens, unlocking global liquidity, fractional ownership, and programmable compliance. Discover how MST's unique RWA Orbitals bridge the legal world and the blockchain, making tokenized real estate, invoices, and commodities a practical reality.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (5 marks) + 1 Descriptive Design (15 marks)</div>
+  <div class="meta-chip green">Phase 4 · DeFi & RWA Orbitals</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏠</div>
+    <div class="obj-text">
+      <strong>Define RWA tokenization and its transformative potential</strong>
+      Explain how illiquid assets like real estate, art, and private equity can be fractionalized on-chain, enabling borderless investment and 24/7 markets.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Navigate the legal and structural layers of tokenized assets</strong>
+      Understand the role of Special Purpose Vehicles (SPVs), legal wrappers, and oracles in ensuring that on-chain tokens faithfully represent off-chain ownership rights.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔷</div>
+    <div class="obj-text">
+      <strong>Design a compliant RWA token on MST's hybrid architecture</strong>
+      Choose between public and permissioned zones, implement KYC/AML via smart contracts, and integrate dividend distribution and governance.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌍</div>
+    <div class="obj-text">
+      <strong>Leverage MST's low fees and unique features for RWA scale</strong>
+      See why sub-paisa transaction costs and high throughput make micro-investments in large assets viable, and how WASMify can verify real-world data for tokenized assets.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Mumbai Flat That Traveled the World</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2025, a developer in Bengaluru completed a luxury apartment building in Mumbai's Bandra district. Instead of selling whole apartments to a handful of wealthy investors, the developer tokenized the entire building. Using an MST-based RWA platform, they created 10,000 digital tokens, each representing a ₹10,000 share of the building's ownership. A teacher in Jaipur bought 50 tokens (₹5,00,000) as a long-term investment. A nurse in London bought 20 tokens. A student in Singapore bought 10 tokens with savings from a part-time job. Every month, the rental income from the apartments - paid by tenants in INR - was converted to USDC on-chain and distributed automatically to token holders worldwide as a dividend. Gas cost per distribution? Less than ₹0.006 per holder on MST.</p>
+  <br>
+  <p>Two years later, the nurse needed cash. She listed her 20 tokens on an MST-based RWA marketplace and sold them within minutes to a buyer in Dubai - no real estate agent, no 30-day closing, no stamp duty friction for the token transfer. The ownership of the underlying property never changed on the land registry; a legal trust held the title, and the tokens represented beneficial ownership. This is the power of RWA tokenization. It took a ₹10 crore asset and broke it into affordable pieces, opening property investment to the entire world. And on MST, the entire infrastructure cost a few rupees in gas.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Land Deeds to Digital Tokens - The Evolution of Asset Ownership</h2>
+<p>For centuries, owning real estate or fine art meant holding a paper deed or a certificate. These documents were hard to transfer, easy to forge, and impossible to split. If you wanted to sell 10% of your house, there was no legal mechanism to do so without creating a complex partnership. The result: trillions of dollars in assets sat illiquid, owned by a tiny fraction of the population.</p>
+<p>The first wave of digitization came with <strong>Real Estate Investment Trusts (REITs)</strong> in the 1960s - publicly traded companies that own and operate income-producing real estate. REITs made property investment accessible to stock market investors, but they were still centralized, geographically limited, and burdened with high management fees.</p>
+<p>Blockchain introduced a radical new possibility: <strong>tokenization</strong>. The idea of representing a real-world asset as a digital token on a blockchain emerged around 2017 - 2018, with early projects like <strong>RealT</strong> and <strong>SolidBlock</strong> attempting to tokenize single properties. However, these early efforts faced significant hurdles: uncertain legal frameworks, high Ethereum gas costs making small investments unviable, and difficulty bridging the physical and digital worlds.</p>
+<p>The breakthrough came as jurisdictions began clarifying the legal status of digital tokens. In 2020, the <strong>Liechtenstein Blockchain Act</strong> explicitly recognized tokenized securities. In 2021, the <strong>Swiss DLT Act</strong> updated securities law for blockchain. In India, SEBI began exploring tokenization frameworks, and states like Maharashtra experimented with blockchain land registries. These legal advances, combined with high-throughput, low-cost chains like MST, made RWA tokenization feasible at scale.</p>
+<p>MST's <strong>RWA Orbitals</strong> represent a purpose-built infrastructure for this new asset class. They combine the public MST chain for trading and liquidity with permissioned zones for sensitive legal data, and WASMify for verifying off-chain events (like rental payments or property inspections). The result is a complete lifecycle for tokenized assets, from issuance to secondary trading to income distribution.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> Tokenization doesn't just digitize ownership - it <strong>programmes</strong> it. A token can automatically pay dividends, enforce transfer restrictions, and comply with regulations. It turns a static asset into a smart financial instrument.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Tokenization = Cutting a Cake into Digital Slices</h2>
+<div class="callout analogy">
+  <div class="callout-label">🍰 The Analogy</div>
+  <p>Imagine a giant wedding cake worth ₹1 crore. One person can't afford the whole cake, and even if they could, they wouldn't want to eat it all. Tokenization is like cutting the cake into 10,000 identical slices, each worth ₹1,000. Every slice comes with a certificate that proves you own exactly that piece. If someone else wants a slice, they can buy it from you directly, instantly, without needing a bakery to approve the sale. And if the cake generates rental income (because, in this metaphor, it's a magical income-generating cake), each slice holder receives their share automatically. The cake itself stays in the bakery's vault (the legal trust), but the slices (tokens) trade freely among anyone who wants a taste.</p>
+</div>
+<p>Let's break down the core components of any RWA tokenization:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">A</div><div class="w5-word">ASSET</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What kind of assets can be tokenized?</div>
+      <div class="w5-a">Any asset with a clear legal title and measurable value can be tokenized: real estate (residential, commercial, land), financial instruments (invoices, trade finance receivables), commodities (gold, carbon credits), art and collectibles, and even intellectual property. The key requirement is that there must be a legal entity (like a Special Purpose Vehicle or trust) that holds the physical asset and issues the tokens representing beneficial ownership. The tokens are a digital claim on the economic value of the underlying asset.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">STRUCTURE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is the legal bridge between the physical and digital built?</div>
+      <div class="w5-a">The most common structure is the <strong>issuance SPV</strong> (Special Purpose Vehicle) - a legal entity (trust, foundation, or company) created solely to hold the asset. The SPV issues tokens on the blockchain, and the token holders are the beneficial owners of the SPV's shares or the economic rights to the asset's cash flows. The SPV's governing documents explicitly state that token transfers on the blockchain constitute transfers of beneficial ownership. This ensures that on-chain actions have off-chain legal effect. A regulated trustee or director oversees the SPV to ensure compliance.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COMPLIANCE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How are regulations like KYC and AML handled?</div>
+      <div class="w5-a">Tokenization doesn't bypass regulation - it programmes it. Smart contracts can enforce transfer restrictions: only addresses that have passed KYC verification can hold the token. MST's <strong>hybrid zones</strong> are ideal for this: the token contract can live in a permissioned zone where only verified participants can interact, while a wrapped version of the token can trade on the public zone for broader liquidity, subject to a gatekeeper contract. Identity providers (like SARAL) can issue on-chain attestations that a wallet has completed KYC, which the token contract checks on every transfer.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">I</div><div class="w5-word">INCOME</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do token holders receive dividends or rental income?</div>
+      <div class="w5-a">The SPV collects the asset's income (e.g., rent, interest payments) in fiat currency, converts it to a stablecoin (like USDC) through a licensed operator, and deposits it into a smart contract. The contract then distributes the stablecoin proportionally to all token holders in a single transaction (or via a claimable airdrop). This process can be fully automated using MST's smart contracts and oracles. For example, a rental payment received on the 5th of every month triggers an on-chain distribution by the 6th. Holders see the dividend appear in their wallets without any manual intervention.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: LEGAL STRUCTURING -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - Legal & Structural Design</div>
+<h2 class="section-title">The Invisible Bridge Between the Physical and the Digital</h2>
+<p>The greatest challenge in RWA tokenization is not technological - it is legal. A token on a blockchain is a digital entry; a piece of real estate is a physical asset governed by a country's property laws. How do we ensure that owning the token means owning the asset? The answer lies in careful <strong>legal structuring</strong>.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The SPV Model: A Closer Look</h3>
+<p>The most robust approach is the <strong>Special Purpose Vehicle (SPV)</strong>. Imagine a company created for one purpose only: to hold a specific apartment building. The company's shares (or units) are represented by tokens on the blockchain. When you buy a token, you legally buy a share of the company - and the company owns the apartment. The company's bylaws explicitly state that the blockchain token ledger is the definitive record of share ownership. This means that transferring the token on-chain legally transfers the share off-chain, with no need for paper share certificates or a central securities depository.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.5-A · RWA Tokenization Structure (SPV Model)</div>
+  <pre>
+ ┌──────────────────────────────────────────────────────────┐
+ │                    REAL WORLD                             │
+ │  ┌─────────────┐                                         │
+ │  │  Physical    │                                         │
+ │  │  Asset       │ (e.g., Mumbai apartment building)       │
+ │  │  (Property)  │                                         │
+ │  └──────┬──────┘                                         │
+ │         │ Title Deed                                     │
+ │         ▼                                                │
+ │  ┌─────────────┐        ┌──────────────────┐             │
+ │  │  SPV / Trust │───────│  Trustee/Director │             │
+ │  │  (Owner of   │        │  (Ensures          │             │
+ │  │   Asset)     │        │   compliance)      │             │
+ │  └──────┬──────┘        └──────────────────┘             │
+ └─────────┼────────────────────────────────────────────────┘
+           │ Issues tokens representing
+           │ beneficial ownership
+           ▼
+ ┌──────────────────────────────────────────────────────────┐
+ │                    DIGITAL WORLD (MST)                     │
+ │  ┌─────────────┐                                         │
+ │  │  RWA Token  │ (ERC‑3643 or custom contract)            │
+ │  │  Contract   │ • Transfer restrictions (KYC)            │
+ │  │             │ • Dividend distribution logic            │
+ │  │             │ • Governance (token holder voting)       │
+ │  └──────┬──────┘                                         │
+ │         │                                                │
+ │         ▼                                                │
+ │  ┌─────────────┐                                         │
+ │  │  Token       │                                         │
+ │  │  Holders     │ (Receive dividends, trade on DEXs)      │
+ │  └─────────────┘                                         │
+ └──────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The SPV acts as the legal bridge. The physical asset stays in the real world; the tokens represent ownership claims on the SPV, enabling frictionless digital trading while maintaining legal enforceability.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Regulatory Compliance: ERC-3643 and Permissioned Tokens</h3>
+<p>The Ethereum community developed <strong>ERC-3643</strong> (the T-REX standard) specifically for tokenized securities. It enforces transfer restrictions: before any transfer, the token contract calls an <strong>identity registry</strong> to check whether both the sender and receiver are whitelisted. If not, the transfer is rejected. This ensures that only KYC'd investors can hold the token, satisfying securities regulators. MST's implementation can use a similar pattern, enhanced by the hybrid architecture: the identity registry can live in a permissioned zone with access to off-chain KYC data, while the token itself can be traded on the public zone with the registry check enforced on every transfer.</p>
+
+<p>Additionally, for Indian RWA projects, compliance with <strong>FEMA</strong> (Foreign Exchange Management Act) and <strong>SEBI</strong> (Securities and Exchange Board of India) regulations is essential. Tokenizing a Mumbai property for global investors requires careful structuring to ensure foreign ownership limits are respected, which can be enforced programmatically - e.g., the token contract can cap the total tokens held by non-Indian addresses.</p>
+
+<!-- 06 FRACTIONAL OWNERSHIP & SECONDARY MARKET -->
+<div class="section-label">06 &nbsp; Fractional Ownership &amp; Secondary Markets</div>
+<h2 class="section-title">Turning a ₹10 Crore Asset into 10,000 Investable Tokens</h2>
+<p>Fractional ownership is the killer app of RWA tokenization. Instead of needing ₹1 crore to buy a whole property, an investor can buy ₹10,000 worth of tokens - the minimum investment plummets by orders of magnitude. This dramatically expands the investor base and increases liquidity.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Creating the Tokens</h3>
+<p>The SPV decides on the total number of tokens (e.g., 1,000,000 tokens representing 100% of the asset). Each token is fungible and divisible. The SPV initially sells a portion of tokens (say, 60%) in a primary offering to raise funds (which pay off the developer or original owner), while retaining the remaining tokens for future sales or as management incentives. The tokens are listed on an MST-based secondary marketplace, similar to a DEX but with the compliance checks described above.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Liquidity and Price Discovery</h3>
+<p>Unlike traditional real estate, where selling takes months and involves brokers, tokenized assets can trade 24/7 on a decentralized exchange. Liquidity pools can be created (e.g., RWA-token/USDC), allowing instant swaps. The market price of the token reflects the collective valuation of the underlying asset, incorporating news about property values, rental income, and economic conditions - a far more efficient price discovery mechanism than quarterly appraisals.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Dividend Distribution</h3>
+<p>Every month, the net rental income (after property management fees, taxes, and SPV costs) is deposited into the token contract's dividend pool. Holders can either claim their share manually or receive it automatically. The distribution is proportional: a holder of 5,000 tokens out of 1,000,000 total gets 0.5% of the dividend pool. This is enforced entirely by the smart contract, eliminating the need for a transfer agent or manual reconciliation.</p>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> Distributing dividends to 10,000 token holders on Ethereum could cost ₹50,00,000 in gas (₹500 per distribution). On MST, the same distribution costs ₹60 (₹0.006 per holder), making monthly or even weekly payouts economically viable for the first time.
+</div>
+
+<!-- 07 USE CASES BEYOND REAL ESTATE -->
+<div class="section-label">07 &nbsp; Beyond Real Estate - Diverse RWA Applications</div>
+<h2 class="section-title">Tokenizing Invoices, Carbon Credits, and More</h2>
+<p>While real estate is the most intuitive example, RWA tokenization extends to many asset classes, each with unique characteristics:</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">📄</div>
+    <div class="feature-content">
+      <div class="feature-title">Trade Finance & Invoices</div>
+      <div class="feature-desc">Small businesses often wait 30 - 90 days for invoice payments. Tokenizing invoices allows them to sell the future payment rights to investors at a discount, receiving cash immediately. The investor earns a yield when the invoice is paid. Smart contracts can automate the entire lifecycle: when the invoice payment is received off-chain, an oracle (or WASMify) reports it on-chain, triggering automatic repayment to token holders. This is a multi-trillion-dollar global market.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🌱</div>
+    <div class="feature-content">
+      <div class="feature-title">Carbon Credits</div>
+      <div class="feature-desc">Carbon credits (certificates representing 1 tonne of CO₂ reduced or removed) are increasingly traded globally. Tokenizing them on a blockchain brings transparency, prevents double-counting, and enables fractional trading. MST's low fees are ideal for the high-frequency trading of these credits, and on-chain retirement (burning the token when the credit is used) provides an immutable audit trail.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🎨</div>
+    <div class="feature-content">
+      <div class="feature-title">Fine Art & Collectibles</div>
+      <div class="feature-desc">A ₹5 crore painting can be tokenized into 5,000 tokens, allowing fractional ownership by art enthusiasts. The physical painting remains in a secure vault with a custodian, while the tokens trade among investors. When the painting is eventually sold, the proceeds are distributed to token holders. The provenance (history of ownership) is permanently recorded on-chain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 MST ORBITALS & TECHNICAL INTEGRATION -->
+<div class="section-label">08 &nbsp; MST Orbitals &amp; Technical Integration</div>
+<h2 class="section-title">How MST's Architecture Makes RWA Tokenization Practical</h2>
+<p>MST's <strong>RWA Orbitals</strong> are a comprehensive framework that integrates the blockchain, legal wrappers, and off-chain verification. Let's explore the key components that make it work.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Hybrid Zones for Compliance</h3>
+<p>An RWA token often needs to restrict who can hold it (e.g., only KYC'd investors, or only residents of certain countries). MST's <strong>permissioned zones</strong> allow the token contract to run in an environment where only authorized participants can interact. The <strong>public zone</strong> can host a wrapper token (like an LP token) that is freely tradable but must be unwrapped through a compliant gatekeeper. This dual-zone approach balances regulatory requirements with open market liquidity - a unique capability of MST's hybrid L1.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">WASMify: Verifiable Off-Chain Data</h3>
+<p>RWA tokens depend on real-world data: rental payments received, invoice settled, carbon credit verified. MST's <strong>WASMify</strong> enables off-chain computations (e.g., parsing a bank statement to confirm a rent payment) with a ZK proof that the computation was performed correctly. The proof is submitted on-chain, triggering the smart contract's dividend distribution or repayment. This removes the need for a trusted oracle and makes the system trustless - the code verifies the data, not a person.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Sub-Paisa Economics</h3>
+<p>RWA tokenization involves frequent, small-value transactions: dividend payments, token transfers, KYC checks, and secondary trades. On Ethereum, each of these could cost ₹500-₹2,000, making the entire structure uneconomical except for the largest assets. On MST, each transaction costs ~₹0.006. This means:
+  <ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+    <li>A ₹50,00,000 property can be tokenized into 50,000 tokens of ₹100 each, and the entire lifecycle - issuance, trading, dividends - costs a few rupees.</li>
+    <li>Monthly dividends to 10,000 holders cost ₹60 in total gas.</li>
+    <li>An invoice token worth ₹5,000 can be fractionally sold to 50 investors for ₹100 each, with gas costs of ₹0.30 total.</li>
+  </ul>
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.5-B · MST RWA Orbital Lifecycle</div>
+  <pre>
+  ┌──────────────────┐
+  │  Asset origination│ (SPV formed, asset acquired)
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │  Token issuance   │ (Tokens minted on MST, primary sale)
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │  Secondary trading │ (DEX with compliance checks)
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │  Income collection │ (Rent, invoice payment received off‑chain)
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │  WASMify oracle   │ (Verifies payment, submits ZK proof on‑chain)
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │  Dividend payout  │ (Smart contract distributes stablecoins to holders)
+  └────────┬─────────┘
+           │
+           ▼ (repeat monthly)
+  </pre>
+  <div class="diagram-caption">The entire lifecycle is on-chain where trust matters, and off-chain where data originates. WASMify bridges the two without a centralized oracle.</div>
+</div>
+
+<!-- 09 INTERACTIVE DESIGN WALKTHROUGH -->
+<div class="section-label">09 &nbsp; Interactive Design Walkthrough</div>
+<h2 class="section-title">Design a Tokenized Mumbai Property - Step by Step</h2>
+<p>Click through each step to see how an RWA tokenization project comes together on MST.</p>
+
+<details>
+  <summary>🏢 Step 1: Asset Sourcing & Legal Setup</summary>
+  <div class="content">
+    <p>A real estate developer identifies a ₹5 crore apartment building in Mumbai. A Singapore-based trustee creates an SPV (a Cayman Islands foundation or an Indian trust) to hold the property. The trustee appoints a local property manager. The SPV's constitutional documents explicitly reference the blockchain token ledger as the definitive record of ownership.</p>
+  </div>
+</details>
+<details>
+  <summary>📝 Step 2: Token Design & Issuance</summary>
+  <div class="content">
+    <p>5,000,000 RWA tokens are minted (each representing ₹10 of the property). The token contract is deployed on MST's permissioned zone with an ERC-3643-style whitelist. An initial offering sells 60% of tokens to KYC'd investors through a regulated platform. Raised funds pay the developer and cover setup costs.</p>
+  </div>
+</details>
+<details>
+  <summary>🔁 Step 3: Secondary Market & Liquidity</summary>
+  <div class="content">
+    <p>A DEX pair (RWA-token/USDC) is created on MST's public zone, with a wrapper contract that ensures only whitelisted addresses can unwrap and hold the underlying RWA token. Investors buy and sell freely. The token price reflects market sentiment on Mumbai real estate. Gas per trade: ~₹0.006.</p>
+  </div>
+</details>
+<details>
+  <summary>💰 Step 4: Rental Income & Distribution</summary>
+  <div class="content">
+    <p>Tenants pay ₹3,00,000 monthly rent. The property manager deducts fees and sends ₹2,50,000 to the SPV's bank account. A WASMify module monitors the bank's API, verifies the deposit, and submits a ZK proof to the MST smart contract. The contract automatically distributes 2,50,000 USDC to all token holders in proportion to their holdings. A holder with 50,000 tokens (1% of supply) receives 2,500 USDC.</p>
+  </div>
+</details>
+<details>
+  <summary>🏛️ Step 5: Governance & Exit</summary>
+  <div class="content">
+    <p>Token holders vote on-chain on major decisions: sell the property? change the property manager? The voting power is proportional to token holdings. If a supermajority votes to sell, the trustee executes the sale, the proceeds are deposited into the smart contract, and holders can redeem their tokens for the final distribution. The tokens are then burned.</p>
+  </div>
+</details>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Pioneering RWA Tokenization Projects</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏠</div>
+    <div class="feature-content">
+      <div class="feature-title">RealT - Fractional Real Estate on Ethereum</div>
+      <div class="feature-desc">RealT tokenizes single-family rental properties in the United States. Each property is held by an LLC, and tokens represent ownership shares. Investors receive weekly rental income in USDC. Despite Ethereum's high gas costs, RealT demonstrated the demand for fractional property investment. On MST, such a model could be 100,000× cheaper to operate, enabling tokenization of much smaller properties.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">📜</div>
+    <div class="feature-content">
+      <div class="feature-title">Ondo Finance - Tokenized US Treasuries</div>
+      <div class="feature-desc">Ondo Finance tokenizes US Treasury bonds and money market funds, issuing tokens (like OUSG) that represent shares in these traditional financial instruments. Ondo uses a regulated structure with KYC/AML, proving that compliant RWA tokenization is viable. On MST, similar structures could bring Indian government bonds on-chain, accessible to global investors with a ₹100 minimum.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🌾</div>
+    <div class="feature-content">
+      <div class="feature-title">AgriDex - Tokenized Agricultural Commodities</div>
+      <div class="feature-desc">AgriDex (on Solana) tokenizes agricultural trade documents, enabling instant settlement of cross-border commodity trades. While not on MST, the model is directly applicable: tokenize a shipment of rice from Punjab to Dubai, with the token representing ownership. When the shipment arrives (verified by IoT data via WASMify), payment releases automatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 COMMON PITFALLS -->
+<div class="section-label">11 &nbsp; Common Pitfalls in RWA Tokenization</div>
+<h2 class="section-title">Avoid These Mistakes When Structuring Tokenized Assets</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Weak legal bridge between token and asset</div>
+      <div class="feature-desc">If the legal documents don't explicitly recognize blockchain token transfers as ownership transfers, token holders may have no legal claim. Always ensure the SPV's governing documents and the asset's title deed are aligned with the token ledger.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring local regulations</div>
+      <div class="feature-desc">Tokenizing a property in India for global investors without considering FEMA restrictions on foreign ownership could result in legal action. Always involve local legal counsel and build compliance into the smart contract.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Over-reliance on centralized oracles</div>
+      <div class="feature-desc">If the dividend distribution depends on a single person pressing a button, the system is not truly decentralized. Use WASMify or decentralized oracle networks to verify real-world events automatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ASSESSMENT PREP -->
+<div class="section-label">12 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">RWA tokenization = representing physical assets as digital tokens</div>
+      <div class="feature-desc">An SPV holds the asset; tokens represent beneficial ownership. The legal bridge ensures token transfers = ownership transfers.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's hybrid zones enable compliant, liquid RWA markets</div>
+      <div class="feature-desc">Permissioned zones for KYC'd issuance; public zone for trading with gatekeeper checks.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">WASMify provides trustless verification of off-chain income</div>
+      <div class="feature-desc">Bank deposit confirmed via ZK proof → automatic dividend distribution. No manual oracle.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 11.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">20</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of an SPV in RWA tokenization?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> To legally hold the physical asset and issue tokens representing beneficial ownership. ✅</li>
+        <li><span class="opt-key">B</span> To mine cryptocurrency.</li>
+        <li><span class="opt-key">C</span> To provide liquidity on decentralized exchanges.</li>
+        <li><span class="opt-key">D</span> To create stablecoins.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The SPV is the legal entity that bridges the physical asset and the digital tokens, ensuring that token transfers have legal meaning.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why are MST's sub-paisa fees critical for RWA tokenization?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> They enable frequent dividend distributions and micro-investments without gas costs exceeding the value transferred. ✅</li>
+        <li><span class="opt-key">B</span> They make the tokens more valuable.</li>
+        <li><span class="opt-key">C</span> They allow assets to be tokenized without an SPV.</li>
+        <li><span class="opt-key">D</span> They remove the need for KYC.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Low fees make small, recurring on-chain actions (like monthly dividends to many holders) economically feasible.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does MST's WASMify improve RWA tokenization?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By providing trustless verification of off-chain events (like rental payments) via ZK proofs, triggering on-chain actions. ✅</li>
+        <li><span class="opt-key">B</span> By minting tokens automatically.</li>
+        <li><span class="opt-key">C</span> By replacing the need for a blockchain.</li>
+        <li><span class="opt-key">D</span> By acting as a decentralized exchange.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>WASMify bridges the off-chain and on-chain worlds without a trusted third party, by verifying real-world data and posting proofs on-chain.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which token standard is specifically designed for compliant tokenized securities?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> ERC-3643 (T-REX) ✅</li>
+        <li><span class="opt-key">B</span> ERC-20</li>
+        <li><span class="opt-key">C</span> ERC-721</li>
+        <li><span class="opt-key">D</span> ERC-1155</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>ERC-3643 enforces transfer restrictions based on an identity registry, ensuring only whitelisted addresses can hold the token.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a key benefit of fractional ownership via tokenization?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Lowering the minimum investment amount, democratizing access to large assets. ✅</li>
+        <li><span class="opt-key">B</span> Making assets impossible to sell.</li>
+        <li><span class="opt-key">C</span> Centralizing ownership in a single entity.</li>
+        <li><span class="opt-key">D</span> Increasing paperwork.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Fractionalization allows many small investors to collectively own an asset, lowering barriers to entry.</p></div>
+    </div>
+
+    <!-- SECTION B: DESCRIPTIVE DESIGN -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Descriptive Design Task</div>
+      <div class="q-section-meta">1 Question · 15 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff medium">Medium</span><span class="q-marks">15 marks</span></div></div>
+      <div class="q-text">Design a tokenized real estate structure for a Mumbai apartment building on MST. Address legal structure, token issuance, compliance, income distribution, and secondary market.</div>
+      <div class="design-task">
+        <div class="dt-header"><div class="dt-badge">🏢 SCENARIO</div></div>
+        <div class="dt-scenario">A developer owns a ₹20 crore apartment building in Mumbai and wants to tokenize it to attract global investors. The building generates ₹12,00,000 monthly rental income. Design the complete structure.</div>
+        <div class="dt-requirements">
+          <strong>Required in your design:</strong><br>
+          (a) Legal structure: what entity holds the asset? How is the token-to-ownership link established?<br>
+          (b) Token design: how many tokens? what standard? any transfer restrictions?<br>
+          (c) KYC/AML compliance: how are investors verified? how does the token contract enforce compliance?<br>
+          (d) Income distribution: how is rent collected, converted on-chain, and paid to token holders? what role does WASMify play?<br>
+          (e) Secondary market: where do tokens trade? how is liquidity provided?<br>
+          (f) MST advantage: explain specifically how MST's low fees and hybrid zones improve this project versus Ethereum.
+        </div>
+        <div class="dt-rubric">
+          <div class="dt-rubric-label">📊 Marking Rubric (15 marks)</div>
+          <p>
+            <strong>(a) Legal structure (3 marks):</strong> Clear SPV design, link between token ledger and ownership rights, mentions Indian regulations (FEMA, SEBI).<br>
+            <strong>(b) Token design (3 marks):</strong> Total supply, standard (ERC-3643 or similar), transfer restrictions, divisibility.<br>
+            <strong>(c) KYC/AML (3 marks):</strong> Process for investor whitelisting, on-chain enforcement, mention of MST permissioned zone.<br>
+            <strong>(d) Income distribution (3 marks):</strong> End-to-end flow from tenant payment to on-chain dividend, use of WASMify for verification.<br>
+            <strong>(e) Secondary market (2 marks):</strong> DEX pair, liquidity provision, 24/7 trading.<br>
+            <strong>(f) MST advantage (1 mark):</strong> Specific mention of low fees enabling micro-investment and frequent distributions, hybrid zones for compliance.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 11.5 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 1 × Descriptive Design <span>(15 marks) = 15 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">20</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 11.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">RWA</div><div class="glossary-def">Real World Asset - a physical or traditional financial asset (real estate, invoice, commodity) tokenized on a blockchain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SPV</div><div class="glossary-def">Special Purpose Vehicle - a legal entity created solely to hold an asset and issue tokens, isolating the asset's risk from the issuer.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Fractional Ownership</div><div class="glossary-def">Dividing an asset into many small, tradeable tokens, allowing multiple investors to own a fraction of it.</div></div>
+  <div class="glossary-item"><div class="glossary-term">ERC-3643 (T-REX)</div><div class="glossary-def">A token standard for permissioned securities that checks an identity registry before allowing transfers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's off-chain computation framework that produces ZK proofs to verify real-world data and submit results on-chain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Permissioned Zone</div><div class="glossary-def">An MST network partition where only authorized validators and users can interact, ideal for compliant token issuance.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 11 · Sub-Module <strong>11.5</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 11.6 - Hands-On: Build a Simple AMM or Staking Contract →</p>
+</div>
+
+</body>
+</html>

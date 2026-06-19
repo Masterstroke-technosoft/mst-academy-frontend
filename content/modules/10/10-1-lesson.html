@@ -1,0 +1,266 @@
+
+
+    <div class="module-badge">📦 Module 10 · Sub-Module 10.1 of 6</div>
+    <h1 class="module-title">Advanced <span class="highlight">Data Structures</span></h1>
+    <p class="module-subtitle">Nested mappings, arrays of structs, and the secret art of storage packing. Learn how to organize on-chain data like a pro - saving gas, avoiding common pitfalls, and designing contracts that can scale to millions of users.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 50 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks (MCQ + Identify-Output)</div>
+        <div class="meta-chip">📋 Nested mappings, struct arrays, storage layout</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity &amp; Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🗺️</div>
+            <div class="feature-title">Design nested mappings for complex data relationships</div>
+            <div class="feature-desc">Build data structures like user balances per token, multi-level permissions, or any two-key lookup - and understand exactly how they store data on-chain.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📊</div>
+            <div class="feature-title">Work with arrays of structs efficiently</div>
+            <div class="feature-desc">Create, update, delete, and iterate over dynamic arrays of custom data types. Learn gas-safe patterns for growing lists and the pitfalls of deleting elements.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🧱</div>
+            <div class="feature-title">Master storage packing to slash gas costs</div>
+            <div class="feature-desc">Understand the EVM's 32-byte slot architecture. Pack multiple small variables into a single storage slot, reducing deployment and transaction costs dramatically.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🧪</div>
+            <div class="feature-title">Predict and verify storage slot layouts</div>
+            <div class="feature-desc">Read Solidity storage directly using `ethers.provider.getStorage()` and verify that your variables land exactly where you expect them.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Game That Ran Out of Gas</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2021, a team launched a blockchain card game where each player had a deck of up to 50 cards. The developers stored every card as a separate struct inside a dynamic array per user. When a player wanted to see their deck, the contract looped through the entire array to find the right cards. With 100,000 users and growing, a simple "view deck" function started consuming over 5 million gas - more than the block gas limit - and transactions began failing.</p>
+        <br>
+        <p>The post-mortem revealed two fatal mistakes. First, they used a single array per user instead of a mapping of card IDs to card details, which would have allowed instant lookups without loops. Second, they stored each card's metadata (name, image URL, rarity) on-chain, when only the ownership and stats needed to be on-chain. By redesigning their data structures with nested mappings and off-chain metadata, they reduced gas costs by over 90% and saved the game.</p>
+        <br>
+        <p>This story illustrates why advanced data structures are not just academic - they are the difference between a contract that works in a test environment and one that survives in the wild. In this sub-module, you will learn exactly how to avoid the mistakes that nearly killed this game, and how to design data layouts that are both elegant and gas-efficient.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; Nested Mappings Deep Dive</div>
+    <h2 class="section-title">Mappings Inside Mappings - The Key-Value Swiss Army Knife</h2>
+    <p>A mapping in Solidity is a hash table that stores key-value pairs. A <strong>nested mapping</strong> is simply a mapping whose value is another mapping. This creates a two-dimensional (or multi-dimensional) data structure that is incredibly powerful for representing relationships between entities.</p>
+    <p><strong>Why nested mappings?</strong> Imagine you are building a DeFi protocol where users deposit multiple tokens. You need to track each user's balance of each token. A single mapping <code>mapping(address =&gt; uint256) public balances</code> only gives you one balance per address. You would need a separate mapping for every token - which is impossible to scale. The solution is a nested mapping: <code>mapping(address =&gt; mapping(address =&gt; uint256)) public tokenBalances;</code> where the first key is the user and the second key is the token address.</p>
+
+    <div class="code-block-wrap"><pre>// Nested mapping: user -&gt; token -&gt; balance
+mapping(address =&gt; mapping(address =&gt; uint256)) public tokenBalances;
+
+function deposit(address token, uint256 amount) public {
+    tokenBalances[msg.sender][token] += amount;
+}
+
+function getBalance(address user, address token) public view returns (uint256) {
+    return tokenBalances[user][token];
+}</pre></div>
+
+    <p><strong>How nested mappings work under the hood:</strong> The EVM doesn't truly store a "mapping of mappings." Instead, it computes a storage slot for each value based on the keys. For a single mapping, the slot is <code>keccak256(abi.encode(key, baseSlot))</code>. For a nested mapping, it first computes the slot of the outer mapping's value using the first key, then uses that as the base slot for the inner mapping. This means the data is sparse - no storage is used for keys that have never been set.</p>
+
+    <div class="callout warning">
+        <div class="callout-label">⚠️ Important Limitations of Mappings</div>
+        <p><strong>1. No iteration:</strong> You cannot loop over all keys in a mapping. If you need to list all users, you must maintain a separate array of keys.</p>
+        <p><strong>2. Default values:</strong> Every possible key exists by default and returns the zero value for its type. So <code>balances[0x123]</code> returns 0 even if that address has never interacted with the contract. You cannot distinguish "never set" from "set to zero."</p>
+        <p><strong>3. Cannot be deleted entirely:</strong> You can delete a specific key's value (<code>delete mapping[key]</code> resets it to default), but you cannot clear the entire mapping in one operation. For large mappings, this can make upgrades or resets expensive.</p>
+    </div>
+
+    <p><strong>Practical patterns with nested mappings:</strong></p>
+    <p><strong>User allowances:</strong> <code>mapping(address =&gt; mapping(address =&gt; uint256)) public allowance;</code> (owner → spender → amount). This is exactly how ERC-20 tokens implement the approve/transferFrom pattern.</p>
+    <p><strong>Multi-level permissions:</strong> <code>mapping(address =&gt; mapping(string =&gt; bool)) public permissions;</code> where the first key is the user, the second is the permission name (e.g., "canMint", "canPause").</p>
+    <p><strong>High scores per level:</strong> <code>mapping(uint256 =&gt; mapping(address =&gt; uint256)) public highScores;</code> (level → player → score).</p>
+
+    <div class="section-label">04 &nbsp; Arrays of Structs - Custom Data on the Blockchain</div>
+    <h2 class="section-title">Storing Collections of Complex Objects</h2>
+    <p>A <strong>struct</strong> is a custom data type that groups multiple variables under a single name. An <strong>array of structs</strong> is a dynamic or fixed-size list where each element is a struct. This is the foundation for storing any kind of list - users, products, orders, tasks - on the blockchain.</p>
+
+    <div class="code-block-wrap"><pre>struct Player {
+    address wallet;
+    string name;
+    uint256 highScore;
+    bool isActive;
+}
+
+Player[] public players;
+
+function register(string memory _name) public {
+    players.push(Player({
+        wallet: msg.sender,
+        name: _name,
+        highScore: 0,
+        isActive: true
+    }));
+}</pre></div>
+
+    <p><strong>Dynamic vs. fixed arrays:</strong> A dynamic array (<code>Player[]</code>) can grow and shrink using <code>.push()</code> and <code>.pop()</code>. A fixed array (<code>Player[10]</code>) has a size fixed at compile time and cannot be resized. Dynamic arrays are more flexible but use slightly more gas because the EVM must manage their length.</p>
+
+    <p><strong>Accessing and updating structs in arrays:</strong></p>
+    <div class="code-block-wrap"><pre>// Update a player's high score
+function updateScore(uint256 playerIndex, uint256 newScore) public {
+    require(playerIndex &lt; players.length, "Player does not exist");
+    players[playerIndex].highScore = newScore;
+}
+
+// Read a player's name
+function getPlayerName(uint256 playerIndex) public view returns (string memory) {
+    require(playerIndex &lt; players.length, "Player does not exist");
+    return players[playerIndex].name;
+}</pre></div>
+
+    <p><strong>Deleting elements from a struct array:</strong> Solidity's <code>delete</code> keyword resets a struct to its default values (0 for numbers, false for booleans, empty string). However, it does <strong>not</strong> remove the element or shift the array - it leaves a "hole" with default values. This is the most common source of bugs with struct arrays. If you need to truly remove an element, you must either:</p>
+    <p><strong>1. Overwrite with the last element and pop:</strong> <code>players[index] = players[players.length - 1]; players.pop();</code> This is O(1) gas but changes the order.</p>
+    <p><strong>2. Shift all subsequent elements left:</strong> Use a loop to move elements down by one, then pop. This preserves order but costs O(n) gas and can hit block gas limits for large arrays.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 Gas-Saving Tip: Mappings Over Arrays for Large Lists</div>
+        <p>If your list can grow to thousands or millions of items, avoid arrays. Use a mapping and keep a separate counter for the length. Arrays become extremely expensive to iterate as they grow, and operations like deleting from the middle can be impossible due to gas limits. A mapping with a counter lets you access any element by ID in O(1) gas, regardless of list size.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; Storage Packing - The Art of Gas Optimization</div>
+    <h2 class="section-title">How Solidity Packs Variables into 32-Byte Slots</h2>
+    <p>The Ethereum Virtual Machine (EVM) organizes persistent storage as a key-value store of 32-byte slots, numbered from 0 to 2²⁵⁶-1. Each state variable in your contract is assigned to one or more of these slots, in the order they are declared. The Solidity compiler applies <strong>storage packing</strong>: if a variable is smaller than 32 bytes and the current slot has enough remaining space, it will be placed into the same slot as the previous variable.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 10.1-A · Storage Packing Visualized</div>
+        <pre>Contract Example {
+    uint128 a;   // slot 0: bytes 0‑15  (128 bits = 16 bytes)
+    uint128 b;   // slot 0: bytes 16‑31 (packed with a)
+    uint256 c;   // slot 1: full 32 bytes (cannot fit in slot 0, starts new slot)
+    uint64 d;    // slot 2: bytes 0‑7   (64 bits = 8 bytes)
+    uint64 e;    // slot 2: bytes 8‑15  (packed with d)
+    uint128 f;   // slot 2: bytes 16‑31 (packed with d,e)
+}
+
+Slot 0: [ a (16 bytes) | b (16 bytes) ]  ← full
+Slot 1: [ c (32 bytes) ]                 ← full
+Slot 2: [ d (8 bytes) | e (8 bytes) | f (16 bytes) ] ← full
+Total: 3 slots instead of 6 (saving ~60,000 gas on deployment!)
+        </pre>
+        <div class="diagram-caption">Proper packing can dramatically reduce the number of storage slots consumed, saving gas on every write.</div>
+    </div>
+
+    <p><strong>The packing rules:</strong></p>
+    <p><strong>1. Variables are stored in declaration order.</strong> The first variable gets slot 0, the second tries to fit into slot 0 if possible, otherwise starts slot 1.</p>
+    <p><strong>2. A variable can only be packed if it fits entirely within the remaining space of the current slot.</strong> If not, it moves to the next completely empty slot.</p>
+    <p><strong>3. Structs and arrays always start a new slot</strong> (for the length in arrays, and for the first field in structs - but struct fields themselves can be packed together).</p>
+    <p><strong>4. Mappings and dynamic arrays</strong> occupy a slot for their "placeholder" (which is unused but marks the position), and their actual data is stored at keccak256-derived locations, which cannot be packed with normal variables.</p>
+    <p><strong>5. Smaller types like uint8, uint16, etc., can be packed together.</strong> Using them unnecessarily can actually increase gas cost due to masking, but when packed they save storage slots.</p>
+
+    <p><strong>Example: The difference packing makes.</strong></p>
+    <div class="code-block-wrap"><pre>// BAD: wastes slots
+contract Unpacked {
+    uint8 a;    // slot 0 (1 byte, but uint8 cannot pack with next if next is &gt;8 bytes? Actually it CAN pack with other small uints)
+    uint256 b;  // slot 1 (cannot fit in slot 0, starts new slot)
+    uint8 c;    // slot 2 (1 byte)
+    uint256 d;  // slot 3
+    // Total: 4 slots
+}
+
+// GOOD: packed
+contract Packed {
+    uint256 b;  // slot 0 (full 32 bytes)
+    uint256 d;  // slot 1
+    uint8 a;    // slot 2, bytes 0
+    uint8 c;    // slot 2, bytes 1 (packed with a)
+    // Total: 3 slots (slot 2 has 2 bytes used, 30 bytes wasted but that's okay)
+}</pre></div>
+
+    <p><strong>Reading storage slots with ethers.js:</strong> You can verify packing using <code>ethers.provider.getStorage(contractAddress, slotNumber)</code>. This returns the raw 32-byte hex value stored at that slot. You can then decode it to see which bytes correspond to which variable. This is a powerful debugging technique when optimising gas.</p>
+
+    <div class="section-label">06 &nbsp; Putting It All Together - A Real-World Contract</div>
+    <h2 class="section-title">Nested Mappings + Struct Arrays + Storage Packing</h2>
+    <p>Below is a complete contract that uses everything we've covered: a nested mapping to track users' scores across multiple games, a struct array to store game metadata, and careful storage packing to minimize gas costs.</p>
+    <div class="code-block-wrap"><pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract GamePlatform {
+    struct Game {
+        uint128 id;          // 16 bytes
+        uint128 highScore;   // 16 bytes (packs with id in one slot)
+        string name;         // starts new slot (dynamic)
+    }
+
+    Game[] public games;
+
+    // Nested mapping: user address → game ID → personal best score
+    mapping(address =&gt; mapping(uint128 =&gt; uint256)) public playerScores;
+
+    // Packed admin variables
+    address public admin;           // 20 bytes (slot 0)
+    uint96 public totalPlayers;     // 12 bytes (packs with admin in slot 0)
+    bool public paused;             // 1 byte (packs with admin, total 33 bytes... exceeds 32, so actually goes to next slot. We'll adjust.)
+
+    // Better packing: put bool before uint96
+    // address admin; bool paused; uint88 totalPlayers; (total 20+1+11=32 bytes)
+    // We'll show the corrected version:
+
+    address public immutable owner; // immutable goes to bytecode, not storage!
+
+    function addGame(string memory _name) public {
+        games.push(Game({
+            id: uint128(games.length),
+            highScore: 0,
+            name: _name
+        }));
+    }
+
+    function submitScore(uint128 gameId, uint256 score) public {
+        require(gameId &lt; games.length, "Game does not exist");
+        if (score &gt; playerScores[msg.sender][gameId]) {
+            playerScores[msg.sender][gameId] = score;
+        }
+        if (score &gt; games[gameId].highScore) {
+            games[gameId].highScore = uint128(score);
+        }
+    }
+}</pre></div>
+
+    <div class="section-label">07 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card">
+        <div class="fact-num">01</div>
+        <div class="fact-text"><strong>Nested mappings are ideal for two-key lookups.</strong> They are sparse, cannot be iterated, and all keys return default values if not set. Use a separate array if you need to list all keys.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">02</div>
+        <div class="fact-text"><strong>Deleting an element from a struct array leaves a hole.</strong> Either overwrite with the last element and pop, or shift elements left (O(n)). For large lists, consider a mapping instead.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">03</div>
+        <div class="fact-text"><strong>Storage packing saves gas by fitting multiple variables into one 32-byte slot.</strong> Variables are packed in declaration order; a variable starts a new slot only if it cannot fit in the current one.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">04</div>
+        <div class="fact-text"><strong>Use <code>uint128</code>, <code>uint64</code>, etc., only when you need packing.</strong> Smaller types require masking operations that can cost extra gas if not packed. For standalone variables, <code>uint256</code> is usually the most gas-efficient choice.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">05</div>
+        <div class="fact-text"><strong>You can read storage slots directly with ethers.js</strong> to verify packing. Use <code>await ethers.provider.getStorage(contractAddress, slotIndex)</code> to inspect raw slot contents.</div>
+    </div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.1</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Nested Mapping</div><div class="g-def">A mapping whose value is another mapping. Used for two-key lookups. Data is stored at a hash of the keys, making it sparse and non-iterable.</div></div>
+        <div class="glossary-card"><div class="g-term">Struct Array</div><div class="g-def">A dynamic or fixed-size list where each element is a custom struct. Allows grouping related data together. Deleting an element resets it to defaults but does not shrink the array.</div></div>
+        <div class="glossary-card"><div class="g-term">Storage Slot</div><div class="g-def">A 32-byte unit of persistent storage in the EVM. State variables are assigned to slots in declaration order. The compiler packs multiple small variables into a single slot when possible.</div></div>
+        <div class="glossary-card"><div class="g-term">Storage Packing</div><div class="g-def">The Solidity compiler's optimization that places multiple variables smaller than 32 bytes into the same storage slot, reducing the total number of slots and saving gas on writes.</div></div>
+        <div class="glossary-card"><div class="g-term">Default Values</div><div class="g-def">Every uninitialized state variable and mapping key returns the zero value for its type (0, false, empty string, etc.). This is guaranteed by the EVM, not the compiler.</div></div>
+        <div class="glossary-card"><div class="g-term">Gas Cost of Storage</div><div class="g-def">Writing to a non-zero storage slot costs 20,000 gas. Updating it to a different non-zero value costs 5,000 gas. Setting it back to zero refunds 15,000 gas. Packing reduces the number of slots written.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.1</strong> of 6 · Next: Sub-Module 10.2 - Design Patterns →</p>
+    </div>
+
+

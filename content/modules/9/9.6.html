@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 9.6 - Peer Feedback & Iteration | MasterStroke Academy</title>
+<meta name="description" content="Master the art of giving and receiving peer feedback to iterate your capstone project into a professional, production-ready dApp. Learn structured feedback models, the iteration cycle, and how to turn criticism into code improvements on MST.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .peer-review-template {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .pr-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .pr-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .pr-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .pr-requirements { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .pr-rubric { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .pr-rubric-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .pr-rubric p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 9 &nbsp;·&nbsp; Sub-Module 9.6 of 6</div>
+<h1 class="module-title">Peer Feedback &amp; <span class="highlight">Iteration</span></h1>
+<p class="module-subtitle">Great dApps aren't built in isolation. Learn how to give constructive code review, receive feedback without ego, and iterate your capstone project into a polished masterpiece - the same way professional teams ship secure, user-loved products on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 Peer Review Form Score</div>
+  <div class="meta-chip green">Phase 3 · Capstone Kickoff</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔄</div>
+    <div class="obj-text">
+      <strong>Run an effective peer review session</strong>
+      Use structured review templates to evaluate smart contracts, frontend code, documentation, and architecture - and provide actionable, specific, and kind feedback.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Receive and process feedback without defensiveness</strong>
+      Apply the "separate self from work" mindset, prioritize feedback by impact, and translate criticism into a concrete iteration plan for your capstone.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔁</div>
+    <div class="obj-text">
+      <strong>Iterate your dApp through multiple improvement cycles</strong>
+      Integrate feedback loops into your development workflow - fix issues, redeploy to MST Testnet, re-test, and document changes like a professional team.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌟</div>
+    <div class="obj-text">
+      <strong>Elevate your project to job-ready quality</strong>
+      Use peer insights to polish UI/UX, harden security, optimize gas, and write documentation that impresses grant committees and technical interviewers.
+    </div>
+  </div>
+</div>
+
+<!-- 02 REAL‑WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Solo Developer Who Refused Feedback - And Shipped a Disaster</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, a skilled but stubborn developer named Arjun built a DeFi staking dApp for a hackathon. He coded everything alone, never showing his work to anyone. When a friend offered to look at his smart contract, Arjun waved him off: "It's solid, I tested it myself." He submitted the project. During the judges' review, a simple reentrancy bug was discovered - the same one a peer would have spotted instantly. The judges disqualified him. Worse, the bug was so basic that his entire project was deemed amateurish.</p>
+  <br>
+  <p>At the same hackathon, a team of three took the opposite approach. They swapped projects with another team for 30 minutes, filled out a simple review form, and identified issues in each other's access control and event handling. Both teams fixed the problems before final submission. One team won first prize; the other received an honorable mention. The difference wasn't raw talent - it was the willingness to open their work to fresh eyes and act on what those eyes saw.</p>
+</div>
+<p>This sub-module is about institutionalizing that behavior. You'll learn structured peer review, the psychology of receiving critique, and a rapid iteration framework. By the end, you'll see feedback not as a threat but as the most powerful tool in your development arsenal. <strong>Your capstone isn't finished until someone else has tried to break it - and you've fixed what they found.</strong></p>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Linus's Law to OpenZeppelin Audits - Why Peer Review Is Non-Negotiable</h2>
+<p>In software engineering, the value of peer review has been enshrined for decades. <strong>Linus's Law</strong>, coined by Eric Raymond in his essay "The Cathedral and the Bazaar," states: <em>"Given enough eyeballs, all bugs are shallow."</em> The idea is simple: while one developer might miss a flaw, a group of reviewers with diverse perspectives will catch it quickly. This principle is the foundation of open-source software quality.</p>
+<p>In the blockchain space, peer review is not just a best practice - it's an existential necessity. Smart contracts handle real money, are immutable once deployed, and have no "undo" button. A single overlooked vulnerability can drain millions of dollars. The industry learned this the hard way through a series of catastrophic hacks: The DAO (2016, $60M), Parity Wallet (2017, $150M), Wormhole Bridge (2022, $325M). In each case, a fresh set of eyes - or a formal audit - could have caught the bug before deployment.</p>
+<p>Today, professional blockchain development follows a <strong>multi-layered review process:</strong></p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Peer code review:</strong> Every pull request is reviewed by at least one other developer before merging. Tools like GitHub's pull request system and formal review checklists are standard.</li>
+  <li><strong>Automated analysis:</strong> Static analysis tools (Slither, Mythril) and fuzzing (Echidna, Foundry) run automatically on every commit to catch common vulnerabilities.</li>
+  <li><strong>Internal audit:</strong> A dedicated security team manually reviews the codebase, focusing on economic exploits and logic errors that automated tools miss.</li>
+  <li><strong>External audit:</strong> A third-party firm (Trail of Bits, OpenZeppelin, CertiK) performs a deep, paid audit before mainnet deployment.</li>
+  <li><strong>Bug bounties:</strong> After deployment, ethical hackers are incentivized to find and report vulnerabilities before malicious actors do.</li>
+</ul>
+<p>Your capstone project sits at the beginning of this pipeline. The peer feedback exercise you'll complete mirrors the code review process used by Uniswap, Aave, and every serious protocol. <strong>Approach it with the same rigor, and your project will be stronger for it.</strong></p>
+<div class="highlight-strip">
+  <strong>Key insight:</strong> On MST, low gas fees mean you can iterate faster - deploy a fix, test it, redeploy - without spending a fortune. This makes the "review → fix → retest" loop dramatically tighter and more practical than on Ethereum.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Feedback Is Like a Building Inspection - It Finds Cracks Before the Earthquake</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏗️ The Analogy</div>
+  <p>Imagine you're building a house. You've framed the walls, installed the plumbing, and wired the electricity. Before you put up drywall, you call a building inspector. The inspector walks through, clipboard in hand, and points out: "This beam is undersized. That wire is the wrong gauge. The bathroom vent doesn't meet code." You could get defensive - "I spent weeks on this!" - or you could be grateful: they just saved you from a collapsed roof and an electrical fire. Peer review is exactly that inspection for your code. Your reviewer isn't attacking you; they're protecting your users from bugs you couldn't see because you're too close to the code.</p>
+</div>
+<p>Let's break down the two sides of peer feedback - giving and receiving - and then see how they combine into an iteration cycle.</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">G</div><div class="w5-word">GIVE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do you give feedback that actually helps?</div>
+      <div class="w5-a">Effective feedback is <strong>specific, actionable, and kind</strong>. Instead of "your code is messy," say "the <code>withdraw</code> function lacks a reentrancy guard - consider adding OpenZeppelin's <code>nonReentrant</code> modifier." Instead of "the UI is ugly," say "the transaction button doesn't show a loading state, so users might click it twice. Try adding a spinner and disabling the button during pending." Always tie feedback to a concrete observation and a suggested improvement. Use the SBI model: <strong>Situation</strong> (where in the code), <strong>Behavior</strong> (what the code does or doesn't do), <strong>Impact</strong> (why it matters - user confusion, security risk, gas waste).</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">R</div><div class="w5-word">RECEIVE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do you receive feedback without getting defensive?</div>
+      <div class="w5-a">The most successful developers cultivate a <strong>growth mindset</strong>: they see their code as a work in progress, not a reflection of their worth. When a peer points out a bug, they say "Thank you for catching that - let me fix it" instead of "But it worked in my tests!" Separate your identity from your work. Remember: the goal is a better product, not ego protection. Before responding, take a breath. Read the feedback twice. Ask clarifying questions if needed. Then create a prioritized list of fixes. Not all feedback must be implemented - some may be matters of style or preference - but all should be considered.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">I</div><div class="w5-word">ITERATE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do you turn feedback into improvements?</div>
+      <div class="w5-a">Iteration is the engine of quality. After receiving feedback, you follow a cycle: <strong>Prioritize</strong> (fix critical security issues first, then UX, then polish), <strong>Implement</strong> (make the changes in small, testable commits), <strong>Redeploy</strong> (push to MST Testnet and verify), <strong>Re-review</strong> (ask your peer to check the fixes). This loop repeats until both the reviewer and you are satisfied. In professional teams, code goes through multiple review rounds before merging. On MST, redeploying a contract costs ~₹0.02, so you can afford to iterate aggressively.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 THE FEEDBACK LOOP (DETAILED FLOWCHART) -->
+<div class="section-label">05 &nbsp; The Feedback Loop</div>
+<h2 class="section-title">The Complete Peer Feedback and Iteration Cycle</h2>
+<p>Here is the full workflow you'll follow in this sub-module. Study it carefully - this is how professional teams ship secure software.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.6-A · Peer Feedback & Iteration Cycle</div>
+  <pre>
+ ┌─────────────────────┐
+ │ 1. PREPARE YOUR     │
+ │    PROJECT FOR      │
+ │    REVIEW           │
+ │ (working demo,      │
+ │  README, code)      │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │ 2. PAIR WITH A      │
+ │    PEER             │
+ │ (swap projects)     │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 3. REVIEW THEIR PROJECT                     │
+ │ • Read README & architecture diagram        │
+ │ • Test the live demo (if available)          │
+ │ • Read smart contract code                   │
+ │ • Review frontend code                       │
+ │ • Fill out Peer Review Form                  │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 4. RECEIVE FEEDBACK ON YOUR PROJECT         │
+ │ • Read their review carefully                │
+ │ • Ask clarifying questions                   │
+ │ • Separate "must‑fix" from "nice‑to‑have"    │
+ │ • Thank your reviewer!                       │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 5. PRIORITIZE & PLAN FIXES                  │
+ │ • Security vulnerabilities → fix immediately │
+ │ • Functional bugs → fix next                 │
+ │ • UI/UX issues → polish after                │
+ │ • Documentation gaps → update last           │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 6. IMPLEMENT FIXES                          │
+ │ • Small, focused commits                     │
+ │ • Write additional tests for bugs found      │
+ │ • Update documentation                       │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 7. REDEPLOY TO MST TESTNET                  │
+ │ • npx hardhat run scripts/deploy.js          │
+ │ • --network mst_testnet                      │
+ │ • Verify contract on explorer                │
+ │ • Update frontend demo link                  │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 8. RE‑REVIEW (optional but recommended)      │
+ │ • Ask peer to check fixes                    │
+ │ • Confirm issues are resolved                │
+ │ • Iterate again if needed                    │
+ └──────────┬──────────────────────────────────┘
+            │
+            ▼
+ ┌─────────────────────────────────────────────┐
+ │ 9. FINAL SUBMISSION                          │
+ │ • Polished project with review history       │
+ └─────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">This cycle can repeat multiple times. Each pass improves the project. Professional teams often go through 3 - 5 review rounds before mainnet deployment.</div>
+</div>
+
+<!-- 06 HOW TO GIVE CONSTRUCTIVE FEEDBACK (DEEP DIVE) -->
+<div class="section-label">06 &nbsp; How to Give Constructive Feedback</div>
+<h2 class="section-title">The Art of Reviewing Code Without Crushing Souls</h2>
+<p>Giving feedback is a skill that improves with practice. A bad review can demoralize a peer; a good review can accelerate their learning. Here's how to do it right.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The SBI Model: Situation, Behavior, Impact</h3>
+<p>Structure every piece of feedback using this framework:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Situation:</strong> Where exactly is the issue? Reference the file name, function, or line number. "In <code>Escrow.sol</code>, line 42, in the <code>releaseFunds</code> function…"</li>
+  <li><strong>Behavior:</strong> What is the code doing (or failing to do)? "…the function sends funds before updating the escrow status…"</li>
+  <li><strong>Impact:</strong> Why does this matter? "…which creates a reentrancy vulnerability where an attacker could drain the escrow by calling <code>releaseFunds</code> recursively."</li>
+</ul>
+<p>Always end with a suggestion: "Consider moving the status update to before the external call, and adding a <code>nonReentrant</code> modifier."</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Review Checklist</h3>
+<p>When reviewing a peer's capstone, examine these areas systematically:</p>
+
+<details>
+  <summary>🔒 Smart Contract Security Checklist</summary>
+  <div class="content">
+    <ul>
+      <li>Are all external functions protected with appropriate access control (modifiers, <code>require</code>)?</li>
+      <li>Is the Checks-Effects-Interactions pattern followed in every function that transfers funds?</li>
+      <li>Are there any reentrancy risks? (Look for external calls before state updates.)</li>
+      <li>Are integer overflows/underflows possible? (Pre-Solidity 0.8, or in <code>unchecked</code> blocks.)</li>
+      <li>Are there any unbounded loops that could exceed block gas limits?</li>
+      <li>Are all external contract calls using a safe pattern (e.g., checking return values)?</li>
+      <li>Is the contract using <code>tx.origin</code> instead of <code>msg.sender</code>? (That's a red flag.)</li>
+      <li>Are there any hardcoded addresses that should be constructor parameters?</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>⚡ Gas Optimization Checklist</summary>
+  <div class="content">
+    <ul>
+      <li>Are storage variables packed efficiently? (Small types together.)</li>
+      <li>Are read-only function parameters marked <code>calldata</code> instead of <code>memory</code>?</li>
+      <li>Are there redundant storage reads that could be cached in memory?</li>
+      <li>Are events emitted efficiently? (Unnecessary indexed parameters?)</li>
+      <li>Could <code>unchecked</code> blocks be used safely for arithmetic?</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>🎨 UI/UX Checklist</summary>
+  <div class="content">
+    <ul>
+      <li>Does the wallet connection flow handle all states (no wallet, wrong network, rejected)?</li>
+      <li>Do transaction buttons show loading, success, and error states?</li>
+      <li>Is the connected address displayed in a readable, truncated format?</li>
+      <li>Are error messages user-friendly, not raw JSON or console logs?</li>
+      <li>Is the demo link live and functional?</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>📝 Documentation Checklist</summary>
+  <div class="content">
+    <ul>
+      <li>Does the README explain the project's purpose and how to run it?</li>
+      <li>Is the contract architecture described (even briefly)?</li>
+      <li>Are function purposes explained via NatSpec comments?</li>
+      <li>Is the deployed contract address listed?</li>
+      <li>Are setup instructions clear for a new developer?</li>
+    </ul>
+  </div>
+</details>
+
+<!-- 07 HOW TO RECEIVE FEEDBACK GRACEFULLY -->
+<div class="section-label">07 &nbsp; How to Receive Feedback</div>
+<h2 class="section-title">From Defensive to Growth-Oriented in 60 Seconds</h2>
+<p>Receiving feedback is harder than giving it. Your code is personal - you built it, you're proud of it, and someone is pointing out flaws. Here's how to handle it like a senior engineer.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.6-B · The Emotional Response to Feedback - And How to Overcome It</div>
+  <pre>
+ Feedback Received
+        │
+        ▼
+ ┌─────────────┐     ┌────────────────────┐
+ │ Automatic   │────▶│ "But it worked in  │
+ │ defensiveness│     │  my tests!"        │
+ └─────────────┘     └────────────────────┘
+        │
+        │  (Take a breath. Count to five.)
+        ▼
+ ┌─────────────────────┐
+ │ Separate self from   │
+ │ work. The code is    │
+ │ being critiqued,     │
+ │ not you.             │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │ Read feedback again. │
+ │ Ask: "Is this true?" │
+ │ (not "Do I like      │
+ │  hearing this?")     │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │ Clarify if needed:   │
+ │ "Can you show me an  │
+ │  example of what you │
+ │  mean?"              │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │ Thank the reviewer.  │
+ │ "Good catch — I'll   │
+ │  fix that."          │
+ └──────────┬──────────┘
+            │
+            ▼
+ ┌─────────────────────┐
+ │ Prioritize and act.  │
+ │ (See Section 08)     │
+ └─────────────────────┘
+  </pre>
+  <div class="diagram-caption">The initial defensive reaction is normal. The difference between a junior and a senior developer is how quickly they move past it to productive action.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Mindset Shift</div>
+  <p>"My code is not me. A bug in my code is not a bug in my character. Every piece of feedback is a gift that makes my project stronger. My goal is not to be right; my goal is to build something great." Repeat this before every review session.</p>
+</div>
+
+<!-- 08 ITERATING ON YOUR CAPSTONE -->
+<div class="section-label">08 &nbsp; Iterating on Your Capstone</div>
+<h2 class="section-title">Turning Feedback Into a Better dApp - A Step-by-Step Guide</h2>
+<p>After receiving feedback, you need a systematic approach to act on it. Here's your iteration playbook:</p>
+
+<details>
+  <summary>📋 Step 1: Categorize and Prioritize</summary>
+  <div class="content">
+    <p>Sort feedback into four buckets:</p>
+    <ul>
+      <li><strong>🔴 Critical / Security:</strong> Reentrancy risks, missing access controls, integer overflows. Fix immediately.</li>
+      <li><strong>🟠 Functional:</strong> Logic errors, broken features, incorrect state transitions. Fix next.</li>
+      <li><strong>🟡 UX / Polish:</strong> Missing loading states, unclear error messages, confusing UI. Fix after functionality.</li>
+      <li><strong>🟢 Nice-to-Have:</strong> Suggested refactors, alternative implementations, documentation enhancements. Consider, but don't block submission.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>🔧 Step 2: Implement Fixes</summary>
+  <div class="content">
+    <p>For each fix, create a separate Git commit with a clear message:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+git commit -m "fix: add nonReentrant guard to releaseFunds (peer review feedback)"
+git commit -m "fix: add loading spinner to vote button"
+    </pre>
+    <p>Write a test that would have caught the bug, if one doesn't already exist. This prevents regression.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 3: Redeploy to MST Testnet</summary>
+  <div class="content">
+    <p>After fixing, redeploy your contract using Hardhat:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+npx hardhat run scripts/deploy.js --network mst_testnet
+    </pre>
+    <p>Verify the contract on MST Explorer. Update the contract address in your frontend. Deploy the updated frontend to your demo URL.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔄 Step 4: Re-review (Optional)</summary>
+  <div class="content">
+    <p>Ask your peer to check the fixes. A quick "I fixed the reentrancy issue - can you take a look?" goes a long way. This closes the feedback loop and shows professionalism.</p>
+  </div>
+</details>
+
+<!-- 09 USING FEEDBACK TO IMPROVE SPECIFIC AREAS -->
+<div class="section-label">09 &nbsp; Feedback-Driven Improvements</div>
+<h2 class="section-title">Common Peer Review Findings - And How to Fix Them</h2>
+<p>Based on hundreds of capstone reviews, here are the most frequent issues and their solutions:</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">🔴</div>
+    <div class="feature-content">
+      <div class="feature-title">Missing access control on admin functions</div>
+      <div class="feature-desc"><strong>Feedback:</strong> "Your <code>withdrawFees()</code> function is <code>public</code> with no modifier. Anyone can call it." <strong>Fix:</strong> Add an <code>onlyOwner</code> modifier. If using OpenZeppelin, inherit <code>Ownable</code>. Always check: does this function need to be callable by everyone? If not, protect it.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🟠</div>
+    <div class="feature-content">
+      <div class="feature-title">Reentrancy vulnerability in fund transfer</div>
+      <div class="feature-desc"><strong>Feedback:</strong> "You transfer funds before updating state in <code>releaseFunds</code>. This is a reentrancy risk." <strong>Fix:</strong> Reorder: update state first (Checks → Effects), then transfer (Interactions). Add OpenZeppelin's <code>nonReentrant</code> modifier for defense in depth.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🟡</div>
+    <div class="feature-content">
+      <div class="feature-title">No loading state on transaction buttons</div>
+      <div class="feature-desc"><strong>Feedback:</strong> "I clicked 'Vote' twice because nothing happened. I didn't know the first transaction was pending." <strong>Fix:</strong> Add a <code>isProcessing</code> state. Show a spinner and disable the button during the transaction. Re-enable on success or error.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🟢</div>
+    <div class="feature-content">
+      <div class="feature-title">Missing NatSpec documentation</div>
+      <div class="feature-desc"><strong>Feedback:</strong> "Your functions don't have comments. I had to read the code to understand what they do." <strong>Fix:</strong> Add <code>/// @notice</code> and <code>/// @param</code> tags above every public function. This is a professional standard that also helps during audits.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 MST‑SPECIFIC ADVANTAGES FOR ITERATION -->
+<div class="section-label">10 &nbsp; MST-Specific Iteration Advantages</div>
+<h2 class="section-title">Why Iterating on MST Is a Dream</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Redeploy contracts for ~₹0.02</div>
+      <div class="feature-desc">Fixing a bug and redeploying on MST costs about ₹0.02 in gas. On Ethereum, the same redeployment could cost ₹2,000+. This means you can iterate dozens of times without financial worry, encouraging thorough testing and refinement.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Fast block times = quick feedback</div>
+      <div class="feature-desc">MST's ~3-second blocks mean you can deploy a fix, test it, and verify it within a minute. The "edit → deploy → test" loop is incredibly tight, keeping you in flow state.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Multiple testnet versions for comparison</div>
+      <div class="feature-desc">Because deployments are cheap, you can maintain two versions of your contract on testnet - the original and the fixed version - and compare their behavior side by side in the frontend.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 CASE STUDIES -->
+<div class="section-label">11 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Peer Review Saved Real Projects</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v2 Bug Bounty - A Peer Review Success</div>
+      <div class="feature-desc">Before Uniswap v2 launched, the team ran a bug bounty program. A community member reviewed the code and found a subtle rounding error in the swap function that could slowly drain liquidity pools over time. The bug was so subtle that it had passed internal review. The team fixed it before mainnet deployment, saving billions in potential losses. This is the power of fresh eyes - even the best developers miss things.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave's Governance Review - Community Feedback in Action</div>
+      <div class="feature-desc">Aave's governance proposals go through extensive community review before execution. In one case, a proposal to change interest rate parameters was reviewed by the community, who identified an edge case that would have made borrowing uneconomical during high volatility. The proposer revised the parameters, and the revised version passed. This iterative governance process - proposal → review → revision → execution - mirrors the peer feedback cycle you'll use for your capstone.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 COMMON PITFALLS -->
+<div class="section-label">12 &nbsp; Common Pitfalls in Peer Feedback</div>
+<h2 class="section-title">Don't Fall Into These Traps</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Giving vague feedback</div>
+      <div class="feature-desc">"Your code is messy" is useless. Be specific: "The <code>createEscrow</code> function is 80 lines long and does validation, state updates, and event emission. Consider extracting the validation into a modifier and the state update into an internal function."</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Receiving feedback as a personal attack</div>
+      <div class="feature-desc">If you find yourself thinking "they just don't understand my genius," pause. Your peer is trying to help. Listen first, defend later - or better, don't defend at all. Ask questions instead.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Fixing feedback without testing</div>
+      <div class="feature-desc">You fix a bug and redeploy, but you don't test it. The fix introduces a new bug. Always run your test suite after changes, and manually verify the fix on the live demo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ASSESSMENT PREP -->
+<div class="section-label">13 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for Your Peer Review Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Use the SBI model: Situation, Behavior, Impact</div>
+      <div class="feature-desc">Every piece of feedback should reference the specific location (file, function), describe what the code does, and explain why it matters. End with a suggestion.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Review security first, then functionality, then UX, then docs</div>
+      <div class="feature-desc">Prioritize feedback in that order. A beautiful UI doesn't matter if the contract can be drained.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Be kind. The person on the other side worked hard.</div>
+      <div class="feature-desc">Frame feedback as collaborative improvement, not as a list of failures. "You could make this even better by…" is more effective than "This is wrong."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 9.6 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Peer Review Form Submission</div>
+      <div class="q-section-meta">1 Question · 10 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">Peer Review</span><span class="q-diff medium">Medium</span><span class="q-marks">10 marks</span></div></div>
+      <div class="q-text">Review a peer's capstone project using the structured Peer Review Form below. Your review must cover smart contract security, code quality, UI/UX, and documentation. Submit the completed form along with a brief reflection on what you learned from giving feedback.</div>
+      <div class="peer-review-template">
+        <div class="pr-header"><div class="pr-badge">📋 PEER REVIEW FORM</div></div>
+        <div class="pr-scenario">Use this template to review your peer's project. Copy it into a document, fill it out, and submit it as your assessment.</div>
+        <div class="pr-requirements">
+          <strong>Peer Review Form - Capstone Project</strong><br><br>
+          <strong>Your Name:</strong> _______________<br>
+          <strong>Peer's Name / Project:</strong> _______________<br><br>
+          <strong>1. Smart Contract Security (3 marks)</strong><br>
+          • List any security vulnerabilities you found (access control, reentrancy, overflow, etc.).<br>
+          • For each, describe the situation, behavior, and impact (SBI model).<br>
+          • Suggest a fix.<br><br>
+          <strong>2. Code Quality & Gas Optimization (2 marks)</strong><br>
+          • Is the code well-structured, with clear naming and NatSpec comments?<br>
+          • Are there any gas-inefficient patterns (e.g., redundant storage reads, missing <code>calldata</code>)?<br><br>
+          <strong>3. UI/UX (2 marks)</strong><br>
+          • Does the frontend handle wallet connection, transactions, and errors gracefully?<br>
+          • Is the interface clear and usable for a non-technical user?<br><br>
+          <strong>4. Documentation (1 mark)</strong><br>
+          • Is the README clear? Does it explain the project, setup, and deployed address?<br><br>
+          <strong>5. Overall Feedback (2 marks)</strong><br>
+          • What is the strongest part of the project?<br>
+          • What is the single most important improvement the peer should make?<br>
+          • Write a kind, encouraging closing note.
+        </div>
+        <div class="pr-rubric">
+          <div class="pr-rubric-label">📊 Marking Rubric (10 marks)</div>
+          <p>
+            <strong>Security review (3 marks):</strong> Identifies at least 2 specific security considerations (even if none are critical, mentioning that the code appears secure is valid). Uses SBI model.<br>
+            <strong>Code quality (2 marks):</strong> Comments on structure, naming, NatSpec, and gas efficiency with concrete examples.<br>
+            <strong>UI/UX (2 marks):</strong> Tests the live demo (if available) and reports on wallet connection, transaction states, and overall usability.<br>
+            <strong>Documentation (1 mark):</strong> Assesses the README and suggests improvements.<br>
+            <strong>Overall quality (2 marks):</strong> Provides a balanced, constructive summary with specific praise and prioritized improvement suggestions.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 9.6 Assessment Summary</div>
+      <div class="score-row">Peer Review Form Submission <span>(10 marks)</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">14 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 9.6</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Peer Review</div><div class="glossary-def">The process of having one's code, design, or documentation evaluated by fellow developers to identify issues, improve quality, and share knowledge.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SBI Model</div><div class="glossary-def">Situation-Behavior-Impact - a structured feedback framework. Describe the situation (where), the behavior (what the code does), and the impact (why it matters).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Growth Mindset</div><div class="glossary-def">The belief that abilities can be developed through effort and feedback. In coding, it means viewing bugs as learning opportunities rather than personal failures.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Iteration</div><div class="glossary-def">The cycle of building, reviewing, and refining a product. Each cycle improves the product based on feedback and new insights.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">A security pattern that prevents reentrancy by ordering code: check conditions, update state, then interact with external contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">NatSpec</div><div class="glossary-def">Solidity's natural language specification format for documenting functions using <code>/// @notice</code> and <code>/// @param</code> tags.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 9 · Sub-Module <strong>9.6</strong> of 6 &nbsp;·&nbsp; End of Module 9 - Capstone Kickoff Complete ✅</p>
+</div>
+
+</body>
+</html>

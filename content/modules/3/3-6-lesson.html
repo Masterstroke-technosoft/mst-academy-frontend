@@ -1,0 +1,877 @@
+
+
+<div style="margin-bottom:20px">
+  <div class="badge">🎓 Module 3 · Sub-Module 3.6 of 9</div>
+  <span class="flagship">⭐ Flagship - 150 min · 25 marks</span>
+</div>
+<h1>Consensus Mechanisms: <span class="hl">How Networks Agree on Truth</span></h1>
+<p class="subtitle">The complete guide to every algorithm that powers blockchains - from Bitcoin's energy lottery to Ethereum's staked democracy to MST's Trika POSA synthesis. Eight algorithms, one sub-module.</p>
+
+<div class="meta-bar">
+  <div class="chip">⏱ 150 Minutes</div>
+  <div class="chip purple">🎯 25 Marks</div>
+  <div class="chip gold">⭐ Flagship Sub-Module</div>
+  <div class="chip">📋 8 MCQ + 1 Multi-Select (5 marks) + 1 Activity (6 marks) + 1 Descriptive Scenario (7 marks)</div>
+  <div class="chip green">Phase 1 · Blockchain Fundamentals · MST Trika POSA</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="sec-label">01 · Learning Objectives</div>
+<h2 class="sec-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card"><div class="obj-icon">🤝</div><div class="obj-text"><strong>Explain the Byzantine Generals Problem</strong>Define the core distributed consensus challenge and why it is fundamental to all blockchains.</div></div>
+  <div class="obj-card"><div class="obj-icon">⛏️</div><div class="obj-text"><strong>Describe all 8 consensus algorithms</strong>PoW, PoS, DPoS, PBFT, Tendermint, Avalanche, Algorand, and MST Trika POSA - with analogies, tradeoffs, and real usage.</div></div>
+  <div class="obj-card"><div class="obj-icon">⚖️</div><div class="obj-text"><strong>Compare algorithms on 6 dimensions</strong>Energy, speed, finality, decentralisation, attack resistance, smart contract support - and select the right one for a scenario.</div></div>
+  <div class="obj-card"><div class="obj-icon">🔮</div><div class="obj-text"><strong>Explain MST's Trika POSA architecture</strong>Describe all five layers of MST's consensus - staking, election, round-robin production, BFT finality, and slashing.</div></div>
+</div>
+
+
+<!-- 02 STORY -->
+<div class="sec-label">02 · Real-World Introduction Story</div>
+<h2 class="sec-title">The WhatsApp Group That Couldn't Agree</h2>
+
+<div class="callout story">
+  <div class="cl">📖 Story</div>
+  <p>Imagine a WhatsApp group of 10,000 strangers from across India - Chennai, Delhi, Mumbai, Bengaluru - each keeping an independent record of who owes whom money. Someone sends: "Ravi paid Priya ₹500." Everyone sees it. But Ravi is sneaky. He simultaneously sends a message to Priya's contacts saying he paid, and to his own contacts saying he didn't. Now there are two conflicting versions of reality spreading through the group.</p>
+  <br>
+  <p>How does the group reach agreement on which version is true - <strong>without appointing a group admin to arbitrate</strong>? What if some group members are deliberately lying, sending contradictory messages to different people? How many liars can the group tolerate before the whole system breaks down?</p>
+  <br>
+  <p>This is the <strong>consensus problem</strong> - the central challenge of distributed computing. Computer scientists spent three decades failing to solve it. Satoshi Nakamoto solved it in 9 pages in 2008. Every consensus mechanism in this sub-module is a different answer to the same fundamental question: <em>how do strangers who cannot trust each other agree on truth?</em></p>
+</div>
+
+
+<!-- 03 BYZANTINE GENERALS -->
+<div class="sec-label">03 · The Byzantine Generals Problem - The Foundation</div>
+<h2 class="sec-title">The Mathematical Problem Behind Every Blockchain</h2>
+
+<p>Formally described by Leslie Lamport, Robert Shostak, and Marshall Pease in their 1982 paper, the Byzantine Generals Problem is the foundational theoretical challenge that all distributed consensus systems must solve.</p>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.6-A · The Byzantine Generals Problem</div>
+  <pre>  SCENARIO: Several Byzantine generals surround an enemy city.
+  They must ALL simultaneously ATTACK or ALL simultaneously RETREAT.
+  Generals communicate only by messenger — but some generals are TRAITORS.
+
+           General A (HONEST)              General B (TRAITOR)
+               │                               │
+               │  ──── "ATTACK!" ────►         │  ──── "RETREAT!" ────►
+               │                               │
+               └──────────────────────────────►│
+                                               ▼
+                                       General C (receives
+                                       conflicting messages)
+                                              ???
+
+  PROBLEM: How does the honest majority coordinate when some lie?
+
+  MATHEMATICAL RESULT (Lamport, Shostak, Pease 1982):
+  ─────────────────────────────────────────────────────────────────────
+  A distributed system with N nodes can tolerate at most ⌊(N-1)/3⌋
+  Byzantine (malicious/faulty) nodes while still reaching consensus.
+
+  For a network of 21 validators (like MST's Cabinet):
+  Can tolerate up to 6 malicious validators (⌊20/3⌋ = 6)
+  Need 2/3 + 1 = at least 15 honest validators for consensus
+
+  BLOCKCHAIN SOLUTIONS TO THE BYZANTINE GENERALS PROBLEM:
+  ─────────────────────────────────────────────────────────────────────
+  PoW  (Bitcoin):      Make lying EXPENSIVE — costs real energy
+  PoS  (Ethereum):     Make lying COSTLY — stake burned (slashed)
+  DPoS (EOS):          Make lying POLITICALLY COSTLY — voted out
+  PBFT (Hyperledger):  Small known committee — 2/3 majority rules
+  Tendermint (Cosmos): Round-based BFT with prevote + precommit phases
+  Avalanche (AVAX):    Repeated random subsampling until convergence
+  Algorand:            Secret VRF lottery — proposer unknown until reveal
+  MST Trika POSA:      All of the above — staking + election + BFT + slashing
+  ─────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="dbox-caption">Every consensus mechanism is a different engineering answer to the Byzantine Generals Problem - trading off energy, speed, finality, and decentralisation.</div>
+</div>
+
+
+<!-- 04 PoW -->
+<div class="sec-label">04 · Algorithm 1 - Proof of Work (PoW)</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#F59E0B,#D97706)">
+    <div>
+      <div class="ccard-name">⛏️ Proof of Work (PoW)</div>
+      <div class="ccard-used">Bitcoin · Litecoin · Dogecoin · Monero · Ethereum Classic</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - The Lottery That Requires a Maths Exam:</strong> Imagine the Income Tax Department holds a lottery for a government contract, but you can only enter by solving a complex computation. Everyone can verify your solution in seconds - but finding it took you days. The first person to solve it wins the right to submit the next batch of approved documents. This is Proof of Work - the "lottery" is finding a nonce such that SHA-256(block_header + nonce) begins with enough leading zeros. Easy to verify. Extremely hard to find.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val bad">Very High (≈ Argentina's annual use)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Block Time</div><div class="cprop-val bad">~10 minutes</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val mid">Probabilistic - 6 conf ≈ 60 min</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val good">High - open participation</div></div>
+      <div class="cprop"><div class="cprop-lbl">Attack Cost</div><div class="cprop-val good">Billions of $ of hardware + energy</div></div>
+      <div class="cprop"><div class="cprop-lbl">Slashing</div><div class="cprop-val bad">None - wasted energy is the punishment</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>Internal mechanics:</strong> Miners increment a 32-bit nonce value and repeatedly hash the block header. The target requires the hash output to begin with N leading zero bits. Difficulty adjusts every 2,016 blocks (~2 weeks) to maintain a 10-minute average block time regardless of total network hashrate. Finding the nonce requires quintillions of hash operations per second across the global network. Verifying someone's claimed solution requires exactly one hash operation - the asymmetry is the entire security model.<br><br>
+      <strong>Why it matters:</strong> PoW is the most battle-tested consensus mechanism - Bitcoin has run without downtime since 2009. Its security comes from the physical world (energy and hardware), making attacks require real-world resources. However, its energy consumption (~150 TWh/year) has led every major new blockchain to adopt alternative mechanisms.
+    </div>
+  </div>
+</div>
+
+
+<!-- 05 PoS -->
+<div class="sec-label">05 · Algorithm 2 - Proof of Stake (PoS)</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#6366F1,#4338CA)">
+    <div>
+      <div class="ccard-name">💎 Proof of Stake (PoS)</div>
+      <div class="ccard-used">Ethereum (post-Merge Sept 2022) · Cardano · Solana · Polkadot</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - The Fixed Deposit Security Bond:</strong> To become a validator, you lock 32 ETH as a "fixed deposit" - your security bond. The protocol randomly selects validators (weighted by stake) to propose blocks. Other validators attest. If you cheat (sign two conflicting blocks), your FD is automatically destroyed - "slashed." You behave honestly because dishonesty costs you your entire deposit. Ethereum reduced energy consumption by 99.95% when switching from PoW to PoS in September 2022.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Very Low (99.95% less than PoW)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Block Time</div><div class="cprop-val mid">~12 seconds (Ethereum)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">~15 min (Casper FFG)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val mid">High in theory; 32 ETH barrier (≈₹42L) limits solo staking</div></div>
+      <div class="cprop"><div class="cprop-lbl">Attack Cost</div><div class="cprop-val good">Must acquire 51% of staked ETH (~$17B+)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Slashing</div><div class="cprop-val good">Yes - double-signing burns stake</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>Key innovation over PoW:</strong> Security comes from economic stake, not computational work. No ASICs or GPU farms needed. The "nothing-at-stake" early problem - validators could vote on multiple competing chains for free - is solved by slashing: caught voting on a minority chain = stake burned.<br><br>
+      <strong>Casper FFG (Friendly Finality Gadget):</strong> Ethereum's PoS uses a two-phase commit process - validators propose and attest, and after two epochs (~12.8 minutes), blocks are cryptographically finalised and cannot be reverted under any circumstances without burning at least 1/3 of all staked ETH.
+    </div>
+  </div>
+</div>
+
+
+<!-- 06 DPoS -->
+<div class="sec-label">06 · Algorithm 3 - Delegated Proof of Stake (DPoS)</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#0EA5E9,#0284C7)">
+    <div>
+      <div class="ccard-name">🗳️ Delegated Proof of Stake (DPoS)</div>
+      <div class="ccard-used">EOS · TRON · BitShares · Lisk · Steem</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - Lok Sabha Elections:</strong> In India's parliamentary democracy, you don't personally debate every bill - you elect an MP who represents you. In DPoS, token holders vote for "Block Producers" (like MPs) who validate transactions on their behalf. EOS has exactly 21 elected Block Producers. Token holders can change their vote at any time - a poor-performing Block Producer gets voted out immediately. This is representative democracy applied to blockchain.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Very Low</div></div>
+      <div class="cprop"><div class="cprop-lbl">Block Time</div><div class="cprop-val good">~0.5 sec (EOS)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">Seconds</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val bad">Low - 21 BPs; cartel risk</div></div>
+      <div class="cprop"><div class="cprop-lbl">TPS</div><div class="cprop-val good">~4,000 TPS (EOS)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Governance</div><div class="cprop-val good">Democratic - community votes BPs</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>The problem:</strong> EOS's 21 BPs have been criticised for collusion - a small group of large EOS holders can coordinate to always keep friendly BPs in power, undermining the "democratic" nature. This is analogous to a rigged election where a few powerful parties always win. MST's Trika POSA addresses this with staking + slashing + rotation rules that make cartel behaviour more expensive.
+    </div>
+  </div>
+</div>
+
+
+<!-- 07 PBFT -->
+<div class="sec-label">07 · Algorithm 4 - Practical Byzantine Fault Tolerance (PBFT)</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#10B981,#059669)">
+    <div>
+      <div class="ccard-name">🏢 PBFT - Practical Byzantine Fault Tolerance</div>
+      <div class="ccard-used">Hyperledger Fabric · Tendermint (inspired by) · Enterprise blockchains</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - SEBI's Board Decision:</strong> SEBI's board has 10 members. For a regulatory decision to pass, at least 7 must agree (2/3 + 1). Each member communicates with every other member. The decision is final and immediate - no waiting for "enough confirmations." PBFT works exactly this way: a small, known set of validators must achieve 2/3 supermajority agreement for each block. Immediate deterministic finality. No forks ever.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Very Low</div></div>
+      <div class="cprop"><div class="cprop-lbl">Block Time</div><div class="cprop-val good">Sub-second</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">Immediate - deterministic</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val bad">Very Low - requires known, small validator set</div></div>
+      <div class="cprop"><div class="cprop-lbl">Scalability</div><div class="cprop-val bad">O(n²) messages - doesn't scale beyond ~100 nodes</div></div>
+      <div class="cprop"><div class="cprop-lbl">Use Case</div><div class="cprop-val good">Enterprise permissioned chains</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>How it works - 3 phases:</strong><br>
+      1. <strong>Pre-prepare:</strong> Leader proposes a block to all validators.<br>
+      2. <strong>Prepare:</strong> Each validator broadcasts "I received this proposal" to all others.<br>
+      3. <strong>Commit:</strong> Once 2f+1 validators (where f = max faulty nodes) receive 2f+1 prepare messages, they commit and broadcast the commit.<br>
+      When 2f+1 commit messages are received, the block is finalised. This O(n²) message complexity is why PBFT doesn't scale to large validator sets - used best in enterprise settings with 10 - 100 known validators (e.g., a consortium of Indian banks).
+    </div>
+  </div>
+</div>
+
+
+<!-- 08 TENDERMINT -->
+<div class="sec-label">08 · Algorithm 5 - Tendermint BFT (Cosmos)</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED)">
+    <div>
+      <div class="ccard-name">🌌 Tendermint BFT</div>
+      <div class="ccard-used">Cosmos Hub · Binance Chain · Terra (before collapse) · Cronos</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - Parliament's Voting Rounds:</strong> Parliament votes on a bill in structured rounds. In Round 1, the Speaker proposes a bill. MPs indicate preliminary support (Prevote). If 2/3 of MPs prevote, they move to final vote (Precommit). If 2/3 precommit - the bill passes, immediately, permanently. If insufficient votes in any round - the round expires, a new Speaker is chosen for Round 2, and the process restarts. Tendermint is exactly this: deterministic, round-based, BFT consensus.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Low</div></div>
+      <div class="cprop"><div class="cprop-lbl">Block Time</div><div class="cprop-val good">1 - 6 seconds</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">Immediate - no forks</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val mid">Medium - validators are staked and elected</div></div>
+      <div class="cprop"><div class="cprop-lbl">Fault Tolerance</div><div class="cprop-val good">Tolerates up to 1/3 Byzantine validators</div></div>
+      <div class="cprop"><div class="cprop-lbl">Liveness</div><div class="cprop-val good">Guaranteed - timeouts trigger new round</div></div>
+    </div>
+
+    <div class="dbox" style="margin-top:16px">
+      <div class="dbox-title">FIGURE 3.6-B · Tendermint Consensus Round Structure</div>
+      <pre>  ┌─────────────────────────────────────────────────────────────────┐
+  │  ROUND r  (one of these runs per block)                         │
+  │                                                                 │
+  │  PROPOSE phase:                                                 │
+  │    Designated proposer broadcasts new block B to all validators │
+  │                    │                                            │
+  │                    ▼                                            │
+  │  PREVOTE phase:                                                 │
+  │    Each validator checks block validity                         │
+  │    Broadcasts PREVOTE(B) if valid, PREVOTE(nil) if not         │
+  │                    │                                            │
+  │    If 2/3+ PREVOTE(B) received:                                 │
+  │        → Move to PRECOMMIT phase ✅                             │
+  │    If timeout / insufficient votes:                             │
+  │        → Next round r+1 with new proposer 🔄                   │
+  │                    │                                            │
+  │                    ▼                                            │
+  │  PRECOMMIT phase:                                               │
+  │    Each validator broadcasts PRECOMMIT(B)                       │
+  │                    │                                            │
+  │    If 2/3+ PRECOMMIT(B) received:                               │
+  │        → Block COMMITTED — FINAL, IRREVERSIBLE ✅               │
+  │    If timeout:                                                  │
+  │        → Next round r+1 🔄                                      │
+  └─────────────────────────────────────────────────────────────────┘
+  Key property: Once committed, a block CANNOT be reversed
+  even if Byzantine validators try to create a fork.
+  Safety guaranteed as long as ≤ 1/3 of validators are Byzantine.</pre>
+      <div class="dbox-caption">Tendermint's structured round protocol gives immediate, deterministic finality - a significant advantage over Bitcoin's probabilistic finality.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 09 AVALANCHE -->
+<div class="sec-label">09 · Algorithm 6 - Avalanche Consensus</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#EF4444,#DC2626)">
+    <div>
+      <div class="ccard-name">🏔️ Avalanche Consensus</div>
+      <div class="ccard-used">Avalanche (AVAX) · Subnet chains</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - Ask Your Friends, Repeatedly:</strong> You're deciding whether to eat at Swiggy's top restaurant or a local dhaba. You ask 5 random friends. 4 say Swiggy. Now you lean Swiggy. You ask 5 more friends. 4 say Swiggy again. Your confidence increases. After 20 rounds of asking random subsets, you're 99.9999% certain the Swiggy answer is correct - without ever asking all 10,000 people. This is Avalanche: repeated random subsampling until the entire network converges on one answer with overwhelming probability.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Low</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">&lt; 2 seconds</div></div>
+      <div class="cprop"><div class="cprop-lbl">Type</div><div class="cprop-val mid">Probabilistic (not deterministic)</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val good">High - no fixed validator set needed</div></div>
+      <div class="cprop"><div class="cprop-lbl">Leader</div><div class="cprop-val good">Leaderless - no single proposer</div></div>
+      <div class="cprop"><div class="cprop-lbl">Messages</div><div class="cprop-val good">O(log n) - scales very well</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>How it works:</strong> Each node repeatedly samples a small random subset of validators (k validators). If more than α of the sampled validators prefer transaction X, the node switches to prefer X. This is repeated until confidence exceeds a threshold. The "avalanche" metaphor: a small preference becomes an overwhelming majority through repeated reinforcement - like a snowball growing as it rolls downhill.<br><br>
+      <strong>Key advantage:</strong> O(log n) message complexity - unlike PBFT's O(n²), Avalanche scales to millions of validators. The tradeoff: finality is probabilistic (extremely high probability) rather than deterministic.
+    </div>
+  </div>
+</div>
+
+
+<!-- 10 ALGORAND -->
+<div class="sec-label">10 · Algorithm 7 - Algorand Pure Proof of Stake</div>
+
+<div class="ccard">
+  <div class="ccard-hdr" style="background:linear-gradient(135deg,#0D9488,#0F766E)">
+    <div>
+      <div class="ccard-name">🎲 Algorand - Pure Proof of Stake with VRF</div>
+      <div class="ccard-used">Algorand (ALGO) - designed by Silvio Micali (MIT / Turing Award)</div>
+    </div>
+  </div>
+  <div class="ccard-body">
+    <div class="ccard-analogy">
+      <strong>🇮🇳 Analogy - The Secret Lottery Ticket:</strong> Imagine a lottery where each participant privately checks if they won - without telling anyone. Only the winner reveals their ticket as proof. Nobody knew who won in advance - preventing targeted attacks on the winner before they act. Algorand uses VRF (Verifiable Random Function): each validator secretly checks if they won the block-proposer lottery. Only the winner reveals their cryptographic proof and proposes the block. The randomness is unpredictable, unbiasable, and provably fair.
+    </div>
+    <div class="ccard-props">
+      <div class="cprop"><div class="cprop-lbl">Energy</div><div class="cprop-val good">Very Low</div></div>
+      <div class="cprop"><div class="cprop-lbl">Finality</div><div class="cprop-val good">~4.5 seconds - immediate</div></div>
+      <div class="cprop"><div class="cprop-lbl">Security</div><div class="cprop-val good">Proposer unknown until reveal - DDoS proof</div></div>
+      <div class="cprop"><div class="cprop-lbl">Decentralisation</div><div class="cprop-val good">High - any ALGO holder can participate</div></div>
+      <div class="cprop"><div class="cprop-lbl">Fork-Free</div><div class="cprop-val good">Yes - cryptographic guarantee</div></div>
+      <div class="cprop"><div class="cprop-lbl">VRF</div><div class="cprop-val good">Verifiable Random Function - cryptographically provable</div></div>
+    </div>
+    <div class="ccard-detail">
+      <strong>VRF (Verifiable Random Function):</strong> A cryptographic function where each validator independently computes a random output using their private key. The output is unpredictable to others, but once revealed, anyone can verify it was computed correctly. This prevents the "attack the next leader" problem - nobody knows who will propose the next block until the winner reveals themselves.<br><br>
+      <strong>Why it matters for MST:</strong> MST's Trika POSA borrows from Algorand's philosophy of cryptographic selection fairness - though using a different implementation (election by stake + round-robin) to also achieve community governance.
+    </div>
+  </div>
+</div>
+
+
+<!-- 11 MST TRIKA POSA -->
+<div class="sec-label">11 · Algorithm 8 - MST's Trika POSA (THE KEY SECTION)</div>
+<h2 class="sec-title">MST Trika POSA - The Synthesis of All That Came Before</h2>
+
+<div class="callout mst">
+  <div class="cl">🔮 MST Pillar - Trika POSA (Proof of Staked Authority)</div>
+  <p>MST's consensus mechanism is not a copy of any single existing algorithm - it is a deliberate synthesis. "Trika" is Sanskrit for "triad" - representing the three pillars MST optimises simultaneously: <strong>Speed</strong> (fast block time, instant finality), <strong>Security</strong> (slashing + BFT), and <strong>Decentralisation</strong> (open staking + community election). Most blockchains are forced to sacrifice one of these three. MST claims to deliver all three.</p>
+</div>
+
+<p>Understanding Trika POSA requires understanding its five distinct layers - each borrowed from a different consensus tradition and combined into one architecture.</p>
+
+<div class="layer-stack">
+  <div class="layer">
+    <div class="l-num"><div class="ln">Layer</div><div class="lt">1</div></div>
+    <div class="l-body">
+      <div class="l-title">Staking - Economic Skin in the Game</div>
+      <div class="l-desc">Token holders lock MSTC tokens to participate in the validator ecosystem. Staking creates economic alignment - validators who behave honestly earn rewards; those who misbehave lose their stake. Both full validators (running nodes) and fractional validators (buying fractions of a node) participate. Delegators who stake with validators share in rewards proportionally.</div>
+      <div class="l-from">Borrowed from: Proof of Stake (Ethereum)</div>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="l-num"><div class="ln">Layer</div><div class="lt">2</div></div>
+    <div class="l-body">
+      <div class="l-title">Validator Election - Democratic Selection</div>
+      <div class="l-desc">Every 24 hours, the network ranks all validators by total staked MSTC (own stake + delegated stake). The top 21 become "Cabinet Validators" - the active block production set. The next N become "Candidate Validators" - standby pool. All others are "Inactive." This election cycle ensures merit-based, community-driven selection - no fixed elites. Anyone who accumulates enough stake can enter the Cabinet.</div>
+      <div class="l-from">Borrowed from: Delegated Proof of Stake (EOS)</div>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="l-num"><div class="ln">Layer</div><div class="lt">3</div></div>
+    <div class="l-body">
+      <div class="l-title">Round-Robin Block Production - Speed and Predictability</div>
+      <div class="l-desc">Cabinet Validators produce blocks in a deterministic round-robin rotation: V1 → V2 → V3 → … → V21 → V1 → … Each validator has a designated slot. Block time: 3 seconds. No computational puzzle. No energy waste. Predictable, fast, fair. MST has tested 2,234 TPS on testnet and targets 4,000+ TPS on mainnet. This is what makes MST suitable for gaming, payments, and enterprise applications requiring real-time throughput.</div>
+      <div class="l-from">Borrowed from: Proof of Authority / Clique (Ethereum private chains)</div>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="l-num"><div class="ln">Layer</div><div class="lt">4</div></div>
+    <div class="l-body">
+      <div class="l-title">BFT Fast Finality - Cryptographic Irreversibility</div>
+      <div class="l-desc">MST incorporates a fast finality protocol similar to Ethereum's Casper FFG. Validators sign blocks using BLS (Boneh-Lynn-Shacham) private keys. Votes are aggregated efficiently. Once 2/3 + 1 Cabinet Validators justify a block (sign off), and two consecutive blocks are justified, the earlier block is FINALISED - cryptographically irreversible. On MST this happens in approximately 6 seconds (2 blocks). Bitcoin requires ~60 minutes for equivalent security.</div>
+      <div class="l-from">Borrowed from: Casper FFG (Ethereum) / Tendermint BFT (Cosmos)</div>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="l-num"><div class="ln">Layer</div><div class="lt">5</div></div>
+    <div class="l-body">
+      <div class="l-title">Slashing - Automatic Economic Punishment</div>
+      <div class="l-desc">Three slashable offences: (1) Double-signing - signing two different blocks at the same height. Penalty: immediate Cabinet ejection + stake slashed. (2) Malicious finality voting - signing conflicting finality votes. Penalty: same. (3) Persistent unavailability - missing block slots repeatedly. Penalty: block rewards forfeited → eventual ejection. Slashing makes attacks economically irrational: attacking MST requires acquiring significant stake AND losing it when caught.</div>
+      <div class="l-from">Borrowed from: Proof of Stake slashing (Ethereum) + MST-specific penalties</div>
+    </div>
+  </div>
+</div>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.6-C · MST Trika POSA - Complete Architecture and Flow</div>
+  <pre>  PHASE 1: DAILY VALIDATOR ELECTION (every 24 hours)
+  ────────────────────────────────────────────────────────────────────
+  All stakers → Stake MSTC → Receive staking credits (voting power)
+  Community delegates votes to validator candidates
+  Network ranks by total stake:
+    Rank 1–21   → CABINET   (active — produce blocks)
+    Rank 22–N   → CANDIDATE (standby — ready to replace)
+    Rank N+1+   → INACTIVE  (no block production rights)
+
+  PHASE 2: BLOCK PRODUCTION (every 3 seconds)
+  ────────────────────────────────────────────────────────────────────
+  Cabinet rotates deterministically:
+  [Slot 1: V1] → [Slot 2: V2] → ... → [Slot 21: V21] → [Slot 22: V1] → ...
+
+  Each validator in their slot:
+    ① Collects transactions from mempool
+    ② Assembles block (header + body)
+    ③ Broadcasts to network
+    ④ Other Cabinet validators verify and sign with BLS keys
+
+  PHASE 3: FAST FINALITY (within 6 seconds)
+  ────────────────────────────────────────────────────────────────────
+  BLS signatures aggregated across Cabinet validators
+  If 2/3 + 1 validators sign block N → Block N JUSTIFIED
+  If block N+1 also justified → Block N FINALISED ✅ (irreversible)
+
+  PHASE 4: SLASHING (instantaneous, automatic)
+  ────────────────────────────────────────────────────────────────────
+  Double-sign detected?    → Stake SLASHED + Ejected from Cabinet
+  Malicious vote detected? → Stake SLASHED + Ejected
+  Miss too many slots?     → Rewards forfeited → Eventually ejected
+
+  RESULT: 3-second blocks · Near-instant finality · 4,000+ TPS
+          Energy-efficient · Community-governed · Economically secured</pre>
+  <div class="dbox-caption">Trika POSA combines five consensus traditions into one architecture - delivering the speed of PoA, the governance of DPoS, the economic security of PoS, the finality of BFT, and the attack resistance of slashing.</div>
+</div>
+
+
+<!-- 12 FULL COMPARISON TABLE -->
+<div class="sec-label">12 · The Full Comparison - All 8 Algorithms Side by Side</div>
+<h2 class="sec-title">Choose Your Weapon - A Complete Decision Matrix</h2>
+
+<table class="mtable">
+  <thead>
+    <tr>
+      <th>Consensus</th>
+      <th>Chain</th>
+      <th>Energy</th>
+      <th>Block Time</th>
+      <th>Finality</th>
+      <th>Decentralisation</th>
+      <th>Smart Contracts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>⛏️ PoW</td>
+      <td>Bitcoin</td>
+      <td class="bad">Very High</td>
+      <td class="bad">~10 min</td>
+      <td class="bad">Probabilistic ~60 min</td>
+      <td class="good">High</td>
+      <td class="mid">Limited</td>
+    </tr>
+    <tr>
+      <td>💎 PoS</td>
+      <td>Ethereum</td>
+      <td class="good">Very Low</td>
+      <td class="mid">~12 sec</td>
+      <td class="mid">~15 min (Casper)</td>
+      <td class="mid">High (32 ETH barrier)</td>
+      <td class="good">Full (EVM)</td>
+    </tr>
+    <tr>
+      <td>🗳️ DPoS</td>
+      <td>EOS</td>
+      <td class="good">Very Low</td>
+      <td class="good">~0.5 sec</td>
+      <td class="good">Seconds</td>
+      <td class="bad">Low (21 BPs)</td>
+      <td class="good">Full</td>
+    </tr>
+    <tr>
+      <td>🏢 PBFT</td>
+      <td>Hyperledger</td>
+      <td class="good">Very Low</td>
+      <td class="good">Sub-second</td>
+      <td class="good">Immediate</td>
+      <td class="bad">Very Low (&lt;100 nodes)</td>
+      <td class="good">Full (enterprise)</td>
+    </tr>
+    <tr>
+      <td>🌌 Tendermint</td>
+      <td>Cosmos</td>
+      <td class="good">Low</td>
+      <td class="good">1 - 6 sec</td>
+      <td class="good">Immediate</td>
+      <td class="mid">Medium</td>
+      <td class="good">Full (CosmWasm)</td>
+    </tr>
+    <tr>
+      <td>🏔️ Avalanche</td>
+      <td>AVAX</td>
+      <td class="good">Low</td>
+      <td class="good">&lt;2 sec</td>
+      <td class="good">Probabilistic &lt;2 sec</td>
+      <td class="good">High</td>
+      <td class="good">Full (EVM subnets)</td>
+    </tr>
+    <tr>
+      <td>🎲 Algorand</td>
+      <td>ALGO</td>
+      <td class="good">Very Low</td>
+      <td class="good">~4.5 sec</td>
+      <td class="good">Immediate</td>
+      <td class="good">High (any holder)</td>
+      <td class="mid">Full (AVM)</td>
+    </tr>
+    <tr class="mst-row">
+      <td>🔮 Trika POSA</td>
+      <td>MST</td>
+      <td class="good">Very Low</td>
+      <td class="good">3 sec</td>
+      <td class="good">~6 sec (BFT)</td>
+      <td class="good">High (open staking)</td>
+      <td class="good">Full (EVM-compatible)</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- 13 SCENARIO-BASED SELECTION -->
+<div class="sec-label">13 · Scenario-Based Selection - Choosing the Right Consensus</div>
+<h2 class="sec-title">Given a Business Problem, Which Consensus Algorithm Wins?</h2>
+
+<table class="stable">
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Best Algorithm</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A consortium of 10 Indian banks settling inter-bank payments needing immediate finality and regulatory auditability</td>
+      <td><strong>PBFT</strong></td>
+      <td>Small known set of validators, immediate deterministic finality, no forks, enterprise-grade auditability. Used by Hyperledger Fabric globally.</td>
+    </tr>
+    <tr>
+      <td>Global public cryptocurrency maximising decentralisation and censorship resistance</td>
+      <td><strong>PoW</strong> or <strong>Algorand PoS</strong></td>
+      <td>PoW: 15 years of proven security, truly open participation. Algorand: equally decentralised with far less energy. Both resist capture by any single entity.</td>
+    </tr>
+    <tr>
+      <td>Cross-chain DeFi ecosystem needing composability between multiple independent chains</td>
+      <td><strong>Tendermint (Cosmos IBC)</strong></td>
+      <td>Tendermint's immediate finality makes it ideal for cross-chain messaging - IBC requires finalised blocks before messages can be relayed between chains.</td>
+    </tr>
+    <tr>
+      <td>Online gaming platform needing 4,000+ TPS, sub-10-second payment confirmation for delivery partners, community governance for commission rates, low fees for ₹50 transactions</td>
+      <td class="pick">✅ MST Trika POSA</td>
+      <td>4,000+ TPS handles peak load. 6-second BFT finality confirms payments instantly. DPoS-style governance lets community vote on commission rates. Low fees make micro-transactions viable.</td>
+    </tr>
+    <tr>
+      <td>Decentralised autonomous organisation (DAO) where token holders must have genuine governance power</td>
+      <td><strong>DPoS or PoS</strong></td>
+      <td>Token-based voting is native to these mechanisms. DPoS explicitly separates governance from production - token holders vote for block producers representing them.</td>
+    </tr>
+    <tr>
+      <td>Private enterprise supply chain where participants are known but don't fully trust each other</td>
+      <td><strong>PBFT or Tendermint</strong></td>
+      <td>Both work with known, permissioned validator sets. Tendermint scales better (to ~100 - 150 validators). Both provide immediate finality for supply chain events.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- 14 ASSESSMENT PREP -->
+<div class="sec-label">14 · Assessment Preparation</div>
+<h2 class="sec-title">Top Facts - Know These Cold for 25 Marks</h2>
+
+<div class="flist">
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">01</div><div class="fcontent"><div class="ftitle">PoW = Bitcoin = SHA-256 = Energy-intensive lottery</div><div class="fdesc">Mining difficulty adjusts every 2,016 blocks. 10-minute average block time. 6 confirmations for high-value TX. Probabilistic finality. Bitcoin uses double-SHA256 for block hashing (SHA-256 twice for extra security).</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">02</div><div class="fcontent"><div class="ftitle">PoS = Ethereum (post-Sept 2022) = 99.95% less energy than PoW</div><div class="fdesc">32 ETH minimum stake. Casper FFG for finality (~15 min). Slashing for double-signing. "Nothing-at-stake" problem solved by slashing. EIP-1559 burns base fees - reducing ETH supply over time.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">03</div><div class="fcontent"><div class="ftitle">DPoS = EOS = 21 elected Block Producers = Lok Sabha model</div><div class="fdesc">Token holders vote for BPs. Fast (0.5 sec blocks) but low decentralisation. Cartel risk real. Used for high-throughput gaming and social media applications (Steem, TRON).</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">04</div><div class="fcontent"><div class="ftitle">PBFT = Hyperledger = Known small committee = Immediate finality = O(n²) messages</div><div class="fdesc">Best for 10 - 100 known validators. 3-phase protocol (pre-prepare, prepare, commit). Deterministic - no forks ever. O(n²) message complexity means it cannot scale to large open networks.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">05</div><div class="fcontent"><div class="ftitle">Tendermint = Cosmos = Propose→Prevote→Precommit = Immediate finality</div><div class="fdesc">Requires 2/3+ prevotes to proceed to precommit. 2/3+ precommits = block committed. Timeout triggers new round with new proposer. Used by Cosmos Hub, Binance Chain. Powers IBC cross-chain messaging.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">06</div><div class="fcontent"><div class="ftitle">Avalanche = AVAX = Repeated random subsampling = Leaderless = &lt;2 sec finality</div><div class="fdesc">O(log n) messages - scales extremely well. Probabilistic finality (very high confidence). No single leader - resistant to leader-targeted attacks. Each node randomly samples k others and adopts majority preference.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">07</div><div class="fcontent"><div class="ftitle">Algorand = ALGO = VRF secret lottery = Immediate finality = Silvio Micali (MIT)</div><div class="fdesc">VRF: each validator privately checks if they won the proposer lottery - unknown to others until reveal. Prevents DDoS on next leader. Fork-free by cryptographic construction. Any ALGO holder participates proportionally.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">08</div><div class="fcontent"><div class="ftitle">MST Trika POSA = 5 layers = 3 sec blocks = 4,000+ TPS = 6 sec BFT finality</div><div class="fdesc">Layer 1: Staking (PoS). Layer 2: Election - top 21 = Cabinet (DPoS). Layer 3: Round-robin production (PoA). Layer 4: BFT fast finality (Tendermint/Casper). Layer 5: Slashing. POSA = Proof of Staked Authority.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">09</div><div class="fcontent"><div class="ftitle">Byzantine Fault Tolerance - The Math</div><div class="fdesc">N total nodes can tolerate ⌊(N-1)/3⌋ Byzantine nodes. For 21 Cabinet validators (MST): tolerates up to 6 malicious. Needs 15+ honest for consensus (2/3 + 1 = 15). Safety threshold: never commit conflicting blocks as long as ≤1/3 are malicious.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">10</div><div class="fcontent"><div class="ftitle">The Trilemma - No Free Lunch</div><div class="fdesc">The "Blockchain Trilemma" (coined by Vitalik Buterin): you can optimise for two of three - Security, Decentralisation, Scalability - but not all three simultaneously. MST claims to solve this with Trika POSA - fast + secure + decentralised. This is an active area of research in the field.</div></div></div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="asec">
+  <div class="ahdr">
+    <h2>📝 Sub-Module 3.6 Assessment</h2>
+    <div class="mbadge"><div class="mn">25</div><div class="ml">Total Marks</div></div>
+  </div>
+
+  <div class="abody">
+
+    <!-- SECTION A: MCQ -->
+    <div class="qsec-hdr">
+      <div class="qsec-title">Section A - Multiple Choice Questions</div>
+      <div class="qsec-meta">8 Questions · 1 mark each · 8 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q1</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Which consensus mechanism does Bitcoin use?</div>
+      <ul class="opts">
+        <li class="correct"><span class="okey">A</span> Proof of Work (PoW) ✅</li>
+        <li><span class="okey">B</span> Proof of Stake (PoS)</li>
+        <li><span class="okey">C</span> Delegated Proof of Stake (DPoS)</li>
+        <li><span class="okey">D</span> Practical Byzantine Fault Tolerance (PBFT)</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: A - Explanation</div>
+        <p>Bitcoin has used <strong>Proof of Work</strong> since its genesis block on 3 January 2009. Miners compete to find a nonce that makes SHA-256(SHA-256(block_header)) begin with enough leading zeros. The first to find the nonce broadcasts the block and collects the block reward. This mechanism has never changed - Bitcoin's security model is built entirely on the physical cost of computation.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q2</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Ethereum's transition from PoW to PoS ("The Merge") in September 2022 reduced its energy consumption by approximately:</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> 30%</li>
+        <li><span class="okey">B</span> 60%</li>
+        <li><span class="okey">C</span> 85%</li>
+        <li class="correct"><span class="okey">D</span> 99.95% ✅</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: D - Explanation</div>
+        <p>Ethereum's Proof of Work required massive GPU and ASIC mining farms consuming approximately 112 TWh per year. Post-Merge PoS requires validators to run standard server hardware with 32 ETH staked - energy consumption dropped to approximately 0.01 TWh per year. The reduction is ~99.95%, making Ethereum's energy footprint comparable to a small town rather than a medium-sized country. This was one of the most significant environmental improvements in the history of technology infrastructure.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q3</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">In Delegated Proof of Stake (DPoS), what do token holders directly do to participate in the consensus process?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> Solve cryptographic puzzles using their GPU</li>
+        <li><span class="okey">B</span> Directly propose and validate each block themselves</li>
+        <li class="correct"><span class="okey">C</span> Vote for elected "Block Producers" or delegates who validate transactions on their behalf ✅</li>
+        <li><span class="okey">D</span> Lock tokens in a smart contract and receive rewards automatically without voting</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>DPoS is explicitly a <strong>representative democracy model</strong>. Token holders vote for a fixed number of Block Producers (21 in EOS's case). BPs do the actual validation. Token holders can change their vote at any time - poor BPs get voted out. The "Delegated" in DPoS refers to this delegation of validation rights from token holders to elected representatives.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q4</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">A consortium of 8 Indian banks wants to build a shared payments platform. They need immediate settlement finality, regulatory auditability, and the ability to restrict who can join the network. Which consensus mechanism is MOST appropriate?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> Proof of Work (PoW)</li>
+        <li class="correct"><span class="okey">B</span> Practical Byzantine Fault Tolerance (PBFT) ✅</li>
+        <li><span class="okey">C</span> Avalanche</li>
+        <li><span class="okey">D</span> Delegated Proof of Stake (DPoS)</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p><strong>PBFT</strong> is specifically designed for small, known, permissioned validator sets - exactly what a bank consortium is. It provides: (1) Immediate deterministic finality - no "wait for 6 confirmations"; (2) Permissioned access - only the 8 banks can participate; (3) Complete regulatory auditability - every step of the 3-phase protocol is logged. PoW is open and energy-intensive - wrong for a private consortium. Avalanche is optimised for public open networks. DPoS introduces governance complexity not needed when all participants are already known.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q5</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">In MST's Trika POSA, "Cabinet Validators" are defined as:</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> All token holders who have staked any amount of MSTC</li>
+        <li class="correct"><span class="okey">B</span> The top 21 validators ranked by total staked MSTC, who form the active block production set ✅</li>
+        <li><span class="okey">C</span> Validators who have been on the network for the longest time</li>
+        <li><span class="okey">D</span> Validators randomly selected by VRF for each block</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p>In Trika POSA, validators are ranked every 24 hours by their <strong>total staked MSTC</strong> (own stake + delegated stake from the community). The top 21 become the <strong>Cabinet</strong> - the active set that rotates in round-robin to produce blocks. The next N validators are "Candidates" (standby). Everyone else is "Inactive." This meritocratic election system ensures that validators with the most community confidence (demonstrated through delegated stake) secure the network.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q6</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Algorand uses a VRF (Verifiable Random Function) for validator selection. What specific security advantage does this provide compared to a predictable round-robin rotation?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> It prevents any validator from earning too many rewards</li>
+        <li class="correct"><span class="okey">B</span> The next block proposer is unknown until the moment they reveal themselves - preventing targeted DDoS attacks on the upcoming leader ✅</li>
+        <li><span class="okey">C</span> It eliminates the need for validators to stake tokens</li>
+        <li><span class="okey">D</span> It enables the chain to process transactions in parallel</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p>In a predictable round-robin system, attackers know in advance which validator will propose the next block. They can DDoS that validator's server in the moments before their slot - preventing the block from being produced and disrupting the chain. Algorand's VRF solves this: each validator <em>privately</em> computes whether they won the proposer lottery. Nobody knows who won until the winner reveals their cryptographic proof to propose the block - by which time it's too late to DDoS them effectively.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q7</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">What is "slashing" in the context of Proof of Stake blockchains?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> Reducing the block reward for all validators during periods of low activity</li>
+        <li><span class="okey">B</span> Splitting the network into two chains to increase throughput</li>
+        <li class="correct"><span class="okey">C</span> Automatically burning a portion of a misbehaving validator's staked tokens as punishment for protocol violations ✅</li>
+        <li><span class="okey">D</span> Removing old blocks from the chain to reduce storage requirements</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p><strong>Slashing</strong> is the economic penalty mechanism that makes PoS attacks irrational. When a validator commits a provable violation - double-signing (signing two conflicting blocks at the same height) or malicious finality voting - their staked tokens are automatically burned by the protocol. In MST: immediate Cabinet ejection + stake destroyed. This creates a strong economic disincentive: attacking MST requires acquiring significant MSTC to stake, then losing all of it when caught.</p>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q8</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">In Tendermint's consensus, what happens if fewer than 2/3 of validators send PREVOTE messages for the proposed block within the timeout period?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> The block is accepted with the available votes to maintain liveness</li>
+        <li><span class="okey">B</span> The chain permanently forks into two competing versions</li>
+        <li class="correct"><span class="okey">C</span> The current round times out and a new round begins with a different block proposer ✅</li>
+        <li><span class="okey">D</span> All validators who didn't vote are immediately slashed</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>Tendermint guarantees both <strong>safety</strong> (no two honest nodes commit different blocks) and <strong>liveness</strong> (the chain always eventually makes progress). If insufficient prevotes are received in a round - perhaps due to a slow or unavailable proposer - the round times out and a new round r+1 begins with a different designated proposer. The timeout mechanism ensures the chain never stalls permanently, while the 2/3 threshold ensures no unsafe block ever gets committed.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: Multi-Select -->
+    <div class="qsec-hdr" style="margin-top:8px">
+      <div class="qsec-title">Section B - Multi-Select: MST Trika POSA Properties</div>
+      <div class="qsec-meta">1 Question · 5 marks (1 per correct selection, −1 per wrong selection, min 0)</div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q9</div><div class="qmeta"><span class="qtype">Multi-Select</span><span class="qdiff medium">Medium</span><span class="qmarks">5 marks</span></div></div>
+      <div class="qtext">Which of the following statements about MST's Trika POSA are CORRECT? Select ALL that apply. Each correct selection = +1 mark. Each incorrect selection = −1 mark. Minimum score = 0.</div>
+      <ul class="opts">
+        <li class="correct"><span class="okey">A</span> Validators must stake MSTC tokens to participate in block production ✅</li>
+        <li class="correct"><span class="okey">B</span> The active block production set (Cabinet) consists of the top 21 validators by total staked MSTC ✅</li>
+        <li><span class="okey">C</span> Block production uses a random VRF lottery similar to Algorand (incorrect - MST uses round-robin)</li>
+        <li class="correct"><span class="okey">D</span> MST's target block time is approximately 3 seconds ✅</li>
+        <li class="correct"><span class="okey">E</span> Validators who double-sign can have their staked tokens slashed (burned) ✅</li>
+        <li><span class="okey">F</span> POSA stands for "Proof of Staking Algorithm" (incorrect - it stands for Proof of Staked Authority)</li>
+        <li class="correct"><span class="okey">G</span> MST has tested up to 2,234 TPS on its testnet and targets 4,000+ TPS on mainnet ✅</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Selections: A, B, D, E, G - Explanation</div>
+        <p><strong>A ✅</strong> - Staking MSTC is Layer 1 of Trika POSA - economic alignment is foundational.<br>
+        <strong>B ✅</strong> - Top 21 by total stake form the Cabinet every 24 hours.<br>
+        <strong>C ❌</strong> - MST uses deterministic <strong>round-robin</strong> rotation (like PoA), not VRF lottery (that's Algorand).<br>
+        <strong>D ✅</strong> - 3-second block time is explicitly stated in MST's whitepaper.<br>
+        <strong>E ✅</strong> - Double-signing is a slashable offence - stake burned, validator ejected from Cabinet.<br>
+        <strong>F ❌</strong> - POSA = Proof of <strong>Staked</strong> <strong>Authority</strong>, not "Staking Algorithm."<br>
+        <strong>G ✅</strong> - From MST's whitepaper: "tested up to 2,234 TPS on testnet, targeting 4,000+ TPS on mainnet."</p>
+        <div class="mbd"><span>Scoring:</span> 5 correct × +1 = +5. Each of C or F selected = −1 each. Minimum score = 0 regardless of wrong selections.</div>
+      </div>
+    </div>
+
+    <!-- SECTION C: Matching Activity -->
+    <div class="qsec-hdr" style="margin-top:8px">
+      <div class="qsec-title">Section C - Consensus Comparison Activity (Matching)</div>
+      <div class="qsec-meta">1 Question · 6 marks (1 per correct match)</div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q10</div><div class="qmeta"><span class="qtype">Activity - Match Consensus to Characteristic</span><span class="qdiff medium">Medium</span><span class="qmarks">6 marks</span></div></div>
+      <div class="qtext">
+        Match each consensus mechanism in Column A to its single MOST defining characteristic in Column B. Each correct match = 1 mark.<br><br>
+        <strong>Column A:</strong><br>
+        (1) Proof of Work &nbsp; (2) Proof of Stake &nbsp; (3) DPoS &nbsp; (4) PBFT &nbsp; (5) Avalanche &nbsp; (6) MST Trika POSA<br><br>
+        <strong>Column B:</strong><br>
+        (a) Repeated random subsampling of validators until convergence - leaderless and sub-2-second finality<br>
+        (b) Token holders elect a fixed set of block producers who validate on their behalf<br>
+        (c) Energy-intensive mining - find a nonce making the block hash begin with leading zeros<br>
+        (d) Five-layer architecture: staking + election + round-robin + BFT finality + slashing<br>
+        (e) Known permissioned committee - 3-phase protocol (pre-prepare, prepare, commit) - O(n²) messages<br>
+        (f) Validators lock economic stake; random weighted selection; slashing for double-signing
+      </div>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Matches - 6 marks</div>
+        <p>
+          <strong>(1) Proof of Work → (c)</strong> Energy-intensive mining - SHA-256 nonce search.<br>
+          <strong>(2) Proof of Stake → (f)</strong> Validators stake tokens; weighted random selection; slashing. (Note: Algorand also uses stake + VRF, but option f most precisely describes general PoS as in Ethereum - VRF is Algorand's specific addition.)<br>
+          <strong>(3) DPoS → (b)</strong> Token holders elect fixed Block Producers - the representative democracy model.<br>
+          <strong>(4) PBFT → (e)</strong> Known permissioned committee; 3-phase (pre-prepare, prepare, commit); O(n²) messages - doesn't scale.<br>
+          <strong>(5) Avalanche → (a)</strong> Repeated random subsampling until convergence - leaderless, sub-2-second, O(log n) messages.<br>
+          <strong>(6) MST Trika POSA → (d)</strong> Five-layer architecture: staking + election + round-robin + BFT finality + slashing.
+        </p>
+        <div class="mbd"><span>1 mark each</span> for correct match. Accept well-reasoned alternative if student provides justification for why another mapping could apply (e.g., mapping PoS to a different option if justified).</div>
+      </div>
+    </div>
+
+    <!-- SECTION D: Descriptive Scenario -->
+    <div class="qsec-hdr" style="margin-top:8px">
+      <div class="qsec-title">Section D - Descriptive Scenario Question</div>
+      <div class="qsec-meta">1 Question · 7 marks · Structured answer required</div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q11</div><div class="qmeta"><span class="qtype">Descriptive</span><span class="qdiff hard">Hard</span><span class="qmarks">7 marks</span></div></div>
+      <div class="qtext">
+        <strong>Scenario:</strong> "SwiggyChain" is being designed as a blockchain-based food delivery platform for India. The team has identified the following requirements:<br><br>
+        1. Handle 2,000+ food delivery transactions per second during peak lunch hours (12 - 2 PM)<br>
+        2. Payment to delivery partners must be confirmed within 10 seconds of delivery confirmation<br>
+        3. Restaurants must be able to vote on commission rate changes through the platform<br>
+        4. Gas fees must be low enough to make ₹50 delivery fees economically viable<br>
+        5. The platform must be energy-efficient (ESG requirements of listed company)<br><br>
+        Which consensus mechanism would you recommend for SwiggyChain? Structure your answer as:<br>
+        (a) Your recommended consensus mechanism <em>(1 mark)</em><br>
+        (b) How each of the 5 requirements is met <em>(4 marks - 0.8 per requirement)</em><br>
+        (c) What are two specific limitations or risks of your recommendation? <em>(2 marks)</em>
+      </div>
+      <div class="abox">
+        <div class="abox-lbl">✅ Model Answer - 7 Marks</div>
+        <p><strong>(a) Recommended: MST Trika POSA</strong> [1 mark]<br>
+        MST is an EVM-compatible Layer-1 chain with Trika POSA consensus - a five-layer hybrid designed exactly for high-throughput, community-governed, low-fee applications.</p>
+        <br>
+        <p><strong>(b) Requirements - 4 marks (0.8 each, accept rounded to whole marks):</strong></p>
+        <p><strong>Req 1 - 2,000+ TPS:</strong> MST targets 4,000+ TPS on mainnet (tested 2,234 TPS on testnet). Cabinet validators rotate in 3-second round-robin slots without computational puzzles - pure throughput. 2,000 TPS during lunch peak is well within capacity. [0.8 mark]</p>
+        <p><strong>Req 2 - 10-second confirmation:</strong> Trika POSA achieves BFT finality in approximately 6 seconds (2 justified blocks at 3 seconds each). Once the delivery partner's "confirmed" transaction is included in a block and that block is finalised, MSTC transfers to their wallet - automatically and irreversibly - in under 10 seconds. [0.8 mark]</p>
+        <p><strong>Req 3 - Restaurant governance:</strong> Trika POSA's DPoS layer allows staking-based governance. Restaurants who hold and stake MSTC can vote for Cabinet Validators who represent their interests, and propose governance changes (commission rates) through the on-chain Governor contract. Community-driven governance is architecturally native to Trika POSA. [0.8 mark]</p>
+        <p><strong>Req 4 - Low gas fees:</strong> MST explicitly maintains low, stable transaction fees to enable micro-transaction use cases. With 4,000+ TPS capacity, the mempool rarely congests - no fee bidding wars. A ₹50 delivery confirmation transaction costs fractions of a paisa in MSTC fees, making it economically viable. [0.8 mark]</p>
+        <p><strong>Req 5 - Energy efficiency:</strong> Trika POSA uses no mining. Cabinet Validators run standard servers. No GPU farms, no ASICs. Energy consumption is negligible compared to PoW chains. This satisfies ESG requirements and qualifies for green infrastructure certifications. [0.8 mark]</p>
+        <br>
+        <p><strong>(c) Two limitations/risks - 2 marks (1 each):</strong></p>
+        <p><strong>Risk 1 - Validator concentration / cartel risk:</strong> With 21 Cabinet Validators, there is a risk that a group of large MSTC holders coordinate to maintain friendly validators in the top 21 permanently - undermining the democratic governance design. Mitigation: MST's slashing mechanism and community vigilance through on-chain governance, but the risk is real on any DPoS-derivative system. [1 mark]</p>
+        <p><strong>Risk 2 - Staking barrier to entry for small restaurants:</strong> To meaningfully participate in governance through voting weight, restaurants need to acquire and stake MSTC. Small restaurants with limited capital may have negligible governance influence compared to large chains with significant MSTC holdings - replicating the same power imbalance that blockchain was supposed to solve. MST partially addresses this through fractional validator participation, but governance weight is still proportional to stake. [1 mark]</p>
+        <div class="mbd"><span>Examiner note:</span> Accept any well-reasoned limitations that demonstrate understanding of the tradeoffs in DPoS/PoSA designs. Award full marks for any two distinct, coherent risks with explanations.</div>
+      </div>
+    </div>
+
+  </div><!-- end abody -->
+
+  <div class="score-sum">
+    <div>
+      <div class="sl">Sub-Module 3.6 Assessment Summary</div>
+      <div class="sr">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="sr">Section B: 1 × Multi-Select (7 statements) <span>= 5 marks</span></div>
+      <div class="sr">Section C: 1 × Consensus Matching Activity <span>= 6 marks</span></div>
+      <div class="sr">Section D: 1 × Descriptive Scenario (SwiggyChain) <span>= 6 marks</span></div>
+    </div>
+    <div class="sbadge"><div class="sn">25</div><div class="st">Total Marks</div></div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="sec-label" style="margin-top:52px">15 · Glossary</div>
+<h2 class="sec-title">Key Terms - Sub-Module 3.6</h2>
+<div class="ggrind">
+  <div class="gitem"><div class="gterm">Consensus Mechanism</div><div class="gdef">The algorithm by which distributed blockchain nodes agree on the current valid state of the ledger without any central authority.</div></div>
+  <div class="gitem"><div class="gterm">Byzantine Generals Problem</div><div class="gdef">The distributed systems challenge of reaching consensus when some participants may send contradictory or false information. Solved by all blockchain consensus algorithms.</div></div>
+  <div class="gitem"><div class="gterm">Proof of Work (PoW)</div><div class="gdef">Bitcoin's consensus - miners compete to find a nonce making the block hash begin with N leading zeros. Energy-intensive but battle-tested. 10-minute blocks. Probabilistic finality.</div></div>
+  <div class="gitem"><div class="gterm">Proof of Stake (PoS)</div><div class="gdef">Validators lock ("stake") tokens as collateral and are probabilistically selected to propose blocks. 99.95% less energy than PoW. Slashing punishes misbehaviour. Used by Ethereum post-2022.</div></div>
+  <div class="gitem"><div class="gterm">Delegated PoS (DPoS)</div><div class="gdef">Token holders vote for a fixed set of Block Producers who validate on their behalf. Fast and efficient but less decentralised - 21 BPs in EOS. Representative democracy model.</div></div>
+  <div class="gitem"><div class="gterm">PBFT</div><div class="gdef">Practical Byzantine Fault Tolerance - 3-phase committee protocol for small known validator sets. O(n²) messages. Immediate deterministic finality. Used in Hyperledger enterprise chains.</div></div>
+  <div class="gitem"><div class="gterm">Tendermint BFT</div><div class="gdef">Round-based BFT consensus (Propose → Prevote → Precommit). Requires 2/3+ supermajority at each phase. Immediate finality. Used by Cosmos Hub and Binance Chain.</div></div>
+  <div class="gitem"><div class="gterm">Avalanche Consensus</div><div class="gdef">Repeated random subsampling - each node polls k random peers and adopts majority preference. O(log n) messages. Sub-2-second probabilistic finality. Leaderless and highly scalable.</div></div>
+  <div class="gitem"><div class="gterm">VRF (Verifiable Random Function)</div><div class="gdef">Cryptographic function used by Algorand: each validator privately checks if they won the proposer lottery. Nobody knows the winner until they reveal - preventing targeted DDoS on upcoming leaders.</div></div>
+  <div class="gitem"><div class="gterm">Trika POSA</div><div class="gdef">MST's consensus: 5 layers - staking (PoS) + election top-21 (DPoS) + round-robin production (PoA) + BFT finality (Tendermint/Casper) + slashing. 3-second blocks, 4,000+ TPS, 6-second finality.</div></div>
+  <div class="gitem"><div class="gterm">Cabinet Validators</div><div class="gdef">The top 21 MST validators by total staked MSTC - the active block production set. Elected every 24 hours. Produce blocks in round-robin rotation.</div></div>
+  <div class="gitem"><div class="gterm">Slashing</div><div class="gdef">Automatic burning of a misbehaving PoS validator's staked tokens. In MST: triggered by double-signing or malicious finality voting. Stake destroyed + ejected from Cabinet.</div></div>
+  <div class="gitem"><div class="gterm">Blockchain Trilemma</div><div class="gdef">Coined by Vitalik Buterin - blockchains can optimise for two of three simultaneously: Security, Decentralisation, Scalability. MST's Trika POSA claims to address all three.</div></div>
+  <div class="gitem"><div class="gterm">BLS Signatures</div><div class="gdef">Boneh-Lynn-Shacham signature scheme used in MST's fast finality layer. Allows aggregating many validator signatures into one compact proof - enabling efficient 2/3 supermajority verification.</div></div>
+</div>
+
+<div class="pfooter">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.6</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.7 - Forks &amp; Network Evolution →</p>
+</div>
+
+
+

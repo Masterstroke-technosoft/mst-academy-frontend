@@ -1,0 +1,235 @@
+
+
+    <div class="module-badge">🏗️ Module 10 · Sub-Module 10.2 of 6</div>
+    <h1 class="module-title">Smart Contract <span class="highlight">Design Patterns</span></h1>
+    <p class="module-subtitle">Factory contracts for deploying thousands of clones at minimal gas cost. Proxy patterns that make your contracts upgradeable forever. And the Diamond Standard - the architecture that allows a single contract to have unlimited functionality. These are the patterns used by the largest protocols in DeFi.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 15 Marks (MCQ + Code-Completion)</div>
+        <div class="meta-chip">📋 Factory, Proxy (Transparent &amp; UUPS), Diamond Standard</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity &amp; Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🏭</div>
+            <div class="feature-title">Build a Factory contract that deploys clones at a fraction of the usual cost</div>
+            <div class="feature-desc">Use the minimal proxy pattern (EIP-1167) to deploy lightweight proxy contracts pointing to a single implementation. Understand when to use <code>CREATE</code> vs <code>CREATE2</code> for deterministic addresses.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔄</div>
+            <div class="feature-title">Implement upgradeable contracts using the Proxy pattern</div>
+            <div class="feature-desc">Separate logic from storage. Deploy a proxy that delegates all calls to an implementation contract. Swap the implementation behind the scenes while keeping the same address and storage.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">💎</div>
+            <div class="feature-title">Understand the Diamond Standard (EIP-2535) for multi-facet contracts</div>
+            <div class="feature-desc">Build a single contract that can have dozens of facets (modules), each adding new functions without colliding with existing storage. The architecture used by projects like Aavegotchi and Defi Kingdoms.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔐</div>
+            <div class="feature-title">Avoid storage collisions and other proxy pitfalls</div>
+            <div class="feature-desc">Understand how delegatecall works, why storage layout must be preserved across upgrades, and how to use unstructured storage patterns to keep your proxy safe.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Protocol That Couldn't Fix a Critical Bug</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2020, a DeFi lending protocol launched with over $50 million locked in its smart contracts. A month after launch, a security researcher discovered a vulnerability in the interest rate calculation that could allow borrowers to drain the lending pool. The team had no upgrade mechanism. The contract was immutable. Their only option was to pause the contract, deploy a new one, and ask users to manually migrate their funds - a process that took weeks, cost millions in gas, and shattered user trust. Several users didn't migrate, and their funds remained locked in the vulnerable contract forever.</p>
+        <br>
+        <p>Compare this to Compound, one of the largest DeFi protocols. Compound uses a proxy pattern that allows the governance to upgrade the implementation logic while keeping the same contract address. When bugs are discovered, a new implementation is deployed, and the proxy's pointer is updated with a governance vote. Users don't need to move their funds. The contract address stays the same. The upgrade is seamless. This is not a luxury - in blockchain, where immutability is the default, the ability to fix bugs is a critical safety net.</p>
+        <br>
+        <p>In this sub-module, you will learn the design patterns that give you the best of both worlds: the trustlessness of blockchain with the flexibility to fix bugs and add features. These patterns are not academic - they are running in production, securing billions of dollars in value, right now.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; The Factory Pattern - Deploying Contracts Like a Production Line</div>
+    <h2 class="section-title">Why Deploy One When You Can Deploy Thousands?</h2>
+    <p>A <strong>Factory contract</strong> is a contract whose primary job is to deploy other contracts. It's a factory in the literal sense: you call a function, and it produces a brand-new contract instance. This pattern is used everywhere in Web3: Uniswap's factory deploys trading pairs, OpenSea's factory deploys NFT collections, and DAO factories deploy governance contracts.</p>
+
+    <p><strong>The problem with deploying directly:</strong> Deploying a contract from an EOA (externally owned account) costs gas and requires the deployer to hold the full bytecode. If you want to deploy 100 instances of the same contract, you would pay 100 times the deployment cost. Worse, you would need to send 100 separate transactions.</p>
+    <p><strong>The factory solution:</strong> The factory contract holds the bytecode (or references it) and deploys new instances with a single function call. This is cheaper because the factory can use optimized deployment techniques, and it can batch multiple deployments in one transaction.</p>
+
+    <div class="code-block-wrap"><pre>// Basic Factory Contract
+contract TokenFactory {
+    address[] public deployedTokens;
+
+    function deployToken(string memory name, string memory symbol) public returns (address) {
+        Token newToken = new Token(name, symbol, msg.sender);
+        deployedTokens.push(address(newToken));
+        return address(newToken);
+    }
+}
+
+contract Token {
+    string public name;
+    string public symbol;
+    address public owner;
+
+    constructor(string memory _name, string memory _symbol, address _owner) {
+        name = _name;
+        symbol = _symbol;
+        owner = _owner;
+    }
+}</pre></div>
+    <p>The <code>new</code> keyword in Solidity deploys a fresh contract. The factory pattern simply wraps this in a reusable function. But this still deploys the full bytecode each time. For cases where you need thousands of identical contracts (like Gnosis Safe wallets or Uniswap pairs), there's a much cheaper approach: the <strong>Minimal Proxy</strong>.</p>
+
+    <div class="section-label">04 &nbsp; The Minimal Proxy (EIP-1167) - Deploy for 1/10th the Gas</div>
+    <h2 class="section-title">Cloning Contracts Without the Overhead</h2>
+    <p>The <strong>Minimal Proxy</strong> (also called EIP-1167 or "clone factory") is a tiny contract that delegates all calls to a pre-deployed implementation contract. The proxy itself contains almost no code - just a few bytes that forward every call using <code>delegatecall</code>. Deploying this tiny proxy costs a fraction of the gas of deploying the full implementation.</p>
+
+    <p><strong>How it works:</strong> Instead of deploying <code>new Token()</code> (which copies all bytecode), the factory deploys a minimal proxy - a contract that stores the implementation address in its bytecode and forwards all calls to it. The proxy is typically only ~50 bytes, vs. thousands of bytes for a full implementation. Gas cost: ~50,000 for the proxy vs. ~500,000+ for a full deployment.</p>
+
+    <div class="code-block-wrap"><pre>// Using OpenZeppelin Clones library
+import "@openzeppelin/contracts/proxy/Clones.sol";
+
+contract TokenFactory {
+    using Clones for address;
+    address public implementation;
+
+    constructor(address _implementation) {
+        implementation = _implementation;
+    }
+
+    function cloneToken(string memory name, string memory symbol) public returns (address) {
+        address clone = implementation.clone();
+        Token(clone).initialize(name, symbol, msg.sender);
+        return clone;
+    }
+}</pre></div>
+
+    <p><strong>Important:</strong> Minimal proxies rely on <code>delegatecall</code>, which means the implementation contract's code runs in the context of the proxy's storage. This is why the initialization function is separate from the constructor - constructors run in the context of the implementation, not the proxy, so they cannot initialize proxy storage.</p>
+
+    <p><strong>CREATE vs CREATE2:</strong> <code>CREATE</code> deploys a contract at an address determined by the deployer's address and nonce. <code>CREATE2</code> deploys at an address determined by the deployer's address, a salt, and the init code hash. <code>CREATE2</code> enables deterministic addresses - you can predict the address before deployment, which is critical for counterfactual systems like Uniswap V3 and Optimistic Rollups.</p>
+
+    <div class="section-label">05 &nbsp; The Proxy Pattern - Making Contracts Upgradeable</div>
+    <h2 class="section-title">Separating Logic from Storage So You Can Fix Bugs Forever</h2>
+    <p>The core problem: smart contracts are immutable. Once deployed, their code cannot change. But software always has bugs, and requirements change. The <strong>Proxy pattern</strong> solves this by splitting the contract into two parts: a <strong>proxy</strong> that holds the storage and the user's address, and an <strong>implementation</strong> that holds the logic. The proxy delegates all function calls to the implementation using <code>delegatecall</code>.</p>
+
+    <p><strong>delegatecall</strong> is the magic. When Contract A calls Contract B using <code>delegatecall</code>, Contract B's code runs, but it reads and writes Contract A's storage. It's as if Contract B's code was copy-pasted into Contract A. This is exactly what the proxy does: it delegates to the implementation, which runs the logic and modifies the proxy's storage.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 10.2-A · Proxy Pattern Architecture</div>
+        <pre>User → Proxy Contract → Implementation V1
+         (storage)        (logic)
+
+When an upgrade happens:
+User → Proxy Contract → Implementation V2
+         (same storage)   (new logic, same storage layout)
+        </pre>
+        <div class="diagram-caption">The proxy holds the storage and delegates calls. The implementation can be swapped without changing the proxy's address or state.</div>
+    </div>
+
+    <p><strong>Storage collisions - the biggest danger:</strong> When you upgrade to a new implementation, the new implementation must use the exact same storage layout as the old one. If you add a new state variable at the beginning, it will overwrite the old first variable, corrupting your data. The solution is to use <strong>unstructured storage</strong> - storing critical data at pseudo-random slots derived from hashes, so they never collide with normal Solidity storage.</p>
+
+    <div class="code-block-wrap"><pre>// Unstructured storage pattern (OpenZeppelin)
+bytes32 private constant IMPLEMENTATION_SLOT = 
+    keccak256("eip1967.proxy.implementation") - 1;
+
+function _setImplementation(address newImpl) internal {
+    assembly { sstore(IMPLEMENTATION_SLOT, newImpl) }
+}
+
+function _getImplementation() internal view returns (address impl) {
+    assembly { impl := sload(IMPLEMENTATION_SLOT) }
+}</pre></div>
+    <p>This pattern stores the implementation address at a slot that is astronomically unlikely to collide with any Solidity-assigned slot, preventing overwrites.</p>
+
+    <p><strong>Transparent Proxy vs. UUPS:</strong> There are two main upgradeable proxy patterns. <strong>Transparent Proxy</strong> (EIP-1967) has the upgrade logic in the proxy itself. Only an admin can upgrade. <strong>UUPS</strong> (Universal Upgradeable Proxy Standard) puts the upgrade logic in the implementation, making the proxy simpler and cheaper, but requiring all implementations to include upgrade functionality. OpenZeppelin supports both.</p>
+
+    <div class="section-label">06 &nbsp; The Diamond Standard (EIP-2535) - Unlimited Contract Size</div>
+    <h2 class="section-title">When Your Contract Needs 100 Functions Across 10 Modules</h2>
+    <p>Ethereum imposes a contract size limit of 24,576 bytes. For complex protocols, a single implementation contract may hit this limit. The <strong>Diamond Standard</strong> solves this by allowing a single proxy (called a diamond) to have multiple implementation contracts (called facets). Each facet provides a subset of functions, and the diamond routes calls to the correct facet.</p>
+
+    <p><strong>How it works:</strong> The diamond stores a mapping of function selectors (the first 4 bytes of a function signature hash) to facet addresses. When a call comes in, the diamond looks up the selector, finds the corresponding facet, and delegatecalls it. This is managed by a special facet called the <strong>DiamondLoupe</strong>, which provides introspection functions (list all facets, list their selectors).</p>
+
+    <div class="code-block-wrap"><pre>// Simplified Diamond Storage
+struct Facet {
+    address facetAddress;
+    bytes4[] functionSelectors;
+}
+
+mapping(bytes4 =&gt; address) public selectorToFacet;
+
+function diamondCut(Facet[] memory facets) external onlyOwner {
+    for (uint i = 0; i &lt; facets.length; i++) {
+        for (uint j = 0; j &lt; facets[i].functionSelectors.length; j++) {
+            selectorToFacet[facets[i].functionSelectors[j]] = facets[i].facetAddress;
+        }
+    }
+}
+
+fallback() external payable {
+    address facet = selectorToFacet[msg.sig];
+    require(facet != address(0), "Function not found");
+    assembly {
+        calldatacopy(0, 0, calldatasize())
+        let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)
+        returndatacopy(0, 0, returndatasize())
+        switch result case 0 { revert(0, returndatasize()) } default { return(0, returndatasize()) }
+    }
+}</pre></div>
+
+    <p>The Diamond Standard is the most flexible upgradeability pattern: you can add, replace, or remove individual functions without touching other facets. It's used by protocols like Aavegotchi and Defi Kingdoms, where the contract ecosystem is large and constantly evolving.</p>
+
+    <div class="section-label">07 &nbsp; Putting It All Together - A Complete Example</div>
+    <h2 class="section-title">A Factory That Deploys Upgradeable Tokens</h2>
+    <p>Below is a factory that combines the minimal proxy with upgradeability. It deploys a token as a transparent proxy, allowing the token owner to later upgrade the token logic.</p>
+    <div class="code-block-wrap"><pre>contract UpgradeableTokenFactory {
+    address public logicImplementation;
+
+    constructor(address _logic) {
+        logicImplementation = _logic;
+    }
+
+    function deployToken(string memory name, string memory symbol) public returns (address) {
+        // Deploy minimal proxy pointing to logicImplementation
+        bytes20 targetBytes = bytes20(logicImplementation);
+        address proxy;
+        assembly {
+            let clone := mload(0x40)
+            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(clone, 0x14), targetBytes)
+            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+            proxy := create(0, clone, 0x37)
+        }
+        Token(proxy).initialize(name, symbol, msg.sender);
+        return proxy;
+    }
+}</pre></div>
+
+    <p>This pattern is used by major protocols to let users deploy their own upgradeable tokens at a fraction of the cost of deploying from scratch. The factory holds a single logic implementation, and every deployed token is a cheap proxy.</p>
+
+    <div class="section-label">08 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Factory contracts deploy other contracts.</strong> Use the minimal proxy (EIP-1167) to deploy clones at ~50,000 gas instead of ~500,000+ gas for a full deployment.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>delegatecall runs code in the caller's storage context.</strong> This is the foundation of all proxy patterns. The implementation contract's code executes, but storage is read/written from the proxy.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Storage collisions are the #1 danger in upgradeable contracts.</strong> Always use unstructured storage (pseudo-random slots) for proxy-specific data like the implementation address and admin.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>UUPS puts upgrade logic in the implementation; Transparent Proxy puts it in the proxy.</strong> UUPS is cheaper to deploy but requires all implementations to include upgrade functions. Transparent Proxy is simpler but more expensive.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>The Diamond Standard (EIP-2535) allows a single proxy to have unlimited facets.</strong> Each facet provides a set of functions, and the diamond routes calls based on the function selector. It solves the contract size limit.</div></div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.2</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Factory Pattern</div><div class="g-def">A contract that deploys other contracts, often using minimal proxies to save gas. Centralises deployment logic and enables deterministic addresses via CREATE2.</div></div>
+        <div class="glossary-card"><div class="g-term">Minimal Proxy (EIP-1167)</div><div class="g-def">A lightweight contract that delegates all calls to a pre-deployed implementation. Contains ~50 bytes of bytecode, costing far less than a full deployment.</div></div>
+        <div class="glossary-card"><div class="g-term">delegatecall</div><div class="g-def">An EVM opcode that executes another contract's code in the caller's storage context. The key mechanism behind proxy patterns and upgradeable contracts.</div></div>
+        <div class="glossary-card"><div class="g-term">Transparent Proxy (EIP-1967)</div><div class="g-def">An upgradeable proxy where the upgrade function lives in the proxy itself. The admin cannot accidentally call implementation functions.</div></div>
+        <div class="glossary-card"><div class="g-term">UUPS</div><div class="g-def">Universal Upgradeable Proxy Standard - an upgradeable proxy where the upgrade logic is in the implementation. Cheaper to deploy than Transparent Proxy.</div></div>
+        <div class="glossary-card"><div class="g-term">Diamond Standard (EIP-2535)</div><div class="g-def">A multi-facet proxy that routes function calls to different implementation contracts based on function selectors. Solves the contract size limit.</div></div>
+        <div class="glossary-card"><div class="g-term">Unstructured Storage</div><div class="g-def">A pattern that stores proxy data at pseudo-random storage slots (derived from hashes) to prevent collisions with implementation storage.</div></div>
+        <div class="glossary-card"><div class="g-term">CREATE2</div><div class="g-def">An EVM opcode that deploys a contract at a deterministic address based on the deployer, a salt, and the init code. Enables counterfactual contracts.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.2</strong> of 6 · Next: Sub-Module 10.3 - Security Patterns →</p>
+    </div>
+
+

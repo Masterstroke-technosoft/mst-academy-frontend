@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.4 - Immutability & Tamper-Evidence | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand:#6C3CE2; --brand-light:#EDE9FB; --brand-dark:#3C1FA0;
+    --accent:#F6A623; --accent-light:#FEF4E0;
+    --green:#16A34A; --green-light:#DCFCE7;
+    --red:#DC2626; --red-light:#FEE2E2;
+    --blue:#1D6FD8; --blue-light:#DBEAFE;
+    --orange:#EA580C; --orange-light:#FFEDD5;
+    --teal:#0D9488; --teal-light:#CCFBF1;
+    --ink:#111827; --ink-2:#374151; --ink-3:#6B7280; --ink-4:#9CA3AF;
+    --border:#E5E7EB; --border-2:#D1D5DB;
+    --surface:#F9FAFB; --surface-2:#F3F4F6;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    --radius:10px; --radius-lg:16px;
+  }
+  body { font-family:var(--sans); color:var(--ink); background:#fff; line-height:1.75; font-size:16px; max-width:880px; margin:0 auto; padding:48px 32px 100px; }
+  .module-badge { display:inline-flex; align-items:center; gap:8px; background:var(--brand-light); color:var(--brand-dark); font-size:11.5px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:20px; }
+  .module-title { font-size:clamp(28px,4vw,40px); font-weight:900; line-height:1.15; color:var(--ink); margin-bottom:12px; letter-spacing:-0.02em; }
+  .module-title .highlight { color:var(--brand); }
+  .module-subtitle { font-size:17px; color:var(--ink-3); font-weight:400; margin-bottom:28px; line-height:1.65; max-width:680px; }
+  .meta-bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:52px; padding-bottom:32px; border-bottom:2px solid var(--border); }
+  .meta-chip { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-size:13px; font-weight:500; color:var(--ink-2); }
+  .meta-chip.purple { background:var(--brand-light); border-color:#C4B5F5; color:var(--brand-dark); }
+  .meta-chip.green  { background:var(--green-light); border-color:#86EFAC; color:#14532D; }
+  .section-label { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--brand); margin-bottom:10px; margin-top:52px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-title { font-size:24px; font-weight:800; color:var(--ink); margin-bottom:18px; letter-spacing:-0.01em; line-height:1.3; }
+  p { color:var(--ink-2); margin-bottom:16px; font-size:15.5px; line-height:1.8; }
+  p strong { color:var(--ink); font-weight:700; }
+  p:last-child { margin-bottom:0; }
+  code { font-family:var(--mono); font-size:13px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:2px 6px; color:var(--brand-dark); }
+  .callout { border-radius:var(--radius-lg); padding:20px 24px; margin:24px 0; border-left:4px solid; }
+  .callout-label { font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .callout p { font-size:15px; margin:0; }
+  .callout.story   { background:#FAFAF5; border-color:var(--accent); }
+  .callout.story .callout-label { color:#92400E; }
+  .callout.key     { background:var(--brand-light); border-color:var(--brand); }
+  .callout.key .callout-label { color:var(--brand-dark); }
+  .callout.warning { background:var(--red-light); border-color:var(--red); }
+  .callout.warning .callout-label { color:var(--red); }
+  .callout.insight { background:var(--teal-light); border-color:var(--teal); }
+  .callout.insight .callout-label { color:var(--teal); }
+  .callout.analogy { background:var(--accent-light); border-color:var(--accent); }
+  .callout.analogy .callout-label { color:#92400E; }
+  .obj-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .obj-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .obj-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .obj-text { font-size:14px; color:var(--ink-2); line-height:1.55; }
+  .obj-text strong { display:block; color:var(--ink); font-weight:700; font-size:13.5px; margin-bottom:2px; }
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px 24px; margin:24px 0; overflow-x:auto; }
+  .diagram-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:20px; text-align:center; }
+  .diagram-wrap pre { font-family:var(--mono); font-size:13px; line-height:1.65; color:var(--ink-2); white-space:pre; margin:0; }
+  .diagram-caption { font-size:12px; color:var(--ink-4); text-align:center; margin-top:16px; font-style:italic; }
+  .feature-list { display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+  .feature-item { display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .feature-num { width:28px; height:28px; border-radius:50%; background:var(--brand); color:white; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .feature-content { flex:1; }
+  .feature-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .feature-desc  { font-size:14px; color:var(--ink-2); line-height:1.6; }
+  .steps-list { list-style:none; padding:0; margin:20px 0; counter-reset:steps; }
+  .steps-list li { counter-increment:steps; display:flex; gap:14px; margin-bottom:16px; }
+  .steps-list li::before { content:counter(steps); font-family:var(--mono); font-size:12px; font-weight:800; color:white; background:var(--brand); min-width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:3px; }
+  .steps-list li .step-body { font-size:14.5px; color:var(--ink-2); line-height:1.65; }
+  .steps-list li .step-body strong { color:var(--ink); }
+  /* Attack cost table */
+  .cost-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px; }
+  .cost-table thead th { padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border-bottom:2px solid var(--border); background:var(--surface); color:var(--ink-3); }
+  .cost-table tbody tr { border-bottom:1px solid var(--border); }
+  .cost-table tbody tr:hover td { background:var(--surface); }
+  .cost-table tbody td { padding:13px 16px; vertical-align:top; color:var(--ink-2); line-height:1.55; }
+  .cost-table tbody td:first-child { font-weight:600; color:var(--ink); }
+  .cost-table .safe   { color:var(--green); font-weight:700; }
+  .cost-table .risky  { color:var(--orange); font-weight:700; }
+  .cost-table .danger { color:var(--red); font-weight:700; }
+  /* Attack scenario box */
+  .attack-box { border:2px solid var(--red); border-radius:var(--radius-lg); overflow:hidden; margin:24px 0; }
+  .attack-box-header { background:var(--red); color:white; padding:12px 20px; font-size:13px; font-weight:800; }
+  .attack-box-body { padding:20px; background:var(--red-light); }
+  .attack-box-body p { font-size:14.5px; color:#7F1D1D; margin-bottom:10px; }
+  .attack-box-body p:last-child { margin-bottom:0; }
+  .glossary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .glossary-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+  .glossary-term { font-size:13px; font-weight:700; color:var(--brand); margin-bottom:4px; }
+  .glossary-def  { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+  .assessment-section { margin-top:64px; }
+  .assessment-header { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .assessment-header h2 { font-size:20px; font-weight:800; color:white; }
+  .marks-total-badge { background:white; border-radius:10px; padding:10px 20px; text-align:center; flex-shrink:0; }
+  .marks-total-badge .num   { font-size:32px; font-weight:900; color:var(--brand); line-height:1; }
+  .marks-total-badge .label { font-size:10px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; }
+  .assessment-body { border:2px solid var(--border); border-top:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); overflow:hidden; }
+  .q-section-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .q-section-title { font-size:13px; font-weight:700; color:var(--ink); }
+  .q-section-meta  { font-size:12px; color:var(--ink-3); }
+  .question-block { padding:28px 28px 0; border-bottom:1px solid var(--border); }
+  .question-block:last-child { border-bottom:none; padding-bottom:28px; }
+  .q-header { display:flex; gap:10px; align-items:flex-start; margin-bottom:14px; }
+  .q-badge { background:var(--brand); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; white-space:nowrap; letter-spacing:0.04em; flex-shrink:0; margin-top:1px; }
+  .q-meta  { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .q-type  { font-size:11.5px; font-weight:600; color:var(--ink-3); }
+  .q-diff  { font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:4px; }
+  .q-diff.easy   { background:var(--green-light);  color:#14532D; }
+  .q-diff.medium { background:var(--accent-light); color:#92400E; }
+  .q-diff.hard   { background:var(--red-light);    color:#7F1D1D; }
+  .q-marks { font-size:12px; color:var(--ink-3); margin-left:auto; font-weight:500; flex-shrink:0; }
+  .q-text { font-size:15.5px; font-weight:600; color:var(--ink); margin-bottom:18px; line-height:1.6; }
+  .options { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:8px; }
+  .options li { display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14.5px; color:var(--ink-2); line-height:1.5; }
+  .options li.correct { border-color:var(--green); background:var(--green-light); color:var(--ink); }
+  .opt-key { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--ink-3); flex-shrink:0; margin-top:1px; min-width:18px; }
+  .options li.correct .opt-key { color:var(--green); }
+  .answer-box { background:var(--green-light); border:1.5px solid #86EFAC; border-radius:var(--radius); padding:18px 20px; margin-bottom:28px; }
+  .answer-box-label { font-size:10.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--green); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .answer-box p { font-size:14.5px; color:var(--ink-2); line-height:1.7; margin:0; }
+  .answer-box p strong { color:var(--ink); }
+  .answer-box .marks-bd { margin-top:12px; padding-top:10px; border-top:1px solid #86EFAC; font-size:13px; color:#14532D; }
+  .answer-box .marks-bd span { font-weight:700; }
+  .tf-box { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .tf-verdict { display:inline-block; font-size:13px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 14px; border-radius:6px; margin-bottom:10px; }
+  .tf-verdict.false { background:var(--red-light); color:#7F1D1D; }
+  .tf-must-write { font-size:11.5px; font-weight:700; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; }
+  .tf-sample { font-size:14.5px; color:var(--ink-2); line-height:1.7; border-left:3px solid var(--brand); padding-left:12px; }
+  .score-summary { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg); padding:28px 32px; margin-top:40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+  .score-label { color:#C4B5F5; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+  .score-row   { color:white; font-size:15px; font-weight:600; margin-bottom:4px; }
+  .score-row span { color:#C4B5F5; font-weight:400; }
+  .score-badge { background:white; border-radius:12px; padding:16px 28px; text-align:center; flex-shrink:0; }
+  .score-badge .score-num  { font-size:44px; font-weight:900; color:var(--brand); line-height:1; }
+  .score-badge .score-text { font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .page-footer { text-align:center; margin-top:64px; padding-top:32px; border-top:2px solid var(--border); }
+  .page-footer p { font-size:13px; color:var(--ink-3); margin-bottom:4px; }
+  @media(max-width:640px){ body{padding:28px 18px 72px;} .obj-grid,.glossary-grid{grid-template-columns:1fr;} .module-title{font-size:26px;} }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 3 &nbsp;·&nbsp; Sub-Module 3.4 of 9</div>
+<h1 class="module-title">Immutability &amp; <span class="highlight">Tamper-Evidence</span></h1>
+<p class="module-subtitle">Why altering any block in a blockchain automatically exposes the fraud - and why a successful attack on Bitcoin's history would require more computing power than exists on Earth.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 2 MCQ + 1 True/False (3 marks) + 1 Identify-Output (5 marks)</div>
+  <div class="meta-chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔒</div>
+    <div class="obj-text"><strong>Explain how hash chaining creates immutability</strong>Trace exactly why changing any historical block invalidates every block after it.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text"><strong>Identify a tampered block</strong>Given a chain of block data, detect which block was altered and explain the evidence.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚔️</div>
+    <div class="obj-text"><strong>Explain the 51% attack</strong>Describe what it is, why it's the main threat to blockchain immutability, and why it's economically irrational at scale.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏛️</div>
+    <div class="obj-text"><strong>Apply immutability to real Indian governance problems</strong>Land records, election results, MNREGA payments - where blockchain immutability prevents fraud.</div>
+  </div>
+</div>
+
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Bihar Land Record That Couldn't Be Erased</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2016, a farmer in Madhubani district, Bihar, discovered that 3 acres of his ancestral land had been transferred to someone else in the government register - allegedly through a forged signature and a bribed revenue officer. The paper register had been altered. The original entry had been erased. The "new" entry gave ownership to a connected party. This is not a unique story - land fraud of this kind costs Indian farmers billions every year.</p>
+  <br>
+  <p>Now imagine that land record was on a blockchain. The original entry: "Block #14,221 - Rajiv Kumar owns plot 3B, 3 acres, Madhubani." That entry is sealed with its cryptographic hash, which is included in Block #14,222, whose hash is included in Block #14,223 - all the way to today's Block #2,000,000. To change that land record, an attacker would need to:</p>
+  <br>
+  <p>1. Alter Block #14,221 (easy - change the text).<br>
+  2. Recompute Block #14,221's hash (trivial - one hash operation).<br>
+  3. Recompute Block #14,222 with the new PrevHash (slightly harder).<br>
+  4. Recompute Block #14,223 with the new PrevHash...<br>
+  5. Continue for all 1,985,779 remaining blocks...<br>
+  6. Do ALL of that <strong>faster than the honest network is adding new blocks</strong> - which is impossible without controlling more than half the entire network's computing power.</p>
+  <br>
+  <p>This is why land records on blockchain are fraud-proof. Not because of legal protections - because of <strong>mathematical ones</strong>.</p>
+</div>
+
+
+<!-- 03 BACKGROUND -->
+<div class="section-label">03 &nbsp; Background - The Problem Blockchain Solves</div>
+<h2 class="section-title">Why Traditional Records Fail</h2>
+
+<p>Every system of record-keeping in human history has faced the same fundamental vulnerability: <strong>whoever controls the record can change it</strong>. Paper registers can be rewritten. Database administrators can run <code>UPDATE</code> queries. Government officials with privileged access can alter tax records, land registries, and court documents.</p>
+
+<p>The responses have always been the same: audit trails, access controls, digital signatures, backups. And every one of these solutions has the same weakness - they are administered by humans who can be bribed, coerced, or compromised.</p>
+
+<p>Blockchain solves this not by making humans more trustworthy, but by <strong>removing the need to trust any human</strong>. The immutability guarantee comes from mathematics - specifically from the properties of cryptographic hash functions applied recursively across a distributed network.</p>
+
+
+<!-- 04 HOW HASH CHAINING CREATES IMMUTABILITY -->
+<div class="section-label">04 &nbsp; The Mechanism - How Hash Chaining Creates Immutability</div>
+<h2 class="section-title">Step by Step: Why Tampering Is Automatically Detected</h2>
+
+<p>To understand immutability deeply, let's trace exactly what happens when an attacker tries to modify a historical block.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.4-A · Normal Blockchain - Hash Chain Intact</div>
+  <pre>
+  BLOCK #1 (Genesis)        BLOCK #2                   BLOCK #3
+  ┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐
+  │ PrevHash: 00000000 │    │ PrevHash: A1B2C3D4 │    │ PrevHash: E5F6G7H8 │
+  │ Data: Satoshi→Hal  │    │ Data: Ravi→Priya   │    │ Data: Ali→Zara     │
+  │       50 BTC       │    │       0.5 BTC      │    │       0.2 BTC      │
+  │ ..................  │    │ ..................  │    │ ..................  │
+  │ Hash: A1B2C3D4  ───┼───►│ Hash: E5F6G7H8  ───┼───►│ Hash: I9J0K1L2     │
+  └────────────────────┘    └────────────────────┘    └────────────────────┘
+       ✅ Valid                    ✅ Valid                   ✅ Valid
+
+  EVERY NODE on the network holds this identical chain.
+  Each block's hash is computed from ALL its contents including PrevHash.
+  </pre>
+  <div class="diagram-caption">The hash chain in its valid state - each block contains the fingerprint of its predecessor.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.4-B · After Tampering Block #1 - Cascade of Invalidation</div>
+  <pre>
+  ATTACKER changes Block #1: "50 BTC" → "50,000 BTC"
+
+  BLOCK #1 ⚠️ TAMPERED      BLOCK #2                   BLOCK #3
+  ┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐
+  │ PrevHash: 00000000 │    │ PrevHash: A1B2C3D4 │    │ PrevHash: E5F6G7H8 │
+  │ Data: Satoshi→Hal  │    │ Data: Ravi→Priya   │    │ Data: Ali→Zara     │
+  │       50,000 BTC ❌│    │       0.5 BTC      │    │       0.2 BTC      │
+  │ ..................  │    │ ..................  │    │ ..................  │
+  │ Hash: ZZ99QRST  ❌ │    │ Hash: E5F6G7H8     │    │ Hash: I9J0K1L2     │
+  └────────────────────┘    └────────────────────┘    └────────────────────┘
+     Hash CHANGED!             ⚠️ MISMATCH!               ⚠️ MISMATCH!
+     Data changed →           PrevHash says A1B2C3D4     Chain broken from
+     hash is now ZZ99QRST     But Block #1 is now ZZ99   Block #2 onwards
+
+  ──────────────────────────────────────────────────────────────────────────
+  RESULT: Every node on the network immediately detects the mismatch.
+  The tampered chain is REJECTED. The honest chain continues.
+  ──────────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="diagram-caption">Altering any block changes its hash. Every subsequent block's PrevHash field now points to a non-existent hash. The entire chain from that point forward is invalid - detectable by any node in milliseconds.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Core Insight</div>
+  <p>Blockchain immutability is not enforced by an access control policy. It is not enforced by a law. It is enforced by the mathematical property that <strong>you cannot change any data without changing its hash</strong>, and you cannot change the hash without invalidating every subsequent block. The only way to "successfully" tamper is to redo ALL the subsequent computational work - faster than the entire honest network. At Bitcoin's scale, this requires more energy than a small nation consumes.</p>
+</div>
+
+
+<!-- 05 THE 51% ATTACK -->
+<div class="section-label">05 &nbsp; The 51% Attack - The Main Threat to Immutability</div>
+<h2 class="section-title">The One Scenario Where Immutability Can (Theoretically) Be Broken</h2>
+
+<p>If an attacker controls more than 50% of the network's consensus power (hashrate in PoW, staked tokens in PoS), they can theoretically build an alternative chain faster than the honest network - and have it accepted as the "real" chain. This is called a <strong>51% attack</strong>.</p>
+
+<div class="attack-box">
+  <div class="attack-box-header">⚔️ How a 51% Attack Works - Step by Step</div>
+  <div class="attack-box-body">
+    <p><strong>Step 1:</strong> Attacker secretly mines/validates blocks on their own private chain, starting from some point in the past (e.g., after making a large exchange withdrawal).</p>
+    <p><strong>Step 2:</strong> On the public chain, the attacker sends 1,000 BTC to an exchange, sells it for USD, and withdraws the cash.</p>
+    <p><strong>Step 3:</strong> Attacker continues building their private chain - in which that transaction never happened (the BTC was never sent to the exchange). They call this the "double-spend chain."</p>
+    <p><strong>Step 4:</strong> If they have >50% of the hashrate, their private chain grows FASTER than the honest chain. In Bitcoin, the rule is: "the longest valid chain wins."</p>
+    <p><strong>Step 5:</strong> Attacker broadcasts their private chain to the network. It's longer (more accumulated work) so the network accepts it as the canonical chain - the deposit to the exchange disappears from history.</p>
+    <p><strong>Result:</strong> Attacker has both the cash from the sale AND the 1,000 BTC back. Double spend successful.</p>
+  </div>
+</div>
+
+<h3 style="font-size:18px;font-weight:800;color:var(--ink);margin:28px 0 16px;">Why 51% Attacks Are Economically Irrational at Scale</h3>
+
+<table class="cost-table">
+  <thead>
+    <tr>
+      <th>Blockchain</th>
+      <th>Estimated Cost of 1-Hour 51% Attack</th>
+      <th>Maximum Gain (Practical)</th>
+      <th>Verdict</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bitcoin</td>
+      <td>~$3 - 5 billion per hour (hashrate rental cost)</td>
+      <td>~$50 - 100 million (realistic double-spend)</td>
+      <td class="safe">💰 Economically irrational - costs 30 - 100x the gain</td>
+    </tr>
+    <tr>
+      <td>Ethereum (PoS)</td>
+      <td>~$17 billion (must acquire 51% of staked ETH)</td>
+      <td>Stake is slashed upon detection - attacker loses it all</td>
+      <td class="safe">💰 Suicidal - you lose your stake if caught (and you will be)</td>
+    </tr>
+    <tr>
+      <td>MST (Trika POSA)</td>
+      <td>Must acquire 51% of staked MSTC + control 11/21 Cabinet validators</td>
+      <td>Slashing destroys your stake; community governance can blacklist you</td>
+      <td class="safe">💰 Multiple defenses: slashing + governance + validator diversity</td>
+    </tr>
+    <tr>
+      <td>Small altcoins</td>
+      <td>Sometimes only $500-$50,000 per hour</td>
+      <td>Can exceed attack cost on low-liquidity exchanges</td>
+      <td class="danger">⚠️ Economically feasible - Ethereum Classic attacked in 2020</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Important Limitations of a 51% Attack</div>
+  <p>Even a successful 51% attack cannot: (1) Steal funds from wallets you don't control - the cryptographic signatures prevent this. (2) Create Bitcoin "out of thin air" beyond the protocol rules. (3) Alter transactions from years ago - the further back in time, the more blocks need to be recomputed, making the attack progressively more impossible. A 51% attack can only double-spend <em>recent</em> transactions (within hours or days), not rewrite all of history.</p>
+</div>
+
+
+<!-- 06 CONFIRMATIONS -->
+<div class="section-label">06 &nbsp; Confirmations - How Many Blocks Until You're Safe?</div>
+<h2 class="section-title">The Relationship Between Confirmations and Security</h2>
+
+<p>A transaction has "1 confirmation" when it is included in a block. "6 confirmations" means 5 more blocks have been built on top of the block containing your transaction. The more confirmations, the more computational work would be required to reverse the transaction - making it progressively more expensive and ultimately impossible.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--green);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">1 Confirmation - Low Value Transactions</div>
+      <div class="feature-desc">Acceptable for buying a cup of coffee (~₹100). The attacker would need to redo just 1 block - technically possible but economically pointless for a ₹100 gain. Most point-of-sale crypto payments accept 1 confirmation.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--accent);">6</div>
+    <div class="feature-content">
+      <div class="feature-title">6 Confirmations - Bitcoin Standard (~60 minutes)</div>
+      <div class="feature-desc">Satoshi recommended 6 confirmations in the Bitcoin whitepaper for "large transactions." At 6 blocks deep, reversing the transaction would require redoing 6+ blocks faster than the honest network - with Bitcoin's hashrate, this requires billions of dollars of hardware and energy. Exchanges typically require 6 Bitcoin confirmations before crediting funds.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--brand);">MST</div>
+    <div class="feature-content">
+      <div class="feature-title">MST - Near-Instant Finality (2 blocks ≈ 6 seconds)</div>
+      <div class="feature-desc">MST's Trika POSA uses BFT (Byzantine Fault Tolerant) fast finality. Once 2/3 of Cabinet validators sign off on a block, it is considered <strong>finalized</strong> - cryptographically irreversible, not just probabilistically secure. On MST, 2 block confirmations (≈6 seconds) provides the same security guarantees as Bitcoin's 6 confirmations (≈60 minutes). This is a key architectural advantage for payment and gaming applications.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 07 REAL WORLD CASE STUDIES -->
+<div class="section-label">07 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Where Immutability Changes Everything</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">🏠</div>
+    <div class="feature-content">
+      <div class="feature-title">Andhra Pradesh Land Records - Immutability vs. the Patwari System</div>
+      <div class="feature-desc">India's traditional land registry system (Patwari system) is notoriously vulnerable to fraud. Revenue officers with database access can alter records. In 2018, Andhra Pradesh piloted a blockchain-based land registry where each mutation (transfer) is recorded as a transaction in a block. The key guarantee: once a land title transfer is recorded on-chain, <strong>no revenue officer - or even the state government - can unilaterally alter it</strong>. Any attempt produces a tampered hash chain visible to all nodes. This is mathematical protection where legal protection had failed.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--red);">⚡</div>
+    <div class="feature-content">
+      <div class="feature-title">Ethereum Classic (ETC) - The 51% Attacks of 2020</div>
+      <div class="feature-desc">In August 2020, Ethereum Classic suffered three 51% attacks within a month. An attacker rented hashpower from NiceHash (a GPU rental marketplace) for approximately $5,000 per attack and successfully double-spent over $5.6 million worth of ETC. This happened because ETC's small network (compared to Ethereum) made the attack cost-effective. Exchanges like Coinbase temporarily suspended ETC trading. The lesson: immutability is not a binary property - it scales with the network's total consensus power. Larger network = more expensive to attack = stronger immutability.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">🗳️</div>
+    <div class="feature-content">
+      <div class="feature-title">MNREGA Payments - Immutability for Government Welfare</div>
+      <div class="feature-desc">India's MNREGA (Mahatma Gandhi National Rural Employment Guarantee Act) scheme has faced persistent fraud - ghost workers, inflated wage claims, and payment diversion by middlemen. Blockchain pilots in Andhra Pradesh recorded MNREGA payment approvals on-chain. Once approved and recorded, the payment cannot be diverted or the record altered without creating an immediately detectable inconsistency in the hash chain. This is blockchain immutability solving a governance problem that decades of auditing procedures could not.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 08 ASSESSMENT PREP -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">The Cascade Effect</div>
+      <div class="feature-desc">Altering any block changes its hash. Every subsequent block contains PrevHash pointing to the old (now incorrect) hash - making all of them invalid. To tamper successfully, you must recompute ALL subsequent blocks AND outpace the honest network simultaneously.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">51% Attack Definition</div>
+      <div class="feature-desc">Controlling >50% of network consensus power (hashrate in PoW, stake in PoS) allows building an alternative chain faster than the honest network. Can enable double-spending of recent transactions. Cannot steal funds, create coins from nothing, or alter deep history. Economically irrational on large networks.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Immutability Is Mathematical, Not Policy</div>
+      <div class="feature-desc">The immutability guarantee does not depend on laws, access controls, or administrator honesty. It is enforced by the cryptographic hash chain - altering history is computationally infeasible, not merely against the rules.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Confirmations and Finality</div>
+      <div class="feature-desc">Bitcoin: 6 confirmations (~60 min) = standard for high-value TX. MST Trika POSA: BFT finality in 2 blocks (~6 seconds) = equivalent security. More confirmations = more work required to reverse = stronger immutability guarantee.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Slashing - PoS's Defense Against 51% Attacks</div>
+      <div class="feature-desc">In PoS systems (Ethereum, MST), validators who attempt double-signing or other attacks get their staked tokens "slashed" (burned). This makes a 51% attack not just expensive upfront but also loses the attacker their entire stake. The economic penalty is built into the protocol.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 3.4 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">2 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 2 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">An attacker modifies a transaction in Block #500 of a 1,000-block chain. What is the MINIMUM additional work required to make their tampered chain "valid"?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Recompute only Block #500's hash</li>
+        <li class="correct"><span class="opt-key">B</span> Recompute the hashes of Block #500 through Block #1,000 - all 501 blocks ✅</li>
+        <li><span class="opt-key">C</span> Recompute only the blocks before Block #500</li>
+        <li><span class="opt-key">D</span> No additional work - just change the data and the network accepts it</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Changing any data in Block #500 changes Block #500's hash. Block #501's PrevHash now points to a hash that no longer exists - so Block #501 is invalid. To fix Block #501, the attacker must recompute its hash too (with the correct new PrevHash) - but now Block #502's PrevHash doesn't match Block #501's new hash. This cascade continues all the way to Block #1,000. Every block from the tampered one to the tip of the chain must be recomputed. AND this must be done faster than the honest network continues adding new honest blocks.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Which of the following is a correct description of a "51% attack"?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Stealing the private keys of 51% of all wallet holders on the network</li>
+        <li class="correct"><span class="opt-key">B</span> Controlling more than half the network's consensus power to build an alternative chain faster than the honest network, enabling double-spending of recent transactions ✅</li>
+        <li><span class="opt-key">C</span> Creating 51% more coins than the block reward allows</li>
+        <li><span class="opt-key">D</span> Causing 51% of all transactions to fail by sending invalid data to nodes</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>A 51% attack requires controlling >50% of the network's consensus power (hashrate in PoW, stake in PoS). With this majority, the attacker can build an alternative chain faster than the honest majority - and since blockchains follow the "longest valid chain" rule, the attacker's chain is accepted. This enables double-spending of recent transactions. It does NOT allow: stealing funds from other wallets (requires those wallets' private keys), creating coins beyond protocol rules, or reaching far back into history.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: True/False -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - True / False with Justification</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 3 marks</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">3 marks</span></div>
+      </div>
+      <div class="q-text">"Blockchain immutability is enforced by legal frameworks and access control policies - similar to how a traditional database is made tamper-proof. Blockchain is simply a more legally protected database."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write this level of detail to score 3/3:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. Blockchain immutability is not enforced by legal frameworks or access control policies - it is enforced by <strong>mathematical and cryptographic properties</strong> that operate independently of any human institution. In a traditional database, an administrator with sufficient privileges can execute <code>UPDATE</code> or <code>DELETE</code> operations at any time, and any "immutability" is a policy enforced by humans who can be overridden, bribed, or coerced. Blockchain immutability works fundamentally differently: each block contains the cryptographic hash of the previous block. Changing any historical record changes that block's hash, which breaks the PrevHash reference in the next block, cascading an invalidation through every subsequent block. Fixing this cascade requires recomputing the cryptographic work for all subsequent blocks - on Bitcoin, this would require outpacing hundreds of exahashes per second of honest mining power, which is computationally infeasible without controlling more than half the network's total hashrate. This mathematical guarantee holds regardless of laws, administrator access, or court orders - no single entity has the "admin password" to a decentralised blockchain.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> Correctly states FALSE.<br><br>
+        <strong>1 mark:</strong> Explains that traditional database immutability is policy-based (administrators can bypass it), while blockchain immutability is structural and cryptographic.<br><br>
+        <strong>1 mark:</strong> Explains the specific mechanism - hash chaining creates a cascade of invalidation that requires recomputing all subsequent blocks, making alteration computationally infeasible at scale.</p>
+        <div class="marks-bd"><span>Zero marks</span> for stating FALSE without justification, or for justification that only mentions "cryptography is strong" without explaining the hash chain mechanism.</div>
+      </div>
+    </div>
+
+    <!-- SECTION C: Identify Output -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section C - Identify-Output: Detect the Tampered Block</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 5 marks</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div>
+      </div>
+      <div class="q-text">
+        A blockchain inspector presents you with the following 5-block chain. Analyse the data carefully and answer the questions below.<br><br>
+        <strong>Block #1:</strong> Data = "TX: A→B ₹100" | Own Hash = "aaa111" | PrevHash = "000000"<br>
+        <strong>Block #2:</strong> Data = "TX: C→D ₹200" | Own Hash = "bbb222" | PrevHash = "aaa111"<br>
+        <strong>Block #3:</strong> Data = "TX: E→F ₹300" | Own Hash = "xyz999" | PrevHash = "bbb222"<br>
+        <strong>Block #4:</strong> Data = "TX: G→H ₹400" | Own Hash = "ddd444" | PrevHash = "xyz999"<br>
+        <strong>Block #5:</strong> Data = "TX: I→J ₹500" | Own Hash = "eee555" | PrevHash = "ccc333"<br><br>
+        <em>Note: In a valid chain, each block's PrevHash must equal the previous block's Own Hash.</em><br><br>
+        (a) Identify which block was tampered with. <em>(1 mark)</em><br>
+        (b) Explain exactly what evidence reveals the tampering. <em>(2 marks)</em><br>
+        (c) What should Block #5's PrevHash correctly be, for the B4→B5 link to be valid? <em>(1 mark)</em><br>
+        (d) How many blocks need to be recomputed by an attacker trying to "fix" this tampered chain from Block #3 onwards? <em>(1 mark)</em>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer - 5 Marks</div>
+        <p><strong>(a) Block #3 was tampered with.</strong> [1 mark]</p>
+        <br>
+        <p><strong>(b) Evidence of tampering:</strong> [2 marks]</p>
+        <p>First, check the B2→B3 link: Block #3's PrevHash = "bbb222" ✅ - this matches Block #2's Own Hash. So far so good.</p>
+        <p>Next, check B3→B4: Block #4's PrevHash = "xyz999" ✅ - this matches Block #3's Own Hash. Also fine.</p>
+        <p>Now check B4→B5: Block #5's PrevHash = "ccc333" ❌ - Block #4's Own Hash is "ddd444", NOT "ccc333". <strong>This is the mismatch.</strong></p>
+        <p>Tracing back: Block #5's PrevHash says it expects Block #4 to have hash "ccc333". But Block #4's actual Own Hash is "ddd444". This means Block #4's data or PrevHash was altered after Block #5 was created - changing its Own Hash from what was originally "ccc333" to the current "ddd444". The original pre-tamper hash of Block #3's data would have produced an Own Hash of "ccc333" - meaning <strong>Block #3's data was altered</strong>, producing a new Own Hash of "xyz999" (instead of the original value that would have led to Block #4's hash being "ccc333" and Block #5's PrevHash matching).</p>
+        <br>
+        <p><strong>(c) Block #5's PrevHash should be "ddd444"</strong> [1 mark] - Block #4's actual Own Hash - for the B4→B5 link to be valid.</p>
+        <br>
+        <p><strong>(d) Blocks to recompute:</strong> [1 mark] Starting from Block #3 (tampered), the attacker must recompute: Block #3's hash, then Block #4's hash (which depends on Block #3's new PrevHash), then Block #5's hash. That is <strong>3 blocks</strong> (Blocks #3, #4, and #5).</p>
+        <div class="marks-bd"><span>Marking note:</span> For (b), award 1 mark for identifying the B4→B5 PrevHash mismatch ("ccc333" ≠ "ddd444") and 1 mark for reasoning back to conclude Block #3 was the original tampered block. Accept well-reasoned alternative interpretations if they correctly identify the chain break.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 3.4 Assessment Summary</div>
+      <div class="score-row">Section A: 2 × MCQ <span>(1 mark each) = 2 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>= 3 marks</span></div>
+      <div class="score-row">Section C: 1 × Identify-Output (4 parts) <span>= 5 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 3.4</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Immutability</div><div class="glossary-def">The property of blockchain records that makes it computationally infeasible to alter any historical entry - enforced by cryptographic hash chaining, not by policy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Tamper-Evidence</div><div class="glossary-def">The property that any modification to blockchain data is automatically and immediately detectable by all nodes - because the hash chain breaks at the point of tampering.</div></div>
+  <div class="glossary-item"><div class="glossary-term">51% Attack</div><div class="glossary-def">An attack where an entity controlling >50% of the network's consensus power builds an alternative chain faster than the honest network, enabling double-spending of recent transactions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Double-Spend</div><div class="glossary-def">The act of spending the same digital currency unit in two separate transactions - the primary attack enabled by a successful 51% attack.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Transaction Confirmation</div><div class="glossary-def">Each block built on top of the block containing a transaction is one "confirmation." More confirmations = more work required to reverse = stronger security guarantee.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BFT Finality</div><div class="glossary-def">Byzantine Fault Tolerant finality - used by MST Trika POSA. Once 2/3+ validators sign a block, it is cryptographically finalized and cannot be reversed, unlike Bitcoin's probabilistic finality.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Slashing</div><div class="glossary-def">The automatic burning of a PoS validator's staked tokens as punishment for malicious behaviour (e.g., double-signing). Makes 51% attacks on PoS chains economically devastating for the attacker.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Longest Chain Rule</div><div class="glossary-def">Bitcoin's rule for resolving competing chains: the valid chain with the most accumulated computational work wins. This is what makes a successful 51% attack possible - the attacker's chain has more work.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.4</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.5 - Transparency &amp; Pseudo-Anonymity →</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 14.6 - Cross-Chain Bridges | Masterstroke Academy</title>
+    <meta name="description" content="Master cross‑chain bridges. Learn how lock‑and‑mint works, why bridges are the biggest honeypots in crypto, and how IBC, XCM, and CCIP are securing the multi‑chain future.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #0284C7;
+            --brand-light: #F0F9FF;
+            --brand-dark: #075985;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #BAE6FD;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #065F46;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #BAE6FD;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #BAE6FD;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🌉 Module 14 · Sub-Module 14.6 of 7</div>
+    <h1 class="module-title">Cross-Chain <span class="highlight">Bridges</span></h1>
+    <p class="module-subtitle">How assets move between blockchains, why bridges are the most attacked infrastructure in crypto with over $2.5 billion stolen, and how IBC, XCM, and CCIP are building the secure multi-chain future.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 50 Minutes</div>
+        <div class="meta-chip purple">🎯 15 Marks (MCQ + True/False + Identify-Output)</div>
+        <div class="meta-chip">📋 Lock-and-mint, IBC, XCM, CCIP</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s & Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🌉</div>
+            <div class="feature-title">Explain the lock-and-mint mechanism and its variations</div>
+            <div class="feature-desc">Understand how wrapped tokens are created, why they maintain their peg, and what happens when the bridge contract is compromised.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔐</div>
+            <div class="feature-title">Distinguish centralized, federated, and light-client trust models</div>
+            <div class="feature-desc">Analyze the security trade-offs between trusting a company, trusting a multisig, and trusting the source chain's consensus algorithm.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">💀</div>
+            <div class="feature-title">Deconstruct the root causes of the largest bridge hacks in history</div>
+            <div class="feature-desc">Learn from the $625M Ronin hack, the $325M Wormhole exploit, and the $610M Poly Network attack - and understand how to evaluate bridge risk before depositing assets.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔗</div>
+            <div class="feature-title">Compare IBC, XCM, and CCIP interoperability protocols</div>
+            <div class="feature-desc">Know which standard to use for connecting Cosmos chains, Polkadot parachains, or building a chain-agnostic bridge using Chainlink's decentralized oracle network.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The $625 Million Heist That Almost Killed a Game</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In March 2022, the largest hack in cryptocurrency history occurred - and it wasn't a bank, a DeFi protocol, or a centralized exchange. It was a <strong>bridge</strong>. The Ronin Bridge, which connected the Axie Infinity gaming sidechain to Ethereum, was exploited for 173,600 ETH and $25.5 million USDC - a total of approximately <strong>$625 million</strong> at the time.</p>
+        <br>
+        <p>The cause was devastatingly simple. The Ronin Bridge used a <strong>5-of-9 multisig</strong> to validate withdrawals. The theory was that an attacker would need to compromise 5 keys to steal funds. In practice, Sky Mavis (the developer) had given one of their validators to the Axie DAO to use temporarily, and the DAO had never revoked it. The attacker found a backdoor, compromised 5 keys (including the one still held by Sky Mavis), and signed a fraudulent withdrawal. $625 million drained. The hack was discovered <strong>six days later</strong> when a user tried to withdraw 5,000 ETH and the bridge didn't have enough funds.</p>
+        <br>
+        <p>The Ronin hack exposed the fundamental vulnerability of bridges: they concentrate enormous value into a small set of keys or a single smart contract. If the keys are compromised or the contract has a bug, all bridged assets are instantly at risk. This is why Vitalik Buterin has repeatedly warned that bridges are the weakest link in the multi-chain ecosystem - and why understanding bridge security is essential for every blockchain developer.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Are Cross-Chain Bridges?</div>
+    <h2 class="section-title">The Trade Routes Between Blockchain Islands</h2>
+    <p>Blockchains are like isolated islands. Bitcoin is one island. Ethereum is another. MST is a third. Each island has its own residents, its own economy, and its own rules. But there are no ships or planes connecting these islands. If you have gold (Bitcoin) on Bitcoin Island, you cannot use it to buy goods (interact with DeFi) on Ethereum Island. A <strong>cross-chain bridge</strong> is the shipping company that builds the trade routes. It locks up your gold on Bitcoin Island and gives you a receipt (a wrapped token) on Ethereum Island that you can spend there. When you want your gold back, you burn the receipt and the bridge releases the original gold.</p>
+    <p>Bridges solve the <strong>interoperability problem</strong>: blockchains are natively incompatible. They don't speak the same language, they don't share the same state, and they don't know about each other's existence. A bridge acts as a translator and escrow agent, enabling assets and data to flow between otherwise disconnected networks.</p>
+    <p>There are three primary mechanisms bridges use to transfer assets, each with different trust assumptions and security implications:</p>
+    <p><strong>1. Lock & Mint (Wrapped Tokens):</strong> The original asset is locked in a smart contract on the source chain, and an equivalent "wrapped" token is minted on the destination chain. When you want to move back, the wrapped token is burned (destroyed), and the original asset is unlocked. This is how WBTC (Wrapped Bitcoin) works - Bitcoin is locked with a custodian, and WBTC is minted on Ethereum.</p>
+    <p><strong>2. Burn & Mint (Native Pegs):</strong> The asset is burned on the source chain and minted natively on the destination chain. This is typically used by L1-L2 bridges (like the Arbitrum or Optimism bridge) where the protocol has control over minting on both sides.</p>
+    <p><strong>3. Liquidity Pools (Atomic Swaps):</strong> A bridge holds pre-funded pools of assets on both chains. Users deposit to one pool and withdraw from the other. This is fast (no waiting for confirmations) but requires massive liquidity to service large transfers. Hop Protocol and Across use variations of this model.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.6-A · Lock-and-Mint Bridge Architecture</div>
+        <pre>
+BITCOIN NETWORK                          ETHEREUM NETWORK
+┌──────────────────┐                    ┌──────────────────┐
+│   USER'S BTC     │                    │   USER'S WBTC    │
+│   (Original)     │                    │   (Wrapped)      │
+└────────┬─────────┘                    └────────▲─────────┘
+         │                                      │
+         ▼                                      │
+┌──────────────────┐                    ┌──────────────────┐
+│  BRIDGE CONTRACT │                    │  WBTC CONTRACT   │
+│  (Lock BTC)      │───── Proof ───────▶│  (Mint WBTC)     │
+│                  │◀──── Burn WBTC ────│                  │
+└──────────────────┘                    └──────────────────┘
+
+1. User sends BTC to bridge contract. BTC is locked.
+2. Bridge relays proof of lock to Ethereum.
+3. WBTC contract mints equivalent WBTC to user on Ethereum.
+4. To redeem, user burns WBTC. Bridge releases original BTC.
+        </pre>
+        <div class="diagram-caption">Lock-and-mint bridges create wrapped tokens (like WBTC) that represent the original asset on a different chain. The original is held in custody while the wrapped version circulates.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; Trust Models - The Heart of Bridge Security</div>
+    <h2 class="section-title">Who Holds the Keys to Your Bridged Assets?</h2>
+    <p>The security of a bridge depends entirely on its <strong>trust model</strong> - who (or what) has the authority to sign withdrawal transactions and release funds. Every bridge hack in history has been an attack on the trust model. Understanding these models is how you evaluate whether a bridge is safe enough for your assets.</p>
+
+    <p><strong>1. Centralized Bridges (Trust a Company):</strong> A single entity (usually the company that built the bridge) controls the keys. Binance Bridge is the most prominent example - Binance holds the assets and issues wrapped tokens on other chains. This is convenient and fast, but it requires complete trust in Binance. If Binance is hacked, goes bankrupt, or is compelled by a government, your assets are at risk.</p>
+
+    <p><strong>2. Federated / Multisig Bridges (Trust a Committee):</strong> A set of independent parties (validators, companies, community members) hold keys, and a threshold (e.g., 5 of 9) is required to approve withdrawals. The Ronin Bridge used this model. It is more decentralized than a single entity, but it is still vulnerable to key compromise, collusion, or social engineering. The Ronin hack succeeded because the attacker compromised 5 of the 9 keys - exactly the threshold.</p>
+
+    <p><strong>3. Light-Client / Relay Bridges (Trust the Source Chain's Consensus):</strong> The bridge runs a <strong>light client</strong> of the source chain on the destination chain. A light client is a piece of software that verifies the source chain's consensus proofs (block headers, validator signatures) without downloading the entire blockchain. When a withdrawal is requested, the bridge checks a cryptographic proof that the source chain's validators confirmed the lock. This is the most secure model because it requires compromising the source chain's consensus itself (e.g., a 51% attack on Bitcoin) rather than just a few keys. Cosmos IBC and Polkadot XCM use this model.</p>
+
+    <p><strong>4. Optimistic Bridges (Trust That Someone Is Watching):</strong> Similar to Optimistic Rollups, these bridges assume transactions are valid by default and provide a challenge window for fraud proofs. If someone submits a fraudulent withdrawal, anyone can challenge it within the window. This model is used by bridges like Nomad (which was also hacked, due to an implementation bug in the fraud proof verification).</p>
+
+    <table>
+        <thead><tr><th>Trust Model</th><th>Security Depends On</th><th>Best For</th><th>Example</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Centralized</strong></td><td>Trusting a single company</td><td>Institutional custody, small amounts</td><td>Binance Bridge</td></tr>
+            <tr><td><strong>Federated / Multisig</strong></td><td>Honest majority of signers</td><td>Gaming sidechains, consortium chains</td><td>Ronin (hacked), WBTC</td></tr>
+            <tr><td><strong>Light-Client / Relay</strong></td><td>Source chain's consensus security</td><td>Ecosystem interoperability, large value</td><td>Cosmos IBC, Polkadot XCM</td></tr>
+            <tr><td><strong>Optimistic</strong></td><td>At least 1 honest watcher</td><td>General cross-chain messaging</td><td>Nomad (hacked), Across</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout warning">
+        <div class="callout-label">⚠️ The Bridge Trilemma</div>
+        <p>Bridges face their own version of the scalability trilemma: <strong>Security, Speed, and Decentralization.</strong> A fully decentralized light-client bridge is the most secure but slowest (it must wait for block confirmations on the source chain). A centralized bridge is fast but insecure. The industry is still searching for the perfect balance - which is why bridges remain the most challenging infrastructure in crypto.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; The Big Bridge Hacks - Case Studies in Bridge Failure</div>
+    <h2 class="section-title">How $2.5 Billion Was Lost in Three Hacks</h2>
+    <p>To truly understand bridge security, we must study how the largest bridges failed. Each failure teaches a lesson about what to avoid - or what to look for as a warning sign before depositing funds into a bridge.</p>
+
+    <p><strong>Case Study 1: The Ronin Bridge ($625M, March 2022)</strong></p>
+    <p><strong>Trust Model:</strong> 5-of-9 Federated Multisig.<br>
+    <strong>What Happened:</strong> Sky Mavis (the developer of Axie Infinity) gave one of their validator keys to the Axie DAO to use temporarily for transaction distribution. The DAO never revoked this key. An attacker found a backdoor through a compromised third-party service and gained access to 5 validator keys - including the one still held by Sky Mavis and the DAO's key. With 5 keys, the attacker signed a fraudulent withdrawal of 173,600 ETH and $25.5M USDC. The theft went unnoticed for six days.<br>
+    <strong>Root Cause:</strong> Centralization of validator keys. A 5-of-9 threshold was too low relative to the value secured ($625M). The validator set was not geographically or organizationally diverse - most keys were controlled by Sky Mavis.<br>
+    <strong>Lesson:</strong> A multisig bridge is only as secure as its least secure key. The threshold must be high, and keys must be truly independent.</p>
+
+    <p><strong>Case Study 2: The Wormhole Bridge ($325M, February 2022)</strong></p>
+    <p><strong>Trust Model:</strong> Guardian Network (19 validators).<br>
+    <strong>What Happened:</strong> An attacker exploited a bug in the Wormhole smart contract on Solana. The bug allowed the attacker to mint 120,000 wrapped ETH on Solana without depositing any ETH on Ethereum. The attacker then redeemed 93,750 of these wrapped ETH for real ETH on Ethereum. The remaining wrapped ETH was used to drain liquidity pools on Solana.<br>
+    <strong>Root Cause:</strong> A smart contract vulnerability in the Solana-side verification logic. The contract did not properly validate that the deposit event on Ethereum had actually occurred before minting tokens on Solana.<br>
+    <strong>Lesson:</strong> Even with a decentralized validator set, a single smart contract bug can be catastrophic. Bridge contracts must be formally verified, thoroughly audited, and constantly monitored.</p>
+
+    <p><strong>Case Study 3: The Poly Network ($610M, August 2021)</strong></p>
+    <p><strong>Trust Model:</strong> Centralized (controlled by a multisig managed by the Poly Network team).<br>
+    <strong>What Happened:</strong> An attacker discovered that the Poly Network's smart contract allowed them to call a function that should have been restricted. By crafting a malicious cross-chain message, the attacker was able to change the "keeper" address (the entity authorized to manage the bridge) to their own address. Once they controlled the keeper, they drained all three chains (Ethereum, BSC, Polygon) simultaneously.<br>
+    <strong>Root Cause:</strong> A missing access control check in a critical function. The contract did not verify that the caller was authorized to change the keeper.<br>
+    <strong>Lesson:</strong> Access control on bridge contracts must be bulletproof. A single missing <code>onlyOwner</code> modifier can lead to total loss of funds.</p>
+
+    <div class="section-label">06 &nbsp; Interoperability Protocols - IBC, XCM, and CCIP</div>
+    <h2 class="section-title">The Standards That Will Power the Multi-Chain Future</h2>
+    <p>In response to the catastrophic failures of ad-hoc bridges, several ecosystems have developed standardized, battle-tested interoperability protocols. These protocols aim to make cross-chain communication as secure as the underlying blockchains themselves.</p>
+
+    <p><strong>1. IBC (Inter-Blockchain Communication) - The Cosmos Standard:</strong></p>
+    <p>IBC is the protocol that connects the Cosmos ecosystem of blockchains. It is the most mature cross-chain communication standard, having transferred billions of dollars in value since its launch in 2021. IBC works by running a <strong>light client</strong> of each connected chain on every other chain. When Chain A wants to send tokens to Chain B, it creates a packet. Chain B's light client verifies that Chain A's validators signed the packet. If the verification succeeds, the tokens are transferred. No multisig. No central committee. The security model is "trust the source chain's consensus."</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.6-B · IBC Packet Flow Between Two Cosmos Chains</div>
+        <pre>
+COSMOS HUB (Chain A)                     OSMOSIS (Chain B)
+┌──────────────────┐                    ┌──────────────────┐
+│  1. User sends   │                    │                  │
+│     ATOM to IBC  │──── Packet ───────▶│  2. IBC module   │
+│     module       │                    │     receives     │
+│                  │                    │     packet       │
+│  3. ATOM locked  │                    │                  │
+│     on Hub       │                    │  4. Light client │
+│                  │                    │     verifies     │
+│                  │                    │     Hub's        │
+│                  │                    │     consensus    │
+│                  │                    │                  │
+│                  │                    │  5. If valid,    │
+│                  │                    │     mint ATOM    │
+│                  │                    │     on Osmosis   │
+└──────────────────┘                    └──────────────────┘
+
+Each chain runs a light client of the other.
+Security = source chain's validator set security.
+No multisig. No central committee.
+        </pre>
+        <div class="diagram-caption">IBC uses light clients to verify cross-chain packets directly against the source chain's consensus, eliminating the need for trusted intermediaries.</div>
+    </div>
+
+    <p><strong>2. XCM (Cross-Consensus Messaging) - The Polkadot Standard:</strong></p>
+    <p>XCM is Polkadot's cross-chain messaging format. Unlike IBC, which is a transport protocol, XCM is a <strong>message format</strong> - it defines the structure and meaning of cross-chain messages but does not specify how they are transported. The transport is handled by Polkadot's relay chain, which provides shared security to all connected parachains. Because all parachains share the same validator set (the relay chain's validators), cross-chain communication within Polkadot is extremely secure - it is essentially as secure as a single-chain transaction. The trade-off is that XCM only works within the Polkadot ecosystem, while IBC works between any chains that implement the standard.</p>
+
+    <p><strong>3. CCIP (Cross-Chain Interoperability Protocol) - The Chainlink Standard:</strong></p>
+    <p>CCIP is Chainlink's entry into the cross-chain space. It leverages the same decentralized oracle networks that secure billions of dollars in DeFi price feeds to enable cross-chain messaging and token transfers. CCIP uses a <strong>Risk Management Network</strong> - an independent set of oracles that monitor cross-chain transactions for anomalies and can halt suspicious activity. This is a unique feature: if CCIP's primary network tries to process a fraudulent transaction, the Risk Management Network can step in and stop it. This dual-layer security model is designed to prevent the type of catastrophic bridge hacks that have plagued the industry. CCIP is chain-agnostic and aims to become the universal standard for cross-chain communication.</p>
+
+    <div class="section-label">07 &nbsp; Evaluating a Bridge - A Developer's Checklist</div>
+    <h2 class="section-title">What to Check Before You Bridge Assets (or Build One)</h2>
+    <p>Whether you are moving personal funds or designing a bridge for your protocol, here are the questions you must answer to assess bridge security:</p>
+    <p><strong>1. Who controls the keys?</strong> Is it a single company? A small multisig? A large, diverse validator set? Or a light client of the source chain? The more decentralized the control, the more secure the bridge.</p>
+    <p><strong>2. What is the threshold?</strong> If it's a multisig, does the threshold require a supermajority (e.g., 7 of 9) or a bare majority (e.g., 3 of 5)? Higher thresholds are more resistant to key compromise.</p>
+    <p><strong>3. Is there a fraud-proof or challenge mechanism?</strong> Does the bridge allow anyone to challenge fraudulent transactions, or do you simply have to trust the validators?</p>
+    <p><strong>4. How long are withdrawals delayed?</strong> Longer delays give more time to detect and stop fraud. Optimistic bridges intentionally delay withdrawals. Centralized bridges often process them instantly - at the cost of security.</p>
+    <p><strong>5. Has the bridge been audited? By whom?</strong> An audit by a top-tier firm (Trail of Bits, OpenZeppelin, CertiK) is not a guarantee of safety, but the absence of one is a red flag.</p>
+    <p><strong>6. What is the bridge's track record?</strong> Has it been operational for months or years? What is the total value locked (TVL)? Has it survived market crashes and congestion events?</p>
+
+    <div class="section-label">08 &nbsp; MST and Cross-Chain Communication</div>
+    <h2 class="section-title">Why MST's Architecture Reduces the Need for Bridges</h2>
+    <p>MST Blockchain is designed to be a high-throughput, low-fee Layer-1 that handles most use cases natively. With 4,000+ TPS and gas fees a fraction of a paisa, MST eliminates the primary reason users bridge to sidechains or L2s - the need for cheaper or faster transactions. This has profound implications for bridge security:</p>
+    <p><strong>1. Fewer bridges, fewer attack surfaces:</strong> If users can do everything they need on MST, there is less incentive to bridge assets to other chains. This reduces the total value locked in bridges and the associated risk.</p>
+    <p><strong>2. MST as a settlement layer:</strong> For applications that do require cross-chain functionality, MST's fast finality (~3 seconds) and low fees make it an ideal settlement layer. A ZK-Rollup on MST could bridge to Ethereum or other chains with MST serving as the secure, low-cost home base.</p>
+    <p><strong>3. WASMify for bridge logic:</strong> MST's WASMify protocol enables running WebAssembly modules on-chain. This could be used to implement light clients of other chains (like Bitcoin or Ethereum) directly on MST, creating trustless bridges without requiring a separate validator set.</p>
+    <p><strong>4. ZK-based communication:</strong> MST already uses zero-knowledge proofs for private messaging. This same technology can be extended to cross-chain messaging, where a ZK proof verifies that a transaction occurred on Chain A without requiring every validator to check Chain A's consensus.</p>
+
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Lock-and-mint bridges create wrapped tokens (WBTC, wETH) by locking the original asset on one chain and minting a representation on another.</strong> The original asset is held in custody; the wrapped token circulates.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Bridge security depends on the trust model: centralized (trust a company), federated/multisig (trust a committee), or light-client/relay (trust the source chain's consensus).</strong> Light-client bridges are the most secure but also the most complex.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>The Ronin Bridge hack ($625M) exploited a 5-of-9 multisig; the Wormhole hack ($325M) exploited a smart contract bug; the Poly Network hack ($610M) exploited missing access control.</strong> Over $2.5 billion has been stolen from bridges.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>IBC (Cosmos) and XCM (Polkadot) use light-client verification - the most secure bridge model - to connect chains within their ecosystems.</strong> CCIP (Chainlink) adds a Risk Management Network for an additional security layer.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>MST's high-throughput L1 reduces the need for bridges by providing native scalability.</strong> For cross-chain use cases, WASMify and ZK-based communication offer trustless bridging without traditional multisig risks.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 14.6 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the primary mechanism used by most cross-chain bridges to transfer assets between blockchains?</div>
+                <ul class="options">
+                    <li class="correct">A. Lock-and-mint: the original asset is locked on the source chain, and a wrapped version is minted on the destination chain.</li>
+                    <li>B. Proof-of-Work: miners validate the transfer.</li>
+                    <li>C. Atomic swaps only.</li>
+                    <li>D. Centralized databases on each chain.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Lock-and-mint is the foundational mechanism for creating wrapped tokens and enabling assets to move between incompatible blockchains.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Why are cross-chain bridges considered high-value targets for attackers?</div>
+                <ul class="options">
+                    <li class="correct">A. They concentrate enormous value (often billions of dollars) into a single smart contract or a small set of validator keys.</li>
+                    <li>B. They have no security audits.</li>
+                    <li>C. They are built with outdated programming languages.</li>
+                    <li>D. They charge zero fees for transfers.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Bridges hold all the assets that users have transferred between chains, making them massive honeypots. Compromising a bridge can yield hundreds of millions in a single transaction.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What made the Ronin Bridge hack possible?</div>
+                <ul class="options">
+                    <li class="correct">A. The attacker compromised 5 of the 9 validator keys in the multisig, exactly meeting the threshold required to sign fraudulent withdrawals.</li>
+                    <li>B. The bridge smart contract had a reentrancy vulnerability.</li>
+                    <li>C. The Ethereum blockchain was 51% attacked.</li>
+                    <li>D. The bridge used a light-client that failed to verify block headers.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>The Ronin hack was a multisig compromise - the attacker gained control of 5 of 9 keys, which was the exact threshold needed to authorize transactions.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Which trust model provides the HIGHEST level of security for a cross-chain bridge?</div>
+                <ul class="options">
+                    <li class="correct">A. Light-client / Relay bridges that verify the source chain's consensus proofs directly.</li>
+                    <li>B. Centralized bridges operated by a single company.</li>
+                    <li>C. Federated bridges with a 3-of-5 multisig.</li>
+                    <li>D. Bridges that use a single API key for authentication.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Light-client bridges inherit the security of the source chain's consensus mechanism, requiring an attacker to compromise the entire source chain rather than just a few keys.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the primary advantage of IBC (Inter-Blockchain Communication) in the Cosmos ecosystem?</div>
+                <ul class="options">
+                    <li class="correct">A. It uses light clients to verify cross-chain packets against the source chain's consensus, eliminating the need for a trusted multisig.</li>
+                    <li>B. It is the fastest bridge available.</li>
+                    <li>C. It is completely free to use.</li>
+                    <li>D. It only works with Bitcoin.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>IBC's light-client architecture provides trustless verification of cross-chain transactions, making it one of the most secure interoperability protocols.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q6</div>
+                <div class="a-type">True / False with Mandatory Justification</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">2 marks</div>
+                <div class="a-question">"A multi-signature bridge with an 8-of-15 threshold is completely immune to hacks because an attacker would need to compromise 8 separate keys."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. While an 8-of-15 multisig is more secure than a lower threshold, it is <strong>not immune</strong>. Attackers could compromise 8 keys through phishing, social engineering, or if the keys are not truly independent (e.g., stored on the same cloud provider). The Ronin Bridge was a 5-of-9 multisig, and it was still compromised. A multisig is only as secure as the least secure key, and the diversity of key custody is often more important than the raw threshold number.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>1 mark:</strong> Explains that key compromise is still possible through social engineering, lack of key diversity, or operational security failures.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q7</div>
+                <div class="a-type">True / False with Mandatory Justification</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">2 marks</div>
+                <div class="a-question">"The Wormhole bridge hack was caused by a compromise of its validator keys, similar to the Ronin bridge hack."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. While the Ronin hack was a multisig key compromise, the Wormhole hack was caused by a <strong>smart contract vulnerability</strong> on the Solana side. The attacker exploited a bug that allowed minting wrapped ETH on Solana without depositing real ETH on Ethereum. The Wormhole validators were not compromised - the contract logic itself was flawed. This demonstrates that bridge security requires securing both the trust model AND the smart contract code.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>1 mark:</strong> Explains that Wormhole was a smart contract vulnerability (logic bug), not a key compromise, and distinguishes it from the Ronin attack vector.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q8</div>
+                <div class="a-type">Identify-Output: Bridge Security Evaluation</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">6 marks</div>
+                <div class="a-question">You are evaluating a new cross-chain bridge called "FastBridge" that connects MST to Ethereum. FastBridge uses a <strong>3-of-5 multisig</strong> of validator keys held by the founding team members. The bridge currently holds ₹200 crore worth of assets. The team claims it is secure because they use hardware wallets and a multi-cloud setup. Analyze this bridge's security: (a) Identify the trust model and its weaknesses, (b) Explain what could go wrong based on real-world bridge hacks, (c) Recommend at least two specific changes to make the bridge more secure, and (d) Explain how a light-client bridge would fundamentally change the security model.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">✅ Model Answer & Marks Breakdown</div>
+                    <p><strong>(a) Trust Model (1 mark):</strong> FastBridge uses a <strong>federated multisig</strong> trust model. Weaknesses: Low threshold (3 of 5), small validator set, keys held by a single organization (founding team), no external diversity.</p>
+                    <p><strong>(b) Real-World Risks (2 marks):</strong> <strong>Ronin-style attack:</strong> If 3 of the 5 team members are phished or their hardware wallets are physically compromised, the bridge can be drained. <strong>Insider threat:</strong> A malicious team member could collude with an external attacker. <strong>Social engineering:</strong> The team is a single point of organizational failure.</p>
+                    <p><strong>(c) Recommendations (2 marks):</strong> 1. <strong>Increase validator set and threshold:</strong> Expand to 15+ validators from different organizations, geographies, and jurisdictions. Require a 60-75% supermajority (e.g., 10 of 15). 2. <strong>Add a time-lock and rate-limit:</strong> Large withdrawals (over ₹10 crore) should have a 24-hour delay, during which any observer can sound an alarm. Rate-limit daily withdrawals to prevent a single catastrophic drain.</p>
+                    <p><strong>(d) Light-Client Alternative (1 mark):</strong> A light-client bridge would eliminate the multisig entirely. Instead of trusting 3 of 5 humans, the bridge would verify MST's consensus proofs directly. An attacker would need to compromise MST's entire validator set (55,000+ validators) - a vastly higher bar than compromising 3 keys. This transforms the security model from "trust a small committee" to "trust the source chain's consensus."</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 14.6 Assessment Summary</div>
+            <div class="score-row">Q1-Q5: 5 × MCQ (1 mark each) = 5 marks</div>
+            <div class="score-row">Q6-Q7: 2 × True/False with Justification (2 marks each) = 4 marks</div>
+            <div class="score-row">Q8: Identify-Output - Bridge Security Evaluation = 6 marks</div>
+            <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.6</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Lock-and-Mint</div><div class="g-def">The most common bridge mechanism: the original asset is locked on the source chain, and a wrapped token (e.g., WBTC) is minted on the destination chain.</div></div>
+        <div class="glossary-card"><div class="g-term">Wrapped Token</div><div class="g-def">A token on one blockchain that represents an asset from another blockchain. WBTC is wrapped Bitcoin on Ethereum.</div></div>
+        <div class="glossary-card"><div class="g-term">Multisig Bridge</div><div class="g-def">A bridge secured by a multi-signature wallet where a threshold of signers must approve withdrawals. Vulnerable to key compromise.</div></div>
+        <div class="glossary-card"><div class="g-term">Light-Client Bridge</div><div class="g-def">The most secure bridge type: runs a light client of the source chain to verify consensus proofs directly, eliminating the need for trusted intermediaries.</div></div>
+        <div class="glossary-card"><div class="g-term">IBC (Inter-Blockchain Communication)</div><div class="g-def">The Cosmos standard for cross-chain communication, using light-client verification for trustless packet transfer between chains.</div></div>
+        <div class="glossary-card"><div class="g-term">XCM (Cross-Consensus Messaging)</div><div class="g-def">Polkadot's cross-chain message format, transported by the relay chain's shared security model among parachains.</div></div>
+        <div class="glossary-card"><div class="g-term">CCIP (Cross-Chain Interoperability Protocol)</div><div class="g-def">Chainlink's cross-chain protocol, using decentralized oracle networks and a Risk Management Network for secure messaging.</div></div>
+        <div class="glossary-card"><div class="g-term">Bridge Trilemma</div><div class="g-def">The trade-off between security, speed, and decentralization in bridge design. Fully secure and decentralized bridges tend to be slower.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.6</strong> of 7 · Next: Sub-Module 14.7 - MST's Scaling Approach →</p>
+    </div>
+
+</body>
+</html>

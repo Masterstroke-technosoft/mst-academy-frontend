@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 11.3 - Lending & Borrowing | MasterStroke Academy</title>
+<meta name="description" content="Deep dive into decentralized lending and borrowing. Understand over-collateralization, Compound, Aave, health factors, liquidation, and why MST's sub‑paisa fees enable micro‑loans and daily compounding for everyone.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .tf-box {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  }
+  .tf-verdict {
+    display: inline-block; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+  .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+  .tf-must-write {
+    font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 8px;
+  }
+  .tf-sample {
+    font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+    border-left: 3px solid var(--brand); padding-left: 12px;
+  }
+
+  .identify-output {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .io-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .io-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .io-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .io-data { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .io-answer { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .io-answer-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .io-answer p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 11 &nbsp;·&nbsp; Sub-Module 11.3 of 6</div>
+<h1 class="module-title">Lending &amp; <span class="highlight">Borrowing</span></h1>
+<p class="module-subtitle">How to earn interest on your crypto and borrow against it without a credit check. Learn the mechanics of over-collateralized loans, health factors, liquidations, and why MST's sub-paisa fees open the door to micro-lending and daily compounding for the entire world.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (5 marks) + 2 T/F with Justification (4 marks) + 1 Identify-Output (6 marks)</div>
+  <div class="meta-chip green">Phase 4 · DeFi & RWA Orbitals</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Explain the over-collateralization model</strong>
+      Describe why DeFi lending requires deposits greater than the loan, how this replaces credit scores, and how it ensures protocol solvency.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Compute health factors and liquidation thresholds</strong>
+      Use real numbers to determine when a loan becomes unsafe, calculate the health factor, and predict whether a position will be liquidated.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📈</div>
+    <div class="obj-text">
+      <strong>Compare Compound and Aave interest rate models</strong>
+      Understand utilization-based interest curves, variable vs stable rates, and how governance sets risk parameters.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Leverage MST's low fees for micro-loans and compounding</strong>
+      See how sub-paisa gas costs make small loans and frequent interest compounding economically viable, democratizing DeFi lending.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Student Who Borrowed Without a Credit Score</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>Aarav, a 22-year-old engineering student in Delhi, needed ₹5,000 for a new laptop. He had no credit history, no collateral, and his bank offered a personal loan at 18% interest with a processing fee of ₹500. Frustrated, he discovered Aave on MST. He owned 0.5 ETH (worth ~₹50,000) that he'd saved from freelance work. Instead of selling it, he deposited his ETH into Aave as collateral and borrowed 5,000 USDC at just 3% APY. No credit check, no paperwork - just a smart contract.</p>
+  <br>
+  <p>The loan was over-collateralized: his ₹50,000 collateral backed a ₹5,000 loan (a 10% loan-to-value ratio, incredibly safe). He paid ₹0.006 in gas to deposit and ₹0.006 to borrow. On Ethereum, the same actions would have cost ₹1,500+ in gas - more than the interest on his loan. With MST, DeFi lending was actually cheaper than a bank. Aarav bought his laptop, and over the next six months, he repaid the loan in small increments, each costing a fraction of a paisa in gas. His ETH stayed untouched, continuing to grow in value. This is the power of decentralized lending on MST.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Pawn Shops to Smart Contracts - The Evolution of Lending</h2>
+<p>Lending is one of the oldest financial activities. Traditional models require trust: a bank trusts you'll repay based on your credit score; a pawn shop trusts the gold you leave behind. DeFi lending takes the pawn shop model and automates it with smart contracts - but instead of gold, you deposit crypto assets as collateral. The smart contract enforces the rules: if your collateral value drops too low, your position is automatically liquidated (sold) to repay the loan. No lawyers, no collection agencies, just code.</p>
+<p>The first major DeFi lending protocol was <strong>Compound</strong>, launched in 2018 on Ethereum. Compound introduced the concept of <strong>cTokens</strong> - when you deposit ETH, you receive cETH in return, which automatically accrues interest. Compound's interest rates are determined by supply and demand, governed by a utilization-based curve: as more of a pool is borrowed, the interest rate increases to attract more deposits and discourage further borrowing.</p>
+<p><strong>Aave</strong>, launched in 2020, built on Compound's foundation and added innovations: flash loans (uncollateralized loans repaid within a single transaction), variable and stable interest rates, and aToken (interest-bearing tokens similar to cTokens). Aave also introduced <strong>health factors</strong> - a numerical representation of your loan's safety, making it easy to monitor.</p>
+<p>Today, Compound and Aave are deployed across multiple EVM chains. On MST, with its full EVM compatibility, these protocols can run with identical code - but with gas fees 100,000× lower. This transforms lending from a whale's game (where only large positions justify the gas) into an inclusive financial tool where anyone can deposit ₹100 and earn interest.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> In DeFi lending, <strong>code is the credit check</strong>. Your collateral - not your identity - secures the loan. This makes lending permissionless, global, and accessible to anyone with crypto.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Pawn Shop Analogy - How DeFi Lending Works</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏪 The Analogy</div>
+  <p>Imagine a pawn shop run by a robot. You hand the robot a gold necklace worth ₹20,000. The robot inspects it, says "I'll lend you ₹10,000 against this, at 5% interest." You agree. The robot locks the necklace in a safe and gives you ₹10,000 cash. If you repay the ₹10,000 plus interest, the robot returns your necklace. If you don't repay, the robot eventually sells your necklace to recover the money. But there's a twist: the necklace's value fluctuates. If gold prices crash to ₹12,000, the robot gets nervous - your loan is now dangerously close to the necklace's value. The robot sends you a warning: "Add more collateral or repay part of the loan, or I'll sell your necklace to protect myself." If you don't act, the robot sells the necklace (liquidation) and keeps ₹10,000 + a penalty, returning any leftover to you.</p>
+</div>
+<p>In this analogy, the robot is the lending smart contract (like Aave or Compound). The gold necklace is your crypto collateral (ETH, WBTC, etc.). The ₹10,000 cash is the loan you take out (in a stablecoin like USDC). The robot's warning is the <strong>health factor</strong>. The forced sale is <strong>liquidation</strong>. Let's formalize these concepts:</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COLLAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is collateral?</div>
+      <div class="w5-a"><strong>Collateral</strong> is the crypto asset you deposit into the protocol to secure your loan. It must be worth more than the loan (over-collateralization). Common collaterals: ETH, WBTC, AAVE tokens, stablecoins. The protocol tracks the value of your collateral in real time using decentralized price oracles (like Chainlink). You can deposit multiple types of collateral in a single position.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LTV</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is Loan-to-Value (LTV)?</div>
+      <div class="w5-a">The <strong>Loan-to-Value ratio</strong> determines how much you can borrow against your collateral. For example, if ETH has a maximum LTV of 80%, you can borrow up to 80% of your ETH's value. If you deposit ₹1,00,000 worth of ETH, you can borrow up to ₹80,000. But you should never borrow the maximum - a small price drop would trigger liquidation. Most users keep their LTV well below the maximum.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HEALTH</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the Health Factor?</div>
+      <div class="w5-a">Aave calculates a <strong>health factor</strong> for your position. It's a single number that represents your loan's safety: <br><code>Health Factor = (Collateral Value × Liquidation Threshold) / Borrowed Value</code><br>A health factor above 1 means you're safe. Below 1, your position can be liquidated. The higher the number, the safer you are. Example: if your health factor is 2.5, your collateral could drop 60% before liquidation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">Q</div><div class="w5-word">LIQUID</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is liquidation?</div>
+      <div class="w5-a"><strong>Liquidation</strong> is the forced sale of your collateral to repay your loan when your health factor falls below 1. A liquidator (a bot or user) repays part of your loan and claims your collateral at a discount (the <strong>liquidation penalty</strong>, typically 5 - 10%). This incentivizes liquidators to keep the protocol solvent. You lose the liquidated collateral but keep any remaining collateral above the loan + penalty. Liquidation is the mechanism that ensures lenders never lose money - the protocol always has more collateral than loans outstanding.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: COMPOUND & AAVE MECHANICS -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Mathematical Engine Behind DeFi Lending</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Interest Rate Models - How Supply and Demand Set Rates</h3>
+<p>Both Compound and Aave use <strong>utilization-based interest rate curves</strong>. The utilization rate U is the percentage of deposited assets that are currently borrowed:</p>
+<p style="text-align:center; font-size:17px; font-weight:600; color:var(--ink);">U = Total Borrowed / Total Supplied</p>
+<p>When U is low (few borrowers), the interest rate is low to encourage borrowing. As U increases (more demand), the rate rises steeply - both to discourage further borrowing and to attract new depositors. The rate curve typically has a <strong>kink</strong> at an optimal utilization (often 80 - 90%). Below the kink, the rate increases slowly; above the kink, it jumps sharply to ensure liquidity remains available.</p>
+
+<p>For example, Compound's ETH market might have:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>Base rate: 2% (the minimum, even when no one is borrowing)</li>
+  <li>Multiplier: 20% (how fast the rate increases with utilization)</li>
+  <li>Kink: 80% (the optimal utilization)</li>
+  <li>Jump multiplier: 200% (rate increase above the kink)</li>
+</ul>
+<p>If U = 80% (at the kink), borrow rate = 2% + 20% × 0.8 = 2% + 16% = 18% APY. If U = 95%, borrow rate = 2% + 20% × 0.8 + 200% × (0.95 - 0.80) = 2% + 16% + 30% = 48% APY. The sharp increase above the kink forces borrowers to repay or depositors to rush in.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">cTokens and aTokens - The Interest-Bearing Receipts</h3>
+<p>When you deposit ETH into Compound, you receive <strong>cETH</strong>. This is an ERC-20 token that represents your deposit plus accrued interest. The exchange rate between cETH and ETH increases over time. Initially, 1 ETH = 0.02 cETH (at the current exchange rate). Over time, 0.02 cETH becomes redeemable for 1.1 ETH. You don't need to claim interest manually - it's built into the cToken.</p>
+<p>Aave uses <strong>aTokens</strong> (aETH, aUSDC, etc.) which work similarly. Aave also offers the option of receiving interest in the same token or in the protocol's native token (like AAVE) as an incentive.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Health Factor Calculation - Step by Step</h3>
+<p>Let's compute a health factor for a real scenario. Aarav deposits ₹1,00,000 worth of ETH. The maximum LTV for ETH is 80%, and the liquidation threshold is 85%. He borrows ₹50,000 USDC.</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>Collateral value = ₹1,00,000</li>
+  <li>Liquidation threshold = 85% → ₹85,000</li>
+  <li>Borrowed value = ₹50,000</li>
+  <li><strong>Health Factor = (₹1,00,000 × 0.85) / ₹50,000 = ₹85,000 / ₹50,000 = 1.70</strong></li>
+</ul>
+<p>A health factor of 1.70 means the collateral could drop 41% before liquidation (since ₹85,000 / 1.70 = ₹50,000). To find the liquidation price: the ETH price must fall such that collateral value × 0.85 = borrowed value. So collateral value = ₹50,000 / 0.85 ≈ ₹58,824. The ETH price must drop from ₹1,00,000 to ₹58,824 - a 41.2% drop.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.3-A · Health Factor and Liquidation Threshold</div>
+  <pre>
+  Health Factor
+    3.0 ┤  Very Safe (Collateral 3× needed)
+    2.0 ┤  Safe
+    1.70┤  Aarav's position
+    1.0 ┤  ⚠️ Liquidation threshold
+    0.5 ┤  💀 Being liquidated
+        └────────────────────────────
+           ETH price drops ↓
+  </pre>
+  <div class="diagram-caption">The health factor decreases as the collateral value drops. When it hits 1.0, liquidation can occur. Aarav's position at 1.70 is relatively safe but should be monitored.</div>
+</div>
+
+<!-- 06 COMPOUND VS AAVE COMPARISON -->
+<div class="section-label">06 &nbsp; Comparison</div>
+<h2 class="section-title">Compound vs Aave - Head-to-Head</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>🏦 Compound</th><th>👻 Aave</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Interest-bearing token</td><td>cTokens (cETH, cUSDC)</td><td>aTokens (aETH, aUSDC)</td></tr>
+    <tr><td>Interest rate model</td><td>Utilization-based, single rate per asset</td><td>Utilization-based, offers variable and stable rates</td></tr>
+    <tr><td>Flash loans</td><td class="bad">Not natively supported</td><td class="good">Native flash loans, pioneered the concept</td></tr>
+    <tr><td>Health factor display</td><td class="mid">Collateral factor (similar, but less intuitive)</td><td class="good">Explicit health factor number (1.0 = liquidation)</td></tr>
+    <tr><td>Rate switching</td><td class="bad">Not available</td><td class="good">Borrowers can switch between variable and stable rates</td></tr>
+    <tr><td>Governance</td><td>COMP token holders</td><td>AAVE token holders</td></tr>
+    <tr><td>Collateral types</td><td>~20 assets</td><td>~30+ assets, including LP tokens</td></tr>
+    <tr><td>MST deployment</td><td class="good">Can be deployed (EVM compatible)</td><td class="good">Can be deployed (EVM compatible)</td></tr>
+  </tbody>
+</table>
+
+<!-- 07 INTERACTIVE EXAMPLES -->
+<div class="section-label">07 &nbsp; Interactive Examples</div>
+<h2 class="section-title">Walk Through a Loan Lifecycle on MST</h2>
+<p>Click each step to see exactly what happens when Aarav borrows 5,000 USDC on Aave (MST).</p>
+
+<details>
+  <summary>📥 Step 1: Deposit Collateral</summary>
+  <div class="content">
+    <p>Aarav has 0.5 ETH (worth ₹50,000 at ₹1,00,000/ETH). He opens the Aave app on MST, connects BridgeKey, and deposits 0.5 ETH. The smart contract locks his ETH and mints 0.5 aETH in his wallet. The aETH balance automatically grows as borrowers pay interest. Gas cost: ~₹0.006.</p>
+  </div>
+</details>
+
+<details>
+  <summary>💰 Step 2: Borrow USDC</summary>
+  <div class="content">
+    <p>He navigates to the borrow tab and selects USDC. With ETH's max LTV of 80%, he could borrow up to ₹40,000 worth of USDC. He borrows only ₹5,000 (10% of collateral) to keep his health factor high. The contract sends 5,000 USDC to his wallet and records the debt. Interest begins accruing immediately. Gas cost: ~₹0.006.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⏳ Step 3: Interest Accrues Over Time</summary>
+  <div class="content">
+    <p>Over six months, at a 3% variable borrow rate, Aarav's debt grows from 5,000 USDC to 5,000 × (1.03)^0.5 ≈ 5,074 USDC. Meanwhile, his collateral (ETH) might also change in value. He monitors his health factor on the Aave dashboard. Each time he checks (a view call), it costs zero gas. He can also set up alerts via the Aave API.</p>
+  </div>
+</details>
+
+<details>
+  <summary>💸 Step 4: Repay the Loan</summary>
+  <div class="content">
+    <p>When Aarav has saved enough USDC, he repays the full debt (5,074 USDC). The contract updates his debt to zero and his health factor returns to infinity (no debt). He can now withdraw his full collateral if he wants. Gas cost for repayment: ~₹0.006. Total gas spent over the entire loan lifecycle: less than ₹0.03. On Ethereum, this would have been ₹3,000+.</p>
+  </div>
+</details>
+
+<!-- 08 MST ADVANTAGES FOR LENDING -->
+<div class="section-label">08 &nbsp; MST Advantages for Lending</div>
+<h2 class="section-title">Why MST Makes DeFi Lending Truly Accessible</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Micro-loans become viable</div>
+      <div class="feature-desc">Borrowing ₹500 on Ethereum costs ₹500+ in gas - more than the loan itself. On MST, borrowing ₹500 costs ₹0.006 in gas. This enables loans as small as ₹50, empowering millions who need tiny amounts of capital.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Frequent compounding and monitoring</div>
+      <div class="feature-desc">Lenders can compound their earnings daily by withdrawing and re-depositing interest (or through auto-compounding vaults). Each action costs a fraction of a paisa, compared to ₹500+ on Ethereum. This boosts effective APY dramatically.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Timely liquidations without gas spikes</div>
+      <div class="feature-desc">During market crashes, Ethereum gas prices spike, making liquidations unprofitable and leaving the protocol with bad debt. MST's high throughput and stable low fees ensure liquidators can always operate, keeping the protocol solvent.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Permissioned lending for institutions</div>
+      <div class="feature-desc">MST's hybrid zones allow KYC-compliant lending pools for regulated institutions, while the public zone remains open for anyone. This bridges DeFi and traditional finance.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Don't Get Liquidated - Avoid These Mistakes</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Borrowing at max LTV</div>
+      <div class="feature-desc">If you borrow the maximum allowed (e.g., 80% of collateral), even a tiny price drop triggers liquidation. Always leave a comfortable buffer - keep LTV below 50% for volatile assets.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the health factor</div>
+      <div class="feature-desc">Your health factor can change rapidly in a crash. Use monitoring tools or set price alerts. On MST, you can top up collateral or repay debt instantly for ~₹0.006.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using volatile collateral for stable loans</div>
+      <div class="feature-desc">Borrowing a stablecoin against a volatile asset (like ETH) creates liquidation risk if the volatile asset crashes. Consider using stablecoins as collateral for lower risk, or over-collateralize heavily.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Lending Protocols Survived Market Crashes</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave - Surviving the March 2020 Crash</div>
+      <div class="feature-desc">During the March 2020 "Black Thursday" crash, ETH dropped over 50% in a day. Aave's liquidation mechanism processed thousands of liquidations, keeping the protocol solvent. However, network congestion on Ethereum caused some liquidations to fail, leading to a small deficit that the Aave Safety Module covered. On MST, with higher throughput and stable fees, such liquidations would process smoothly.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💵</div>
+    <div class="feature-content">
+      <div class="feature-title">Compound - The COMP Token Revolution</div>
+      <div class="feature-desc">In June 2020, Compound launched its COMP governance token, distributing it to lenders and borrowers. This sparked "yield farming" - users borrowed and lent the same assets repeatedly to maximize COMP rewards, driving TVL from $100M to $1B+ in weeks. The lesson: token incentives can bootstrap liquidity, but must be designed carefully to avoid manipulation.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Health Factor = (Collateral × Liquidation Threshold) / Debt</div>
+      <div class="feature-desc">Below 1.0 = liquidation. Higher numbers are safer. Monitor it actively.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Interest rates are utilization-based with a kink</div>
+      <div class="feature-desc">Rates rise slowly below optimal utilization, then spike sharply above it to prevent liquidity shortages.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees enable micro-loans and frequent compounding</div>
+      <div class="feature-desc">Borrow ₹500 for ₹0.006 in gas vs ₹500+ on Ethereum. Compound daily for pennies.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 11.3 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of over-collateralization in DeFi lending?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> To protect the protocol from borrower default by ensuring the collateral value exceeds the loan value. ✅</li>
+        <li><span class="opt-key">B</span> To make loans more expensive.</li>
+        <li><span class="opt-key">C</span> To require a credit check.</li>
+        <li><span class="opt-key">D</span> To reduce the amount of crypto in circulation.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Over-collateralization ensures the protocol always has more value locked than borrowed, so even if a borrower defaults, the collateral sale covers the debt.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">On Aave, a health factor below which value triggers liquidation?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 2.0</li>
+        <li class="correct"><span class="opt-key">B</span> 1.0 ✅</li>
+        <li><span class="opt-key">C</span> 0.5</li>
+        <li><span class="opt-key">D</span> 0</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>Health factor < 1.0 means your collateral value (adjusted for liquidation threshold) is less than your debt, making your position eligible for liquidation.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What happens to the interest rate in a utilization-based model when utilization exceeds the optimal level (kink)?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It increases sharply to discourage borrowing and attract deposits. ✅</li>
+        <li><span class="opt-key">B</span> It decreases to encourage more borrowing.</li>
+        <li><span class="opt-key">C</span> It stays the same.</li>
+        <li><span class="opt-key">D</span> It becomes zero.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The kink creates a steep rate increase above optimal utilization to prevent liquidity crises and incentivize repayments.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is a key advantage of deploying lending protocols on MST rather than Ethereum?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Extremely low gas fees make micro-loans and frequent compounding economically viable. ✅</li>
+        <li><span class="opt-key">B</span> MST does not require collateral for loans.</li>
+        <li><span class="opt-key">C</span> MST uses a different interest rate model that guarantees profits.</li>
+        <li><span class="opt-key">D</span> MST has no liquidation mechanism.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Sub-paisa fees remove the economic barrier to small loans and active management, opening DeFi lending to a global audience.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a liquidation penalty?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> An additional percentage of collateral taken by the liquidator as a reward for repaying the debt. ✅</li>
+        <li><span class="opt-key">B</span> A fee charged to the liquidator for performing a liquidation.</li>
+        <li><span class="opt-key">C</span> A penalty paid by the protocol to the borrower.</li>
+        <li><span class="opt-key">D</span> A tax on borrowed amounts.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The liquidation penalty (e.g., 5%) incentivizes liquidators to monitor the protocol and close unsafe positions.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <!-- T/F Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"If you deposit ₹1,00,000 worth of ETH into Aave, you can safely borrow ₹80,000 worth of USDC because that's the maximum LTV."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. While the maximum LTV is 80%, borrowing at the maximum LTV leaves zero safety margin. A tiny price drop would immediately push the health factor below 1.0, triggering liquidation. For example, with a liquidation threshold of 85%, the health factor would be (₹1,00,000 × 0.85) / ₹80,000 = 1.0625 - just barely above 1.0. A 5% ETH price drop would cause liquidation. Prudent borrowers keep their LTV well below the maximum - typically 50% or less for volatile assets. So while you <em>can</em> borrow ₹80,000, it is not <em>safe</em>.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE. <strong>+1 mark:</strong> Justification explains that max LTV leaves no safety buffer, a small price drop triggers liquidation, and prudent LTV is much lower.</p></div>
+    </div>
+
+    <!-- T/F Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Deploying a lending protocol on MST allows users to borrow without providing any collateral, because the low gas fees reduce the risk for lenders."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. Collateral requirements are a fundamental part of the protocol's risk model, not determined by gas fees. Lending protocols like Aave and Compound require over-collateralization to protect lenders from defaults. Low gas fees make the protocol cheaper to use, but they do not eliminate the need for collateral. The only uncollateralized loans in DeFi are flash loans, which must be repaid within the same transaction - a completely different mechanism. Lower gas fees do not change the fact that borrowers could disappear with the funds if no collateral were required.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE. <strong>+1 mark:</strong> Justification explains that collateral is a risk requirement, not a gas issue; flash loans are the only exception but are not standard lending.</p></div>
+    </div>
+
+    <!-- SECTION C: IDENTIFY‑OUTPUT (HEALTH FACTOR) -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - Identify-Output (Health Factor Calculation)</div>
+      <div class="q-section-meta">1 Question · 6 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff medium">Medium</span><span class="q-marks">6 marks</span></div></div>
+      <div class="q-text">Calculate the health factor and determine liquidation risk for the following position.</div>
+      <div class="identify-output">
+        <div class="io-header"><div class="io-badge">📋 SCENARIO</div></div>
+        <div class="io-scenario">Meera deposits 2 ETH as collateral when 1 ETH = ₹2,00,000. The maximum LTV for ETH is 80%, and the liquidation threshold is 85%. She borrows ₹2,00,000 worth of USDC. Later, the ETH price drops to ₹1,60,000.</div>
+        <div class="io-data">
+          <strong>Given:</strong><br>
+          • Collateral: 2 ETH<br>
+          • Initial ETH price: ₹2,00,000<br>
+          • Borrowed: ₹2,00,000 USDC<br>
+          • Liquidation threshold: 85%<br>
+          • New ETH price: ₹1,60,000<br><br>
+          <strong>Task:</strong> (a) Compute the health factor immediately after borrowing. (b) Compute the new health factor after the price drop. (c) Determine if Meera's position is liquidatable at the new price. (d) Calculate the ETH price at which her health factor would equal exactly 1.0 (liquidation price).
+        </div>
+        <div class="io-answer">
+          <div class="io-answer-label">✅ Correct Calculation</div>
+          <p>
+            <strong>(a) Initial health factor:</strong> Collateral value = 2 × ₹2,00,000 = ₹4,00,000. Adjusted collateral = ₹4,00,000 × 0.85 = ₹3,40,000. Health Factor = ₹3,40,000 / ₹2,00,000 = <strong>1.70</strong>.<br><br>
+            <strong>(b) New health factor:</strong> New collateral value = 2 × ₹1,60,000 = ₹3,20,000. Adjusted = ₹3,20,000 × 0.85 = ₹2,72,000. Health Factor = ₹2,72,000 / ₹2,00,000 = <strong>1.36</strong>.<br><br>
+            <strong>(c) Liquidatable?</strong> No, because the health factor (1.36) is still above 1.0. The position is safe but has less buffer.<br><br>
+            <strong>(d) Liquidation price:</strong> We need Adjusted Collateral = Borrowed Value → (2 × P) × 0.85 = ₹2,00,000 → 1.7P = ₹2,00,000 → P = ₹2,00,000 / 1.7 ≈ <strong>₹1,17,647</strong>. So if ETH drops below approximately ₹1,17,647, the health factor falls below 1.0 and liquidation can occur.
+          </p>
+          <div class="marks-bd"><span>6 marks:</span> (a) 1.5 marks for correct initial HF; (b) 1.5 marks for correct new HF; (c) 1 mark for correct determination; (d) 2 marks for correct liquidation price. Partial credit for correct formula with minor arithmetic errors.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 11.3 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 2 × T/F with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section C: 1 × Identify-Output <span>(6 marks) = 6 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 11.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Collateral</div><div class="glossary-def">Crypto assets deposited to secure a loan. Must exceed the loan value (over-collateralization).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Loan-to-Value (LTV)</div><div class="glossary-def">The ratio of borrowed amount to collateral value. Max LTV sets the borrowing limit (e.g., 80%).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Health Factor</div><div class="glossary-def">Aave's metric for loan safety: (Collateral × Liquidation Threshold) / Debt. Below 1.0 triggers liquidation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquidation</div><div class="glossary-def">Forced sale of collateral when a loan becomes under-collateralized. A liquidator repays the debt and claims collateral at a discount.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Utilization Rate</div><div class="glossary-def">Total borrowed / Total supplied. Determines the interest rate in Compound and Aave.</div></div>
+  <div class="glossary-item"><div class="glossary-term">cToken / aToken</div><div class="glossary-def">Interest-bearing tokens received upon deposit, representing the deposit plus accrued interest.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 11 · Sub-Module <strong>11.3</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 11.4 - Staking & Yield Farming →</p>
+</div>
+
+</body>
+</html>

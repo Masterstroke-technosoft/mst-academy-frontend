@@ -1,0 +1,329 @@
+
+
+<div class="module-badge">🎓 Module 11 &nbsp;·&nbsp; Sub-Module 11.2 of 6</div>
+<h1 class="module-title">Automated Market Makers <span class="highlight">(AMMs)</span></h1>
+<p class="module-subtitle">Discover how decentralized exchanges work without order books - using mathematical formulas, liquidity pools, and the constant product rule. Master impermanent loss, compare Uniswap v2 and v3, and see why MST's sub-paisa fees transform liquidity provision into a viable strategy for everyone, not just whales.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (5 marks) + 1 Identify-Output (Impermanent Loss - 15 marks)</div>
+  <div class="meta-chip green">Phase 4 · DeFi &amp; RWA Orbitals</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">📐</div>
+    <div class="obj-text">
+      <strong>Derive prices from the constant product formula x*y=k</strong>
+      Use the math behind AMMs to calculate swap amounts, price impact, and pool share - and explain why the curve never runs out of liquidity.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Calculate impermanent loss for any price change</strong>
+      Quantify the risk of providing liquidity versus simply holding tokens, and determine when trading fees compensate for the loss.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Compare Uniswap v2 and v3 capital efficiency</strong>
+      Understand concentrated liquidity, tick ranges, and how v3 allows LPs to provide liquidity within specific price intervals.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Leverage MST's low fees for profitable LP strategies</strong>
+      See how sub-paisa gas costs enable smaller positions and active management, making AMMs accessible to retail users.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Liquidity Provider Who Lost Money - Without Losing a Single Token</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>Anjali, a software engineer in Pune, decided to put her savings to work. She had ₹50,000 worth of ETH and ₹50,000 worth of USDC. Instead of letting them sit idle, she deposited both into the ETH/USDC liquidity pool on Uniswap. She'd heard that liquidity providers earn trading fees - passive income just for providing tokens. For the first month, everything was great. She earned ₹800 in fees. But then the price of ETH doubled. When she withdrew her liquidity, she was shocked: she had less ETH than she started with, and more USDC. The total value was ₹2,20,000 - which was ₹20,000 less than if she had simply held the tokens separately. She had experienced <strong>impermanent loss</strong> - the hidden cost of being an LP.</p>
+  <br>
+  <p>Anjali learned an essential lesson: AMMs are brilliant, but they come with trade-offs. Understanding the math behind them is the only way to make informed decisions. This sub-module gives you that understanding. You'll learn how AMMs price assets, why impermanent loss happens, and how to calculate it yourself. And you'll discover why MST's low fees change the game - they make providing liquidity profitable even for small positions and frequent adjustments.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Order Books to Mathematical Robots - The AMM Revolution</h2>
+<p>Traditional exchanges - like the Bombay Stock Exchange or Coinbase - use an <strong>order book</strong> model. Buyers and sellers place orders at specific prices, and the exchange matches them. This works well for highly liquid assets, but it requires market makers (professional firms) to continuously quote prices. In crypto, especially for new tokens, order books often suffer from low liquidity and wide spreads.</p>
+<p>In 2016, an Ethereum researcher named <strong>Vitalik Buterin</strong> proposed the idea of an on-chain automated market maker. The concept was simple: instead of matching buyers and sellers, let a smart contract hold a pool of two tokens and use a mathematical formula to determine the price. The first implementation was <strong>Bancor</strong> in 2017, but it was <strong>Uniswap</strong>, launched by Hayden Adams in November 2018, that perfected the model and brought AMMs to the masses.</p>
+<p>Uniswap v1 used the <strong>constant product formula</strong>: <code>x * y = k</code>, where x and y are the reserves of the two tokens. When a trader swaps token A for token B, they add to one reserve and remove from the other, but the product k remains constant (ignoring fees). This simple rule created a fully automated, always-available market with no order book, no spreads set by humans, and no central authority.</p>
+<p>Uniswap v2 (2020) added ERC-20/ERC-20 pairs (v1 only supported ETH as one side) and introduced the concept of <strong>LP tokens</strong> representing a provider's share of the pool. Uniswap v3 (2021) introduced <strong>concentrated liquidity</strong>, allowing LPs to provide liquidity within specific price ranges, dramatically improving capital efficiency. Today, Uniswap processes billions in daily volume, and its AMM design has been copied by hundreds of protocols across dozens of chains - including MST.</p>
+
+<div class="highlight-strip">
+  <strong>MST advantage:</strong> Because MST is fully EVM-compatible, Uniswap v2 and v3 contracts can be deployed on MST with minimal changes. And because gas fees are ~100,000× lower than Ethereum's, active LP management - adjusting positions, claiming fees, rebalancing - becomes economically practical. On Ethereum, each adjustment can cost ₹500+; on MST, ₹0.006.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Robot Market Maker - Always Ready to Trade</h2>
+<div class="callout analogy">
+  <div class="callout-label">🤖 The Analogy</div>
+  <p>Imagine a vending machine that never runs out of snacks, and the price changes automatically based on how many snacks are left. If people buy a lot of chips, the machine raises the price. If nobody buys, the price drops. The machine doesn't care who's buying or selling - it just follows a simple rule. An AMM is exactly that vending machine, but for tokens. It holds a pool of two tokens and uses a formula to decide how many of each you get. No human sets the price; the math does.</p>
+</div>
+<p>Every AMM has three core components. Let's understand them in plain language:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">P</div><div class="w5-word">POOL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a liquidity pool?</div>
+      <div class="w5-a">A <strong>liquidity pool</strong> is a smart contract that holds two tokens (e.g., MSTC and USDC). Anyone can deposit equal values of both tokens to become a <strong>liquidity provider (LP)</strong>. LPs earn a share of the trading fees. The pool never runs out of liquidity because the formula adjusts the price as tokens are traded - it just gets more and more expensive to drain it completely.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FORMULA</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the constant product formula?</div>
+      <div class="w5-a">The core of Uniswap-style AMMs is <strong>x * y = k</strong>. Here, x is the amount of token A in the pool, y is the amount of token B, and k is a constant (before fees). When a trader swaps, they change x and y, but the product stays the same. This formula automatically raises the price as demand increases and lowers it as supply increases - exactly like supply and demand in traditional markets, but enforced by code.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LOSS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is impermanent loss?</div>
+      <div class="w5-a"><strong>Impermanent loss (IL)</strong> is the difference between the value of your tokens if you'd simply held them versus providing them as liquidity. It happens when the price of the tokens changes relative to each other. The loss is "impermanent" because if the price returns to the original, the loss disappears. But if you withdraw while the price is far from your entry, the loss becomes permanent. Trading fees can offset IL, but LPs must understand this risk.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: CONSTANT PRODUCT -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - The Constant Product</div>
+<h2 class="section-title">x * y = k - The Formula That Runs Decentralized Trading</h2>
+<p>Let's explore the math behind AMMs with concrete numbers. No advanced degree required - just multiplication and division.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How a Swap Works</h3>
+<p>Suppose an MSTC/USDC pool starts with <strong>100 MSTC</strong> and <strong>10,000 USDC</strong>. The constant product k = 100 × 10,000 = <strong>1,000,000</strong>. The current price of MSTC is 10,000 USDC / 100 MSTC = <strong>100 USDC per MSTC</strong>.</p>
+<p>Now a trader wants to buy 1 MSTC. How much USDC must they pay? After the swap, the new MSTC reserve will be 99 (since they take 1 out), so the new USDC reserve must satisfy:</p>
+<p style="text-align:center; font-size:18px; font-weight:600; color:var(--ink);">x' * y' = k → (100 - 1) * y' = 1,000,000 → 99 * y' = 1,000,000 → y' = 10,101.01 USDC</p>
+<p>The trader must add <strong>101.01 USDC</strong> to the pool (from 10,000 to 10,101.01). So the price they pay for 1 MSTC is 101.01 USDC - slightly more than the spot price of 100 USDC. This is called <strong>slippage</strong> or <strong>price impact</strong>. The larger the trade relative to the pool, the worse the price.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Price Curve</h3>
+<p>The constant product formula creates a hyperbola. Near the middle, the curve is relatively flat - small trades have low price impact. Toward the edges (near zero of one token), the curve becomes extremely steep - draining the last of a token is astronomically expensive. This means the pool can never be completely drained; it just gets prohibitively costly.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.2-A · Constant Product Curve (x * y = 1,000,000)</div>
+  <pre> USDC (y)
+  ▲
+  │
+  │        * (100, 10000)
+  │           \
+  │            \
+  │             \
+  │              \
+  │               \
+  │                \
+  │                 \
+  │                  * (200, 5000)
+  │
+  └─────────────────────────────▶ MSTC (x)
+
+  • At (100 MSTC, 10,000 USDC): Price = 100 USDC per MSTC
+  • At (200 MSTC, 5,000 USDC): Price = 25 USDC per MSTC (MSTC cheaper)
+  • The curve never touches the axes — infinite liquidity, finite price
+  </pre>
+  <div class="diagram-caption">The curve shows all possible reserve pairs that maintain k=1,000,000. The slope at any point is the price. Moving along the curve by adding one token and removing the other is a swap.</div>
+</div>
+
+<!-- 06 IMPERMANENT LOSS DEEP DIVE -->
+<div class="section-label">06 &nbsp; Impermanent Loss - The Silent Risk</div>
+<h2 class="section-title">Why Liquidity Providers Can Lose Value</h2>
+<p>Impermanent loss occurs because AMMs automatically rebalance your portfolio as the price changes. When one token rises in value, the pool sells it (to arbitrageurs) to maintain the constant product, reducing your exposure to the winner and increasing exposure to the loser. Here's the math.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Impermanent Loss Formula</h3>
+<p>If you deposit tokens when the price ratio is P, and later the price changes by a factor of r (so the new price is r × P), the impermanent loss (as a percentage of your initial deposit value) is:</p>
+<p style="text-align:center; font-size:17px; font-weight:600; color:var(--ink);">IL = 2√r / (1 + r) - 1</p>
+<p>This formula assumes no fees are earned. Let's test it:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Price stays the same (r = 1):</strong> IL = 2√1 / (1+1) - 1 = 2/2 - 1 = 0. No loss.</li>
+  <li><strong>Price doubles (r = 2):</strong> IL = 2√2 / 3 - 1 ≈ 2.828/3 - 1 ≈ 0.9427 - 1 = <strong>-5.73%</strong>. You lose ~5.7% relative to holding.</li>
+  <li><strong>Price quadruples (r = 4):</strong> IL = 2√4 / 5 - 1 = 4/5 - 1 = <strong>-20%</strong>.</li>
+  <li><strong>Price drops by half (r = 0.5):</strong> IL = 2√0.5 / 1.5 - 1 ≈ 1.414/1.5 - 1 ≈ 0.9427 - 1 = <strong>-5.73%</strong> (symmetric).</li>
+</ul>
+<p>Notice: <strong>impermanent loss is symmetric</strong> - a 2x increase and a 2x decrease both cause the same percentage loss. The loss increases as the price moves further from your entry. Importantly, trading fees can offset this loss. If the pool earns 0.3% fees on every trade, high-volume pools can compensate for significant IL.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.2-B · Impermanent Loss vs Price Change</div>
+  <pre>  IL (% loss)
+   0% ┤
+       │
+  -10% ┤          ****
+       │        **
+  -20% ┤      **
+       │     *
+  -30% ┤   **
+       │  *
+  -40% ┤ *
+       │*
+  -50% ┤────────────────────────────
+       0.25x   0.5x    1x    2x    4x   (price ratio r)
+  </pre>
+  <div class="diagram-caption">The curve flattens for extreme price changes. Even a 4x change results in only ~20% IL, which is often covered by fees in high-volume pools.</div>
+</div>
+
+<!-- 07 INTERACTIVE IL CALCULATION -->
+<div class="section-label">07 &nbsp; Interactive Impermanent Loss Calculator</div>
+<h2 class="section-title">Calculate Your Own IL - Hands-On</h2>
+<p>Let's walk through a real scenario and compute impermanent loss step by step. Click to see the worked example.</p>
+
+<details>
+  <summary>🧮 Example: MSTC/USDC Pool - Price Doubles</summary>
+  <div class="content">
+    <p><strong>Initial Deposit:</strong> You provide 10 MSTC and 1,000 USDC to the pool. The price of MSTC is 100 USDC. Total value = 2,000 USDC.</p>
+    <p><strong>Price doubles:</strong> External market price of MSTC rises to 200 USDC. Arbitrageurs trade against the pool to align the pool price with the market. After arbitrage, the pool reserves adjust according to the constant product:</p>
+    <p>Initial k = 10 × 1,000 = 10,000. New MSTC price = 200 USDC → USDC/MSTC ratio must be 200. So (y / x) = 200, and y = 200x. Plug into x*y=10,000: x*(200x)=200x²=10,000 → x²=50 → x≈7.07 MSTC, y≈1,414.21 USDC.</p>
+    <p><strong>Your share:</strong> If you own 100% of the pool (for simplicity), your tokens are now 7.07 MSTC + 1,414.21 USDC = 7.07×200 + 1,414.21 = 2,828.21 USDC. If you had just held: 10 MSTC × 200 + 1,000 USDC = 3,000 USDC. Loss = 3,000 - 2,828.21 = 171.79 USDC, which is <strong>5.73%</strong> of 3,000. Matches the IL formula for r=2 (5.73%).</p>
+  </div>
+</details>
+
+<!-- 08 UNISWAP V2 VS V3 -->
+<div class="section-label">08 &nbsp; Uniswap v2 vs v3</div>
+<h2 class="section-title">Concentrated Liquidity - More Bang for Your Buck</h2>
+<p>Uniswap v2 spreads liquidity evenly across all price ranges from 0 to infinity. That's safe, but capital-inefficient - most of the liquidity sits unused because prices rarely visit extremes. Uniswap v3 introduced <strong>concentrated liquidity</strong>: LPs can choose a price range (e.g., 1,800 - 2,200 USDC per ETH) and provide liquidity only within that range. This means capital is concentrated where it's needed most, earning far higher fees per dollar deposited.</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>Uniswap v2</th><th>Uniswap v3</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Liquidity distribution</td><td>Uniform across all prices (0 to ∞)</td><td>Concentrated in user-selected price ranges</td></tr>
+    <tr><td>Capital efficiency</td><td>Lower - most liquidity unused at extremes</td><td>Up to 4,000× more efficient for stable pairs</td></tr>
+    <tr><td>LP position</td><td>Fungible LP tokens (ERC-20)</td><td>Non-fungible position (NFT representing range)</td></tr>
+    <tr><td>Fee tiers</td><td>0.3% default</td><td>Multiple tiers: 0.05%, 0.3%, 1%</td></tr>
+    <tr><td>Impermanent loss</td><td>As described above</td><td>Can be higher if price exits your range</td></tr>
+    <tr><td>Complexity</td><td>Simple: deposit and forget</td><td>Active management recommended</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> Uniswap v3 requires active management - moving liquidity ranges as prices change. On Ethereum, each adjustment costs ₹500-₹2,000 in gas, wiping out profits for small LPs. On MST, the same adjustment costs ~₹0.006. This means <strong>anyone</strong> can actively manage a v3 position, not just whales.
+</div>
+
+<!-- 09 MST ADVANTAGES FOR AMMs -->
+<div class="section-label">09 &nbsp; MST Advantages for AMMs</div>
+<h2 class="section-title">Why MST Is the Perfect AMM Playground</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa swaps</div>
+      <div class="feature-desc">A swap on Uniswap (MST) costs ~₹0.006 in gas versus ₹500-₹1,500 on Ethereum. Even small trades become economical, encouraging more volume and higher fee revenue for LPs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Frequent compounding</div>
+      <div class="feature-desc">LPs can claim and reinvest trading fees daily or even hourly without gas costs eating into returns. This compounding effect significantly boosts APY.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Concentrated liquidity for everyone</div>
+      <div class="feature-desc">Active v3 LP strategies require moving ranges. MST's near-zero fees make it possible for retail users to adjust positions as often as needed, democratizing the most capital-efficient AMM model.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">No front-running by MEV bots?</div>
+      <div class="feature-desc">MST's high throughput and efficient consensus reduce the window for sandwich attacks and other MEV exploits. Plus, low fees reduce the incentive for bots to extract small amounts of value.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How AMMs Power the DeFi Economy</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap - The King of AMMs</div>
+      <div class="feature-desc">Uniswap processes over $1 billion in daily volume. Its v3 on Ethereum mainnet dominates trading for large pairs, while v2 and v3 forks thrive on low-cost chains like MST. Uniswap's success proved that AMMs can replace order books for the vast majority of crypto trading.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">📈</div>
+    <div class="feature-content">
+      <div class="feature-title">Curve Finance - AMM for Stablecoins</div>
+      <div class="feature-desc">Curve modified the constant product formula to be nearly flat for stable pairs (e.g., USDC/DAI), minimizing slippage and impermanent loss. It became the backbone of stablecoin trading. MST could host Curve forks, enabling low-cost stable swaps.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🥞</div>
+    <div class="feature-content">
+      <div class="feature-title">PancakeSwap - AMM on BNB Chain</div>
+      <div class="feature-desc">PancakeSwap proved that a Uniswap v2 fork on a low-fee chain can explode in popularity. It attracted millions of users priced out of Ethereum. MST can replicate this success with even lower fees and faster transactions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Constant product: x * y = k</div>
+      <div class="feature-desc">The core of Uniswap. The product of reserves stays constant before fees. Price = y/x. Swaps change reserves but keep k unchanged (except for fee growth).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Impermanent loss formula: IL = 2√r/(1+r) - 1</div>
+      <div class="feature-desc">Where r is the price ratio (new price / old price). Symmetrical loss for price increases and decreases. Fees can offset IL.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v3 concentrated liquidity boosts capital efficiency</div>
+      <div class="feature-desc">LPs choose a price range. Capital is not spread across all prices, earning far higher fees per dollar when the price is within range.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees unlock active AMM strategies for everyone</div>
+      <div class="feature-desc">Frequent adjustments, compounding, and v3 range shifts cost ~₹0.006 on MST versus ₹500+ on Ethereum, democratizing LP management.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 11.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">AMM</div><div class="glossary-def">Automated Market Maker - a decentralized exchange that uses a mathematical formula to set prices instead of an order book.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Constant Product</div><div class="glossary-def">The formula x*y=k used by Uniswap. Ensures that the product of token reserves remains constant, determining swap prices.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquidity Pool</div><div class="glossary-def">A smart contract that holds two tokens and allows users to trade between them, with liquidity provided by LPs who earn fees.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Impermanent Loss</div><div class="glossary-def">The loss LPs experience relative to holding tokens, caused by price changes between the paired assets. Can be offset by trading fees.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Concentrated Liquidity</div><div class="glossary-def">Uniswap v3 feature allowing LPs to provide liquidity only within a chosen price range, boosting capital efficiency.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Slippage</div><div class="glossary-def">The difference between the expected price of a trade and the actual execution price, caused by the trade moving the AMM curve.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 11 · Sub-Module <strong>11.2</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 11.3 - Lending &amp; Borrowing →</p>
+</div>
+
+

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 6.2 - Other Chains' Shortcomings | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  /* ─── PROSE ─── */
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  /* ─── OBJECTIVE GRID ─── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  /* ─── W5 GRID ─── */
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(4) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(5) { color: var(--red);   background: #FFF5F5; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  /* ─── VISUAL DIAGRAM ─── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  /* ─── FEATURE PILLS ─── */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── STAT CARDS ─── */
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+  .stat-card {
+    background: var(--brand-light); border: 1px solid #C4B5F5;
+    border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+  /* ─── ASSESSMENT ─── */
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  /* ─── SCORE SUMMARY ─── */
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  /* ─── FOOTER ─── */
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  /* ─── GLOSSARY ─── */
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  /* ─── HIGHLIGHT STRIP ─── */
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .stat-row       { grid-template-columns: 1fr 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🎓 Module 6 &nbsp;·&nbsp; Sub-Module 6.2 of 5</div>
+<h1 class="module-title">Other Chains' <span class="highlight">Shortcomings</span></h1>
+<p class="module-subtitle">Bitcoin, Ethereum, Solana, Polygon - each solved one piece of the puzzle but broke another. Four real people, four chains, and the impossible trade offs that left the Web3 revolution stuck at the starting line.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1) + 1 Multi-select matching (9) + 1 T/F (1)</div>
+  <div class="meta-chip green">Phase 2 · Why MST Blockchain</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text">
+      <strong>Diagnose the fundamental limitations of Bitcoin</strong>
+      Explain why digital gold cannot be digital cash - and why Proof of Work's energy hunger and 7 transactions per second make it unusable for daily payments.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⛽</div>
+    <div class="obj-text">
+      <strong>Articulate Ethereum's gas and congestion nightmare</strong>
+      Show how a network designed for a world computer became a luxury toll road where a simple token swap can cost more than the amount being swapped.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Understand Solana's trade off between speed and reliability</strong>
+      Describe why a chain that claims 65,000 TPS has suffered multiple complete outages - and what that means for real money applications.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌉</div>
+    <div class="obj-text">
+      <strong>Evaluate Polygon's dependency on Ethereum and bridge risks</strong>
+      Recognise that a sidechain is only as secure as its bridge - and that billions have been lost exactly at that weak point.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">Four Builders, Four Chains, One Frustration</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p><strong>Ravi</strong> works at a small money transfer shop in Kochi. He sends remittances for families whose relatives work in the Gulf. In 2021 he heard about Bitcoin - "send money anywhere, no bank needed." He convinced his uncle in Dubai to buy ₹50,000 worth of Bitcoin and send it to his wallet in India. The transaction took 47 minutes to get one confirmation. By then, the price of Bitcoin had dropped 4%. And the network fee? ₹1,200. That is more than the 2% commission the local bank charges. Ravi's uncle never used Bitcoin again.</p>
+  <br>
+  <p><strong>Ananya</strong> is a DeFi enthusiast in Mumbai. She spends her evenings yield farming and providing liquidity on Uniswap. In May 2022, during the Otherside NFT mint, Ethereum gas fees spiked to over ₹8,000 for a single transaction. Ananya had ₹15,000 stuck in a liquidity pool and could not withdraw it without paying more in gas than the funds were worth. Her money was technically hers - but economically trapped. She watched helplessly as a smart contract bug was announced and the pool was drained before she could act.</p>
+  <br>
+  <p><strong>Karan</strong> runs a small game studio in Pune. His team built a play to earn game on Solana because the chain promised fast, cheap transactions for in game purchases. On 14 September 2021, Solana went down for 17 hours. Players could not log in, items could not be traded, and the in game economy froze. Karan's Discord exploded with angry users demanding refunds. The network that promised Visa level speed delivered a complete blackout - with no backup and no estimated recovery time.</p>
+  <br>
+  <p><strong>Deepak</strong> is a supply chain developer for a pharmaceutical company in Hyderabad. He chose Polygon to build a track and trace system because it was "Ethereum compatible but cheap." In March 2022, the Ronin bridge (used by Axie Infinity, built on a similar sidechain architecture) was hacked for $620 million. Deepak's boss called him into a meeting and asked: "Is our system safe?" Deepak had to explain that any sidechain inherits the security of its bridge - and bridges are the single biggest attack surface in crypto.</p>
+  <br>
+  <p>Four people. Four different chains. Four different failures. But a single underlying truth: <strong>each of these blockchains solved one problem while creating another.</strong> Bitcoin solved decentralised money but cannot scale. Ethereum solved programmability but priced out ordinary users. Solana solved speed but sacrificed reliability. Polygon solved fees but created bridge risk. None of them solved all three pillars of the blockchain trilemma. And until someone does, Web3 will remain a promise - not a reality.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Blockchain Trilemma - And Why Every Chain Stumbled</h2>
+
+<p>In 2017, Vitalik Buterin coined the term "blockchain trilemma." The idea is simple: a blockchain wants three things - <strong>security</strong>, <strong>scalability</strong>, and <strong>decentralisation</strong>. But improving one typically weakens another. It is like trying to make a single vehicle that is simultaneously the fastest Formula 1 car, the safest Volvo, and the most fuel efficient Maruti Suzuki. You cannot maximise all three at once. You have to pick.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">₿</div>
+    <div class="feature-content">
+      <div class="feature-title">Bitcoin (2009) - Maximum Security, Minimum Scalability</div>
+      <div class="feature-desc">Satoshi chose security and decentralisation above all else. Bitcoin's Proof of Work requires miners to burn staggering amounts of electricity - currently more than the entire country of Argentina. This makes the network incredibly secure: to reverse a Bitcoin transaction, you would need to control more than 50% of the world's mining power, which would cost tens of billions of dollars. But the cost of that security is speed. Bitcoin processes about 7 transactions per second. Visa processes 24,000. You cannot buy chai with Bitcoin unless you are willing to wait an hour and pay a fee that is higher than the chai itself.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">Ξ</div>
+    <div class="feature-content">
+      <div class="feature-title">Ethereum (2015) - Programmability Unleashed, But at What Price?</div>
+      <div class="feature-desc">Vitalik Buterin looked at Bitcoin and said: "What if the blockchain could run programs, not just send money?" Ethereum introduced smart contracts - self executing code on a global computer. This gave birth to DeFi, NFTs, DAOs, and the entire Web3 ecosystem. But the global computer has a bottleneck: every node in the network must execute every transaction. When demand spikes (an NFT mint, a DeFi frenzy), the network congests. Gas fees explode. In May 2022, a single Uniswap trade cost over ₹20,000 in gas. Ethereum became a chain for the rich.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">◎</div>
+    <div class="feature-content">
+      <div class="feature-title">Solana (2020) - Speed Demon, Fragile Engine</div>
+      <div class="feature-desc">Solana's pitch was breathtaking: 65,000 transactions per second, sub second finality, fees of a fraction of a paisa. It achieved this by using a different consensus mechanism - Proof of History - and by requiring validator nodes to use extremely powerful hardware. The trade off was decentralisation and reliability. Solana has suffered over 10 major outages since launch, including a 17 hour blackout in September 2021 and a 20 hour halt in February 2023. Each time, the entire network stopped. No transactions. No DeFi. No NFTs. Just silence.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">⬡</div>
+    <div class="feature-content">
+      <div class="feature-title">Polygon (2020) - Cheap and Cheerful, but Who Is Guarding the Door?</div>
+      <div class="feature-desc">Polygon offered a brilliant shortcut: instead of building a new Layer 1, it created a sidechain that runs alongside Ethereum. Transactions on Polygon are fast and cheap because they do not go through Ethereum's mainnet - they are processed on Polygon's own validators. But the security model is fundamentally different. Polygon relies on a bridge to move assets between Ethereum and Polygon. That bridge is a smart contract - and smart contracts can be hacked. Over $2 billion was stolen from cross chain bridges in 2022 alone. When you use Polygon, you are trusting that bridge code is flawless. History suggests otherwise.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Trilemma Table - Seeing the Trade Offs</div>
+  <p>Every blockchain is a set of compromises. Bitcoin chose security and decentralisation, sacrificing scalability. Ethereum chose programmability but inherited scalability problems. Solana chose speed but compromised on reliability and decentralisation. Polygon chose low fees but introduced bridge risk. There is no free lunch in blockchain design - at least, there was not until MST's approach to the trilemma.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Blockchain Trilemma - Explained Like You Are Choosing a Vehicle</h2>
+
+<p>The blockchain trilemma is not a technical paper. It is a real world design constraint. Think of it like choosing a vehicle for your daily commute.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🚗 The Vehicle Analogy</div>
+  <p><strong>Bitcoin is a tank.</strong> Incredibly secure, almost impossible to destroy. But it moves at 7 kilometres per hour and consumes a tanker of fuel every kilometre. Perfect for storing national gold reserves. Terrible for buying groceries.<br><br>
+  <strong>Ethereum is a luxury bus.</strong> It can carry many passengers and has all kinds of fancy features - TV screens, WiFi, reclining seats. But the ticket price changes every minute based on demand. During rush hour, a ticket can cost more than the bus itself.<br><br>
+  <strong>Solana is a Formula 1 race car.</strong> Blindingly fast. Built for the track. But every few months, the engine blows up. The whole car stops. You wait on the side of the road until a tow truck arrives. Fantastic when it works. But can you trust it for a cross country trip?<br><br>
+  <strong>Polygon is a shuttle bus that drives alongside the highway.</strong> It is fast and cheap because it avoids the main road's toll gates. But to get from the highway to the shuttle, you cross a narrow bridge. If that bridge collapses, everything on the shuttle is lost.</p>
+</div>
+
+<!-- W5 Grid -->
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why do these trade offs exist?</div>
+      <div class="w5-a">Because decentralisation is expensive. If you want thousands of independent computers around the world to all agree on a single version of the truth, that takes time and energy. Bitcoin and Ethereum prioritise this agreement above all else - hence the high cost and slow speed. Solana tried to speed it up by using fewer, more powerful computers - but that makes the network more fragile. Polygon bypassed the agreement entirely by running a separate chain - but that introduces bridge risk. Every design decision is a trade off.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the specific shortcoming of each chain?</div>
+      <div class="w5-a"><strong>Bitcoin:</strong> 7 TPS, 10 minute block time, energy consumption of a medium country. Unusable for payments.<br><strong>Ethereum:</strong> Gas fees that spike 100x during congestion, making simple transactions cost ₹5,000 to ₹10,000. Complex and unforgiving UX - one wrong click and you lose everything.<br><strong>Solana:</strong> Multiple total network outages. Validator hardware costs over ₹50 lakhs, centralising the network among a few wealthy operators.<br><strong>Polygon:</strong> Security depends entirely on bridge smart contracts. Over $2 billion stolen from bridges in 2022. Not a fully independent Layer 1.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do these shortcomings affect real users?</div>
+      <div class="w5-a">Ravi cannot use Bitcoin for remittances because it is slower and more expensive than a bank. Ananya cannot use Ethereum DeFi during peak times because gas fees consume all her gains. Karan cannot trust Solana for his game because an outage kills the player experience. Deepak cannot use Polygon for enterprise supply chain because a bridge hack would destroy his company's credibility. Each chain fails at a different real world use case.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where do these chains still work reasonably well?</div>
+      <div class="w5-a">Bitcoin works as digital gold - a store of value for long term holding. Ethereum works for high value DeFi transactions where the gas fee is a small fraction of the amount moved. Solana works during periods of stability for high frequency trading apps. Polygon works for low stakes applications where users can tolerate bridge risk. But none of them are suitable for mass adoption, daily microtransactions, enterprise grade reliability, or onboarding the next billion users.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the fundamental limits that no upgrade can fix?</div>
+      <div class="w5-a">Bitcoin's 7 TPS is a design choice - not a temporary bug. Ethereum's Layer 2 rollups help, but introduce their own complexity and fragmentation. Solana's hardware requirements mean the network will always tend toward centralisation. Polygon's sidechain model will always depend on a bridge. These are architectural limitations, not temporary issues. They cannot be patched - they can only be replaced by a better architecture.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Chain by Chain - The Specific Technical Failures</h2>
+
+<p>Now we move from stories to specifications. As a blockchain developer, you need to know exactly what breaks, why it breaks, and how to spot the trade off in any new chain someone pitches to you.</p>
+
+<div class="feature-list">
+
+  <div class="feature-item">
+    <div class="feature-num">₿</div>
+    <div class="feature-content">
+      <div class="feature-title">Bitcoin - The Scalability Ceiling</div>
+      <div class="feature-desc">
+        <p>Bitcoin's block size is capped at 1 megabyte. Each block is produced approximately every 10 minutes. Simple arithmetic: a typical Bitcoin transaction is about 250 bytes. That gives a theoretical maximum of roughly 4,000 transactions per block, or <strong>7 transactions per second</strong>. For a global payment system, that is hopelessly inadequate.</p>
+        <p>The real world is worse. During peak demand, fees skyrocket. In April 2021, the average Bitcoin transaction fee reached $62. For Ravi's ₹50,000 remittance, that would be ₹4,600 - nearly 10% of the amount sent. The very people who need decentralised money the most - the unbanked, the underbanked - are priced out.</p>
+        <p>Bitcoin's Lightning Network was supposed to solve this by moving small transactions off chain. But Lightning requires users to open and close channels on chain (paying fees twice), manage channel liquidity, and stay online to receive payments. It is not a seamless solution - it is a complex workaround that still confuses experienced developers.</p>
+        <p><strong>Developer's lens:</strong> Bitcoin has no smart contract language beyond a limited scripting system. You cannot build a DeFi protocol, an NFT marketplace, or a supply chain dApp on Bitcoin. It is a single purpose chain - digital gold - and it was never designed to be anything else.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">Ξ</div>
+    <div class="feature-content">
+      <div class="feature-title">Ethereum - The Gas Auction from Hell</div>
+      <div class="feature-desc">
+        <p>Ethereum is a world computer where every operation costs "gas." A simple transfer of ETH costs 21,000 gas. A Uniswap swap costs 150,000 to 300,000 gas. A complex DeFi interaction can cost 500,000 gas or more. The gas price is set by an auction: users bid against each other to get their transactions included in the next block.</p>
+        <p>When the network is congested, this auction becomes brutal. In May 2022, gas prices hit 1,500 gwei. At that price, a Uniswap swap cost over ₹20,000. A failed transaction - where the contract reverts due to an error - still consumes the gas. You pay thousands of rupees for a transaction that does nothing.</p>
+        <p>Ethereum's transition to Proof of Stake in September 2022 reduced energy consumption by 99.9%, but it did not reduce gas fees. Gas fees are a function of block space demand, not consensus mechanism. The Merge was about security and sustainability - not scalability. Sharding, which was supposed to increase throughput, has been delayed repeatedly and replaced by a rollup centric roadmap that pushes complexity to Layer 2.</p>
+        <p><strong>Developer's lens:</strong> Deploying a smart contract on Ethereum mainnet can cost ₹50,000 to ₹2,00,000 in gas alone. Every bug fix, every upgrade, every new feature requires a fresh deployment and another gas bill. This makes iterative development financially punishing.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">◎</div>
+    <div class="feature-content">
+      <div class="feature-title">Solana - Speed Without a Safety Net</div>
+      <div class="feature-desc">
+        <p>Solana's architecture is radically different. It uses Proof of History - a cryptographic clock that orders transactions before they are processed, allowing validators to execute them in parallel. This parallel execution is what gives Solana its claimed 65,000 TPS. But it comes with a cost.</p>
+        <p>Solana validators must run extremely powerful hardware: 12 core CPUs, 128 GB of RAM, high end SSDs. The cost of running a validator is estimated at ₹50 lakhs per year or more. This prices out small operators. The network ends up dominated by a few dozen well funded validators - exactly the centralisation that blockchain was supposed to prevent.</p>
+        <p>More critically, Solana has no mempool - no waiting area for pending transactions. When the network is overloaded, transactions are simply dropped. Bots and arbitrage traders flood the network with spam transactions during high demand periods, causing validators to fork. The network stops producing blocks. Engineers must manually coordinate a restart - a process that took 17 hours in September 2021 and 20 hours in February 2023.</p>
+        <p><strong>Developer's lens:</strong> Building on Solana means betting that the network will not go down during your critical launch window. For a game studio like Karan's, an outage during a tournament or an NFT mint is catastrophic. For DeFi protocols, an outage means users cannot liquidate positions during a market crash - and they will sue.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">⬡</div>
+    <div class="feature-content">
+      <div class="feature-title">Polygon - The Bridge Is the Weakest Link</div>
+      <div class="feature-desc">
+        <p>Polygon is not a standalone Layer 1. It is a sidechain - a separate blockchain that runs alongside Ethereum and uses its own validators. Transactions on Polygon are cheap because they do not pay Ethereum gas. But when you move assets from Ethereum to Polygon (or back), you use a bridge - a smart contract that locks tokens on one chain and mints equivalent tokens on the other.</p>
+        <p>Bridges are complex. They involve multiple smart contracts, validator sets, and cryptographic proofs. A single bug in any of these components can be exploited. In 2022 alone, the Wormhole bridge lost $320 million, the Ronin bridge lost $620 million, and the Nomad bridge lost $190 million. That is over $1.1 billion stolen from bridges in one year.</p>
+        <p>Polygon's bridge has not been hacked - yet. But it is secured by a multisig of 5 of 8 signers. If an attacker compromises 5 keys, they can drain the bridge. This is not a hypothetical risk - multisig compromises have happened repeatedly in crypto history. Deepak's pharmaceutical company cannot accept "it has not been hacked yet" as a security guarantee.</p>
+        <p><strong>Developer's lens:</strong> When you build on Polygon, you are not building on Ethereum. You are building on a chain that depends on Ethereum for its ultimate security, but processes transactions independently. The bridge is a single point of failure. If the bridge is exploited, all assets on Polygon become worthless.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="highlight-strip">
+  <strong>Architectural insight:</strong> Every chain's strength is also its weakness. Bitcoin's simplicity is its security - and its limitation. Ethereum's programmability is its genius - and its congestion. Solana's speed is its selling point - and its fragility. Polygon's low fees are its advantage - and its bridge risk. A chain that solves all three aspects of the trilemma simultaneously has never existed. Until MST.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising the Trade Offs</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 6.2-A · The Blockchain Trilemma - Where Each Chain Falls</div>
+  <pre>
+  THE BLOCKCHAIN TRILEMMA
+  ─────────────────────────────────────────────────
+
+              SECURITY
+                 ▲
+                / \
+               /   \
+              /     \
+             /       \
+            /  BITCOIN\
+           /   (₿)     \
+          /             \
+         /               \
+        /                 \
+       /                   \
+      /                     \
+     /                       \
+    /  ETHEREUM (Ξ)           \
+   /                           \
+  /_____________________________\
+DECENTRALISATION          SCALABILITY
+                         ▲
+                         |
+                    SOLANA (◎)
+                         |
+                         |
+                    (fast but fragile)
+                         |
+                         |
+              POLYGON (⬡)
+              (cheap but dependent)
+  </pre>
+  <div class="diagram-caption">Bitcoin maximises security and decentralisation, sacrificing scalability. Ethereum also leans toward security and decentralisation, with scalability as the weak point. Solana maximises scalability, but sacrifices decentralisation and reliability. Polygon is off the main triangle entirely - it gains scalability by depending on Ethereum's security through a bridge, introducing a new risk dimension.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 6.2-B · Gas Fee Comparison - One Month of Transactions</div>
+  <pre>
+  COST OF 1,000 TRANSACTIONS (approximate, 2024)
+  ────────────────────────────────────────────────
+
+  Bitcoin (on‑chain)     :  ₹2,50,000 – ₹8,00,000
+  Ethereum (mainnet)     :  ₹80,000 – ₹5,00,000
+  Solana                 :  ₹80 – ₹150
+  Polygon                :  ₹40 – ₹100
+  MST                    :  ₹1 – ₹5
+
+  Note: Ethereum L2s (Arbitrum, Optimism) bring costs
+  down to ₹500 – ₹2,000 per 1,000 txs — cheaper but still
+  10‑100x higher than MST, with added withdrawal delays
+  and bridge assumptions.
+  </pre>
+  <div class="diagram-caption">Cost is only one dimension. Bitcoin and Ethereum fail on cost. Solana fails on reliability. Polygon fails on security independence. The only chain that achieves low cost, high reliability, and independent security is MST.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">The Four Chains - Head to Head on Critical Metrics</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Bitcoin</th>
+      <th>Ethereum</th>
+      <th>Solana</th>
+      <th>Polygon</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Transactions per second</td>
+      <td class="bad">7</td>
+      <td class="bad">15 - 30</td>
+      <td class="mid">65,000 (theoretical)</td>
+      <td class="mid">7,000</td>
+    </tr>
+    <tr>
+      <td>Average transaction fee</td>
+      <td class="bad">₹300 - ₹1,500</td>
+      <td class="bad">₹100 - ₹10,000</td>
+      <td class="good">₹0.02 - ₹0.50</td>
+      <td class="good">₹0.05 - ₹1</td>
+    </tr>
+    <tr>
+      <td>Network uptime (2023)</td>
+      <td class="good">99.99%</td>
+      <td class="good">99.99%</td>
+      <td class="bad">~99.5% (multiple outages)</td>
+      <td class="mid">99.9% (bridge risk)</td>
+    </tr>
+    <tr>
+      <td>Energy consumption</td>
+      <td class="bad">~100 TWh/year</td>
+      <td class="good">~0.01 TWh/year (post Merge)</td>
+      <td class="good">Low</td>
+      <td class="good">Low</td>
+    </tr>
+    <tr>
+      <td>Smart contract support</td>
+      <td class="bad">Minimal (no full language)</td>
+      <td class="good">Full (Solidity, EVM)</td>
+      <td class="mid">Full (Rust, C - non EVM)</td>
+      <td class="good">Full (EVM compatible)</td>
+    </tr>
+    <tr>
+      <td>Decentralisation (validator nodes)</td>
+      <td class="good">~15,000+</td>
+      <td class="good">~800,000+</td>
+      <td class="bad">~2,000 (hardware barrier)</td>
+      <td class="mid">~100 (PoS sidechain)</td>
+    </tr>
+    <tr>
+      <td>Security model</td>
+      <td class="good">Self contained PoW</td>
+      <td class="good">Self contained PoS</td>
+      <td class="mid">Self contained but fragile</td>
+      <td class="bad">Depends on Ethereum bridge</td>
+    </tr>
+    <tr>
+      <td>User experience</td>
+      <td class="bad">Slow, no recovery</td>
+      <td class="bad">Gas auction, complex wallets</td>
+      <td class="mid">Fast but unreliable</td>
+      <td class="mid">Better, but bridge confusion</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Missing Column - MST</div>
+  <p>Look at this table and imagine a chain that scores "Good" on every row. 4,000+ TPS. Fees of fractions of a paisa. 99.99% uptime. Full EVM compatibility. Thousands of validators with low hardware requirements. Self contained security with no bridge dependency. And a user experience that does not require seed phrases or gas calculations. That chain is MST - and it exists today.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">The Blockchain Trilemma</div>
+      <div class="feature-desc">A blockchain cannot simultaneously maximise security, scalability, and decentralisation. Improving one typically weakens another. Bitcoin and Ethereum chose security and decentralisation. Solana chose scalability. Polygon chose cost efficiency by depending on Ethereum's security.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Bitcoin's Core Limitations</div>
+      <div class="feature-desc">7 TPS, 10 minute blocks, Proof of Work energy consumption, no smart contract language. Designed as digital gold - not as a platform for applications.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Ethereum's Gas Problem</div>
+      <div class="feature-desc">Gas fees are a function of demand for block space, not the consensus mechanism. The Merge did not reduce gas fees. The rollup centric roadmap pushes complexity to Layer 2, creating fragmentation.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Solana's Reliability Failures</div>
+      <div class="feature-desc">Multiple total network outages due to spam transactions overwhelming validators. Hardware requirements price out small operators, leading to centralisation. Speed without reliability is useless for real money applications.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Polygon's Bridge Risk</div>
+      <div class="feature-desc">Polygon is a sidechain, not an independent Layer 1. Its security depends on a bridge smart contract. Over $2 billion was stolen from cross chain bridges in 2022. Enterprise applications cannot accept this risk.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 6.2 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">20</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQs -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">10 Questions · 1 mark each · 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">What is the blockchain trilemma?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> The problem of choosing between Bitcoin and Ethereum as an investment.</li>
+        <li class="correct"><span class="opt-key">B</span> The design constraint that a blockchain cannot simultaneously maximise security, scalability, and decentralisation. ✅</li>
+        <li><span class="opt-key">C</span> The difficulty of finding enough developers to build on a new blockchain.</li>
+        <li><span class="opt-key">D</span> The legal challenge of operating a blockchain across multiple countries.</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>The blockchain trilemma, coined by Vitalik Buterin, states that improving one of the three properties - security, scalability, decentralisation - tends to weaken at least one of the others. It is a fundamental design constraint, not an investment choice, a hiring problem, or a legal issue.</p>
+        <div class="marks-bd"><span>Note:</span> This is a foundational concept. Every chain's strengths and weaknesses are explained by where they sit on this triangle.</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Bitcoin's throughput is approximately how many transactions per second?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 100</li>
+        <li class="correct"><span class="opt-key">B</span> 7 ✅</li>
+        <li><span class="opt-key">C</span> 1,000</li>
+        <li><span class="opt-key">D</span> 65,000</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Bitcoin processes about 7 transactions per second due to its 1 MB block size and 10-minute block time. This is a deliberate trade off for security and decentralisation, but it makes Bitcoin unsuitable for daily payments.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Which chain introduced smart contracts and gave birth to DeFi and NFTs?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Bitcoin</li>
+        <li class="correct"><span class="opt-key">B</span> Ethereum ✅</li>
+        <li><span class="opt-key">C</span> Solana</li>
+        <li><span class="opt-key">D</span> Polygon</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Ethereum launched in 2015 with a Turing-complete virtual machine, allowing developers to write smart contracts in Solidity. This unlocked DeFi, NFTs, DAOs, and the entire Web3 ecosystem.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Solana's consensus mechanism is called?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Proof of Work</li>
+        <li><span class="opt-key">B</span> Proof of Stake</li>
+        <li class="correct"><span class="opt-key">C</span> Proof of History ✅</li>
+        <li><span class="opt-key">D</span> Delegated Proof of Stake</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>Solana uses Proof of History, a cryptographic clock that orders transactions before processing, enabling parallel execution. This gives Solana its high speed but also contributes to its fragility.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Polygon is best described as a?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Standalone Layer 1 with its own security</li>
+        <li class="correct"><span class="opt-key">B</span> Sidechain that depends on Ethereum's security via a bridge ✅</li>
+        <li><span class="opt-key">C</span> Layer 2 rollup that posts proofs to Ethereum</li>
+        <li><span class="opt-key">D</span> Centralised database with a blockchain interface</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Polygon is a sidechain with its own validators but depends on a bridge to Ethereum for asset security. This makes it fast and cheap, but its security is not fully independent.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q6</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Why did Ethereum's Merge to Proof of Stake NOT lower gas fees?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Proof of Stake made transactions slower than before.</li>
+        <li><span class="opt-key">B</span> Proof of Stake increased the number of validators, causing more congestion.</li>
+        <li class="correct"><span class="opt-key">C</span> Gas fees are a function of block space demand, not the consensus mechanism. ✅</li>
+        <li><span class="opt-key">D</span> Proof of Stake removed the fee market, making gas free.</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>The Merge changed Ethereum's consensus from PoW to PoS, reducing energy consumption by 99.9%. It did not increase block space or change the gas auction mechanism. Gas fees remain high whenever block space demand exceeds supply.</p>
+        <div class="marks-bd"><span>Developer insight:</span> Never confuse consensus changes with scalability changes. They solve different problems.</div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q7</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">What is the primary reason for Solana's multiple network outages?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Solana uses Proof of Work, which is inherently unstable under high load.</li>
+        <li><span class="opt-key">B</span> Solana's validators run on low end hardware that crashes when transactions spike.</li>
+        <li class="correct"><span class="opt-key">C</span> Solana processes transactions in parallel without a mempool, so spam transactions cause validators to fork. ✅</li>
+        <li><span class="opt-key">D</span> Solana's bridge to Ethereum is the single point of failure that causes network wide halts.</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>Solana's high throughput comes from parallel execution without a mempool. When the network is flooded with spam, validators lose consensus and the chain halts. The network must be manually restarted, as happened in September 2021 (17 hours) and February 2023 (20 hours).</p>
+        <div class="marks-bd"><span>Key takeaway:</span> Extreme speed without a safety queue means overload crashes the entire network instead of just slowing it down.</div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q8</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">How much value was lost from cross chain bridge hacks in 2022 alone?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> $100 million</li>
+        <li><span class="opt-key">B</span> $500 million</li>
+        <li class="correct"><span class="opt-key">C</span> Over $2 billion ✅</li>
+        <li><span class="opt-key">D</span> $10 billion</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>In 2022, the Wormhole bridge ($320M), Ronin bridge ($620M), and Nomad bridge ($190M) were among the major exploits, totalling over $2 billion. This makes bridges the single largest attack surface in crypto.</p>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q9</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Which chain does NOT have full EVM compatibility?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Ethereum</li>
+        <li><span class="opt-key">B</span> Polygon</li>
+        <li class="correct"><span class="opt-key">C</span> Solana ✅</li>
+        <li><span class="opt-key">D</span> All of the above are EVM compatible</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>Solana uses a completely different execution environment (SVM) and requires smart contracts to be written in Rust or C. It is not compatible with Solidity or the EVM ecosystem, unlike Ethereum and Polygon.</p>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q10</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">What is the fundamental limitation that makes Bitcoin unsuitable for daily payments?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> It lacks smart contract support.</li>
+        <li class="correct"><span class="opt-key">B</span> Its low throughput of 7 TPS and high fee market during congestion. ✅</li>
+        <li><span class="opt-key">C</span> It is not decentralised enough.</li>
+        <li><span class="opt-key">D</span> Its anonymous founder creates regulatory uncertainty.</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Bitcoin's 7 TPS cap creates a fee market where users bid against each other. During congestion, fees can exceed ₹1,000 and confirmation takes hours. This makes it unusable for low value, time sensitive payments like buying groceries or sending remittances.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: Multi‑select matching -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Multi-Select Matching</div>
+      <div class="q-section-meta">1 Question · 9 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q11</div>
+        <div class="q-meta"><span class="q-type">Multi-Select</span><span class="q-diff medium">Medium</span><span class="q-marks">9 marks</span></div>
+      </div>
+      <div class="q-text">Which of the following pairs correctly match a blockchain to its primary architectural shortcoming? (Select ALL that apply. 4 correct pairs, 2 marks each, plus 1 bonus mark for selecting all correct answers without any incorrect selection.)</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Bitcoin - High fees and slow confirmations due to limited block space ✅</li>
+        <li><span class="opt-key">B</span> Bitcoin - Inability to run smart contracts</li>
+        <li class="correct"><span class="opt-key">C</span> Ethereum - Gas fees spike during congestion, making small transactions uneconomical ✅</li>
+        <li><span class="opt-key">D</span> Ethereum - Network outages due to validator centralisation</li>
+        <li class="correct"><span class="opt-key">E</span> Solana - Network outages due to lack of mempool and spam transactions ✅</li>
+        <li><span class="opt-key">F</span> Solana - Dependence on a bridge to another chain for security</li>
+        <li class="correct"><span class="opt-key">G</span> Polygon - Bridge dependency and risk of multisig compromise ✅</li>
+        <li><span class="opt-key">H</span> Polygon - Hardware requirements that centralise validators</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Pairs: A, C, E, G - Explanation</div>
+        <p><strong>A</strong> is correct - Bitcoin's 7 TPS cap creates a fee market that makes payments expensive. <strong>B</strong> is a limitation but not the primary shortcoming discussed in this module.<br>
+        <strong>C</strong> is correct - Ethereum's gas auction spikes during demand, pricing out small users.<br>
+        <strong>D</strong> describes Solana, not Ethereum. <strong>E</strong> correctly identifies Solana's core trade off: speed without a mempool leads to instability.<br>
+        <strong>F</strong> describes Polygon's bridge dependency, not Solana's. <strong>G</strong> is correct - Polygon's sidechain model depends entirely on a secure bridge.<br>
+        <strong>H</strong> describes Solana's high validator hardware requirements, not Polygon's.</p>
+        <div class="marks-bd"><span>Scoring:</span> 4 correct pairs × 2 marks = 8 marks. 1 bonus mark if no incorrect option is selected. Total 9 marks.</div>
+      </div>
+    </div>
+
+    <!-- SECTION C: True/False -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - True / False</div>
+      <div class="q-section-meta">1 Question · 1 mark</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q12</div>
+        <div class="q-meta"><span class="q-type">True/False</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">"The Ethereum Merge reduced gas fees on the network."</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> True</li>
+        <li class="correct"><span class="opt-key">B</span> False ✅</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: False - Explanation</div>
+        <p>The Merge transitioned Ethereum from Proof of Work to Proof of Stake, reducing energy consumption by 99.9%. It did not increase block space or change the gas auction mechanism. Gas fees remain a function of demand for block space, and the Merge did not address scalability.</p>
+        <div class="marks-bd"><span>Note:</span> This is a common misconception. Never confuse consensus changes with scalability improvements.</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 6.2 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ (1 mark each) <span>= 10 marks</span></div>
+      <div class="score-row">Section B: 1 × Multi-Select matching (9 marks) <span>= 9 marks</span></div>
+      <div class="score-row">Section C: 1 × True/False (1 mark) <span>= 1 mark</span></div>
+      <div class="score-row" style="margin-top:8px;">All questions are drawn <span>directly from the content taught in this sub-module</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">20</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SUB-MODULE SUMMARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Summary</div>
+<h2 class="section-title">Sub-Module 6.2 - Complete!</h2>
+
+<div class="callout key">
+  <div class="callout-label">✅ Key Takeaways from Other Chains' Shortcomings</div>
+  <p>You have now dissected the four most important blockchain networks - Bitcoin, Ethereum, Solana, and Polygon - through the lens of the blockchain trilemma. You saw that each chain made a deliberate trade off. Bitcoin chose security over speed. Ethereum chose programmability but inherited congestion. Solana chose speed but sacrificed reliability. Polygon chose low fees but created bridge dependency.</p>
+  <br>
+  <p>You met Ravi, Ananya, Karan, and Deepak - four real people whose use cases were broken by these trade offs. Ravi's remittance failed on Bitcoin's fee market. Ananya's DeFi position was trapped by Ethereum's gas spikes. Karan's game economy was shattered by Solana's outage. Deepak's enterprise project was stalled by Polygon's bridge risk. These are not edge cases. They are the predictable failures of architectures that cannot solve the trilemma.</p>
+  <br>
+  <p>You also learned to evaluate a chain not by its marketing claims, but by its architectural fundamentals. Throughput numbers, fee markets, consensus mechanisms, validator requirements, and security dependencies. You now have a framework - the trilemma triangle - that you can use to analyse any new blockchain you encounter for the rest of your career.</p>
+  <br>
+  <p>Every sub module from here forward builds on this knowledge. When you read about MST's Trika POSA consensus, you will know exactly why it is designed differently from Solana's Proof of History. When you read about MST's gas model, you will understand exactly why it outperforms Ethereum's auction. You are no longer just learning features. You are learning the trade offs - and why MST's architecture is designed to avoid them.</p>
+  <br>
+  <p><strong>You are ready for Sub Module 6.3 - The Developer & User Nightmare.</strong></p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 6.2</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Blockchain Trilemma</div>
+    <div class="glossary-def">The design constraint that a blockchain cannot simultaneously maximise security, scalability, and decentralisation. Improving one typically weakens at least one of the others.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Proof of Work (PoW)</div>
+    <div class="glossary-def">Bitcoin's consensus mechanism where miners compete to solve cryptographic puzzles. Extremely secure but energy intensive and slow (7 TPS).</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Gas Fee</div>
+    <div class="glossary-def">The unit of computational cost on Ethereum. Users bid gas prices to get transactions included; during congestion, fees can exceed ₹10,000 per transaction.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Proof of History (PoH)</div>
+    <div class="glossary-def">Solana's cryptographic clock that timestamps transactions before processing, enabling parallel execution. Enables high speed but contributes to network fragility under spam conditions.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Sidechain</div>
+    <div class="glossary-def">A separate blockchain that runs alongside a main chain (like Ethereum) and uses a bridge to transfer assets. Polygon is a sidechain. Sidechains are fast and cheap but introduce bridge risk.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Bridge</div>
+    <div class="glossary-def">A smart contract that locks tokens on one chain and mints equivalent tokens on another. Bridges are complex and have been repeatedly exploited - over $2 billion stolen in 2022.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">EVM Compatibility</div>
+    <div class="glossary-def">The ability of a blockchain to run smart contracts written in Solidity, using the same tooling as Ethereum. Polygon is EVM compatible; Solana is not (uses Rust).</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">The Merge</div>
+    <div class="glossary-def">Ethereum's transition from Proof of Work to Proof of Stake in September 2022. Reduced energy use by 99.9% but did not reduce gas fees - scalability remains a separate challenge.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Mempool</div>
+    <div class="glossary-def">A waiting area for pending transactions before they are included in a block. Bitcoin and Ethereum have mempools; Solana does not - contributing to its outage vulnerability.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Validator Hardware Requirements</div>
+    <div class="glossary-def">The computing power needed to run a node. Solana's high requirements (~₹50 lakhs/year) centralise the network among wealthy operators. Bitcoin and Ethereum have lower barriers.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 6 · Sub-Module <strong>6.2</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 6.3 - The Developer & User Nightmare →</p>
+</div>
+
+</body>
+</html>

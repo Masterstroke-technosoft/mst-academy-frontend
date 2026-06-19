@@ -1,0 +1,214 @@
+{
+  "submoduleId": "3.2",
+  "totalMarks": 10,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which field in a block header creates the \"chain\" by linking each block to the one before it?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Timestamp",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Merkle Root",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Previous Hash (PrevHash)",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "Nonce",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "The Previous Hash field stores the cryptographic hash of the preceding block. This is what makes it a chain - each block provably and mathematically references its parent. Changing any block changes its hash, which breaks this reference in the next block, cascading an invalidation through every subsequent block. The Merkle Root summarises the transactions within the block, the Timestamp records when it was mined, and the Nonce is the PoW puzzle answer - none of these create the chain linking.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p>The <strong>Previous Hash</strong> field stores the cryptographic hash of the preceding block. This is what makes it a <em>chain</em> - each block provably and mathematically references its parent. Changing any block changes its hash, which breaks this reference in the next block, cascading an invalidation through every subsequent block. The Merkle Root summarises the transactions within the block, the Timestamp records when it was mined, and the Nonce is the PoW puzzle answer - none of these create the chain linking.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "UTXO stands for:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Universal Token eXchange Output",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Unspent Transaction Output",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Unified Transfer eXchange Operation",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Unverified Transaction Origin",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Unspent Transaction Output. In Bitcoin's model, when you receive Bitcoin, you don't receive a \"balance update\" - you receive a specific output from a previous transaction that hasn't been spent yet. This is a UTXO. Your total wallet \"balance\" is simply the sum of all UTXOs your private key can spend. Options A, C, and D are fabricated acronyms designed as distractors.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Explanation</div>\n        <p><strong>Unspent Transaction Output</strong>. In Bitcoin's model, when you receive Bitcoin, you don't receive a \"balance update\" - you receive a specific output from a previous transaction that hasn't been spent yet. This is a UTXO. Your total wallet \"balance\" is simply the sum of all UTXOs your private key can spend. Options A, C, and D are fabricated acronyms designed as distractors.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Priya has 3 UTXOs: 0.3 BTC, 0.2 BTC, and 0.1 BTC. She wants to send 0.4 BTC to Rahul (network fee: 0.01 BTC). Which combination of UTXOs should she use as inputs, and what change does she receive?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Use only 0.3 BTC UTXO; receive 0.1 BTC change",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Use 0.3 BTC + 0.2 BTC UTXOs; receive 0.09 BTC change",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Use all three UTXOs; receive 0.19 BTC change",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Use only the 0.1 BTC UTXO repeated 5 times",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Total required = 0.40 BTC (payment) + 0.01 BTC (fee) = 0.41 BTC. Only the 0.3 BTC UTXO (Option A) is insufficient (only 0.30 BTC). Using 0.3 + 0.2 = 0.50 BTC: send 0.40 to Rahul, 0.01 to miner = 0.50 − 0.41 = 0.09 BTC change back to Priya. Option C (all three = 0.60 BTC) works but is wasteful - creates a larger UTXO change. Option D is impossible - UTXOs are discrete units, you cannot \"use the same UTXO multiple times.\"",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Explanation</div>\n        <p>Total required = 0.40 BTC (payment) + 0.01 BTC (fee) = <strong>0.41 BTC</strong>. Only the 0.3 BTC UTXO (Option A) is insufficient (only 0.30 BTC). Using 0.3 + 0.2 = 0.50 BTC: send 0.40 to Rahul, 0.01 to miner = 0.50 − 0.41 = <strong>0.09 BTC change</strong> back to Priya. Option C (all three = 0.60 BTC) works but is wasteful - creates a larger UTXO change. Option D is impossible - UTXOs are discrete units, you cannot \"use the same UTXO multiple times.\"</p>\n        <div class=\"marks-bd\"><span>Examiner note:</span> This is the classic UTXO arithmetic question. Always check: inputs ≥ payment + fee. Change = inputs − payment − fee.</div>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Where do valid, signed transactions wait before being included in a block?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Genesis Pool",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "State Trie",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Mempool (Memory Pool)",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "Block Header",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "The Mempool (Memory Pool) is the temporary holding area on each node for transactions that have been validated (signature correct, balance sufficient, nonce correct) but not yet included in a confirmed block. Validators/miners select from the mempool - usually prioritising by gas fee - to assemble each new block. The State Trie is Ethereum's data structure for account balances. Block Headers contain metadata, not pending transactions. \"Genesis Pool\" does not exist.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p>The <strong>Mempool</strong> (Memory Pool) is the temporary holding area on each node for transactions that have been validated (signature correct, balance sufficient, nonce correct) but not yet included in a confirmed block. Validators/miners select from the mempool - usually prioritising by gas fee - to assemble each new block. The State Trie is Ethereum's data structure for account balances. Block Headers contain metadata, not pending transactions. \"Genesis Pool\" does not exist.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "MST Blockchain uses which transaction model?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Account model (like Ethereum) - each address has a stored balance",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "UTXO model (like Bitcoin) - discrete unspent outputs",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "A hybrid of UTXO and Account model",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Neither - MST uses its own proprietary model",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "MST is EVM-compatible (Ethereum Virtual Machine compatible), meaning it inherits Ethereum's architecture - including the account model. Every address on MST has a balance field in the state trie, and transactions adjust balances through arithmetic operations. This is what makes it possible for Solidity smart contracts (written for Ethereum) to run unchanged on MST. The UTXO model is used by Bitcoin-family coins.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A - Explanation</div>\n        <p>MST is <strong>EVM-compatible</strong> (Ethereum Virtual Machine compatible), meaning it inherits Ethereum's architecture - including the account model. Every address on MST has a balance field in the state trie, and transactions adjust balances through arithmetic operations. This is what makes it possible for Solidity smart contracts (written for Ethereum) to run unchanged on MST. The UTXO model is used by Bitcoin-family coins.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "The Merkle Root in a block header serves what primary purpose?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It stores the hash of the previous block to create the chain",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "It is a single cryptographic summary of all transactions in the block, enabling fraud detection and light-client verification",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "It records the wallet address of the block's creator (validator/miner)",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "It stores the solution to the Proof-of-Work puzzle",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "The Merkle Root is a single 32-byte hash that summarises ALL transactions in the block. It is computed by hashing pairs of transaction hashes repeatedly (a Merkle tree) until one root hash remains. Two critical functions: (1) If any transaction in the block is altered, the Merkle Root changes - tamper detection. (2) A mobile wallet (light client) can verify that a specific transaction is in a block by only downloading the Merkle Root + a short \"proof path\" - without downloading all 3,000+ transactions. Option A describes PrevHash. Option D describes the Nonce (PoW answer).",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Explanation</div>\n        <p>The <strong>Merkle Root</strong> is a single 32-byte hash that summarises ALL transactions in the block. It is computed by hashing pairs of transaction hashes repeatedly (a Merkle tree) until one root hash remains. Two critical functions: (1) If any transaction in the block is altered, the Merkle Root changes - tamper detection. (2) A mobile wallet (light client) can verify that a specific transaction is in a block by only downloading the Merkle Root + a short \"proof path\" - without downloading all 3,000+ transactions. Option A describes PrevHash. Option D describes the Nonce (PoW answer).</p>"
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "other",
+      "difficulty": "Medium",
+      "marks": 4,
+      "text": "Arjun has the following UTXOs in his Bitcoin wallet:<br><br>\n        &nbsp;&nbsp;• UTXO-X: 0.50 BTC<br>\n        &nbsp;&nbsp;• UTXO-Y: 0.30 BTC<br>\n        &nbsp;&nbsp;• UTXO-Z: 0.15 BTC<br><br>\n        He wants to send <strong>0.60 BTC to Kavya</strong>. The network fee is <strong>0.01 BTC</strong>.<br><br>\n        (a) What is the total amount required for this transaction? <em>(1 mark)</em><br>\n        (b) Which UTXOs must Arjun use as inputs? Justify why he cannot use UTXO-X alone. <em>(1 mark)</em><br>\n        (c) List all the outputs this transaction creates and their amounts. <em>(1 mark)</em><br>\n        (d) After this transaction completes, list Arjun's remaining UTXO set. <em>(1 mark)</em>",
+      "explanation": "(a) Total amount required:\n        Payment to Kavya: 0.60 BTC + Network fee: 0.01 BTC = 0.61 BTC total required as inputs.\n(b) UTXOs to use and justification:\n        Arjun must use UTXO-X (0.50 BTC) + UTXO-Y (0.30 BTC) = 0.80 BTC total inputs.\n        He cannot use UTXO-X alone because 0.50 BTC < 0.61 BTC required — insufficient to cover both the payment and fee. In the UTXO model, each UTXO must be used entirely (you cannot \"partially\" spend a UTXO), so he must combine UTXOs to meet or exceed the total requirement. UTXO-X + UTXO-Z = 0.65 BTC would also work — accept either valid combination with correct reasoning.\n(c) Transaction outputs:\n        Using UTXO-X + UTXO-Y (0.80 BTC input):\n        • Output 1: 0.60 BTC → Kavya's address (the payment)\n        • Output 2: 0.19 BTC → Arjun's own address (change: 0.80 − 0.60 − 0.01 = 0.19)\n        • Output 3: 0.01 BTC → Miner/Validator (the network fee)\n        Total outputs: 0.60 + 0.19 + 0.01 = 0.80 BTC ✅ (equals total inputs)\n(d) Arjun's remaining UTXO set after the transaction:\n        • UTXO-Z: 0.15 BTC (untouched - was not used as input)\n        • New change UTXO: 0.19 BTC (created as output from this transaction)\n        Total remaining balance: 0.15 + 0.19 = 0.34 BTC",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Model Answer - 4 Marks</div>\n        <p><strong>(a) Total amount required:</strong><br>\n        Payment to Kavya: 0.60 BTC + Network fee: 0.01 BTC = <strong>0.61 BTC total required as inputs</strong>.</p>\n        <br>\n        <p><strong>(b) UTXOs to use and justification:</strong><br>\n        Arjun must use <strong>UTXO-X (0.50 BTC) + UTXO-Y (0.30 BTC)</strong> = 0.80 BTC total inputs.<br>\n        He cannot use UTXO-X alone because 0.50 BTC &lt; 0.61 BTC required — insufficient to cover both the payment and fee. In the UTXO model, each UTXO must be used entirely (you cannot \"partially\" spend a UTXO), so he must combine UTXOs to meet or exceed the total requirement. UTXO-X + UTXO-Z = 0.65 BTC would also work — accept either valid combination with correct reasoning.</p>\n        <br>\n        <p><strong>(c) Transaction outputs:</strong><br>\n        Using UTXO-X + UTXO-Y (0.80 BTC input):<br>\n        • Output 1: <strong>0.60 BTC → Kavya's address</strong> (the payment)<br>\n        • Output 2: <strong>0.19 BTC → Arjun's own address</strong> (change: 0.80 − 0.60 − 0.01 = 0.19)<br>\n        • Output 3: <strong>0.01 BTC → Miner/Validator</strong> (the network fee)<br>\n        Total outputs: 0.60 + 0.19 + 0.01 = 0.80 BTC ✅ (equals total inputs)</p>\n        <br>\n        <p><strong>(d) Arjun's remaining UTXO set after the transaction:</strong><br>\n        • UTXO-Z: <strong>0.15 BTC</strong> (untouched - was not used as input)<br>\n        • New change UTXO: <strong>0.19 BTC</strong> (created as output from this transaction)<br>\n        Total remaining balance: 0.15 + 0.19 = <strong>0.34 BTC</strong></p>\n        <div class=\"marks-bd\"><span>1 mark each for:</span> correct total (a), correct input selection + justification (b), correct three outputs with amounts (c), correct remaining UTXO set (d).</div>"
+    }
+  ]
+}

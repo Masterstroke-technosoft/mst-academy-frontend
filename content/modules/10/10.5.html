@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 10.5 - Formal Verification Intro | Masterstroke Academy</title>
+    <meta name="description" content="Learn formal verification for smart contracts: write mathematical specifications using Certora, prove invariants, and move beyond testing to guarantee correctness.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #7C3AED;
+            --brand-light: #EDE9FB;
+            --brand-dark: #4C1D95;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #C4B5F5;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🔍 Module 10 · Sub-Module 10.5 of 6</div>
+    <h1 class="module-title">Formal Verification <span class="highlight">Introduction</span></h1>
+    <p class="module-subtitle">Testing can show that bugs exist, but it cannot prove they don't. Formal verification uses mathematics to guarantee your smart contract behaves correctly for all possible inputs and states. Learn how to write Certora rules that turn your invariants into machine-checkable proofs.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks (MCQ + Descriptive)</div>
+        <div class="meta-chip">📋 Certora rules in plain English and code</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity & Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🧠</div>
+            <div class="feature-title">Explain what formal verification is and why it's the strongest guarantee of smart contract correctness</div>
+            <div class="feature-desc">Distinguish between testing (checking specific cases), fuzzing (checking random cases), and formal verification (proving correctness for all possible cases).</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📜</div>
+            <div class="feature-title">Read and write simple Certora specification rules</div>
+            <div class="feature-desc">Express invariants and correctness properties in Certora Verification Language (CVL). Understand the difference between rules and invariants.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔎</div>
+            <div class="feature-title">Use Certora to verify a basic ERC-20 token contract</div>
+            <div class="feature-desc">Run the Certora Prover on a token contract and interpret the results. Understand what it means when a rule is "verified" vs. when a counterexample is found.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📝</div>
+            <div class="feature-title">Write a formal specification in plain English for any smart contract</div>
+            <div class="feature-desc">Describe the properties that must hold, in clear language that can later be translated into a formal specification language.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Bug That Testing Missed - But Mathematics Caught</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2023, a leading DeFi protocol was preparing to launch a new version of their staking contract. The contract had been through three rounds of professional auditing. It had over 200 unit tests, all passing. It had been fuzzed with Foundry for a million runs, and no invariant violations were found. The developers were confident.</p>
+        <br>
+        <p>As a final check, they wrote a formal specification using Certora and ran the prover. Within minutes, Certora returned a <strong>counterexample</strong>: a specific sequence of operations where a user could claim more rewards than they had earned. The bug was in a subtle interaction between the <code>stake</code> and <code>compound</code> functions: if a user called <code>compound</code> at precisely the right moment after a large deposit, the reward accumulator was updated incorrectly due to a rounding edge case.</p>
+        <br>
+        <p>This bug had survived three audits. It had survived a million fuzz runs. But formal verification found it, because formal verification doesn't sample - it explores the <strong>entire mathematical space</strong> of possible inputs and states. The protocol delayed their launch, fixed the bug, and ran the prover again. This time, the rule was verified: the prover mathematically proved that no sequence of operations could cause the reward accounting to break.</p>
+        <br>
+        <p>This story is not an exception. It's the new normal. Formal verification is becoming standard practice for high-value protocols precisely because testing - no matter how thorough - can only ever check a tiny fraction of the infinite possibilities. Formal verification checks them all.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Is Formal Verification?</div>
+    <h2 class="section-title">Proving Correctness Instead of Testing for Bugs</h2>
+    <p>Formal verification is a mathematical technique that proves a program behaves correctly for <strong>all possible inputs and all possible states</strong>. Instead of running the program with specific values and checking the output (testing), formal verification analyses the program's logic and proves that certain properties always hold, no matter what.</p>
+    <p><strong>The fundamental difference:</strong></p>
+    <p><strong>Testing</strong> asks: "For this specific input, does the contract behave correctly?" If the test passes, you know the contract works for that one case. You don't know anything about any other case.</p>
+    <p><strong>Fuzzing</strong> asks: "For these thousands of random inputs, does the contract behave correctly?" If the fuzz tests pass, you have statistical confidence. But there's always a chance that the fuzzer missed the one input that breaks the contract.</p>
+    <p><strong>Formal verification</strong> asks: "Can there exist ANY input or state that breaks this property?" If the prover says "no," you have <strong>mathematical certainty</strong> that the property holds for every possible scenario. This is a fundamentally different level of assurance.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 10.5-A · The Spectrum of Assurance</div>
+        <pre>
+Testing ──────── Fuzzing ──────── Formal Verification
+   │                │                    │
+   ▼                ▼                    ▼
+Checks a few     Checks thousands     Proves correctness
+specific cases   of random cases      for ALL possible cases
+   │                │                    │
+   ▼                ▼                    ▼
+Confidence:       Confidence:           Confidence:
+"If I tested      "If I fuzzed          "The math says
+it, it might      it a lot, it's        this property
+work."            probably fine."       can NEVER break."
+        </pre>
+        <div class="diagram-caption">Formal verification provides the highest level of assurance, but it requires more effort to write specifications.</div>
+    </div>
+
+    <p><strong>How formal verification works:</strong> The core technology behind modern formal verification tools is <strong>SMT solvers</strong> (Satisfiability Modulo Theories). An SMT solver is a program that can determine whether a set of mathematical equations and logical constraints is satisfiable - that is, whether there exists any assignment of values that makes all the equations true simultaneously.</p>
+    <p>When you write a formal specification, you're describing the <strong>expected behavior</strong> of your contract as mathematical equations. The prover then combines your specification with the actual Solidity code (also translated into mathematical equations) and asks the SMT solver: "Is there any way the code can violate the specification?" If the solver finds a way, it produces a <strong>counterexample</strong> - the exact input values and function call sequence that triggers the violation. If the solver cannot find any violation, the specification is <strong>proven</strong>.</p>
+
+    <div class="section-label">04 &nbsp; Certora - The Formal Verification Tool for EVM Contracts</div>
+    <h2 class="section-title">Writing Specifications in Certora Verification Language (CVL)</h2>
+    <p><strong>Certora</strong> is the leading formal verification platform for Ethereum-compatible smart contracts. It works by having you write <strong>specifications</strong> in a language called CVL (Certora Verification Language), which are then checked against your contract's bytecode (or Solidity source) by the Certora Prover. Certora is used by Aave, Compound, MakerDAO, and many other top protocols.</p>
+    <p><strong>How Certora works, step by step:</strong></p>
+    <p><strong>1. You write your contract</strong> in Solidity, exactly as you normally would. No changes are needed to the contract itself.</p>
+    <p><strong>2. You write a specification file</strong> (a <code>.spec</code> file) that contains rules describing the expected behavior of your contract.</p>
+    <p><strong>3. You run the Certora Prover</strong> on your contract and specification. The prover translates both into mathematical formulas and uses SMT solvers to check whether any violation exists.</p>
+    <p><strong>4. The result:</strong> Either the rule is <strong>verified</strong> (the property is proven to hold for all possible executions), or a <strong>counterexample</strong> is found (a specific input and call sequence that breaks the property).</p>
+    <p><strong>Types of specifications in Certora:</strong></p>
+    <p><strong>Rules</strong> are checked against specific function calls. They define what should happen when a particular function is called. For example: "After calling <code>transfer</code>, the sender's balance must decrease by exactly the transferred amount."</p>
+    <p><strong>Invariants</strong> are checked after every possible function call (or after every call to a specified set of functions). They define properties that must <strong>always</strong> hold, no matter what sequence of operations has been performed. For example: "The total supply must always equal the sum of all balances."</p>
+
+    <div class="code-block-wrap"><pre>
+// Example Certora specification for an ERC‑20 token
+
+// Import the contract interface
+import "./Token.sol";
+
+// Define methods that the prover should use
+methods {
+    function balanceOf(address) external returns (uint256) envfree;
+    function totalSupply() external returns (uint256) envfree;
+}
+
+// Rule: transfer must correctly update balances
+rule transferCorrectness(address sender, address recipient, uint256 amount) {
+    // Store the balances before the transfer
+    uint256 senderBalanceBefore = balanceOf(sender);
+    uint256 recipientBalanceBefore = balanceOf(recipient);
+
+    // Perform the transfer (from sender to recipient)
+    env e; // create an environment (msg.sender, block.timestamp, etc.)
+    transfer(e, recipient, amount);
+
+    // Check the balances after the transfer
+    assert balanceOf(sender) == senderBalanceBefore - amount,
+        "Sender balance not decreased correctly";
+
+    assert balanceOf(recipient) == recipientBalanceBefore + amount,
+        "Recipient balance not increased correctly";
+}
+
+// Invariant: total supply must always equal sum of all balances
+// This is checked after every possible function call
+invariant totalSupplyEqualsSumOfBalances()
+    totalSupply() == balanceOf(address(0x1)) + balanceOf(address(0x2)) + balanceOf(address(0x3));
+</pre></div>
+
+    <p>This specification defines two properties. The <code>transferCorrectness</code> rule checks that a transfer correctly updates both the sender's and recipient's balances. The <code>totalSupplyEqualsSumOfBalances</code> invariant checks that the total supply remains consistent with the sum of all individual balances after any operation.</p>
+
+    <div class="section-label">05 &nbsp; Writing Your First Formal Rule - A Step-by-Step Guide</div>
+    <h2 class="section-title">Turning English Requirements into Mathematical Guarantees</h2>
+    <p>Let's walk through the complete process of formally verifying a simple contract. We'll use a basic savings contract where users can deposit and withdraw ETH, and the contract tracks each user's balance.</p>
+
+    <p><strong>Step 1: Write the contract.</strong></p>
+    <div class="code-block-wrap"><pre>
+// Savings.sol – A simple savings contract
+contract Savings {
+    mapping(address => uint256) public balances;
+    uint256 public totalDeposits;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+        totalDeposits += msg.value;
+    }
+
+    function withdraw(uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        totalDeposits -= amount;
+        payable(msg.sender).transfer(amount);
+    }
+}</pre></div>
+
+    <p><strong>Step 2: Identify the properties you want to verify.</strong> Think about what must always be true, no matter what sequence of deposits and withdrawals happens. Here are some good properties:</p>
+    <p><strong>P1:</strong> A user's balance can never be negative.</p>
+    <p><strong>P2:</strong> A user cannot withdraw more than they deposited.</p>
+    <p><strong>P3:</strong> The total deposits must equal the sum of all users' balances. (This is an invariant.)</p>
+    <p><strong>P4:</strong> After a deposit of X, the user's balance must increase by exactly X.</p>
+    <p><strong>Step 3: Translate these properties into Certora rules.</strong></p>
+    <div class="code-block-wrap"><pre>
+// Savings.spec – Certora specification
+import "./Savings.sol";
+
+methods {
+    function balances(address) external returns (uint256) envfree;
+    function totalDeposits() external returns (uint256) envfree;
+}
+
+// Rule: After depositing X, the user's balance increases by X
+rule depositIncreasesBalance(address user, uint256 amount) {
+    uint256 balanceBefore = balances(user);
+
+    env e;
+    require e.msg.value == amount;
+    deposit(e, user);  // call deposit as user with `amount` ETH
+
+    assert balances(user) == balanceBefore + amount,
+        "Deposit did not increase balance correctly";
+}
+
+// Rule: After withdrawing X, the user's balance decreases by X
+rule withdrawDecreasesBalance(address user, uint256 amount) {
+    uint256 balanceBefore = balances(user);
+    require balanceBefore >= amount;
+
+    env e;
+    withdraw(e, user, amount);
+
+    assert balances(user) == balanceBefore - amount,
+        "Withdraw did not decrease balance correctly";
+}
+
+// Invariant: Total deposits equals sum of all balances
+invariant totalDepositsMatchesBalances(address[] users)
+    totalDeposits() == sumBalance(users);
+</pre></div>
+
+    <p><strong>Step 4: Run the Certora Prover.</strong> The prover will explore every possible deposit and withdrawal sequence, checking each rule and the invariant. If any property can be violated, Certora will show the exact steps that cause it - for example, "deposit 10 ETH, withdraw 15 ETH, and the balance becomes negative."</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 What "Verified" Really Means</div>
+        <p>When Certora says a rule is <strong>verified</strong>, it means the SMT solver has mathematically proven that no possible execution of the contract can violate that rule. This is not a statistical likelihood. This is not "we tested it a lot." This is a mathematical proof. The property holds for <strong>every possible input value, every possible call sequence, and every possible blockchain state</strong>.</p>
+        <p>However, there is an important caveat: the verification is only as strong as the specification. If you forgot to specify a critical property, Certora won't check it. Formal verification proves that your code matches your specification - it doesn't guarantee that your specification captured every important requirement. This is why writing good specifications is a skill that requires deep understanding of the contract's intended behavior.</p>
+    </div>
+
+    <div class="section-label">06 &nbsp; Common Patterns in Formal Specifications</div>
+    <h2 class="section-title">Rules You Should Write for Every Contract</h2>
+    <p>Over years of verifying DeFi protocols, the Certora community has identified patterns that catch the majority of bugs. Here are the specifications you should write for any new contract.</p>
+
+    <p><strong>1. Balance Conservation:</strong> In any token or vault contract, the total amount of assets must be conserved. Tokens cannot be created from nothing or destroyed into nothing (unless there's an explicit mint/burn function). Write an invariant that checks: <strong>sum of all user balances = total supply (or total deposits).</strong></p>
+
+    <p><strong>2. Monotonicity of Accumulators:</strong> Variables that should only increase (like "total fees collected" or "total rewards distributed") must never decrease. Write a rule that checks: <strong>after any operation, the accumulator is ≥ its previous value.</strong></p>
+
+    <p><strong>3. No Underflow/Overflow:</strong> While Solidity 0.8+ catches arithmetic overflow, semantic overflow (where the logic allows a value to go below its intended minimum) is still possible. Write rules that check: <strong>after any operation, all balances are ≤ some maximum and ≥ some minimum.</strong></p>
+
+    <p><strong>4. Rounding Correctness:</strong> In financial contracts, rounding must always favor the protocol (or at least be consistent). Write a rule that checks: <strong>after a sequence of deposits, withdrawals, and compounding, no user can have received more than they mathematically earned.</strong></p>
+
+    <p><strong>5. Authorization:</strong> Critical functions must only be callable by authorized addresses. Write a rule that checks: <strong>if a non-owner calls an admin function, the transaction must revert.</strong></p>
+
+    <div class="callout warning">
+        <div class="callout-label">⚠️ The Limits of Formal Verification</div>
+        <p>Formal verification is powerful but not magical. It cannot check properties you haven't specified. It cannot verify that your contract correctly implements the business logic - only that it matches the mathematical rules you wrote. It can be computationally expensive for very complex contracts. And it typically cannot reason about external contracts (oracles, other protocols) unless they are also formally modeled. Use formal verification as part of a comprehensive security strategy that includes manual review, testing, fuzzing, and auditing.</p>
+    </div>
+
+    <div class="section-label">07 &nbsp; Formal Verification and MST Blockchain</div>
+    <h2 class="section-title">Why Formal Verification Matters for MST</h2>
+    <p>MST Blockchain is fully EVM-compatible, which means every formal verification tool that works for Ethereum works for MST. Certora, SMT solvers, and other verification tools can be applied to MST smart contracts without any modifications. This is a direct benefit of MST's decision to maintain EVM compatibility.</p>
+    <p>Furthermore, MST's unique features like <strong>WASMify</strong> can benefit from formal verification. WASMify allows running WebAssembly modules on-chain, and these modules can also be formally verified using the same techniques. The Certora Prover can operate on the bytecode of compiled WASM contracts, or you can write specifications for the Solidity wrappers that call WASM functions.</p>
+    <p>For high-value protocols launching on MST, formal verification should be a standard step in the development pipeline, right alongside unit testing and fuzzing. The low gas fees and high throughput of MST make it attractive for complex financial applications, which are exactly the kind of applications that benefit most from mathematical correctness guarantees.</p>
+
+    <div class="section-label">08 &nbsp; Writing a Formal Specification in Plain English</div>
+    <h2 class="section-title">The Most Important Skill: Thinking Before You Code</h2>
+    <p>Before you write a single line of Certora code, you must be able to describe what your contract should do in clear, precise English. This is actually the hardest part of formal verification - and the most valuable. The process of writing a formal specification forces you to think deeply about your contract's invariants and edge cases.</p>
+    <p><strong>Example: English specification for an ERC-20 token.</strong></p>
+    <p><strong>1. Balance Conservation:</strong> At all times, the sum of all token balances must equal the total supply.</p>
+    <p><strong>2. Transfer Correctness:</strong> After a transfer of amount X from A to B (where A ≠ B and A has at least X tokens), A's balance must decrease by exactly X, and B's balance must increase by exactly X.</p>
+    <p><strong>3. Transfer to Self:</strong> A transfer from A to A must not change A's balance (or, alternatively, must revert).</p>
+    <p><strong>4. Transfer of Zero:</strong> A transfer of 0 tokens must not change any balances and must succeed (or, if your design requires, must revert).</p>
+    <p><strong>5. Approve and TransferFrom:</strong> After B is approved to spend up to Y tokens from A, and B calls transferFrom(A, B, X) where X ≤ Y and X ≤ A's balance, then A's balance decreases by X, B's balance increases by X, and B's allowance from A decreases by X.</p>
+    <p><strong>6. Mint:</strong> Only the minter address can mint tokens. After minting X tokens to address A, the total supply increases by X, and A's balance increases by X. No other balances are affected.</p>
+    <p><strong>7. Burn:</strong> After burning X tokens from address A (where A has at least X tokens), the total supply decreases by X, and A's balance decreases by X.</p>
+    <p>This plain-English specification is the foundation. From here, you can translate each property into a Certora rule. The act of writing this specification will often reveal edge cases you hadn't considered: "What if someone transfers to the zero address?" "What if the total supply overflows?" "What if we mint to the contract itself?" Answering these questions before writing code prevents entire categories of bugs.</p>
+
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card">
+        <div class="fact-num">01</div>
+        <div class="fact-text"><strong>Formal verification mathematically proves that a property holds for all possible inputs and states.</strong> Unlike testing (specific cases) or fuzzing (random cases), formal verification explores the entire mathematical space and gives a definitive yes/no answer.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">02</div>
+        <div class="fact-text"><strong>Certora is the leading formal verification tool for EVM contracts.</strong> You write specifications in CVL (Certora Verification Language), and the Certora Prover checks them using SMT solvers. A rule can be "verified" (proven) or a "counterexample" can be found.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">03</div>
+        <div class="fact-text"><strong>Invariants are properties that must hold at all times, after any sequence of function calls.</strong> Examples: "total supply equals sum of balances," "no balance can be negative." Invariants are checked after every possible operation.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">04</div>
+        <div class="fact-text"><strong>A good plain-English specification is the foundation of formal verification.</strong> Describe every property in clear language before writing code. If you can't explain the property in English, you can't write a Certora rule for it.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">05</div>
+        <div class="fact-text"><strong>MST's EVM compatibility means all formal verification tools work unchanged.</strong> Certora, SMT solvers, and other verification tools can be applied directly to MST smart contracts.</div>
+    </div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 10.5 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the key difference between fuzzing and formal verification?</div>
+                <ul class="options">
+                    <li>A. Fuzzing is faster than formal verification.</li>
+                    <li class="correct">B. Fuzzing tests random inputs; formal verification mathematically proves correctness for all possible inputs.</li>
+                    <li>C. Formal verification only works on Ethereum, while fuzzing works on any blockchain.</li>
+                    <li>D. There is no difference - they are the same thing.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: B</div><p>Fuzzing increases confidence through random sampling. Formal verification provides mathematical proof that a property holds for every possible input and state.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">In Certora, what is the difference between a <strong>rule</strong> and an <strong>invariant</strong>?</div>
+                <ul class="options">
+                    <li class="correct">A. A rule is checked against specific function calls; an invariant is checked after every possible function call (or a specified set).</li>
+                    <li>B. A rule is more powerful than an invariant.</li>
+                    <li>C. Invariants only work for ERC-20 tokens; rules work for any contract.</li>
+                    <li>D. There is no difference - they are synonyms.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Rules are scoped to specific functions. Invariants are global properties that are checked after every function call (or every call to a specified set of functions), ensuring they hold at all times.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Which of the following is the BEST example of a property that should be written as an invariant?</div>
+                <ul class="options">
+                    <li class="correct">A. "The total supply of tokens must always equal the sum of all user balances."</li>
+                    <li>B. "After calling deposit(), the user's balance must increase."</li>
+                    <li>C. "The contract owner must be the deployer."</li>
+                    <li>D. "The token name must be 'MyToken'."</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>This is a global property that must hold at all times, regardless of what operations have been performed. It should be checked after every function call, making it an ideal invariant.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">When the Certora Prover finds a counterexample, what does it provide?</div>
+                <ul class="options">
+                    <li class="correct">A. The exact input values and function call sequence that caused the property to be violated.</li>
+                    <li>B. A list of all possible bugs in the contract.</li>
+                    <li>C. A proof that the contract is completely correct.</li>
+                    <li>D. A gas usage report for every function.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>A counterexample includes the specific input values and the exact sequence of function calls that triggers the violation, allowing the developer to reproduce and fix the bug.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the most important first step before writing a formal specification for a smart contract?</div>
+                <ul class="options">
+                    <li class="correct">A. Write a clear, precise specification of the contract's expected behavior in plain English.</li>
+                    <li>B. Run the contract through a fuzzer to find bugs.</li>
+                    <li>C. Deploy the contract to a testnet.</li>
+                    <li>D. Write unit tests for every function.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Before writing any verification code, you must clearly articulate what the contract is supposed to do. A plain-English specification is the foundation of all formal verification work.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q6</div>
+                <div class="a-type">Descriptive - Write a Formal Specification</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">5 marks</div>
+                <div class="a-question"><strong>Write a formal specification in plain English for a simple "PiggyBank" contract.</strong> The contract allows users to deposit ETH, check their balance, and withdraw all their ETH at once (a "smash" function). Write at least 5 properties that the contract must satisfy. For each property, explain why it's important and what could go wrong if the property is violated.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Model Answer & Marks Breakdown</div>
+                    <p><strong>Example properties (1 mark each for at least 5 clear, correct properties):</strong></p>
+                    <p><strong>1. Balance Conservation:</strong> After any sequence of deposits and smashes, the contract's ETH balance must equal the sum of all users' internal balances. Violation would mean users could lose funds or the contract could become insolvent.</p>
+                    <p><strong>2. Deposit Correctness:</strong> After a user deposits X ETH, their internal balance must increase by exactly X. Violation would mean users don't receive credit for their deposits.</p>
+                    <p><strong>3. Smash Correctness:</strong> After a user smashes their piggy bank, they must receive exactly their internal balance in ETH, and their internal balance must become zero. Violation would mean either the user loses funds or the contract pays out incorrect amounts.</p>
+                    <p><strong>4. No Double Smash:</strong> A user cannot smash their piggy bank more than once without depositing again. After smashing, the balance is zero, so a second smash should revert (or transfer zero).</p>
+                    <p><strong>5. No Negative Balances:</strong> At no point can any user's internal balance be negative. Violation would allow users to steal funds from other users.</p>
+                    <p><strong>6. Smash Only Own:</strong> A user can only smash their own piggy bank - they cannot smash another user's bank and steal their funds.</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 10.5 Assessment Summary</div>
+            <div class="score-row">Q1-Q5: 5 × MCQ (1 mark each) = 5 marks</div>
+            <div class="score-row">Q6: Descriptive - Formal Specification = 5 marks</div>
+            <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.5</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Formal Verification</div><div class="g-def">A mathematical technique that proves a program satisfies a specification for all possible inputs and states. Uses SMT solvers and logical reasoning to guarantee correctness.</div></div>
+        <div class="glossary-card"><div class="g-term">Certora</div><div class="g-def">The leading formal verification platform for EVM-compatible smart contracts. Uses CVL (Certora Verification Language) to write specifications that are checked by the Certora Prover.</div></div>
+        <div class="glossary-card"><div class="g-term">SMT Solver</div><div class="g-def">Satisfiability Modulo Theories solver - a program that determines whether a set of mathematical equations and logical constraints can be satisfied. The core engine behind formal verification tools.</div></div>
+        <div class="glossary-card"><div class="g-term">Invariant</div><div class="g-def">A property that must hold at all times, regardless of what sequence of operations has been performed. Checked after every function call (or every call to a specified set).</div></div>
+        <div class="glossary-card"><div class="g-term">Rule</div><div class="g-def">A specification that describes the expected behavior of a specific function. Defines what should happen when that function is called, and is checked against all possible inputs.</div></div>
+        <div class="glossary-card"><div class="g-term">Counterexample</div><div class="g-def">A specific set of input values and function call sequences that violates a rule or invariant. Found by the prover when a property cannot be proven.</div></div>
+        <div class="glossary-card"><div class="g-term">CVL</div><div class="g-def">Certora Verification Language - the language used to write specifications for the Certora Prover. Combines Solidity-like syntax with mathematical operators.</div></div>
+        <div class="glossary-card"><div class="g-term">Balance Conservation</div><div class="g-def">An invariant stating that the total amount of assets in a contract must equal the sum of all individual balances. Prevents tokens from being created or destroyed illegally.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.5</strong> of 6 · Next: Sub-Module 10.6 - Code Review & Refactoring →</p>
+    </div>
+
+</body>
+</html>

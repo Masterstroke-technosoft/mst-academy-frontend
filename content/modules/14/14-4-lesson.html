@@ -1,0 +1,262 @@
+
+
+    <div class="module-badge">⚡ Module 14 · Sub-Module 14.4 of 7</div>
+    <h1 class="module-title"><span class="highlight">ZK-Rollups</span></h1>
+    <p class="module-subtitle">How zero-knowledge proofs are transforming blockchain scaling. Understand validity proofs, the magic of zk-SNARKs and zk-STARKs, and why ZK-Rollups offer instant finality - the holy grail of Layer-2 technology.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 20 Marks (MCQ + True/False + Identify-Output)</div>
+        <div class="meta-chip">📋 Validity proofs, zkSync, StarkNet, Polygon zkEVM</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s &amp; Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🔐</div>
+            <div class="feature-title">Explain how ZK-Rollups use validity proofs to guarantee correctness without a challenge window</div>
+            <div class="feature-desc">Distinguish cryptographic proof from economic incentive - why ZK-Rollups offer instant finality while Optimistic Rollups require a 7-day wait.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🧩</div>
+            <div class="feature-title">Understand the difference between zk-SNARKs and zk-STARKs and their roles in scaling</div>
+            <div class="feature-desc">Know the trade-offs between proof size, verification time, trusted setup, and quantum resistance - and how each ZK-Rollup chooses its technology.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">⚖️</div>
+            <div class="feature-title">Compare zkSync, StarkNet, and Polygon zkEVM - the three leading ZK-Rollups</div>
+            <div class="feature-desc">Analyse their architectures, EVM compatibility levels, prover economics, and what each is optimised for.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🌐</div>
+            <div class="feature-title">Connect ZK technology to MST's ecosystem - WASMify and ZK-based communication</div>
+            <div class="feature-desc">Understand how MST already uses zero-knowledge proofs for private messaging and data verification, and how ZK-Rollups could be deployed on MST if needed.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Billion-Dollar Airdrop That Needed ZK</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In early 2023, the team behind zkSync - Matter Labs - faced a monumental challenge. They had promised to airdrop their governance token to hundreds of thousands of early users, but they wanted to do it in a way that was fair, Sybil-resistant, and didn't cost millions in gas fees. Distributing tokens on Ethereum L1 would have cost users ₹500-₹5,000 per claim - eating up a huge chunk of the airdrop's value. Distributing on an Optimistic Rollup would have subjected users to a 7-day withdrawal delay before they could use their tokens.</p>
+        <br>
+        <p>The solution was their own technology: zkSync Era, a ZK-Rollup. Because ZK-Rollups use <strong>validity proofs</strong> - mathematical guarantees that every transaction in a batch was executed correctly - there is no challenge window. Withdrawals are final as soon as the proof is verified on Ethereum L1, which takes about 10-15 minutes (the time to generate the proof and submit it). Users claimed their tokens directly on zkSync Era, paid pennies in fees, and could withdraw to L1 the same day. The airdrop was a massive success, and zkSync Era became one of the fastest-growing L2s.</p>
+        <br>
+        <p>This story highlights the single most important advantage of ZK-Rollups over Optimistic Rollups: <strong>instant finality with cryptographic guarantees.</strong> There is no "trust but verify later" - the proof itself proves correctness. In this sub-module, you'll learn exactly how these proofs work, why they're so revolutionary, and what it will take for them to become the dominant scaling solution.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Are ZK-Rollups? - The "Trust Me, I Can Prove It" Blockchain</div>
+    <h2 class="section-title">Mathematical Certainty Instead of Economic Assumptions</h2>
+    <p>A <strong>ZK-Rollup (Zero-Knowledge Rollup)</strong> is a Layer-2 scaling solution that executes transactions off-chain and then submits a single <strong>validity proof</strong> to the Layer-1 blockchain. This validity proof is a cryptographic proof that the entire batch of transactions was executed correctly - no need to trust, no need to wait for challenges. The proof itself guarantees correctness.</p>
+    <p>If Optimistic Rollups are "innocent until proven guilty" (with a 7-day trial period), ZK-Rollups are "proven innocent from the start." The proof is submitted alongside the state update, and once the L1 contract verifies the proof, the state is final. No waiting. No disputes. No economic bonds. Just mathematics.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.4-A · ZK-Rollup Architecture - The Validity Proof Lifecycle</div>
+        <pre>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ZK‑ROLLUP ARCHITECTURE                               │
+│                                                                              │
+│  Users ──▶ Sequencer ──▶ Batch Transactions ──▶ Prover Generates ZK Proof    │
+│              │                                      │                        │
+│              │ (orders txs)                          │ (off‑chain,            │
+│              │                                      │  computationally heavy) │
+│              ▼                                      ▼                        │
+│         ┌──────────────────┐              ┌──────────────────────┐           │
+│         │   L2 STATE       │              │   ZK PROOF           │           │
+│         │ (zkSync/StarkNet)│              │                      │           │
+│         │                  │              │ • Validity proof     │           │
+│         │ • Fast execution │              │ • State diff         │           │
+│         │ • Low fees       │              │ • Compressed tx data │           │
+│         │ • Instant        │              └──────────┬───────────┘           │
+│         │   confirmations  │                         │                       │
+│         └──────────────────┘                         ▼                       │
+│                                           ┌──────────────────────┐           │
+│                                           │   L1 ROLLUP CONTRACT │           │
+│                                           │ (on Ethereum)        │           │
+│                                           │                      │           │
+│                                           │ • Verifies ZK proof  │           │
+│                                           │ • Updates state root │           │
+│                                           │   INSTANTLY (no      │           │
+│                                           │   challenge window)  │           │
+│                                           └──────────────────────┘           │
+└─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">ZK-Rollups replace the 7-day challenge window with a single cryptographic proof. Verify the proof, and you know with mathematical certainty that the entire batch was processed correctly.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; The Magic of Zero-Knowledge Proofs - How They Actually Work</div>
+    <h2 class="section-title">zk-SNARKs, zk-STARKs, and the Art of Proving Without Revealing</h2>
+    <p>At the heart of every ZK-Rollup is a <strong>zero-knowledge proof</strong> - a cryptographic technique that allows one party (the Prover) to convince another party (the Verifier) that a statement is true, without revealing any information beyond the truth of the statement itself.</p>
+    <p>In the context of ZK-Rollups, the "statement" is: <strong>"I executed this batch of 10,000 transactions correctly, and here is the resulting state root."</strong> The Prover (the rollup operator) generates a proof that this statement is true. The Verifier (the L1 smart contract) checks the proof - a process that takes milliseconds and costs a fraction of the gas that re-executing 10,000 transactions would cost.</p>
+
+    <p><strong>The two families of ZK proofs used in rollups:</strong></p>
+    <p><strong>zk-SNARKs (Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge):</strong></p>
+    <p>• <strong>Proof size:</strong> Very small (a few hundred bytes).<br>
+    • <strong>Verification time:</strong> Extremely fast (a few milliseconds on L1).<br>
+    • <strong>Trusted setup:</strong> Requires a one-time ceremony where multiple parties generate cryptographic parameters. If the ceremony is compromised, fake proofs could be generated. However, modern ceremonies involve hundreds or thousands of participants - if even one person destroys their secret, the setup is secure.<br>
+    • <strong>Quantum resistance:</strong> None - SNARKs rely on elliptic curve cryptography, which Shor's algorithm can break.<br>
+    • <strong>Used by:</strong> zkSync Era, Polygon zkEVM, earlier versions of many ZK projects.</p>
+
+    <p><strong>zk-STARKs (Zero-Knowledge Scalable Transparent ARguments of Knowledge):</strong></p>
+    <p>• <strong>Proof size:</strong> Larger than SNARKs (tens of kilobytes), but still tiny compared to re-executing transactions.<br>
+    • <strong>Verification time:</strong> Slightly slower than SNARKs, but still milliseconds.<br>
+    • <strong>Trusted setup:</strong> None required - STARKs use hash functions, not elliptic curves, so there's no toxic waste.<br>
+    • <strong>Quantum resistance:</strong> Yes - STARKs rely on collision-resistant hash functions, which are believed to be quantum-resistant.<br>
+    • <strong>Used by:</strong> StarkNet (StarkWare), and increasingly being adopted by other projects for their transparency and post-quantum security.</p>
+
+    <table>
+        <thead><tr><th>Property</th><th>zk-SNARKs</th><th>zk-STARKs</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Proof size</strong></td><td>~200-300 bytes</td><td>~10-100 KB</td></tr>
+            <tr><td><strong>Prover time</strong></td><td>Minutes (faster with hardware)</td><td>Seconds to minutes (parallelisable)</td></tr>
+            <tr><td><strong>Verifier time</strong></td><td>~1-3 ms</td><td>~5-10 ms</td></tr>
+            <tr><td><strong>Trusted setup</strong></td><td>Required</td><td>None</td></tr>
+            <tr><td><strong>Quantum resistance</strong></td><td>No</td><td>Yes</td></tr>
+            <tr><td><strong>Maturity</strong></td><td>More mature, widely deployed</td><td>Newer, rapidly improving</td></tr>
+            <tr><td><strong>Used by</strong></td><td>zkSync Era, Polygon zkEVM</td><td>StarkNet, StarkEx</td></tr>
+        </tbody>
+    </table>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Prover-Verifier Asymmetry</div>
+        <p>The key insight of ZK-Rollups is the <strong>asymmetry</strong> between proving and verifying. Generating a validity proof is computationally expensive - it requires powerful hardware and can take minutes. But verifying that proof is extremely cheap and fast - milliseconds, and costs about 500,000 gas on Ethereum (roughly $10-$50, depending on gas prices). This asymmetry is what makes ZK-Rollups work: you pay the heavy computation cost once (off-chain), and the entire network benefits from the cheap verification (on-chain). The prover cost is amortised across all the transactions in the batch - so while generating a proof for a single transaction would be prohibitively expensive, generating one proof for 10,000 transactions makes the per-transaction cost negligible.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; The ZK-Rollup Lifecycle - From Transaction to Finality</div>
+    <h2 class="section-title">How a Batch of Transactions Becomes a Validity Proof</h2>
+    <p>Let's trace the complete lifecycle of a ZK-Rollup, from the moment a user submits a transaction to the moment the L1 state is updated.</p>
+
+    <div class="timeline">
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 1</div>
+                <div class="tl-body"><strong>Users submit transactions to the Sequencer.</strong> Just like on Optimistic Rollups, users send transactions to a Sequencer (centralised for now, decentralised in the future). The Sequencer orders transactions, executes them, and updates the L2 state. Users see instant confirmations on L2.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 2</div>
+                <div class="tl-body"><strong>The Sequencer forms a batch.</strong> Every few minutes, the Sequencer collects a batch of transactions (thousands of them) and sends them to the <strong>Prover</strong>. The Prover is a powerful off-chain machine (or network of machines) that will generate the validity proof.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 3</div>
+                <div class="tl-body"><strong>The Prover generates the validity proof.</strong> This is the computationally intensive step. The Prover executes the entire batch of transactions, computes the state transition, and generates a cryptographic proof that the state transition is correct. This can take 1-10 minutes depending on the batch size, proof system, and hardware. The output is a small proof file (bytes to kilobytes) and the new state root.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 4</div>
+                <div class="tl-body"><strong>The proof is submitted to the L1 rollup contract.</strong> The Sequencer (or Prover) sends a transaction to the rollup contract on Ethereum containing: the new state root, the validity proof, and the compressed transaction data (calldata). The compressed data allows anyone to reconstruct the L2 state if needed.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 5</div>
+                <div class="tl-body"><strong>The L1 contract verifies the proof.</strong> The rollup contract calls a verification function that checks the validity proof against the submitted state root. This verification costs ~500,000 gas and takes a few milliseconds. If the proof is valid, the contract updates the L1 state root to the new value. The batch is now final - no challenge period, no waiting.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 6</div>
+                <div class="tl-body"><strong>Users can withdraw immediately.</strong> Because the validity proof guarantees correctness, there is no need for a challenge window. Users can initiate a withdrawal from L2 to L1, and once the next batch is proven (which includes their withdrawal transaction), the funds are available on L1. This takes minutes, not a week.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">06 &nbsp; The Big Three - zkSync, StarkNet, and Polygon zkEVM</div>
+    <h2 class="section-title">Comparing the Leading ZK-Rollups</h2>
+    <p>Three ZK-Rollups dominate the Ethereum ecosystem. Each takes a different approach to EVM compatibility, proof system, and developer experience.</p>
+
+    <table>
+        <thead><tr><th>Feature</th><th>zkSync Era</th><th>StarkNet</th><th>Polygon zkEVM</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Proof System</strong></td><td>zk-SNARKs (Plonky2)</td><td>zk-STARKs (Stone prover)</td><td>zk-SNARKs (Plonky2 + custom)</td></tr>
+            <tr><td><strong>EVM Compatibility</strong></td><td>High - most Solidity contracts work with minor changes</td><td>Low - uses Cairo, a custom language (StarkNet is not EVM-compatible)</td><td>Very High - aims for full EVM equivalence (bytecode level)</td></tr>
+            <tr><td><strong>Prover</strong></td><td>Centralised (Matter Labs) with roadmap for decentralisation</td><td>Shared prover (SHARP) - multiple apps share proof generation</td><td>Centralised (Polygon) with plan for decentralised proving network</td></tr>
+            <tr><td><strong>Trusted Setup</strong></td><td>Yes (per-circuit ceremony)</td><td>No (STARKs)</td><td>Yes (per-circuit ceremony)</td></tr>
+            <tr><td><strong>Withdrawal Time</strong></td><td>~10-15 minutes</td><td>~hours (batches are larger, less frequent)</td><td>~10-30 minutes</td></tr>
+            <tr><td><strong>Unique Feature</strong></td><td>Native account abstraction (every account is a smart contract)</td><td>Cairo language enables complex provable computation</td><td>Bytecode-level EVM equivalence - any Ethereum contract runs unchanged</td></tr>
+            <tr><td><strong>Token</strong></td><td>ZK (not yet launched)</td><td>STRK (launched 2024)</td><td>POL (formerly MATIC)</td></tr>
+        </tbody>
+    </table>
+
+    <p><strong>Why StarkNet chose Cairo over EVM:</strong> StarkNet made a deliberate decision to build a custom language (Cairo) rather than support Solidity directly. The reason: the EVM was not designed with ZK-proof generation in mind. Some EVM opcodes (like KECCAK256) are extremely expensive to prove in a ZK circuit. By designing Cairo from the ground up for ZK provability, StarkNet achieves faster proof generation and lower costs. The trade-off: developers must learn a new language, and existing Solidity contracts cannot simply be copy-pasted.</p>
+    <p><strong>Polygon zkEVM's approach:</strong> Polygon took the opposite approach: they built a ZK-Rollup that is fully EVM-equivalent at the <strong>bytecode level</strong>. Every Ethereum opcode, every precompile, every edge case is replicated exactly - so any Solidity contract that compiles for Ethereum will run on Polygon zkEVM without any changes. The cost: the prover is more complex and slower, because it must prove the execution of a virtual machine (the EVM) that was not designed for ZK provability.</p>
+
+    <div class="section-label">07 &nbsp; ZK-Rollups vs. Optimistic Rollups - The Complete Comparison</div>
+    <h2 class="section-title">When to Use Which, and Why</h2>
+    <table>
+        <thead><tr><th>Property</th><th>ZK-Rollups</th><th>Optimistic Rollups</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Finality time (L1)</strong></td><td>~10-60 minutes (proof generation + submission)</td><td>7 days (challenge window)</td></tr>
+            <tr><td><strong>Withdrawal time (native)</strong></td><td>Minutes</td><td>7 days (or instant via liquidity provider, with a fee)</td></tr>
+            <tr><td><strong>Security model</strong></td><td>Cryptographic (validity proof)</td><td>Economic (fraud proof + bond)</td></tr>
+            <tr><td><strong>Assumption for security</strong></td><td>ZK proof system is sound (no false proofs)</td><td>At least 1 honest verifier watches within 7 days</td></tr>
+            <tr><td><strong>Prover cost</strong></td><td>High (computationally intensive)</td><td>Low (no special hardware needed)</td></tr>
+            <tr><td><strong>EVM compatibility</strong></td><td>High to Very High (varies by project)</td><td>Full (bytecode-level)</td></tr>
+            <tr><td><strong>Maturity</strong></td><td>Newer, rapidly evolving</td><td>More mature, larger ecosystem</td></tr>
+            <tr><td><strong>Data posting to L1</strong></td><td>Compressed tx data (calldata)</td><td>Compressed tx data (calldata)</td></tr>
+            <tr><td><strong>Best for</strong></td><td>Payments, DeFi needing fast finality, institutional use</td><td>General dApps, gaming, social apps</td></tr>
+        </tbody>
+    </table>
+
+    <p><strong>The future is likely hybrid:</strong> Many projects are exploring <strong>hybrid rollups</strong> that combine the strengths of both approaches. For example, a rollup could use ZK proofs for fast preliminary finality (minutes) and keep fraud proofs as a backup in case the ZK proof system is ever broken. This is the direction Arbitrum's "BOLD" protocol and zkSync's "ZK Porter" are exploring. The ideal rollup would have the instant finality of ZK with the simplicity and maturity of Optimistic - and we are getting closer every year.</p>
+
+    <div class="section-label">08 &nbsp; ZK Technology in the MST Ecosystem</div>
+    <h2 class="section-title">MST's Existing ZK Infrastructure and Future Potential</h2>
+    <p>MST Blockchain already uses zero-knowledge proofs in production, not as a rollup scaling solution (since MST L1 is already high-throughput), but for <strong>privacy and data verification</strong>.</p>
+    <p><strong>ZK-based Communication:</strong> MST's protocol includes ZK-powered private messaging. Users can communicate and transact with cryptographic guarantees that the content of their messages is correct and authorised, without revealing the content itself to the public blockchain. This is a direct application of ZK proofs - proving a statement is true without revealing the statement.</p>
+    <p><strong>WASMify + ZK:</strong> MST's WASMify protocol enables running WebAssembly modules on-chain. When combined with ZK proofs, WASMify can verify that an off-chain computation was performed correctly without re-executing it on-chain. This is essentially a ZK-Rollup pattern: the heavy computation happens off-chain (in WASM), a ZK proof of correct execution is generated, and the proof is verified on-chain. This enables private, scalable computation for enterprise applications like supply chain verification, AI model inference, and confidential data processing.</p>
+    <p><strong>Future ZK-Rollups on MST:</strong> While MST's 4,000+ TPS base layer is sufficient for current demand, the ZK infrastructure is already in place if future scaling requires it. A ZK-Rollup on MST would inherit MST's low gas fees (making proof verification even cheaper) and fast finality (~3-second blocks, making proof submission faster). The SARAL Protocol's biometric wallet would make ZK-Rollup onboarding as simple as fingerprint login - no seed phrases, no complexity. MST is building the foundation for a ZK-powered future without the current fragmentation of Ethereum's L2 ecosystem.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The MST Advantage for ZK</div>
+        <p>ZK proofs are computationally heavy to generate but cheap to verify. On Ethereum, verifying a ZK proof costs ~500,000 gas ($10-$50). On MST, the same verification costs a fraction of a paisa. This means ZK-powered applications - rollups, private transactions, verifiable computation - become dramatically more economical on MST. The low cost of verification could enable use cases that are impossible on Ethereum, like per-transaction ZK proofs or real-time verifiable AI inference.</p>
+    </div>
+
+    <div class="section-label">09 &nbsp; The Future of ZK-Rollups - Universal Provers, Hardware Acceleration, and Mass Adoption</div>
+    <h2 class="section-title">Where the Technology Is Heading</h2>
+    <p><strong>1. Hardware acceleration:</strong> Companies like Ingonyama and Cysic are building specialised hardware (FPGAs and ASICs) for ZK proof generation. This will reduce prover time from minutes to seconds and prover cost by orders of magnitude, making ZK-Rollups competitive with Optimistic Rollups on cost.</p>
+    <p><strong>2. Universal provers:</strong> Instead of building a custom prover for each rollup, projects like RISC Zero and Succinct Labs are building <strong>universal ZK provers</strong> that can prove any computation. This would allow any blockchain to become a ZK-Rollup without building custom circuits.</p>
+    <p><strong>3. zkEVM convergence:</strong> As Polygon zkEVM, zkSync, Scroll, and Taiko compete, we will likely see convergence towards a standard for ZK-proven EVM execution. The winner will be the implementation that achieves full EVM equivalence with the fastest prover and lowest cost.</p>
+    <p><strong>4. ZK for privacy:</strong> Beyond scaling, ZK proofs are the foundation of private transactions and identity systems. MST's ZK-based communication is an early example. As the technology matures, we will see ZK-powered private DeFi, anonymous voting, and confidential smart contracts become mainstream.</p>
+    <p><strong>5. Quantum-safe ZK:</strong> As quantum computing advances, STARKs (which are quantum-resistant) will become increasingly important. MST's post-quantum security layer aligns with this trend, ensuring that ZK proofs on MST remain secure even in a post-quantum world.</p>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>ZK-Rollups use validity proofs (cryptographic proofs) to guarantee correctness, eliminating the need for a challenge window.</strong> Finality is achieved as soon as the proof is verified on L1 (minutes, not days).</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>zk-SNARKs are small and fast to verify, but require a trusted setup and are not quantum-resistant.</strong> zk-STARKs are larger but require no trusted setup and are quantum-resistant.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>zkSync Era uses zk-SNARKs (Plonky2) and offers high EVM compatibility.</strong> StarkNet uses zk-STARKs and requires the Cairo language. Polygon zkEVM aims for full bytecode-level EVM equivalence.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>The prover generates the ZK proof off-chain; the verifier (L1 contract) checks it on-chain.</strong> Generating a proof is expensive (minutes, hardware), but verifying it is cheap (milliseconds, ~500K gas on Ethereum, negligible on MST).</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>MST already uses ZK for private messaging (ZK-based communication) and data verification (WASMify + ZK).</strong> Its low gas fees make ZK proof verification dramatically cheaper than on Ethereum, enabling new use cases.</div></div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.4</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">ZK-Rollup</div><div class="g-def">A Layer-2 scaling solution that uses zero-knowledge validity proofs to guarantee correct execution of off-chain transactions, offering instant finality on L1.</div></div>
+        <div class="glossary-card"><div class="g-term">Validity Proof</div><div class="g-def">A cryptographic proof that a batch of transactions was executed correctly. Unlike fraud proofs, validity proofs guarantee correctness mathematically - no challenge period needed.</div></div>
+        <div class="glossary-card"><div class="g-term">zk-SNARK</div><div class="g-def">Zero-Knowledge Succinct Non-Interactive Argument of Knowledge - a type of ZK proof that is very small and fast to verify, but requires a trusted setup.</div></div>
+        <div class="glossary-card"><div class="g-term">zk-STARK</div><div class="g-def">Zero-Knowledge Scalable Transparent ARgument of Knowledge - a type of ZK proof that requires no trusted setup and is quantum-resistant, but produces larger proofs.</div></div>
+        <div class="glossary-card"><div class="g-term">Prover</div><div class="g-def">The off-chain entity that generates the ZK validity proof by executing the batch of transactions and producing a cryptographic proof of correct execution.</div></div>
+        <div class="glossary-card"><div class="g-term">Verifier (L1 Contract)</div><div class="g-def">The on-chain smart contract that checks the validity proof. If the proof is valid, the new state root is accepted as final.</div></div>
+        <div class="glossary-card"><div class="g-term">Cairo</div><div class="g-def">A programming language designed by StarkWare for writing ZK-provable programs on StarkNet. Not EVM-compatible, but optimised for efficient proof generation.</div></div>
+        <div class="glossary-card"><div class="g-term">Trusted Setup</div><div class="g-def">A one-time ceremony where multiple participants generate cryptographic parameters for a ZK proof system. If compromised, fake proofs could be created.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.4</strong> of 7 · Next: Sub-Module 14.5 - Sharding &amp; Modular Chains →</p>
+    </div>
+
+

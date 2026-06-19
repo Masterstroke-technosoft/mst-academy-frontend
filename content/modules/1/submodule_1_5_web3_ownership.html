@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 1.5 - Web 3.0: The Ownership Web | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand: #6C3CE2; --brand-light: #EDE9FB; --brand-dark: #3C1FA0;
+    --accent: #F6A623; --accent-light: #FEF4E0;
+    --green: #16A34A; --green-light: #DCFCE7;
+    --red: #DC2626; --red-light: #FEE2E2;
+    --blue: #1D6FD8; --blue-light: #DBEAFE;
+    --teal: #0D9488; --teal-light: #CCFBF1;
+    --ink: #111827; --ink-2: #374151; --ink-3: #6B7280;
+    --border: #E5E7EB; --surface: #F9FAFB; --white: #FFFFFF;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.75; font-size: 16px; max-width: 860px; margin: 0 auto; padding: 48px 32px 96px; }
+
+  .module-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--brand-light); color: var(--brand-dark); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
+  .module-title { font-size: 38px; font-weight: 900; line-height: 1.2; color: var(--ink); margin-bottom: 12px; }
+  .module-subtitle { font-size: 18px; color: var(--ink-3); font-weight: 400; margin-bottom: 28px; }
+  .meta-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+  .meta-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .meta-chip.highlight { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+
+  .section-number { display: inline-block; background: var(--brand); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+  h2.section-title { font-size: 26px; font-weight: 800; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  h2.section-title .icon { width: 36px; height: 36px; border-radius: 8px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  h3.sub-title { font-size: 19px; font-weight: 700; color: var(--ink); margin: 28px 0 12px; padding-left: 14px; border-left: 4px solid var(--brand); }
+  p { margin-bottom: 14px; color: var(--ink-2); }
+  section { margin-bottom: 56px; }
+
+  .callout { border-radius: var(--radius); padding: 18px 22px; margin: 20px 0; border-left: 5px solid; font-size: 15px; line-height: 1.7; }
+  .callout.tip { background: var(--green-light); border-color: var(--green); }
+  .callout.warning { background: var(--red-light); border-color: var(--red); }
+  .callout.info { background: var(--blue-light); border-color: var(--blue); }
+  .callout.key { background: var(--brand-light); border-color: var(--brand); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.teal { background: var(--teal-light); border-color: var(--teal); }
+  .callout-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; opacity: 0.75; }
+  .callout p { margin-bottom: 0; }
+
+  .story-block { background: var(--ink); color: #F3F4F6; border-radius: var(--radius); padding: 28px 32px; margin: 24px 0; position: relative; overflow: hidden; }
+  .story-block::before { content: '₿'; position: absolute; top: -20px; right: 24px; font-size: 180px; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; }
+  .story-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: block; }
+  .story-block p { color: #D1D5DB; margin-bottom: 10px; }
+  .story-block strong { color: #FBBF24; }
+
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--ink); }
+  thead th { color: white; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 12px 16px; text-align: left; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 12px 16px; color: var(--ink-2); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--ink); }
+  .check-cell { color: var(--green); font-weight: 700; }
+  .cross-cell { color: var(--red); font-weight: 700; }
+
+  .diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 24px 0; overflow-x: auto; }
+  .diagram-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 16px; }
+  pre { font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--ink-2); white-space: pre; overflow-x: auto; margin: 0; }
+
+  .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0; }
+  .pillar-card { border-radius: var(--radius); border: 1.5px solid var(--border); padding: 18px; background: white; transition: box-shadow 0.2s; }
+  .pillar-card:hover { box-shadow: 0 4px 12px rgba(108,60,226,0.1); border-color: #C4B5F5; }
+  .pillar-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+  .pillar-title { font-size: 15px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+  .pillar-sub { font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+
+  .evolution-row { display: flex; gap: 0; margin: 24px 0; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--border); }
+  .evo-col { flex: 1; padding: 20px; }
+  .evo-col.web1 { background: #F8F9FA; }
+  .evo-col.web2 { background: #FFF7ED; }
+  .evo-col.web3 { background: #F0FDF4; }
+  .evo-label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; display: block; }
+  .evo-col.web1 .evo-label { color: var(--ink-3); }
+  .evo-col.web2 .evo-label { color: #B45309; }
+  .evo-col.web3 .evo-label { color: var(--teal); }
+  .evo-title { font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+  .evo-col.web1 .evo-title { color: #374151; }
+  .evo-col.web2 .evo-title { color: #92400E; }
+  .evo-col.web3 .evo-title { color: #065F46; }
+  .evo-list { list-style: none; padding: 0; font-size: 13px; }
+  .evo-list li { padding: 4px 0; border-bottom: 1px dashed var(--border); color: var(--ink-2); }
+  .evo-list li:last-child { border-bottom: none; }
+
+  .objectives-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .objective-item { display: flex; align-items: flex-start; gap: 10px; background: var(--green-light); border: 1px solid #BBF7D0; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; color: #166534; line-height: 1.5; }
+  .objective-item .check { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; font-size: 11px; margin-top: 1px; }
+
+  .steps { list-style: none; padding: 0; margin: 16px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--brand); color: white; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .step-desc { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .highlight-box { background: var(--brand); color: white; border-radius: var(--radius); padding: 24px 28px; margin: 24px 0; font-size: 18px; font-weight: 700; line-height: 1.5; text-align: center; }
+  .highlight-box span { color: #FCD34D; }
+
+  .facts-list { list-style: none; padding: 0; counter-reset: fact; }
+  .facts-list li { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); counter-increment: fact; align-items: flex-start; font-size: 15px; color: var(--ink-2); }
+  .facts-list li:last-child { border-bottom: none; }
+  .facts-list li::before { content: counter(fact); display: flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; background: var(--brand); color: white; border-radius: 50%; font-size: 12px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .glossary-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; background: white; }
+  .glossary-term { font-weight: 700; font-size: 14px; color: var(--brand-dark); margin-bottom: 4px; }
+  .glossary-def { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+
+  /* Assessment */
+  .assessment-header { background: linear-gradient(135deg, #064E3B 0%, #065F46 100%); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .assessment-header p { color: #6EE7B7; font-size: 14px; margin: 0; }
+  .marks-badge { background: var(--accent); color: var(--ink); padding: 8px 20px; border-radius: 8px; font-size: 22px; font-weight: 900; white-space: nowrap; }
+
+  .question-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+  .question-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .q-num { font-size: 13px; font-weight: 700; color: var(--brand); }
+  .q-type { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--brand-light); color: var(--brand-dark); padding: 3px 10px; border-radius: 4px; }
+  .q-marks { font-size: 12px; font-weight: 700; background: var(--ink); color: white; padding: 3px 10px; border-radius: 4px; margin-left: auto; }
+  .difficulty { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .difficulty.easy { background: var(--green-light); color: var(--green); }
+  .difficulty.medium { background: var(--accent-light); color: #B45309; }
+  .difficulty.hard { background: var(--red-light); color: var(--red); }
+
+  .question-body { padding: 20px; }
+  .question-text { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 16px; line-height: 1.6; }
+  .options { list-style: none; padding: 0; margin: 0 0 20px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 15px; border: 1.5px solid var(--border); color: var(--ink-2); background: white; }
+  .option.correct { background: var(--green-light); border-color: #4ADE80; color: #166534; }
+  .option.correct .opt-label { background: var(--green); color: white; }
+  .option .opt-label { min-width: 26px; height: 26px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .answer-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-top: 4px; }
+  .answer-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: block; }
+  .answer-block p { font-size: 14px; color: var(--ink-2); margin-bottom: 0; }
+  .answer-block p + p { margin-top: 8px; }
+
+  .tf-area { background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: var(--radius-sm); padding: 16px; margin: 16px 0; font-size: 14px; color: #92400E; }
+  .marks-breakdown { display: flex; gap: 8px; margin: 14px 0 0; flex-wrap: wrap; }
+  .mark-row { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; font-size: 13px; color: var(--ink-2); flex: 1; min-width: 200px; }
+  .mark-row strong { color: var(--ink); }
+
+  .descriptive-block { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 20px; margin-top: 12px; }
+  .descriptive-title { font-size: 12px; font-weight: 800; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+
+  mark { background: var(--brand-light); color: var(--brand-dark); padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+  hr { border: none; border-top: 2px solid var(--border); margin: 48px 0; }
+  @media (max-width: 600px) {
+    body { padding: 24px 16px 64px; }
+    .objectives-grid, .glossary-grid, .pillar-grid { grid-template-columns: 1fr; }
+    .evolution-row { flex-direction: column; }
+    .module-title { font-size: 28px; }
+    .assessment-header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 1 · Sub-Module 1.5 of 6</div>
+<h1 class="module-title">Sub-Module 1.5<br>Web 3.0 - The Ownership Web</h1>
+<p class="module-subtitle">The internet gave you access. Platforms gave you convenience. Web 3.0 gives you something neither could: true ownership of your data, your money, and your digital identity.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 30 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 25</div>
+  <div class="meta-chip">📝 4 × MCQ (1 mark each)</div>
+  <div class="meta-chip">📝 2 × Multi-Select (3 marks each)</div>
+  <div class="meta-chip">📝 1 × Descriptive Design (9 marks)</div>
+  <div class="meta-chip">📝 1 × Descriptive Short Answer (6 marks)</div>
+  <div class="meta-chip">🔰 Phase 1 - Foundation</div>
+</div>
+
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+  <p>By the end of this sub-module, you will be able to:</p>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="check">✓</div>Define Web 3.0 and explain its three core principles: decentralisation, trustlessness, and user ownership</div>
+    <div class="objective-item"><div class="check">✓</div>Explain what "trustless" means in the context of blockchain and smart contracts</div>
+    <div class="objective-item"><div class="check">✓</div>Use the Spotify example to illustrate how Web 3.0 changes creator economics</div>
+    <div class="objective-item"><div class="check">✓</div>Compare Web 1.0, Web 2.0, and Web 3.0 across key dimensions: ownership, interactivity, and control</div>
+    <div class="objective-item"><div class="check">✓</div>Design a conceptual Web 3.0 alternative to an existing Web 2.0 application</div>
+    <div class="objective-item"><div class="check">✓</div>Identify the key components of a Web 3.0 application: wallet, smart contract, decentralised storage</div>
+  </div>
+</section>
+
+
+<!-- SECTION 2: STORY -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>Real World Introduction Story</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Two Musicians. Same Song. Opposite Realities.</span>
+    <p><strong>2010 - Ananya puts her song on Spotify.</strong> Within a year it gets 10 million streams. She earns ₹70,000 - ₹0.007 per stream. She has no idea who her listeners are. She can't message them. She can't offer them a discount on her next album. All listener data belongs to Spotify. If Spotify removes her tomorrow, her entire streaming career is gone.</p>
+    <p><strong>2025 - Riya puts her song on a Web 3.0 music platform built on MST Blockchain.</strong> Within a year it gets 10 million streams. Each stream triggers a smart contract that sends ₹0.05 directly to her wallet. <strong>She earns ₹5,00,000 - 7× more than Ananya.</strong> Every listener's wallet address is on-chain - she can airdrop NFT tickets to her next concert directly to her biggest fans. Nobody can remove her content. She owns the smart contract. The music is hers.</p>
+    <p>Same talent. Same number of fans. <strong>One owns nothing. One owns everything.</strong></p>
+    <p>The difference is not the music. It is the architecture of the platform it runs on.</p>
+  </div>
+
+  <p>Web 3.0 is not a website upgrade. It is a fundamental restructuring of who owns the value created on the internet. This sub-module breaks down exactly how that works - the principles, the technology, and what it means for builders on MST Blockchain.</p>
+</section>
+
+
+<!-- SECTION 3: HISTORY -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">🕰</div>Background - How We Got Here</h2>
+
+  <h3 class="sub-title">3.1 - The Three Webs: A Clear Comparison</h3>
+
+  <div class="evolution-row">
+    <div class="evo-col web1">
+      <span class="evo-label">1991 - 2004</span>
+      <div class="evo-title">Web 1.0 - Read Only</div>
+      <ul class="evo-list">
+        <li>Static HTML pages</li>
+        <li>Read only, cannot contribute</li>
+        <li>Open protocols (HTTP, SMTP)</li>
+        <li>Decentralised (anyone = publisher)</li>
+        <li>No monetisation for users</li>
+        <li>No data collection</li>
+        <li>Examples: GeoCities, early Yahoo</li>
+      </ul>
+    </div>
+    <div class="evo-col web2">
+      <span class="evo-label">2004 - 2023</span>
+      <div class="evo-title">Web 2.0 - Read + Write</div>
+      <ul class="evo-list">
+        <li>Dynamic, interactive apps</li>
+        <li>Users create content</li>
+        <li>Proprietary platforms</li>
+        <li>Centralised (platforms own everything)</li>
+        <li>Platform monetises user data</li>
+        <li>Massive data collection</li>
+        <li>Examples: Facebook, YouTube, Swiggy</li>
+      </ul>
+    </div>
+    <div class="evo-col web3">
+      <span class="evo-label">2020 - Present</span>
+      <div class="evo-title">Web 3.0 - Read + Write + Own</div>
+      <ul class="evo-list">
+        <li>Dynamic + verifiable + owned</li>
+        <li>Users create AND own content</li>
+        <li>Open protocols (blockchain)</li>
+        <li>Decentralised (no platform owner)</li>
+        <li>Users monetise directly</li>
+        <li>User controls own data</li>
+        <li>Examples: Bitcoin, Ethereum, MST</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub-title">3.2 - The Key Turning Points That Led to Web 3.0</h3>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">2008 - Bitcoin: "What if money needed no bank?"</div>
+        <div class="step-desc">Satoshi Nakamoto published the Bitcoin whitepaper. For the first time in history, two strangers on opposite sides of the planet could exchange value without any bank, government, or intermediary. A smart contract replaced the bank. The ledger was public. Nobody owned it. Everyone trusted it.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">2013 - Ethereum: "What if contracts needed no lawyer?"</div>
+        <div class="step-desc">Vitalik Buterin proposed Ethereum - a blockchain that could run arbitrary code (smart contracts). Now not just money, but any agreement could be automated: "If the product arrives, automatically pay the seller." If the conditions were met, the code executed. No lawyer. No judge. No delay.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">2017 - ICO Boom & NFT Concepts: "What if content had verifiable ownership?"</div>
+        <div class="step-desc">The Initial Coin Offering (ICO) era introduced the concept of tokenised ownership. ERC-721 (the NFT standard) was proposed - any digital asset could now have a unique, verifiable, on-chain owner. A PUBG skin, a music album, a piece of land in a game - all could be provably owned by one wallet address.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">2021 - 2024 - DeFi, DAOs, and the Ownership Economy Matures</div>
+        <div class="step-desc">Decentralised Finance (DeFi) protocols replaced banks for lending, borrowing, and earning yield. Decentralised Autonomous Organisations (DAOs) replaced corporate governance. Users voted on protocol decisions with tokens. The full vision crystallised: the internet can be owned and governed by its users, not by corporations.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">2024 - MST Blockchain: "What if Web 3.0 was as easy as Swiggy?"</div>
+        <div class="step-desc">MST Blockchain launched with the SARAL Protocol - allowing users to access Web 3.0 applications with Google login, no seed phrases, no browser extensions. For the first time, the full power of blockchain ownership was accessible to a regular person in Mumbai who has never heard of MetaMask.</div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+
+<!-- SECTION 4: BEGINNER EXPLANATION -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">🧠</div>Beginner-Friendly Deep Explanation</h2>
+
+  <h3 class="sub-title">4.1 - The Three Pillars of Web 3.0</h3>
+
+  <div class="pillar-grid">
+    <div class="pillar-card">
+      <span class="pillar-icon">🌐</span>
+      <div class="pillar-title">1. Decentralisation</div>
+      <div class="pillar-sub">No single company, server, or person controls the network. Thousands of computers (nodes/validators) worldwide collectively run the system. No one can shut it down, censor it, or change the rules unilaterally.</div>
+    </div>
+    <div class="pillar-card">
+      <span class="pillar-icon">🤝</span>
+      <div class="pillar-title">2. Trustlessness</div>
+      <div class="pillar-sub">You don't need to trust a company. You trust the code. Smart contracts execute automatically and identically every time. No human can interfere mid-execution. "Don't trust, verify" - anyone can read the contract's code.</div>
+    </div>
+    <div class="pillar-card">
+      <span class="pillar-icon">🔑</span>
+      <div class="pillar-title">3. User Ownership</div>
+      <div class="pillar-sub">You own your data via cryptographic keys (wallet). You own digital assets as on-chain tokens. You own your reputation via on-chain history. No platform can revoke this ownership. You control what you share and what you don't.</div>
+    </div>
+    <div class="pillar-card">
+      <span class="pillar-icon">🔓</span>
+      <div class="pillar-title">4. Permissionlessness</div>
+      <div class="pillar-sub">Anyone can deploy a smart contract. Anyone can build on an open blockchain protocol. No approval from Google, Apple, or any authority required. Like the early internet - truly open for any developer worldwide.</div>
+    </div>
+    <div class="pillar-card">
+      <span class="pillar-icon">👁</span>
+      <div class="pillar-title">5. Transparency</div>
+      <div class="pillar-sub">All transactions are publicly verifiable on a blockchain explorer. The smart contract code is public. Anyone can audit the system. There are no hidden rules, no opaque algorithms, no secret commission structures.</div>
+    </div>
+    <div class="pillar-card">
+      <span class="pillar-icon">🔒</span>
+      <div class="pillar-title">6. Censorship Resistance</div>
+      <div class="pillar-sub">No one can remove your content, freeze your funds, or block your transactions (if the network is decentralised enough). Unlike YouTube deleting videos or banks freezing accounts, a blockchain transaction is final and irreversible.</div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">4.2 - What Does "Trustless" Actually Mean?</h3>
+
+  <p>"Trustless" is the most misunderstood word in blockchain. It does NOT mean "you can't trust anyone." It means <strong>"you don't NEED to trust any individual or company - you trust the math instead."</strong></p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🔢 Analogy: The ATM</span>
+    <p>When you use an ATM to withdraw ₹5,000, you don't need to trust the bank teller. You don't need to know if the bank manager is honest today. You trust the machine's code: "If PIN correct and balance ≥ ₹5,000, dispense cash." The code executes the same way every time for everyone. <strong>A blockchain smart contract is an ATM for any agreement - not just cash withdrawal. It executes automatically when conditions are met, no human intermediary required, no possibility of corruption at the point of execution.</strong></p>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔐 Trust Comparison: Web 2.0 vs Web 3.0</div>
+<pre>
+  WEB 2.0 — TRUST-BASED:
+  ─────────────────────────────────────────────────────
+  You buy on Amazon. You trust:
+  ├─ That Amazon won't delete your purchase history ──→ POSSIBLE (has happened)
+  ├─ That Amazon won't change return policy ──────────→ HAPPENS regularly
+  ├─ That Amazon won't discriminate your visibility ──→ DOCUMENTED CASES
+  ├─ That Amazon won't share your data ───────────────→ THEY DO (advertisers)
+  └─ That Amazon will still exist in 10 years ────────→ UNCERTAIN
+
+  You trust Amazon's PROMISES. Promises can be broken.
+
+  WEB 3.0 — TRUSTLESS (VERIFY, DON'T TRUST):
+  ─────────────────────────────────────────────────────
+  You buy on a blockchain marketplace. You trust:
+  ├─ The smart contract code ─────────────────────────→ PUBLIC, AUDITABLE
+  ├─ That funds go to seller when delivery confirmed ─→ CODED INTO CONTRACT
+  ├─ That your history is on-chain ───────────────────→ PERMANENT, IMMUTABLE
+  ├─ That rules won't change without governance vote ─→ ENFORCED BY PROTOCOL
+  └─ That platform will exist ────────────────────────→ BLOCKCHAIN HAS NO OFF SWITCH
+
+  You trust CRYPTOGRAPHIC PROOF. Proof cannot be broken.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.3 - User-Owned Data: What It Actually Means</h3>
+
+  <p>In Web 2.0, your data lives on someone else's servers. You access it at their pleasure. In Web 3.0, your data is controlled by your cryptographic private key. You - and only you - can authorise access to it.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔑 Who Controls Your Data?</div>
+<pre>
+  WEB 2.0 — DATA OWNERSHIP:
+
+  Your WhatsApp chats      ──→ Stored on Meta's servers in USA
+  Your Instagram photos    ──→ Stored on Meta's CDN globally
+  Your Swiggy order history──→ Stored on Swiggy's AWS database
+  Your Ola ride history    ──→ Stored on Ola's servers
+  Your credit score data   ──→ Stored at CIBIL (private company)
+
+  To access your OWN data: You need their app. Their servers. Their permission.
+  They can: change access, delete it, sell it, share it with governments.
+  You have: a username and a complaint email.
+
+  ═══════════════════════════════════════════════════════════
+
+  WEB 3.0 — DATA SOVEREIGNTY:
+
+  Your identity            ──→ Your DID (Decentralised Identifier)
+                               Controlled by YOUR private key
+  Your financial history   ──→ Your on-chain transactions
+                               Public but pseudonymous
+                               Only YOU can sign new transactions
+  Your content             ──→ Stored on IPFS or Arweave
+                               Pinned by content hash
+                               No central server to take down
+  Your reputation          ──→ On-chain NFTs and activity
+                               Portable across platforms
+                               Cannot be "banned" by one company
+
+  To access your data: You need your private key. That's it.
+  You can: share it, revoke access, prove facts without revealing identity (ZKP).
+  Nobody can: delete it, sell it without your consent, deny you access.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.4 - The Spotify Example: Web 3.0 Changes Creator Economics</h3>
+
+  <p>The Spotify model is the perfect illustration of Web 2.0's extractive structure - and Web 3.0's transformative alternative. Let's build the complete comparison:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Dimension</th><th>Spotify (Web 2.0)</th><th>Web 3.0 Music Platform (MST)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Payment per stream</td><td>₹0.007</td><td>₹0.05 (7× more, set by artist)</td></tr>
+        <tr><td>Who receives payment</td><td>Spotify → Label → Artist (delayed)</td><td>Smart contract → Artist wallet (instant)</td></tr>
+        <tr><td>Listener data</td><td>Owned by Spotify, never shared</td><td>Opt-in data; fan pays with consent</td></tr>
+        <tr><td>Artist-fan relationship</td><td>Indirect (Spotify algorithm mediates)</td><td>Direct (wallet-to-wallet messaging)</td></tr>
+        <tr><td>Platform removal risk</td><td>High (Spotify can remove anytime)</td><td>Zero (smart contract is permanent)</td></tr>
+        <tr><td>Revenue sharing</td><td>Spotify: 30%, Label: 55%, Artist: 15%</td><td>Smart contract: 1 - 2%, Artist: 98 - 99%</td></tr>
+        <tr><td>Tokenised fan rewards</td><td>None</td><td>Top fans earn NFT badges, concert tickets</td></tr>
+        <tr><td>Playlist placement</td><td>Spotify editorial team decides (opaque)</td><td>Community governance votes (transparent)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ MST Blockchain's Role</span>
+    <p>A music platform built on MST Blockchain uses <strong>smart contracts</strong> to automate royalty payments per stream. <strong>SARAL Protocol</strong> allows fans to pay with mobile number login - no crypto wallet experience required. <strong>WASMify</strong> can verify streaming data (from an off-chain music server) and feed it to the smart contract trustlessly. The result: an artist earns 7× more, fans pay the same, and the only "middleman" is a 1% smart contract fee - compared to Spotify's 85% extraction.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 5: TECHNICAL DEEP DIVE -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">⚙️</div>Technical Deep Dive</h2>
+
+  <h3 class="sub-title">5.1 - Anatomy of a Web 3.0 Application (dApp)</h3>
+
+  <p>A traditional Web 2.0 app has three layers: frontend (what you see), backend (business logic), and database (data storage) - all owned and controlled by the company. A Web 3.0 dApp (decentralised application) replaces each layer with its open, user-controlled equivalent.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🏗️ Web 2.0 App vs Web 3.0 dApp - Architecture Comparison</div>
+<pre>
+  WEB 2.0 APP (e.g., Swiggy):
+  ──────────────────────────────────────────────────────
+  Frontend  : React app on Swiggy's CDN (company owns)
+  Backend   : Node.js servers on AWS Mumbai (company owns)
+  Database  : PostgreSQL on AWS RDS (company owns)
+  Payments  : Razorpay gateway (third-party, fees apply)
+  Auth      : Swiggy account (company owns your identity)
+  ──────────────────────────────────────────────────────
+  EVERYTHING owned by Swiggy. You are the product.
+
+  WEB 3.0 dAPP (e.g., Decentralised Marketplace on MST):
+  ──────────────────────────────────────────────────────
+  Frontend  : React app on IPFS (decentralised, no single host)
+                    ↓ connects via Web3 library to:
+  Smart Contract : Deployed on MST Blockchain
+                   - Contains ALL business logic
+                   - Publicly auditable code
+                   - Executes identically for everyone
+                   - Nobody can modify post-deployment
+                    ↓ reads/writes to:
+  State         : On-chain ledger (decentralised, immutable)
+                  Off-chain data on IPFS (content-addressed)
+                    ↓ user signs transactions with:
+  Wallet (MST BridgeKey / SARAL):
+                   - User's private key = their identity
+                   - No Swiggy account needed
+                   - User controls their data
+  ──────────────────────────────────────────────────────
+  EVERYTHING owned by users. Platform is just infrastructure.
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.2 - Smart Contracts: The Heart of Web 3.0</h3>
+
+  <p>A smart contract is a program stored on a blockchain that runs automatically when predefined conditions are met. It is the replacement for every middleman who currently takes a cut to enforce trust between strangers.</p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🎯 Real-World Smart Contract Examples</span>
+    <p><strong>Swiggy replaced by smart contract:</strong> Customer deposits ₹500. Delivery partner picks up food. GPS confirms delivery (via WASMify on MST). Smart contract auto-releases ₹475 to restaurant + ₹25 delivery fee to partner. If delivery fails after 60 min, ₹500 auto-refunded. No human intervention. No disputes. No 28% commission.<br><br>
+    <strong>Insurance replaced by smart contract:</strong> You pay crop insurance. Sensors detect rainfall below threshold (WASMify). Smart contract auto-releases claim to farmer's wallet. No insurance officer, no paperwork, no 3-month wait.<br><br>
+    <strong>Rental replaced by smart contract:</strong> Tenant sends 3-month deposit. Contract holds it. Move-out day: inspection images uploaded. DAO community votes on damage assessment. Contract auto-returns deposit minus any agreed deductions. No corrupt broker, no dispute.</p>
+  </div>
+
+  <h3 class="sub-title">5.3 - Wallets: Your Web 3.0 Identity</h3>
+
+  <p>In Web 2.0, your identity is tied to platform accounts: Gmail, Facebook, Aadhaar. Each platform owns a piece of your identity. In Web 3.0, your identity is a cryptographic key pair that you alone control.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔑 Web 3.0 Wallet - What It Is and Why It Matters</div>
+<pre>
+  A BLOCKCHAIN WALLET contains:
+
+  Private Key (NEVER share this):
+  ├─ A 256-bit random number (like a secret PIN but 10^77 times harder to guess)
+  ├─ Used to sign transactions (proves YOU authorised it)
+  ├─ Never stored on any server
+  └─ If lost: no recovery (unless seed phrase backed up)
+
+  Public Key (Shareable — your "address"):
+  ├─ Derived mathematically from private key
+  ├─ Your wallet address: 0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+  ├─ Like your bank account number (share freely)
+  └─ Anyone can send tokens to this address
+
+  What your wallet controls:
+  ├─ All tokens/coins in that address
+  ├─ NFTs you own
+  ├─ Your on-chain reputation/history
+  ├─ Your DID (Decentralised Identity)
+  └─ Your governance voting power
+
+  MST's SARAL PROTOCOL removes the complexity:
+  ├─ Create wallet with Google login (just like any app)
+  ├─ Private key generated in secure enclave on your phone
+  ├─ Never leaves your device
+  └─ User experience: "Log in with Google" — Security: military-grade cryptography
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.4 - Decentralised Storage: IPFS and Arweave</h3>
+
+  <p>Web 3.0 ownership is meaningless if your content is still stored on Amazon's servers. True ownership requires decentralised storage. Two systems power this today:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Aspect</th><th>Traditional Storage (AWS S3)</th><th>IPFS</th><th>Arweave</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Who owns it</td><td>Amazon</td><td>Network of nodes</td><td>Network of nodes</td></tr>
+        <tr><td>Access by address</td><td>URL (location-based)</td><td>Content hash (content-based)</td><td>Content hash (permanent)</td></tr>
+        <tr><td>Censorship risk</td><td>High (AWS can delete)</td><td>Medium (nodes can unpin)</td><td>Zero (permanent storage)</td></tr>
+        <tr><td>Cost model</td><td>Monthly subscription</td><td>Free (but not permanent)</td><td>One-time fee, permanent</td></tr>
+        <tr><td>Use case</td><td>Any web app</td><td>NFT metadata, dApp frontends</td><td>Permanent records, legal docs</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 6: WORKFLOW -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🔄</div>Step-by-Step: How a Web 3.0 Transaction Works</h2>
+
+  <p>Let's walk through exactly what happens when a fan streams a song on a Web 3.0 music platform built on MST Blockchain:</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🎵 Web 3.0 Music Stream - Complete Transaction Flow on MST</div>
+<pre>
+  STEP 1: Fan connects wallet
+  Fan opens music app → "Login with Google" (SARAL Protocol)
+  → Wallet created/loaded on their device → Address: 0xFan...
+
+  STEP 2: Fan requests a stream
+  Fan clicks "Play" on Riya's song
+  → App sends a transaction request to fan's wallet
+  → "Approve payment of ₹0.05 to 0xRiya... for 1 stream?"
+  → Fan taps "Confirm" (or auto-approved if subscription set up)
+
+  STEP 3: Transaction broadcast to MST network
+  Fan's wallet signs transaction with private key
+  → Signed transaction broadcast to 71,000+ MST validators
+  → Validators verify: signature valid, fan has ₹0.05 balance
+
+  STEP 4: WASMify verifies stream (optional for premium accuracy)
+  Off-chain streaming server confirms song played to completion
+  → WASMify module generates ZK proof: "Stream was completed"
+  → Proof submitted to smart contract
+
+  STEP 5: Smart contract executes
+  IF (stream_completed_proof == valid):
+     → Transfer ₹0.05 from fan wallet to artist wallet
+     → Increment artist's stream counter (on-chain)
+     → Update fan's listening history (on-chain)
+  ELSE:
+     → No payment (incomplete stream not counted)
+
+  STEP 6: Finality in 3 seconds
+  MST blockchain confirms transaction in one block (~3 seconds)
+  → ₹0.05 is in Riya's wallet. Permanently. Instantly.
+  → No label, no distributor, no Spotify, no delay.
+
+  TOTAL COST: ₹0.0001 gas fee (paid by platform, negligible)
+  ARTIST RECEIVES: ₹0.0499 of ₹0.05 (99.8%)
+  vs SPOTIFY: ₹0.007 × 15% = ₹0.00105 to artist (1.05%)
+  WEB 3.0 PAYS ARTIST 47× MORE per stream.
+</pre>
+  </div>
+
+  <div class="highlight-box">
+    Web 3.0 is not a buzzword. It is a <span>new economic model</span> where value flows directly between creators and fans - with smart contracts replacing every middleman that used to stand between them.
+  </div>
+</section>
+
+
+<!-- SECTION 7: REAL WORLD CASE STUDIES -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">🌍</div>Real World Case Studies</h2>
+
+  <h3 class="sub-title">Case Study 1 - Audius: The Web 3.0 Spotify That Actually Works</h3>
+
+  <p>Audius (audius.co) is a real, live Web 3.0 music streaming platform built on blockchain. Key facts:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Spotify</th><th>Audius</th></tr></thead>
+      <tbody>
+        <tr><td>Artist revenue share</td><td>15 - 20% after label</td><td>90% directly</td></tr>
+        <tr><td>Monthly Active Users</td><td>602 million</td><td>7 million (growing)</td></tr>
+        <tr><td>Platform removal risk</td><td>High</td><td>Zero</td></tr>
+        <tr><td>Time to receive payment</td><td>45 - 90 days (via label)</td><td>Instant (per stream)</td></tr>
+        <tr><td>Data ownership</td><td>Spotify owns listener data</td><td>Artist owns fan wallet data</td></tr>
+        <tr><td>Platform governance</td><td>Spotify executives decide</td><td>Token holders vote</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Audius has attracted major artists including deadmau5 and Rezz. Its total artist payouts have exceeded $5 million - all paid directly to artist wallets via smart contracts, with no intermediaries.</p>
+
+  <h3 class="sub-title">Case Study 2 - India's Land Registry on Blockchain (Andhra Pradesh Pilot)</h3>
+
+  <p>Land fraud is a massive problem in India. Forged documents, duplicate registrations, disputed ownership - these cost billions every year. The Andhra Pradesh government ran a pilot blockchain land registry system where:</p>
+  <ul style="padding-left:24px;margin-bottom:14px;color:var(--ink-2);font-size:15px;line-height:2;">
+    <li>Every land parcel's ownership record is stored immutably on blockchain</li>
+    <li>Transfer of ownership requires both seller and buyer's cryptographic signatures</li>
+    <li>Historical ownership chain is permanently on-chain and publicly auditable</li>
+    <li>Forged documents cannot be accepted - the blockchain already has the truth</li>
+  </ul>
+  <p>Result: Land fraud attempts in pilot districts dropped by 90%. Registration time dropped from 7 days to 2 hours. Broker fees (traditionally 2 - 5% of land value) became unnecessary as the smart contract handled the transfer automatically.</p>
+
+  <div class="callout teal">
+    <span class="callout-label">🌱 MST Application</span>
+    <p>MST's <strong>RWA Orbitals</strong> feature is designed exactly for this: tokenising Real World Assets (RWA) including land, property, bonds, and commodities. A Mumbai flat worth ₹2 crore could be tokenised into 2 crore tokens of ₹1 each - allowing 2,000 investors to own fractional pieces of real estate on-chain, with rental income distributed automatically via smart contracts.</p>
+  </div>
+
+  <h3 class="sub-title">Case Study 3 - Axie Infinity: Web 3.0 Gaming That Created a Philippine Economy</h3>
+
+  <p>Axie Infinity (a blockchain-based game) paid its players for winning matches via in-game tokens. In 2021, during COVID-19, Filipino players were earning ₹30,000 - 60,000/month playing the game - more than the average Philippine monthly wage. The game created a genuine micro-economy:</p>
+  <ul style="padding-left:24px;margin-bottom:14px;color:var(--ink-2);font-size:15px;line-height:2;">
+    <li>Players truly owned their in-game assets (NFTs) and could sell them</li>
+    <li>Guilds formed to lend NFTs to new players who couldn't afford entry</li>
+    <li>Managers earned a percentage of players' winnings via smart contracts</li>
+    <li>All transactions transparent and instant on blockchain</li>
+  </ul>
+  <p>At peak, Axie had 2.7 million daily active users. The game generated more revenue than FIFA's Ultimate Team in 2021. While the economy eventually contracted when token prices fell, it proved the model: <strong>Web 3.0 games where players own their assets and earn real income are not just possible - they happened.</strong></p>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ MST's Gaming Play</span>
+    <p>MST Blockchain's <strong>Klethesia Protocol</strong> (provably fair slot games), <strong>SatvaShuffle</strong> (verifiable card shuffling), and <strong>FortunaX</strong> (verifiable random number generation) are designed to bring this model to Indian gaming - where the ₹17,000 crore fantasy sports market currently runs on opaque algorithms that users cannot verify. MST makes every shuffle, every result, every payout provably fair and publicly auditable.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 8: ASSESSMENT PREP -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - Must-Know Facts</h2>
+  <ul class="facts-list">
+    <li><strong>Web 3.0 = Read + Write + Own</strong> - adds user ownership to Web 2.0's read-write capability. The critical addition is user data sovereignty and asset ownership.</li>
+    <li><strong>"Trustless" means trust the code, not the company</strong> - smart contracts execute identically every time, cannot be altered post-deployment, and are publicly auditable. Nobody needs to "trust" anyone.</li>
+    <li><strong>dApp = decentralised application</strong> - smart contract on blockchain (backend) + decentralised storage IPFS/Arweave (database) + wallet authentication (identity). No centralised servers.</li>
+    <li><strong>Wallet = Web 3.0 identity</strong> - your public-private key pair is your identity, your bank account, and your ownership certificate all in one. Nobody can revoke it.</li>
+    <li><strong>Permissionless = anyone can build</strong> - no App Store approval needed, no company registration needed. Any developer can deploy a smart contract on MST Blockchain.</li>
+    <li><strong>Smart contracts replace intermediaries</strong> - escrow, royalty distribution, access control, voting - all automated by code. Commission drops from 28% to 1 - 2%.</li>
+    <li><strong>SARAL Protocol makes Web 3.0 accessible</strong> - Google/Facebook login creates non-custodial wallets. Normal users don't need MetaMask or seed phrases.</li>
+    <li><strong>Spotify analogy</strong> - Web 2.0: ₹0.007/stream, 15% to artist. Web 3.0: ₹0.05/stream, 98% to artist. Smart contract replaces the distribution chain entirely.</li>
+    <li><strong>IPFS uses content addressing</strong> - files stored by their cryptographic hash, not by location. If the content is the same, the hash is the same. Nobody can alter the content without changing the address.</li>
+    <li><strong>Web 3.0 ≠ perfect solution</strong> - it has real challenges: UX complexity, regulatory uncertainty, scalability, and volatility. MST's SARAL, WASMify, and Trika POSA are purpose-built to address the first three.</li>
+  </ul>
+</section>
+
+
+<!-- SECTION 9: SECURITY NOTES -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">🔐</div>Security Notes</h2>
+
+  <h3 class="sub-title">9.1 - The Private Key Problem</h3>
+  <p>In Web 3.0, your private key IS you. If you lose it, you lose everything in that wallet - permanently. No customer care, no password reset, no government authority can recover it. This is both the greatest strength (no one can steal your money if they can't get your key) and the greatest risk (carelessness can cost everything).</p>
+  <div class="callout warning">
+    <span class="callout-label">⚠️ The $300M Mistake</span>
+    <p>In 2017, a developer accidentally locked $300 million USD worth of Ethereum by triggering a bug in a wallet smart contract - forever. Nobody could access it. No court order, no hack, no negotiation could recover it. The code executed as written. This is why smart contract auditing is one of the highest-paid roles in blockchain, and why MST's grant program includes a mandatory security audit before scaling.</p>
+  </div>
+
+  <h3 class="sub-title">9.2 - Immutability: Feature or Bug?</h3>
+  <p>Smart contracts cannot be changed after deployment. This is their greatest strength (trustlessness) and their most dangerous property. A bug in a deployed contract is permanent. This is why MST recommends the Upgradeable Proxy pattern (Module 10) and requires audits before mainnet deployment. MST's grant program provides a free security audit for qualifying projects.</p>
+</section>
+
+
+<!-- SECTION 10: INDUSTRY INSIGHTS -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - Is "Web 3.0" Just Hype?</h3>
+  <p>Fair question - and intellectually honest blockchain developers ask it. The 2021 - 2022 crypto bull market created enormous hype. Many "Web 3.0" projects were tokens with no real utility. NFTs of JPEGs sold for millions, then crashed 99%. Legitimate criticism exists. However, the underlying technology - smart contracts, decentralised finance, immutable ledgers - has continued growing through every market cycle. DeFi protocols process hundreds of billions in volume annually. India has the world's largest crypto user base by count. The technology works. The applications are maturing. The regulation is coming. The question is not "will Web 3.0 exist" but "which platforms will dominate it."</p>
+
+  <h3 class="sub-title">10.2 - India's Regulatory Position (2024)</h3>
+  <p>India's crypto tax framework (30% on gains, 1% TDS from 2022) is strict but indicates legal recognition of crypto assets. The Reserve Bank of India has launched the digital Rupee (e₹) CBDC - a government-backed blockchain token. SEBI is developing a framework for crypto asset regulation. The direction is toward regulated adoption, not prohibition. Web 3.0 builders in India must understand this: build for compliance from day one, not as an afterthought.</p>
+
+  <h3 class="sub-title">10.3 - What Jobs Web 3.0 Creates</h3>
+  <p>Web 3.0 developer median salaries globally: $120,000 - 200,000/year (USD). In India, senior Solidity developers earn ₹30 - 80 lakh/year. Smart contract auditors earn ₹40 - 120 lakh/year. Blockchain architects at enterprises earn ₹50 - 150 lakh/year. The MasterStroke Academy's 21-module curriculum is designed to take you from zero to employable at these levels - or to founder with your own MST-funded startup.</p>
+</section>
+
+
+<!-- SECTION 11: GLOSSARY -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+  <div class="glossary-grid">
+    <div class="glossary-item"><div class="glossary-term">Web 3.0</div><p class="glossary-def">The third generation of the web, built on blockchain technology. Adds user ownership and decentralisation to Web 2.0's interactivity. Core principles: decentralisation, trustlessness, user sovereignty.</p></div>
+    <div class="glossary-item"><div class="glossary-term">dApp (Decentralised Application)</div><p class="glossary-def">An application whose backend runs on a blockchain (smart contract) rather than a centralised server. Frontend may be hosted on IPFS. No single company controls it.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Smart Contract</div><p class="glossary-def">Self-executing code stored on a blockchain. Runs automatically when conditions are met. Cannot be modified after deployment. Replaces middlemen like brokers, escrow agents, and payment processors.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Trustless</div><p class="glossary-def">Does not require trust in any person or institution. Trust is placed in cryptographic proof and public code instead. "Don't trust, verify" - anyone can audit the system.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Wallet (Crypto)</div><p class="glossary-def">Software that stores cryptographic key pairs. Your public key = your address. Your private key = your signature/proof of ownership. Controls all on-chain assets.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Private Key</div><p class="glossary-def">A secret 256-bit number that proves ownership of a wallet. Signs transactions. Must NEVER be shared. If lost, wallet contents are permanently inaccessible.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Public Key / Address</div><p class="glossary-def">Derived from private key. Shareable - like a bank account number. Anyone can send tokens to it. Cannot be used to access the wallet or sign transactions.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Decentralised Storage (IPFS)</div><p class="glossary-def">InterPlanetary File System. Files stored across a network of computers, addressed by their content hash. No single server to take down. Used for NFT metadata and dApp frontends.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Permissionlessness</div><p class="glossary-def">Anyone can participate without needing approval from a gatekeeper. Deploy smart contracts, use the network, build applications - no App Store approval, no company registration needed.</p></div>
+    <div class="glossary-item"><div class="glossary-term">DID (Decentralised Identifier)</div><p class="glossary-def">A W3C standard for self-sovereign identity. A cryptographic identifier that you control, not dependent on any company's server. Your Web 3.0 "Aadhaar" - but controlled only by you.</p></div>
+    <div class="glossary-item"><div class="glossary-term">SARAL Protocol (MST)</div><p class="glossary-def">MST Blockchain's user onboarding system. Allows users to create non-custodial wallets using Google, Facebook, or mobile number login - no seed phrases or browser extensions required.</p></div>
+    <div class="glossary-item"><div class="glossary-term">Censorship Resistance</div><p class="glossary-def">Property of a decentralised network where no single entity can block transactions, remove content, or freeze accounts. No government or company has an "off switch" for a sufficiently decentralised network.</p></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ASSESSMENT -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 1.5 Assessment</h2>
+      <p>Web 3.0 - The Ownership Web &nbsp;·&nbsp; 4 Sections &nbsp;·&nbsp; Answer before viewing solutions.</p>
+    </div>
+    <div class="marks-badge">25 Marks</div>
+  </div>
+
+  <!-- SECTION A: MCQs -->
+  <h3 class="sub-title">Section A - Multiple Choice Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(4 Questions × 1 Mark = 4 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">One correct answer per question. No negative marking.</p>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 1</span><span class="q-type">MCQ</span><span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span></div>
+    <div class="question-body">
+      <div class="question-text">Which of the following BEST describes what "trustless" means in the context of Web 3.0 and blockchain?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>The blockchain network has no security - users cannot trust it with money</li>
+        <li class="option"><div class="opt-label">B</div>Users must distrust every other participant before transacting</li>
+        <li class="option correct"><div class="opt-label">C</div>Users do not need to trust any company or individual - they trust publicly auditable code and cryptographic proof instead</li>
+        <li class="option"><div class="opt-label">D</div>The system does not store any user data and therefore cannot be trusted to remember transactions</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> "Trustless" is one of the most misunderstood words in blockchain. It absolutely does NOT mean "untrustworthy" or "zero security." It means the opposite: you don't need to trust any human intermediary because the system itself - through cryptography and publicly auditable code - enforces rules automatically. When a smart contract says "if delivery confirmed, release payment," that condition will be executed identically for every user, without any human's discretion. Compare this to Swiggy's refund process, which requires trusting Swiggy's customer service team to be honest and consistent. Blockchain removes that dependency entirely.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 2</span><span class="q-type">MCQ</span><span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span></div>
+    <div class="question-body">
+      <div class="question-text">In the evolution of the web, which generation first introduced the concept of USER OWNERSHIP of digital assets and data?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Web 1.0 - because users could host their own websites on personal servers</li>
+        <li class="option"><div class="opt-label">B</div>Web 2.0 - because platforms gave users accounts that they "owned"</li>
+        <li class="option correct"><div class="opt-label">C</div>Web 3.0 - because blockchain cryptography allows true ownership of digital assets via private key control</li>
+        <li class="option"><div class="opt-label">D</div>None of the above - digital ownership is impossible without physical possession</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> Web 1.0 allowed anyone to host content on their own servers - a form of control, but not ownership of the open web itself. Web 2.0 gave users "accounts" but these are just username-password combinations that the platform can delete, ban, or modify at any time (YouTube channels, Instagram accounts are all platform-controlled). True ownership requires that no third party can revoke it. Only cryptographic key pairs (Web 3.0) provide this - your private key is the only way to access and control your wallet, and no company or government can change that without physically taking your device. Web 3.0 is the first time "digital ownership" has a mathematically enforceable meaning.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 3</span><span class="q-type">MCQ</span><span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span></div>
+    <div class="question-body">
+      <div class="question-text">A musician earns ₹0.007 per stream on Spotify and receives approximately 15% of that after label and distributor cuts. On a Web 3.0 platform, she earns ₹0.05 per stream with a 2% platform fee. Approximately how many times more does she earn per stream on the Web 3.0 platform?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>3× more</li>
+        <li class="option"><div class="opt-label">B</div>7× more</li>
+        <li class="option correct"><div class="opt-label">C</div>47× more</li>
+        <li class="option"><div class="opt-label">D</div>100× more</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C - approximately 47× more</span>
+        <p><strong>Calculation:</strong><br>
+        Spotify: ₹0.007 per stream × 15% to artist = <strong>₹0.00105 per stream</strong><br>
+        Web 3.0: ₹0.05 per stream × 98% to artist = <strong>₹0.049 per stream</strong><br>
+        Ratio = ₹0.049 ÷ ₹0.00105 = <strong>46.67× ≈ 47×</strong><br>
+        7× is the error students make when they compare the per-stream rates (₹0.05 vs ₹0.007) without accounting for the middlemen that take the artist's share from the Spotify payout. When you correctly include the label's 85% cut from Spotify's payment, the difference becomes 47×.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 4</span><span class="q-type">MCQ</span><span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span></div>
+    <div class="question-body">
+      <div class="question-text">What is the primary function of IPFS (InterPlanetary File System) in a Web 3.0 application?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>To execute smart contracts faster than a standard blockchain</li>
+        <li class="option"><div class="opt-label">B</div>To provide a decentralised alternative to DNS (domain name system)</li>
+        <li class="option correct"><div class="opt-label">C</div>To store files in a decentralised manner using content-based addressing so no single company controls the data</li>
+        <li class="option"><div class="opt-label">D</div>To replace crypto wallets with simpler password-based authentication</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> IPFS is a peer-to-peer file storage protocol. Unlike traditional web servers (where a file lives at amazon.com/file.jpg and Amazon can delete it), IPFS stores files across thousands of nodes and addresses them by their content hash. If the content exists anywhere on the IPFS network, it's accessible - no single server to take down. This is crucial for Web 3.0: if your NFT's image is stored on IPFS, the NFT truly cannot be deleted even if the company that created it goes bankrupt. IPFS does not execute smart contracts (that's the blockchain's job), does not replace DNS (that's separate), and does not affect wallet authentication.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION B: MULTI-SELECT -->
+  <h3 class="sub-title" style="margin-top:40px;">Section B - Multi-Select Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(2 Questions × 3 Marks Each = 6 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:8px;">Select ALL correct answers. Full marks only for selecting every correct option and no wrong options. Partial credit: 1 mark per correct selection minus 1 mark per wrong selection, minimum 0.</p>
+
+  <!-- MS Q5 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 5</span><span class="q-type">Multi-Select</span><span class="q-marks">3 Marks</span><span class="difficulty medium">Medium</span></div>
+    <div class="question-body">
+      <div class="question-text">Which of the following are genuine characteristics of Web 3.0 that distinguish it from Web 2.0? Select ALL that apply.</div>
+      <ul class="options">
+        <li class="option correct"><div class="opt-label">A</div>Users own their digital assets via cryptographic key pairs - no platform can revoke ownership</li>
+        <li class="option"><div class="opt-label">B</div>All Web 3.0 applications require users to understand cryptography in detail before using them</li>
+        <li class="option correct"><div class="opt-label">C</div>Smart contracts execute business logic automatically without human intermediaries</li>
+        <li class="option correct"><div class="opt-label">D</div>Transactions are publicly auditable and verifiable by anyone on the blockchain explorer</li>
+        <li class="option"><div class="opt-label">E</div>Web 3.0 is always faster and cheaper than Web 2.0 for all types of applications</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answers: A, C, D</span>
+        <p><strong>A - CORRECT:</strong> Cryptographic key pair ownership is the defining feature of Web 3.0. No platform can revoke a private key - it's a mathematical certainty.</p>
+        <p><strong>B - INCORRECT:</strong> This was true historically, but MST's SARAL Protocol (Google login → wallet creation) explicitly removes this barrier. Web 3.0 can be as easy to use as Swiggy.</p>
+        <p><strong>C - CORRECT:</strong> Smart contracts replace brokers, escrow agents, payment processors, and any human middleman. They execute identically and automatically when conditions are met.</p>
+        <p><strong>D - CORRECT:</strong> This transparency is one of Web 3.0's greatest differentiators. Any MST transaction can be verified at MSTScan.com - unlike Swiggy's opaque commission calculations.</p>
+        <p><strong>E - INCORRECT:</strong> Web 3.0 adds overhead (consensus, cryptography) that makes it slower and more expensive for simple database operations that don't need decentralisation. It's better for trust-requiring transactions, not for all applications.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MS Q6 -->
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 6</span><span class="q-type">Multi-Select</span><span class="q-marks">3 Marks</span><span class="difficulty hard">Hard</span></div>
+    <div class="question-body">
+      <div class="question-text">Which of the following are valid reasons why a Web 3.0 music platform pays artists MORE than Spotify, even if the fan pays the SAME monthly subscription fee? Select ALL that apply.</div>
+      <ul class="options">
+        <li class="option correct"><div class="opt-label">A</div>Smart contracts eliminate the need for record labels and distributors, removing their 55 - 70% share</li>
+        <li class="option correct"><div class="opt-label">B</div>The platform takes only 1 - 2% as a gas/protocol fee instead of Spotify's 30% platform fee</li>
+        <li class="option"><div class="opt-label">C</div>Web 3.0 platforms are subsidised by governments to support artists</li>
+        <li class="option correct"><div class="opt-label">D</div>Payments go directly to the artist's wallet via smart contract, eliminating payment processing delays and intermediary fees</li>
+        <li class="option"><div class="opt-label">E</div>Web 3.0 platforms have lower server costs because blockchain is always cheaper to operate than AWS</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answers: A, B, D</span>
+        <p><strong>A - CORRECT:</strong> The record label's 55%+ cut is the largest extraction in the music industry. Smart contracts can distribute royalties directly from fan payments to artist wallets, completely bypassing labels (for independent artists).</p>
+        <p><strong>B - CORRECT:</strong> Spotify's 30% platform fee is replaced by 1 - 2% gas/protocol fees on blockchain. This alone nearly doubles artist revenue, before even accounting for the label cut removal.</p>
+        <p><strong>C - INCORRECT:</strong> No such government subsidies exist. Web 3.0 platforms operate on market economics.</p>
+        <p><strong>D - CORRECT:</strong> Traditional music payments involve multiple bank transfers, label accounting cycles (monthly/quarterly), and payment processor fees. Smart contracts on MST settle instantly per stream with negligible transaction costs.</p>
+        <p><strong>E - INCORRECT:</strong> Actually, blockchain has higher computational costs than traditional databases for many operations. The benefit is not lower server costs - it's eliminated middlemen. Large Web 3.0 platforms still use off-chain servers for streaming; only payments go on-chain.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION C: DESCRIPTIVE DESIGN (9 marks) -->
+  <h3 class="sub-title" style="margin-top:40px;">Section C - Descriptive Design Question &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 Question × 9 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:8px;">Write a structured answer of 200 - 250 words. Use the marking rubric below as your guide.</p>
+
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 7</span><span class="q-type">Descriptive Design</span><span class="q-marks">9 Marks</span><span class="difficulty hard">Hard</span></div>
+    <div class="question-body">
+      <div class="question-text">Design a Web 3.0 alternative to Instagram. Your answer must include: (a) What problem with Instagram you are solving. (b) Who owns the content in your system and how. (c) How creators get paid (what mechanism and what cut do they receive). (d) What replaces Instagram's algorithm in your design. (e) How a user signs up without needing to understand blockchain. Name your platform.</div>
+      <div class="tf-area"><strong>Note:</strong> There is no single correct answer. Marks awarded for clarity of thinking, correct application of Web 3.0 principles, and feasibility on MST Blockchain.</div>
+      <div class="descriptive-block">
+        <div class="descriptive-title">✅ Model Answer - Full 9 Marks</div>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;margin-bottom:12px;"><strong>Platform Name: "Pratibimb" (Sanskrit for Reflection - your true reflection, your owned image)</strong></p>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;margin-bottom:10px;"><strong>(a) Problem Solved:</strong> Instagram owns every photo you upload. It can delete your account, censor your reach via its algorithm, and sell your data to advertisers without sharing revenue. A creator with 100,000 followers has no guarantee those followers will see any given post. Instagram can ban you permanently with no appeal.</p>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;margin-bottom:10px;"><strong>(b) Content Ownership:</strong> On Pratibimb, every photo is uploaded to IPFS and receives a content hash. That hash is minted as an NFT in the creator's wallet on MST Blockchain at the moment of posting. The creator owns the NFT - it is in their wallet, controlled by their private key. No entity can delete or modify it.</p>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;margin-bottom:10px;"><strong>(c) Creator Payment:</strong> Followers subscribe for ₹50/month. A smart contract distributes: 95% to creators (weighted by engagement), 3% to platform DAO treasury, 2% gas fees. Top 10 posts each month receive 60% of pool, next 40 posts receive 40%. All allocation automated - no human editorial team.</p>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;margin-bottom:10px;"><strong>(d) Algorithm Replacement:</strong> No centralised algorithm. Feed is governed by a community curation DAO. Token holders vote on ranking criteria each month. Optionally, users choose their own ranking: "show me newest" or "show me most liked by people I follow" - they choose, not the platform.</p>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;"><strong>(e) User Onboarding:</strong> Via MST SARAL Protocol. User clicks "Sign up with Google." Wallet automatically created with private key secured in phone's secure enclave. User never sees a seed phrase. Experience identical to signing up for Instagram - but with full blockchain ownership underneath.</p>
+        <div class="marks-breakdown" style="margin-top:16px;">
+          <div class="mark-row"><strong>2 Marks:</strong> Clear problem statement referencing specific Web 2.0 failures</div>
+          <div class="mark-row"><strong>2 Marks:</strong> Correct ownership mechanism (IPFS + NFT + wallet)</div>
+          <div class="mark-row"><strong>2 Marks:</strong> Viable payment mechanism with smart contract and realistic fee structure</div>
+          <div class="mark-row"><strong>2 Marks:</strong> Algorithm replacement with Web 3.0 governance mechanism</div>
+          <div class="mark-row"><strong>1 Mark:</strong> Mentions SARAL Protocol or equivalent for accessible onboarding</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION D: SHORT DESCRIPTIVE (6 marks) -->
+  <h3 class="sub-title" style="margin-top:40px;">Section D - Short Answer Question &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 Question × 6 Marks)</span></h3>
+
+  <div class="question-card">
+    <div class="question-header"><span class="q-num">Question 8</span><span class="q-type">Descriptive Short Answer</span><span class="q-marks">6 Marks</span><span class="difficulty hard">Hard</span></div>
+    <div class="question-body">
+      <div class="question-text">Explain in 100 - 130 words: Why is MST Blockchain's SARAL Protocol critical for Web 3.0 mass adoption in India? Your answer must reference: (1) The specific barrier SARAL removes, (2) The technical mechanism it uses, and (3) One real Indian use case where this matters.</div>
+      <div class="descriptive-block">
+        <div class="descriptive-title">✅ Model Answer - Full 6 Marks</div>
+        <p style="font-size:14px;color:#064E3B;line-height:1.8;">The single biggest barrier to Web 3.0 adoption in India is not the technology - it is the onboarding complexity. Asking a Swiggy delivery partner or a small kirana store owner to generate a seed phrase, install MetaMask, and understand gas fees is unrealistic. SARAL Protocol eliminates this barrier entirely by allowing users to create a fully non-custodial blockchain wallet using Google or Facebook login - the same experience as signing up for any existing app. Technically, SARAL generates the user's private key inside their phone's secure enclave (a tamper-proof hardware chip), ensuring the key never leaves the device while requiring zero crypto knowledge. The real-world impact: an auto-rickshaw driver in Bengaluru can receive payments directly to his MST wallet via SARAL, participate in governance votes, and earn yield on holdings - all from his existing smartphone, without ever seeing a seed phrase. This is how Web 3.0 reaches the next billion users.</p>
+        <div class="marks-breakdown" style="margin-top:16px;">
+          <div class="mark-row"><strong>2 Marks:</strong> Correctly identifies the barrier (seed phrase / MetaMask complexity) with specific Indian context</div>
+          <div class="mark-row"><strong>2 Marks:</strong> Explains the technical mechanism (secure enclave, non-custodial, Google login)</div>
+          <div class="mark-row"><strong>2 Marks:</strong> Provides a specific, realistic Indian use case (rickshaw driver, kirana, farmer, etc.)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Summary -->
+  <div style="background: linear-gradient(135deg, #064E3B 0%, #065F46 100%); border-radius: var(--radius); padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div style="color: #6EE7B7; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">Sub-Module 1.5 Assessment Summary</div>
+      <div style="color: white; font-size: 18px; font-weight: 800;">Section A: 4 × MCQ = 4 marks</div>
+      <div style="color: #6EE7B7; font-size: 15px; font-weight: 600; margin-top: 4px;">Section B: 2 × Multi-Select = 6 marks</div>
+      <div style="color: #6EE7B7; font-size: 15px; font-weight: 600; margin-top: 4px;">Section C: Descriptive Design = 9 marks</div>
+      <div style="color: #6EE7B7; font-size: 15px; font-weight: 600; margin-top: 4px;">Section D: Short Answer = 6 marks</div>
+    </div>
+    <div style="background: var(--accent); border-radius: 10px; padding: 14px 28px; text-align: center;">
+      <div style="font-size: 42px; font-weight: 900; color: var(--ink); line-height: 1;">25</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--ink-2);">TOTAL MARKS</div>
+    </div>
+  </div>
+</section>
+
+<div style="text-align:center; margin-top:64px; padding-top:32px; border-top: 2px solid var(--border);">
+  <div style="font-size:13px; color:var(--ink-3); margin-bottom:8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size:13px; color:var(--ink-3);">Module 1 · Sub-Module 1.5 of 6 &nbsp;·&nbsp; Next: Sub-Module 1.6 - Web 2 vs Web 3 Showdown →</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 11.6 - Hands-On: Build a Simple AMM or Staking Contract | MasterStroke Academy</title>
+<meta name="description" content="Put your DeFi knowledge into practice. Build a complete Automated Market Maker (AMM) or staking contract from scratch on MST, with step-by-step code, security hardening, and deployment to testnet.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-task {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .ct-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .ct-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .ct-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .ct-requirements { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .ct-rubric { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .ct-rubric-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .ct-rubric p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 11 &nbsp;·&nbsp; Sub-Module 11.6 of 6</div>
+<h1 class="module-title">Hands-On: Build a Simple <span class="highlight">AMM or Staking Contract</span></h1>
+<p class="module-subtitle">The best way to learn DeFi is to build it. In this capstone-level hands-on project, you'll implement a complete Automated Market Maker or a staking contract from scratch - with proper security, gas optimization, and deployment to MST Testnet. This is the project that proves you can turn theory into working code.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 30 Marks</div>
+  <div class="meta-chip">📋 Coding Project (submit code + testnet deployment)</div>
+  <div class="meta-chip green">Phase 4 · DeFi & RWA Orbitals</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🛠️</div>
+    <div class="obj-text">
+      <strong>Implement a fully functional AMM with the constant product formula</strong>
+      Write smart contracts for adding liquidity, swapping tokens, removing liquidity, and collecting fees - all following the Checks-Effects-Interactions pattern.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔒</div>
+    <div class="obj-text">
+      <strong>Build a secure staking contract with reward distribution</strong>
+      Create a contract that accepts deposits, tracks time-weighted stakes, calculates rewards per block, and prevents common attack vectors like flash loan manipulation.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧪</div>
+    <div class="obj-text">
+      <strong>Write comprehensive tests and deploy to MST Testnet</strong>
+      Use Hardhat to test every function, verify event emissions, and then deploy your contract to MST Testnet for real-world interaction - all at a cost of just a few paise.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Showcase your project as a portfolio piece</strong>
+      Your working contract on MST Testnet, with tests and a frontend skeleton, becomes a powerful demonstration of your blockchain development skills to employers and grant committees.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Developer Who Built an AMM and Landed a Job</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>Priyanka had completed all the theory modules on DeFi, but when a potential employer asked, "Have you ever deployed an AMM yourself?" she had no answer. Determined to fill that gap, she spent a weekend building a simple constant-product AMM from scratch. She wrote the contract, tested it thoroughly with Hardhat, and deployed it to MST Testnet for less than a rupee. She even built a minimal React frontend that connected to BridgeKey and allowed her to swap test tokens. At her next interview, she shared her screen, walked through the code, and executed a live swap on MST Testnet. The interviewer was impressed - not just by her knowledge, but by her ability to ship working code. She got the job.</p>
+  <br>
+  <p>This sub-module is your opportunity to do the same. By the end, you'll have a working AMM or staking contract live on MST Testnet - a tangible proof of your skills that you can show to anyone.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Why Building Your Own AMM is a Rite of Passage</h2>
+<p>In the early days of DeFi, only a handful of developers understood Automated Market Makers. Hayden Adams built Uniswap v1 in 2018 as a learning project, inspired by Vitalik Buterin's blog post. Today, the AMM he built processes billions in daily volume. Every DeFi developer should understand the core mechanics well enough to recreate them - that's how you move from consumer to creator.</p>
+<p>Building a staking contract is equally fundamental. Staking is the backbone of Proof-of-Stake networks, governance systems, and yield farming. A well-designed staking contract must correctly calculate rewards, prevent manipulation, and handle edge cases like zero deposits or emergency withdrawals.</p>
+<p>On MST, building these contracts is especially rewarding because gas costs are near-zero - you can deploy, test, and iterate dozens of times for less than a rupee. This means you can focus on learning and perfecting your code without worrying about the financial cost of mistakes.</p>
+
+<div class="highlight-strip">
+  <strong>Why this project matters:</strong> Employers don't just want to know that you understand DeFi - they want to see that you can build it. A deployed AMM or staking contract on MST Testnet is a powerful signal that you're a builder, not just a student.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">AMM vs Staking - Pick Your Project, or Build Both!</h2>
+<div class="callout analogy">
+  <div class="callout-label">🎯 The Analogy</div>
+  <p>An AMM is like a <strong>vending machine that automatically adjusts prices</strong> based on how many snacks are left. A staking contract is like a <strong>fixed deposit account</strong> where you lock money and earn interest over time. Both are essential DeFi building blocks. Choose the one that excites you more - or build both to demonstrate mastery.</p>
+</div>
+
+<p>Both projects share common patterns: state variables for tracking balances, functions that modify state, events for off-chain communication, and modifiers for access control. You'll apply everything you learned in previous modules - Solidity data types, functions, modifiers, events, and the C-E-I pattern - in a real, working contract.</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">A</div><div class="w5-word">AMM</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What you'll build in the AMM project</div>
+      <div class="w5-a">A constant-product AMM with two tokens. Functions: <code>addLiquidity</code>, <code>swap</code>, <code>removeLiquidity</code>. It will track reserves, calculate swap amounts using x*y=k, charge a fee (e.g., 0.3%), and mint LP tokens to liquidity providers. You'll write tests to verify that swapping moves the price along the curve, and that removing liquidity returns the correct share of the pool.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">STAKING</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What you'll build in the staking project</div>
+      <div class="w5-a">A staking contract where users deposit an ERC-20 token and earn rewards over time. Rewards are calculated based on the number of blocks staked. Functions: <code>stake</code>, <code>unstake</code>, <code>claimReward</code>. You'll implement an internal reward-tracking system that updates per-user rewards on every action, preventing manipulation. The contract will emit events for each stake, unstake, and reward claim.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: BUILDING THE AMM -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - Build the AMM</div>
+<h2 class="section-title">Step-by-Step: Your Own Constant-Product Automated Market Maker</h2>
+<p>We'll build the AMM with two tokens: <strong>Token A</strong> and <strong>Token B</strong>. For simplicity, we'll assume both tokens are already deployed (you can use any ERC-20 tokens on MST Testnet, or deploy your own mock tokens). The contract will hold reserves of both tokens and allow users to add liquidity, swap, and remove liquidity.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">State Variables and Constructor</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+contract SimpleAMM {
+    IERC20 public tokenA;
+    IERC20 public tokenB;
+    uint256 public reserveA;
+    uint256 public reserveB;
+    uint256 public totalLpShares;
+    mapping(address => uint256) public lpBalances;
+    uint256 public constant FEE_DENOMINATOR = 1000; // 0.3% fee
+
+    event LiquidityAdded(address indexed provider, uint256 amountA, uint256 amountB, uint256 shares);
+    event Swapped(address indexed trader, bool isAtoB, uint256 inputAmount, uint256 outputAmount);
+    event LiquidityRemoved(address indexed provider, uint256 amountA, uint256 amountB, uint256 shares);
+
+    constructor(address _tokenA, address _tokenB) {
+        tokenA = IERC20(_tokenA);
+        tokenB = IERC20(_tokenB);
+    }
+}
+</pre>
+<p>We store the reserves and track LP shares manually. The fee is 0.3% (3/1000 of each swap stays in the pool, growing reserves and benefiting LPs).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Adding Liquidity</h3>
+<p>When a user adds liquidity, they deposit tokens in the current reserve ratio. The contract calculates how many LP shares to mint based on the pool's total liquidity. If it's the first deposit, shares are minted based on the product of amounts; otherwise, shares are proportional to the value added relative to existing reserves.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function addLiquidity(uint256 amountA, uint256 amountB) external returns (uint256 shares) {
+    require(amountA > 0 && amountB > 0, "Zero amounts");
+    tokenA.transferFrom(msg.sender, address(this), amountA);
+    tokenB.transferFrom(msg.sender, address(this), amountB);
+
+    if (totalLpShares == 0) {
+        shares = sqrt(amountA * amountB); // initial mint
+    } else {
+        uint256 shareA = (amountA * totalLpShares) / reserveA;
+        uint256 shareB = (amountB * totalLpShares) / reserveB;
+        shares = shareA < shareB ? shareA : shareB; // mint the smaller share to avoid dilution
+    }
+    require(shares > 0, "Insufficient liquidity minted");
+    reserveA += amountA;
+    reserveB += amountB;
+    totalLpShares += shares;
+    lpBalances[msg.sender] += shares;
+    emit LiquidityAdded(msg.sender, amountA, amountB, shares);
+}
+
+function sqrt(uint256 x) internal pure returns (uint256) {
+    uint256 z = (x + 1) / 2;
+    uint256 y = x;
+    while (z < y) {
+        y = z;
+        z = (x / z + z) / 2;
+    }
+    return y;
+}
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Swapping Tokens</h3>
+<p>The swap function implements <strong>x * y = k</strong>. For a swap from token A to token B, we calculate how much of token B the user should receive such that the product of reserves remains constant (after applying the fee). The fee is taken from the input amount before the swap calculation, effectively leaving the fee in the pool to increase reserves.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function swapAtoB(uint256 amountAIn) external returns (uint256 amountBOut) {
+    require(amountAIn > 0, "Zero input");
+    uint256 amountAInWithFee = (amountAIn * (FEE_DENOMINATOR - 3)) / FEE_DENOMINATOR; // 0.3% fee
+    amountBOut = (reserveB * amountAInWithFee) / (reserveA + amountAInWithFee);
+    require(amountBOut > 0, "Zero output");
+    tokenA.transferFrom(msg.sender, address(this), amountAIn);
+    tokenB.transfer(msg.sender, amountBOut);
+    reserveA += amountAIn;
+    reserveB -= amountBOut;
+    emit Swapped(msg.sender, true, amountAIn, amountBOut);
+}
+</pre>
+<p>Notice we follow C-E-I: the state updates (reserves) happen after the external calls (token transfers). However, since we're using the <strong>actual reserve values</strong> to compute the output <strong>before</strong> updating reserves, we must be careful. In this simple implementation, we compute the output based on the current reserves, then update them. The external call to transfer tokens from the user happens before the reserve update, but that's safe because the user already approved the transfer. The critical protection is that we don't rely on the contract's balance after an external call.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.6-A · AMM Swap Flow (Token A → Token B)</div>
+  <pre>
+ User sends amountAIn of Token A
+        │
+        ▼
+ ┌─────────────────────────┐
+ │ Transfer Token A from    │
+ │ user to contract         │
+ └────────┬────────────────┘
+          │
+          ▼
+ ┌─────────────────────────┐
+ │ Calculate fee: 0.3% of   │
+ │ amountAIn stays in pool  │
+ └────────┬────────────────┘
+          │
+          ▼
+ ┌─────────────────────────┐
+ │ amountBOut =             │
+ │ (reserveB * amountInWithFee) /
+ │ (reserveA + amountInWithFee)
+ └────────┬────────────────┘
+          │
+          ▼
+ ┌─────────────────────────┐
+ │ Transfer amountBOut of   │
+ │ Token B to user          │
+ └────────┬────────────────┘
+          │
+          ▼
+ ┌─────────────────────────┐
+ │ Update reserves:          │
+ │ reserveA += amountAIn     │
+ │ reserveB -= amountBOut    │
+ └─────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The swap function follows the constant-product formula. The fee is collected by slightly increasing k over time - the pool's total value grows, benefiting LPs.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Removing Liquidity</h3>
+<p>An LP can burn their shares to withdraw a proportional amount of both tokens from the pool.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function removeLiquidity(uint256 shares) external returns (uint256 amountA, uint256 amountB) {
+    require(shares > 0 && shares <= lpBalances[msg.sender], "Invalid shares");
+    amountA = (reserveA * shares) / totalLpShares;
+    amountB = (reserveB * shares) / totalLpShares;
+    reserveA -= amountA;
+    reserveB -= amountB;
+    totalLpShares -= shares;
+    lpBalances[msg.sender] -= shares;
+    tokenA.transfer(msg.sender, amountA);
+    tokenB.transfer(msg.sender, amountB);
+    emit LiquidityRemoved(msg.sender, amountA, amountB, shares);
+}
+</pre>
+<p>Here we update state (reserves, LP balances) <strong>before</strong> the external transfer calls. This follows the C-E-I pattern and prevents reentrancy, though in this case reentrancy is unlikely because the tokens are standard ERC-20s without callbacks.</p>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Security Reminder</div>
+  <p>Always follow Checks-Effects-Interactions. In <code>removeLiquidity</code>, we check the shares, update reserves and LP balances (effects), then transfer tokens (interactions). Even if the token contract has a callback, our state is already updated, preventing reentrancy.</p>
+</div>
+
+<!-- 06 STAKING CONTRACT DEEP DIVE -->
+<div class="section-label">06 &nbsp; Technical Deep Dive - Build the Staking Contract</div>
+<h2 class="section-title">Step-by-Step: A Time-Weighted Staking Contract</h2>
+<p>The staking contract allows users to deposit an ERC-20 token and earn rewards distributed per block. Rewards are calculated using an internal accounting system that updates each user's reward debt on every action, preventing manipulation.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">State Variables and Reward Logic</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+contract Staking {
+    IERC20 public stakingToken;
+    uint256 public rewardPerBlock = 100; // reward per block per token staked
+    uint256 public totalStaked;
+    mapping(address => uint256) public stakedBalance;
+    mapping(address => uint256) public rewardDebt;
+    mapping(address => uint256) public pendingRewards;
+    uint256 public lastRewardBlock;
+    uint256 public accRewardPerToken;
+
+    event Staked(address indexed user, uint256 amount);
+    event Unstaked(address indexed user, uint256 amount);
+    event RewardClaimed(address indexed user, uint256 amount);
+
+    constructor(address _stakingToken) {
+        stakingToken = IERC20(_stakingToken);
+        lastRewardBlock = block.number;
+    }
+}
+</pre>
+<p>The contract uses the concept of <strong>accumulated reward per token</strong>: <code>accRewardPerToken</code> tracks the total rewards that have been allocated per staked token since inception. When a user stakes or unstakes, their <code>rewardDebt</code> is updated to the current <code>accRewardPerToken</code>, and any difference is added to their pending rewards. This prevents them from claiming rewards for periods they weren't staked.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Updating Rewards</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+modifier updateReward(address user) {
+    if (totalStaked > 0) {
+        uint256 blocks = block.number - lastRewardBlock;
+        accRewardPerToken += (blocks * rewardPerBlock * 1e18) / totalStaked;
+    }
+    lastRewardBlock = block.number;
+    if (user != address(0)) {
+        pendingRewards[user] += (stakedBalance[user] * (accRewardPerToken - rewardDebt[user])) / 1e18;
+        rewardDebt[user] = accRewardPerToken;
+    }
+    _;
+}
+</pre>
+<p>This modifier is applied to <code>stake</code>, <code>unstake</code>, and <code>claimReward</code>. It first updates the global accumulator based on blocks elapsed, then updates the specific user's pending rewards. The <code>1e18</code> scaling factor ensures precision.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Stake, Unstake, and Claim</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function stake(uint256 amount) external updateReward(msg.sender) {
+    require(amount > 0, "Zero amount");
+    stakingToken.transferFrom(msg.sender, address(this), amount);
+    stakedBalance[msg.sender] += amount;
+    totalStaked += amount;
+    emit Staked(msg.sender, amount);
+}
+
+function unstake(uint256 amount) external updateReward(msg.sender) {
+    require(amount > 0 && stakedBalance[msg.sender] >= amount, "Invalid amount");
+    stakedBalance[msg.sender] -= amount;
+    totalStaked -= amount;
+    stakingToken.transfer(msg.sender, amount);
+    emit Unstaked(msg.sender, amount);
+}
+
+function claimReward() external updateReward(msg.sender) {
+    uint256 reward = pendingRewards[msg.sender];
+    require(reward > 0, "No rewards");
+    pendingRewards[msg.sender] = 0;
+    stakingToken.transfer(msg.sender, reward);
+    emit RewardClaimed(msg.sender, reward);
+}
+</pre>
+<p>Notice that in <code>unstake</code> we update state (balances, total) before transferring tokens - following C-E-I. The modifier <code>updateReward</code> runs first, updating the global and user-specific reward data.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.6-B · Staking Reward Calculation Flow</div>
+  <pre>
+  User calls stake(amount)
+        │
+        ▼
+  ┌──────────────────────────────┐
+  │ modifier updateReward(user)  │
+  │ • Update accRewardPerToken    │
+  │   based on blocks since last  │
+  │   update                      │
+  │ • Calculate user's pending    │
+  │   rewards: (staked * (acc -   │
+  │   debt)) / 1e18              │
+  │ • Set rewardDebt = acc       │
+  └────────┬─────────────────────┘
+           │
+           ▼
+  ┌──────────────────────────────┐
+  │ Transfer tokens from user    │
+  │ Update stakedBalance,        │
+  │ totalStaked                   │
+  │ Emit Staked event            │
+  └──────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Every user-facing function updates the reward accumulator before modifying the user's stake, ensuring rewards are accurately tracked.</div>
+</div>
+
+<!-- 07 INTERACTIVE BUILD‑ALONG -->
+<div class="section-label">07 &nbsp; Interactive Build-Along</div>
+<h2 class="section-title">Code Along: Deploy Your AMM to MST Testnet</h2>
+<p>Click through each step to see the full process from Hardhat setup to live deployment.</p>
+
+<details>
+  <summary>📁 Step 1: Set up the Hardhat project</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+mkdir simple-amm && cd simple-amm
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox dotenv
+npx hardhat init  (select JavaScript project)
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>⚙️ Step 2: Configure hardhat.config.js for MST Testnet</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+module.exports = {
+  solidity: "0.8.24",
+  networks: {
+    mst_testnet: {
+      url: "https://testnet-rpc.mstblockchain.com",
+      chainId: 5000,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>📝 Step 3: Write the SimpleAMM.sol contract</summary>
+  <div class="content">
+    <p>Copy the full AMM contract from the deep-dive section above into <code>contracts/SimpleAMM.sol</code>. Also deploy two mock ERC-20 tokens for testing.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🧪 Step 4: Write Hardhat tests</summary>
+  <div class="content">
+    <p>Create <code>test/SimpleAMM.test.js</code> with at least 5 test cases: initial deployment, adding liquidity, swapping A to B, swapping B to A (checking constant product), and removing liquidity.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 5: Deploy to MST Testnet</summary>
+  <div class="content">
+    <p>Write a deployment script in <code>scripts/deploy.js</code> and run:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+npx hardhat run scripts/deploy.js --network mst_testnet
+    </pre>
+    <p>Verify the contract on the explorer. Total gas cost: ~₹0.02.</p>
+  </div>
+</details>
+
+<!-- 08 GAS OPTIMIZATION & MST ADVANTAGES -->
+<div class="section-label">08 &nbsp; Gas Optimization &amp; MST Advantages</div>
+<h2 class="section-title">Why MST Is the Perfect Playground for DeFi Builders</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Deploy and iterate for paise, not lakhs</div>
+      <div class="feature-desc">The entire AMM contract deployment costs ~₹0.02. A full test cycle (deploy + multiple swaps) costs under ₹0.10. You can iterate dozens of times in a day without worrying about gas, making MST the ultimate learning environment.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Test with real small amounts</div>
+      <div class="feature-desc">Because fees are negligible, you can test your AMM with ₹10 worth of test tokens and still see meaningful price movements. On Ethereum, the gas for a single swap would cost more than the test tokens.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Complete EVM compatibility</div>
+      <div class="feature-desc">Your contract uses the same Solidity version, the same OpenZeppelin libraries, and the same Hardhat tooling as any Ethereum project. The skills you gain here transfer directly to any EVM chain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 CASE STUDIES -->
+<div class="section-label">09 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">From Simple Contracts to Multi-Billion Dollar Protocols</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v1 - A Weekend Project That Changed Finance</div>
+      <div class="feature-desc">Hayden Adams built the first Uniswap contract in a weekend as a learning project. The core swap function was under 50 lines of code, using the same x*y=k formula you just implemented. Today, Uniswap processes over $1 billion daily. Your AMM project is the same starting point.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">SushiSwap - A Fork That Became a Giant</div>
+      <div class="feature-desc">SushiSwap started as a fork of Uniswap v2, with the addition of a staking contract that rewarded liquidity providers with SUSHI tokens. The staking contract you'll build uses the same reward-tracking logic that SushiSwap's MasterChef contract uses. Understanding these patterns is your entry ticket to DeFi protocol development.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ASSESSMENT PREP -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for Your Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Checks-Effects-Interactions in every function that transfers tokens</div>
+      <div class="feature-desc">Update contract state before making external calls. This is non-negotiable for security.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Constant product formula: x * y = k (before fees)</div>
+      <div class="feature-desc">The fee is collected by slightly increasing k over time, which benefits LPs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Staking rewards use an accumulator pattern to prevent manipulation</div>
+      <div class="feature-desc">Update <code>accRewardPerToken</code> and user's <code>rewardDebt</code> on every action.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 11.6 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">30</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Coding Project Submission</div>
+      <div class="q-section-meta">1 Question · 30 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">Coding Project</span><span class="q-diff hard">Hard</span><span class="q-marks">30 marks</span></div></div>
+      <div class="q-text">Build either a simple AMM or a staking contract (or both), write Hardhat tests, and deploy to MST Testnet. Submit your GitHub repository with the contract code, tests, deployment script, and a README explaining how to use it.</div>
+      <div class="code-task">
+        <div class="ct-header"><div class="ct-badge">💻 PROJECT REQUIREMENTS</div></div>
+        <div class="ct-scenario">Your project must be a working smart contract deployed on MST Testnet. You may use OpenZeppelin contracts where appropriate.</div>
+        <div class="ct-requirements">
+          <strong>For the AMM option:</strong><br>
+          • Two ERC-20 token addresses as constructor parameters.<br>
+          • <code>addLiquidity</code>, <code>swap</code> (A→B and B→A), <code>removeLiquidity</code> functions.<br>
+          • 0.3% fee on swaps, added to the pool.<br>
+          • LP shares tracked and minted/burned on liquidity changes.<br>
+          • At least 5 test cases covering all functions.<br>
+          • Deployment to MST Testnet and contract address in README.<br><br>
+          <strong>For the staking option:</strong><br>
+          • A staking token (ERC-20) as constructor parameter.<br>
+          • <code>stake</code>, <code>unstake</code>, <code>claimReward</code> functions.<br>
+          • Rewards calculated per block using an accumulator pattern.<br>
+          • Modifier to update rewards on every action.<br>
+          • At least 5 test cases covering staking, unstaking, reward accrual, and edge cases.<br>
+          • Deployment to MST Testnet and contract address in README.
+        </div>
+        <div class="ct-rubric">
+          <div class="ct-rubric-label">📊 Marking Rubric (30 marks)</div>
+          <p>
+            <strong>Contract correctness (10 marks):</strong> Functions work as specified. Swap follows constant product. Staking rewards are correctly calculated.<br>
+            <strong>Security (8 marks):</strong> C-E-I pattern used in all token-transferring functions. No reentrancy vulnerabilities. Access control appropriate.<br>
+            <strong>Testing (6 marks):</strong> At least 5 test cases, covering happy paths, edge cases, and reverts. Tests pass.<br>
+            <strong>Deployment & documentation (4 marks):</strong> Contract deployed to MST Testnet. Address provided. README is clear.<br>
+            <strong>Code quality (2 marks):</strong> Clean formatting, NatSpec comments, meaningful variable names.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 11.6 Assessment Summary</div>
+      <div class="score-row">Coding Project (GitHub + MST Testnet Deployment) <span>(30 marks)</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">30</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 11.6</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Constant Product AMM</div><div class="glossary-def">An AMM using x*y=k to determine swap prices, ensuring infinite liquidity and automatic price discovery.</div></div>
+  <div class="glossary-item"><div class="glossary-term">LP Shares</div><div class="glossary-def">Tokens minted for liquidity providers representing their proportional claim on the pool's assets.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Accumulator Pattern</div><div class="glossary-def">A staking reward calculation method that tracks global rewards per staked token and updates user debts on each action, preventing manipulation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">The security pattern of checking conditions, updating contract state, and only then interacting with external contracts.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 11 · Sub-Module <strong>11.6</strong> of 6 &nbsp;·&nbsp; End of Module 11 - DeFi & RWA Orbitals Complete ✅</p>
+</div>
+
+</body>
+</html>

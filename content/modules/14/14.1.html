@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 14.1 - The Scalability Trilemma | Masterstroke Academy</title>
+    <meta name="description" content="Master the blockchain scalability trilemma. Learn the trade‑offs between security, decentralisation, and scalability, how every major chain navigates them, and why MST's high‑throughput L1 architecture pushes the boundaries.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #4F46E5;
+            --brand-light: #EEF2FF;
+            --brand-dark: #3730A3;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C7D2FE;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #065F46;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #C7D2FE;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #C7D2FE;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">⚡ Module 14 · Sub-Module 14.1 of 7</div>
+    <h1 class="module-title">The <span class="highlight">Scalability Trilemma</span></h1>
+    <p class="module-subtitle">Every blockchain must choose two out of three: security, decentralisation, and scalability. Understand the core trade-offs that shape every chain's design - and how MST's high-throughput L1 architecture pushes the boundaries of what's possible.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 20 Minutes</div>
+        <div class="meta-chip purple">🎯 5 Marks (MCQ + True/False)</div>
+        <div class="meta-chip">📋 Core trade-offs, comparisons</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s & Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🧠</div>
+            <div class="feature-title">Define the scalability trilemma precisely</div>
+            <div class="feature-desc">Explain the three vertices - security, decentralisation, and scalability - and why achieving all three simultaneously is the hardest problem in blockchain design.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">⚖️</div>
+            <div class="feature-title">Analyse how different blockchains make trade-offs</div>
+            <div class="feature-desc">Compare Bitcoin, Ethereum, Solana, and other chains against the trilemma, understanding which two dimensions each optimises for and why.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔍</div>
+            <div class="feature-title">Evaluate the impact of architectural decisions on user experience</div>
+            <div class="feature-desc">Connect technical choices like block size, validator count, and consensus mechanism to real-world outcomes like fees, confirmation times, and censorship resistance.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🌐</div>
+            <div class="feature-title">Understand MST's position in the trilemma landscape</div>
+            <div class="feature-desc">See how MST's high-throughput L1 design, coupled with its Parlia consensus and 4,000+ TPS, delivers a unique balance that targets all three pillars.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Chain That Was Too Centralised to Survive</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2022, a promising new blockchain launched with a bold claim: 100,000 transactions per second. The team had achieved this incredible speed by running the entire network on just 12 high-powered validator servers, all operated by the founding company and its investors. The chain was fast, cheap, and heavily marketed as an "Ethereum killer."</p>
+        <br>
+        <p>But within months, cracks appeared. When the founding company received a government subpoena, all 12 validators were ordered to freeze a specific wallet. The funds were frozen instantly. Users realised that this "decentralised" blockchain was, in reality, controlled by a single legal entity. Trust evaporated. Developers left. The token price collapsed. The chain is now virtually abandoned.</p>
+        <br>
+        <p>This is the scalability trilemma in action. The team solved scalability by sacrificing decentralisation. They got speed, but they lost the very thing that makes a blockchain valuable - trustlessness. The trilemma is not an abstract academic concept. It is the fundamental constraint that has shaped every blockchain's success or failure. In this sub-module, you will learn exactly how it works, and how to evaluate any chain - including MST - against its iron laws.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Is the Scalability Trilemma?</div>
+    <h2 class="section-title">The Impossible Triangle of Blockchain Design</h2>
+    <p>The <strong>scalability trilemma</strong> was popularised by Ethereum co-founder Vitalik Buterin. It states that a blockchain can achieve at most two of the following three properties:</p>
+    <p><strong>1. Security:</strong> The network can resist attacks from adversaries controlling a significant portion of resources. Transactions, once confirmed, are irreversible and tamper-proof. Security requires that no single entity can rewrite history or double-spend coins.</p>
+    <p><strong>2. Decentralisation:</strong> The network is not controlled by any single entity or small group. Anyone can run a node, validate transactions, and participate in consensus. Decentralisation ensures censorship resistance and trustlessness.</p>
+    <p><strong>3. Scalability:</strong> The network can process a high volume of transactions quickly and cheaply. Scalability means the chain can handle global demand - thousands or millions of transactions per second - without fees becoming prohibitive.</p>
+    <p>The trilemma claims that improving one property inevitably forces a sacrifice in at least one of the other two. A highly secure and decentralised chain (like Bitcoin) must limit its throughput because every transaction must be validated by thousands of nodes. A highly scalable and secure chain (like some enterprise blockchains) may achieve speed by limiting validator access, sacrificing decentralisation. A highly scalable and decentralised chain might do so by reducing security guarantees (e.g., using a less robust consensus mechanism).</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.1-A · The Scalability Trilemma Visualised</div>
+        <pre>
+                          SECURITY
+                             /\
+                            /  \
+                           /    \
+                          /      \
+                         /   ⚖️   \
+                        /  The    \
+                       /  Trilemma \
+                      /────────────\
+          DECENTRALISATION ──────── SCALABILITY
+
+  • Bitcoin: High Security + High Decentralisation → Low Scalability (~7 TPS)
+  • Solana:  High Security + High Scalability → Lower Decentralisation (fewer validators)
+  • Polygon PoS: High Scalability + Moderate Decentralisation → Security inherited from Ethereum
+  • MST: Aims for all three with a high‑throughput L1, 4,000+ TPS, and decentralised validator set
+        </pre>
+        <div class="diagram-caption">Every blockchain occupies a position within this triangle. The holy grail is to maximise all three simultaneously.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; Security - The Non-Negotiable Foundation</div>
+    <h2 class="section-title">Why Security Must Come First</h2>
+    <p>Security in a blockchain context means that the network can withstand attacks, that transactions are final, and that the ledger cannot be tampered with. A chain that is not secure is worthless - no matter how fast or cheap it is, if an attacker can reverse transactions, double-spend coins, or censor users, the system has failed.</p>
+    <p>Security is primarily determined by the <strong>consensus mechanism</strong> and the <strong>cost of attacking the network</strong>. In Proof-of-Work, the cost is the electricity and hardware required to control 51% of the hash rate. In Proof-of-Stake, the cost is the amount of staked capital that can be slashed if an attack is detected. A chain with a $1 billion market cap where attacking requires $500 million in staked tokens is far more secure than a chain where attacking costs only $50,000.</p>
+    <p><strong>Why security limits scalability:</strong> Every transaction must be verified by a sufficient number of independent nodes to ensure security. The more nodes that must reach consensus, the slower the process. A chain with 100,000 validators (highly decentralised and secure) takes longer to reach consensus than a chain with 21 validators (less decentralised, but faster). This is the direct trade-off: more verifiers = more time = less throughput.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Cost of Attack</div>
+        <p>Bitcoin's security is measured in hash power: the cost to rent enough ASIC miners to control 51% of the network for an hour is estimated at over $500,000. Ethereum's security is measured in staked ETH: a 51% attack would require purchasing and staking over $30 billion worth of ETH, which would then be slashed. MST's Parlia consensus combines stake-weighted validator election with PoA-style round-robin block production, creating a high cost of attack while maintaining throughput.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; Decentralisation - The Soul of Blockchain</div>
+    <h2 class="section-title">Why "Who Controls the Chain?" Is the Only Question That Matters</h2>
+    <p><strong>Decentralisation</strong> is the property that no single entity, government, or small group can control the blockchain. It is measured by the number of independent nodes, the diversity of their operators, and the barriers to participation. A truly decentralised chain allows anyone with consumer hardware to run a validating node and participate in consensus.</p>
+    <p>Decentralisation matters for three critical reasons:</p>
+    <p><strong>1. Censorship resistance:</strong> If a government orders a bank to freeze your account, the bank must comply. If a government orders a centralised blockchain operator to freeze your address, they must comply. If a government tries to censor a transaction on a decentralised chain with 10,000 independent validators across 100 countries, they cannot - there is no single point of control.</p>
+    <p><strong>2. Trustlessness:</strong> You don't need to trust any single entity to behave honestly. You trust the mathematics and the economic incentives that make it irrational for any participant to cheat.</p>
+    <p><strong>3. Resilience:</strong> If a data centre goes down, a decentralised network continues to operate. If the founding company disappears, the chain lives on. Bitcoin has survived over a decade without Satoshi Nakamoto.</p>
+    <p><strong>Why decentralisation limits scalability:</strong> Every additional node that must validate transactions adds latency. If you have 10,000 nodes distributed globally, they must all communicate, agree on block order, and synchronise state. This takes time. Reducing the number of validators improves speed but sacrifices decentralisation. This is the second leg of the trilemma.</p>
+
+    <div class="section-label">06 &nbsp; Scalability - The Demand That Never Ends</div>
+    <h2 class="section-title">Transactions Per Second, Block Size, and the Global Audience</h2>
+    <p><strong>Scalability</strong> is the blockchain's ability to handle a growing number of transactions. It is measured by <strong>transactions per second (TPS)</strong>, block size, block time, and the associated transaction fees. A scalable blockchain can support global adoption - billions of people making payments, trading assets, and interacting with dApps without the network grinding to a halt.</p>
+    <p>The demand for scalability is driven by real-world usage. Bitcoin processes ~7 TPS. Ethereum processes ~30 TPS. Visa processes ~65,000 TPS. For a blockchain to become a global settlement layer, it must close this gap. The challenge is that increasing TPS typically requires either increasing block size (which makes it harder for small nodes to keep up, reducing decentralisation) or reducing the number of validators (which reduces security and decentralisation).</p>
+    <p><strong>Why scalability limits security and decentralisation:</strong> Larger blocks take longer to propagate. If a block is so large that it takes 30 seconds to reach all nodes, validators in different parts of the world will see different versions of the chain, creating forks and reducing security. Smaller blocks propagate faster but carry fewer transactions, limiting TPS. The trilemma is not a lack of clever engineering - it is a fundamental physical constraint of distributed systems.</p>
+
+    <div class="section-label">07 &nbsp; The Trilemma in Practice - How Major Chains Make Trade-offs</div>
+    <h2 class="section-title">Bitcoin, Ethereum, Solana, and Others Under the Microscope</h2>
+    <table>
+        <thead><tr><th>Blockchain</th><th>Security</th><th>Decentralisation</th><th>Scalability (TPS)</th><th>Trade-off Made</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Bitcoin</strong></td><td>Very High (PoW, massive hash rate)</td><td>Very High (15,000+ nodes)</td><td>Low (~7 TPS)</td><td>Sacrifices scalability for security and decentralisation</td></tr>
+            <tr><td><strong>Ethereum L1</strong></td><td>Very High (PoS, millions of validators)</td><td>High (1M+ validators)</td><td>Low (~30 TPS)</td><td>Sacrifices scalability for security and decentralisation; uses L2s to scale</td></tr>
+            <tr><td><strong>Solana</strong></td><td>High (PoH + PoS)</td><td>Medium (2,000+ validators, but high hardware requirements)</td><td>High (2,000-5,000 TPS)</td><td>Sacrifices some decentralisation (expensive hardware) for scalability</td></tr>
+            <tr><td><strong>Polygon PoS</strong></td><td>Medium (sidechain, relies on Ethereum for final security)</td><td>Medium (100 validators)</td><td>High (7,000 TPS)</td><td>Sacrifices security (not fully Ethereum-grade) for scalability</td></tr>
+            <tr><td><strong>Ripple (XRP)</strong></td><td>Medium (federated consensus)</td><td>Low (55 validators, mostly Ripple-controlled)</td><td>High (1,500 TPS)</td><td>Sacrifices decentralisation for security and scalability</td></tr>
+            <tr><td><strong>MST Blockchain</strong></td><td>High (Parlia PoSA, stake-weighted validators)</td><td>High (55,000+ validators, fractional staking)</td><td>High (4,000+ TPS)</td><td>Targets all three with high-throughput L1 + decentralised validator set</td></tr>
+        </tbody>
+    </table>
+
+    <p>MST's Parlia consensus combines the efficiency of Proof-of-Authority round-robin block production with the decentralisation of stake-weighted validator elections. By allowing <strong>fractional validator participation</strong> - where users can purchase fractional ownership in validator nodes without running their own infrastructure - MST dramatically expands the validator set (55,000+ validators) while maintaining high throughput (4,000+ TPS). This is a deliberate architectural choice to push the trilemma's boundaries, using economic incentives and efficient block propagation to improve all three dimensions simultaneously.</p>
+
+    <div class="section-label">08 &nbsp; Beyond the Trilemma - Layer 2s, Sharding, and Modular Chains</div>
+    <h2 class="section-title">How the Industry Is Trying to Break the Impossible Triangle</h2>
+    <p>The trilemma is often described as an immutable law, but it is more accurately a <strong>constraint on monolithic Layer-1 blockchains</strong>. Several approaches attempt to circumvent it:</p>
+    <p><strong>Layer 2 scaling:</strong> Move execution off the main chain. Rollups (Optimistic and ZK) execute transactions on a faster layer, then post compressed data back to the secure, decentralised L1. The L1 provides security and decentralisation; the L2 provides scalability. This is Ethereum's strategy.</p>
+    <p><strong>Sharding:</strong> Split the blockchain into multiple parallel shards, each processing a subset of transactions. Each shard has its own validators, and the overall system achieves higher throughput because work is divided. This is complex and still under development for most chains.</p>
+    <p><strong>Modular blockchains:</strong> Separate the blockchain into distinct layers - execution, settlement, consensus, and data availability. Celestia provides data availability; rollups provide execution; Ethereum provides settlement. No single chain needs to do everything.</p>
+    <p>MST takes a different approach: a <strong>high-throughput monolithic L1</strong> that achieves scalability at the base layer without sacrificing decentralisation. By optimising the consensus mechanism (Parlia), minimising block time (~3 seconds), and enabling broad participation through fractional staking, MST pushes the trilemma's boundaries without requiring L2s or sharding. For most applications, 4,000+ TPS is sufficient for mass adoption, and the simplicity of a single-layer architecture avoids the fragmentation and complexity of L2 ecosystems.</p>
+
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>The scalability trilemma states that a blockchain can achieve at most two of security, decentralisation, and scalability.</strong> Improving one forces a sacrifice in at least one other.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Bitcoin sacrifices scalability (~7 TPS) for maximum security and decentralisation.</strong> Its massive node count and PoW consensus make it slow but extremely resilient.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Solana sacrifices some decentralisation (high hardware requirements) for high throughput (2,000-5,000 TPS).</strong> This makes it fast but excludes small validators.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>MST targets all three with a high-throughput L1, 4,000+ TPS, and 55,000+ validators through fractional staking.</strong> Parlia consensus combines PoA efficiency with PoS decentralisation.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Layer 2s, sharding, and modular blockchains attempt to circumvent the trilemma</strong> by separating execution, settlement, and data availability across multiple layers.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 14.1 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">5</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What are the three vertices of the scalability trilemma?</div>
+                <ul class="options">
+                    <li>A. Speed, Security, Decentralisation</li>
+                    <li class="correct">B. Security, Decentralisation, Scalability</li>
+                    <li>C. Privacy, Scalability, Decentralisation</li>
+                    <li>D. Security, Scalability, Privacy</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: B</div><p>The three vertices are Security, Decentralisation, and Scalability. Speed is a component of scalability, and privacy is a separate concern.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Which blockchain sacrificed scalability to achieve very high security and decentralisation?</div>
+                <ul class="options">
+                    <li class="correct">A. Bitcoin (~7 TPS)</li>
+                    <li>B. Solana (2,000-5,000 TPS)</li>
+                    <li>C. Ripple (1,500 TPS)</li>
+                    <li>D. Polygon PoS (7,000 TPS)</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Bitcoin prioritises security and decentralisation above all else, resulting in low throughput (~7 TPS).</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">How does MST Blockchain aim to achieve high scalability without sacrificing decentralisation?</div>
+                <ul class="options">
+                    <li class="correct">A. By using Parlia consensus with fractional staking, enabling 55,000+ validators while maintaining 4,000+ TPS.</li>
+                    <li>B. By running all transactions on a single central server.</li>
+                    <li>C. By using Proof-of-Work with ASIC miners.</li>
+                    <li>D. By requiring every node to stake $1 million.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>MST's Parlia consensus and fractional staking model allow broad participation while keeping block times fast and throughput high.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Why does increasing block size to improve scalability typically reduce decentralisation?</div>
+                <ul class="options">
+                    <li class="correct">A. Larger blocks take longer to propagate, making it harder for small nodes with limited bandwidth to keep up, effectively excluding them from the network.</li>
+                    <li>B. Larger blocks require more electricity to mine.</li>
+                    <li>C. Larger blocks make transactions more expensive.</li>
+                    <li>D. Larger blocks are incompatible with Proof-of-Stake.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>When blocks are very large, only nodes with fast internet and powerful hardware can download and verify them in time, reducing the number of independent participants.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">True / False with Mandatory Justification</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">"A blockchain that processes 100,000 transactions per second with a single validator node is highly scalable and therefore a superior solution for global adoption."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. While such a chain achieves scalability, it completely sacrifices <strong>decentralisation</strong> (a single point of control) and <strong>security</strong> (the single validator can be attacked or compelled to censor). A blockchain with one validator is essentially a centralised database, defeating the purpose of blockchain technology. True blockchain value requires a balance of all three properties.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Marks Breakdown</div><p><strong>0.5 marks:</strong> Correctly states FALSE.<br><strong>0.5 marks:</strong> Explains that single-validator chains are centralised and insecure, violating the purpose of a blockchain.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 14.1 Assessment Summary</div>
+            <div class="score-row">Q1-Q4: 4 × MCQ (1 mark each) = 4 marks</div>
+            <div class="score-row">Q5: True/False with Justification = 1 mark</div>
+            <div class="score-badge"><div class="score-num">5</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.1</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Scalability Trilemma</div><div class="g-def">The principle that a blockchain can achieve at most two of three properties: security, decentralisation, and scalability. Improving one forces a trade-off in at least one other.</div></div>
+        <div class="glossary-card"><div class="g-term">Security</div><div class="g-def">The ability of a blockchain to resist attacks, ensure transaction finality, and prevent double-spending or ledger tampering.</div></div>
+        <div class="glossary-card"><div class="g-term">Decentralisation</div><div class="g-def">The distribution of control across many independent nodes, ensuring no single entity can censor, reverse, or control the network.</div></div>
+        <div class="glossary-card"><div class="g-term">Scalability</div><div class="g-def">The ability to process a high volume of transactions quickly and cheaply, measured in TPS (transactions per second).</div></div>
+        <div class="glossary-card"><div class="g-term">TPS (Transactions Per Second)</div><div class="g-def">A measure of blockchain throughput. Bitcoin: ~7 TPS. Ethereum: ~30 TPS. MST: 4,000+ TPS. Visa: ~65,000 TPS.</div></div>
+        <div class="glossary-card"><div class="g-term">Parlia (PoSA)</div><div class="g-def">MST's consensus mechanism combining Proof-of-Authority efficiency with stake-weighted validator elections for high throughput and decentralisation.</div></div>
+        <div class="glossary-card"><div class="g-term">Fractional Staking</div><div class="g-def">A model allowing users to own a fraction of a validator node, lowering barriers to participation and expanding the validator set.</div></div>
+        <div class="glossary-card"><div class="g-term">Layer 2</div><div class="g-def">A secondary protocol built on top of a base blockchain (L1) that processes transactions off-chain and settles them on the L1.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.1</strong> of 7 · Next: Sub-Module 14.2 - State Channels & Sidechains →</p>
+    </div>
+
+</body>
+</html>

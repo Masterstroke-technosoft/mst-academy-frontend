@@ -1,0 +1,533 @@
+
+
+<div class="module-badge">🎓 Module 3 &nbsp;·&nbsp; Sub-Module 3.3 of 9</div>
+<h1 class="module-title">Cryptographic <span class="highlight">Hashing</span></h1>
+<p class="module-subtitle">The one-way mathematical fingerprint that makes blockchain immutable. Understanding SHA-256 and Keccak-256 - the engines under the hood of every block, every transaction, every wallet address.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 4 MCQ + 1 Code-Completion + 1 True/False</div>
+  <div class="meta-chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01. OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text"><strong>Define a cryptographic hash function</strong>Name and explain all five essential properties that make a hash function "cryptographic."</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text"><strong>Distinguish SHA-256 from Keccak-256</strong>Know which blockchain uses which, and why Solidity uses <code>keccak256()</code>.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text"><strong>Connect hashing to Aadhaar biometrics</strong>Explain why UIDAI stores a hash of your fingerprint - not the fingerprint itself.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text"><strong>Write a keccak256 hash call in Solidity</strong>Use <code>keccak256(abi.encodePacked(...))</code> correctly in a smart contract.</div>
+  </div>
+</div>
+
+
+<!-- 02. STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">Your Aadhaar Fingerprint Was Never Stored</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2013, you went to an Aadhaar enrolment centre in Pune. The operator pressed your finger onto the scanner. In that moment, you probably assumed UIDAI (Unique Identification Authority of India) was saving a photograph of your fingerprint - a digital image of your swirling ridges, stored in some massive government database.</p>
+  <br>
+  <p>They did not. What they stored was a number. A very specific, very long number - computed by running your fingerprint image through a mathematical function that is, for all practical purposes, <strong>irreversible</strong>. Your actual fingerprint image was discarded. Only the number remains.</p>
+  <br>
+  <p>Every time you use Aadhaar authentication - to open a bank account, get a SIM card, access your DigiLocker - the scanner computes the same mathematical function on your fresh scan and compares the result to the stored number. If they match: it's you. If they don't: it's not. And no hacker who steals the UIDAI database gains access to your actual fingerprint - they only get the irreversible number. <strong>This is a hash function.</strong></p>
+  <br>
+  <p>Blockchain uses the exact same idea - but applied to transactions, blocks, and addresses. Every piece of data in a blockchain is fingerprinted. And the entire security model depends on one critical property: <strong>you cannot reverse the fingerprint to find the original data.</strong></p>
+</div>
+
+
+<!-- 03. BACKGROUND -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Cryptographic Hash Functions</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">1979</div>
+    <div class="feature-content">
+      <div class="feature-title">Ralph Merkle's PhD - The Foundation</div>
+      <div class="feature-desc">Ralph Merkle's doctoral thesis introduced the concept of one-way hash functions and Merkle trees. His work established the theoretical basis for all modern cryptographic hashing - the same Merkle trees used in every Bitcoin and Ethereum block today.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">1993</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-1 - The First Widely Deployed Hash</div>
+      <div class="feature-desc">The NSA designed SHA-1 for the US government. It was used everywhere - SSL certificates, digital signatures, version control (Git still uses SHA-1 internally for commit hashes). Critically broken in 2017 when Google demonstrated a "collision" - two different files with the same SHA-1 hash. This is why SHA-1 is now deprecated for security applications.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">2001</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-256 - Bitcoin's Hash Function</div>
+      <div class="feature-desc">SHA-256 (Secure Hash Algorithm, 256-bit output) was standardised by NIST. Satoshi Nakamoto chose it for Bitcoin in 2008 - it is used for block hashing (PoW), transaction IDs, and address derivation. As of 2024, no practical attack on SHA-256 exists. The entire Bitcoin security model rests on it.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">2012</div>
+    <div class="feature-content">
+      <div class="feature-title">Keccak Wins the SHA-3 Competition - Ethereum's Choice</div>
+      <div class="feature-desc">NIST ran an open competition for a new hash standard. Keccak (designed by Bertoni, Daemen, Peeters, and Van Assche) won after 5 years and 64 competing submissions. Ethereum adopted Keccak-256 (a specific Keccak variant) for all internal operations - address derivation, transaction hashing, the <code>keccak256()</code> Solidity opcode. MST, as an EVM-compatible chain, uses the same function.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 04. THE FIVE PROPERTIES -->
+<div class="section-label">04 &nbsp; The Five Properties of Cryptographic Hash Functions</div>
+<h2 class="section-title">What Makes a Hash Function "Cryptographic"?</h2>
+
+<p>Not every hash function is cryptographic. A simple hash like "sum all the ASCII values of characters" is a hash function - but it's not cryptographic. Five specific properties distinguish a cryptographic hash function from a basic one.</p>
+
+<div class="prop-grid">
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">1. Deterministic</div>
+      <div class="prop-tag">Must-Have</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Same input → Always same output</div>
+      <div class="prop-desc">No matter when, where, or on which computer you run SHA-256("Hello"), you always get the exact same 64-character output. This is essential for blockchain consensus - every node must independently compute the same result to agree on block validity.</div>
+      <div class="prop-analogy">🇮🇳 Your fingerprint always produces the same Aadhaar biometric code - on any scanner, any day.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">2. Pre-image Resistant</div>
+      <div class="prop-tag">One-Way</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Cannot reverse the hash to find the original input</div>
+      <div class="prop-desc">Given a hash output H, it is computationally infeasible to find any input X such that hash(X) = H. SHA-256 has 2²⁵⁶ possible outputs - approximately 10⁷⁷. Even if every atom in the universe were a computer running since the Big Bang, you could not brute-force a SHA-256 hash in the lifetime of the universe.</div>
+      <div class="prop-analogy">🇮🇳 Nobody can reconstruct your fingerprint from your Aadhaar biometric number - even UIDAI itself.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">3. Avalanche Effect</div>
+      <div class="prop-tag">Sensitivity</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Tiny input change → Completely different output</div>
+      <div class="prop-desc">Changing even a single bit in the input produces a drastically different hash output - typically about half the output bits flip. This means you cannot make subtle, undetectable changes to data. Any tampering is immediately visible through a completely changed fingerprint.</div>
+      <div class="prop-analogy">🇮🇳 A single ridge alteration on your fingerprint produces a completely unrecognisable biometric code.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">4. Collision Resistant</div>
+      <div class="prop-tag">Uniqueness</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Computationally infeasible to find two different inputs with the same hash</div>
+      <div class="prop-desc">It should be essentially impossible to find X ≠ Y where hash(X) = hash(Y). By the birthday paradox, finding a SHA-256 collision would require approximately 2¹²⁸ operations - far beyond any known or projected computational capability. SHA-1's collision resistance was broken; SHA-256's has not been.</div>
+      <div class="prop-analogy">🇮🇳 No two people in India share an Aadhaar number - the biometric hashing system is designed to be unique per individual.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">5. Fixed Output Size</div>
+      <div class="prop-tag">Consistency</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Output is always exactly the same length regardless of input size</div>
+      <div class="prop-desc">SHA-256 always produces exactly 256 bits = 32 bytes = 64 hexadecimal characters. Whether you hash the word "Hi" (2 bytes) or the entire Harry Potter series (4.1 MB), the output is always 64 hex characters. This is critical for block headers - they need a predictable-size field for PrevHash.</div>
+      <div class="prop-analogy">🇮🇳 Whether you scan 1 finger or 10 simultaneously, Aadhaar produces one fixed-length biometric template.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 05. SHA-256 vs KECCAK -->
+<div class="section-label">05 &nbsp; SHA-256 vs Keccak-256 - The Two Engines</div>
+<h2 class="section-title">Which Hash Function Powers Which Blockchain?</h2>
+
+<p>Both SHA-256 and Keccak-256 are cryptographic hash functions with 256-bit outputs, but they use completely different internal algorithms and are used in different ecosystems.</p>
+
+<div class="hash-demo">
+  <div class="hash-demo-title">🔬 Live Hash Demonstration - Avalanche Effect in Action</div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain!"</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">SHA-256: 3c9683017f9e4bf33d0a90e87f17f4a2625cdfede6a7572e22834f0e61fc7bf3</div>
+  </div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain." &nbsp;← one char changed (! → .)</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">SHA-256: a8e5f679b4d0e51cf7c2d0f4eb9283c04b63c97de12e5e93c7bdb3e89d4e5f1a</div>
+  </div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain!" (same as Row 1)</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">Keccak-256: 8a1c4d2e7f3b9056ae1234c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5</div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-3);margin-top:12px;margin-bottom:0;">Note: Row 1 and Row 2 - identical input except one character. Completely different outputs. Row 1 and Row 3 - identical input, different algorithms, different outputs. All outputs are 64 hex characters (256 bits) regardless.</p>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.3-A · SHA-256 vs Keccak-256 - Usage in Blockchain Ecosystem</div>
+  <pre>  ┌──────────────────────────────────────────────────────────────────────────┐
+  │                    SHA-256                                               │
+  │  Designed by: NSA (2001) · Standardised: NIST FIPS 180-4                │
+  │  Output: 256 bits (64 hex chars)                                         │
+  │  Internal structure: Merkle-Damgård with Davies-Meyer compression        │
+  │                                                                          │
+  │  Used in BLOCKCHAIN for:                                                 │
+  │  ✦ Bitcoin block hashing (PoW — miners compute SHA-256 of block header)  │
+  │  ✦ Bitcoin transaction IDs (TXID = SHA-256(SHA-256(raw_tx)))             │
+  │  ✦ Bitcoin address derivation (SHA-256 → RIPEMD-160 → Base58)           │
+  │  ✦ Bitcoin's double-SHA-256: hash(hash(x)) for extra security            │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │                    Keccak-256                                            │
+  │  Designed by: Bertoni, Daemen, Peeters, Van Assche (2012 SHA-3 winner)  │
+  │  Output: 256 bits (64 hex chars)                                         │
+  │  Internal structure: Sponge construction (absorb → squeeze)              │
+  │                                                                          │
+  │  Used in BLOCKCHAIN for:                                                 │
+  │  ✦ Ethereum address derivation (Keccak-256 of public key → last 20 bytes)│
+  │  ✦ Ethereum transaction hashing                                           │
+  │  ✦ Solidity built-in: keccak256() opcode                                 │
+  │  ✦ MST (EVM-compatible) — all the above + smart contract storage keys    │
+  │  ✦ Merkle-Patricia Trie nodes in Ethereum/MST state                      │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  ⚠️  IMPORTANT: Ethereum uses Keccak-256, NOT the NIST SHA-3 standard.
+      They are both Keccak-based but with different padding — they produce
+      different outputs for the same input. When Solidity says keccak256(),
+      it means the Ethereum variant — NOT NIST SHA-3.
+  </pre>
+  <div class="diagram-caption">Knowing which hash function each ecosystem uses is a common exam question - and a common source of bugs for developers crossing between Bitcoin and Ethereum tooling.</div>
+</div>
+
+
+<!-- 06. HOW SHA-256 WORKS INTERNALLY -->
+<div class="section-label">06 &nbsp; Inside SHA-256 - Conceptual Understanding</div>
+<h2 class="section-title">How Does SHA-256 Actually Compute Its Output?</h2>
+
+<p>You don't need to implement SHA-256 - but understanding the conceptual steps builds deep intuition for why it has the properties it does.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.3-B · SHA-256 Internal Process (Conceptual)</div>
+  <pre>  INPUT: "Ravi sends 1 BTC to Priya"  (any length)
+
+  STEP 1: PADDING
+  ─────────────────────────────────────────────────────────────────────
+  Append a '1' bit, then '0' bits, then a 64-bit length field
+  until the total message length is a multiple of 512 bits.
+  Reason: SHA-256 processes data in fixed 512-bit chunks.
+
+  STEP 2: INITIALISE 8 HASH VALUES (h0 through h7)
+  ─────────────────────────────────────────────────────────────────────
+  These are the first 32 bits of the fractional parts of the
+  square roots of the first 8 prime numbers:
+  h0 = 0x6a09e667  (from √2)
+  h1 = 0xbb67ae85  (from √3)
+  h2 = 0x3c6ef372  (from √5)
+  ... (why primes? They have no mathematical "back door" — public verifiability)
+
+  STEP 3: 64 ROUNDS OF COMPRESSION PER 512-BIT CHUNK
+  ─────────────────────────────────────────────────────────────────────
+  For each 512-bit chunk:
+    Expand chunk into 64 × 32-bit "words" using bit rotations and XOR
+    Run 64 rounds of: Σ (sigma), Ch (choose), Maj (majority) operations
+    These are simple bitwise operations — AND, OR, XOR, bit-rotate
+    Each round mixes the current state using a "round constant"
+    (derived from cube roots of the first 64 primes — again, no back door)
+
+  STEP 4: ADD COMPRESSED CHUNK TO CURRENT HASH VALUE
+  ─────────────────────────────────────────────────────────────────────
+  After 64 rounds, add the compressed chunk to the running hash values.
+  Process the next 512-bit chunk. Repeat.
+
+  STEP 5: OUTPUT THE FINAL HASH
+  ─────────────────────────────────────────────────────────────────────
+  Concatenate h0 through h7 → 8 × 32-bit = 256-bit output.
+  Convert to 64 hexadecimal characters.
+
+  OUTPUT: 3c9683017f9e4bf33d0a90e87f17f4a2625cdfede6a7572e22834f0e61fc7bf3
+
+  ─────────────────────────────────────────────────────────────────────
+  KEY INSIGHT: Each step is designed to ensure that ANY change in the input
+  cascades through ALL subsequent rounds, changing the output completely.
+  This is the avalanche effect — by design, not by accident.
+  ─────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="diagram-caption">SHA-256 runs approximately 64 rounds of bitwise mixing operations. A modern CPU can compute ~500 million SHA-256 hashes per second. Bitcoin's network collectively computes ~500 exahashes (5×10²⁰) per second.</div>
+</div>
+
+
+<!-- 07. HASHING IN SOLIDITY -->
+<div class="section-label">07 &nbsp; Hashing in Solidity - keccak256() in Practice</div>
+<h2 class="section-title">Writing Hash Functions in Smart Contracts</h2>
+
+<p>In Solidity (the smart contract language for Ethereum and MST), the <code>keccak256()</code> function is a built-in - a first-class opcode. It takes bytes as input and returns a <code>bytes32</code> (256-bit) hash. Understanding how to use it correctly is essential for building secure contracts.</p>
+
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-lang">Solidity · keccak256 - Complete Usage Guide</div>
+    <div class="code-dots">
+      <div class="code-dot" style="background:#FF5F56"></div>
+      <div class="code-dot" style="background:#FFBD2E"></div>
+      <div class="code-dot" style="background:#27C93F"></div>
+    </div>
+  </div>
+  <div class="code-body">
+<pre><span class="c-cmt">// SPDX-License-Identifier: MIT</span>
+<span class="c-kw">pragma solidity</span> ^0.8.0;
+
+<span class="c-kw">contract</span> <span class="c-fn">HashingExamples</span> {
+
+    <span class="c-cmt">// ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 1: Hash a string
+    // Use case: Commit-reveal schemes, storing verifiable secrets
+    // ─────────────────────────────────────────────────────────────────</span>
+<span class="c-hl">    <span class="c-kw">function</span> <span class="c-fn">hashString</span>(<span class="c-type">string memory</span> input) <span class="c-kw">public pure returns</span> (<span class="c-type">bytes32</span>) {</span>
+<span class="c-hl">        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(input));</span>
+<span class="c-hl">    }</span>
+    <span class="c-cmt">// abi.encodePacked(input) converts the string to tightly packed bytes.
+    // keccak256() hashes those bytes → returns bytes32.
+    // "pure" means it doesn't read or modify blockchain state.
+
+    // ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 2: Hash multiple values together
+    // Use case: Creating unique identifiers from multiple inputs
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-kw">function</span> <span class="c-fn">generateId</span>(<span class="c-type">address</span> user, <span class="c-type">uint256</span> nonce) <span class="c-kw">public pure returns</span> (<span class="c-type">bytes32</span>) {
+        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(user, nonce));
+    }
+    <span class="c-cmt">// Different users + different nonces → completely different IDs.
+    // Collision-resistant: virtually impossible for two inputs to produce same ID.
+
+    // ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 3: Password storage WITHOUT storing the password
+    // Use case: On-chain authentication — store hash, verify with hash
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-type">bytes32</span> <span class="c-kw">public</span> storedPasswordHash;
+
+    <span class="c-kw">function</span> <span class="c-fn">setPassword</span>(<span class="c-type">string memory</span> password) <span class="c-kw">public</span> {
+<span class="c-hl">        storedPasswordHash = <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(password));</span>
+        <span class="c-cmt">// Never store raw password — only its hash. Even blockchain explorers
+        // cannot reverse-engineer the original password from this hash.</span>
+    }
+
+    <span class="c-kw">function</span> <span class="c-fn">verifyPassword</span>(<span class="c-type">string memory</span> attempt) <span class="c-kw">public view returns</span> (<span class="c-type">bool</span>) {
+        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(attempt)) == storedPasswordHash;
+        <span class="c-cmt">// Compute hash of attempt, compare to stored hash. True if they match.</span>
+    }
+
+    <span class="c-cmt">// ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 4: Commit-Reveal Scheme
+    // Use case: MST FortunaX random number generation, sealed auctions
+    // Phase 1 (COMMIT): Player hashes their secret choice + salt
+    // Phase 2 (REVEAL): Player reveals choice + salt → contract verifies
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-kw">mapping</span>(<span class="c-type">address</span> =&gt; <span class="c-type">bytes32</span>) <span class="c-kw">public</span> commitments;
+
+    <span class="c-kw">function</span> <span class="c-fn">commit</span>(<span class="c-type">bytes32</span> commitment) <span class="c-kw">public</span> {
+        commitments[msg.sender] = commitment;
+        <span class="c-cmt">// Player submits: keccak256(abi.encodePacked(choice, salt))</span>
+    }
+
+    <span class="c-kw">function</span> <span class="c-fn">reveal</span>(<span class="c-type">uint256</span> choice, <span class="c-type">uint256</span> salt) <span class="c-kw">public view returns</span> (<span class="c-type">bool</span>) {
+<span class="c-hl">        <span class="c-type">bytes32</span> computed = <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(choice, salt));</span>
+<span class="c-hl">        <span class="c-kw">return</span> computed == commitments[msg.sender];</span>
+        <span class="c-cmt">// True = player's revealed choice matches their original commitment.
+        // They cannot change their choice after committing — the hash proves it.</span>
+    }
+}</pre>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Why abi.encodePacked() - Not Just keccak256(data)</div>
+  <p><code>keccak256()</code> only accepts <code>bytes</code> as input. <code>abi.encodePacked()</code> converts any Solidity type (string, uint, address, bool, bytes) into tightly packed bytes that <code>keccak256</code> can process. This is the standard pattern. Important warning: <code>abi.encodePacked(A, B)</code> can sometimes produce the same bytes for different A,B pairs (e.g., <code>encodePacked("ab","c")</code> vs <code>encodePacked("a","bc")</code>). For sensitive applications, use <code>abi.encode()</code> instead - it adds type information that prevents this collision.</p>
+</div>
+
+
+<!-- 08. HOW HASHING IS USED IN BLOCKCHAIN -->
+<div class="section-label">08 &nbsp; Hashing Throughout the Blockchain Stack</div>
+<h2 class="section-title">Every Place Hashing Appears in a Blockchain System</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Hashing - Creating the Chain</div>
+      <div class="feature-desc">Each block's header fields are concatenated and hashed to produce the block's ID (its hash). This hash becomes the PrevHash of the next block - creating the immutable chain. In Bitcoin, miners must find a nonce such that SHA-256(SHA-256(block_header)) begins with a certain number of zero bits. Finding this nonce is "mining."</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Transaction IDs (TXID)</div>
+      <div class="feature-desc">Every transaction is hashed to produce its Transaction ID - the unique identifier you see on a block explorer. In Bitcoin: TXID = SHA-256(SHA-256(raw_transaction_bytes)). In Ethereum/MST: TXID = Keccak-256(RLP_encoded_transaction). This TXID is what you paste into MSTScan to look up a specific transaction.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Wallet Address Derivation</div>
+      <div class="feature-desc">Your Ethereum/MST wallet address is derived from your public key using hashing. Process: Generate private key (random 256-bit number) → Compute public key (elliptic curve multiplication) → <strong>Keccak-256(public_key)</strong> → Take last 20 bytes → That's your address (0x...). The hash is one-way: nobody can compute your private key from your address.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Merkle Trees - Transaction Summaries</div>
+      <div class="feature-desc">All transactions in a block are hashed, then pairs of hashes are hashed together, and so on - until a single "Merkle Root" hash summarises every transaction. This enables fraud detection (any tampered transaction changes the root) and efficient verification by light clients. Covered in depth in Sub-Module 3.8.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Smart Contract Storage Keys</div>
+      <div class="feature-desc">In Ethereum/MST, the storage location of mapping values is computed as <code>keccak256(key, slot)</code>. When you access <code>mapping[address]</code>, the EVM computes the storage slot by hashing the key and the mapping's base slot number. This is why even complex nested mappings can be stored efficiently in the 256-bit address space.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">6</div>
+    <div class="feature-content">
+      <div class="feature-title">Commit-Reveal in Gaming (MST FortunaX)</div>
+      <div class="feature-desc">In MST's FortunaX random number protocol, the game operator commits a hash of a secret seed before the game begins. After the game, they reveal the seed. Players can verify: <code>keccak256(revealed_seed) == committed_hash</code>. If it matches, the seed was fixed before the game - the operator could not have chosen it based on player actions. This is provably fair randomness without a trusted random oracle.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 09. REAL WORLD CASE STUDIES -->
+<div class="section-label">09 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Hashing in the Wild - India and Beyond</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">Aadhaar - 1.3 Billion Biometric Hashes</div>
+      <div class="feature-desc">UIDAI stores a biometric hash (not the fingerprint image) for all 1.3 billion enrolled Indians. The 2018 Aadhaar data breach exposed demographic data (names, addresses) but NOT biometric data - because only hashes were stored. Even if the hash database is stolen, no fingerprint can be reconstructed. This is hash security working exactly as designed. However, the breach did expose that the database was accessible - a governance failure, not a cryptographic one.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">💬</div>
+    <div class="feature-content">
+      <div class="feature-title">WhatsApp Encryption - Hash Chains in Messaging</div>
+      <div class="feature-desc">WhatsApp uses the Signal protocol, which uses HKDF (Hash-based Key Derivation Function - built on SHA-256) to derive new encryption keys for every single message. This is called "forward secrecy" - even if an attacker steals your current key, they cannot decrypt past messages because each message used a different derived key, and key derivation is one-way. The same hashing principle that secures blockchain transactions secures your WhatsApp messages.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--green);">📱</div>
+    <div class="feature-content">
+      <div class="feature-title">APK Integrity - Android App Downloads</div>
+      <div class="feature-desc">When you download an APK (Android app package) - whether from the Play Store or directly - Google publishes its SHA-256 hash. Your device computes SHA-256 of the downloaded file and compares to the published hash. If they match, the file is authentic and unmodified. If they don't, the device warns you or refuses to install. This prevents "man-in-the-middle" attacks where a malicious party modifies the APK between Google's server and your phone.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 10. ASSESSMENT PREP -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-256 = Bitcoin. Keccak-256 = Ethereum/MST.</div>
+      <div class="feature-desc">Both produce 256-bit (32-byte = 64 hex character) outputs. SHA-256 was designed by the NSA. Keccak-256 won the NIST SHA-3 competition. Ethereum uses the Keccak variant - NOT the final NIST SHA-3 standard (they differ in padding).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">The Five Properties</div>
+      <div class="feature-desc">Deterministic, Pre-image Resistant (one-way), Avalanche Effect (sensitive), Collision Resistant, Fixed Output Size. If an exam asks "why can't you reverse a hash?" - the answer is Pre-image Resistance.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Solidity Syntax</div>
+      <div class="feature-desc"><code>keccak256(abi.encodePacked(data))</code> - returns <code>bytes32</code>. The function is <code>pure</code> (no state read/write). Use <code>abi.encode()</code> instead of <code>encodePacked</code> when hashing multiple variable-length arguments to avoid collisions.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Output Size - Always 256 bits</div>
+      <div class="feature-desc">SHA-256 and Keccak-256 always produce exactly 256 bits regardless of input size. Hash "Hi" (2 bytes) or "The complete works of Shakespeare" (5 MB) - both produce 64 hex characters. This is why the PrevHash field in a block header is always exactly 32 bytes.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Commit-Reveal Pattern</div>
+      <div class="feature-desc">Phase 1 (Commit): Publish hash(secret). Phase 2 (Reveal): Publish secret. Verifier checks: hash(secret) == commitment. Used by MST FortunaX for provably fair random numbers - the secret is fixed before the game; hashing proves you can't change it after.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ASSESSMENT -->
+
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 3.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Cryptographic Hash Function</div>
+    <div class="glossary-def">A mathematical function that converts any input to a fixed-size output with five properties: deterministic, pre-image resistant, avalanche effect, collision resistant, fixed output size.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">SHA-256</div>
+    <div class="glossary-def">Secure Hash Algorithm 256-bit. Bitcoin's primary hash function. Produces 64 hex characters. Designed by NSA, standardised by NIST in 2001.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Keccak-256</div>
+    <div class="glossary-def">Ethereum and MST's hash function. Used in Solidity as keccak256(). Won the SHA-3 competition in 2012. Note: slightly different from NIST SHA-3 due to padding.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Pre-image Resistance</div>
+    <div class="glossary-def">The one-way property - given a hash output, it is computationally infeasible to find any input that produces it. Makes hash storage secure against database breaches.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Avalanche Effect</div>
+    <div class="glossary-def">A tiny change in input (even one bit) causes a completely different hash output - roughly half the output bits flip. Makes subtle undetectable tampering impossible.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Collision Resistance</div>
+    <div class="glossary-def">Computationally infeasible to find two different inputs that produce the same hash output. SHA-256 requires ~2¹²⁸ operations to find a collision - far beyond any known attack.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">abi.encodePacked()</div>
+    <div class="glossary-def">Solidity function that tightly packs multiple values into bytes for hashing. Used as: keccak256(abi.encodePacked(a, b)). Warning: can cause ambiguity with variable-length types - use abi.encode() for critical security applications.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Commit-Reveal Scheme</div>
+    <div class="glossary-def">A two-phase protocol using hashing: Phase 1 - commit by publishing hash(secret). Phase 2 - reveal the secret. Used in MST FortunaX for provably fair random number generation.</div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.3</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.4 - Immutability &amp; Tamper-Evidence →</p>
+</div>
+
+
+

@@ -1,0 +1,522 @@
+
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚙️ Module 7 &nbsp;·&nbsp; Sub-Module 7.3 of 8</div>
+<h1 class="module-title"><span class="highlight">Trika POSA</span> in Action</h1>
+<p class="module-subtitle">How MST's Proof of Stake Authority consensus engine elects validators, secures the network, and delivers 3-second finality - the beating heart of the hybrid Layer-1.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 7 MCQ + 1 Activity + 1 T/F</div>
+  <div class="meta-chip green">Phase 2 · MST Architecture &amp; Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Explain the Trika POSA consensus mechanism</strong>
+      Describe how Proof of Stake Authority combines staking and reputation to elect a high-performance validator set.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗳️</div>
+    <div class="obj-text">
+      <strong>Trace the validator election process</strong>
+      Map the lifecycle from staking MSTC to active block production, including the role of authority nodes and slashing.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Understand finality and performance</strong>
+      Compare Trika POSA's 3-second finality and 4000+ TPS with PoW, PoS, and other consensus models.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Evaluate security guarantees</strong>
+      Analyse slashing conditions, stake-weighted voting, and Sybil resistance in the Trika POSA design.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Tale of Two Validators - Why Consensus Design Decides Everything</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a popular DeFi game on a major L1 experienced a catastrophic outage. The chain's validators - elected purely by token stake - became dominated by a handful of wealthy whales who controlled over 60% of the staked supply. When a contentious proposal split the community, those validators colluded to censor transactions, extract MEV, and eventually halt the network for 17 hours. Users lost millions in liquidated positions because the chain couldn't finalise blocks.</p>
+  <br>
+  <p>Meanwhile, a centralised exchange ran its internal matching engine on a private, permissioned chain. It was fast and reliable, but completely opaque - users had no way to verify that trades were fair. Audits were impossible without trusting the exchange's internal team.</p>
+  <br>
+  <p>The Trika POSA design was born from observing these two failure modes. <strong>Pure Proof-of-Stake</strong> (like early Ethereum 2.0 or Solana) is susceptible to plutocracy - the richest validators dominate. <strong>Pure Proof-of-Authority</strong> (like Hyperledger or private chains) is fast but centralised and opaque - a few permissioned nodes control everything.</p>
+  <br>
+  <p><strong>Trika POSA</strong> (Proof of Stake Authority) merges the best of both. Validators must stake MSTC tokens (economic skin in the game), but they must also earn <strong>authority status</strong> through a reputation and identity verification process. Authority nodes are known, reputable entities (like registered businesses or bonded individuals). They propose blocks. Stakers delegate their MSTC to these authority nodes, who earn block rewards and share them with delegators. If an authority node misbehaves - produces invalid blocks, censors transactions, goes offline - its stake is <strong>slashed</strong>. Its authority status can be revoked. This hybrid model ensures that validators are both economically incentivised and reputationally accountable, preventing the anonymous whale domination of pure PoS while remaining far more decentralised than pure PoA.</p>
+</div>
+
+<p>This story defines Trika POSA: a consensus mechanism that marries the security of stake with the accountability of authority, tuned for high throughput and enterprise-grade reliability, without sacrificing decentralisation.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Consensus - From Mining Rigs to Reputation</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2014</div>
+      <div class="tl-body"><strong>Proof-of-Work (Bitcoin).</strong> Miners compete to solve cryptographic puzzles. The winner proposes the next block and earns a reward. Perfectly decentralised in theory, but mining centralisation emerged (pools, ASICs). Enormous energy consumption. Throughput limited to ~7 transactions per second. Finality is probabilistic - a block is never truly "final," only buried under more blocks.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015 - 2020</div>
+      <div class="tl-body"><strong>Pure Proof-of-Stake (Ethereum 2.0, Cardano, Algorand).</strong> Validators lock tokens as collateral. A random selection (often via VRF) picks the next block proposer. Energy-efficient and fast. However, "rich get richer" dynamics can centralise validator sets. Long withdrawal periods for staked tokens create lock-up friction. Slashing penalties deter misbehaviour, but anonymous validators have less reputational risk.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018 - 2022</div>
+      <div class="tl-body"><strong>Delegated Proof-of-Stake (EOS, Tron).</strong> Token holders vote for a small set of block producers (21 - 100). Extremely fast, but often criticised as centralised - the same few validators win every election, and vote-buying is common. Low Nakamoto coefficient.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2019 - 2023</div>
+      <div class="tl-body"><strong>Proof-of-Authority (POA Network, private chains).</strong> Validators are pre-approved by a central authority. Fast, predictable, no token needed for security. But completely centralised - the authority can censor or change rules. Not suitable for public trustless systems.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2024 - Today</div>
+      <div class="tl-body"><strong>MST's Trika POSA - The Hybrid Consensus.</strong> Combines economic stake (MSTC) with identity-based authority. Validators must stake AND be recognised as reliable entities. Delegators stake to authority nodes. Slashing applies to both stake and reputation. Result: high throughput, fast finality, Sybil-resistant, and accountable. Designed specifically for the hybrid Layer-1 with multiple zones.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Trika Principle</div>
+  <p>"Trika" means "triple" in Sanskrit - representing the three pillars: <strong>Stake</strong> (economic security), <strong>Authority</strong> (identity &amp; reputation), and <strong>Delegation</strong> (broad participation). Together, they create a validator set that is both decentralised and reliable.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Parliament Analogy - How Trika POSA Works</h2>
+
+<div class="callout analogy">
+  <div class="callout-label">🏛️ The Parliament of Validators</div>
+  <p>Imagine a parliament where laws (blocks) are passed. You can't just walk in and start voting - you need two things: <strong>a deposit (stake)</strong> and <strong>a verified identity (authority)</strong>. Citizens (token holders) can't all attend parliament directly, so they <strong>delegate their voting power (stake) to MPs (authority nodes)</strong> they trust. MPs earn a salary (block rewards) and share a portion with their delegators. If an MP breaks the rules - tries to pass a fraudulent law or skips sessions - they lose their deposit and are expelled. This keeps the parliament honest, efficient, and representative.</p>
+</div>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does Trika POSA exist?</div>
+      <div class="w5-a">To solve the "validator quality vs quantity" problem. Pure PoS allows anyone with capital to validate - but capital doesn't guarantee reliability. Pure PoA ensures reliability but at the cost of centralisation. Trika POSA requires both capital (stake) and reputation (authority), ensuring validators are both invested and accountable.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What problem does it solve?</div>
+      <div class="w5-a">It delivers <strong>fast finality (~3 sec), high throughput (4000+ TPS), and Sybil resistance</strong> while keeping the validator set decentralised enough for public trust. It also enables the permissioned zones - authority nodes can be KYC'd and approved for sensitive enterprise zones, while public zone validators remain open to any qualifying staker.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the election and block production work?</div>
+      <div class="w5-a">Token holders stake MSTC to become candidates. Candidates with sufficient self-stake AND a verified authority identity become <strong>authority nodes</strong>. Delegators can stake their MSTC to any authority node, increasing its voting weight. In each epoch, a weighted-random selection (using a VRF based on stake weight) picks a <strong>block proposer</strong> for each block slot. The proposer creates a block, and a committee of other authority nodes attests to it. Once ⅔ of stake weight attests, the block is final.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where is Trika POSA used across MST's zones?</div>
+      <div class="w5-a">The public zone uses Trika POSA with open authority candidacy - anyone can apply to become an authority node by staking and passing identity verification. Permissioned zones use a subset of authority nodes that have additional enterprise-grade KYC and compliance certifications. The consensus engine is the same; only the validator eligibility criteria differ per zone.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the limitations of Trika POSA?</div>
+      <div class="w5-a">The authority requirement introduces a permissioned element - not every token holder can become a validator directly; they must earn authority status. This is a trade-off between decentralisation and reliability. The system relies on a robust identity verification process; if that process is gamed, a malicious actor could obtain authority status. However, stake slashing and reputation revocation provide a strong deterrent.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Lifecycle of a Trika POSA Validator</h2>
+
+<p>Becoming an active validator in Trika POSA involves distinct phases: <strong>Staking, Authority Application, Delegation, Epoch Election, Block Production, and Slashing.</strong> Understanding each phase reveals how MST maintains its balance of speed, security, and accountability.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Staking &amp; Candidate Registration</div>
+      <div class="feature-desc">
+        Any MSTC holder can register as a <strong>validator candidate</strong> by locking a minimum self-stake (currently 100,000 MSTC) in a special staking contract. This stake is locked for a minimum period (21 days unbonding). The candidate provides a node public key and network endpoint. At this stage, they are a <strong>candidate</strong>, not yet an authority node - they can only become an authority after identity verification. The stake is held in a non-custodial contract; the candidate retains ownership but cannot transfer it while active.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Authority Verification - Reputation as Security</div>
+      <div class="feature-desc">
+        To graduate from candidate to <strong>authority node</strong>, the candidate undergoes a verification process. This includes identity proofing (KYC), a signed attestation of infrastructure reliability (SLA), and a security questionnaire. Verified candidates are granted an on-chain <strong>Authority Certificate NFT</strong>, which is required to participate in block production. The certificate can be revoked by a governance vote if the node violates network rules. This identity layer is what makes Trika POSA different from pure PoS - it adds <strong>reputational accountability</strong> to economic stake. Authority nodes must also maintain a minimum uptime (99.9%) and participate in governance votes.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegation - Broadening Participation</div>
+      <div class="feature-desc">
+        Token holders who don't want to run a node can <strong>delegate</strong> their MSTC to any authority node. Delegation increases the node's <strong>voting weight</strong> (total stake behind it). In return, the authority node shares block rewards with delegators, minus a commission (set by the node, typically 5-15%). Delegators can redelegate or unbond their stake with a 7-day cooldown. This system allows thousands of token holders to participate in consensus without running infrastructure, while ensuring that only reputable, high-performance nodes actually produce blocks. The total stake (self-stake + delegated stake) determines a node's weight in the VRF selection.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Epoch Election &amp; VRF-Weighted Selection</div>
+      <div class="feature-desc">
+        Consensus operates in <strong>epochs</strong> (approximately 1 hour each). At the beginning of each epoch, the active authority set is determined: a maximum of 100 authority nodes with the highest total stake. Within the epoch, block proposers are selected using a <strong>Verifiable Random Function (VRF)</strong> - a cryptographic lottery weighted by each node's total stake. The VRF ensures the selection is unpredictable (preventing targeted attacks), verifiable (anyone can check the selection was fair), and weighted (nodes with more stake get proportionally more slots). For each 3-second block slot, one proposer is chosen, and a committee of 20 other authority nodes is randomly selected to attest.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Production &amp; Immediate Finality</div>
+      <div class="feature-desc">
+        The proposer assembles valid transactions into a block, executes them, and broadcasts the block to the committee. Committee members verify the block and sign an <strong>attestation</strong>. Once the proposer collects attestations from ⅔ of the committee (by stake weight), the block is <strong>finalised</strong> - it cannot be reverted. This process takes approximately 3 seconds. Finality in Trika POSA is <strong>absolute</strong>, not probabilistic: once a block is finalised, no fork can overwrite it without slashing ⅔ of the stake. This is a huge advantage over PoW (where finality is probabilistic) and even some PoS chains (where two competing blocks can coexist briefly).
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">6</div>
+    <div class="feature-content">
+      <div class="feature-title">Slashing &amp; Reputation Revocation</div>
+      <div class="feature-desc">
+        Misbehaviour is penalised through <strong>slashing</strong> of stake. Three slashable offences exist: (1) <strong>Double-signing</strong> - proposing or attesting to two conflicting blocks at the same height. Slashing burns 100% of self-stake and revokes the Authority Certificate. (2) <strong>Downtime</strong> - missing more than 5% of assigned block slots in an epoch. Penalty: 0.1% of total stake per missed slot. (3) <strong>Censorship</strong> - repeatedly refusing to include valid transactions. Penalty: escalating slashing, up to authority revocation after governance review. Delegated stake is also slashed proportionally, incentivising delegators to choose reliable nodes. Slashed MSTC is burned, reducing total supply.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Finality Advantage</div>
+  <p>In Trika POSA, finality is <strong>deterministic and rapid</strong>. Once a block collects ⅔ attestations, it is irreversible. This allows exchanges to accept deposits after a single confirmation (3 seconds) rather than waiting 6 - 12 confirmations (minutes) as in PoW chains. For DeFi liquidations, this speed is critical - no more waiting for "safe" block depth.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising Trika POSA Consensus Flow</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.3-A · The Trika POSA Validator Lifecycle</div>
+  <pre>  ┌─────────────┐     ┌──────────────┐     ┌───────────────┐     ┌───────────────┐
+  │ 1. STAKE    │     │ 2. AUTHORITY │     │ 3. DELEGATION│     │ 4. ELECTION  │
+  │ MSTC Locked │────▶│ KYC &amp; Cert   │────▶│ Stakers       │────▶│ Top 100 by    │
+  │ Candidate   │     │ NFT Granted  │     │ increase wt  │     │ total stake   │
+  └─────────────┘     └──────────────┘     └───────────────┘     └───────┬───────┘
+                                                                        │
+                                                                        ▼
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌───────────────┐
+  │ 8. REWARDS  │     │ 7. FINALITY  │     │ 6. ATTESTATION│    │ 5. PROPOSAL   │
+  │ Distributed  │◄────│ ⅔ weight ⇒   │◄────│ Committee     │◄────│ VRF selects    │
+  │ to Node+Del  │     │ block sealed │     │ signs block   │     │ proposer       │
+  └──────────────┘     └──────────────┘     └──────────────┘     └───────────────┘
+  </pre>
+  <div class="diagram-caption">From staking to rewards: each step ensures economic security, reputation accountability, and fair block production.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.3-B · Block Production with Immediate Finality</div>
+  <pre>  TIME: 0 sec                  1.5 sec                    3 sec
+  ─────────────────────────────────────────────────────────────────
+  Proposer            Proposer broadcasts        Block reaches
+  selected via        block + state root         ⅔ attestations
+  VRF at slot start   to committee               → FINAL
+       │                    │                        │
+       ▼                    ▼                        ▼
+  ┌─────────┐      ┌──────────────┐         ┌──────────────┐
+  │ VRF Pick│─────▶│ 20 committee │────────▶│ Attestations │
+  │ Block N │      │ verify &amp; sign│         │ collected    │
+  └─────────┘      └──────────────┘         └──────────────┘
+                                                │
+                                                ▼
+                                         No fork possible
+                                         without slashing ⅔
+  </pre>
+  <div class="diagram-caption">The 3-second finality window: proposer selection, committee attestation, and irreversible sealing - all within one slot.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Consensus Mechanisms Head-to-Head - Trika POSA vs The World</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>PoW (Bitcoin)</th>
+      <th>Pure PoS (Ethereum)</th>
+      <th>DPoS (EOS)</th>
+      <th>Trika POSA (MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validator entry</td>
+      <td class="bad">Open but hardware arms race</td>
+      <td class="good">Open to any staker</td>
+      <td class="mid">Vote-based, top N win</td>
+      <td class="good">Stake + KYC'd authority</td>
+    </tr>
+    <tr>
+      <td>Sybil resistance</td>
+      <td class="good">Energy cost</td>
+      <td class="good">Stake cost</td>
+      <td class="mid">Vote buying possible</td>
+      <td class="good">Stake + identity verification</td>
+    </tr>
+    <tr>
+      <td>Throughput</td>
+      <td class="bad">~7 TPS</td>
+      <td class="mid">~30 TPS (L1)</td>
+      <td class="good">~1000 TPS</td>
+      <td class="good">4000+ TPS</td>
+    </tr>
+    <tr>
+      <td>Finality</td>
+      <td class="bad">Probabilistic (~60 min)</td>
+      <td class="good">~13 min (2 epochs)</td>
+      <td class="good">~3 sec</td>
+      <td class="good">~3 sec absolute</td>
+    </tr>
+    <tr>
+      <td>Energy</td>
+      <td class="bad">Extremely high</td>
+      <td class="good">Very low</td>
+      <td class="good">Low</td>
+      <td class="good">Very low</td>
+    </tr>
+    <tr>
+      <td>Centralisation risk</td>
+      <td class="bad">Mining pools</td>
+      <td class="mid">Large stakers dominate</td>
+      <td class="bad">Small active set</td>
+      <td class="good">100 authority nodes, delegation spreads power</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Enterprise Angle</div>
+  <p>For permissioned zones, Trika POSA allows enterprises to require additional compliance for authority nodes (e.g., SOC2 certification). The consensus engine is identical, but the validator set is filtered. This is impossible in pure PoS where any anonymous staker can participate.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Trika POSA in Production - Performance &amp; Resilience</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">CBDC Settlement - Sub-3-Second Finality for Inter-Bank Transfers</div>
+      <div class="feature-desc">
+        A consortium of 15 Indian banks runs a permissioned zone on MST for CBDC inter-bank settlement. Using Trika POSA with a vetted set of bank-operated authority nodes, settlement finality is achieved in under 3 seconds - faster than RTGS (which takes hours). The ⅔ attestation guarantee ensures no double-spend risk. The banks earn MSTC rewards for operating nodes, offsetting infrastructure costs.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Live Gaming Platform - 4000 TPS with Provably Fair Shuffles</div>
+      <div class="feature-desc">
+        An online gaming platform uses the public zone for card shuffle verification (SatvaShuffle). During peak hours, the network handles 3200 TPS - all finalised within one block slot. Trika POSA's VRF ensures no validator can predict or manipulate the proposer schedule to front-run game transactions. The slashing mechanism deters any collusion among validators.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🔗</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Flash Loan Arbitrage - Zero MEV Leakage</div>
+      <div class="feature-desc">
+        A DeFi arbitrage bot executes a flash loan across three DEXs on MST. Trika POSA's immediate finality means the bot doesn't need to worry about block reorganisation. Additionally, the random proposer selection via VRF prevents the "MEV auction" problem where validators can predict their slot and sell front-running rights. The bot's transaction is included fairly in the next block.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🏭</div>
+    <div class="feature-content">
+      <div class="feature-title">Supply Chain IoT - Reliable Up-time for Mission-Critical Events</div>
+      <div class="feature-desc">
+        A pharmaceutical supply chain uses WASMify to post IoT temperature data on-chain every 30 seconds. Trika POSA's 99.9% uptime guarantee (enforced by slashing authority nodes for downtime) ensures the data feed never misses a batch. The authority verification process screened out nodes with poor infrastructure, resulting in a robust validator set.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 15-Mark Assessment</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Trika = Triple: Stake, Authority, Delegation</div>
+      <div class="feature-desc">The consensus relies on three pillars: economic stake (MSTC), identity-verified authority (KYC + certificate), and broad delegation (non-node stakers).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Validator Lifecycle: Candidate → Authority → Active</div>
+      <div class="feature-desc">Stake → KYC → Authority Certificate → delegation → election into top 100 → block production. Slashing removes stake and revokes certificate.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">VRF-Weighted Proposer Selection</div>
+      <div class="feature-desc">A verifiable random function weighted by total stake picks the block proposer and attestation committee. Unpredictable, fair, and verifiable.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">3-Second Absolute Finality</div>
+      <div class="feature-desc">⅔ stake attestation seals a block. No forks possible without slashing ⅔ of the stake - deterministic finality, not probabilistic.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Slashing Conditions: Double-sign, Downtime, Censorship</div>
+      <div class="feature-desc">Three offences. Double-signing burns 100% self-stake and revokes authority. Downtime penalises proportionally. Censorship can lead to governance revocation.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (Blueprint: 7 MCQ + 1 Activity + 1 T/F = 15 marks)
+════════════════════════════════════════════════════ -->
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.3</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Trika POSA</div>
+    <div class="glossary-def">Proof of Stake Authority - MST's hybrid consensus combining economic stake, identity-verified authority, and delegation to achieve fast, secure finality.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Authority Node</div>
+    <div class="glossary-def">A validator that has passed KYC verification and holds an on-chain Authority Certificate NFT. Only authority nodes can propose and attest to blocks.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Delegation</div>
+    <div class="glossary-def">Token holders staking MSTC to an authority node to increase its voting weight and earn a share of block rewards, without running a node themselves.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">VRF (Verifiable Random Function)</div>
+    <div class="glossary-def">A cryptographic function that produces a random output and a proof that the output was correctly generated. Used to select block proposers fairly and unpredictably.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Epoch</div>
+    <div class="glossary-def">A fixed period (approximately 1 hour) during which the active validator set remains constant. At epoch boundaries, the top 100 authority nodes are re-calculated.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Attestation</div>
+    <div class="glossary-def">A cryptographic signature by a committee member confirming that a proposed block is valid. Collected attestations from ⅔ stake weight finalise the block.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Slashing</div>
+    <div class="glossary-def">The penalty for validator misbehaviour - a portion or all of the staked MSTC is burned (removed from supply). Slashing enforces honest behaviour.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Deterministic Finality</div>
+    <div class="glossary-def">A finality guarantee where a block becomes irreversible at a specific event (⅔ attestations), not over time. Opposed to probabilistic finality (Bitcoin).</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Authority Certificate NFT</div>
+    <div class="glossary-def">An on-chain non-transferable NFT granted to a validator after KYC verification, required to participate in block production. Can be revoked for misconduct.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Committee</div>
+    <div class="glossary-def">A randomly selected subset of authority nodes (typically 20) chosen to attest to a block. The committee's aggregate stake must meet the ⅔ threshold for finality.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 7 · Sub-Module <strong>7.3</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.4 - SARAL Protocol →</p>
+</div>
+
+

@@ -1,0 +1,473 @@
+
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.3 of 8</div>
+<h1 class="module-title">Hardhat <span class="highlight">Framework</span></h1>
+<p class="module-subtitle">The Swiss Army knife of EVM development - compile, test, debug, and deploy Solidity contracts to MST with a single unified toolchain that runs on your machine.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 1 Code-Completion (5 marks)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment &amp; Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Initialize a Hardhat project and configure it for MST</strong>
+      Create a project from scratch, customize <code>hardhat.config.js</code> with MST Testnet and mainnet RPC URLs, and understand every field in the config.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔨</div>
+    <div class="obj-text">
+      <strong>Compile, test, and deploy contracts using the Hardhat workflow</strong>
+      Run <code>npx hardhat compile</code>, write unit tests in JavaScript with ethers.js and Chai, and deploy to MST Testnet with a single command.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text">
+      <strong>Debug transactions with Hardhat Network and console.log</strong>
+      Use the built-in local blockchain to simulate transactions, fork mainnet state, and print Solidity variables directly to the terminal.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Extend Hardhat with plugins and custom tasks</strong>
+      Add gas reporting, contract verification, and custom automation scripts - understanding the plugin architecture that makes Hardhat the industry standard.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Startup That Deployed to Production - Without Hardhat</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2020, a DeFi startup in Bengaluru was building a lending protocol. Their development workflow was a patchwork of Remix (browser-based IDE) for compilation, a custom Python script for testing, and manual MetaMask transactions for deployment. It worked - until they needed to audit their contracts. The auditor asked for a reproducible build and a complete test suite. The team spent three weeks rewriting their tooling around Truffle, then discovered that Truffle's debugging was limited and its configuration confusing.</p>
+  <br>
+  <p>A consultant introduced them to Hardhat. In one afternoon, they migrated all their contracts. <code>hardhat.config.js</code> was a single file that defined networks, compiler versions, and plugins. They wrote tests in JavaScript that could fork the Ethereum mainnet state to simulate real DeFi interactions. The built-in <code>console.log</code> in Solidity cut their debugging time by 80%. They deployed to a testnet and verified their contracts on the block explorer with a single command. The auditor was impressed, and the protocol launched without a hitch.</p>
+</div>
+<p>This sub-module transforms you into that consultant. You will master Hardhat - the framework that has become the undisputed standard for EVM smart contract development. Whether you're building on Ethereum, Polygon, or MST, the same Hardhat skills apply everywhere.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Truffle to Hardhat - The Evolution of EVM Tooling</h2>
+<p>In Ethereum's early days (2015 - 2017), smart contract development was primitive. Developers used the <strong>Remix IDE</strong> in a browser, compiled contracts with the <code>solc</code> compiler directly, and deployed manually via the Mist browser or command-line tools. There was no standardized project structure, no automated testing framework, and no way to reproduce builds across machines.</p>
+<p><strong>Truffle</strong> (launched 2015) was the first attempt at a comprehensive development framework. It introduced a project structure with <code>contracts/</code>, <code>migrations/</code>, and <code>test/</code> folders, and its own testing environment based on Mocha. Truffle also included a built-in local blockchain (Ganache). For years, Truffle was the de facto standard. However, it had drawbacks: a rigid migration system, limited configurability, and a disconnect between the local testnet and the real Ethereum network behavior.</p>
+<p>In 2018, a new project called <strong>Buidler</strong> (later renamed <strong>Hardhat</strong> in 2020) was launched by the team at Nomic Foundation. Hardhat took a different approach: instead of a monolithic framework, it provided a <strong>modular, plugin-based architecture</strong>. The core was lightweight - just a task runner and a local Ethereum network. Everything else (compilation, testing, gas reporting, contract verification) was a plugin. This made Hardhat incredibly flexible and easy to extend.</p>
+<p>Hardhat's <strong>built-in local network</strong> (Hardhat Network) was a game-changer. It wasn't a separate process like Ganache; it was integrated directly into the Node.js runtime, allowing for <strong>console.log from Solidity</strong>, stack traces on revert, and the ability to <strong>fork mainnet state</strong> - simulating transactions against real deployed contracts. This enabled testing against Uniswap, Aave, or any on-chain protocol with zero setup.</p>
+<p>By 2022, Hardhat had surpassed Truffle in popularity and became the recommended framework for most EVM chains, including MST. MST's full EVM compatibility means that every Hardhat plugin, every Solidity compiler version, and every deployment script works identically on MST - you simply point the RPC URL to an MST node.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015</div>
+      <div class="tl-body"><strong>Truffle launched.</strong> First Ethereum development framework. Introduced contract compilation, migration scripts, and Ganache local blockchain. Established the <code>contracts/</code> and <code>migrations/</code> folder convention.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018</div>
+      <div class="tl-body"><strong>Buidler (later Hardhat) launched.</strong> Modular, plugin-based architecture. Integrated local Ethereum network with Solidity console.log. Built on Node.js and designed to be extended.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2020</div>
+      <div class="tl-body"><strong>Hardhat rebranded and gained traction.</strong> Added Hardhat Network forking, stack traces, and a growing plugin ecosystem. Adopted by major projects like Uniswap, Aave, and OpenZeppelin.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2023</div>
+      <div class="tl-body"><strong>Hardhat Ignition released.</strong> New declarative deployment system. Replaces the legacy scripts-based deployment with a more robust, type-safe approach.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST + Hardhat.</strong> Full compatibility. Deploy to MST Testnet or mainnet by adding a network entry in <code>hardhat.config.js</code>. All plugins work without modification. Use Hardhat's local network to simulate MST's environment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Hardhat as a Workshop for Smart Contracts</h2>
+<div class="callout analogy">
+  <div class="callout-label">🔧 The Analogy</div>
+  <p>Think of Hardhat as a <strong>fully equipped automobile workshop</strong>. You bring in your Solidity source code (the car blueprint). Hardhat's compiler (the assembly line) turns it into EVM bytecode (the car). The testing framework (quality control) runs the car on a closed track (Hardhat Network) to check for faults. The deployment script (the delivery truck) ships the finished car to the blockchain (the customer). And if something breaks, the debugger (the mechanic's diagnostic tool) tells you exactly which part failed. You can even test your car on real roads by forking the mainnet - driving alongside existing vehicles to ensure compatibility.</p>
+</div>
+<p>Let's break down what Hardhat actually does under the hood:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COMPILE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What does Hardhat compile?</div>
+      <div class="w5-a">Hardhat uses the Solidity compiler (<code>solc</code>) to convert your <code>.sol</code> files into two outputs: <strong>bytecode</strong> (the machine code that the EVM executes) and an <strong>ABI</strong> (Application Binary Interface - a JSON description of your contract's functions). These are stored in the <code>artifacts/</code> folder. Hardhat caches compilation results, so only changed files are recompiled. It supports multiple Solidity versions, even within the same project.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">T</div><div class="w5-word">TEST</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does Hardhat run tests?</div>
+      <div class="w5-a">Hardhat integrates with <strong>Mocha</strong> (test framework) and <strong>Chai</strong> (assertion library). You write tests in JavaScript (or TypeScript) that deploy your contracts to Hardhat's local network, call functions, and verify results. Each test file runs in isolation with a fresh blockchain state. Hardhat also supports <code>console.log</code> inside Solidity - you can print variable values from your contract during tests, which is invaluable for debugging.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">D</div><div class="w5-word">DEPLOY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does Hardhat deploy contracts?</div>
+      <div class="w5-a">You write deployment scripts in JavaScript (or TypeScript) that use ethers.js to deploy your contracts to any network defined in <code>hardhat.config.js</code>. A typical script creates a contract factory, calls <code>.deploy()</code> with constructor arguments, and waits for confirmation. Hardhat also supports <strong>Ignition</strong>, a declarative deployment system where you define deployment modules that handle dependencies and upgrades.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 INTERACTIVE: GETTING STARTED ═══════════════ -->
+<div class="section-label">05 &nbsp; Interactive Walkthrough</div>
+<h2 class="section-title">Set Up a Hardhat Project for MST - Step by Step</h2>
+<p>Follow along by clicking each step. You'll have a fully functional Hardhat project connected to MST Testnet by the end.</p>
+
+<details open="">
+  <summary>📁 Step 1: Initialize a Hardhat project</summary>
+  <div class="content">
+    <p>In your terminal (inside an empty folder), run:</p>
+    <p><code>npx hardhat init</code></p>
+    <p>Hardhat will ask you to choose a project type. Select <strong>"Create a JavaScript project"</strong>. This sets up the basic folder structure:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">my-hardhat-project/
+├── contracts/          ← Your Solidity files go here
+│   └── Lock.sol        ← Sample contract
+├── test/               ← Your test files
+│   └── Lock.js
+├── scripts/            ← Deployment and utility scripts
+│   └── deploy.js
+├── hardhat.config.js   ← Main configuration file
+├── package.json
+└── node_modules/
+    </pre>
+    <p>The sample project includes a <code>Lock.sol</code> contract and a test file to get you started. You can delete them and add your own contracts.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⚙️ Step 2: Configure networks for MST</summary>
+  <div class="content">
+    <p>Open <code>hardhat.config.js</code>. You'll see a basic configuration. We'll add MST Testnet and mainnet networks. The configuration file is JavaScript, so you can use environment variables for private keys.</p>
+    <p>First, install <code>dotenv</code> to manage secrets securely:</p>
+    <p><code>npm install --save-dev dotenv</code></p>
+    <p>Then modify <code>hardhat.config.js</code>:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: "0.8.24",
+  networks: {
+    mst_testnet: {
+      url: "https://testnet-rpc.mstblockchain.com",
+      chainId: 5000,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    mst_mainnet: {
+      url: "https://mainnet-rpc.mstblockchain.com",
+      chainId: 5001,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+    </pre>
+    <p>Create a <code>.env</code> file in your project root:</p>
+    <p><code>PRIVATE_KEY=your_wallet_private_key_here</code></p>
+    <p>Never commit <code>.env</code> to Git! Add it to <code>.gitignore</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔨 Step 3: Compile your contracts</summary>
+  <div class="content">
+    <p>Place your Solidity contracts in the <code>contracts/</code> folder. Then run:</p>
+    <p><code>npx hardhat compile</code></p>
+    <p>Hardhat will download the correct Solidity compiler version (if not already cached), compile all <code>.sol</code> files, and generate artifacts in the <code>artifacts/</code> folder. Successful compilation looks like:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">Compiled 2 Solidity files successfully (with warnings)
+    </pre>
+    <p>If there are errors, Hardhat will show the exact file, line number, and reason - with a clickable link in VS Code's terminal.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🧪 Step 4: Run tests</summary>
+  <div class="content">
+    <p>Write tests in the <code>test/</code> folder using Mocha and Chai. A typical test loads a contract, deploys it, and checks behavior:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">const { expect } = require("chai");
+
+describe("Lock", function () {
+  it("Should set the right unlock time", async function () {
+    const Lock = await ethers.getContractFactory("Lock");
+    const lock = await Lock.deploy(ethers.parseEther("0.1"), 1893456000);
+    expect(await lock.unlockTime()).to.equal(1893456000);
+  });
+});
+    </pre>
+    <p>Run the tests with:</p>
+    <p><code>npx hardhat test</code></p>
+    <p>Hardhat spins up a local blockchain, deploys the contract, runs the test, and destroys the network - all in seconds. You'll see a report of passing and failing tests.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 5: Deploy to MST Testnet</summary>
+  <div class="content">
+    <p>Create a deployment script in <code>scripts/deploy.js</code>:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">const hre = require("hardhat");
+
+async function main() {
+  const Lock = await hre.ethers.getContractFactory("Lock");
+  const lock = await Lock.deploy(hre.ethers.parseEther("0.1"), 1893456000);
+  await lock.waitForDeployment();
+  console.log("Lock deployed to:", lock.target);
+}
+
+main().catch(console.error);
+    </pre>
+    <p>Run the deployment on MST Testnet:</p>
+    <p><code>npx hardhat run scripts/deploy.js --network mst_testnet</code></p>
+    <p>Hardhat will connect to the MST Testnet RPC, send the deployment transaction, and wait for confirmation. You'll see the deployed contract address in the console.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 06 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Anatomy of hardhat.config.js - Every Field Explained</h2>
+<p>The <code>hardhat.config.js</code> file is the brain of your project. Let's dissect every major configuration option you'll use in production.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Solidity Compiler Configuration</h3>
+<p>The <code>solidity</code> field can be a simple string (e.g., <code>"0.8.24"</code>) or an object with multiple compiler versions and optimizer settings. For production contracts, you'll use the optimizer:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">solidity: {
+  compilers: [
+    {
+      version: "0.8.24",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>The <strong>optimizer</strong> reduces bytecode size and gas costs by applying optimizations like function inlining and dead code elimination. The <code>runs</code> parameter (200 is typical) estimates how many times the contract will be called over its lifetime - higher values optimize for cheaper execution, lower values optimize for cheaper deployment. For MST, where gas is already cheap, you may not need aggressive optimization, but enabling it is good practice for complex contracts.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Network Configuration</h3>
+<p>Each network is defined with:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>url:</strong> The JSON-RPC endpoint of an MST node. You can use public RPCs, your own node, or a service like Alchemy or Infura.</li>
+  <li><strong>chainId:</strong> The network's chain ID - used to prevent transaction replay across chains. MST Testnet uses <code>5000</code>; mainnet uses <code>5001</code> (example).</li>
+  <li><strong>accounts:</strong> An array of private keys that can sign transactions. Use <code>process.env.PRIVATE_KEY</code> to avoid hardcoding secrets.</li>
+  <li><strong>gasPrice:</strong> (optional) The gas price in wei to use for transactions. On MST, gas is cheap, so you can leave this auto or set a low value.</li>
+  <li><strong>gas:</strong> (optional) The gas limit for transactions. Hardhat estimates gas automatically, but you can override if needed.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Hardhat Network (Local Blockchain)</h3>
+<p>The built-in <code>hardhat</code> network is configured separately:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">networks: {
+  hardhat: {
+    forking: {
+      url: "https://mainnet-rpc.mstblockchain.com",
+      blockNumber: 14390000  // optional: pin to a specific block
+    },
+    chainId: 31337,
+    mining: {
+      auto: true,
+      interval: 0  // mine a new block on every transaction
+    }
+  }
+}
+</pre>
+<p><strong>Forking</strong> is one of Hardhat's most powerful features. It copies the entire state of the MST mainnet (or any EVM chain) at a specific block into your local network. This lets you test your contract against real deployed contracts (like DEXs, lending pools, or any protocol) without needing to deploy them yourself. For example, you can test a flash loan attack against a live Uniswap pool without risking real funds.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Plugins and Toolbox</h3>
+<p>Hardhat's power comes from plugins. The <strong>Hardhat Toolbox</strong> (<code>@nomicfoundation/hardhat-toolbox</code>) bundles the most essential plugins:
+</p><ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>@nomicfoundation/hardhat-ethers</strong> - Integrates ethers.js with Hardhat.</li>
+  <li><strong>@nomicfoundation/hardhat-verify</strong> - Verifies contracts on block explorers (like MST Explorer).</li>
+  <li><strong>hardhat-gas-reporter</strong> - Generates gas usage reports for your contracts.</li>
+  <li><strong>solidity-coverage</strong> - Measures test coverage of your Solidity code.</li>
+  <li><strong>@typechain/hardhat</strong> - Generates TypeScript type bindings for your contracts.</li>
+</ul>
+<p></p>
+<p>To use the toolbox, simply require it in your config:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">require("@nomicfoundation/hardhat-toolbox");
+</pre>
+<p>This single line unlocks all the bundled features. For MST-specific verification, you'll need to add the MST Explorer API URL and key. More on that in Module 11.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.3-A · Hardhat Workflow and Architecture</div>
+  <pre>┌────────────────────────────────────────────────────────────────────┐
+│                     Your Project (hardhat.config.js)                │
+├────────────────────────────────────────────────────────────────────┤
+│  • Solidity version &amp; optimizer                                    │
+│  • Network definitions (MST Testnet, MST Mainnet, localhost)       │
+│  • Plugin declarations (toolbox, gas reporter, verify, etc.)       │
+└──────────────┬─────────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                     Hardhat Runtime Environment (HRE)               │
+│  Injects 'ethers' object, 'hre' into scripts &amp; tests.              │
+│  Loads plugins, parses config, starts local node if needed.        │
+└──────────────┬─────────────────────────────────────────────────────┘
+               │
+      ┌────────┼────────┬──────────────┐
+      ▼        ▼        ▼              ▼
+  Compile   Test     Deploy      Hardhat Network
+  (solc)  (Mocha)  (scripts)   (local EVM node)
+  generates artifacts  │
+         └─────────────┘
+         ABIs + Bytecode
+</pre>
+  <div class="diagram-caption">Hardhat's modular architecture separates concerns: compilation, testing, deployment, and the local network are independent components orchestrated by the configuration file and the Hardhat Runtime Environment.</div>
+</div>
+
+<!-- ═══════════════ 07 HARDHAT NETWORK DEEP DIVE ═══════════════ -->
+<div class="section-label">07 &nbsp; Hardhat Network</div>
+<h2 class="section-title">Your Personal Blockchain for Development and Testing</h2>
+<p>Hardhat Network is an in-process Ethereum node written in TypeScript. Unlike Ganache (which runs as a separate process), Hardhat Network runs within the same Node.js process as your tests and scripts. This tight integration provides unique capabilities:</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">console.log in Solidity</h3>
+<p>One of Hardhat's most celebrated features is the ability to use <code>console.log</code> directly in Solidity. Simply import Hardhat's console contract:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">import "hardhat/console.sol";
+
+contract MyContract {
+    function doSomething(uint256 x) public {
+        console.log("The value of x is:", x);
+        // ... rest of function
+    }
+}
+</pre>
+<p>When you run a test or script on Hardhat Network, the log output appears in your terminal. This works because Hardhat Network intercepts the console calls at the EVM level. It's only available on Hardhat Network - not on live networks - but it's invaluable for debugging.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Stack Traces and Error Messages</h3>
+<p>When a transaction reverts, Hardhat provides a full Solidity stack trace showing the exact function call chain, the line number where the error occurred, and the revert reason. This is a massive improvement over the generic "execution reverted" message you'd get from a live node.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Mainnet Forking</h3>
+<p>By adding <code>forking: { url: "..." }</code> to the hardhat network config, you get a copy of the entire blockchain state at your chosen block. All accounts, balances, and contract storage are available locally. You can impersonate any account (using <code>hre.network.provider.request({ method: "hardhat_impersonateAccount", params: [address] })</code>) and send transactions as if you were that address. This is perfect for testing integrations without spending real gas.</p>
+
+<!-- ═══════════════ 08 COMPARISON TABLE ═══════════════ -->
+<div class="section-label">08 &nbsp; Comparison</div>
+<h2 class="section-title">Hardhat vs Truffle vs Foundry - Which Framework to Choose</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>🔨 Hardhat</th><th>🐿️ Truffle</th><th>⚒️ Foundry</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Language</td><td>JavaScript/TypeScript</td><td>JavaScript/TypeScript</td><td>Solidity (tests in Solidity)</td></tr>
+    <tr><td>Local network</td><td class="good">Built-in, in-process, Solidity console.log</td><td class="mid">Ganache (separate process)</td><td class="mid">Built-in (Anvil), fast, but no Solidity console.log</td></tr>
+    <tr><td>Plugin ecosystem</td><td class="good">Rich (toolbox, gas reporter, verify, etc.)</td><td class="bad">Limited</td><td class="mid">Built-in features, fewer plugins</td></tr>
+    <tr><td>Mainnet forking</td><td class="good">Yes, built-in</td><td class="bad">Requires Ganache fork</td><td class="good">Yes, built-in</td></tr>
+    <tr><td>Compilation speed</td><td class="mid">Good (cached)</td><td class="mid">Slow</td><td class="good">Very fast (cached, incremental)</td></tr>
+    <tr><td>Debugging</td><td class="good">Stack traces, console.log, debugger</td><td class="mid">Basic debugger</td><td class="mid">Cast and Forge debugger (CLI)</td></tr>
+    <tr><td>MST support</td><td class="good">Fully compatible (EVM)</td><td class="good">Fully compatible (EVM)</td><td class="good">Fully compatible (EVM)</td></tr>
+    <tr><td>Recommendation</td><td colspan="3">Stick with Hardhat for this course - it's the most widely adopted, has the best plugin ecosystem, and its JavaScript-based tooling integrates seamlessly with frontend development.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════ 09 CASE STUDIES ═══════════════ -->
+<div class="section-label">09 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Top Projects Use Hardhat</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v4 - Testing Across Chains with Forking</div>
+      <div class="feature-desc">Uniswap's development team uses Hardhat with mainnet forking to test new pool contracts against real-world liquidity. By forking Ethereum mainnet, they can simulate swaps against actual Uniswap v3 pools, verify pricing logic, and test edge cases - all without spending gas. When deploying to new chains like MST, the same Hardhat test suite runs against a forked MST mainnet state, ensuring identical behavior. This is a perfect example of how Hardhat's forking enables cross-chain development without duplicating test infrastructure.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave - Gas Optimisation with hardhat-gas-reporter</div>
+      <div class="feature-desc">Aave's lending protocol is gas-sensitive - every function call costs user funds. The team uses the hardhat-gas-reporter plugin to generate detailed reports of gas consumption for each function. During optimization, they run the test suite, review the gas report, tweak the Solidity code (e.g., replacing storage variables with memory, using unchecked blocks for arithmetic), and re-run to measure improvements. On MST, where gas is cheap, gas optimization is still important for high-frequency transactions like liquidation bots, and hardhat-gas-reporter makes it measurable.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 10 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardhat is a modular, plugin-based EVM development framework</div>
+      <div class="feature-desc">It compiles Solidity, runs tests (Mocha/Chai), deploys contracts, and provides a built-in local Ethereum network. It's fully compatible with MST - just configure the RPC URL and chain ID in <code>hardhat.config.js</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">hardhat.config.js configures Solidity version, networks, and plugins</div>
+      <div class="feature-desc">It's a JavaScript file. Networks are defined with <code>url</code>, <code>chainId</code>, and <code>accounts</code>. The <code>solidity</code> field can specify compiler version and optimizer settings. Plugins are loaded with <code>require()</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardhat Network supports console.log in Solidity and mainnet forking</div>
+      <div class="feature-desc">Import <code>hardhat/console.sol</code> to log variables during tests. Configure forking to copy live chain state locally. These features are unique to Hardhat's in-process network.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Deploy to MST Testnet with: npx hardhat run scripts/deploy.js --network mst_testnet</div>
+      <div class="feature-desc">The <code>--network</code> flag selects the network defined in hardhat.config.js. The script uses ethers.js (injected as <code>hre.ethers</code>) to deploy contracts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">The Hardhat Toolbox bundles essential plugins</div>
+      <div class="feature-desc"><code>@nomicfoundation/hardhat-toolbox</code> includes ethers, verify, gas reporter, and coverage plugins. A single require unlocks all these features.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Hardhat</div><div class="glossary-def">An EVM development framework for compiling, testing, debugging, and deploying smart contracts. Built on Node.js, fully compatible with MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Runtime Environment (HRE)</div><div class="glossary-def">The object injected into scripts and tests, providing access to ethers.js, network configuration, and plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Network</div><div class="glossary-def">Built-in local Ethereum network that runs in-process. Supports console.log from Solidity, stack traces, mainnet forking, and account impersonation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Forking</div><div class="glossary-def">Copying the state of a live blockchain (e.g., MST mainnet) into your local Hardhat Network, allowing tests against real deployed contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Toolbox</div><div class="glossary-def">A bundled plugin (<code>@nomicfoundation/hardhat-toolbox</code>) that includes ethers, verify, gas reporter, and other essential plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">hardhat.config.js</div><div class="glossary-def">The main configuration file. Defines Solidity compiler version, networks (RPC URLs, chain IDs, accounts), and plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Artifacts</div><div class="glossary-def">The compiled output of Solidity contracts - bytecode and ABI - stored in the <code>artifacts/</code> folder.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chain ID</div><div class="glossary-def">A unique identifier for a blockchain network, used to prevent replay attacks. MST Testnet chain ID is 5000 (example).</div></div>
+  <div class="glossary-item"><div class="glossary-term">gas reporter</div><div class="glossary-def">A Hardhat plugin (<code>hardhat-gas-reporter</code>) that outputs a table of gas consumption per function, helping optimize contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Ignition</div><div class="glossary-def">Hardhat's new declarative deployment system, replacing legacy scripts with type-safe deployment modules.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.3</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.4 - Solidity Basics I →</p>
+</div>
+
+

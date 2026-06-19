@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7.6 Gaming & Fairness Protocols | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand:        #6C3CE2;
+            --brand-light:  #EDE9FB;
+            --brand-dark:   #3C1FA0;
+            --brand-mid:    #8B5CF6;
+            --accent:       #F6A623;
+            --accent-light: #FEF4E0;
+            --green:        #16A34A;
+            --green-light:  #DCFCE7;
+            --red:          #DC2626;
+            --red-light:    #FEE2E2;
+            --blue:         #1D6FD8;
+            --blue-light:   #DBEAFE;
+            --orange:       #EA580C;
+            --orange-light: #FFEDD5;
+            --teal:         #0D9488;
+            --teal-light:   #CCFBF1;
+            --ink:          #111827;
+            --ink-2:        #374151;
+            --ink-3:        #6B7280;
+            --ink-4:        #9CA3AF;
+            --border:       #E5E7EB;
+            --border-2:     #D1D5DB;
+            --surface:      #F9FAFB;
+            --surface-2:    #F3F4F6;
+            --white:        #FFFFFF;
+            --mono:         'JetBrains Mono', monospace;
+            --sans:         'Inter', sans-serif;
+            --radius:       10px;
+            --radius-sm:    6px;
+            --radius-lg:    16px;
+            --radius-xl:    22px;
+            --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+
+        /* ─── HEADER ─── */
+        .module-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--brand-light); color: var(--brand-dark);
+            font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+            text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+            line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight { color: var(--brand); }
+        .module-subtitle {
+            font-size: 17px; color: var(--ink-3); font-weight: 400;
+            margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+        }
+        .meta-bar {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 52px; padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 14px;
+            font-size: 13px; font-weight: 500; color: var(--ink-2);
+        }
+        .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+        .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+        .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+        /* ─── SECTION TITLES ─── */
+        .section-label {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--brand);
+            margin-bottom: 10px; margin-top: 52px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .section-title {
+            font-size: 24px; font-weight: 800; color: var(--ink);
+            margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+        }
+
+        p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+        p strong { color: var(--ink); font-weight: 700; }
+        p:last-child { margin-bottom: 0; }
+
+        .callout {
+            border-radius: var(--radius-lg); padding: 20px 24px;
+            margin: 24px 0; border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; margin-bottom: 8px; display: flex;
+            align-items: center; gap: 6px;
+        }
+        .callout p { font-size: 15px; margin: 0; }
+        .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+        .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+        .callout.key .callout-label     { color: var(--brand-dark); }
+        .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+        .callout.warning .callout-label { color: var(--red); }
+        .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+        .callout.insight .callout-label { color: var(--teal); }
+        .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+        .callout.analogy .callout-label { color: #92400E; }
+        .callout.story .callout-label   { color: #92400E; }
+
+        .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .obj-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+        .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+        .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+        .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+        .w5-row {
+            display: grid; grid-template-columns: 110px 1fr;
+            border-bottom: 1px solid var(--border);
+        }
+        .w5-row:last-child { border-bottom: none; }
+        .w5-label-cell {
+            background: var(--brand-light); padding: 18px 16px;
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            border-right: 1px solid #C4B5F5;
+        }
+        .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+        .w5-content { padding: 16px 20px; }
+        .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+        .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        .compare-table thead th {
+            padding: 12px 16px; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            text-align: left; border-bottom: 2px solid var(--border);
+        }
+        .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+        .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+        .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+        .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+        .compare-table tbody tr:hover td { background: var(--surface); }
+        .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+        .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+        .compare-table .good { color: var(--green); font-weight: 600; }
+        .compare-table .bad  { color: var(--red);   font-weight: 600; }
+        .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+        .diagram-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono); font-size: 13px; line-height: 1.65;
+            color: var(--ink-2); white-space: pre; margin: 0;
+        }
+        .diagram-caption {
+            font-size: 12px; color: var(--ink-4); text-align: center;
+            margin-top: 16px; font-style: italic;
+        }
+
+        .timeline { margin: 24px 0; }
+        .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+        .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+        .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+        .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+        .tl-item:last-child .tl-line { display: none; }
+        .tl-right { padding: 0 0 28px 4px; }
+        .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+        .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+        .tl-body strong { color: var(--ink); }
+
+        .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .feature-item {
+            display: flex; gap: 14px; align-items: flex-start;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--brand); color: white;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .feature-content { flex: 1; }
+        .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+        .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .col-card {
+            border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+        }
+        .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+        .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+        .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+        .col-card.green .col-card-title { color: #14532D; }
+        .col-card.red   .col-card-title { color: #7F1D1D; }
+        .col-card ul    { padding-left: 0; list-style: none; }
+        .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+        .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+        .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+        .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+        .stat-card {
+            background: var(--brand-light); border: 1px solid #C4B5F5;
+            border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+        .assessment-section { margin-top: 64px; }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+        .marks-total-badge {
+            background: white; border-radius: 10px; padding: 10px 20px;
+            text-align: center; flex-shrink: 0;
+        }
+        .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+        .assessment-body {
+            border: 2px solid var(--border); border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .q-section-header {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+        .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+        .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+        .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+        .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+        .q-badge {
+            background: var(--brand); color: white;
+            font-size: 11px; font-weight: 700; padding: 4px 10px;
+            border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+        .q-diff {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+        }
+        .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+        .q-diff.medium { background: var(--accent-light); color: #92400E; }
+        .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+        .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+        .q-text {
+            font-size: 15.5px; font-weight: 600; color: var(--ink);
+            margin-bottom: 18px; line-height: 1.6;
+        }
+
+        .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+        .options li {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+            line-height: 1.5; cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green); background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono); font-size: 12px; font-weight: 700;
+            color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+        }
+        .options li.correct .opt-key { color: var(--green); }
+
+        .answer-box {
+            background: var(--green-light); border: 1.5px solid #86EFAC;
+            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+        .answer-box p strong { color: var(--ink); }
+        .answer-box .marks-bd {
+            margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+            font-size: 13px; color: #14532D;
+        }
+        .answer-box .marks-bd span { font-weight: 700; }
+
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+        }
+        .score-left { }
+        .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+        .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .score-row span { color: #C4B5F5; font-weight: 400; }
+        .score-badge {
+            background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+        }
+        .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+        .page-footer {
+            text-align: center; margin-top: 64px; padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+        .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .glossary-item {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 16px;
+        }
+        .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+        .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+        .highlight-strip {
+            background: var(--brand); color: white;
+            border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+            font-size: 15px; font-weight: 600; line-height: 1.6;
+        }
+        .highlight-strip strong { font-weight: 800; }
+
+        @media (max-width: 640px) {
+            body { padding: 28px 18px 72px; }
+            .obj-grid       { grid-template-columns: 1fr; }
+            .two-col        { grid-template-columns: 1fr; }
+            .stat-row       { grid-template-columns: 1fr 1fr; }
+            .glossary-grid  { grid-template-columns: 1fr; }
+            .module-title   { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🎮 Module 7 &nbsp;·&nbsp; Sub-Module 7.6 of 8</div>
+<h1 class="module-title"><span class="highlight">Gaming & Fairness</span> Protocols</h1>
+<p class="module-subtitle">How MST's on-chain randomness, shuffle verification, and RTP guarantees make online gaming provably fair - solving the trust problem that has plagued the industry for decades.</p>
+
+<div class="meta-bar">
+    <div class="meta-chip">⏱ 40 Minutes</div>
+    <div class="meta-chip purple">🎯 10 Marks</div>
+    <div class="meta-chip">📋 5 MCQ + 1 T/F + 1 T/F with Justification + 1 Descriptive</div>
+    <div class="meta-chip green">Phase 2 · MST Architecture & Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+    <div class="obj-card">
+        <div class="obj-icon">🎲</div>
+        <div class="obj-text">
+            <strong>Explain the three core fairness protocols</strong>
+            Describe Klethesia (RTP), SatvaShuffle (card shuffling), and FortunaX (random number generation) and what each guarantees.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🔍</div>
+        <div class="obj-text">
+            <strong>Understand how provable fairness works</strong>
+            Detail how on-chain commitment schemes and zero-knowledge proofs let players verify that a game was fair without trusting the operator.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">⚖️</div>
+        <div class="obj-text">
+            <strong>Contrast MST fairness with traditional online gaming</strong>
+            Evaluate why legacy online casinos are "trust-based" and how MST's protocols mathematically eliminate cheating.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🛡️</div>
+        <div class="obj-text">
+            <strong>Identify where each protocol applies</strong>
+            Map Klethesia to slots, SatvaShuffle to card games, and FortunaX to loot boxes and lotteries.
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Online Rummy Scandal That Could Have Been Prevented</h2>
+
+<div class="callout story">
+    <div class="callout-label">📖 Story</div>
+    <p>In 2023, a popular online rummy platform in India faced a massive backlash. Several high-stakes players noticed an impossible pattern: certain opponents consistently received winning cards in crucial moments, far beyond statistical probability. The platform's response? "Trust us, our shuffle is random." But there was no way to verify this claim. The platform controlled the server, the shuffle algorithm, and the game logs. Players had to either accept the operator's word or stop playing. Thousands stopped playing.</p>
+    <br>
+    <p>The tragedy is that the technology to prevent this already existed. Imagine instead that every card shuffle was recorded on a blockchain with a cryptographic commitment. Before a hand begins, the platform publishes a hash of the shuffled deck. After the hand, the full deck is revealed, and any player can verify that the hash matches. A zero-knowledge proof guarantees that the shuffle was a random permutation of the original 52 cards - not pre-arranged to favour any player.</p>
+    <br>
+    <p>This is exactly what <strong>SatvaShuffle</strong> does on MST. For slot machines, <strong>Klethesia</strong> publishes the exact Return-to-Player (RTP) percentage on-chain, with every spin outcome verifiable against a pre-committed random seed. For loot boxes, <strong>FortunaX</strong> generates verifiable random numbers using a distributed randomness beacon, proving that the rare item drop wasn't manipulated.</p>
+    <br>
+    <p>MST's gaming protocols solve the fundamental trust problem in online gaming. You don't trust the casino. You trust the math - and you can verify it yourself.</p>
+</div>
+
+<p>The online gaming industry, projected to reach $5 billion in India alone by 2025, is built on a fragile foundation of operator trust. MST's fairness protocols replace that trust with cryptographic proof, enabling a new generation of provably fair games.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From "Trust Us" to "Verify Yourself" - The Evolution of Gaming Fairness</h2>
+
+<div class="timeline">
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">1990s - 2000s</div>
+            <div class="tl-body"><strong>The Black Box Era.</strong> Online casinos ran fully centralised servers. The shuffle, the RNG, the payout percentages - everything was a black box. Regulators relied on periodic audits of source code, but there was no way for a player to verify that the code running at 2 AM was the same code that was audited. Scandals were frequent and largely undetectable.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2012</div>
+            <div class="tl-body"><strong>Provably Fair - The First Generation.</strong> Bitcoin casinos introduced "provably fair" algorithms. The server would commit to a random seed before a game round, and the player could verify the outcome afterward. While an improvement, these systems still relied on the server generating the seed - a sophisticated operator could manipulate the seed generation itself.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2018</div>
+            <div class="tl-body"><strong>On-Chain Randomness - Chainlink VRF.</strong> Chainlink introduced a Verifiable Random Function (VRF) that provided on-chain randomness from a decentralised oracle network. This solved the seed manipulation problem but was expensive (high gas fees) and not natively integrated into gaming logic like shuffling or RTP calculations.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2022 - 2023</div>
+            <div class="tl-body"><strong>Specialised Gaming Chains.</strong> Some L1/L2 chains targeted gaming specifically, but they focused on scalability (high TPS) rather than game-specific fairness guarantees. Shuffling and RTP were left to individual game developers to implement, leading to inconsistent and often flawed implementations.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2024 - Today</div>
+            <div class="tl-body"><strong>MST's Gaming Protocols.</strong> MST builds fairness directly into the protocol layer. Klethesia provides on-chain RTP verification for slots. SatvaShuffle uses ZK proofs for verifiable card shuffling. FortunaX delivers a distributed randomness beacon secured by Trika POSA validators. Game developers don't need to implement fairness - they inherit it from the chain.</div>
+        </div>
+    </div>
+</div>
+
+<div class="callout insight">
+    <div class="callout-label">💡 The Protocol-Level Advantage</div>
+    <p>When fairness is built into the blockchain protocol itself, game developers cannot bypass it - even if they want to. This is fundamentally different from smart-contract-based fairness, where each developer must implement (and potentially misimplement) their own solution.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Three Protocols - Klethesia, SatvaShuffle, and FortunaX</h2>
+
+<div class="callout analogy">
+    <div class="callout-label">🎰 The Casino Manager, The Dealer, and The Lottery Machine</div>
+    <p><strong>Klethesia</strong> is like a casino manager who publishes the slot machine's exact payout rate on a public notice board, and after every spin, posts the result and the random seed so anyone can verify it. <strong>SatvaShuffle</strong> is like a card dealer who shuffles the deck inside a glass box - you can't see the cards, but you can see the shuffle happen, and afterward you can verify the deck was standard and the shuffle was random. <strong>FortunaX</strong> is like a lottery machine that broadcasts its random number generation live, with multiple independent auditors confirming each draw.</p>
+</div>
+
+<div class="w5-grid">
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+        <div class="w5-content">
+            <div class="w5-q">Why do these protocols exist?</div>
+            <div class="w5-a">Because players cannot trust online gaming operators to be fair. Even licensed operators have been caught manipulating outcomes. Cryptographic proof eliminates the need for trust entirely.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+        <div class="w5-content">
+            <div class="w5-q">What does each protocol guarantee?</div>
+            <div class="w5-a"><strong>Klethesia:</strong> Guarantees slot machine RTP matches published rates; every spin is verifiable. <strong>SatvaShuffle:</strong> Guarantees a random permutation of a standard deck; no card manipulation possible. <strong>FortunaX:</strong> Guarantees unpredictable, unbiasable random numbers for any game mechanic.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+        <div class="w5-content">
+            <div class="w5-q">How do they work technically?</div>
+            <div class="w5-a"><strong>Klethesia:</strong> Each spin is driven by a VRF output. The RTP is enforced by a smart contract that accumulates payouts and verifies the long-term percentage matches the advertised rate. <strong>SatvaShuffle:</strong> Uses a ZK-SNARK to prove that a shuffled deck is a valid permutation of the original deck, without revealing the deck order until after the hand. <strong>FortunaX:</strong> Combines entropy from multiple validators into a single random number using threshold BLS signatures, ensuring no single validator can predict or bias the result.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+        <div class="w5-content">
+            <div class="w5-q">Where are they applied?</div>
+            <div class="w5-a"><strong>Klethesia:</strong> Slot machines, crash games, roulette. <strong>SatvaShuffle:</strong> Rummy, poker, teen patti, any card game. <strong>FortunaX:</strong> Loot boxes, lottery draws, prize wheels, any game needing a single random outcome.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+        <div class="w5-content">
+            <div class="w5-q">What are their limitations?</div>
+            <div class="w5-a">Klethesia's RTP verification is statistical - it requires a large number of spins to prove the advertised RTP with confidence. SatvaShuffle's ZK proofs add computational overhead (~1-2 seconds for proof generation, though verification is fast). FortunaX's distributed randomness requires validator participation; if too many validators are offline, randomness generation may be delayed (mitigated by a fallback threshold scheme).</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Inside Klethesia, SatvaShuffle, and FortunaX</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">1</div>
+        <div class="feature-content">
+            <div class="feature-title">Klethesia - Provable RTP for Slot Machines</div>
+            <div class="feature-desc">
+                Klethesia enforces Return-to-Player (RTP) at the protocol level. Each slot machine is a smart contract that registers its advertised RTP (e.g., 96.5%). Every spin generates a random outcome using FortunaX's randomness beacon. The contract tracks cumulative bets and cumulative payouts. Over a configurable epoch (e.g., 100,000 spins), the contract verifies that the actual RTP falls within an acceptable statistical band (±1%) of the advertised rate. If the operator attempts to lower the effective RTP below the band, the contract can automatically freeze and refund players. Additionally, every spin outcome is published on-chain with a commitment to the random seed, allowing auditors to verify the fairness of individual results.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">2</div>
+        <div class="feature-content">
+            <div class="feature-title">SatvaShuffle - ZK-Verified Card Shuffling</div>
+            <div class="feature-desc">
+                SatvaShuffle is a zero-knowledge shuffle protocol. Before a hand, the dealer (the game smart contract) generates a permutation of a 52-card deck using FortunaX randomness. It commits to the shuffled deck by publishing a Merkle root of the card positions on-chain. A ZK-SNARK proof is generated to attest: "There exists a permutation of the standard 52-card set that produces this Merkle root." This proof can be verified by any player for ~200k gas, guaranteeing the deck is a valid shuffle without revealing the card order. As the hand progresses, cards are revealed by publishing Merkle proofs from the committed root. After the hand, the full deck can be revealed, and players can independently recompute the Merkle root to confirm no cards were added, removed, or swapped.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">3</div>
+        <div class="feature-content">
+            <div class="feature-title">FortunaX - Distributed Randomness Beacon</div>
+            <div class="feature-desc">
+                FortunaX is MST's native randomness source. It operates as an on-chain randomness beacon that produces unpredictable, unbiasable random values at regular intervals. The beacon uses a threshold BLS signature scheme: each Trika POSA validator contributes a random share (derived from a VRF seeded by the previous beacon output). Once a threshold of shares (e.g., ⅔) is collected, they are aggregated into a single BLS signature, which serves as the random output. Because no single validator knows the final output until the threshold is reached, and because the output is deterministic given the shares, the randomness is unpredictable (no validator can bias it without colluding with ⅔ of the set) and publicly verifiable (anyone can check the BLS signature against the known public keys). Game contracts request a random number by calling the FortunaX precompile, which returns the latest beacon output along with a proof of correctness.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ Why Protocol-Level Fairness Matters</div>
+    <p>If a game developer deploys on MST, they automatically use FortunaX for randomness, Klethesia for RTP (if applicable), and SatvaShuffle for card games. The chain enforces fairness - the developer cannot write a contract that bypasses these protocols. This is a far stronger guarantee than a "fairness audit" of a centralised game server.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising MST's Gaming Fairness Stack</h2>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 7.6-A · The Three Fairness Protocols on MST</div>
+    <pre>
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                      MST GAMING FAIRNESS STACK                    │
+  │                                                                   │
+  │   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐        │
+  │   │  FORTUNAX    │   │ SATVASHUFFLE │   │  KLETHESIA   │        │
+  │   │ (Randomness) │   │ (Card Shuffle)│   │ (Slot RTP)   │        │
+  │   │              │   │              │   │              │        │
+  │   │ • Threshold  │   │ • ZK‑SNARK   │   │ • RTP regis- │        │
+  │   │   BLS beacon │   │   permutation│   │   tration    │        │
+  │   │ • Unbiasable │   │   proof      │   │ • Statistical│        │
+  │   │ • Verifiable │   │ • Merkle root│   │   enforcement│        │
+  │   └──────┬───────┘   └──────┬───────┘   └──────┬───────┘        │
+  │          │                  │                   │                 │
+  └──────────┼──────────────────┼───────────────────┼─────────────────┘
+             │                  │                   │
+             ▼                  ▼                   ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    GAME SMART CONTRACTS                           │
+  │   Slots (uses FortunaX + Klethesia)                              │
+  │   Rummy (uses FortunaX + SatvaShuffle)                           │
+  │   Loot Boxes (uses FortunaX)                                     │
+  │   Lottery (uses FortunaX)                                        │
+  └──────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="diagram-caption">Game contracts on MST compose fairness protocols: FortunaX provides randomness to all; SatvaShuffle adds ZK-verified shuffling for cards; Klethesia enforces RTP for slots.</div>
+</div>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 7.6-B · SatvaShuffle Lifecycle for a Rummy Hand</div>
+    <pre>
+  STEP 1: COMMITMENT           STEP 2: PROOF              STEP 3: PLAY & REVEAL
+  ──────────────────           ─────────────              ────────────────────
+  Dealer generates             ZK‑SNARK generated:        Cards dealt to players
+  random permutation           "Permutation π is          using Merkle proofs from
+  of 52‑card deck.             a valid shuffle of         the committed Merkle root.
+  Merkle root of deck          the standard deck."
+  published on‑chain.          Proof verified on‑chain     STEP 4: FULL REVEAL
+                               for ~200k gas.             ──────────────────
+                                                          After hand ends, entire
+                                                          deck revealed. Players
+                                                          verify Merkle root matches.
+                                                          No cards added/removed.
+    </pre>
+    <div class="diagram-caption">Commit-and-reveal with a ZK permutation proof: players can trust the shuffle is valid before seeing any cards, and verify the full deck after the hand.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">MST Fairness vs Traditional Online Gaming - The Trust Gap</h2>
+
+<table class="compare-table">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Traditional Online Casino</th>
+            <th>MST Gaming Protocols</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Randomness source</td>
+            <td class="bad">Proprietary server-side RNG, opaque</td>
+            <td class="good">FortunaX: distributed, verifiable, unbiasable</td>
+        </tr>
+        <tr>
+            <td>Shuffle verifiability</td>
+            <td class="bad">None - trust the operator</td>
+            <td class="good">SatvaShuffle: ZK proof of valid permutation</td>
+        </tr>
+        <tr>
+            <td>RTP enforcement</td>
+            <td class="bad">Operators can change RTP silently</td>
+            <td class="good">Klethesia: on-chain, statistical enforcement</td>
+        </tr>
+        <tr>
+            <td>Player verification</td>
+            <td class="bad">Impossible without access to server logs</td>
+            <td class="good">Any player can verify any game outcome on-chain</td>
+        </tr>
+        <tr>
+            <td>Regulatory audit</td>
+            <td class="mid">Periodic, expensive, snapshot-based</td>
+            <td class="good">Continuous, automated, every transaction</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout insight">
+    <div class="callout-label">💡 The Regulatory Opportunity</div>
+    <p>For gaming regulators, MST's on-chain fairness is a dream. Instead of relying on annual audits and operator honesty, regulators can monitor RTP, shuffle fairness, and randomness quality in real time via a block explorer. This could fundamentally change how gaming licenses are issued and enforced.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">MST Fairness Protocols in Action</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--orange);">🎰</div>
+        <div class="feature-content">
+            <div class="feature-title">Indian Rummy Platform - SatvaShuffle Deployment</div>
+            <div class="feature-desc">
+                A major Indian rummy platform migrated 2 million daily players to MST. Every hand uses SatvaShuffle: the deck is committed on-chain before cards are dealt, a ZK proof verifies the shuffle is valid, and players can audit their own hands via a mobile-friendly verification tool. Player trust scores increased by 40%, and the platform's user acquisition cost dropped as word spread about provable fairness.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">🎲</div>
+        <div class="feature-content">
+            <div class="feature-title">Slot Network - Klethesia RTP Assurance</div>
+            <div class="feature-desc">
+                A network of 5,000 slot machines across Goa and Sikkim uses Klethesia. Each machine's RTP is registered on-chain, and every spin outcome is recorded. Players can scan a QR code after a session and see a cryptographic proof that the advertised 96% RTP was maintained over their play. Regulators receive automated reports flagging any machine that deviates beyond the statistical band.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--green);">🎁</div>
+        <div class="feature-content">
+            <div class="feature-title">Mobile Game Loot Boxes - FortunaX Fair Drops</div>
+            <div class="feature-desc">
+                A mobile RPG with 10M downloads uses FortunaX for its loot box system. The game publishes the exact drop rates for rare items (e.g., 0.5% for a legendary sword) on-chain. Every loot box opening queries FortunaX for a random number, and the outcome is recorded on-chain. Players can verify that the legendary sword drop rate is truly 0.5% - not 0.1% as some players suspected.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 10-Mark Assessment</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+        <div class="feature-content">
+            <div class="feature-title">Three Core Protocols</div>
+            <div class="feature-desc"><strong>Klethesia:</strong> On-chain RTP enforcement for slots. <strong>SatvaShuffle:</strong> ZK-verified card shuffling. <strong>FortunaX:</strong> Distributed randomness beacon using threshold BLS signatures.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+        <div class="feature-content">
+            <div class="feature-title">FortunaX = Threshold BLS Randomness</div>
+            <div class="feature-desc">Validators contribute random shares; a threshold (⅔) aggregates them into a single unpredictable random number. No single validator can bias the output.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+        <div class="feature-content">
+            <div class="feature-title">SatvaShuffle = Commitment + ZK Proof + Reveal</div>
+            <div class="feature-desc">Merkle root commitment before hand, ZK-SNARK proof of valid permutation, card reveal via Merkle proofs, full deck verification after hand.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+        <div class="feature-content">
+            <div class="feature-title">Klethesia = Statistical RTP Enforcement</div>
+            <div class="feature-desc">Advertised RTP registered on-chain; contract tracks cumulative payouts and flags or freezes if actual RTP deviates beyond the allowed statistical band.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+        <div class="feature-content">
+            <div class="feature-title">Protocol-Level, Not Application-Level</div>
+            <div class="feature-desc">Fairness is built into the MST chain itself. Game developers inherit fairness guarantees; they cannot bypass them even with malicious contracts.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (5 MCQ + 1 T/F + 1 T/F Just + 1 Descriptive = 10 marks)
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+    <div class="assessment-header">
+        <h2>📝 Sub-Module 7.6 Assessment</h2>
+        <div class="marks-total-badge">
+            <div class="num">10</div>
+            <div class="label">Total Marks</div>
+        </div>
+    </div>
+
+    <div class="assessment-body">
+
+        <!-- SECTION A -->
+        <div class="q-section-header">
+            <div class="q-section-title">Section A - Multiple Choice Questions</div>
+            <div class="q-section-meta">5 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 5 marks total</div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q1</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">Which MST protocol provides a distributed, verifiable randomness beacon for all games?</div>
+            <ul class="options">
+                <li class="correct">
+                    <span class="opt-key">A</span>
+                    FortunaX ✅
+                </li>
+                <li>
+                    <span class="opt-key">B</span>
+                    Klethesia
+                </li>
+                <li>
+                    <span class="opt-key">C</span>
+                    SatvaShuffle
+                </li>
+                <li>
+                    <span class="opt-key">D</span>
+                    WASMify
+                </li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: A</div>
+                <p>FortunaX is MST's distributed randomness beacon, using threshold BLS signatures from Trika POSA validators to produce unpredictable, unbiasable random numbers.</p>
+            </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q2</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">SatvaShuffle guarantees a fair card shuffle by using which cryptographic technique?</div>
+            <ul class="options">
+                <li class="correct">
+                    <span class="opt-key">A</span>
+                    A ZK-SNARK proof that the shuffled deck is a valid permutation of the standard deck ✅
+                </li>
+                <li>
+                    <span class="opt-key">B</span>
+                    A multi-party computation among all players
+                </li>
+                <li>
+                    <span class="opt-key">C</span>
+                    A trusted hardware module in the dealer's server
+                </li>
+                <li>
+                    <span class="opt-key">D</span>
+                    A public random seed combined with the block hash
+                </li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: A</div>
+                <p>SatvaShuffle generates a ZK-SNARK proof that the committed Merkle root corresponds to a valid permutation of a standard 52-card deck. Players can verify this proof without seeing the cards.</p>
+            </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q3</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">How does Klethesia ensure that a slot machine's advertised RTP (e.g., 96.5%) is actually delivered to players?</div>
+            <ul class="options">
+                <li class="correct">
+                    <span class="opt-key">A</span>
+                    The contract tracks cumulative bets and payouts; if actual RTP falls outside a statistical band, the contract can freeze and alert regulators ✅
+                </li>
+                <li>
+                    <span class="opt-key">B</span>
+                    Each spin outcome is pre-determined by the operator and locked on-chain
+                </li>
+                <li>
+                    <span class="opt-key">C</span>
+                    A regulatory body manually reviews each spin
+                </li>
+                <li>
+                    <span class="opt-key">D</span>
+                    Players vote on whether the RTP was fair
+                </li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: A</div>
+                <p>Klethesia enforces RTP statistically over a large number of spins. The smart contract monitors cumulative RTP and can take action (freezing payouts, flagging) if it deviates beyond the acceptable band, providing an automated, on-chain enforcement mechanism.</p>
+            </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q4</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">Why can no single validator bias the output of FortunaX?</div>
+            <ul class="options">
+                <li class="correct">
+                    <span class="opt-key">A</span>
+                    The final output is an aggregate of threshold BLS signatures from multiple validators, and no single validator knows the final output until the threshold is reached ✅
+                </li>
+                <li>
+                    <span class="opt-key">B</span>
+                    Validators are legally prohibited from manipulating randomness
+                </li>
+                <li>
+                    <span class="opt-key">C</span>
+                    The randomness is generated by a single trusted validator
+                </li>
+                <li>
+                    <span class="opt-key">D</span>
+                    FortunaX uses a centralised random number generator audited by MST
+                </li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: A</div>
+                <p>FortunaX uses threshold cryptography: each validator contributes a share, and the final random number is the aggregate BLS signature. Until the threshold (⅔) is met, the output is unpredictable. A single validator cannot determine or bias the result.</p>
+            </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q5</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff hard">Hard</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">In SatvaShuffle, why is the Merkle root of the shuffled deck published on-chain before any cards are dealt?</div>
+            <ul class="options">
+                <li class="correct">
+                    <span class="opt-key">A</span>
+                    To cryptographically commit to the deck order so the dealer cannot change cards after seeing player actions ✅
+                </li>
+                <li>
+                    <span class="opt-key">B</span>
+                    To allow players to see their opponents' cards in advance
+                </li>
+                <li>
+                    <span class="opt-key">C</span>
+                    To reduce the gas cost of dealing cards
+                </li>
+                <li>
+                    <span class="opt-key">D</span>
+                    To comply with data privacy regulations
+                </li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: A</div>
+                <p>Publishing the Merkle root is a commitment scheme. Once committed, the dealer cannot alter the deck without invalidating the later reveal. This prevents the dealer from changing the shuffle after seeing bets or player actions.</p>
+            </div>
+        </div>
+
+        <!-- SECTION B -->
+        <div class="q-section-header" style="margin-top: 8px;">
+            <div class="q-section-title">Section B - True / False</div>
+            <div class="q-section-meta">1 Question &nbsp;·&nbsp; 1 mark &nbsp;·&nbsp; 1 mark total</div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q6</div>
+                <div class="q-meta">
+                    <span class="q-type">True / False</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">"On MST, game developers must write their own fairness algorithms - the blockchain does not provide any built-in gaming fairness protocols."</div>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Answer: FALSE</div>
+                <p>MST provides three built-in fairness protocols: FortunaX (randomness), SatvaShuffle (card shuffling), and Klethesia (slot RTP). Game developers inherit fairness from the protocol layer; they do not need to implement their own.</p>
+            </div>
+        </div>
+
+        <!-- SECTION C -->
+        <div class="q-section-header" style="margin-top: 8px;">
+            <div class="q-section-title">Section C - True / False with Justification</div>
+            <div class="q-section-meta">1 Question &nbsp;·&nbsp; 2 marks &nbsp;·&nbsp; Must justify to get both marks</div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q7</div>
+                <div class="q-meta">
+                    <span class="q-type">True / False + Justification</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">2 marks</span>
+                </div>
+            </div>
+            <div class="q-text">"Klethesia guarantees that every individual spin of a slot machine pays out exactly the advertised RTP percentage."</div>
+
+            <div class="tf-box">
+                <div class="tf-verdict false">FALSE</div>
+                <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+                <div class="tf-sample">
+                    This statement is <strong>FALSE</strong>. Klethesia enforces RTP <strong>statistically over a large number of spins</strong>, not per individual spin. Each individual spin is random - a player may win or lose. The protocol guarantees that over an epoch (e.g., 100,000 spins), the cumulative payout percentage will match the advertised RTP within an acceptable band. If the cumulative RTP deviates beyond the band, the contract can freeze and flag the machine. This is a statistical guarantee, not a per-spin guarantee.
+                </div>
+            </div>
+            <div class="answer-box">
+                <div class="answer-box-label">📊 Marks Breakdown</div>
+                <p><strong>1 mark:</strong> Correctly states FALSE.<br>
+                <strong>+1 mark:</strong> Explains that RTP is a statistical guarantee over many spins, not a per-spin guarantee, and mentions the epoch or band enforcement.</p>
+            </div>
+        </div>
+
+        <!-- SECTION D -->
+        <div class="q-section-header" style="margin-top: 8px;">
+            <div class="q-section-title">Section D - Descriptive Question</div>
+            <div class="q-section-meta">1 Question &nbsp;·&nbsp; 2 marks &nbsp;·&nbsp; Short analysis</div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q8</div>
+                <div class="q-meta">
+                    <span class="q-type">Descriptive (Short Answer)</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">2 marks</span>
+                </div>
+            </div>
+            <div class="q-text">In 100 - 150 words, explain why a player can trust the outcome of a rummy hand on MST using SatvaShuffle, even if the game operator is dishonest. Reference the commitment scheme and the ZK proof in your answer.</div>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Model Answer & Marks Breakdown</div>
+                <p><strong>Model Answer:</strong> A player can trust the outcome because SatvaShuffle uses a commitment scheme and ZK proofs to make cheating mathematically impossible. Before the hand, the operator publishes a Merkle root of the shuffled deck on-chain, cryptographically committing to the card order. A ZK-SNARK proof verifies that this root represents a valid permutation of a standard 52-card deck. During play, cards are revealed via Merkle proofs from that root - if the operator tried to change the deck, the proofs would fail. After the hand, the full deck is revealed and players can recompute the Merkle root to confirm no cards were added or removed. The operator cannot alter the shuffle after seeing player actions because the commitment is on-chain and irreversible.</p>
+                <div class="marks-bd">
+                    <span>Marks breakdown (2 marks):</span><br>
+                    • <strong>1 mark:</strong> Describes the commitment (Merkle root) and how it prevents post-hoc deck manipulation.<br>
+                    • <strong>1 mark:</strong> Mentions the ZK proof of valid permutation and the final deck verification.
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end assessment-body -->
+
+    <!-- SCORE SUMMARY -->
+    <div class="score-summary">
+        <div class="score-left">
+            <div class="score-label">Sub-Module 7.6 Assessment Summary</div>
+            <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+            <div class="score-row">Section B: 1 × True/False <span>(1 mark) = 1 mark</span></div>
+            <div class="score-row">Section C: 1 × T/F with Justification <span>(2 marks) = 2 marks</span></div>
+            <div class="score-row">Section D: 1 × Descriptive <span>(2 marks) = 2 marks</span></div>
+        </div>
+        <div class="score-badge">
+            <div class="score-num">10</div>
+            <div class="score-text">Total Marks</div>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.6</h2>
+
+<div class="glossary-grid">
+    <div class="glossary-item">
+        <div class="glossary-term">Klethesia</div>
+        <div class="glossary-def">MST's protocol for on-chain RTP (Return-to-Player) enforcement for slot machines, with statistical verification over epochs.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">SatvaShuffle</div>
+        <div class="glossary-def">MST's ZK-verified card shuffling protocol that commits to a deck order and proves it is a valid permutation without revealing cards.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">FortunaX</div>
+        <div class="glossary-def">MST's distributed randomness beacon using threshold BLS signatures from validators to produce unpredictable numbers.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">RTP (Return-to-Player)</div>
+        <div class="glossary-def">The percentage of total bets that a slot machine returns to players as winnings over its lifetime, e.g., 96.5%.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Merkle Root</div>
+        <div class="glossary-def">A cryptographic commitment to a data set; changing any element changes the root, allowing efficient verification of inclusion.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">ZK-SNARK</div>
+        <div class="glossary-def">A zero-knowledge proof that is succinct and non-interactive; used by SatvaShuffle to prove a shuffle is a valid permutation.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Threshold BLS Signature</div>
+        <div class="glossary-def">A signature scheme where multiple parties contribute shares; when a threshold is reached, a single aggregate signature is produced.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Commitment Scheme</div>
+        <div class="glossary-def">A cryptographic primitive where a value is hidden but locked (committed) at one time, and revealed later, preventing changes after commitment.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Statistical Enforcement</div>
+        <div class="glossary-def">Klethesia's method of ensuring RTP compliance over many spins, rather than per spin, with automated flagging on deviations.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Provably Fair</div>
+        <div class="glossary-def">A system where players can independently verify game outcomes using cryptographic proofs, without trusting the operator.</div>
+    </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+    <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+    <p>Module 7 · Sub-Module <strong>7.6</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.7 - Post-Quantum Security Layer →</p>
+</div>
+
+</body>
+</html>

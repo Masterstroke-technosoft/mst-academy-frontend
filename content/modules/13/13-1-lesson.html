@@ -1,0 +1,353 @@
+
+
+<div class="module-badge">🎓 Module 13 &nbsp;·&nbsp; Sub-Module 13.1 of 5</div>
+<h1 class="module-title">The <span class="highlight">Oracle Problem</span></h1>
+<p class="module-subtitle">Blockchains are islands of perfect digital truth - but they're blind to the real world. How can a smart contract know the price of gold, the winner of an election, or the weather in Mumbai? Enter the Oracle Problem: the critical challenge of getting trustworthy external data onto a trustless blockchain, and the solutions that keep DeFi, insurance, and prediction markets alive.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1 mark each)</div>
+  <div class="meta-chip green">Phase 4 · Oracles &amp; WASMify</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏝️</div>
+    <div class="obj-text">
+      <strong>Articulate why blockchains are "walled gardens"</strong>
+      Explain determinism, consensus, and why a smart contract cannot simply call a web API - and the fundamental trust gap this creates for real-world data.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Compare centralised vs decentralised oracle models</strong>
+      Contrast a single data provider with a network like Chainlink, evaluating the trade-offs in trust, cost, and security for on-chain applications.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Understand how Chainlink bridges data to blockchains</strong>
+      Describe the role of oracle nodes, data aggregation, and reputation in creating reliable price feeds used by DeFi protocols worth billions.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Discover how MST's WASMify revolutionises the oracle model</strong>
+      See how off-chain computation with ZK proofs can bring verifiable data on-chain without needing a network of oracle nodes, reducing trust assumptions and cost.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DeFi Protocol That Trusted a Single Weather Website</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a small DeFi crop insurance protocol launched on Ethereum. Farmers in Maharashtra could buy policies that paid out automatically if the monsoon rainfall in their district fell below a certain level. The smart contract needed real-world rainfall data. The developer, in a hurry, pointed the contract at a single government weather API. The contract would call this API, read the rainfall number, and if it was below the threshold, release the payout.</p>
+  <br>
+  <p>For the first season, everything worked. But in the second season, the weather website went down for maintenance for three days during a critical measurement period. The oracle - a single server the developer had set up - couldn't fetch the data. The smart contract, unable to get an answer, simply did nothing. Farmers who had paid premiums didn't get their payout during the worst drought in years. The protocol's reputation was destroyed.</p>
+  <br>
+  <p>The root cause? A <strong>single point of failure</strong> in the data pipeline. If the developer had used a decentralised oracle network, multiple independent nodes would have fetched the data from different sources, aggregated it, and delivered it on-chain even if one source failed. This story is a perfect illustration of the Oracle Problem - and why getting external data right is the difference between a robust dApp and a ticking time bomb.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Centralised APIs to Decentralised Truth - The Evolution of Oracles</h2>
+<p>In the early days of blockchain, developers quickly realised that smart contracts, for all their power, were isolated. A contract could execute flawless logic, but it could only act on data already on-chain - transaction inputs, block timestamps, and internal state. What about the price of ETH in USD? The outcome of a sports match? Whether a flight landed on time? These live in the outside world, inaccessible to the EVM.</p>
+<p>The first attempts to solve this were <strong>centralised oracles</strong>. A trusted third party - often the dApp developer - would run a server that watched the blockchain for requests, fetched the relevant data from a web API, and submitted it to the contract via a transaction. This worked, but it introduced a massive trust assumption: users had to trust the oracle operator to provide accurate data and to stay online. If the operator was malicious, they could feed false data and drain a DeFi protocol. If their server crashed, the dApp stopped working. This "single point of failure" contradicted the very ethos of decentralisation.</p>
+<p>The breakthrough came in 2017 with <strong>Chainlink</strong>, founded by Sergey Nazarov and Steve Ellis. Chainlink proposed a <strong>decentralised oracle network</strong>: instead of one node, many independent node operators fetch data from multiple sources, aggregate it, and submit it to the blockchain. The network uses economic incentives - nodes stake LINK tokens, and if they provide bad data, they lose their stake. This model proved so successful that Chainlink became the standard oracle for DeFi, securing tens of billions of dollars in value.</p>
+<p>However, Chainlink still has limitations. It requires a network of nodes that must be economically incentivised and coordinated. The data aggregation happens off-chain and is submitted on-chain, meaning users trust the majority of nodes. For some use cases, especially those requiring heavy computation or privacy, a different approach is needed.</p>
+<p>This is where <strong>MST's WASMify</strong> enters. Instead of relying on a network of nodes to fetch and agree on data, WASMify allows <strong>verifiable off-chain computation</strong>: a single entity can perform complex computations (fetch data, process it, run machine learning models) and produce a <strong>zero-knowledge proof</strong> that the computation was done correctly. The smart contract verifies this proof on-chain, trusting the math rather than the entity. This dramatically reduces trust assumptions and opens the door to a new class of oracle applications.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> The Oracle Problem is not about getting data onto the blockchain - anyone can submit a transaction. It's about getting <em>trustworthy</em> data onto the blockchain in a way that doesn't compromise the very decentralisation that makes blockchain valuable.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Blind Librarian - Why Smart Contracts Can't Just Google It</h2>
+<div class="callout analogy">
+  <div class="callout-label">📚 The Analogy</div>
+  <p>Imagine a brilliant mathematician (your smart contract) locked inside a perfectly soundproof, windowless room. The mathematician has a calculator, a whiteboard, and a rulebook. You can slip a note under the door with a question, and the mathematician will solve it using their logic and slide the answer back. But if you ask, "What's the price of gold right now?" the mathematician has no way to know - they can't see the internet, they can't ask anyone, they only know what's in that room. An <strong>oracle</strong> is a trusted messenger who stands outside the room, looks up the gold price on their phone, and slips the answer under the door. The problem? If the messenger lies, the mathematician has no way to verify it. A decentralised oracle is like having a hundred messengers, each checking the price independently - you trust the consensus. WASMify is like giving the mathematician a magic box: you put a question in, it does complex research outside the room, and produces a mathematical certificate proving the answer is correct, which the mathematician can verify without trusting anyone.</p>
+</div>
+
+<p>Let's explore the three generations of oracle solutions:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">CENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Centralised Oracle - The Single Messenger</div>
+      <div class="w5-a">One entity (often the dApp developer) runs a server that fetches data and pushes it on-chain via a transaction. <strong>Advantage:</strong> simple, fast, cheap. <strong>Disadvantage:</strong> single point of failure - if the server is hacked, goes offline, or the operator lies, the entire dApp is compromised. This is the "oracle" in our crop insurance story. It violates the core principle of blockchain: <em>don't trust a single entity</em>.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">DECENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Decentralised Oracle Network (Chainlink) - The Committee of Messengers</div>
+      <div class="w5-a">Multiple independent node operators fetch data from multiple sources, aggregate it off-chain (e.g., median or weighted average), and submit it on-chain. Nodes stake tokens as collateral; if they submit bad data, they lose their stake. The smart contract receives a single aggregated answer. <strong>Advantage:</strong> no single point of failure, economic incentives for honesty. <strong>Disadvantage:</strong> requires bootstrapping a network of trusted nodes, still involves some trust in the majority, and can be slow and expensive for large data sets. However, it has been battle-tested in DeFi and works well for price feeds.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">ZK-ORACLE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">ZK-Powered Oracle (WASMify) - The Mathematical Certificate</div>
+      <div class="w5-a">Instead of trusting multiple messengers, a single party can perform off-chain computation (fetch data, run complex logic) and produce a <strong>zero-knowledge proof</strong> that the computation was performed correctly. The smart contract verifies this proof on-chain using cryptographic verification. No need to trust the messenger - the math guarantees correctness. <strong>Advantage:</strong> minimal trust assumptions, can handle heavy computation, no need for a network of staked nodes. <strong>Disadvantage:</strong> generating ZK proofs is computationally intensive (though improving rapidly). MST's WASMify is designed to make this practical: run any WebAssembly module, produce a ZK proof of its execution, and submit it to the blockchain. This opens oracles to a new level of trustlessness.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: THE BLOCKCHAIN DETERMINISM PROBLEM -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Why Can't a Smart Contract Just Call an API?</h2>
+<p>At the heart of the Oracle Problem is a fundamental property of blockchains: <strong>determinism</strong>. Every node in the network must be able to independently verify every transaction and reach the same result. If a smart contract were to call an external API - say, <code>fetch('https://api.weather.com/mumbai')</code> - different nodes would get different results depending on when they called it, their network latency, or even whether the API was up. This would break consensus - nodes would disagree on the state after executing the transaction, and the blockchain would fork.</p>
+<p>Therefore, the EVM is intentionally isolated from the outside world. It can only process data that is already on-chain or explicitly passed in a transaction. This is not a bug; it's a feature that ensures the integrity of the blockchain. But it means that any real-world data must be brought on-chain by someone (an oracle) <strong>before</strong> the smart contract can use it.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-A · The Deterministic Wall</div>
+  <pre>  ┌──────────────────────────────────────────────┐
+  │              OUTSIDE WORLD                     │
+  │  🌦️ Weather  💹 Stock Prices  ⚽ Sports Scores │
+  │  🌐 Web APIs  📰 News Feeds  📡 IoT Sensors    │
+  └──────────────┬───────────────────────────────┘
+                 │
+                 │   ❌ Smart contracts CANNOT access
+                 │   (would break consensus)
+                 │
+       ┌─────────┴─────────┐
+       │                   │
+       │   ORACLE BRIDGE   │  ← The only way across
+       │                   │
+       └─────────┬─────────┘
+                 │
+                 │   ✅ Oracle submits signed/verified data
+                 │   as a transaction
+                 ▼
+  ┌──────────────────────────────────────────────┐
+  │            BLOCKCHAIN (MST)                    │
+  │  📜 Smart Contract                             │
+  │  "if rainfall &lt; 50mm → payout"                │
+  │  Uses data now on‑chain to execute logic       │
+  └──────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The blockchain is deterministic; external data is not. Oracles bridge the gap by fetching non-deterministic data and placing it on-chain as a transaction, after which the smart contract can use it deterministically.</div>
+</div>
+
+<!-- 06 CHAINLINK DEEP DIVE -->
+<div class="section-label">06 &nbsp; Chainlink - The Decentralised Oracle Standard</div>
+<h2 class="section-title">How a Network of Nodes Delivers Trustworthy Data</h2>
+<p>Chainlink is the most widely used decentralised oracle network. Let's break down exactly how it works, because it's the reference design that MST's WASMify and other solutions compare against.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Architecture</h3>
+<p>Chainlink consists of:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Oracle Nodes:</strong> Independent operators who run the Chainlink client. They stake LINK tokens as collateral. They are rewarded for providing accurate data and penalised (slashed) for bad data.</li>
+  <li><strong>Data Sources / APIs:</strong> Nodes fetch data from multiple sources to avoid a single point of truth. For a price feed, they might hit Binance, Coinbase, and Kraken.</li>
+  <li><strong>Aggregation Contract:</strong> A smart contract on the blockchain that receives submissions from multiple nodes, computes an aggregated answer (e.g., median), and stores it for consumption by other smart contracts.</li>
+  <li><strong>Service Level Agreement (SLA):</strong> When a dApp requests a new data feed, it specifies the parameters: how many nodes, what data sources, how often to update, what deviation triggers an update.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Flow for a Price Feed</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>A dApp (e.g., a lending protocol) needs the ETH/USD price. It reads from a Chainlink Price Feed contract already deployed on the chain.</li>
+  <li>Chainlink nodes are pre-configured to monitor this feed. They periodically fetch the ETH/USD price from multiple exchanges off-chain.</li>
+  <li>Each node submits its observed price to the aggregation contract. The contract waits for a minimum number of submissions (e.g., 7 out of 21 nodes).</li>
+  <li>The contract computes the median of the submitted prices and stores it. Other contracts can now read this verified price.</li>
+  <li>If a node submits a price that deviates significantly from the consensus, it may be penalised.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-B · Chainlink Data Flow</div>
+  <pre>  ┌────────────┐   ┌────────────┐   ┌────────────┐
+  │  Node 1    │   │  Node 2    │   │  Node 3    │
+  │ fetches    │   │ fetches    │   │ fetches    │
+  │ Binance    │   │ Coinbase   │   │ Kraken     │
+  │ $2,000.10  │   │ $2,000.50  │   │ $2,000.30  │
+  └─────┬──────┘   └─────┬──────┘   └─────┬──────┘
+        │                │                │
+        └────────────────┼────────────────┘
+                         │ submit price on‑chain
+                         ▼
+              ┌─────────────────────┐
+              │ Aggregation Contract│
+              │ (Median = $2,000.30)│
+              └────────┬────────────┘
+                       │
+                       │ read by consuming contracts
+                       ▼
+              ┌─────────────────────┐
+              │  Lending Protocol   │
+              │ "ETH/USD = $2,000.30"│
+              └─────────────────────┘
+  </pre>
+  <div class="diagram-caption">Chainlink's strength is its decentralisation: no single node can manipulate the price because the median of multiple independent submissions is used.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Limitations of Chainlink</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Cost and Speed:</strong> Updating a price feed requires multiple on-chain transactions. On Ethereum, this can be expensive. On MST, the cost is negligible, but the architecture still requires maintaining a network of nodes.</li>
+  <li><strong>Data Variety:</strong> Chainlink excels at simple data points like prices. For complex data - a 100-page legal document, an IoT data stream, the result of a machine learning model - it's less suited because the entire data must be submitted on-chain, which can be expensive or impractical.</li>
+  <li><strong>Trust in Majority:</strong> While decentralised, a 51% attack on the oracle nodes is theoretically possible. Also, the data sources themselves could be manipulated.</li>
+</ul>
+
+<!-- 07 MST'S WASMify — THE ZK ORACLE -->
+<div class="section-label">07 &nbsp; MST's WASMify - The ZK Oracle</div>
+<h2 class="section-title">Verifiable Off-Chain Computation That Changes Everything</h2>
+<p>MST's <strong>WASMify</strong> is not just another oracle - it's a fundamentally different approach that eliminates the need for a committee of trusted nodes entirely. Instead of "trust the majority," WASMify says: <strong>"verify the math."</strong></p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How WASMify Works</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Define the computation:</strong> Write a program (in Rust, C, Python, or any language that compiles to WebAssembly) that fetches and processes external data. For example, a WASM module that reads GPS coordinates from an IoT device, checks if they are within a geofence, and returns a boolean.</li>
+  <li><strong>Execute off-chain:</strong> The module is run on any off-chain server (could be the dApp operator, a third-party service, or even the user). The execution produces a result and a <strong>zero-knowledge proof</strong> that the computation was performed exactly as specified, with the correct inputs, without revealing the inputs if needed.</li>
+  <li><strong>Submit proof on-chain:</strong> The proof is submitted to an MST smart contract. The contract verifies the proof using a cryptographic verification algorithm (much cheaper than re-running the computation). If the proof is valid, the contract accepts the result as truth.</li>
+  <li><strong>Use the result:</strong> The smart contract now has a verified piece of external data and can proceed with its logic - payout an insurance claim, execute a trade, mint an NFT.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-C · WASMify Oracle Flow</div>
+  <pre>  ┌─────────────────────────────────────────┐
+  │            OFF‑CHAIN (Any Server)         │
+  │  ┌──────────────────────────────────┐   │
+  │  │  WASM Module                      │   │
+  │  │  • Fetch GPS data from IoT        │   │
+  │  │  • Check geofence                 │   │
+  │  │  • Generate ZK proof of execution │   │
+  │  └──────────────┬───────────────────┘   │
+  └─────────────────┼───────────────────────┘
+                    │ Submit proof + result
+                    ▼
+  ┌─────────────────────────────────────────┐
+  │            ON‑CHAIN (MST)                │
+  │  ┌──────────────────────────────────┐   │
+  │  │  Verification Contract            │   │
+  │  │  • Verify ZK proof                │   │
+  │  │  • If valid, accept result: TRUE  │   │
+  │  │  • Trigger insurance payout       │   │
+  │  └──────────────────────────────────┘   │
+  └─────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">WASMify replaces trust in a committee with cryptographic verification. The smart contract doesn't need to know who ran the computation, only that the proof is valid.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Why WASMify Is a Game-Changer</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Trustless:</strong> No need to trust any oracle node operator. The ZK proof guarantees correctness regardless of who executed the computation.</li>
+  <li><strong>Computation-heavy:</strong> Complex logic - machine learning, image processing, large data analysis - can be run off-chain, with only the proof submitted on-chain. This is impossible with traditional oracles that submit raw data.</li>
+  <li><strong>Privacy:</strong> The ZK proof can be constructed such that the inputs remain private. For example, a proof can show that a person's age is over 18 without revealing their birthdate. This is perfect for identity and KYC use cases.</li>
+  <li><strong>Cost:</strong> On MST, verifying a proof costs a fraction of a paisa. No need for multiple on-chain transactions from multiple nodes.</li>
+  <li><strong>Flexibility:</strong> Any computation that can be expressed as a WASM module can be verified. This opens the door to oracles for supply chain (IoT data), AI (model inference), and gaming (verifiable randomness).</li>
+</ul>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Paradigm Shift</div>
+  <p>Traditional oracles answer the question: "Who can I trust to bring data on-chain?" WASMify answers: "No one. I'll verify the data mathematically." This shift from economic trust to cryptographic trust is the next evolution of blockchain oracles, and MST is at the forefront.</p>
+</div>
+
+<!-- 08 INTERACTIVE COMPARISON -->
+<div class="section-label">08 &nbsp; Interactive Comparison</div>
+<h2 class="section-title">Choose the Right Oracle for Your dApp</h2>
+<p>Click each scenario to see the recommended approach and why.</p>
+
+<details>
+  <summary>💹 Scenario 1: DeFi lending protocol needs ETH/USD price</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> Chainlink Price Feed (or similar decentralised oracle network).</p>
+    <p>Why: Price feeds are well-served by Chainlink's battle-tested infrastructure. The data is simple (a single number), the aggregation model works well, and Chainlink already provides this feed on many chains. WASMify could also be used but is overkill for a simple price feed.</p>
+  </div>
+</details>
+<details>
+  <summary>🚚 Scenario 2: Supply chain dApp needs to verify that a container maintained -20°C during transit (IoT data)</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> WASMify.</p>
+    <p>Why: The IoT temperature data stream is complex, private to the shipping company, and requires processing (checking if temperature ever exceeded a threshold). A WASMify module can process the entire data stream off-chain, produce a ZK proof that the temperature was always below -20°C, and submit only the proof on-chain. Traditional oracles would struggle with the data volume and privacy requirements.</p>
+  </div>
+</details>
+<details>
+  <summary>🆔 Scenario 3: Age verification for a Web3 alcohol delivery app (privacy-critical)</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> WASMify with ZK privacy.</p>
+    <p>Why: The app needs to verify that a user is over 18 without revealing their exact age or identity. A WASMify module can take a government-issued digital ID as input, verify the age, and produce a ZK proof that the age is &gt;18 - without revealing the ID itself. This is impossible with traditional oracles, which would require submitting the ID on-chain (a privacy nightmare).</p>
+  </div>
+</details>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Don't Let Your Oracle Become a Single Point of Failure</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using a single data source</div>
+      <div class="feature-desc">Even with multiple oracle nodes, if all nodes fetch from the same API, that API is still a single point of failure. Always use multiple independent data sources.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Assuming oracle data is instantly final</div>
+      <div class="feature-desc">Oracles update periodically. The price on-chain may be seconds or minutes old. For time-sensitive applications (like liquidations), account for this latency.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the oracle's own security model</div>
+      <div class="feature-desc">If your dApp relies on an oracle, the security of your dApp is bounded by the security of the oracle. A hacked oracle can drain your protocol. Always understand the oracle's trust assumptions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ASSESSMENT PREP -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Blockchains are deterministic; external data is not. Oracles bridge the gap.</div>
+      <div class="feature-desc">Smart contracts cannot call APIs directly because it would break consensus. Oracles fetch external data and submit it on-chain as a transaction.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Centralised oracles are a single point of failure; decentralised oracle networks (Chainlink) mitigate this.</div>
+      <div class="feature-desc">Chainlink uses multiple independent nodes that fetch from multiple sources, aggregate data, and submit on-chain with economic incentives for honesty.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's WASMify uses ZK proofs for verifiable off-chain computation, eliminating trust in the oracle operator.</div>
+      <div class="feature-desc">Any computation can be run off-chain, a ZK proof generated, and verified on-chain by a smart contract. Trust the math, not the messenger.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 13.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Oracle</div><div class="glossary-def">A bridge that brings external, real-world data onto a blockchain so that smart contracts can use it.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Determinism</div><div class="glossary-def">The property that given the same inputs and state, a computation always produces the same output - essential for blockchain consensus.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chainlink</div><div class="glossary-def">The leading decentralised oracle network; uses multiple independent nodes and economic incentives to provide reliable data feeds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's framework for verifiable off-chain computation; generates ZK proofs that can be verified on-chain, enabling trustless oracles.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Zero-Knowledge Proof (ZKP)</div><div class="glossary-def">A cryptographic method allowing one party to prove to another that a statement is true without revealing any additional information.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Aggregation Contract</div><div class="glossary-def">A Chainlink smart contract that collects data from multiple oracle nodes and computes a single trusted answer (e.g., median).</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 13 · Sub-Module <strong>13.1</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 13.2 - Centralised vs Decentralised Oracles →</p>
+</div>
+
+

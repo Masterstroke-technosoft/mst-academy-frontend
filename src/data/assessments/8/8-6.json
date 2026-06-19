@@ -1,0 +1,179 @@
+{
+  "submoduleId": "8.6",
+  "totalMarks": 15,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which function visibility allows the function to be called from outside the contract but NOT from within the contract itself (except via <code>this.f()</code>)?",
+      "options": [
+        {
+          "key": "A",
+          "text": "public",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "external",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "internal",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "private",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "external functions are optimized for external calls and cannot be called internally except via this.f(), which adds gas overhead.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: B</div><p><code>external</code> functions are optimized for external calls and cannot be called internally except via <code>this.f()</code>, which adds gas overhead.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What is the primary purpose of a Solidity modifier?",
+      "options": [
+        {
+          "key": "A",
+          "text": "To encapsulate reusable access control or validation logic that runs before a function body.",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "To change the visibility of a function.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "To increase the gas cost of a function.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "To replace the need for events.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "Modifiers centralize checks like onlyOwner or nonReentrant, avoiding code duplication and ensuring consistent security across multiple functions.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>Modifiers centralize checks like <code>onlyOwner</code> or <code>nonReentrant</code>, avoiding code duplication and ensuring consistent security across multiple functions.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which keyword marks a function that can receive native coins (MSTC) via <code>msg.value</code>?",
+      "options": [
+        {
+          "key": "A",
+          "text": "payable",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "view",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "pure",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "external",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "Only payable functions and the receive() fallback can accept native coins. Without it, the transaction reverts if any coin is sent.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>Only <code>payable</code> functions and the <code>receive()</code> fallback can accept native coins. Without it, the transaction reverts if any coin is sent.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Why are events cheaper than storage for recording permanent data?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Events use LOG opcodes (~375 gas), while storage uses SSTORE (5,000-20,000 gas).",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Events are stored off-chain, so they cost no gas at all.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Events are deleted after a transaction is confirmed.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Events are only emitted once per block, reducing cost.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "Events use LOG1-LOG4 opcodes, costing 375 gas base plus 8 gas/byte, while storage writes (SSTORE) cost at least 5,000 gas. Events are still permanent on-chain, but are stored in transaction receipts, not in the state trie.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>Events use LOG1-LOG4 opcodes, costing 375 gas base plus 8 gas/byte, while storage writes (SSTORE) cost at least 5,000 gas. Events are still permanent on-chain, but are stored in transaction receipts, not in the state trie.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What pattern should you follow to prevent reentrancy attacks in a withdrawal function?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Checks-Effects-Interactions: check conditions, update state, then transfer funds.",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Transfer funds first, then update state.",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Use only public functions.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Avoid using modifiers.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "By updating state (like deducting the balance) before calling an external transfer, you ensure that if the external call re-enters, the state already reflects the deduction, preventing double-spending.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct: A</div><p>By updating state (like deducting the balance) before calling an external transfer, you ensure that if the external call re-enters, the state already reflects the deduction, preventing double-spending.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "other",
+      "difficulty": "Medium",
+      "marks": 10,
+      "text": "Complete the following Solidity contract by filling in the blanks to implement a secure withdrawal function with an onlyOwner modifier and an event. The contract should store user balances, allow deposits, and allow the owner to withdraw any amount from their own balance."
+    }
+  ]
+}

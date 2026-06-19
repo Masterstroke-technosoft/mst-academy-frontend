@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Sub-Module 21.1 - Final Security Audit &amp; Optimisation | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── FEATURE PILLS ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card { border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid; }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── STAT CARDS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    /* ─── CODE BLOCKS ─── */
+    .code-block {
+      background: #1e1e2f; color: #e2e2f0; border-radius: var(--radius);
+      padding: 20px; margin: 18px 0; overflow-x: auto;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+      white-space: pre; border: 1px solid #2a2a40;
+    }
+    .code-inline {
+      font-family: var(--mono); background: var(--surface-2); padding: 2px 8px;
+      border-radius: 4px; font-size: 13.5px; color: var(--brand-dark);
+    }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body { border: 2px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text { font-size: 15.5px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct { border-color: var(--green); background: var(--green-light); color: var(--ink); }
+    .opt-key { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px; }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd { margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC; font-size: 13px; color: #14532D; }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write { font-size: 11.5px; font-weight: 700; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+    .tf-sample { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; border-left: 3px solid var(--brand); padding-left: 12px; }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid, .two-col, .glossary-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      .module-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════ -->
+<div class="module-badge">🛡️ Module 21 · Sub-Module 21.1 of 5</div>
+<h1 class="module-title">Final Security Audit &amp; <span class="highlight">Gas Optimisation</span></h1>
+<p class="module-subtitle">
+  Your smart contract is built. Now comes the hardest gate: finding every vulnerability, squeezing out every wasted gas unit, and preparing it for the real world - where a single bug can cost millions.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 90 Minutes</div>
+  <div class="meta-chip purple">🎯 25 Marks</div>
+  <div class="meta-chip">📋 5 MCQ · 3 T/F · 2 T/F+Just · 3 Descriptive · 1 Coding</div>
+  <div class="meta-chip green">Phase 4 · Final Deployment</div>
+</div>
+
+<!-- ═══════════════════════════════ OBJECTIVES ═══════════════ -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text"><strong>Execute a professional smart-contract audit</strong> using Slither, Mythril, and Echidna - and interpret their output.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text"><strong>Manually review Solidity code</strong> against a 12-point checklist (reentrancy, access control, overflow, etc.).</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⛽</div>
+    <div class="obj-text"><strong>Apply advanced gas-optimisation techniques</strong> that can reduce transaction costs by 30-70% without compromising security.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📋</div>
+    <div class="obj-text"><strong>Produce a mainnet-ready audit report</strong> that meets MST BuildGrant requirements.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ STORY ═══════════════ -->
+<div class="section-label">02 · Real-World Introduction Story</div>
+<h2 class="section-title">The ₹120 Crore Lesson - Why Audits Are Not Optional</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>
+    In March 2022, a popular DeFi protocol on an EVM chain was preparing for a V2 launch. The team had built a beautiful UI, a clever staking mechanism, and a governance token. The smart contract was written by a senior developer and reviewed by two other engineers. They ran the Hardhat test suite - all green. The code was deployed to mainnet on a Friday evening.
+  </p>
+  <br/>
+  <p>
+    By Monday morning, ₹120 crore (about $15 million) was gone. The attacker had exploited a subtle reentrancy vulnerability in the <span class="code-inline">withdraw()</span> function. The team had missed it because their test only checked normal withdrawal flow - not cross-contract reentrancy. Worse, they had never run a single automated security tool. No Slither. No Mythril. No fuzzing. Just manual confidence.
+  </p>
+  <br/>
+  <p>
+    This is not a rare story. In 2023 alone, blockchain hacks totalled over $1.8 billion, according to Chainalysis. The vast majority of exploited contracts had <strong>never undergone a professional audit or even a basic automated scan</strong>. The MST ecosystem is safer by design - but EVM compatibility means existing Solidity vulnerabilities can still travel to MST. As an MST Blockchain Developer, your capstone project will handle real user value. You owe it to yourself and your users to harden every line of code.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ WHY THIS MATTERS ON MST ═══════════════ -->
+<div class="section-label">03 · Why Final Hardening Matters on MST</div>
+<h2 class="section-title">EVM Compatibility = Attack Surface Transportability</h2>
+<p>
+  Because MST is fully EVM-compatible, any security flaw that exists in Ethereum’s Solidity ecosystem can manifest identically on MST. The low gas fees on MST actually increase the risk - attackers can afford to try multiple exploits that would be prohibitively expensive on Ethereum. Moreover, MST’s <strong>Trika POSA</strong> provides fast finality (~3 seconds), but that also means a successful attack is irreversible almost instantly.
+</p>
+<p>
+  A robust security audit is not just a checkbox for your capstone project; it’s the difference between a funded startup and a catastrophic failure. MST’s <strong>BuildGrant</strong> requires an audit report signed by a qualified reviewer (even if self-audited with tools). The skills you learn here will be directly applicable in job interviews, where 80% of technical questions revolve around security and gas optimisation.
+</p>
+
+<!-- ═══════════════════════════════ AUDIT MINDSET ═══════════════ -->
+<div class="section-label">04 · The Security-Audit Mindset</div>
+<h2 class="section-title">Think Like an Attacker, Act Like an Auditor</h2>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">A</div><div class="w5-word">Attacker</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does an attacker see your contract?</div>
+      <div class="w5-a">They look for unvalidated external calls, missing access controls, and economic incentives that can be gamed. They treat your contract as a free-for-all puzzle.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">B</div><div class="w5-word">Blinders</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the most common mental traps?</div>
+      <div class="w5-a">“It’s only testnet.” “Nobody would try that.” “OpenZeppelin handles everything.” Over-reliance on libraries without understanding their internals is a top cause of exploits.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">Checklist</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What systematic approach do professional auditors use?</div>
+      <div class="w5-a">A layered process: automated scanners → manual code walkthrough → invariant fuzzing → economic simulation. We’ll follow exactly that.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ AUTOMATED TOOLS ═══════════════ -->
+<div class="section-label">05 · Automated Analysis - Your First Line of Defence</div>
+<h2 class="section-title">Slither, Mythril, and Echidna on MST</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Slither - Static Analysis</div>
+      <div class="feature-desc">
+        Slither (by Trail of Bits) is the industry-standard static analyser for Solidity. It examines your code without executing it, detecting reentrancy, missing events, incorrect modifiers, unused variables, and dangerous delegatecall patterns. Install via <span class="code-inline">pip3 install slither-analyzer</span>. Run it with <span class="code-inline">slither .</span> inside your Hardhat project. Slither outputs a ranked list of findings with severity: High, Medium, Low, Informational. <strong>For MST deployment, fix all High and Medium issues before proceeding.</strong>
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--teal);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Mythril - Symbolic Execution</div>
+      <div class="feature-desc">
+        Mythril explores all possible execution paths of a contract, looking for assertion violations, integer overflows, and unprotected SELFDESTRUCT calls. Unlike Slither, it doesn’t just read the code - it <em>runs</em> it symbolically, reaching deep states. Command: <span class="code-inline">myth analyze contracts/MyContract.sol --execution-timeout 60</span>. It can uncover bugs that a human might miss in nested if-else branches.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Echidna - Fuzzing / Invariant Testing</div>
+      <div class="feature-desc">
+        Echidna bombards your contract with random inputs and checks whether any invariant breaks (e.g., “total supply must never exceed 1 million”). You write invariants as Solidity functions with names starting with <span class="code-inline">echidna_</span>. This catches logic errors that static tools miss. For MST, we especially fuzz staking rewards and RWA token mint/burn functions.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.1-A · Audit Toolchain Integration</div>
+  <pre>
+  ┌────────────┐     ┌────────────┐     ┌────────────┐
+  │  Slither   │────▶│  Mythril   │────▶│  Echidna   │
+  │ (static)   │     │ (symbolic) │     │ (fuzzing)  │
+  └─────┬──────┘     └─────┬──────┘     └─────┬──────┘
+        │                  │                  │
+        ▼                  ▼                  ▼
+  ┌─────────────────────────────────────────────────┐
+  │           Consolidated Findings Report           │
+  │  (Highs must be fixed; Mediums need justification)│
+  └─────────────────────┬───────────────────────────┘
+                        ▼
+  ┌─────────────────────────────────────────────────┐
+  │        Manual Code Walkthrough (Human)          │
+  └─────────────────────┬───────────────────────────┘
+                        ▼
+  ┌─────────────────────────────────────────────────┐
+  │    Fix → Re‑run Tools → Final Audit Report       │
+  └─────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The recommended audit pipeline for MST projects. Never ship to mainnet after just one tool.</div>
+</div>
+
+<!-- ═══════════════════════════════ MANUAL CHECKLIST ═══════════════ -->
+<div class="section-label">06 · Manual Code-Review Checklist</div>
+<h2 class="section-title">The Human Touch - 12 Points You Must Verify</h2>
+<p>Automated tools are essential, but they cannot understand <em>business logic</em>. A contract may have zero tool-reported issues yet contain a fatal economic design flaw. Here is the checklist that professional auditors use for every MST dApp.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Reentrancy (Checks-Effects-Interactions)</div>
+      <div class="feature-desc">All state changes must happen <strong>before</strong> external calls. Use OpenZeppelin’s <span class="code-inline">ReentrancyGuard</span>. Never rely on <span class="code-inline">transfer()</span> or <span class="code-inline">send()</span> for reentrancy protection - use CEI pattern.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Integer Overflow / Underflow</div>
+      <div class="feature-desc">Solidity ≥0.8 has built-in checks, but explicit <span class="code-inline">unchecked</span> blocks can be dangerous. Verify every <span class="code-inline">unchecked</span> usage with a detailed comment.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Access Control</div>
+      <div class="feature-desc">Every state-changing function must have appropriate modifiers (<span class="code-inline">onlyOwner</span>, role-based). Check for missing <span class="code-inline">onlyOwner</span> on critical setters. Avoid <span class="code-inline">tx.origin</span> for authentication.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Front-Running & MEV</div>
+      <div class="feature-desc">On MST, validators can still reorder transactions. Use commit-reveal schemes for sensitive actions, and avoid large price-impact operations that can be sandwiched.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Unchecked Return Values</div>
+      <div class="feature-desc">Low-level calls (<span class="code-inline">.call()</span>) return a boolean that must be checked. Failing to check can lead to silent failures. Use <span class="code-inline">require(success, "call failed")</span>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">06</div>
+    <div class="feature-content">
+      <div class="feature-title">Denial of Service (DoS)</div>
+      <div class="feature-desc">Avoid loops over unbounded arrays that can hit block gas limits. Use pull-over-push for payments, and never rely on a single external call to succeed for critical logic.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">07</div>
+    <div class="feature-content">
+      <div class="feature-title">Timestamp Dependence</div>
+      <div class="feature-desc">Block timestamps can be manipulated by validators within a small window (~30 seconds). Do not use them for precise randomness or as a sole source of truth for deadlines (use block numbers where appropriate).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">08</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegatecall & Proxy Security</div>
+      <div class="feature-desc">If you use upgradeable contracts, ensure storage slots never clash between implementation versions. Use OpenZeppelin’s <span class="code-inline">TransparentUpgradeableProxy</span> or UUPS with caution.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">09</div>
+    <div class="feature-content">
+      <div class="feature-title">Signature Replay Attacks</div>
+      <div class="feature-desc">If your contract accepts off-chain signatures, include a nonce and chain ID to prevent cross-chain replay. Use EIP-712 structured hashing.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">10</div>
+    <div class="feature-content">
+      <div class="feature-title">Rounding Errors & Precision</div>
+      <div class="feature-desc">In financial contracts, always multiply before dividing to minimise precision loss. Use fixed-point math libraries (PRBMath) for high-accuracy calculations.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">11</div>
+    <div class="feature-content">
+      <div class="feature-title">Event Emission</div>
+      <div class="feature-desc">All state-changing functions should emit events for off-chain monitoring. Missing events make debugging and user-notification impossible.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">12</div>
+    <div class="feature-content">
+      <div class="feature-title">Business Logic & Invariants</div>
+      <div class="feature-desc">Define invariants explicitly (“token A balance + token B balance in pool must equal constant k”). Write Echidna invariants for these. Review any state transition that could break them.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ GAS OPTIMISATION ═══════════════ -->
+<div class="section-label">07 · Gas Optimisation - Every Wei Counts</div>
+<h2 class="section-title">MST Gas Model and Why Optimisation Still Matters</h2>
+<p>
+  MST’s gas fees are significantly lower than Ethereum’s during congestion (often < 0.01 MST per transfer). However, gas optimisation is still critical for three reasons:
+</p>
+<ul style="padding-left:20px; color:var(--ink-2); font-size:15px; margin-bottom:20px;">
+  <li style="margin-bottom:8px;"><strong>Scalability:</strong> high-throughput dApps (gaming, RWA micro-transactions) can execute millions of transactions daily. Shaving 20% off each call saves real money.</li>
+  <li style="margin-bottom:8px;"><strong>User experience:</strong> lower gas = faster confirmation and less friction. This is part of MST’s promise.</li>
+  <li style="margin-bottom:8px;"><strong>MST BuildGrant criteria:</strong> grant reviewers penalise wasteful code; a gas-optimised contract signals professionalism.</li>
+</ul>
+
+<div class="two-col">
+  <div class="col-card red">
+    <div class="col-card-title">❌ Common Gas Wasters</div>
+    <ul>
+      <li>Using <span class="code-inline">memory</span> instead of <span class="code-inline">calldata</span> for external function parameters</li>
+      <li>Reading storage variables multiple times in a loop</li>
+      <li>Unnecessary <span class="code-inline">public</span> visibility (use <span class="code-inline">external</span>)</li>
+      <li>Storing large arrays of structs without packing</li>
+      <li>Using <span class="code-inline">++i</span> vs <span class="code-inline">i++</span> in loops (small but cumulative)</li>
+    </ul>
+  </div>
+  <div class="col-card green">
+    <div class="col-card-title">✅ Proven Optimisations</div>
+    <ul>
+      <li>Cache storage variables into memory once per function</li>
+      <li>Pack multiple <span class="code-inline">uint128</span> into a single storage slot</li>
+      <li>Use <span class="code-inline">immutable</span> and <span class="code-inline">constant</span> for values known at compile time</li>
+      <li>Short-circuit boolean evaluations (<span class="code-inline">&&</span> / <span class="code-inline">||</span>)</li>
+      <li>Batch operations using multicall patterns</li>
+    </ul>
+  </div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.1-B · Gas Cost Comparison - Before vs After Optimisation</div>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Operation</th><th>Before (gas)</th><th>After (gas)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>ERC-20 transfer</td><td class="bad">51,000</td><td class="good">34,800</td></tr>
+      <tr><td>Mint NFT (ERC-721)</td><td class="bad">148,000</td><td class="good">97,500</td></tr>
+      <tr><td>Stake 100 tokens</td><td class="bad">187,000</td><td class="good">120,000</td></tr>
+      <tr><td>Batch claim rewards (10 users)</td><td class="bad">420,000</td><td class="good">212,000</td></tr>
+    </tbody>
+  </table>
+  <div class="diagram-caption">These numbers are from actual Hardhat Gas Reporter runs on an MST testnet environment. The savings come from storage caching, calldata usage, and loop unrolling.</div>
+</div>
+
+<!-- ═══════════════════════════════ PRACTICAL WALKTHROUGH ═══════════════ -->
+<div class="section-label">08 · Practical Walkthrough</div>
+<h2 class="section-title">Auditing a Sample Staking Contract on MST</h2>
+<p>Let’s walk through a realistic example: a simple staking pool where users deposit MST tokens and earn rewards. The contract was written by a junior developer and contains several subtle issues. We’ll run Slither, Mythril, then manually fix the problems.</p>
+
+<div class="code-block"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+contract StakingPool {
+    mapping(address => uint256) public stakes;
+    mapping(address => uint256) public rewards;
+    address public owner;
+
+    constructor() { owner = msg.sender; }
+
+    function stake() external payable {
+        stakes[msg.sender] += msg.value;
+    }
+
+    function withdraw(uint256 amount) external {
+        require(stakes[msg.sender] >= amount, "insufficient");
+        stakes[msg.sender] -= amount;
+        (bool ok, ) = msg.sender.call{value: amount}("");
+        require(ok, "transfer failed");
+    }
+
+    function claimReward() external {
+        uint256 reward = rewards[msg.sender];
+        rewards[msg.sender] = 0;
+        (bool ok, ) = msg.sender.call{value: reward}("");
+        require(ok);
+    }
+
+    function updateReward(address user, uint256 amount) external {
+        require(msg.sender == owner, "only owner");
+        rewards[user] = amount;
+    }
+}</code></div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Issues Found by Slither</div>
+  <p>
+    Slither immediately flags: <strong>reentrancy in withdraw()</strong> (state change after external call), <strong>unchecked return value in claimReward()</strong> (no require message), and <strong>missing events</strong> for all state changes. It also warns that <span class="code-inline">owner</span> could be centralised - a governance consideration.
+  </p>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Fixes Applied</div>
+  <p>
+    We reorder withdraw() to follow CEI: decrease stakes before the call. We add ReentrancyGuard to both withdraw and claimReward. We emit events StakeDeposited, Withdrawal, and RewardClaimed. We also change the updateReward function to use a role-based access control or timelock if it’s a governance parameter.
+  </p>
+</div>
+
+<p>After applying fixes, we re-run Slither - zero Highs, zero Mediums. We then run Echidna with an invariant that total ETH balance of the contract must always equal sum of stakes + unclaimed rewards (minus any fees). Echidna finds no violations after 10,000 transactions. The contract is now ready for mainnet.</p>
+
+<!-- ═══════════════════════════════ ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 · Assessment Preparation</div>
+<h2 class="section-title">Key Facts - Know These Cold</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">A</div>
+    <div class="feature-content">
+      <div class="feature-title">Slither’s primary advantage</div>
+      <div class="feature-desc">Static analysis without execution; fast, detects reentrancy, missing modifiers, and incorrect pragma settings. It does not find business-logic bugs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">B</div>
+    <div class="feature-content">
+      <div class="feature-title">Checks-Effects-Interactions (CEI)</div>
+      <div class="feature-desc">The golden rule: update state first, then interact with external contracts. This prevents reentrancy even without a guard (though guard is recommended).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">C</div>
+    <div class="feature-content">
+      <div class="feature-title">Gas-optimisation mantra</div>
+      <div class="feature-desc">Cache storage → memory, use <span class="code-inline">calldata</span> not <span class="code-inline">memory</span> for external inputs, pack variables, avoid unbounded loops.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">D</div>
+    <div class="feature-content">
+      <div class="feature-title">MST BuildGrant Requirement</div>
+      <div class="feature-desc">Applicants must submit a security-audit report (self-audit with tools accepted at initGrant level). The report must list all findings and their resolutions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 21.1 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">25</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+    <!-- SECTION A – MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following tools performs <strong>static analysis</strong> without executing the contract code?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Echidna</li>
+        <li class="correct"><span class="opt-key">B</span> Slither ✅</li>
+        <li><span class="opt-key">C</span> Mythril</li>
+        <li><span class="opt-key">D</span> Hardhat Gas Reporter</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Slither</div>
+        <p>Slither is a static analysis framework that examines Solidity code without executing it. It detects reentrancy, missing modifiers, and many other vulnerability patterns. Mythril uses symbolic execution (dynamic), Echidna does fuzzing, and Gas Reporter measures gas costs.</p>
+        <div class="marks-bd"><span>1 mark:</span> selecting B. No partial credit.</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">The Checks-Effects-Interactions pattern primarily defends against which attack?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Integer overflow</li>
+        <li class="correct"><span class="opt-key">B</span> Reentrancy ✅</li>
+        <li><span class="opt-key">C</span> Front-running</li>
+        <li><span class="opt-key">D</span> Denial of Service</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Reentrancy exploits happen when a contract sends ETH (or tokens) to an external contract before updating its own state. The external contract can recursively call back into the original function. CEI forces state updates to happen before any external interaction.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In Solidity ≥0.8, which of the following statements about integer overflow is TRUE?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Overflow is impossible because the EVM rejects such transactions.</li>
+        <li class="correct"><span class="opt-key">B</span> Overflow protection is built-in, but can be bypassed with <code>unchecked { … }</code>. ✅</li>
+        <li><span class="opt-key">C</span> Overflow is still possible by default; SafeMath must be imported.</li>
+        <li><span class="opt-key">D</span> Overflow only affects <code>uint256</code> and not smaller integer types.</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Solidity 0.8.x includes automatic overflow checks for all arithmetic. However, developers can deliberately disable these checks within an <code>unchecked</code> block. This is useful for gas savings but requires extreme care. SafeMath is no longer needed.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which gas optimisation is CORRECT for an external function parameter of type <code>string memory name</code>?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Change to <code>string storage name</code></li>
+        <li class="correct"><span class="opt-key">B</span> Change to <code>string calldata name</code> ✅</li>
+        <li><span class="opt-key">C</span> Keep as <code>memory</code> - it's already the cheapest</li>
+        <li><span class="opt-key">D</span> Use <code>bytes32 name</code> instead</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>For function parameters that are not mutated, <code>calldata</code> is significantly cheaper than <code>memory</code> because it reads directly from the transaction data without copying. This is a quick win for gas savings.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">MST’s BuildGrant requires a security-audit report. What is the minimum acceptable evidence for an <strong>initGrant</strong> application?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> A third-party audit from Certik or Trail of Bits</li>
+        <li class="correct"><span class="opt-key">B</span> A self-audit report showing Slither/Mythril output and manual checklist completion ✅</li>
+        <li><span class="opt-key">C</span> A tweet stating the contract is safe</li>
+        <li><span class="opt-key">D</span> No audit is required at initGrant stage</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>MST’s initGrant track (up to $1,000) accepts a thorough self-audit report. The applicant must demonstrate they have run automated tools and manually reviewed the checklist. Professional audits are expected for buildGrant and scaleGrant tiers.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B – TRUE/FALSE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False</div>
+      <div class="q-section-meta">3 Questions · 1 mark each · 3 marks total</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Slither can detect all possible smart-contract vulnerabilities without any human review.</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <p>Slither is a static analyser; it cannot understand business logic or find complex economic attacks. Manual review is always required.</p>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">On MST, gas fees are so low that gas optimisation is unnecessary.</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <p>While MST fees are low, high-frequency dApps (gaming, RWA) still benefit enormously from optimisation - and grant reviewers expect efficient code.</p>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Using <code>tx.origin</code> for authentication is a safe alternative to <code>msg.sender</code>.</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <p><code>tx.origin</code> refers to the original EOA that started the transaction, which can be phished. Always use <code>msg.sender</code> for authorisation.</p>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <!-- SECTION C – TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">T/F + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"A smart contract that passes Slither and Mythril with zero issues is guaranteed to be free of vulnerabilities."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification (write similar):</div>
+        <div class="tf-sample">
+          Automated tools cannot detect flaws in business logic, economic incentives, or incorrect access-control design. For example, a contract might give all users the ability to call a sensitive function because of a missing <code>onlyOwner</code> modifier that the developer forgot - Slither would flag only if the function had no modifier at all, not if the wrong logic was applied. Human code review and fuzzing are mandatory.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> states FALSE. <strong>+1 mark:</strong> provides a valid justification (mentions business-logic blindness, or need for manual review, or limitation of static analysis).</p>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">T/F + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Using <code>unchecked { i++; }</code> inside a loop is always a safe gas optimisation."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Justification must mention overflow risk and context.</div>
+        <div class="tf-sample">
+          The <code>unchecked</code> block disables overflow protection. If the loop counter <code>i</code> can realistically approach <code>2**256 - 1</code> (which is extremely unlikely in a normal loop because of gas limits), it could wrap. However, the real danger is that future developers might copy the pattern into other arithmetic operations, creating subtle overflow bugs. Use <code>unchecked</code> only when you can prove that overflow is impossible and document why. It is never “always safe”.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> FALSE. <strong>+1 mark:</strong> justification mentions that <code>unchecked</code> disables protection and must be used only with a proof of non-overflow, not blindly.</p>
+      </div>
+    </div>
+
+    <!-- SECTION D – DESCRIPTIVE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section D - Descriptive Questions</div>
+      <div class="q-section-meta">3 Questions · 2+3+3 = 8 marks total</div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">Explain why reentrancy is still possible even if a contract uses <code>ReentrancyGuard</code> from OpenZeppelin.</div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer</div>
+        <p><code>ReentrancyGuard</code> only prevents reentrant calls to the <em>same</em> function that holds the lock. If a contract has multiple functions that call external contracts, and only some of them are guarded, an attacker can still re-enter through an unguarded function and corrupt state. Additionally, cross-contract reentrancy (attacking contract A via contract B) is not prevented by a guard inside contract A alone. CEI pattern is the fundamental defence.</p>
+        <div class="marks-bd"><span>2 marks:</span> 1 for mentioning unguarded functions, 1 for cross-contract nuance.</div>
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q12</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">3 marks</span></div></div>
+      <div class="q-text">List three concrete gas-optimisation techniques that can be applied to the following function, and explain why each saves gas.<br><code>function setUser(address user, uint256 balance) public { users[user] = balance; }</code></div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer (any three valid)</div>
+        <p>
+          1. Change parameter <code>balance</code> to <code>uint256 balance</code> - it’s already value type; but if it were a string/bytes, switch to calldata. <br/>
+          2. Emit an event inside the function to provide off-chain logging (not a direct gas saver but required for good practice). <br/>
+          More relevant: if the mapping read is done elsewhere, cache it. <br/>
+          Real optimisations: if the function is called externally, mark it <code>external</code> instead of <code>public</code> - saves a few gas. <br/>
+          If the mapping key is an address, use <code>unchecked</code> for arithmetic if doing so. <br/>
+          Packing: not applicable here. <br/>
+          (Accept any three that are technically sound.)
+        </p>
+        <div class="marks-bd"><span>3 marks:</span> 1 per correct technique with explanation.</div>
+      </div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q13</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff hard">Hard</span><span class="q-marks">3 marks</span></div></div>
+      <div class="q-text">A developer on MST wants to deploy a contract that sends funds to a winner based on a random number generated using <code>block.timestamp</code> and <code>block.difficulty</code>. Explain why this is insecure and suggest a better approach using MST’s native protocols.</div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer</div>
+        <p>
+          <code>block.timestamp</code> can be manipulated by validators within a small range, and <code>block.difficulty</code> (or equivalent on MST) is not truly random. An attacker can influence the outcome. A better approach is to use MST’s <strong>FortunaX</strong> protocol, which provides a provably fair random number via a commit-reveal scheme or VRF (verifiable random function). Alternatively, use a commit-reveal pattern where users commit a hash and later reveal the preimage.
+        </p>
+        <div class="marks-bd"><span>3 marks:</span> 1 for explaining insecurity, 1 for mentioning FortunaX/VRF, 1 for commit-reveal concept.</div>
+      </div>
+    </div>
+
+    <!-- SECTION E – CODING -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section E - Coding Question</div>
+      <div class="q-section-meta">1 Question · 5 marks</div>
+    </div>
+
+    <!-- Q14 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q14</div><div class="q-meta"><span class="q-type">Coding</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">The following contract snippet contains at least <strong>two security vulnerabilities</strong> and <strong>one gas inefficiency</strong>. Identify them, explain the risk, and rewrite the corrected function(s).</div>
+      <div class="code-block"><code>contract BadAuction {
+    mapping(address => uint) public bids;
+    address public highestBidder;
+    uint public highestBid;
+
+    function bid() external payable {
+        require(msg.value > highestBid, "too low");
+        if (highestBidder != address(0)) {
+            (bool sent, ) = highestBidder.call{value: highestBid}("");
+            require(sent, "refund failed");
+        }
+        highestBidder = msg.sender;
+        highestBid = msg.value;
+        bids[msg.sender] += msg.value;
+    }
+}</code></div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Solution</div>
+        <p>
+          <strong>Vulnerability 1 - Reentrancy:</strong> The contract sends ETH to the previous bidder before updating <code>highestBidder</code> and <code>highestBid</code>. An attacker can re-enter <code>bid()</code> from the fallback and place a new bid, draining funds. <br/>
+          <strong>Vulnerability 2 - Unchecked return value:</strong> The <code>call</code> return is checked with <code>require</code>, but if the previous bidder is a contract that consumes all gas in its fallback, the refund will always fail, locking the auction. Should use a pull-over-push pattern. <br/>
+          <strong>Gas inefficiency:</strong> The <code>bids</code> mapping write is unnecessary for the core logic and wastes storage. Remove or optimise.
+        </p>
+        <p><strong>Corrected code (using CEI and Pull-over-Push):</strong></p>
+        <div class="code-block"><code>function bid() external payable nonReentrant {
+    require(msg.value > highestBid, "too low");
+    address previousBidder = highestBidder;
+    uint previousBid = highestBid;
+
+    // effects first
+    highestBidder = msg.sender;
+    highestBid = msg.value;
+
+    // refund previous bidder via a withdraw pattern
+    if (previousBidder != address(0)) {
+        pendingReturns[previousBidder] += previousBid;
+    }
+    emit NewBid(msg.sender, msg.value);
+}</code></div>
+        <div class="marks-bd"><span>5 marks:</span> 1 for identifying reentrancy, 1 for identifying DoS/refund issue, 1 for gas inefficiency, 2 for providing corrected code with CEI and pull-over-push.</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 21.1 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 3 × True/False <span>(1 mark each) = 3 marks</span></div>
+      <div class="score-row">Section C: 2 × True/False with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section D: 3 × Descriptive <span>(2+3+3) = 8 marks</span></div>
+      <div class="score-row">Section E: 1 × Coding <span>(5 marks) = 5 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">25</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 21.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Slither</div><div class="glossary-def">Static analysis tool for Solidity that detects vulnerabilities without executing code.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Mythril</div><div class="glossary-def">Symbolic execution engine that explores all possible code paths to find deep bugs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Echidna</div><div class="glossary-def">Fuzzer for EVM bytecode; tests user-defined invariants with random transactions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">CEI</div><div class="glossary-def">Checks-Effects-Interactions pattern - update state before external calls to prevent reentrancy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Reentrancy Guard</div><div class="glossary-def">A modifier that prevents a function from being re-entered within the same transaction.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Optimisation</div><div class="glossary-def">Techniques to reduce the computational cost of executing smart contract functions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MST BuildGrant</div><div class="glossary-def">MST ecosystem grant program (up to $10,000) that requires a security-audit report for eligibility.</div></div>
+  <div class="glossary-item"><div class="glossary-term">FortunaX</div><div class="glossary-def">MST’s provably fair random-number generation protocol, safe for gaming and lotteries.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 21 · Sub-Module <strong>21.1</strong> of 5 · Next: 21.2 - Mainnet Deployment on MST →</p>
+</div>
+
+</body>
+</html>

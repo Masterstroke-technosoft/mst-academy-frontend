@@ -1,0 +1,265 @@
+{
+  "submoduleId": "2.2",
+  "totalMarks": 9,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "In March 2020, PhonePe's payment service failed for 150 million users. What was the root architectural cause?",
+      "options": [
+        {
+          "key": "A",
+          "text": "PhonePe's own servers experienced a technical outage",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Hackers attacked PhonePe's database and corrupted transaction records",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "PhonePe's banking infrastructure depended on Yes Bank's licence, and RBI's moratorium on Yes Bank severed this dependency",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "NPCI (National Payments Corporation of India) took UPI offline for maintenance",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "<strong>Explanation:</strong> PhonePe had built its entire UPI payment infrastructure using Yes Bank as its banking partner - the entity that held the RBI banking licence enabling PhonePe to process payments. When the RBI placed Yes Bank under a moratorium (restricting all Yes Bank operations), PhonePe's dependency on Yes Bank's licence was severed. PhonePe's own technology worked perfectly - the cascade failure came from a lower architectural layer (the banking/regulatory layer), not from PhonePe's own servers or code. This is a Financial Chokepoint - a dependency on a licensed intermediary that is itself subject to regulatory authority. PhonePe later migrated its banking partnership to ICICI Bank.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: C</span>\n        <p><strong>Explanation:</strong> PhonePe had built its entire UPI payment infrastructure using Yes Bank as its banking partner - the entity that held the RBI banking licence enabling PhonePe to process payments. When the RBI placed Yes Bank under a moratorium (restricting all Yes Bank operations), PhonePe's dependency on Yes Bank's licence was severed. PhonePe's own technology worked perfectly - the cascade failure came from a lower architectural layer (the banking/regulatory layer), not from PhonePe's own servers or code. This is a Financial Chokepoint - a dependency on a licensed intermediary that is itself subject to regulatory authority. PhonePe later migrated its banking partnership to ICICI Bank.</p>\n      "
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "In the six-layer centralised architecture model, which layer holds the most power over all layers above it?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Layer 6 - User Interface, because it is what users interact with",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Layer 4 - Server Infrastructure, because it runs all the application code",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Layer 3 - Database, because it stores all the application's data",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Layer 1 - Regulatory/Legal Infrastructure, because it overrides all technical decisions and can freeze any layer above it",
+          "isCorrect": true
+        }
+      ],
+      "correctAnswer": "D",
+      "explanation": "<strong>Explanation:</strong> While the database (Layer 3) controls data day-to-day, the regulatory layer (Layer 1) has absolute power - it can override any technical measure with a legal order. A government can compel a company to shut down servers, hand over database contents, or freeze accounts - regardless of how well the technology is built. The PhonePe incident proves this: RBI's Layer 1 action (moratorium) froze Yes Bank's Layer 2 operations, which collapsed PhonePe's Layers 3 - 6. No technical solution within PhonePe's control could have prevented this - because the failure originated below the technical layer entirely. Blockchain addresses this by having no single entity (no Layer 1 equivalent) that a government can serve an order to.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: D</span>\n        <p><strong>Explanation:</strong> While the database (Layer 3) controls data day-to-day, the regulatory layer (Layer 1) has absolute power - it can override any technical measure with a legal order. A government can compel a company to shut down servers, hand over database contents, or freeze accounts - regardless of how well the technology is built. The PhonePe incident proves this: RBI's Layer 1 action (moratorium) froze Yes Bank's Layer 2 operations, which collapsed PhonePe's Layers 3 - 6. No technical solution within PhonePe's control could have prevented this - because the failure originated below the technical layer entirely. Blockchain addresses this by having no single entity (no Layer 1 equivalent) that a government can serve an order to.</p>\n      "
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "A startup builds a food delivery app that uses Google Maps API for routing, Razorpay for payments, and AWS for server hosting. Which statement BEST describes the startup's architectural situation?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The startup has excellent architecture because it uses three separate, reliable services",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The startup has three hidden centralised chokepoints - if Google Maps, Razorpay, or AWS fail, the entire app fails, regardless of the quality of the startup's own code",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Using multiple providers is a form of decentralisation that reduces risk",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The startup only needs to worry about its own server code; third-party APIs are always reliable",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "<strong>Explanation:</strong> Using multiple third-party services is not decentralisation - it is distributed dependency. The startup now has three separate centralised chokepoints instead of one. If Google Maps has an outage (as it did during the December 2021 AWS outage), routes can't be calculated and orders fail. If Razorpay has payment processing issues, orders can't be paid. If AWS goes down, the app itself can't run. Option C is a common misconception: using multiple providers reduces concentration risk slightly but does not eliminate centralised dependencies - each provider is itself a single entity whose failure affects all apps using it simultaneously. True decentralisation would require on-chain routing logic, smart contract payments, and distributed hosting - none dependent on any single company.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: B</span>\n        <p><strong>Explanation:</strong> Using multiple third-party services is not decentralisation - it is distributed dependency. The startup now has three separate centralised chokepoints instead of one. If Google Maps has an outage (as it did during the December 2021 AWS outage), routes can't be calculated and orders fail. If Razorpay has payment processing issues, orders can't be paid. If AWS goes down, the app itself can't run. Option C is a common misconception: using multiple providers reduces concentration risk slightly but does not eliminate centralised dependencies - each provider is itself a single entity whose failure affects all apps using it simultaneously. True decentralisation would require on-chain routing logic, smart contract payments, and distributed hosting - none dependent on any single company.</p>\n      "
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Why does a company running its application on 10,000 servers across 5 data centres NOT achieve decentralisation?",
+      "options": [
+        {
+          "key": "A",
+          "text": "10,000 servers are not enough; decentralisation requires at least 100,000 servers",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "All 10,000 servers are owned and controlled by one entity; decentralisation requires different entities owning and controlling different nodes independently",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Data centres in only 5 locations are not geographically distributed enough",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The company needs to use a different programming language to achieve decentralisation",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "<strong>Explanation:</strong> Decentralisation is fundamentally about ownership and control, not about the number of servers or their geographic distribution. A company operating 10,000 servers is performing \"horizontal scaling\" - a performance and reliability improvement. But one court order, one government directive, or one CEO decision can affect all 10,000 servers simultaneously, because they all obey the same authority. MST Blockchain's 71,000+ validators are owned by thousands of independent individuals and organisations globally. No single entity can compel all of them simultaneously. That is the architectural difference between horizontal scaling (many servers, one owner) and true decentralisation (many nodes, many owners, consensus governs).",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: B</span>\n        <p><strong>Explanation:</strong> Decentralisation is fundamentally about ownership and control, not about the number of servers or their geographic distribution. A company operating 10,000 servers is performing \"horizontal scaling\" - a performance and reliability improvement. But one court order, one government directive, or one CEO decision can affect all 10,000 servers simultaneously, because they all obey the same authority. MST Blockchain's 71,000+ validators are owned by thousands of independent individuals and organisations globally. No single entity can compel all of them simultaneously. That is the architectural difference between horizontal scaling (many servers, one owner) and true decentralisation (many nodes, many owners, consensus governs).</p>\n      "
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "In a centralised application's architecture, which component is described as \"whoever controls this, controls reality for every user\"?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The user interface layer",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "<strong>Explanation:</strong> The centralised database is where the ground truth of a system lives - every user's account status, every transaction record, every balance, every permission. Whoever has write access to the database can change any record, which immediately changes reality for every user that record affects. When Google changes a user's account_status from \"ACTIVE\" to \"SUSPENDED\" in their database, that user's reality changes instantly - all their content becomes inaccessible, their income stops, their community is severed. In blockchain, there is no centralised database to modify - the ledger is maintained by consensus across thousands of validators. No single entity has write access. This is the deepest architectural difference between centralised and decentralised systems.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: C</span>\n        <p><strong>Explanation:</strong> The centralised database is where the ground truth of a system lives - every user's account status, every transaction record, every balance, every permission. Whoever has write access to the database can change any record, which immediately changes reality for every user that record affects. When Google changes a user's account_status from \"ACTIVE\" to \"SUSPENDED\" in their database, that user's reality changes instantly - all their content becomes inaccessible, their income stops, their community is severed. In blockchain, there is no centralised database to modify - the ledger is maintained by consensus across thousands of validators. No single entity has write access. This is the deepest architectural difference between centralised and decentralised systems.</p>\n      "
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "The Indian government mandates that all payment data of Indian users must be stored in India (RBI Data Localisation). From a decentralisation perspective, what is the unintended consequence of this well-intentioned regulation?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It forces companies to use blockchain technology for payment data",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "It reduces latency for Indian users by keeping data geographically close",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "It concentrates all Indian payment data in known, fixed geographic locations - creating a more identifiable target for attackers and a clearer point of regulatory control",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "It makes Indian payment systems more decentralised by distributing data across Indian cities",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "<strong>Explanation:</strong> Data localisation, while designed to protect Indian citizens' data from foreign surveillance, paradoxically increases centralisation risk in two ways. First, it creates concentrated, geographically known targets: an attacker who wants to breach Indian payment data knows exactly where to look - Indian data centres. Before localisation, data might be distributed across multiple countries, increasing the attack surface but reducing the value of any single breach. Second, it gives the Indian government a clear, compellable point of control: all Indian payment data is in India, within RBI and government jurisdiction, easily accessible via court order. A truly decentralised blockchain network with validators globally distributed has neither of these vulnerabilities - there is no concentrated geographic target and no single jurisdiction that controls all data.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: C</span>\n        <p><strong>Explanation:</strong> Data localisation, while designed to protect Indian citizens' data from foreign surveillance, paradoxically increases centralisation risk in two ways. First, it creates concentrated, geographically known targets: an attacker who wants to breach Indian payment data knows exactly where to look - Indian data centres. Before localisation, data might be distributed across multiple countries, increasing the attack surface but reducing the value of any single breach. Second, it gives the Indian government a clear, compellable point of control: all Indian payment data is in India, within RBI and government jurisdiction, easily accessible via court order. A truly decentralised blockchain network with validators globally distributed has neither of these vulnerabilities - there is no concentrated geographic target and no single jurisdiction that controls all data.</p>\n      "
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "You are advising a Mumbai-based fintech startup that processes ₹500 crore per day in payments. They are considering building on either (A) a centralised architecture with four banking partners for redundancy, or (B) a smart contract on MST Blockchain. The CEO says \"Option A is safer because having four banking partners means if one fails, the others continue.\" What is the critical architectural flaw in the CEO's reasoning?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Four banking partners is too many; two is the industry standard",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "MST Blockchain cannot handle ₹500 crore per day in transactions",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "All four banks operate under RBI jurisdiction; a single RBI policy change, government order, or systemic banking crisis affects all four simultaneously - redundancy among entities that share the same regulatory authority is not true resilience",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "Smart contracts are too complex for payment processing at this scale",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "<strong>Explanation:</strong> The CEO's reasoning treats four banking partners as independent failure modes - but they are not architecturally independent. All four banks are Indian licensed banks operating under RBI supervision. A single RBI directive (like the 2020 Yes Bank moratorium or the 2016 demonetisation) affects all Indian banks simultaneously. During the 2008 global financial crisis, multiple banks across the US failed in the same period - redundancy among banks in the same regulatory jurisdiction provides no protection against systemic failures. True resilience for payment infrastructure requires either (1) banking partners in genuinely different jurisdictions with no shared regulatory authority, or (2) a system that doesn't require banking licences at all - which is exactly what MST Blockchain's smart contract payment system provides. MST's 71,000+ validators are owned across different jurisdictions, geographies, and entities - a genuinely diverse failure profile that four Indian banks cannot replicate.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: C</span>\n        <p><strong>Explanation:</strong> The CEO's reasoning treats four banking partners as independent failure modes - but they are not architecturally independent. All four banks are Indian licensed banks operating under RBI supervision. A single RBI directive (like the 2020 Yes Bank moratorium or the 2016 demonetisation) affects all Indian banks simultaneously. During the 2008 global financial crisis, multiple banks across the US failed in the same period - redundancy among banks in the same regulatory jurisdiction provides no protection against systemic failures. True resilience for payment infrastructure requires either (1) banking partners in genuinely different jurisdictions with no shared regulatory authority, or (2) a system that doesn't require banking licences at all - which is exactly what MST Blockchain's smart contract payment system provides. MST's 71,000+ validators are owned across different jurisdictions, geographies, and entities - a genuinely diverse failure profile that four Indian banks cannot replicate.</p>\n      "
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "type": "true_false",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "Statement: \"India's UPI system, which processes over 10 billion transactions per month with near-zero cost, proves that centralised payment infrastructure is superior to blockchain-based alternatives and therefore blockchain payment systems are unnecessary.\"",
+      "explanation": "UPI is technically excellent at what it does - speed, cost, and scale - but \"superior\" requires evaluating all dimensions, not just performance. UPI is operated by NPCI, a government-backed non-profit overseen by RBI. This means: (1) NPCI can be disabled, regulated, or modified by government order - India temporarily restricted international UPI access in 2023; (2) all UPI transactions are accessible to Indian government authorities; (3) UPI requires Indian bank accounts - the 190 million unbanked Indians and all non-Indian users cannot use UPI regardless of its technical excellence; and (4) UPI's terms, fees, and features can be changed by NPCI without user consent. Blockchain payment systems like MST Blockchain address dimensions UPI cannot: global accessibility without bank accounts, censorship resistance, cryptographic ownership (no bank to freeze your account), programmable money (smart contracts that execute payments automatically based on conditions), and cross-border transactions without correspondent banking relationships. The comparison should not be \"UPI vs blockchain\" - it should be \"which tool fits which use case.\" For Indian domestic consumer payments, UPI is excellent. For global permissionless programmable payments, blockchain is architecturally superior. Both have a role.",
+      "modelAnswer": "\n        <div class=\"tf-verdict false\">FALSE</div>\n        <span class=\"answer-label\" style=\"margin-top:8px;\">✅ Model Justification (Full 2 Marks)</span>\n        <p>UPI is technically excellent at what it does - speed, cost, and scale - but \"superior\" requires evaluating all dimensions, not just performance. UPI is operated by NPCI, a government-backed non-profit overseen by RBI. This means: (1) NPCI can be disabled, regulated, or modified by government order - India temporarily restricted international UPI access in 2023; (2) all UPI transactions are accessible to Indian government authorities; (3) UPI requires Indian bank accounts - the 190 million unbanked Indians and all non-Indian users cannot use UPI regardless of its technical excellence; and (4) UPI's terms, fees, and features can be changed by NPCI without user consent. Blockchain payment systems like MST Blockchain address dimensions UPI cannot: global accessibility without bank accounts, censorship resistance, cryptographic ownership (no bank to freeze your account), programmable money (smart contracts that execute payments automatically based on conditions), and cross-border transactions without correspondent banking relationships. The comparison should not be \"UPI vs blockchain\" - it should be \"which tool fits which use case.\" For Indian domestic consumer payments, UPI is excellent. For global permissionless programmable payments, blockchain is architecturally superior. Both have a role.</p>\n        <div class=\"marks-breakdown\">\n          <div class=\"mark-cell\"><strong>1 Mark:</strong> Correctly states FALSE and identifies at least two specific architectural limitations of UPI (government control, access restrictions, or modifiable terms)</div>\n          <div class=\"mark-cell\"><strong>+1 Mark:</strong> Articulates specific blockchain advantages (censorship resistance, global access, smart contract programmability, cryptographic ownership) that UPI cannot provide - framing the comparison as complementary rather than competitive</div>\n        </div>\n      "
+    },
+    {
+      "id": "q9",
+      "number": 9,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "In a blockchain payment system built on MST, which of the following best describes what replaces the \"banking licence\" (the regulatory permission required to move money in a centralised system)?",
+      "options": [
+        {
+          "key": "A",
+          "text": "A special government-issued blockchain licence that MST obtained from RBI",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The smart contract code and the consensus mechanism - the contract holds and moves value according to cryptographic rules verified by 71,000+ validators, requiring no regulatory permission at the transaction level",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "MST Blockchain's own banking partner that provides the underlying licence",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Users must each obtain their own banking licence to participate in blockchain payments",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "<strong>Explanation:</strong> This is the fundamental architectural insight about blockchain payments. In centralised fintech, the banking licence is required because you need a trusted intermediary (a bank, regulated by RBI) to verify that funds exist and authorise their transfer. The regulatory framework exists to ensure this intermediary is trustworthy. In blockchain, the smart contract replaces the intermediary - it holds value in escrow and releases it when cryptographic conditions are met. The consensus mechanism (MST's 71,000+ validators) replaces regulatory oversight - instead of the RBI verifying that the bank is honest, the consensus protocol mathematically verifies that the transaction is valid. No single validator can approve a fraudulent transaction; the majority must agree. This is \"trustless\" in the blockchain sense: you don't need to trust any company or regulator - you trust the mathematics and the consensus protocol.",
+      "modelAnswer": "\n        <span class=\"answer-label\">✅ Correct Answer: B</span>\n        <p><strong>Explanation:</strong> This is the fundamental architectural insight about blockchain payments. In centralised fintech, the banking licence is required because you need a trusted intermediary (a bank, regulated by RBI) to verify that funds exist and authorise their transfer. The regulatory framework exists to ensure this intermediary is trustworthy. In blockchain, the smart contract replaces the intermediary - it holds value in escrow and releases it when cryptographic conditions are met. The consensus mechanism (MST's 71,000+ validators) replaces regulatory oversight - instead of the RBI verifying that the bank is honest, the consensus protocol mathematically verifies that the transaction is valid. No single validator can approve a fraudulent transaction; the majority must agree. This is \"trustless\" in the blockchain sense: you don't need to trust any company or regulator - you trust the mathematics and the consensus protocol.</p>\n      "
+    }
+  ]
+}

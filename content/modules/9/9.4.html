@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 9.4 - Unit Testing & Local Deployment | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #6C3CE2;
+            --brand-light: #EDE9FB;
+            --brand-dark: #3C1FA0;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.insight {
+            background: #F0FDF4;
+            border-color: var(--green);
+        }
+        .callout.insight .callout-label {
+            color: var(--green);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #C4B5F5;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🧪 Module 9 · Sub-Module 9.4 of 6</div>
+    <h1 class="module-title">Unit Testing & <span class="highlight">Local Deployment</span></h1>
+    <p class="module-subtitle">Smart contracts handle real money and cannot be patched after deployment. Learn how to write bulletproof test suites with Hardhat and Chai, run a local blockchain node on your machine, and verify that every line of your capstone project works perfectly before it ever touches a live network.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 20 Marks (Test Report + Log)</div>
+        <div class="meta-chip">📋 Comprehensive test suite + local deployment verification + coverage report</div>
+        <div class="meta-chip green">Phase 3 · Capstone Kickoff</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🧪</div>
+            <div class="feature-title">Write comprehensive unit tests for your smart contracts</div>
+            <div class="feature-desc">Cover deployment, happy paths, edge cases, reverts, and events using Hardhat, Mocha, Chai, and ethers.js. Every function in your contract gets multiple tests - not just the one that works.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🖥️</div>
+            <div class="feature-title">Run a local Hardhat node on your machine</div>
+            <div class="feature-desc">Start a local, isolated blockchain that resets on every run. Deploy your contracts to it and interact with them just like a real network - but with zero cost, instant confirmations, and full control.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📊</div>
+            <div class="feature-title">Measure and interpret code coverage reports</div>
+            <div class="feature-desc">Use solidity-coverage to see exactly which lines of your Solidity code are tested and which are not. Red lines in the report mean untested code - and untested code is where bugs live.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🐛</div>
+            <div class="feature-title">Debug failing tests systematically and quickly</div>
+            <div class="feature-desc">Read Hardhat stack traces, use console.log inside Solidity, and understand common failure patterns so you can fix issues in minutes instead of hours.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Un-tested Withdraw Function That Drained ₹50 Lakh</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>A DeFi startup in Bengaluru had built a staking protocol with a withdrawal function. The team had tested the happy path: stake tokens, earn rewards, withdraw. All tests passed. They deployed to mainnet. Within three weeks, an attacker found a subtle bug: if you called withdraw with an amount just slightly above your stake, the require statement failed to trigger because of a rounding error in the Solidity math. The attacker drained over ₹50 lakh in tokens from the pool before anyone noticed.</p>
+        <br>
+        <p>During the post-mortem, the developers discovered that their test suite had <strong>zero edge-case tests</strong>. They had never tested questions like: "What happens if someone withdraws 0 tokens?" "What happens if someone withdraws exactly their full balance plus 1 wei?" "What happens if two withdrawals are made in the same block?" Every single one of these edge cases would have caught the rounding bug. But they only tested the one happy path that worked perfectly.</p>
+        <br>
+        <p>After fixing the bug, the team rewrote their entire test suite with a new rule: <strong>for every happy path test, there must be at least two edge-case tests</strong>. They added fuzzing, invariant checks, and a strict requirement that every pull request must achieve 100% branch coverage on all modified functions. They never lost money to a preventable bug again. <strong>Testing is not optional. It is not a formality. It is the single most important thing you do before deploying a smart contract to any blockchain.</strong></p>
+    </div>
+    <p>In this sub-module, you will build a test suite that protects your capstone project exactly the way that team's second test suite protected theirs. You will test not just what should happen, but what should <strong>never</strong> happen. You will run a local blockchain on your own computer where you can break things safely without consequence. And you will learn to read the tools that tell you whether your tests are actually covering every line of code that matters.</p>
+
+    <div class="section-label">03 &nbsp; Why Testing Matters for Smart Contracts</div>
+    <h2 class="section-title">Immutability + Real Money = Testing Is Absolutely Non-Negotiable</h2>
+    <p>In traditional software development, if a bug is discovered after deployment, you patch the code and push an update. Users get the fix within hours or days. The cost is inconvenience and perhaps a short outage.</p>
+    <p>In blockchain development, if a bug is discovered after deployment, <strong>the code cannot be changed</strong>. The contract is immutable - it lives forever on the blockchain exactly as it was deployed. The funds controlled by that contract are permanently vulnerable to exploitation. The only "fix" is to deploy an entirely new contract at a new address, migrate all users and all funds (if the funds haven't already been stolen), and somehow convince everyone to switch to the new address. This is extremely difficult, expensive, and often impossible.</p>
+    <p>This has happened repeatedly in blockchain history, with devastating consequences:</p>
+    <p><strong>The DAO Hack (2016):</strong> A reentrancy bug in a fundraising contract allowed an attacker to drain $60 million worth of ETH. The Ethereum community was so divided on how to respond that it caused a permanent chain split, creating Ethereum Classic.</p>
+    <p><strong>Parity Wallet Freeze (2017):</strong> A single line of code in a library contract was deleted by a user who accidentally became the owner. This froze over $150 million worth of ETH permanently - not stolen, but completely inaccessible forever.</p>
+    <p><strong>Wormhole Bridge Exploit (2022):</strong> An attacker exploited a validation bug in the bridge's smart contract and stole $325 million worth of wrapped tokens. The bug existed because a specific edge case in the signature verification was never tested.</p>
+    <p><strong>Every single one of these could have been prevented or detected by better testing.</strong> A comprehensive test suite that covered edge cases, reverts, and unexpected inputs would have caught these bugs on a local machine, long before any money was at risk.</p>
+    <p><strong>Five reasons testing is non-negotiable for smart contracts:</strong></p>
+    <p><strong>1. Immutability:</strong> Once deployed, the code cannot change. Every bug is a permanent vulnerability. You get exactly one chance to get it right.</p>
+    <p><strong>2. Financial stakes:</strong> Smart contracts control real money - sometimes millions or billions of dollars. A single logical error can drain everything instantly.</p>
+    <p><strong>3. Composability:</strong> Your contract will likely interact with other contracts - tokens, exchanges, lending protocols. A bug in your contract can cascade through the entire ecosystem and break other people's applications too.</p>
+    <p><strong>4. No take-backs:</strong> Blockchain transactions are irreversible by design. If a mainnet transaction fails due to a bug, you cannot call a bank and reverse it. The money is gone.</p>
+    <p><strong>5. Trust and reputation:</strong> Users will only use contracts they trust. Open-source code accompanied by a comprehensive, passing test suite builds that trust. A contract without tests signals that the developer either doesn't understand the stakes or doesn't care - and users will stay away.</p>
+
+    <div class="section-label">04 &nbsp; The Testing Stack</div>
+    <h2 class="section-title">Hardhat + Mocha + Chai + ethers.js - Your Complete Testing Toolkit</h2>
+    <p>Hardhat comes with a built-in testing environment that seamlessly integrates three powerful tools. Understanding each tool's role is essential for writing effective tests.</p>
+    <p><strong>Mocha - The Test Framework:</strong> Mocha provides the overall structure for your tests. It gives you <code>describe</code> blocks (which group together related tests), <code>it</code> blocks (which define individual test cases), and lifecycle hooks like <code>beforeEach</code> (which runs before every single test). Mocha is responsible for running all your tests and reporting which ones pass and which ones fail, along with timing information.</p>
+    <p><strong>Chai - The Assertion Library:</strong> Chai provides the language you use to check whether test results are correct. Instead of writing complex if/else logic, you write expressive assertions like <code>expect(balance).to.equal(100)</code> or <code>expect(transaction).to.be.revertedWith("Insufficient funds")</code>. Chai makes your tests readable - someone unfamiliar with your code should be able to read a test and understand what it verifies.</p>
+    <p><strong>ethers.js - The Blockchain Interaction Library:</strong> ethers.js is how your tests talk to the blockchain. It lets you deploy contracts, call functions, send transactions, query state, and listen for events - all from within JavaScript test code. Hardhat automatically provides a pre-configured ethers instance that connects to the built-in Hardhat Network, so you don't need to set up any connections manually.</p>
+    <p><strong>Hardhat Network - The Built-In Local Blockchain:</strong> This is the secret weapon. Hardhat Network is a full Ethereum node that runs entirely in memory on your computer - no external software needed, no testnet tokens needed, no waiting for blocks. It starts automatically when you run tests, mines blocks instantly on demand, and provides detailed error messages and stack traces that real nodes cannot give you. Each test file gets its own completely fresh network state, so tests never interfere with each other. It also supports <code>console.log</code> directly from Solidity, which is invaluable for debugging.</p>
+
+    <div class="section-label">05 &nbsp; Setting Up Your Test Environment</div>
+    <h2 class="section-title">Project Structure and Required Dependencies</h2>
+    <p>If you initialized your Hardhat project using the Hardhat Toolbox, all testing dependencies are already installed. You can verify this by checking your <code>hardhat.config.js</code> file and your <code>package.json</code>.</p>
+    <div class="code-block-wrap"><pre>
+// hardhat.config.js — make sure this line is present:
+require("@nomicfoundation/hardhat-toolbox");
+
+module.exports = {
+    solidity: "0.8.20",
+    networks: {
+        hardhat: { }  // The built‑in local network is always available
+    }
+};</pre></div>
+    <p>Your test files live in the <code>test/</code> directory at the root of your project. Hardhat automatically discovers and runs every <code>.js</code> or <code>.ts</code> file in this folder when you execute <code>npx hardhat test</code>. The convention is to name test files after the contract they test: for example, <code>TodoList.test.js</code> tests <code>TodoList.sol</code>, and <code>Token.test.js</code> tests <code>Token.sol</code>. You can also create subdirectories inside <code>test/</code> to organize larger test suites.</p>
+
+    <div class="section-label">06 &nbsp; Anatomy of a Test File</div>
+    <h2 class="section-title">describe, it, and beforeEach - The Three Building Blocks of Every Test</h2>
+    <p>Every test file you write will follow the same fundamental structure. Understanding these three building blocks is essential before you start writing your own tests.</p>
+    <div class="code-block-wrap"><pre>
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("MyContract", function () {
+    let myContract;
+    let owner;
+    let addr1;
+
+    // This runs before EVERY single test case below
+    beforeEach(async function () {
+        const MyContract = await ethers.getContractFactory("MyContract");
+        [owner, addr1] = await ethers.getSigners();
+        myContract = await MyContract.deploy();
+        await myContract.waitForDeployment();
+    });
+
+    describe("Deployment", function () {
+        it("Should set the right owner", async function () {
+            expect(await myContract.owner()).to.equal(owner.address);
+        });
+    });
+
+    describe("MyFunction", function () {
+        it("Should do something specific", async function () {
+            await myContract.connect(addr1).myFunction(42);
+            expect(await myContract.someValue()).to.equal(42);
+        });
+
+        it("Should revert when called with invalid input", async function () {
+            await expect(
+                myContract.myFunction(0)
+            ).to.be.revertedWith("Invalid input");
+        });
+    });
+});</pre></div>
+    <p><strong>describe blocks</strong> are used to group related tests together. They can be nested - you can have a top-level describe for the entire contract, then inner describe blocks for deployment, for each function, and for specific scenarios. This creates a readable hierarchy that makes test output easy to navigate.</p>
+    <p><strong>beforeEach</strong> is the most important hook in smart contract testing. It runs before every single <code>it</code> block, deploying a brand-new instance of your contract. This guarantees test isolation: Test A can modify state as much as it wants, and Test B will start with a completely fresh, untouched contract. Without beforeEach, state changes from one test would leak into the next, causing confusing failures and false positives.</p>
+    <p><strong>it blocks</strong> define individual test cases. The string description should clearly state what the test verifies. Inside the function, you deploy, interact, and assert. If any assertion fails or the function throws an unhandled error, the test fails and Hardhat reports exactly what went wrong.</p>
+
+    <div class="section-label">07 &nbsp; Deployment Tests</div>
+    <h2 class="section-title">Testing That Your Contract Deploys Correctly</h2>
+    <p>Every test suite should start with deployment tests. These verify that the constructor executed correctly, that initial state variables are set to their expected values, and that the contract exists at a valid address. A contract that deploys incorrectly can fail silently - for example, if the owner is set to address(0) because of a constructor bug, nobody will ever be able to call owner-restricted functions, and you might not discover this until after deployment.</p>
+    <div class="code-block-wrap"><pre>
+describe("Deployment", function () {
+    it("Should deploy successfully and have a valid address", async function () {
+        const address = await myContract.getAddress();
+        expect(address).to.be.properAddress;
+    });
+
+    it("Should set the correct initial owner", async function () {
+        expect(await myContract.owner()).to.equal(owner.address);
+    });
+
+    it("Should start with zero items in the list", async function () {
+        expect(await myContract.getItemCount()).to.equal(0);
+    });
+
+    it("Should record the deployment timestamp", async function () {
+        const deployTime = await myContract.creationTime();
+        const latestBlock = await ethers.provider.getBlock("latest");
+        expect(deployTime).to.be.closeTo(latestBlock.timestamp, 2);
+    });
+});</pre></div>
+    <p>These four tests cover the essential deployment checks. The first verifies the contract actually exists on the blockchain (it has a valid Ethereum address). The second verifies the constructor correctly assigned the owner. The third checks that internal counters and collections start empty. The fourth verifies that any timestamp or block-dependent initialization works correctly. If any of these fail, stop and fix the constructor before testing individual functions.</p>
+
+    <div class="section-label">08 &nbsp; Function Tests - Happy Path</div>
+    <h2 class="section-title">Testing the Normal, Expected Behavior of Every Function</h2>
+    <p>Happy path tests verify that functions work correctly when given valid, expected inputs by legitimate users. These tests prove that your contract does what it claims to do under normal operating conditions. For every state-changing function, you should test that it correctly modifies state, returns the right values, emits the expected events, and handles multiple consecutive calls properly.</p>
+    <div class="code-block-wrap"><pre>
+describe("createItem", function () {
+    it("Should create an item and increment the count", async function () {
+        await myContract.createItem("Buy groceries");
+        expect(await myContract.getItemCount()).to.equal(1);
+    });
+
+    it("Should store the correct content for the created item", async function () {
+        await myContract.createItem("Learn Solidity");
+        const item = await myContract.items(0);
+        expect(item.content).to.equal("Learn Solidity");
+        expect(item.completed).to.equal(false);
+    });
+
+    it("Should emit the ItemCreated event with correct arguments", async function () {
+        await expect(myContract.createItem("Second item"))
+            .to.emit(myContract, "ItemCreated")
+            .withArgs(1, "Second item");
+    });
+
+    it("Should handle multiple items being created in sequence", async function () {
+        await myContract.createItem("First");
+        await myContract.createItem("Second");
+        await myContract.createItem("Third");
+        expect(await myContract.getItemCount()).to.equal(3);
+    });
+});</pre></div>
+    <p><strong>The happy path testing pattern:</strong> For every state-changing function in your contract, test at least these four things: (a) the state variable changes correctly, (b) the function returns the expected value if it has a return, (c) the correct event is emitted with the correct arguments, and (d) calling the function multiple times produces the expected cumulative result. This pattern ensures comprehensive coverage of normal usage.</p>
+
+    <div class="section-label">09 &nbsp; Edge Cases and Revert Tests</div>
+    <h2 class="section-title">Testing What Should NOT Happen - The Most Important Tests</h2>
+    <p>This section is where most developers stop testing - and where most catastrophic bugs originate. Edge case tests verify that your contract correctly rejects invalid, malicious, or unexpected inputs rather than silently corrupting its own state or losing funds. These tests are often more important than happy path tests because they catch the scenarios that attackers actively search for.</p>
+    <div class="code-block-wrap"><pre>
+describe("createItem — Edge Cases and Invalid Inputs", function () {
+    it("Should revert if the content string is empty", async function () {
+        await expect(
+            myContract.createItem("")
+        ).to.be.revertedWith("Content cannot be empty");
+    });
+
+    it("Should revert if content exceeds the maximum allowed length", async function () {
+        const longString = "a".repeat(281);
+        await expect(
+            myContract.createItem(longString)
+        ).to.be.revertedWith("Content too long");
+    });
+
+    it("Should revert when trying to access a non‑existent item ID", async function () {
+        await expect(
+            myContract.toggleItem(999)
+        ).to.be.revertedWith("Item does not exist");
+    });
+
+    it("Should revert when a non‑owner tries an owner‑only function", async function () {
+        await expect(
+            myContract.connect(addr1).adminFunction()
+        ).to.be.revertedWith("Not authorized");
+    });
+
+    it("Should revert on zero‑value transfers", async function () {
+        await expect(
+            myContract.transfer(addr1.address, 0)
+        ).to.be.revertedWith("Amount must be greater than zero");
+    });
+
+    it("Should revert when transferring more than the available balance", async function () {
+        await expect(
+            myContract.transfer(addr1.address, ethers.parseEther("1000"))
+        ).to.be.revertedWith("Insufficient balance");
+    });
+});</pre></div>
+    <p><strong>The complete edge-case checklist for every function you write:</strong></p>
+    <p>• Empty inputs - empty strings, zero values, and address(0) should all be rejected with clear error messages.</p>
+    <p>• Boundary values - test the maximum allowed value, the minimum allowed value, and values just outside those boundaries (max + 1, min - 1).</p>
+    <p>• Authorization checks - test that every restricted function reverts when called by an unauthorized account. Test with a completely unrelated address, not just the owner.</p>
+    <p>• State-dependent behavior - test what happens when functions are called while the contract is paused, before initialization, or after finalization.</p>
+    <p>• Insufficient resources - test transfers and withdrawals when the balance is too low, when the allowance is insufficient, or when a time lock hasn't expired.</p>
+    <p>• Re-entrancy protection - if your contract has a reentrancy guard, explicitly test that nested calls are rejected.</p>
+
+    <div class="section-label">10 &nbsp; Event Assertions</div>
+    <h2 class="section-title">Verifying That Events Fire Correctly</h2>
+    <p>Events are the primary way that frontend applications and off-chain services detect changes in your contract's state. If your contract fails to emit the correct event with the correct parameters, your frontend will display stale or incorrect data to users. Testing events is not optional - it is a critical part of full-stack dApp correctness.</p>
+    <div class="code-block-wrap"><pre>
+it("Should emit ItemCreated with the correct ID and content", async function () {
+    await expect(myContract.createItem("Test item"))
+        .to.emit(myContract, "ItemCreated")
+        .withArgs(0, "Test item");
+});
+
+it("Should emit ItemToggled when toggling completion status", async function () {
+    await myContract.createItem("Toggle me");
+    await expect(myContract.toggleItem(0))
+        .to.emit(myContract, "ItemToggled")
+        .withArgs(0, true);
+});
+
+it("Should NOT emit any event when the transaction reverts", async function () {
+    await expect(
+        myContract.createItem("")
+    ).to.be.reverted;
+});</pre></div>
+    <p><strong>Important details about event testing:</strong> The event arguments must match exactly - both the values and the order. If your event has <code>indexed</code> parameters, those can be used for filtering. The Chai matcher checks the event name and all arguments. If you expect an event not to be emitted (because the transaction should revert), simply check that the transaction reverts - a reverted transaction automatically means no events were permanently recorded.</p>
+
+    <div class="section-label">11 &nbsp; Testing with Multiple Accounts</div>
+    <h2 class="section-title">Simulating Real Users with Different Wallets</h2>
+    <p>Hardhat provides <code>ethers.getSigners()</code>, which returns an array of pre-funded Ethereum accounts. Each account has 10,000 test ETH and can be used to simulate different real-world users interacting with your contract simultaneously. This is essential for testing multi-user scenarios like deposits, withdrawals, transfers, and access control.</p>
+    <div class="code-block-wrap"><pre>
+it("Should allow different users to maintain independent balances", async function () {
+    const [owner, user1, user2] = await ethers.getSigners();
+
+    await myContract.connect(user1).deposit({ value: ethers.parseEther("1") });
+    await myContract.connect(user2).deposit({ value: ethers.parseEther("2") });
+
+    expect(await myContract.balances(user1.address))
+        .to.equal(ethers.parseEther("1"));
+    expect(await myContract.balances(user2.address))
+        .to.equal(ethers.parseEther("2"));
+});
+
+it("Should prevent one user from spending another user's funds", async function () {
+    const [owner, user1, user2] = await ethers.getSigners();
+    await myContract.connect(user1).deposit({ value: ethers.parseEther("1") });
+
+    await expect(
+        myContract.connect(user2).withdraw(ethers.parseEther("0.5"))
+    ).to.be.revertedWith("Insufficient balance");
+});</pre></div>
+    <p><strong>How to use different accounts:</strong> Use <code>.connect(signer)</code> to execute a function call from a specific account's perspective. Without <code>.connect()</code>, the call originates from the first signer (usually the deployer). This simple pattern lets you verify that your contract correctly enforces ownership, tracks per-user balances, and prevents unauthorized access to other users' funds.</p>
+
+    <div class="section-label">12 &nbsp; Using Fixtures for Complex Setup</div>
+    <h2 class="section-title">Reusing Setup Code Across Multiple Test Files</h2>
+    <p>As your test suite grows, you will find yourself repeating the same deployment and initialization code across multiple test files. Hardhat supports <strong>fixtures</strong> - reusable setup functions that deploy contracts, configure initial state, and return everything in a consistent, ready-to-use format.</p>
+    <div class="code-block-wrap"><pre>
+// test/fixtures.js — Create this file to hold your shared setup logic
+
+const { ethers } = require("hardhat");
+
+async function deployTodoList() {
+    const TodoList = await ethers.getContractFactory("TodoList");
+    const [owner, user1, user2] = await ethers.getSigners();
+    const todoList = await TodoList.deploy();
+    await todoList.waitForDeployment();
+    return { todoList, owner, user1, user2 };
+}
+
+async function deployTodoListWithTasks() {
+    const { todoList, owner, user1, user2 } = await deployTodoList();
+    await todoList.createTask("Existing task 1");
+    await todoList.createTask("Existing task 2");
+    return { todoList, owner, user1, user2 };
+}
+
+module.exports = { deployTodoList, deployTodoListWithTasks };</pre></div>
+    <p>Then import and use these fixtures in any test file:</p>
+    <div class="code-block-wrap"><pre>
+const { deployTodoListWithTasks } = require("./fixtures");
+
+beforeEach(async function () {
+    const fixtures = await deployTodoListWithTasks();
+    this.todoList = fixtures.todoList;
+    this.owner = fixtures.owner;
+    this.user1 = fixtures.user1;
+});</pre></div>
+    <p>This approach keeps your tests DRY (Don't Repeat Yourself) and ensures that every test file uses exactly the same deployment logic. If you change your constructor parameters or initialization sequence, you only need to update the fixture - not every individual test file.</p>
+
+    <div class="section-label">13 &nbsp; Running Tests</div>
+    <h2 class="section-title">The npx hardhat test Command and Its Options</h2>
+    <p>To execute all tests in your project: <strong>npx hardhat test</strong></p>
+    <p>Hardhat will automatically compile your contracts if they have changed, start the built-in Hardhat Network, execute every test file in the <code>test/</code> directory, and display a clean summary showing which tests passed and which failed.</p>
+    <p><strong>Useful command-line flags for different situations:</strong></p>
+    <p><strong>npx hardhat test --grep "Deployment"</strong> - Run only the tests whose description contains the word "Deployment". Perfect for focusing on a specific section when debugging.</p>
+    <p><strong>npx hardhat test --parallel</strong> - Run test files simultaneously across multiple threads. Each file gets its own independent Hardhat Network instance, so there are no conflicts. This dramatically speeds up large test suites.</p>
+    <p><strong>npx hardhat test --verbose</strong> - Show the full name of every test, including nested describe blocks, plus which hooks ran. Useful for understanding exactly what executed.</p>
+    <p>When a test fails, Hardhat displays: the exact line in your test file where the assertion failed, the expected value versus the actual value, and if the transaction reverted, the complete Solidity stack trace showing exactly which line of your contract caused the revert.</p>
+
+    <div class="section-label">14 &nbsp; Local Hardhat Node</div>
+    <h2 class="section-title">Running a Persistent Local Blockchain on Your Machine</h2>
+    <p>While <code>npx hardhat test</code> uses an ephemeral network that disappears immediately after tests finish, you can also run a <strong>persistent local blockchain node</strong> that stays alive as long as you need it. Start it with: <strong>npx hardhat node</strong></p>
+    <div class="code-block-wrap"><pre>
+$ npx hardhat node
+Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
+
+Accounts
+========
+Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
+Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+Account #1: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 (10000 ETH)
+...</pre></div>
+    <p>This command starts a full JSON-RPC server at <strong>http://127.0.0.1:8545</strong> that behaves exactly like a real Ethereum node. It comes with 20 pre-funded accounts, each holding 10,000 test ETH. You can connect your React frontend, Remix IDE, or a separate terminal to this node for manual testing and interactive debugging without touching any testnet.</p>
+    <p>The local node is perfect for: testing your frontend against a live (local) blockchain, manually verifying transactions in real time, debugging with external tools that need an RPC endpoint, and demonstrating your dApp to others without requiring an internet connection or testnet tokens.</p>
+
+    <div class="section-label">15 &nbsp; Deploying to the Local Node</div>
+    <h2 class="section-title">Connecting Your Deployment Script to the Local Network</h2>
+    <p>To deploy your contracts to the persistent local node, first add the localhost network to your <code>hardhat.config.js</code>:</p>
+    <div class="code-block-wrap"><pre>
+networks: {
+    hardhat: { },
+    localhost: {
+        url: "http://127.0.0.1:8545",
+    }
+}</pre></div>
+    <p>Then deploy with: <strong>npx hardhat run scripts/deploy.js --network localhost</strong></p>
+    <p>Your contract will be deployed to the local node. You will see the contract address printed in the terminal. You can now interact with this contract through the Hardhat console, your frontend, or any tool that connects to the RPC endpoint at 127.0.0.1:8545.</p>
+
+    <div class="section-label">16 &nbsp; Code Coverage</div>
+    <h2 class="section-title">Measuring Exactly How Much of Your Solidity Code Is Tested</h2>
+    <p><strong>solidity-coverage</strong> is a Hardhat plugin that generates a detailed coverage report showing which lines of your Solidity source code are executed during your tests - and, more importantly, which lines are never touched. Untested code is where bugs hide.</p>
+    <p><strong>Installation:</strong> <code>npm install --save-dev solidity-coverage</code></p>
+    <p><strong>Configuration:</strong> Add <code>require("solidity-coverage");</code> at the top of your <code>hardhat.config.js</code>.</p>
+    <p><strong>Execution:</strong> <code>npx hardhat coverage</code></p>
+    <p>This command runs your entire test suite with instrumentation enabled and produces a <code>coverage/</code> folder containing an HTML report. Open <code>coverage/index.html</code> in your browser to see a line-by-line view of every contract, with green highlighting for tested lines and red highlighting for untested lines.</p>
+    <p><strong>Aim for at least 90% branch coverage on your capstone contract.</strong> Branch coverage is the strictest metric - it checks that every <code>if/else</code>, every <code>require</code> condition, and every ternary operator has been tested with both true and false outcomes. It is significantly harder to achieve than line coverage, but it catches far more bugs. A contract with 100% line coverage but only 60% branch coverage still has many untested logical paths where vulnerabilities can hide.</p>
+
+    <div class="section-label">17 &nbsp; Debugging Failing Tests</div>
+    <h2 class="section-title">Console.log in Solidity, Stack Traces, and Common Fixes</h2>
+    <p>When a test fails, your first debugging tool should be <strong>console.log inside Solidity</strong>. Hardhat supports this natively. Import <code>import "hardhat/console.sol";</code> at the top of your contract, then add <code>console.log(variableName);</code> wherever you need to inspect values. The output appears directly in your test terminal.</p>
+    <p><strong>Reading Hardhat stack traces:</strong> When a transaction reverts, Hardhat shows the complete call trace, starting from the test function, through any contract calls, down to the exact Solidity line that caused the revert. Find the <strong>first frame in the trace that is inside your contract</strong> - that is where the error originated. The frames above it are just the call chain leading there.</p>
+    <p><strong>Common test failures and their solutions:</strong></p>
+    <table>
+        <thead><tr><th>Symptom</th><th>Likely Cause</th><th>How to Fix It</th></tr></thead>
+        <tbody>
+            <tr><td>Transaction reverted without a reason string</td><td>A require condition failed but has no error message</td><td>Add a descriptive reason string to every require: <code>require(condition, "descriptive reason")</code></td></tr>
+            <tr><td>Out of gas error</td><td>The gas limit is too low for the complexity of the operation</td><td>Increase the gas limit in the test transaction: <code>{ gasLimit: 300000 }</code></td></tr>
+            <tr><td>Wrong address or signer mismatch</td><td>Used <code>owner</code> when you meant <code>addr1</code>, or forgot <code>.connect()</code></td><td>Double-check all <code>.connect()</code> calls and which address you expect to be <code>msg.sender</code></td></tr>
+            <tr><td>Unexpected event argument values</td><td>Event arguments are in the wrong order or have incorrect values</td><td>Review the event definition in your Solidity code and verify the argument order matches</td></tr>
+            <tr><td>Test passes alone but fails when run with others</td><td>State is leaking between tests because beforeEach isn't resetting everything</td><td>Ensure beforeEach deploys a completely fresh contract and resets all variables</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-label">18 &nbsp; The Complete Testing Workflow</div>
+    <h2 class="section-title">From Writing a Contract to a Fully Tested, Deployment-Ready dApp</h2>
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 9.4-A · The Complete Testing and Local Deployment Workflow</div>
+        <pre>
+STEP 1: Write Your Contract
+    │
+    ▼
+STEP 2: Write Your Test File
+    │
+    ▼
+STEP 3: Run npx hardhat test
+    │
+    ├── All tests pass? ──▶ Great! Move to Step 4.
+    │
+    └── Tests fail? ──▶ Read stack trace, add console.log, fix bug, return to Step 3.
+
+STEP 4: Run npx hardhat coverage
+    │
+    ├── Branch coverage ≥ 90%? ──▶ Excellent! Move to Step 5.
+    │
+    └── Coverage too low? ──▶ Write tests for red (untested) lines, return to Step 3.
+
+STEP 5: Start local node with npx hardhat node
+    │
+    ▼
+STEP 6: Deploy to local node (npx hardhat run scripts/deploy.js --network localhost)
+    │
+    ▼
+STEP 7: Interact manually via Hardhat console or frontend
+    │
+    ▼
+STEP 8: Any issues found during manual testing?
+    │
+    ├── Yes ──▶ Add new test cases covering the issue, fix the contract, return to Step 3.
+    │
+    └── No ──▶ Your contract is ready for MST Testnet deployment!</pre>
+        <div class="diagram-caption">A systematic testing workflow catches bugs early, ensures comprehensive coverage, and gives you complete confidence before deploying to a live testnet.</div>
+    </div>
+
+    <div class="section-label">19 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold Before Submitting</h2>
+    <div class="fact-card">
+        <div class="fact-num">01</div>
+        <div class="fact-text"><strong>beforeEach deploys a completely fresh contract for every single test case.</strong> This is the golden rule of smart contract testing. Never share state between tests. Every test starts with a pristine, untouched contract deployed moments ago.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">02</div>
+        <div class="fact-text"><strong>For every happy path test, write at least two edge-case tests.</strong> Test empty inputs, boundary values, unauthorized callers, and unexpected contract states. Most catastrophic bugs are found in the edge cases, not the happy paths.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">03</div>
+        <div class="fact-text"><strong>Use .to.be.revertedWith("exact reason") to verify that transactions fail correctly.</strong> A reverted transaction that produces a different error message will fail the test, alerting you that your validation logic needs attention.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">04</div>
+        <div class="fact-text"><strong>solidity-coverage shows exactly which lines of your Solidity code are tested and which are not.</strong> Aim for at least 90% branch coverage. Red lines in the report represent untested code paths that could contain hidden vulnerabilities.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">05</div>
+        <div class="fact-text"><strong>Hardhat's built-in network is significantly faster and better for automated tests than a persistent local node.</strong> Use the persistent local node (npx hardhat node) only for manual testing, frontend integration testing, or demonstrations.</div>
+    </div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 9.4 Assessment - Test Report & Local Deployment Log</h2>
+            <div class="marks-total-badge"><div class="num">20</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">R1</div>
+                <div class="a-type">Test Suite Quality</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">8 marks</div>
+                <div class="a-question"><strong>Comprehensive Test File (8 marks)</strong><br>Submit your complete test file (for example, <code>MyContract.test.js</code>) that includes: deployment tests verifying initial state, happy path tests for at least three different functions, edge-case tests covering empty inputs, invalid parameters, and unauthorized access attempts, plus event assertions for at least two functions. Your file must contain at least 12 individual test cases.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> Deployment tests correctly verify the initial state after constructor execution.<br><strong>3 marks:</strong> Happy path tests for core functions include state checks, return value checks, and event checks.<br><strong>2 marks:</strong> Edge-case tests cover empty inputs, boundary values, and unauthorized access attempts.<br><strong>1 mark:</strong> Event assertions for at least two different functions are present and correct.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R2</div>
+                <div class="a-type">Test Execution Log</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">4 marks</div>
+                <div class="a-question"><strong>Test Run Output (4 marks)</strong><br>Submit a screenshot or a copy-pasted terminal log showing the complete output of <strong>npx hardhat test</strong> with all tests passing. The output must show each individual test name and a final summary line (for example, "15 passing (2s)").</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> All tests pass with zero failures and zero skipped tests.<br><strong>2 marks:</strong> The log clearly displays each test name and the final passing count.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R3</div>
+                <div class="a-type">Local Deployment</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">4 marks</div>
+                <div class="a-question"><strong>Local Node Deployment (4 marks)</strong><br>Submit a terminal log or screenshot showing two things: (a) <strong>npx hardhat node</strong> starting successfully and displaying its list of accounts, and (b) <strong>npx hardhat run scripts/deploy.js --network localhost</strong> executing successfully and printing your contract's deployed address.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> The local node starts and shows the pre-funded accounts with their addresses and private keys.<br><strong>2 marks:</strong> The deployment script completes successfully and outputs a valid contract address.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R4</div>
+                <div class="a-type">Coverage Report</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">4 marks</div>
+                <div class="a-question"><strong>Code Coverage Report (4 marks)</strong><br>Submit a screenshot of the HTML coverage report generated by <strong>solidity-coverage</strong>, or the terminal summary, showing your contract's coverage percentages across the four metrics: Statements, Branches, Functions, and Lines. Target at least 80% branch coverage for full marks.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> A coverage report was successfully generated and submitted.<br><strong>2 marks:</strong> Branch coverage is at or above 80% (full 2 marks for 90% or higher).</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 9.4 Assessment Summary</div>
+            <div class="score-row">R1: Test Suite Quality = 8 marks</div>
+            <div class="score-row">R2: Test Execution Log = 4 marks</div>
+            <div class="score-row">R3: Local Deployment = 4 marks</div>
+            <div class="score-row">R4: Coverage Report = 4 marks</div>
+            <div class="score-badge"><div class="score-num">20</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">20 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 9.4</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Mocha</div><div class="g-def">A JavaScript test framework that provides the describe, it, and lifecycle hooks (beforeEach, afterEach) for organizing and executing tests in a structured, readable way.</div></div>
+        <div class="glossary-card"><div class="g-term">Chai</div><div class="g-def">An assertion library that provides expressive matchers like .to.equal(), .to.be.revertedWith(), and .to.emit() for validating test outcomes in readable English.</div></div>
+        <div class="glossary-card"><div class="g-term">beforeEach</div><div class="g-def">A Mocha lifecycle hook that executes before every single test case. In smart contract testing, it deploys a fresh contract instance to guarantee complete isolation between tests.</div></div>
+        <div class="glossary-card"><div class="g-term">Fixture</div><div class="g-def">A reusable setup function that deploys contracts and returns initialized objects. Shared across multiple test files to avoid duplicating deployment logic.</div></div>
+        <div class="glossary-card"><div class="g-term">Hardhat Network</div><div class="g-def">A built-in, in-memory Ethereum network that Hardhat automatically starts for tests. Mines blocks instantly, provides detailed stack traces, and resets between test files.</div></div>
+        <div class="glossary-card"><div class="g-term">solidity-coverage</div><div class="g-def">A Hardhat plugin that instruments Solidity code and generates HTML reports showing exactly which lines, branches, and functions are covered by tests.</div></div>
+        <div class="glossary-card"><div class="g-term">Branch Coverage</div><div class="g-def">The percentage of conditional branches - if/else statements, require conditions, and ternary operators - that have been tested with both true and false outcomes. The hardest and most important coverage metric to achieve.</div></div>
+        <div class="glossary-card"><div class="g-term">Local Node</div><div class="g-def">A persistent Hardhat JSON-RPC server started with npx hardhat node that provides a full local blockchain with pre-funded accounts for manual testing and frontend development.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 9 · Sub-Module <strong>9.4</strong> of 6 · Next: Sub-Module 9.5 - Frontend Skeleton with MST SDK →</p>
+    </div>
+
+</body>
+</html>

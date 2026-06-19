@@ -1,0 +1,350 @@
+
+
+    <div class="module-badge">🛡️ Module 10 · Sub-Module 10.3 of 6</div>
+    <h1 class="module-title">Smart Contract <span class="highlight">Security Patterns</span></h1>
+    <p class="module-subtitle">The patterns that protect billions of dollars. Reentrancy guards, integer overflow protection, the Checks-Effects-Interactions pattern, and the access control rules that separate a secure contract from a honeypot waiting to be drained.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 20 Marks (Vulnerability Detection)</div>
+        <div class="meta-chip">📋 Find and fix security bugs in real contracts</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity &amp; Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🔄</div>
+            <div class="feature-title">Detect and prevent reentrancy attacks</div>
+            <div class="feature-desc">Understand exactly how the DAO was hacked for $60M, how reentrancy works step-by-step, and how to apply the Checks-Effects-Interactions pattern and ReentrancyGuard to protect your contracts.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔢</div>
+            <div class="feature-title">Protect against integer overflow and underflow</div>
+            <div class="feature-desc">Know when Solidity 0.8+ protects you automatically and when it doesn't. Understand why SafeMath was necessary before 0.8 and how the BeautyChain bug created infinite tokens.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔐</div>
+            <div class="feature-title">Implement bulletproof access control</div>
+            <div class="feature-desc">Avoid the tx.origin trap. Write proper onlyOwner and role-based modifiers. Understand why missing access control is the most common vulnerability in real-world audits.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🐛</div>
+            <div class="feature-title">Identify and fix vulnerabilities in existing code</div>
+            <div class="feature-desc">Read a contract, spot the security flaw, explain how an attacker would exploit it, and write the fix. This is exactly what a smart contract auditor does every day.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The DAO Hack - How a Single Missing Line Cost $60 Million</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>June 17, 2016. The DAO (Decentralized Autonomous Organization) had raised $150 million in ETH - the largest crowdfunding in history. It was meant to be a revolutionary venture fund where token holders voted on investments. Then, around 3:30 AM UTC, an attacker began siphoning ETH from the DAO's smart contract. By the time the community could react, over 3.6 million ETH (worth approximately $60 million at the time) had been drained into a child DAO controlled by the attacker.</p>
+        <br>
+        <p>The vulnerability was a <strong>reentrancy attack</strong>. The DAO's withdraw function sent ETH to the user before updating the user's balance. The attacker deployed a malicious contract with a fallback function that, upon receiving ETH, called the withdraw function again - before the first withdrawal had updated the balance. This recursive loop repeated until the DAO was drained. A single missing line of code - updating the balance before sending - had allowed the largest hack in blockchain history at that time.</p>
+        <br>
+        <p>The fallout was seismic. The Ethereum community was so divided on how to respond that it led to a hard fork, splitting Ethereum into two chains: Ethereum (ETH) and Ethereum Classic (ETC). The incident changed how smart contracts were written forever. It gave birth to the Checks-Effects-Interactions pattern and the ReentrancyGuard modifier that are now standard in every project. Every line of security advice in this sub-module was written in blood - or more precisely, in stolen ether.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; Reentrancy Attacks - The Most Famous Vulnerability in Blockchain</div>
+    <h2 class="section-title">How They Work, How to Prevent Them, and Why They Still Happen</h2>
+    <p>A <strong>reentrancy attack</strong> occurs when a contract calls an external contract, and that external contract calls back into the original contract before the original contract has finished updating its state. It's like someone withdrawing money from a bank, but before the teller updates your balance, you walk back to the counter and withdraw again - and again, and again - because the system still thinks you have the full amount.</p>
+
+    <p><strong>The vulnerable pattern:</strong></p>
+    <div class="code-block-wrap"><pre>// VULNERABLE CONTRACT – DO NOT USE
+contract VulnerableVault {
+    mapping(address =&gt; uint256) public balances;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        require(amount &gt; 0, "No balance");
+
+        // ❌ BUG: ETH sent BEFORE state update
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        // ❌ Balance updated AFTER external call – too late!
+        balances[msg.sender] = 0;
+    }
+}</pre></div>
+
+    <p><strong>How the attacker exploits it:</strong> The attacker deploys a malicious contract with a fallback function. When the Vault sends ETH to the attacker's contract, the fallback fires - and calls <code>withdraw()</code> again. Since <code>balances[msg.sender]</code> hasn't been set to 0 yet, the require check passes again, and more ETH is sent. This loop continues until the Vault is empty or gas runs out.</p>
+
+    <div class="code-block-wrap"><pre>contract Attacker {
+    VulnerableVault public vault;
+
+    constructor(address _vault) {
+        vault = VulnerableVault(_vault);
+    }
+
+    function attack() public payable {
+        vault.deposit{value: msg.value}();
+        vault.withdraw();
+    }
+
+    // Fallback – called when ETH is received
+    receive() external payable {
+        if (address(vault).balance &gt; 0) {
+            vault.withdraw(); // Re‑enter before state updated!
+        }
+    }
+}</pre></div>
+
+    <p><strong>The fix - Checks-Effects-Interactions pattern:</strong> Always update your contract's state <strong>before</strong> making external calls. This ensures that if the external call re-enters your contract, the state has already been updated, so the re-entrant call cannot exploit stale data.</p>
+
+    <div class="code-block-wrap"><pre>// SECURE CONTRACT
+contract SecureVault {
+    mapping(address =&gt; uint256) public balances;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        require(amount &gt; 0, "No balance");
+
+        // ✅ Step 1: CHECKS – validate conditions (done above)
+        // ✅ Step 2: EFFECTS – update state FIRST
+        balances[msg.sender] = 0;
+
+        // ✅ Step 3: INTERACTIONS – make external call LAST
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}</pre></div>
+
+    <p><strong>Alternative fix - ReentrancyGuard:</strong> OpenZeppelin provides a <code>ReentrancyGuard</code> modifier that uses a state variable to lock the contract during execution. If a function with this modifier is re-entered, it will revert immediately.</p>
+
+    <div class="code-block-wrap"><pre>import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract GuardedVault is ReentrancyGuard {
+    mapping(address =&gt; uint256) public balances;
+
+    function withdraw() public nonReentrant {
+        uint256 amount = balances[msg.sender];
+        require(amount &gt; 0, "No balance");
+        balances[msg.sender] = 0;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}</pre></div>
+
+    <p><strong>Types of reentrancy:</strong> There are three main types. <strong>Single-function reentrancy</strong> (the classic DAO attack, where the same function is re-entered). <strong>Cross-function reentrancy</strong> (where one function makes an external call, and the callee calls a different function that reads the same state). <strong>Cross-contract reentrancy</strong> (where multiple contracts share state, and an external call to one contract triggers a call to another). The Checks-Effects-Interactions pattern protects against all three.</p>
+
+    <div class="section-label">04 &nbsp; Integer Overflow and Underflow</div>
+    <h2 class="section-title">When Numbers Break - The BeautyChain Hack</h2>
+    <p><strong>Integer overflow</strong> occurs when an arithmetic operation produces a value that exceeds the maximum representable value for the type. Before Solidity 0.8.0, <code>uint256</code> values would wrap around: 2²⁵⁶−1 + 1 would become 0. This silent wrapping was the root cause of countless bugs and several major hacks.</p>
+
+    <p><strong>The BeautyChain (BEC) Hack - 2018:</strong> The BeautyChain token contract had a <code>batchTransfer</code> function that multiplied <code>amount × recipients</code> without checking for overflow. An attacker crafted a call where the multiplication overflowed: a tiny amount multiplied by a huge number of recipients wrapped around to a very small number, but the individual transfer amounts were large. The attacker effectively created tokens from nothing, printing billions of dollars worth of BEC tokens in a single transaction.</p>
+
+    <div class="code-block-wrap"><pre>// VULNERABLE (Solidity &lt;0.8.0 without SafeMath)
+function batchTransfer(address[] memory recipients, uint256 amount) public {
+    uint256 total = amount * recipients.length; // ⚠️ OVERFLOW if too large!
+    require(balances[msg.sender] &gt;= total, "Insufficient balance");
+    balances[msg.sender] -= total;
+    for (uint256 i = 0; i &lt; recipients.length; i++) {
+        balances[recipients[i]] += amount;
+    }
+}</pre></div>
+
+    <p><strong>The solution - Solidity 0.8+ built-in checks:</strong> Since Solidity 0.8.0, the compiler automatically inserts overflow and underflow checks. If an operation overflows, the transaction reverts. This makes SafeMath unnecessary for most codebases. However, there are still cases where you might want <strong>unchecked</strong> arithmetic for gas optimization, but you must be absolutely certain no overflow can occur.</p>
+
+    <div class="code-block-wrap"><pre>// Solidity 0.8+ – automatically safe
+uint256 a = type(uint256).max;
+uint256 b = a + 1; // ❌ REVERTS – overflow protection
+
+// If you are CERTAIN no overflow is possible, use unchecked for gas savings
+uint256 c;
+unchecked {
+    c = a + 1; // ⚠️ Wraps around – only use when safe!
+}</pre></div>
+
+    <p><strong>Where overflow still matters in 0.8+:</strong> While simple arithmetic is protected, <strong>typecasting</strong> is not automatically checked. Downcasting from <code>uint256</code> to <code>uint128</code> can silently truncate values without reverting. Always check that the value fits in the smaller type before casting.</p>
+
+    <div class="code-block-wrap"><pre>uint256 largeValue = 2**200;
+uint128 smallValue = uint128(largeValue); // ⚠️ SILENT TRUNCATION – data loss!
+// Always check: require(largeValue &lt;= type(uint128).max, "Value too large");</pre></div>
+
+    <div class="section-label">05 &nbsp; Access Control - The Most Common Vulnerability in Audits</div>
+    <h2 class="section-title">tx.origin, msg.sender, and the Functions You Forgot to Protect</h2>
+    <p>Access control vulnerabilities are the <strong>single most common finding</strong> in smart contract audits. They range from completely missing access controls (anyone can call a critical function) to subtle misuses of <code>tx.origin</code> instead of <code>msg.sender</code>.</p>
+
+    <p><strong>msg.sender vs tx.origin - the critical difference:</strong> <code>msg.sender</code> is the <strong>immediate</strong> caller of the current function. If Contract A calls Contract B, then inside Contract B, <code>msg.sender</code> is Contract A's address. <code>tx.origin</code> is the <strong>original</strong> EOA (externally owned account) that signed the transaction - it never changes, no matter how many contracts are in the call chain.</p>
+
+    <div class="code-block-wrap"><pre>// VULNERABLE – Do not use tx.origin for access control!
+contract VulnerableWallet {
+    address public owner;
+
+    constructor() { owner = tx.origin; }
+
+    function withdraw() public {
+        require(tx.origin == owner, "Not owner"); // ⚠️ tx.origin is DANGEROUS
+        payable(msg.sender).transfer(address(this).balance);
+    }
+}
+
+// Attacker's phishing contract:
+contract PhishingAttack {
+    VulnerableWallet wallet;
+    constructor(address _wallet) { wallet = VulnerableWallet(_wallet); }
+    function trick() public {
+        // User calls this function, which calls withdraw
+        // Inside withdraw, tx.origin is the USER (not the attacker!)
+        // So the require passes, and funds go to the attacker!
+        wallet.withdraw();
+    }
+}</pre></div>
+
+    <p><strong>The fix - always use msg.sender:</strong> The correct access control pattern uses <code>msg.sender</code>, which correctly identifies the immediate caller.</p>
+
+    <div class="code-block-wrap"><pre>// SECURE
+contract SecureWallet {
+    address public owner;
+    constructor() { owner = msg.sender; }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <p><strong>Missing access control:</strong> The most basic and most devastating vulnerability. A function that should be restricted - like <code>mint()</code>, <code>burn()</code>, <code>setFees()</code>, or <code>destroy()</code> - is left with <code>public</code> visibility and no <code>require</code> check. In 2023 alone, missing access control accounted for over $100 million in losses across DeFi protocols. Always add a clear access modifier to every state-changing function that should not be callable by anyone.</p>
+
+    <div class="section-label">06 &nbsp; Front-Running and MEV (Miner Extractable Value)</div>
+    <h2 class="section-title">When Attackers See Your Transaction Before It Executes</h2>
+    <p>Blockchain transactions are broadcast to a public mempool before they are included in a block. Anyone watching the mempool can see pending transactions and act on them first by submitting their own transaction with a higher gas price. This is <strong>front-running</strong>.</p>
+
+    <p><strong>Example - DEX sandwich attack:</strong> You submit a transaction to buy a token on a decentralized exchange. An attacker sees your transaction, submits a buy order with higher gas to execute before you (driving the price up), then submits a sell order with slightly lower gas to execute after you (selling at the inflated price). You bought at a worse price, and the attacker profited from the spread.</p>
+
+    <p><strong>Mitigations:</strong></p>
+    <p><strong>1. Commit-Reveal:</strong> Users first commit a hash of their action, and only reveal it in a second transaction after it's included in a block. This prevents front-runners from knowing what the action is until it's too late to front-run.</p>
+    <p><strong>2. Flashbots:</strong> Send transactions directly to miners/validators through private relays, bypassing the public mempool entirely. This is now the dominant approach for MEV-sensitive transactions.</p>
+    <p><strong>3. Fair ordering protocols:</strong> Some chains are experimenting with consensus-level fair ordering, where transactions are ordered by their arrival time rather than gas price. MST's Trika POSA consensus can explore these patterns.</p>
+
+    <div class="section-label">07 &nbsp; Denial of Service (DoS) Attacks</div>
+    <h2 class="section-title">Making Your Contract Unusable</h2>
+    <p><strong>1. Gas griefing:</strong> An attacker can force your transaction to fail by manipulating gas. For example, if your contract refunds gas to users, an attacker can consume all the gas in a loop, causing the refund to fail.</p>
+    <p><strong>2. Block stuffing:</strong> An attacker fills blocks with their own high-gas transactions, preventing other transactions from being included. This is expensive but effective for short-term attacks on time-sensitive protocols like auctions.</p>
+    <p><strong>3. Unbounded loops:</strong> If your contract has a for loop that iterates over a growing array (e.g., all users, all tokens), eventually the loop will consume more gas than the block gas limit, and the function will become permanently unusable. Always use mappings with separate counters instead of arrays for data structures that can grow indefinitely.</p>
+    <p><strong>4. Owner-based DoS:</strong> If a critical function is <code>onlyOwner</code> and the owner loses their private key, the function is permanently frozen. Use multi-sig wallets and timelocks to reduce single-point-of-failure risks.</p>
+
+    <div class="section-label">08 &nbsp; The Complete Security Checklist</div>
+    <h2 class="section-title">Every Line You Should Check Before Deploying</h2>
+    <table>
+        <thead><tr><th>Vulnerability</th><th>What to Check</th><th>Fix</th></tr></thead>
+        <tbody>
+            <tr><td>Reentrancy</td><td>Any external call before state updates</td><td>Checks-Effects-Interactions or ReentrancyGuard</td></tr>
+            <tr><td>Integer Overflow</td><td>Arithmetic on large numbers, downcasting</td><td>Solidity 0.8+ built-in checks, SafeMath for older versions</td></tr>
+            <tr><td>Access Control</td><td>Every state-changing function has a modifier</td><td>onlyOwner, RBAC (role-based access control)</td></tr>
+            <tr><td>tx.origin</td><td>Any use of tx.origin for authorization</td><td>Replace with msg.sender</td></tr>
+            <tr><td>Front-running</td><td>Profitable transactions visible in mempool</td><td>Commit-reveal, Flashbots, fair ordering</td></tr>
+            <tr><td>DoS</td><td>Unbounded loops, single owner dependency</td><td>Mappings over arrays, multi-sig ownership</td></tr>
+            <tr><td>Unchecked returns</td><td>Low-level calls without checking success</td><td>Always check bool return of .call(), .send()</td></tr>
+            <tr><td>Timestamp dependence</td><td>Using block.timestamp for randomness or critical logic</td><td>Never use timestamp for randomness; accept ±15 second variance</td></tr>
+            <tr><td>Signature replay</td><td>Signed messages without nonce or expiry</td><td>Add nonce and deadline to all signed messages</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-label">09 &nbsp; Putting It All Together - A Before-And-After Example</div>
+    <h2 class="section-title">Fixing a Vulnerable Contract Step by Step</h2>
+    <p>Below is a contract that contains multiple vulnerabilities. Study it carefully, then see the secure version with all fixes applied.</p>
+
+    <div class="code-block-wrap"><pre>// VULNERABLE CONTRACT – Contains 5 security issues
+contract BrokenAuction {
+    address public owner;
+    mapping(address =&gt; uint256) public bids;
+
+    constructor() { owner = tx.origin; }
+
+    function bid() public payable { bids[msg.sender] += msg.value; }
+
+    function withdraw() public {
+        uint256 amount = bids[msg.sender];
+        require(amount &gt; 0);
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success);
+        bids[msg.sender] = 0;
+    }
+
+    function endAuction() public {
+        require(tx.origin == owner);
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <p><strong>Issues found:</strong> (1) Reentrancy in <code>withdraw()</code> - ETH sent before state update. (2) <code>tx.origin</code> used for ownership in both constructor and <code>endAuction()</code>. (3) <code>endAuction()</code> accessible by anyone because the <code>require</code> uses <code>tx.origin</code> which can be phished. (4) No event emissions, making frontend updates difficult. (5) No withdrawal limit or emergency pause mechanism.</p>
+
+    <div class="code-block-wrap"><pre>// SECURE CONTRACT – All issues fixed
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract FixedAuction is ReentrancyGuard {
+    address public owner;
+    mapping(address =&gt; uint256) public bids;
+    bool public auctionEnded;
+    event BidPlaced(address indexed bidder, uint256 amount);
+    event Withdrawal(address indexed bidder, uint256 amount);
+
+    constructor() { owner = msg.sender; }
+
+    modifier onlyOwner() { require(msg.sender == owner, "Not owner"); _; }
+
+    function bid() public payable {
+        require(!auctionEnded, "Auction ended");
+        bids[msg.sender] += msg.value;
+        emit BidPlaced(msg.sender, msg.value);
+    }
+
+    function withdraw() public nonReentrant {
+        uint256 amount = bids[msg.sender];
+        require(amount &gt; 0, "No bids");
+        bids[msg.sender] = 0; // EFFECTS first
+        (bool success, ) = msg.sender.call{value: amount}(""); // INTERACTIONS last
+        require(success, "Transfer failed");
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    function endAuction() public onlyOwner {
+        auctionEnded = true;
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Reentrancy attacks exploit external calls made before state updates.</strong> The DAO hack ($60M) was a reentrancy attack. Fix with Checks-Effects-Interactions or ReentrancyGuard. Always update state before making external calls.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Integer overflow/underflow is protected in Solidity 0.8+ for arithmetic, but NOT for downcasting.</strong> Always validate values before casting to smaller types. Use SafeMath if supporting older Solidity versions.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Never use tx.origin for access control.</strong> tx.origin is the original EOA and can be phished through a malicious contract. Always use msg.sender, which correctly identifies the immediate caller.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Missing access control is the #1 finding in smart contract audits.</strong> Every state-changing function that should be restricted must have an explicit modifier or require check. Public by default is dangerous.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Front-running is possible because transactions are visible in the mempool before execution.</strong> Use Flashbots, commit-reveal schemes, or fair ordering protocols to mitigate MEV attacks on your users.</div></div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.3</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Reentrancy Attack</div><div class="g-def">An exploit where an attacker recursively calls a function before the contract has updated its state, draining funds or corrupting data. The DAO hack was the most famous example.</div></div>
+        <div class="glossary-card"><div class="g-term">Checks-Effects-Interactions</div><div class="g-def">A design pattern that structures functions in three steps: validate conditions (Checks), update contract state (Effects), then make external calls (Interactions). Prevents reentrancy.</div></div>
+        <div class="glossary-card"><div class="g-term">Integer Overflow</div><div class="g-def">When an arithmetic result exceeds the maximum value representable by the type. Solidity 0.8+ automatically reverts on overflow; older versions wrapped silently.</div></div>
+        <div class="glossary-card"><div class="g-term">tx.origin</div><div class="g-def">A global Solidity variable that returns the original EOA that started the transaction. Never use it for access control - it can be phished through malicious contracts.</div></div>
+        <div class="glossary-card"><div class="g-term">ReentrancyGuard</div><div class="g-def">An OpenZeppelin modifier that uses a mutex (mutual exclusion lock) to prevent a function from being re-entered during execution.</div></div>
+        <div class="glossary-card"><div class="g-term">Front-running</div><div class="g-def">An attack where someone observes a pending transaction in the mempool and submits their own transaction first with a higher gas price to profit from the information.</div></div>
+        <div class="glossary-card"><div class="g-term">Denial of Service (DoS)</div><div class="g-def">Any attack that makes a contract unusable - gas exhaustion from unbounded loops, block stuffing, or owner-key loss that freezes critical functions.</div></div>
+        <div class="glossary-card"><div class="g-term">MEV</div><div class="g-def">Miner/Maximal Extractable Value - the profit that can be extracted by reordering, including, or censoring transactions within a block.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.3</strong> of 6 · Next: Sub-Module 10.4 - Testing &amp; Fuzzing →</p>
+    </div>
+
+

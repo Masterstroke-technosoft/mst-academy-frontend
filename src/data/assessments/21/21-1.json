@@ -1,0 +1,273 @@
+{
+  "submoduleId": "21.1",
+  "totalMarks": 25,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which of the following tools performs <strong>static analysis</strong> without executing the contract code?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Echidna",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Slither",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Mythril",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Hardhat Gas Reporter",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Slither is a static analysis framework that examines Solidity code without executing it. It detects reentrancy, missing modifiers, and many other vulnerability patterns. Mythril uses symbolic execution (dynamic), Echidna does fuzzing, and Gas Reporter measures gas costs.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Slither</div>\n        <p>Slither is a static analysis framework that examines Solidity code without executing it. It detects reentrancy, missing modifiers, and many other vulnerability patterns. Mythril uses symbolic execution (dynamic), Echidna does fuzzing, and Gas Reporter measures gas costs.</p>\n        <div class=\"marks-bd\"><span>1 mark:</span> selecting B. No partial credit.</div>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "The Checks-Effects-Interactions pattern primarily defends against which attack?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Integer overflow",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Reentrancy",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Front-running",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Denial of Service",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Reentrancy exploits happen when a contract sends ETH (or tokens) to an external contract before updating its own state. The external contract can recursively call back into the original function. CEI forces state updates to happen before any external interaction.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div>\n        <p>Reentrancy exploits happen when a contract sends ETH (or tokens) to an external contract before updating its own state. The external contract can recursively call back into the original function. CEI forces state updates to happen before any external interaction.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "In Solidity ≥0.8, which of the following statements about integer overflow is TRUE?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Overflow is impossible because the EVM rejects such transactions.",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Overflow protection is built-in, but can be bypassed with unchecked { … }.",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Overflow is still possible by default; SafeMath must be imported.",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Overflow only affects uint256 and not smaller integer types.",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Solidity 0.8.x includes automatic overflow checks for all arithmetic. However, developers can deliberately disable these checks within an unchecked block. This is useful for gas savings but requires extreme care. SafeMath is no longer needed.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div>\n        <p>Solidity 0.8.x includes automatic overflow checks for all arithmetic. However, developers can deliberately disable these checks within an <code>unchecked</code> block. This is useful for gas savings but requires extreme care. SafeMath is no longer needed.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Which gas optimisation is CORRECT for an external function parameter of type <code>string memory name</code>?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Change to string storage name",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Change to string calldata name",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Keep as memory - it's already the cheapest",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Use bytes32 name instead",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "For function parameters that are not mutated, calldata is significantly cheaper than memory because it reads directly from the transaction data without copying. This is a quick win for gas savings.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div>\n        <p>For function parameters that are not mutated, <code>calldata</code> is significantly cheaper than <code>memory</code> because it reads directly from the transaction data without copying. This is a quick win for gas savings.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "MST’s BuildGrant requires a security-audit report. What is the minimum acceptable evidence for an <strong>initGrant</strong> application?",
+      "options": [
+        {
+          "key": "A",
+          "text": "A third-party audit from Certik or Trail of Bits",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "A self-audit report showing Slither/Mythril output and manual checklist completion",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "A tweet stating the contract is safe",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "No audit is required at initGrant stage",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "MST’s initGrant track (up to $1,000) accepts a thorough self-audit report. The applicant must demonstrate they have run automated tools and manually reviewed the checklist. Professional audits are expected for buildGrant and scaleGrant tiers.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div>\n        <p>MST’s initGrant track (up to $1,000) accepts a thorough self-audit report. The applicant must demonstrate they have run automated tools and manually reviewed the checklist. Professional audits are expected for buildGrant and scaleGrant tiers.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "other",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Slither can detect all possible smart-contract vulnerabilities without any human review.",
+      "correctAnswer": "FALSE",
+      "explanation": "✅ 1 mark for FALSE",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ 1 mark for FALSE</div>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "other",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "On MST, gas fees are so low that gas optimisation is unnecessary.",
+      "correctAnswer": "FALSE",
+      "explanation": "✅ 1 mark for FALSE",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ 1 mark for FALSE</div>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "type": "other",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Using <code>tx.origin</code> for authentication is a safe alternative to <code>msg.sender</code>.",
+      "correctAnswer": "FALSE",
+      "explanation": "✅ 1 mark for FALSE",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ 1 mark for FALSE</div>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q9",
+      "number": 9,
+      "type": "true_false_justification",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"A smart contract that passes Slither and Mythril with zero issues is guaranteed to be free of vulnerabilities.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: states FALSE. +1 mark: provides a valid justification (mentions business-logic blindness, or need for manual review, or limitation of static analysis).",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div>\n        <p><strong>1 mark:</strong> states FALSE. <strong>+1 mark:</strong> provides a valid justification (mentions business-logic blindness, or need for manual review, or limitation of static analysis).</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q10",
+      "number": 10,
+      "type": "true_false_justification",
+      "difficulty": "Hard",
+      "marks": 2,
+      "text": "\"Using <code>unchecked { i++; }</code> inside a loop is always a safe gas optimisation.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: FALSE. +1 mark: justification mentions that unchecked disables protection and must be used only with a proof of non-overflow, not blindly.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div>\n        <p><strong>1 mark:</strong> FALSE. <strong>+1 mark:</strong> justification mentions that <code>unchecked</code> disables protection and must be used only with a proof of non-overflow, not blindly.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q11",
+      "number": 11,
+      "type": "descriptive",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "Explain why reentrancy is still possible even if a contract uses <code>ReentrancyGuard</code> from OpenZeppelin.",
+      "explanation": "ReentrancyGuard only prevents reentrant calls to the same function that holds the lock. If a contract has multiple functions that call external contracts, and only some of them are guarded, an attacker can still re-enter through an unguarded function and corrupt state. Additionally, cross-contract reentrancy (attacking contract A via contract B) is not prevented by a guard inside contract A alone. CEI pattern is the fundamental defence.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Model Answer</div>\n        <p><code>ReentrancyGuard</code> only prevents reentrant calls to the <em>same</em> function that holds the lock. If a contract has multiple functions that call external contracts, and only some of them are guarded, an attacker can still re-enter through an unguarded function and corrupt state. Additionally, cross-contract reentrancy (attacking contract A via contract B) is not prevented by a guard inside contract A alone. CEI pattern is the fundamental defence.</p>\n        <div class=\"marks-bd\"><span>2 marks:</span> 1 for mentioning unguarded functions, 1 for cross-contract nuance.</div>"
+    },
+    {
+      "id": "q12",
+      "number": 12,
+      "type": "descriptive",
+      "difficulty": "Medium",
+      "marks": 3,
+      "text": "List three concrete gas-optimisation techniques that can be applied to the following function, and explain why each saves gas.<br><code>function setUser(address user, uint256 balance) public { users[user] = balance; }</code>",
+      "explanation": "1. Change parameter balance to uint256 balance - it’s already value type; but if it were a string/bytes, switch to calldata. \n          2. Emit an event inside the function to provide off-chain logging (not a direct gas saver but required for good practice). \n          More relevant: if the mapping read is done elsewhere, cache it. \n          Real optimisations: if the function is called externally, mark it external instead of public - saves a few gas. \n          If the mapping key is an address, use unchecked for arithmetic if doing so. \n          Packing: not applicable here. \n          (Accept any three that are technically sound.)",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Model Answer (any three valid)</div>\n        <p>\n          1. Change parameter <code>balance</code> to <code>uint256 balance</code> - it’s already value type; but if it were a string/bytes, switch to calldata. <br>\n          2. Emit an event inside the function to provide off-chain logging (not a direct gas saver but required for good practice). <br>\n          More relevant: if the mapping read is done elsewhere, cache it. <br>\n          Real optimisations: if the function is called externally, mark it <code>external</code> instead of <code>public</code> - saves a few gas. <br>\n          If the mapping key is an address, use <code>unchecked</code> for arithmetic if doing so. <br>\n          Packing: not applicable here. <br>\n          (Accept any three that are technically sound.)\n        </p>\n        <div class=\"marks-bd\"><span>3 marks:</span> 1 per correct technique with explanation.</div>"
+    },
+    {
+      "id": "q13",
+      "number": 13,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 3,
+      "text": "A developer on MST wants to deploy a contract that sends funds to a winner based on a random number generated using <code>block.timestamp</code> and <code>block.difficulty</code>. Explain why this is insecure and suggest a better approach using MST’s native protocols.",
+      "explanation": "block.timestamp can be manipulated by validators within a small range, and block.difficulty (or equivalent on MST) is not truly random. An attacker can influence the outcome. A better approach is to use MST’s FortunaX protocol, which provides a provably fair random number via a commit-reveal scheme or VRF (verifiable random function). Alternatively, use a commit-reveal pattern where users commit a hash and later reveal the preimage.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Model Answer</div>\n        <p>\n          <code>block.timestamp</code> can be manipulated by validators within a small range, and <code>block.difficulty</code> (or equivalent on MST) is not truly random. An attacker can influence the outcome. A better approach is to use MST’s <strong>FortunaX</strong> protocol, which provides a provably fair random number via a commit-reveal scheme or VRF (verifiable random function). Alternatively, use a commit-reveal pattern where users commit a hash and later reveal the preimage.\n        </p>\n        <div class=\"marks-bd\"><span>3 marks:</span> 1 for explaining insecurity, 1 for mentioning FortunaX/VRF, 1 for commit-reveal concept.</div>"
+    },
+    {
+      "id": "q14",
+      "number": 14,
+      "type": "coding",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "The following contract snippet contains at least <strong>two security vulnerabilities</strong> and <strong>one gas inefficiency</strong>. Identify them, explain the risk, and rewrite the corrected function(s).",
+      "explanation": "Vulnerability 1 - Reentrancy: The contract sends ETH to the previous bidder before updating highestBidder and highestBid. An attacker can re-enter bid() from the fallback and place a new bid, draining funds. \n          Vulnerability 2 - Unchecked return value: The call return is checked with require, but if the previous bidder is a contract that consumes all gas in its fallback, the refund will always fail, locking the auction. Should use a pull-over-push pattern. \n          Gas inefficiency: The bids mapping write is unnecessary for the core logic and wastes storage. Remove or optimise.\n        \nCorrected code (using CEI and Pull-over-Push):",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Solution</div>\n        <p>\n          <strong>Vulnerability 1 - Reentrancy:</strong> The contract sends ETH to the previous bidder before updating <code>highestBidder</code> and <code>highestBid</code>. An attacker can re-enter <code>bid()</code> from the fallback and place a new bid, draining funds. <br>\n          <strong>Vulnerability 2 - Unchecked return value:</strong> The <code>call</code> return is checked with <code>require</code>, but if the previous bidder is a contract that consumes all gas in its fallback, the refund will always fail, locking the auction. Should use a pull-over-push pattern. <br>\n          <strong>Gas inefficiency:</strong> The <code>bids</code> mapping write is unnecessary for the core logic and wastes storage. Remove or optimise.\n        </p>\n        <p><strong>Corrected code (using CEI and Pull-over-Push):</strong></p>\n        <div class=\"code-block\"><code>function bid() external payable nonReentrant {\n    require(msg.value &gt; highestBid, \"too low\");\n    address previousBidder = highestBidder;\n    uint previousBid = highestBid;\n\n    // effects first\n    highestBidder = msg.sender;\n    highestBid = msg.value;\n\n    // refund previous bidder via a withdraw pattern\n    if (previousBidder != address(0)) {\n        pendingReturns[previousBidder] += previousBid;\n    }\n    emit NewBid(msg.sender, msg.value);\n}</code></div>\n        <div class=\"marks-bd\"><span>5 marks:</span> 1 for identifying reentrancy, 1 for identifying DoS/refund issue, 1 for gas inefficiency, 2 for providing corrected code with CEI and pull-over-push.</div>",
+      "starterCode": "contract BadAuction {\n    mapping(address => uint) public bids;\n    address public highestBidder;\n    uint public highestBid;\n\n    function bid() external payable {\n        require(msg.value > highestBid, \"too low\");\n        if (highestBidder != address(0)) {\n            (bool sent, ) = highestBidder.call{value: highestBid}(\"\");\n            require(sent, \"refund failed\");\n        }\n        highestBidder = msg.sender;\n        highestBid = msg.value;\n        bids[msg.sender] += msg.value;\n    }\n}",
+      "language": "solidity"
+    }
+  ]
+}

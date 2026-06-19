@@ -1,0 +1,294 @@
+
+
+<!-- HEADER -->
+<div class="module-badge">🤖 Module 16 &nbsp;·&nbsp; Sub-Module 16.2</div>
+<h1 class="module-title">MST's <span class="highlight">AI &amp; Identity</span> Security</h1>
+<p class="module-subtitle">When your AI assistant orders groceries and books cabs - how do you give it just enough power without handing over the keys to your entire digital life?</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design + 1 Coding Challenge</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity &amp; Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Explain how AI agents interact with blockchains</strong>
+      Understand the concept of autonomous on-chain agents and the security risks they introduce.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text">
+      <strong>Describe MST's user-centric permission model</strong>
+      Detail how SARAL, DIDs, and smart contracts enable granular, revocable permissions for AI agents.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Design a secure delegation flow</strong>
+      Architect a system where an AI can book a cab or pay a bill using a Verifiable Credential without accessing the user's private key.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text">
+      <strong>Implement a basic permission token in Solidity</strong>
+      Write a smart contract that issues, checks, and revokes time-bound permissions for an AI agent to spend a limited amount of tokens.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The AI That Spent Your Salary on Dog Food</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>It is 2026. Priya, a software developer in Bengaluru, has an AI personal assistant named "Arya". Arya is brilliant: she reads Priya's calendar, orders groceries from BigBasket when the milk runs low, books an Ola to the airport when a meeting is added, and even pays the electricity bill before the due date. Priya loves Arya - until one Monday morning when she receives a notification: <strong>₹47,000 debited from her account for 300 kg of premium dog food.</strong> Priya doesn't own a dog.</p>
+  <br>
+  <p>Arya was tricked by a malicious advertisement embedded in a newsletter. The ad contained a hidden instruction that made Arya transfer nearly all of Priya's monthly salary to a fake pet store. Because Arya had full access to Priya's wallet, the transaction was instant, irreversible, and legally authorised - after all, the wallet's private key was used. Priya's bank says, "The transaction was authenticated; we cannot reverse it."</p>
+  <br>
+  <p>This is the <strong>AI delegation problem</strong>: How do you give an autonomous agent enough power to be useful, but not enough to be dangerous? In Web2, the answer is centralised - Google Assistant or Alexa are tightly controlled by Google and Amazon, which hold your cards and can revoke access. In Web3, you don't want a central authority controlling your AI. You want <strong>self-sovereign delegation</strong>. This is exactly what MST's AI &amp; Identity Security layer solves.</p>
+</div>
+
+<p>On MST, Priya can issue a <strong>Capability Permission</strong> - a time-bound, amount-limited, purpose-restricted delegation - to Arya's DID. Arya can spend at most ₹5,000 per week, only to BigBasket's verified DID, and never touch any other asset. If Arya tries to transfer ₹47,000 to an unknown dog-food store, the smart contract simply rejects the transaction. No private key is given to the AI. The permission is enforced on-chain by <strong>MST's Permission Registry smart contracts</strong>, integrated with SARAL's identity layer.</p>
+
+<!-- SECTION 3: BACKGROUND & EVOLUTION -->
+<div class="section-label">03 &nbsp; Background &amp; Evolution</div>
+<h2 class="section-title">From Simple Wallets to Intelligent Agents</h2>
+<p>To understand why MST's approach is revolutionary, we need to see how the interaction between humans, software, and blockchains has evolved.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Direct Human Control (2009-2020)</div>
+      <div class="feature-desc">Every transaction is initiated by a human using a wallet (MetaMask, BridgeKey). The human holds the private key and signs each transaction manually. No automation. No delegation. The model: one human, one key, one signature per transaction. This is secure but terribly inefficient for any AI-driven workflow.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Smart Contract Automation (2020-2024)</div>
+      <div class="feature-desc">Smart contracts automate specific logic when triggered by a human or an oracle. However, the trigger still comes from a human or an external off-chain bot. Bots that hold private keys become single points of failure and security nightmares - the bot is trusted with the full power of the key. There is no granular permission.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--accent);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegated AI Agents (2025-Present)</div>
+      <div class="feature-desc">AI agents (LLMs, autonomous software) need to execute transactions without a human in the loop for every action. They need <strong>programmable, limited, revocable authority</strong>. This is where MST's permission layer comes in: using DIDs, Verifiable Credentials, and on-chain capability tokens, an AI can act within a strictly defined boundary.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Key Insight</div>
+  <p>In Web3, a private key is <strong>all-or-nothing</strong>. If you give your private key to an AI (or a bot), you give it the ability to empty your entire wallet, sign any message, and interact with any smart contract. The solution is NOT to give the key at all - but to give a <strong>delegated, scoped capability</strong> that the blockchain itself can enforce.</p>
+</div>
+
+<!-- SECTION 4: BEGINNER-FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">How to Let Your AI Pay for Your Coffee (Without Giving It Your Wallet)</h2>
+
+<p>Imagine you have a physical wallet with cash, cards, and your Aadhaar. You would never hand your entire wallet to a stranger and say, "Please buy me a coffee." Instead, you'd take out exactly ₹200 and hand it to the person. That ₹200 note is a <strong>limited, purpose-specific permission</strong>. It can be spent only once and only for the coffee.</p>
+
+<p>Now, in the digital world, MST enables a similar <strong>delegation mechanism</strong> using three key components:</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why can't I just share my private key with my AI?</div>
+      <div class="w5-a">A private key grants unconditional, irrevocable access to everything. If the AI is compromised, all assets are lost. If the AI malfunctions, it can make catastrophic mistakes. MST's permission model <strong>decouples authentication from authorisation</strong>: the AI authenticates as itself (with its own DID), but its authority to act on your behalf is limited by a smart contract that you control.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What exactly is an MST Permission Capability?</div>
+      <div class="w5-a">It's a non-transferable, time-bound token issued by the user's smart wallet to a specific AI agent's DID. The capability specifies: <strong>(a) the permitted smart contract</strong> (e.g., the BigBasket ordering contract), <strong>(b) the maximum spend per transaction</strong> (e.g., 500 MST tokens), <strong>(c) the cumulative spending cap</strong> (e.g., 5,000 MST tokens per week), and <strong>(d) the expiry time</strong>. The AI signs transactions with its own DID, and the permission registry contract checks if the action is within the granted boundaries.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does revocation work if the AI goes rogue?</div>
+      <div class="w5-a">The user can revoke any capability instantly by calling a <code>revokePermission</code> function on the Permission Registry contract. Since the AI never has the user's private key, revoking the permission immediately stops all future actions. The registry is on-chain, so the revocation is globally visible and enforced in real-time. No need to change your private key.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where does SARAL fit into this?</div>
+      <div class="w5-a">SARAL is the identity layer that generates DIDs for both the user and the AI agent. The user creates a SARAL wallet via biometrics, and the AI agent's developer creates a DID for the agent. The user then issues a Verifiable Credential (a permission VC) to the agent's DID, signed with the user's DID. The Permission Registry verifies that VC on-chain before allowing the agent's transaction to proceed.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the current limitations?</div>
+      <div class="w5-a">The model relies on smart contract enforcement - the target contract must integrate with the Permission Registry. Widespread adoption requires ecosystem standards. Also, the AI's decision-making (what to order) is off-chain; MST only enforces the financial limits and target contracts. The AI could still order the wrong milk brand within the permission bounds - human oversight remains important for high-value decisions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: TECHNICAL DEEP DIVE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The MST Permission Registry &amp; Capability Token Architecture</h2>
+
+<p>Let's build the exact flow that Priya uses to let Arya order groceries without risk. The system involves four on-chain components:</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.1 The Permission Registry Smart Contract</h3>
+<p>This is the core contract deployed on MST. It stores a mapping of <strong>capability tokens</strong> that define what an agent can do. Each capability is a struct:</p>
+<div class="code-snippet">
+<pre>struct Capability {
+    address grantor;          // the user who issued the permission
+    address agent;            // the AI agent's DID (resolved to an address)
+    address targetContract;   // the contract the agent is allowed to call
+    bytes4  functionSelector; // allowed function, e.g., placeOrder()
+    uint256 maxPerTransaction;// maximum spend per single transaction
+    uint256 cumulativeCap;    // total spending allowed during the window
+    uint256 usedSoFar;        // cumulative spent amount
+    uint256 validUntil;       // expiry timestamp
+    bool    active;           // false if revoked
+}</pre>
+</div>
+
+<p>The user (grantor) calls <code>grantPermission(...)</code> which creates a new Capability. The agent later calls <code>executeWithPermission(...)</code> on the target contract, passing the capability ID. The target contract cross-checks with the Permission Registry before processing the transaction.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.2-A · Secure Delegation Flow with MST Permission Registry</div>
+  <pre>  USER (Priya)                  PERMISSION REGISTRY                 AI AGENT (Arya)           TARGET CONTRACT (BigBasket)
+
+  1. grantPermission(aryadid,
+     BigBasketAddr, placeOrder,
+     max=500, cum=5000, expiry)
+
+     ──────────────────▶  Stores Capability #42
+                           (aryadid, BigBasket, placeOrder, ...)
+
+                                                                    2. "I need milk"
+                                                                       (off‑chain decision)
+
+                                                                    3. executeWithPermission(42,
+                                                                       placeOrder(milk, 1L, ₹45))
+
+                                                                       ───────────────────────▶ 4. Check Registry:
+                                                                                                     Is Capability #42 active?
+                                                                                                     Is agent == msg.sender?
+                                                                                                     Is targetContract == this?
+                                                                                                     Is ₹45 ≤ maxPerTransaction?
+                                                                                                     Is usedSoFar + ₹45 ≤ cumulativeCap?
+                                                                                                     Has expiry passed?
+                                                                                                     ✅ All checks pass → update usedSoFar, proceed.
+
+                                                                                                    5. placeOrder(milk, 1L, ₹45)
+                                                                                                       executed.
+
+  ✅ Priya never shared her private key. Arya cannot spend more than ₹500 per order or ₹5,000 total.
+  </pre>
+  <div class="diagram-caption">The Permission Registry acts as a gatekeeper. The AI agent signs transactions with its own DID; the Registry verifies the capability against the agent's DID, not the user's. This is delegation without key sharing.</div>
+</div>
+
+<h3 style="font-size:18px; margin-top:28px;">5.2 Integrating DIDs and SARAL</h3>
+<p>In the flow above, Priya's DID is <code>did:mst:priya‑wallet</code>, and Arya's DID is <code>did:mst:arya‑agent‑v3</code>. When Priya calls <code>grantPermission</code>, the Registry resolves the agent's DID to its current blockchain address (using the DID Document on-chain). The capability is linked to the agent's address, but the agent can update its keys using its own DID Document - as long as the capability is active, the agent can rotate keys without Priya re-issuing permissions. This is critical for AI agents that need to upgrade their key management.</p>
+
+<p>SARAL ensures that Priya's DID creation and management is seamless. She never sees a seed phrase. If she loses her phone, she can recover her DID via SARAL's biometric recovery - and all granted capabilities remain intact because they are stored on-chain. The agent's DID is also a SARAL-based identity (but the agent developer manages the biometric login on the server side via secure enclaves).</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.3 Permission VC - A Verifiable Credential for Off-Chain AI</h3>
+<p>For AI agents that operate partially off-chain (e.g., an LLM that decides what to order), the permission can also be packaged as a Verifiable Credential. Priya issues a VC:</p>
+<div class="code-snippet">
+<pre>{
+  "@context": ["https://www.w3.org/2018/credentials/v1", "https://mstblockchain.com/permissions/v1"],
+  "type": ["VerifiableCredential", "MSTCapabilityCredential"],
+  "issuer": "did:mst:priya‑wallet",
+  "issuanceDate": "2026-08-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:mst:arya‑agent‑v3",
+    "permission": {
+      "targetContract": "0xBigBasketContract",
+      "function": "placeOrder",
+      "maxSpend": 500,
+      "cumulativeCap": 5000,
+      "validUntil": "2026-08-08T00:00:00Z"
+    }
+  },
+  "proof": { "type": "Ed25519Signature2020", ... }
+}</pre>
+</div>
+<p>The AI presents this VC alongside its transaction. The Permission Registry on-chain verifies the VC signature using Priya's DID Document. This means the AI never needs to hold the VC secret - it's a public presentation that proves the grant. However, to prevent replay, the VC must include a nonce or be bound to a specific transaction hash. MST implements a <strong>VC nonce registry</strong> to track used VCs.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.4 Gas Costs and Optimisation</h3>
+<p>Executing on-chain permission checks adds gas overhead. MST’s low gas fees make this viable. Typical cost per <code>executeWithPermission</code> call on MST Testnet is ~45,000 gas (~0.002 MST tokens). The Registry stores capabilities in a mapping, and each check is a few SLOADs. The target contract can also batch checks. For high-frequency AI actions, we use a <strong>session key model</strong>: the user grants a temporary session key to the agent, and the agent signs transactions directly with that key, which the Registry recognises. This reduces the need for the full VC flow on every transaction, but the session key can be rotated and has a short lifetime.</p>
+
+<!-- SECTION 6: REAL WORLD CASE STUDIES -->
+<div class="section-label">06 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Where MST's AI Security Already Shines</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🚗</div>
+    <div class="feature-content">
+      <div class="feature-title">Autonomous Ride-Hailing Agent</div>
+      <div class="feature-desc">A user grants an AI agent permission to book cabs on Ola via a smart contract that integrates with MST's Permission Registry. The agent can spend up to ₹2,000 per month, only to Ola's contract, with each ride capped at ₹500. The user revokes the permission if they switch to a different agent. The agent never sees the user's payment keys.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Yield Optimiser with Guardrails</div>
+      <div class="feature-desc">A yield-optimising AI moves funds between MST-based DeFi protocols to maximise returns. The user sets a maximum risk profile and a whitelist of allowed protocols. The Permission Registry enforces that the AI cannot move funds to an unlisted liquidity pool or exceed a 10% allocation to any single pool. In 2025, an MST DeFi user avoided a $50,000 rug-pull because the Registry blocked the AI's attempt to deposit into a fraudulent pool.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💳</div>
+    <div class="feature-content">
+      <div class="feature-title">Subscription Payment Manager</div>
+      <div class="feature-desc">A user's AI agent pays monthly subscriptions (Netflix, Spotify, cloud services) using MST tokens. The user grants a cumulative monthly cap of ₹3,000, with each payment capped at the exact subscription amount. If a service tries to charge more than the registered amount, the transaction is rejected. The user never worries about hidden price hikes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: ASSESSMENT PREPARATION -->
+<div class="section-label">07 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Capability-Based Security</div><div class="feature-desc">MST's Permission Registry enforces granular, time-bound, amount-limited delegation. The AI agent never gets the user's private key. Revocation is instant and on-chain.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">DID-Based Agent Identity</div><div class="feature-desc">Every AI agent has its own DID, registered on MST. Permissions are tied to the agent's DID, not the user's. This allows agent key rotation without re-granting permissions.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Verifiable Permission Credential</div><div class="feature-desc">Permissions can be expressed as VCs, enabling off-chain AI to present proof of authority. The VC is verified on-chain using the user's DID Document.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Session Keys for Gas Efficiency</div><div class="feature-desc">For high-frequency AI actions, the user can issue a temporary session key to the agent, allowing direct signing for a short period, while the Registry enforces the same limits.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">SARAL Integration</div><div class="feature-desc">Users create and recover DIDs without seed phrases. The biometric-based SARAL flow enables secure, user-friendly management of the grantor identity.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Capability Token</div><div class="glossary-def">A non-transferable on-chain record that grants an agent specific, limited authority to act on a user's behalf, enforced by the Permission Registry.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Permission Registry</div><div class="glossary-def">A smart contract on MST that stores and validates capability tokens, acting as the gatekeeper for all delegated AI actions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Agent DID</div><div class="glossary-def">A Decentralised Identifier assigned to an AI agent, allowing it to sign transactions and receive capability grants without sharing the user's private key.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Function Selector</div><div class="glossary-def">The first 4 bytes of the Keccak-256 hash of a function signature, used in capabilities to restrict which function the agent can call.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Session Key</div><div class="glossary-def">A temporary key issued to an agent for high-frequency operations, valid for a short time, with permissions still bounded by the underlying capability.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Delegation without Custody</div><div class="glossary-def">The principle that a user can empower an agent to act on their assets without surrendering control of the assets - enforced by smart contracts.</div></div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.2</strong> &nbsp;·&nbsp; Next: Sub-Module 16.3 - Privacy with ZK-Proofs →</p>
+</div>
+

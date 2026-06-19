@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.9 - Hands-On: Build a Paper Blockchain | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --brand:#6C3CE2;--brand-light:#EDE9FB;--brand-dark:#3C1FA0;
+    --accent:#F6A623;--accent-light:#FEF4E0;
+    --green:#16A34A;--green-light:#DCFCE7;
+    --red:#DC2626;--red-light:#FEE2E2;
+    --blue:#1D6FD8;--blue-light:#DBEAFE;
+    --orange:#EA580C;--orange-light:#FFEDD5;
+    --teal:#0D9488;--teal-light:#CCFBF1;
+    --ink:#111827;--ink-2:#374151;--ink-3:#6B7280;--ink-4:#9CA3AF;
+    --border:#E5E7EB;--surface:#F9FAFB;--surface-2:#F3F4F6;
+    --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+    --radius:10px;--radius-lg:16px;
+  }
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.75;font-size:16px;max-width:880px;margin:0 auto;padding:48px 32px 100px}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:var(--brand-light);color:var(--brand-dark);font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:8px}
+  .practical-badge{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-left:8px;vertical-align:middle}
+  h1{font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1.15;color:var(--ink);margin-bottom:12px;letter-spacing:-.02em}
+  h1 .hl{color:var(--brand)}
+  .subtitle{font-size:17px;color:var(--ink-3);margin-bottom:28px;line-height:1.65;max-width:680px}
+  .meta-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:52px;padding-bottom:32px;border-bottom:2px solid var(--border)}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;color:var(--ink-2)}
+  .chip.purple{background:var(--brand-light);border-color:#C4B5F5;color:var(--brand-dark)}
+  .chip.green{background:var(--green-light);border-color:#86EFAC;color:#14532D}
+  .chip.gold{background:var(--accent-light);border-color:#FCD34D;color:#92400E}
+  .sec-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:10px;margin-top:52px}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .sec-title{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:18px;letter-spacing:-.01em;line-height:1.3}
+  p{color:var(--ink-2);margin-bottom:16px;font-size:15.5px;line-height:1.8}
+  p strong{color:var(--ink);font-weight:700}
+  p:last-child{margin-bottom:0}
+  code{font-family:var(--mono);font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--brand-dark)}
+  .callout{border-radius:var(--radius-lg);padding:20px 24px;margin:24px 0;border-left:4px solid}
+  .callout .cl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .callout p{font-size:15px;margin:0}
+  .callout.story{background:#FAFAF5;border-color:var(--accent)}.callout.story .cl{color:#92400E}
+  .callout.key{background:var(--brand-light);border-color:var(--brand)}.callout.key .cl{color:var(--brand-dark)}
+  .callout.warn{background:var(--red-light);border-color:var(--red)}.callout.warn .cl{color:var(--red)}
+  .callout.insight{background:var(--teal-light);border-color:var(--teal)}.callout.insight .cl{color:var(--teal)}
+  .callout.success{background:var(--green-light);border-color:var(--green)}.callout.success .cl{color:#14532D}
+  .obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+  .obj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+  .obj-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+  .obj-text{font-size:14px;color:var(--ink-2);line-height:1.55}
+  .obj-text strong{display:block;color:var(--ink);font-weight:700;font-size:13.5px;margin-bottom:2px}
+  .dbox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 24px;margin:24px 0;overflow-x:auto}
+  .dbox-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:20px;text-align:center}
+  .dbox pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink-2);white-space:pre;margin:0}
+  .dbox-caption{font-size:12px;color:var(--ink-4);text-align:center;margin-top:16px;font-style:italic}
+  /* Lab step cards */
+  .lab-step{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:24px 0}
+  .lab-step-hdr{padding:14px 22px;display:flex;align-items:center;gap:14px}
+  .step-num{width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;font-size:16px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step-title{font-size:16px;font-weight:800;color:#fff}
+  .step-time{font-size:11px;font-weight:700;color:rgba(255,255,255,.75);margin-left:auto;letter-spacing:.05em;text-transform:uppercase}
+  .lab-step-body{padding:20px 22px;background:#fff}
+  .lab-step-body p{font-size:14.5px;margin-bottom:12px}
+  .lab-step-body p:last-child{margin-bottom:0}
+  /* Paper block template */
+  .paper-block{border:2px solid var(--brand);border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+  .paper-block-hdr{background:var(--brand);color:#fff;padding:10px 20px;font-size:13px;font-weight:800;letter-spacing:.04em}
+  .paper-field{display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid var(--border)}
+  .paper-field:last-child{border-bottom:none}
+  .paper-field-name{background:var(--brand-light);padding:12px 16px;font-size:13px;font-weight:700;color:var(--brand-dark);border-right:1px solid #C4B5F5;display:flex;align-items:center}
+  .paper-field-value{padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--ink-2);min-height:44px;display:flex;align-items:center}
+  .paper-field-value.filled{color:var(--ink);font-weight:600}
+  .paper-field-value.blank{color:var(--ink-4);font-style:italic}
+  /* Hash function reference */
+  .hash-ref{background:var(--surface-2);border:1px solid var(--border-2,#D1D5DB);border-radius:var(--radius-lg);padding:20px 24px;margin:20px 0}
+  .hash-ref-title{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+  .hash-table{width:100%;border-collapse:collapse;font-size:13px}
+  .hash-table thead th{padding:8px 12px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;border-bottom:2px solid var(--border);background:var(--surface);color:var(--ink-3)}
+  .hash-table tbody tr{border-bottom:1px solid var(--border)}
+  .hash-table tbody td{padding:9px 12px;color:var(--ink-2);font-family:var(--mono)}
+  .hash-table tbody td:first-child{color:var(--ink);font-weight:600}
+  /* Code block */
+  .code-wrap{background:#0F1117;border-radius:var(--radius-lg);overflow:hidden;margin:20px 0}
+  .code-hdr{background:#1A1D27;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2D3148}
+  .code-lang{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent)}
+  .code-body{padding:20px;overflow-x:auto}
+  .code-body pre{font-family:var(--mono);font-size:13px;line-height:1.9;color:#E2E8F0;white-space:pre;margin:0}
+  .c-kw{color:#F472B6}.c-fn{color:#A78BFA}.c-str{color:#86EFAC}.c-num{color:#FCD34D}.c-cmt{color:#6B7280;font-style:italic}.c-type{color:#67E8F9}
+  /* Rubric table */
+  .rubric-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
+  .rubric-table thead th{padding:12px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:left;border-bottom:2px solid var(--border);color:var(--ink-3)}
+  .rubric-table thead th:first-child{background:var(--brand-light);color:var(--brand-dark)}
+  .rubric-table thead th:nth-child(2){background:var(--surface)}
+  .rubric-table thead th:nth-child(3){background:#FFF9F0}
+  .rubric-table thead th:nth-child(4){background:var(--red-light)}
+  .rubric-table tbody tr{border-bottom:1px solid var(--border)}
+  .rubric-table tbody td{padding:13px 14px;vertical-align:top;color:var(--ink-2);line-height:1.55}
+  .rubric-table tbody td:first-child{font-weight:700;color:var(--ink)}
+  .rubric-table .marks{font-weight:800;color:var(--brand)}
+  .ggrind{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+  .gitem{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  .gterm{font-size:13px;font-weight:700;color:var(--brand);margin-bottom:4px}
+  .gdef{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+  /* Assessment */
+  .asec{margin-top:64px}
+  .ahdr{background:linear-gradient(135deg,var(--green),#14532D);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
+  .ahdr h2{font-size:20px;font-weight:800;color:#fff}
+  .mbadge{background:#fff;border-radius:10px;padding:10px 20px;text-align:center;flex-shrink:0}
+  .mbadge .mn{font-size:32px;font-weight:900;color:var(--green);line-height:1}
+  .mbadge .ml{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+  .abody{border:2px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);overflow:hidden}
+  .qsec-hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .qsec-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .qsec-meta{font-size:12px;color:var(--ink-3)}
+  .qblock{padding:28px 28px 28px;border-bottom:1px solid var(--border)}
+  .qblock:last-child{border-bottom:none}
+  .score-sum{background:linear-gradient(135deg,var(--green),#14532D);border-radius:var(--radius-lg);padding:28px 32px;margin-top:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .sl{color:#BBF7D0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .sr{color:#fff;font-size:15px;font-weight:600;margin-bottom:4px}
+  .sr span{color:#BBF7D0;font-weight:400}
+  .sbadge{background:#fff;border-radius:12px;padding:16px 28px;text-align:center;flex-shrink:0}
+  .sbadge .sn{font-size:44px;font-weight:900;color:var(--green);line-height:1}
+  .sbadge .st{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .pfooter{text-align:center;margin-top:64px;padding-top:32px;border-top:2px solid var(--border)}
+  .pfooter p{font-size:13px;color:var(--ink-3);margin-bottom:4px}
+  .module-complete{background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-radius:var(--radius-lg);padding:32px;margin-top:48px;text-align:center}
+  .module-complete h3{font-size:22px;font-weight:900;color:#fff;margin-bottom:8px}
+  .module-complete p{color:#C4B5F5;font-size:15px;margin-bottom:16px}
+  .module-complete .marks-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+  .marks-pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 20px;text-align:center}
+  .marks-pill .mp-n{font-size:24px;font-weight:900;color:#fff}
+  .marks-pill .mp-l{font-size:11px;font-weight:700;color:#C4B5F5;text-transform:uppercase;letter-spacing:.06em}
+  @media(max-width:640px){body{padding:28px 18px 72px}.obj-grid,.ggrind{grid-template-columns:1fr}.paper-field{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div style="margin-bottom:20px">
+  <div class="badge">🎓 Module 3 · Sub-Module 3.9 of 9</div>
+  <span class="practical-badge">🔬 Practical Lab - 40 min</span>
+</div>
+<h1>Hands-On: <span class="hl">Build a Paper Blockchain</span></h1>
+<p class="subtitle">Stop reading about blockchain. Start building one. In this final sub-module, you will construct a 3-block blockchain by hand - computing real hashes, chaining real blocks, and experiencing tamper-detection firsthand. Then simulate it in your browser.</p>
+
+<div class="meta-bar">
+  <div class="chip">⏱ 40 Minutes</div>
+  <div class="chip purple">🎯 20 Marks</div>
+  <div class="chip gold">🔬 Practical Submission</div>
+  <div class="chip">📋 Completed Paper Blockchain + Tamper Test + Digital Simulation + Report</div>
+  <div class="chip green">Phase 1 · Blockchain Fundamentals · Module 3 Capstone</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="sec-label">01 · Learning Objectives</div>
+<h2 class="sec-title">By the end of this lab, you will have…</h2>
+<div class="obj-grid">
+  <div class="obj-card"><div class="obj-icon">📝</div><div class="obj-text"><strong>Built a 3-block paper blockchain</strong>Created Block 0 (Genesis), Block 1, and Block 2 by hand - filling in all fields and computing hashes using the provided Paper SHA function.</div></div>
+  <div class="obj-card"><div class="obj-icon">🔍</div><div class="obj-text"><strong>Demonstrated the tamper-detection cascade</strong>Modified one block's data and proven - by hand - that all subsequent block hashes become invalid.</div></div>
+  <div class="obj-card"><div class="obj-icon">💻</div><div class="obj-text"><strong>Built a digital blockchain simulator</strong>Used the provided JavaScript code in your browser console to compute real SHA-256 hashes for your blocks.</div></div>
+  <div class="obj-card"><div class="obj-icon">📊</div><div class="obj-text"><strong>Written a reflection report</strong>Connected your hands-on experience to the theoretical concepts from Sub-Modules 3.1 - 3.8.</div></div>
+</div>
+
+
+<!-- 02 INTRODUCTION -->
+<div class="sec-label">02 · Why This Lab Exists</div>
+<h2 class="sec-title">The Gap Between Knowing and Understanding</h2>
+
+<div class="callout story">
+  <div class="cl">📖 Why We Build Before We Move On</div>
+  <p>You have studied eight sub-modules of blockchain theory - immutability, hashing, consensus, forks, Merkle trees. But there is a specific moment of understanding that only comes from doing it yourself. When you sit with a piece of paper, write "Ravi → Priya: ₹500," compute a hash, write the hash on the next block, then erase one digit and watch the entire chain unravel - something clicks that no amount of reading produces.</p>
+  <br>
+  <p>Every developer who has built production blockchain systems describes this moment. Vitalik Buterin described spending weeks sketching Ethereum's architecture on paper before writing a line of code. The paper blockchain exercise is not childish - it is the most important thing you can do to cement the entire Module 3 curriculum before Module 4 begins.</p>
+  <br>
+  <p>Complete this lab. Take photos of your paper blocks. Run the simulator. Write your reflection. This is 20 marks - and the foundation for everything in Modules 4 through 21.</p>
+</div>
+
+
+<!-- 03 MATERIALS NEEDED -->
+<div class="sec-label">03 · Materials Needed</div>
+<h2 class="sec-title">What You Need for the Paper Lab</h2>
+
+<div class="callout key">
+  <div class="cl">📋 Required Materials</div>
+  <p>
+    <strong>Part A (Paper Lab):</strong> 3 sheets of plain A4 paper · 1 pen or pencil · This sub-module document (open on your phone or laptop) · A calculator (optional)<br><br>
+    <strong>Part B (Digital Simulation):</strong> Any modern web browser (Chrome, Firefox, Edge, Safari) with DevTools (press F12 or right-click → Inspect → Console tab) · Internet connection (to load the Web Crypto API)<br><br>
+    <strong>Part C (Report):</strong> Google Docs, Word, or any text editor · Minimum 300 words
+  </p>
+</div>
+
+
+<!-- 04 THE PAPER SHA FUNCTION -->
+<div class="sec-label">04 · The Paper SHA Function - Simulating Hashing by Hand</div>
+<h2 class="sec-title">A Human-Computable Approximation of SHA-256</h2>
+
+<p>Real SHA-256 requires a computer - it runs 64 rounds of bitwise operations on 512-bit chunks. For this paper exercise, we use a simplified <strong>Paper SHA function</strong> that preserves the essential properties: deterministic, avalanche effect, and one-way (for practical purposes). This is NOT a real hash function - it is an educational approximation.</p>
+
+<div class="dbox">
+  <div class="dbox-title">PAPER SHA FUNCTION - Step-by-Step Rules</div>
+  <pre>
+  INPUT: A string of text (your block data)
+
+  STEP 1: Count total characters (including spaces and symbols).
+          Write this as COUNT.
+
+  STEP 2: Assign each letter a number (A=1, B=2, ..., Z=26,
+          space=0, digits keep their value, punctuation=9).
+          Sum all values → call this SUM.
+
+  STEP 3: Multiply COUNT × SUM. Call this PRODUCT.
+
+  STEP 4: Take PRODUCT and perform this operation:
+          FOLD = (first 4 digits of PRODUCT) XOR (last 4 digits of PRODUCT)
+          [XOR = add digits mod 10, no carry: 7 XOR 3 = 0, 5 XOR 8 = 3]
+
+  STEP 5: Concatenate COUNT + SUM + FOLD as a string.
+          Pad with leading zeros to make exactly 12 characters.
+          This is your Paper Hash.
+
+  EXAMPLE: "Block 1" (7 characters)
+  COUNT = 7
+  B=2, l=12, o=15, c=3, k=11, space=0, 1=1 → SUM = 44
+  PRODUCT = 7 × 44 = 308
+  308 → pad to 8 digits: 00000308 → first 4: 0000, last 4: 0308
+  FOLD: 0 XOR 0 = 0, 0 XOR 3 = 3, 0 XOR 0 = 0, 0 XOR 8 = 8 → 0308
+  Hash = "007440308" → pad to 12 chars → "007440000308"
+
+  NOTE: The Paper SHA is NOT cryptographically secure — it is a
+  learning tool. For the digital simulation (Part B), use real SHA-256
+  via the Web Crypto API in your browser. Both results go in your report.
+  </pre>
+  <div class="dbox-caption">The Paper SHA function preserves the conceptual properties of hashing - same input always produces same output, changing any character changes the output. It is only an approximation; the digital simulation uses real SHA-256.</div>
+</div>
+
+
+<!-- 05 THE LAB — 7 STEPS -->
+<div class="sec-label">05 · The Lab - 7 Steps to Build Your Paper Blockchain</div>
+<h2 class="sec-title">Follow Each Step Exactly - Document Everything</h2>
+
+<!-- STEP 1 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--brand)">
+    <div class="step-num">1</div>
+    <div class="step-title">Create the Genesis Block (Block #0)</div>
+    <div class="step-time">⏱ 5 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>On your first sheet of paper, draw this block template and fill in the fields exactly as shown below. The Genesis Block has no previous block - so PrevHash = "000000000000" (twelve zeros).</p>
+
+    <div class="paper-block">
+      <div class="paper-block-hdr">📦 BLOCK #0 - Genesis Block</div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Number</div>
+        <div class="paper-field-value filled">0</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">PrevHash</div>
+        <div class="paper-field-value filled">000000000000 (twelve zeros - no previous block)</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Transaction Data</div>
+        <div class="paper-field-value filled">Satoshi → World: 0 MSTC (Genesis - no transactions)</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Timestamp</div>
+        <div class="paper-field-value filled">Write today's date and time</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Nonce</div>
+        <div class="paper-field-value filled">1 (we are not mining - just use 1)</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Hash</div>
+        <div class="paper-field-value blank">→ Compute using Paper SHA of all above fields combined</div>
+      </div>
+    </div>
+    <p><strong>Your task:</strong> Compute the Block Hash by applying the Paper SHA function to the concatenated string of all block fields (PrevHash + Transaction Data + Timestamp + Nonce). Write the 12-character result in the Block Hash field. This hash will become Block #1's PrevHash.</p>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--blue)">
+    <div class="step-num">2</div>
+    <div class="step-title">Create Block #1 - The First Real Transaction</div>
+    <div class="step-time">⏱ 5 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>On your second sheet, draw Block #1. The PrevHash must be copied exactly from Block #0's Block Hash.</p>
+
+    <div class="paper-block">
+      <div class="paper-block-hdr">📦 BLOCK #1 - First Transaction</div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Number</div>
+        <div class="paper-field-value filled">1</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">PrevHash</div>
+        <div class="paper-field-value blank">→ Copy EXACTLY from Block #0's Block Hash field</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Transaction Data</div>
+        <div class="paper-field-value filled">Ravi → Priya: 500 MSTC | Fee: 1 MSTC → Validator</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Timestamp</div>
+        <div class="paper-field-value filled">Current date/time + 3 seconds (simulating 3-sec block time)</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Nonce</div>
+        <div class="paper-field-value filled">1</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Hash</div>
+        <div class="paper-field-value blank">→ Compute using Paper SHA of all above fields</div>
+      </div>
+    </div>
+    <p><strong>Critical:</strong> PrevHash in Block #1 MUST be the exact hash from Block #0. This is what creates the chain. Any difference - even a single character - breaks the chain.</p>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--teal)">
+    <div class="step-num">3</div>
+    <div class="step-title">Create Block #2 - The Chain Grows</div>
+    <div class="step-time">⏱ 5 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>On your third sheet, draw Block #2. PrevHash = Block #1's Block Hash.</p>
+
+    <div class="paper-block">
+      <div class="paper-block-hdr">📦 BLOCK #2 - Second Transaction</div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Number</div>
+        <div class="paper-field-value filled">2</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">PrevHash</div>
+        <div class="paper-field-value blank">→ Copy EXACTLY from Block #1's Block Hash field</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Transaction Data</div>
+        <div class="paper-field-value filled">Priya → Anita: 200 MSTC | Rahul → Contract: 50 MSTC</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Timestamp</div>
+        <div class="paper-field-value filled">Current date/time + 6 seconds</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Nonce</div>
+        <div class="paper-field-value filled">1</div>
+      </div>
+      <div class="paper-field">
+        <div class="paper-field-name">Block Hash</div>
+        <div class="paper-field-value blank">→ Compute using Paper SHA of all above fields</div>
+      </div>
+    </div>
+    <p>After completing Block #2, you have a complete 3-block paper blockchain: Genesis → Block #1 → Block #2. Draw arrows connecting the blocks, showing how Block #1's hash flows into Block #2's PrevHash field. <strong>Take a clear photograph of all three blocks laid out in sequence.</strong></p>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--red)">
+    <div class="step-num">4</div>
+    <div class="step-title">The Tamper Test - Break the Chain</div>
+    <div class="step-time">⏱ 5 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>This is the most important step. You will <strong>tamper with Block #1</strong> and observe the cascade of invalidation.</p>
+    <p><strong>Action:</strong> Cross out the Transaction Data in Block #1. Replace it with: <code>Ravi → Priya: 50,000 MSTC</code> (you've "stolen" money by changing the amount).</p>
+    <p><strong>Now observe what happens:</strong></p>
+    <p>1. Block #1's data has changed → <strong>Recompute Block #1's Hash</strong> with the modified data. Write the new hash in pencil next to the original. It will be different.</p>
+    <p>2. Block #2's PrevHash says: <em>"I link to the old Block #1 hash."</em> But Block #1's hash is now different. <strong>Cross out Block #2's PrevHash</strong> and write: ❌ MISMATCH - Block #2 is now INVALID.</p>
+    <p>3. If there was a Block #3, Block #4, and so on - <strong>every single one would be invalidated</strong> by the same cascade.</p>
+    <p><strong>Take a photograph of the tampered chain</strong> showing the mismatch between Block #1's new hash and Block #2's original PrevHash. This photograph is evidence of the cascade for your report.</p>
+
+    <div class="callout warn">
+      <div class="cl">⚠️ This Is What Immutability Means</div>
+      <p>The reason you cannot tamper with a blockchain in production is exactly what you just experienced on paper - but at a scale where recomputing all subsequent hashes requires more computing power than exists on Earth. You've just proven immutability to yourself, with a pen.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--orange)">
+    <div class="step-num">5</div>
+    <div class="step-title">Digital Simulation - Real SHA-256 in Your Browser</div>
+    <div class="step-time">⏱ 10 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>Now rebuild your 3-block blockchain digitally using real SHA-256 hashing. Open your browser (Chrome recommended), press <strong>F12</strong> to open DevTools, click the <strong>Console</strong> tab, and paste the code below.</p>
+
+    <div class="code-wrap">
+      <div class="code-hdr">
+        <div class="code-lang">JavaScript · Browser Console · Real SHA-256 Blockchain Simulator</div>
+      </div>
+      <div class="code-body">
+<pre><span class="c-cmt">// ─────────────────────────────────────────────────────────────────
+// MST ACADEMY — Paper Blockchain Digital Simulator
+// Paste this ENTIRE block into your browser console (F12 → Console)
+// Uses the Web Crypto API — works in Chrome, Firefox, Edge, Safari
+// ─────────────────────────────────────────────────────────────────</span>
+
+<span class="c-cmt">// SHA-256 using the browser's built-in Web Crypto API</span>
+<span class="c-kw">async function</span> <span class="c-fn">sha256</span>(message) {
+  <span class="c-kw">const</span> msgBuffer = <span class="c-kw">new</span> <span class="c-fn">TextEncoder</span>().<span class="c-fn">encode</span>(message);
+  <span class="c-kw">const</span> hashBuffer = <span class="c-kw">await</span> crypto.subtle.<span class="c-fn">digest</span>(<span class="c-str">'SHA-256'</span>, msgBuffer);
+  <span class="c-kw">const</span> hashArray = Array.<span class="c-fn">from</span>(<span class="c-kw">new</span> <span class="c-type">Uint8Array</span>(hashBuffer));
+  <span class="c-kw">return</span> hashArray.<span class="c-fn">map</span>(b => b.<span class="c-fn">toString</span>(<span class="c-num">16</span>).<span class="c-fn">padStart</span>(<span class="c-num">2</span>, <span class="c-str">'0'</span>)).<span class="c-fn">join</span>(<span class="c-str">''</span>);
+}
+
+<span class="c-cmt">// Block class — represents one block in our chain</span>
+<span class="c-kw">class</span> <span class="c-type">Block</span> {
+  <span class="c-fn">constructor</span>(index, prevHash, data, timestamp) {
+    <span class="c-kw">this</span>.index     = index;
+    <span class="c-kw">this</span>.prevHash  = prevHash;
+    <span class="c-kw">this</span>.data      = data;
+    <span class="c-kw">this</span>.timestamp = timestamp || <span class="c-kw">new</span> <span class="c-type">Date</span>().<span class="c-fn">toISOString</span>();
+    <span class="c-kw">this</span>.nonce     = <span class="c-num">1</span>;
+    <span class="c-kw">this</span>.hash      = <span class="c-str">''</span>; <span class="c-cmt">// will be computed</span>
+  }
+
+  <span class="c-fn">toHashString</span>() {
+    <span class="c-kw">return</span> `${<span class="c-kw">this</span>.index}${<span class="c-kw">this</span>.prevHash}${<span class="c-kw">this</span>.data}${<span class="c-kw">this</span>.timestamp}${<span class="c-kw">this</span>.nonce}`;
+  }
+}
+
+<span class="c-cmt">// Build a 3-block blockchain with real SHA-256</span>
+<span class="c-kw">async function</span> <span class="c-fn">buildBlockchain</span>() {
+  console.<span class="c-fn">log</span>(<span class="c-str">'🔗 MST Academy — Building Your Paper Blockchain with Real SHA-256\n'</span>);
+  <span class="c-kw">const</span> chain = [];
+
+  <span class="c-cmt">// ── BLOCK #0: Genesis ──────────────────────────────────────────</span>
+  <span class="c-kw">const</span> genesis = <span class="c-kw">new</span> <span class="c-type">Block</span>(
+    <span class="c-num">0</span>,
+    <span class="c-str">'0000000000000000000000000000000000000000000000000000000000000000'</span>,
+    <span class="c-str">'Satoshi → World: 0 MSTC (Genesis)'</span>
+  );
+  genesis.hash = <span class="c-kw">await</span> <span class="c-fn">sha256</span>(genesis.<span class="c-fn">toHashString</span>());
+  chain.<span class="c-fn">push</span>(genesis);
+
+  <span class="c-cmt">// ── BLOCK #1: First Transaction ────────────────────────────────</span>
+  <span class="c-kw">const</span> block1 = <span class="c-kw">new</span> <span class="c-type">Block</span>(
+    <span class="c-num">1</span>,
+    genesis.hash,   <span class="c-cmt">// PrevHash = Genesis block's hash</span>
+    <span class="c-str">'Ravi → Priya: 500 MSTC | Fee: 1 MSTC → Validator'</span>
+  );
+  block1.hash = <span class="c-kw">await</span> <span class="c-fn">sha256</span>(block1.<span class="c-fn">toHashString</span>());
+  chain.<span class="c-fn">push</span>(block1);
+
+  <span class="c-cmt">// ── BLOCK #2: Second Transaction ───────────────────────────────</span>
+  <span class="c-kw">const</span> block2 = <span class="c-kw">new</span> <span class="c-type">Block</span>(
+    <span class="c-num">2</span>,
+    block1.hash,    <span class="c-cmt">// PrevHash = Block #1's hash</span>
+    <span class="c-str">'Priya → Anita: 200 MSTC | Rahul → Contract: 50 MSTC'</span>
+  );
+  block2.hash = <span class="c-kw">await</span> <span class="c-fn">sha256</span>(block2.<span class="c-fn">toHashString</span>());
+  chain.<span class="c-fn">push</span>(block2);
+
+  <span class="c-cmt">// ── PRINT THE CHAIN ────────────────────────────────────────────</span>
+  chain.<span class="c-fn">forEach</span>(block => {
+    console.<span class="c-fn">log</span>(`━━━ BLOCK #${block.index} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.<span class="c-fn">log</span>(`  PrevHash : ${block.prevHash.<span class="c-fn">slice</span>(<span class="c-num">0</span>,<span class="c-num">16</span>)}...`);
+    console.<span class="c-fn">log</span>(`  Data     : ${block.data}`);
+    console.<span class="c-fn">log</span>(`  Timestamp: ${block.timestamp}`);
+    console.<span class="c-fn">log</span>(`  Nonce    : ${block.nonce}`);
+    console.<span class="c-fn">log</span>(`  Hash     : ${block.hash}`);
+    console.<span class="c-fn">log</span>(<span class="c-str">''</span>);
+  });
+
+  <span class="c-cmt">// ── TAMPER SIMULATION ─────────────────────────────────────────</span>
+  console.<span class="c-fn">log</span>(<span class="c-str">'⚠️  TAMPER TEST — Modifying Block #1 transaction amount...\n'</span>);
+  <span class="c-kw">const</span> tamperedBlock1 = <span class="c-kw">new</span> <span class="c-type">Block</span>(
+    <span class="c-num">1</span>,
+    genesis.hash,
+    <span class="c-str">'Ravi → Priya: 50000 MSTC | Fee: 1 MSTC → Validator'</span>,  <span class="c-cmt">// changed 500 → 50000</span>
+    block1.timestamp
+  );
+  tamperedBlock1.hash = <span class="c-kw">await</span> <span class="c-fn">sha256</span>(tamperedBlock1.<span class="c-fn">toHashString</span>());
+
+  console.<span class="c-fn">log</span>(<span class="c-str">'Original Block #1 Hash: '</span> + block1.hash);
+  console.<span class="c-fn">log</span>(<span class="c-str">'Tampered Block #1 Hash: '</span> + tamperedBlock1.hash);
+  console.<span class="c-fn">log</span>(<span class="c-str">'Hashes match? '</span> + (block1.hash === tamperedBlock1.hash));
+  console.<span class="c-fn">log</span>(<span class="c-str">'\n❌ Block #2 PrevHash expected: '</span> + block1.hash.<span class="c-fn">slice</span>(<span class="c-num">0</span>,<span class="c-num">20</span>) + <span class="c-str">'...'</span>);
+  console.<span class="c-fn">log</span>(<span class="c-str">'❌ Block #2 PrevHash actual:   '</span> + tamperedBlock1.hash.<span class="c-fn">slice</span>(<span class="c-num">0</span>,<span class="c-num">20</span>) + <span class="c-str">'...'</span>);
+  console.<span class="c-fn">log</span>(<span class="c-str">'❌ CHAIN BROKEN — Block #2 is now INVALID!'</span>);
+
+  <span class="c-kw">return</span> chain;
+}
+
+<span class="c-cmt">// RUN IT</span>
+<span class="c-fn">buildBlockchain</span>();</pre>
+      </div>
+    </div>
+
+    <p><strong>What to do:</strong> Copy the entire code above. Open your browser. Press F12. Click "Console." Paste and press Enter. The output will show your 3-block blockchain with real SHA-256 hashes (64 hex characters each) and the tamper test demonstrating hash mismatch.</p>
+    <p><strong>Take a screenshot of the console output</strong> - this is Part B of your submission.</p>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--brand)">
+    <div class="step-num">6</div>
+    <div class="step-title">Optional Challenge - Add a 4th Block and a Merkle Root</div>
+    <div class="step-time">⏱ 5 min (bonus)</div>
+  </div>
+  <div class="lab-step-body">
+    <p><strong>This step is optional but earns bonus marks in the reflection report.</strong></p>
+    <p>Extend the digital simulation by adding Block #3 with two transactions, then compute a simple Merkle Root for Block #3:</p>
+    <p>1. Add a Block #3 with transactions: <code>"Ali → Zara: 100 MSTC | MST Treasury → Community: 1000 MSTC"</code></p>
+    <p>2. Split those two transactions, hash each separately, then hash the two hashes together to get a Merkle Root for Block #3.</p>
+    <p>Modify the JavaScript code - add a Block #3 class instance, compute its hash, and also compute the two-transaction Merkle Root using your <code>sha256()</code> function. Include this in your screenshot.</p>
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<div class="lab-step">
+  <div class="lab-step-hdr" style="background:var(--green)">
+    <div class="step-num">7</div>
+    <div class="step-title">Write Your Reflection Report</div>
+    <div class="step-time">⏱ 10 min</div>
+  </div>
+  <div class="lab-step-body">
+    <p>Write a reflection report of minimum <strong>300 words</strong> (maximum 600 words). Your report must address all of the following points. Each point maps to marks in the rubric.</p>
+
+    <div class="callout key">
+      <div class="cl">📝 Required Report Sections</div>
+      <p>
+        <strong>1. The Chain (3 - 5 sentences):</strong> Describe how your three blocks connect. What field creates the chain? Why is copying PrevHash exactly critical?<br><br>
+        <strong>2. The Tamper Test (3 - 5 sentences):</strong> Describe what happened when you changed the transaction amount in Block #1. Which fields changed? Which blocks became invalid? What does this prove about blockchain immutability?<br><br>
+        <strong>3. Paper SHA vs Real SHA-256 (2 - 4 sentences):</strong> How did your Paper SHA hash compare to the real SHA-256 hash for the same data? What properties were the same? What was different?<br><br>
+        <strong>4. Personal Insight (3 - 5 sentences):</strong> What did you understand from doing this exercise that you hadn't understood from reading? Was there a moment where something "clicked"? What is that insight?<br><br>
+        <strong>5. Indian Real-World Connection (2 - 4 sentences):</strong> Which real-world Indian problem (land records, MNREGA, PDS, academic credentials, MSME invoicing) would benefit most from blockchain's tamper-evidence property? Why specifically? How would it change the status quo?
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 06 SUBMISSION CHECKLIST -->
+<div class="sec-label">06 · Submission Checklist</div>
+<h2 class="sec-title">What to Submit</h2>
+
+<div class="callout success">
+  <div class="cl">✅ Submission Package - All 4 Items Required</div>
+  <p>
+    <strong>Photo 1:</strong> Your completed 3-block paper blockchain (all three sheets visible, arrows drawn between blocks, all fields filled including computed Paper SHA hashes)<br><br>
+    <strong>Photo 2:</strong> The tampered chain - showing Block #1 with crossed-out original data, new data written, and Block #2's PrevHash marked as INVALID with the mismatch highlighted<br><br>
+    <strong>Screenshot:</strong> Browser console showing the digital simulation output - all three block hashes (real SHA-256) and the tamper test mismatch output<br><br>
+    <strong>Report:</strong> PDF or Google Doc link - minimum 300 words addressing all 5 required sections
+  </p>
+</div>
+
+
+<!-- 07 ASSESSMENT: RUBRIC -->
+<section class="asec">
+  <div class="ahdr">
+    <h2>📊 Sub-Module 3.9 Assessment Rubric</h2>
+    <div class="mbadge"><div class="mn">20</div><div class="ml">Total Marks</div></div>
+  </div>
+  <div class="abody">
+
+    <div class="qsec-hdr">
+      <div class="qsec-title">Practical Assessment - Full Rubric</div>
+      <div class="qsec-meta">20 marks total across 5 criteria</div>
+    </div>
+
+    <div class="qblock">
+      <table class="rubric-table">
+        <thead>
+          <tr>
+            <th>Assessment Criteria</th>
+            <th>Full Marks (Excellent)</th>
+            <th>Partial Marks (Satisfactory)</th>
+            <th>Minimal/No Marks (Insufficient)</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🧱 Paper Blockchain Completeness<br><em>(Photo 1 evaluated)</em></td>
+            <td>All 3 blocks present with all 6 fields filled. PrevHash in B1 matches B0's hash. PrevHash in B2 matches B1's hash. Paper SHA hashes computed (even if approximate). Blocks physically connected with arrows showing chain direction.</td>
+            <td>All 3 blocks present but 1 - 2 fields incomplete or hashes not computed. PrevHash linkage partially correct.</td>
+            <td>Fewer than 3 blocks, or blocks not linked, or no hashes computed.</td>
+            <td><span class="marks">5 marks</span></td>
+          </tr>
+          <tr>
+            <td>🔍 Tamper Test Documentation<br><em>(Photo 2 evaluated)</em></td>
+            <td>Block #1 clearly shows original data crossed out, new tampered data written. Block #1's new hash computed. Block #2's PrevHash marked as mismatched/invalid. Arrow or annotation clearly showing the cascade. Photo is legible.</td>
+            <td>Tamper shown but cascade not fully annotated. Block #2 not explicitly marked invalid, or new Block #1 hash not computed.</td>
+            <td>No tamper test performed, or photo missing, or tamper shown but with no analysis of impact on subsequent blocks.</td>
+            <td><span class="marks">4 marks</span></td>
+          </tr>
+          <tr>
+            <td>💻 Digital Simulation Screenshot<br><em>(Screenshot evaluated)</em></td>
+            <td>Console output clearly shows all 3 blocks with SHA-256 hashes (64-char hex strings). Tamper test section visible showing original vs tampered hash and chain break message. Code ran without errors.</td>
+            <td>Screenshot present but tamper test section missing, or only 2 blocks shown, or hash values truncated/unclear.</td>
+            <td>No screenshot, or code not run, or screenshot shows errors rather than blockchain output.</td>
+            <td><span class="marks">4 marks</span></td>
+          </tr>
+          <tr>
+            <td>📝 Reflection Report Quality<br><em>(Report evaluated)</em></td>
+            <td>Minimum 300 words. All 5 required sections addressed. Demonstrates genuine understanding - explains WHY PrevHash creates immutability, describes specific insight from doing vs reading, connects to a specific Indian real-world use case with concrete details. Writing is clear and coherent.</td>
+            <td>300+ words but 1 - 2 sections superficially addressed (e.g., mentions tamper test happened but doesn't explain WHY it invalidates subsequent blocks). Or fewer than 300 words but all sections covered substantively.</td>
+            <td>Under 200 words, or fewer than 3 sections addressed, or report is copied from the sub-module content without original thought.</td>
+            <td><span class="marks">5 marks</span></td>
+          </tr>
+          <tr>
+            <td>🔗 Conceptual Connections<br><em>(Report + Photos evaluated together)</em></td>
+            <td>Report explicitly connects lab experience to Sub-Module concepts - references at least 3 of: immutability (3.4), hash properties (3.3), block anatomy (3.2), Merkle trees (3.8), or consensus (3.6). Makes insightful connection between paper exercise and how real blockchains work at scale. Optional Step 6 (Merkle Root) completed: +1 bonus.</td>
+            <td>Report connects to 1 - 2 sub-module concepts explicitly. Shows understanding of the relationship between lab and theory but without depth.</td>
+            <td>Report does not connect to any other sub-module concepts. Treats lab as isolated exercise without theoretical grounding.</td>
+            <td><span class="marks">2 marks</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout insight" style="margin-top:24px">
+        <div class="cl">💡 Evaluator Notes</div>
+        <p>This is a practical submission - evaluate based on effort, understanding, and genuine engagement, not perfection. Paper SHA hashes do not need to be mathematically correct - award marks if the student shows they applied the algorithm faithfully, even if the arithmetic contains errors. Real SHA-256 hashes in the digital simulation should be exactly 64 hexadecimal characters and deterministic - the same code run twice gives identical output. The most important criterion is the reflection report: look for genuine insight rather than parroted definitions.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-sum">
+    <div>
+      <div class="sl">Sub-Module 3.9 Assessment Summary</div>
+      <div class="sr">Paper Blockchain Completeness <span>(Photo 1) = 5 marks</span></div>
+      <div class="sr">Tamper Test Documentation <span>(Photo 2) = 4 marks</span></div>
+      <div class="sr">Digital Simulation Screenshot <span>= 4 marks</span></div>
+      <div class="sr">Reflection Report Quality <span>(min 300 words, 5 sections) = 5 marks</span></div>
+      <div class="sr">Conceptual Connections <span>(Report + Photos) = 2 marks</span></div>
+    </div>
+    <div class="sbadge"><div class="sn">20</div><div class="st">Total Marks</div></div>
+  </div>
+</section>
+
+
+<!-- MODULE COMPLETE -->
+<div class="module-complete">
+  <h3>🎉 Module 3 Complete - Blockchain Fundamentals</h3>
+  <p>You have completed all 9 sub-modules of Module 3. Here is the complete marks breakdown:</p>
+  <div class="marks-row">
+    <div class="marks-pill"><div class="mp-n">5</div><div class="mp-l">3.1 What is Blockchain?</div></div>
+    <div class="marks-pill"><div class="mp-n">10</div><div class="mp-l">3.2 Blocks & Transactions</div></div>
+    <div class="marks-pill"><div class="mp-n">10</div><div class="mp-l">3.3 Cryptographic Hashing</div></div>
+    <div class="marks-pill"><div class="mp-n">10</div><div class="mp-l">3.4 Immutability</div></div>
+    <div class="marks-pill"><div class="mp-n">5</div><div class="mp-l">3.5 Transparency</div></div>
+    <div class="marks-pill"><div class="mp-n">25</div><div class="mp-l">3.6 Consensus (Flagship)</div></div>
+    <div class="marks-pill"><div class="mp-n">5</div><div class="mp-l">3.7 Forks</div></div>
+    <div class="marks-pill"><div class="mp-n">10</div><div class="mp-l">3.8 Merkle Trees</div></div>
+    <div class="marks-pill"><div class="mp-n">20</div><div class="mp-l">3.9 Paper Blockchain</div></div>
+  </div>
+  <p style="margin-top:20px;color:#C4B5F5;font-size:14px">Total Module 3 Marks: <strong style="color:#fff;font-size:18px">100 / 100</strong> &nbsp;·&nbsp; Next: Module 4 - Cryptography &amp; Digital Signatures</p>
+</div>
+
+
+<!-- GLOSSARY -->
+<div class="sec-label" style="margin-top:52px">08 · Glossary</div>
+<h2 class="sec-title">Key Terms - Sub-Module 3.9</h2>
+<div class="ggrind">
+  <div class="gitem"><div class="gterm">Genesis Block</div><div class="gdef">Block #0 - the very first block in a blockchain. Has no predecessor, so PrevHash is all zeros. Hard-coded at chain launch. Cannot be altered without invalidating every subsequent block.</div></div>
+  <div class="gitem"><div class="gterm">Paper SHA</div><div class="gdef">An educational approximation of SHA-256 for paper-based exercises. Preserves the conceptual properties (deterministic, avalanche effect) without requiring computation. Not cryptographically secure.</div></div>
+  <div class="gitem"><div class="gterm">Web Crypto API</div><div class="gdef">A browser-native API (crypto.subtle) that provides access to cryptographic primitives including SHA-256 hashing. Available in all modern browsers without any library installation.</div></div>
+  <div class="gitem"><div class="gterm">Hash Cascade</div><div class="gdef">The chain reaction where altering one block's data changes its hash, which breaks the next block's PrevHash reference, invalidating every subsequent block. The mechanism enforcing blockchain immutability.</div></div>
+  <div class="gitem"><div class="gterm">SPV Verification</div><div class="gdef">Using Merkle proofs and block headers to verify transactions without downloading full blocks. The basis for mobile blockchain wallets.</div></div>
+  <div class="gitem"><div class="gterm">Tamper-Evidence</div><div class="gdef">The property that any modification to blockchain data is automatically and immediately detectable through hash mismatch - demonstrated in Step 4 of this lab.</div></div>
+</div>
+
+<div class="pfooter">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.9</strong> of 9 &nbsp;·&nbsp; <strong>Module 3 Complete!</strong> Next: Module 4 - Cryptography &amp; Digital Signatures →</p>
+</div>
+
+</body>
+</html>

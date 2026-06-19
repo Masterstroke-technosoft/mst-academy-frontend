@@ -1,0 +1,527 @@
+
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚙️ Module 7 &nbsp;·&nbsp; Sub-Module 7.2 of 8</div>
+<h1 class="module-title"><span class="highlight">EVM Compatibility</span> - The Developer's Shortcut</h1>
+<p class="module-subtitle">How MST runs every Ethereum smart contract out of the box, why it matters for builders, and the technical magic that makes Uniswap, OpenZeppelin, and Hardhat work unchanged.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 5 MCQ + 1 Identify-Output + 1 T/F</div>
+  <div class="meta-chip green">Phase 2 · MST Architecture &amp; Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Define EVM and its role</strong>
+      Explain what the Ethereum Virtual Machine does and why its bytecode standardisation changed blockchain development forever.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔁</div>
+    <div class="obj-text">
+      <strong>Understand full EVM compatibility</strong>
+      Know exactly what it means for MST to be "EVM-compatible" - same opcodes, same precompiles, same behaviour - and what it does NOT mean.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Deploy an Ethereum dApp on MST in minutes</strong>
+      Take an existing Solidity project (Hardhat, Foundry, Remix) and deploy it unchanged to MST Testnet with only an RPC switch.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📊</div>
+    <div class="obj-text">
+      <strong>Compare gas, speed, and tooling</strong>
+      Evaluate the real-world advantages of deploying on MST vs Ethereum mainnet: cost, finality, and developer experience.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DeFi Team's Midnight Migration</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>A five-person DeFi startup in Bengaluru has spent six months building a lending protocol. Their smart contracts are written in Solidity, tested with Hardhat, and audited using OpenZeppelin libraries. The frontend is a React app with ethers.js. Everything runs perfectly on Ethereum Sepolia testnet.</p>
+  <br>
+  <p>Then comes the Mainnet launch planning. They calculate gas costs: a single deposit transaction on Ethereum mainnet costs $18. A liquidation call - essential for protocol safety - can spike to $120 during congestion. Their target users, small-scale Indian farmers looking for micro-loans, would be priced out immediately. The protocol is financially non-viable.</p>
+  <br>
+  <p>The team considers rewriting everything for a cheaper L1, but that means a new smart contract language, new tooling, new security assumptions, and months of lost time. Then their lead developer remembers reading about MST's EVM compatibility. She changes one line in the Hardhat config file - the RPC URL - from Sepolia to MST Testnet. No other code changes. She runs <code>npx hardhat compile</code>. It compiles. She runs <code>npx hardhat test</code>. All 94 unit tests pass. She deploys. The contracts are live on MST Testnet in 8 seconds. Gas cost per deposit? Less than ₹0.02.</p>
+  <br>
+  <p>Within 48 hours, the team has migrated their entire protocol, audited again (because the bytecode is identical), and launched on MST mainnet. The frontend connects to BridgeKey wallet exactly as it did to MetaMask. The Uniswap-fork DEX they integrated works without modification. The lending protocol is now serving 10,000 users with fees that don't destroy value. <strong>EVM compatibility saved them six months of work and made their business model possible.</strong></p>
+</div>
+
+<p>This story isn't hypothetical - it's the exact reason EVM compatibility is the most important feature for any modern Layer-1 blockchain. It gives developers instant access to the largest collection of audited smart contracts, libraries, and tools in Web3, without retraining or rewriting.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">How the EVM Became the "Windows of Blockchain"</h2>
+
+<p>To understand why EVM compatibility matters, you must first understand what the EVM is and why it became the universal standard that almost every new chain now wants to emulate.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2013 - 2014</div>
+      <div class="tl-body"><strong>The Birth of the EVM.</strong> Vitalik Buterin proposed Ethereum not as a currency but as a "world computer" - a blockchain that could run arbitrary code. The EVM was designed as a quasi-Turing-complete, stack-based virtual machine that executes bytecode compiled from a high-level language (initially Serpent, later Solidity). Every Ethereum node runs an EVM instance. The key insight: the EVM is deterministic - given the same initial state and the same transaction, every node produces exactly the same result. This deterministic property is what makes decentralised consensus on computation possible.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015 - 2017</div>
+      <div class="tl-body"><strong>Solidity &amp; the Tooling Explosion.</strong> Solidity became the dominant language for the EVM. A rich ecosystem exploded: Truffle framework, Remix IDE, OpenZeppelin's library of secure, standardised contracts (ERC-20, ERC-721, access control), and thousands of developers learning one language. By 2017, the EVM had become a de facto standard - not by committee, but by network effect. Any new blockchain that wanted developers had a choice: create a new virtual machine and build a toolchain from scratch, or adopt the EVM and inherit the entire existing ecosystem overnight.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018 - 2020</div>
+      <div class="tl-body"><strong>The Rise of EVM-Compatible Chains.</strong> Binance Smart Chain (BSC) became the first major L1 to explicitly target EVM compatibility for mass adoption. It worked - BSC attracted thousands of Ethereum dApps with minimal code changes. Polygon, Avalanche C-Chain, Fantom, and dozens of others followed. The formula was proven: EVM compatibility = instant developer ecosystem. Chains that didn't adopt the EVM (e.g., Solana with its BPF runtime, NEAR with WASM, MultiversX with WASM VM) had to build their tooling and developer communities from zero, a much slower path.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2021 - 2023</div>
+      <div class="tl-body"><strong>The Hardhat &amp; Foundry Era.</strong> Development frameworks Hardhat (JavaScript) and Foundry (Rust) became the professional standard for EVM development. They provide compilation, testing, debugging, gas reporting, and deployment scripts - all for the EVM. An EVM-compatible chain can use these tools without any plugin or modification. MST was designed during this period, and the decision to be fully EVM-compatible was obvious: it meant that from day one, MST developers could use Hardhat, Foundry, Remix, OpenZeppelin, ethers.js, viem, Wagmi, and every other EVM tool.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST's Full EVM Compatibility.</strong> MST runs the exact EVM bytecode specification as Ethereum. Every opcode (ADD, SSTORE, CALL, etc.) behaves identically. Every precompiled contract (ecrecover, SHA-256, etc.) is supported with the same gas costs. The chain ID and RPC interface follow Ethereum JSON-RPC standards. Result: any dApp that runs on Ethereum can run on MST with zero or near-zero code changes, while benefiting from MST's higher throughput, near-zero fees, and hybrid architecture.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Windows Analogy</div>
+  <p>Think of the EVM like Windows in the 1990s. Software developers write programs for Windows because that's where the users and tools are. A new operating system that can run Windows programs unchanged gets instant access to thousands of applications. The EVM is the operating system of blockchain applications. MST runs that operating system perfectly, so every Ethereum application instantly works on MST - but with a faster processor and lower costs.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">What Does "EVM-Compatible" Actually Mean?</h2>
+
+<p>Imagine you write a document in Microsoft Word. That document is just a file - if you have the exact same version of Word on a different computer, you can open the file, edit it, and it looks identical. EVM compatibility is like that. The smart contract is the document (bytecode). The EVM is Word. If MST runs the same EVM "software" as Ethereum, it can open and execute the exact same smart contracts, producing the exact same results.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">📄 The Document Analogy</div>
+  <p><strong>Your Solidity code</strong> = A document you type in English (human-readable).<br>
+  <strong>The compiler (solc)</strong> = The "Save As PDF" function - it translates your Solidity into EVM bytecode (machine-readable).<br>
+  <strong>EVM</strong> = The PDF reader. As long as the PDF reader follows the same specification, it displays the document identically.<br>
+  <strong>MST's EVM</strong> = A high-speed PDF reader that opens the same PDF with zero rendering differences - but faster and cheaper.</p>
+</div>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does EVM compatibility matter for a developer?</div>
+      <div class="w5-a">It eliminates the <strong>rewrite cost</strong>. A team that has built, tested, and audited Solidity contracts can deploy on MST with zero code changes. They reuse all their Hardhat tests, OpenZeppelin libraries, and frontend SDKs. This reduces migration time from months to minutes.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What components make a chain "EVM-compatible"?</div>
+      <div class="w5-a">Four things: (1) The same <strong>opcode set</strong> - every instruction (PUSH, ADD, SSTORE, CALL) works identically. (2) The same <strong>precompiled contracts</strong> - built-in contracts for hashing, signature recovery, etc. (3) The same <strong>gas accounting</strong> - each opcode costs the same relative amount of gas. (4) Ethereum-compatible <strong>JSON-RPC API</strong> - so MetaMask, BridgeKey, ethers.js can talk to it without modification.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does MST achieve EVM compatibility?</div>
+      <div class="w5-a">MST's execution layer embeds a production-grade EVM interpreter (based on the same reference implementation used by Ethereum clients like Geth). When a transaction calls a smart contract, the EVM interpreter runs the bytecode step-by-step, updating the state trie exactly as Ethereum would. The only difference is the underlying consensus and block production - but to the smart contract, the execution environment is identical.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where are the limits? What does NOT work?</div>
+      <div class="w5-a">EVM compatibility does NOT mean the chain has the same economic parameters. Gas prices are much lower on MST, so a contract that assumes a certain gas cost for security (e.g., time-based puzzles) may need recalibration. Chain-specific features (like block.timestamp or block.number) have different values on MST, but they are the same opcodes - the data is chain-specific, which is normal. Also, MST's consensus is Trika POSA, not Proof-of-Stake, so block production mechanics differ, but smart contracts don't interact with consensus directly.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What's the fine print?</div>
+      <div class="w5-a">EVM compatibility is not the same as Ethereum compatibility. MST has its own native token (MSTC), its own chain ID, and its own block explorer. A contract that hardcodes the Ethereum chain ID (1) or the Ether token address will need a one-line change to use MST's values. Also, some Ethereum-specific precompiles (like the Beacon Chain contracts) are not present because MST uses a different consensus, but they are rarely used by dApps. For 99% of smart contracts, no changes are needed.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Four Pillars of EVM Compatibility on MST</h2>
+
+<p>EVM compatibility isn't a marketing checkbox - it's a precise technical specification. MST's implementation can be broken down into four pillars that developers should understand to fully leverage the platform.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Opcode-Level Equivalence</div>
+      <div class="feature-desc">
+        The EVM has approximately 140 opcodes (from STOP to CREATE2). MST implements <strong>every single opcode</strong> with identical semantics. When a Solidity contract does <code>a + b</code>, the ADD opcode pops two values from the stack, adds them, and pushes the result - on both Ethereum and MST. More critically, state-changing opcodes like <code>SSTORE</code> (write to storage) and <code>CALL</code> (call another contract) work identically, including the gas refund mechanism for clearing storage. Even the less-common opcodes like <code>SELFDESTRUCT</code> and <code>DELEGATECALL</code> are implemented per the Ethereum Yellow Paper. This opcode-level equivalence means that <strong>every audited Solidity contract is bytecode-for-bytecode identical on MST</strong> - the security properties that were verified on Ethereum hold on MST because the execution environment is the same.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Precompiled Contracts - The Built-in Functions</div>
+      <div class="feature-desc">
+        The EVM includes nine precompiled contracts at fixed addresses (0x01 through 0x09) that provide expensive cryptographic operations natively. MST supports all of them: <code>ecrecover</code> (address 0x01, ECDSA signature recovery), <code>SHA2‑256</code> (0x02), <code>RIPEMD‑160</code> (0x03), <code>identity</code> (0x04), <code>modexp</code> (0x05, modular exponentiation), <code>ecAdd</code>/<code>ecMul</code>/<code>ecPairing</code> (0x06-0x08, elliptic curve operations for ZK-SNARKs), and <code>blake2f</code> (0x09, used in Ethereum 2.0). These precompiles are gas-expensive operations that are implemented in the node client's native language (Go/Rust) for efficiency. Any Solidity contract that calls <code>ecrecover</code> to verify a signature will work seamlessly on MST. The gas costs for these precompiles are identical to Ethereum's schedule, so developers can rely on existing gas estimations.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Gas Accounting Compatibility</div>
+      <div class="feature-desc">
+        Each EVM opcode has a predefined gas cost (e.g., ADD costs 3 gas, SSTORE costs 20,000 gas for a new value). MST uses the <strong>same gas cost table</strong> as Ethereum. Why? Because Solidity optimisations and security patterns are built around these costs. If MST made SSTORE cheaper, a contract that relies on the high cost of storage writes for spam prevention could become vulnerable. By keeping the gas table identical, MST ensures that the <em>relative</em> economic incentives within a transaction are preserved. However, the <em>gas price</em> (how much MSTC you pay per gas unit) is dramatically lower - thanks to MST's high throughput and efficient consensus. So a transaction that costs 21,000 gas will be much cheaper in fiat terms on MST than on Ethereum, but the gas consumption is the same.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Ethereum JSON-RPC API</div>
+      <div class="feature-desc">
+        Wallets (MetaMask, BridgeKey) and frontend libraries (ethers.js, viem, web3.js) communicate with a blockchain node via a standardised API called Ethereum JSON-RPC. Methods like <code>eth_sendTransaction</code>, <code>eth_call</code>, <code>eth_getLogs</code>, and <code>eth_blockNumber</code> are expected by every dApp. MST's nodes expose the <strong>exact same JSON-RPC interface</strong>. This means a React app built with ethers.js that points to an Ethereum node can be switched to an MST node by changing exactly one URL. No SDK change, no function signature change. The wallet (BridgeKey) uses the same EIP-1193 provider interface, so dApps don't need to know which chain they're on beyond the chain ID. This RPC compatibility is the silent hero that makes the entire ecosystem work without friction.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Golden Rule</div>
+  <p>If a contract compiles and runs on Ethereum, it compiles and runs on MST - with identical behaviour. The bytecode is the same, the storage layout is the same, the event logs are the same. A security audit performed on the Ethereum version of a contract is valid for the MST version because <strong>the execution environment is functionally identical</strong>. This is the ultimate trust guarantee for developers and auditors.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising EVM Compatibility on MST</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.2-A · How a Solidity Contract Runs on MST (vs Ethereum)</div>
+  <pre>  ETHEREUM FLOW                              MST FLOW
+  ──────────────                             ─────────
+  
+  Solidity Source Code                       Solidity Source Code
+  (.sol)                                     (.sol)
+       │                                           │
+       ▼                                           ▼
+  solc Compiler                              solc Compiler
+  (same version, e.g., 0.8.21)              (same version)
+       │                                           │
+       ▼                                           ▼
+  EVM Bytecode + ABI                         EVM Bytecode + ABI
+  (identical)                                (identical)
+       │                                           │
+       ▼                                           ▼
+  Deploy via Hardhat                         Deploy via Hardhat
+  RPC: Ethereum node                         RPC: MST node (only change)
+       │                                           │
+       ▼                                           ▼
+  Ethereum EVM executes                      MST EVM executes
+  opcodes in Geth client                     same opcodes in MST client
+       │                                           │
+       ▼                                           ▼
+  State updated                              State updated
+  Gas: high (ETH price)                      Gas: negligible (MSTC price)
+  Block time: 12 sec                         Block time: ~3 sec
+  Finality: ~6 min                           Finality: ~3 sec
+  </pre>
+  <div class="diagram-caption">The only difference is the RPC endpoint and the economic parameters. The bytecode, execution, and tooling are identical.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.2-B · The EVM Compatibility Stack on MST</div>
+  <pre>  ┌─────────────────────────────────────────────────────────┐
+  │              FRONTEND (React, Vue, etc.)                │
+  │   ethers.js / viem  ←  ETH JSON‑RPC (unchanged)       │
+  └───────────────────────┬─────────────────────────────────┘
+                          │
+  ┌───────────────────────▼─────────────────────────────────┐
+  │           WALLET (BridgeKey / MetaMask)                 │
+  │   EIP‑1193 provider, signs TX, manages keys            │
+  └───────────────────────┬─────────────────────────────────┘
+                          │
+  ┌───────────────────────▼─────────────────────────────────┐
+  │               MST NODE (RPC Endpoint)                   │
+  │   Exposes eth_sendTransaction, eth_call, etc.          │
+  └───────────────────────┬─────────────────────────────────┘
+                          │
+  ┌───────────────────────▼─────────────────────────────────┐
+  │             MST EXECUTION LAYER (EVM)                  │
+  │   ┌─────────────┐  ┌───────────┐  ┌─────────────────┐ │
+  │   │  Opcodes    │  │Precompiles│  │  Gas Schedule   │ │
+  │   │ (identical) │  │ (0x01-0x09)│  │ (Ethereum spec) │ │
+  │   └─────────────┘  └───────────┘  └─────────────────┘ │
+  └───────────────────────┬─────────────────────────────────┘
+                          │
+  ┌───────────────────────▼─────────────────────────────────┐
+  │         MST STATE (Partitioned Merkle Trie)            │
+  │   Contract storage, balances, code                     │
+  └─────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Everything above the execution layer is standard Ethereum tooling. MST's EVM is a drop-in replacement that sits below the same JSON-RPC interface.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">EVM Compatibility Across Major Chains - How MST Compares</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Chain</th>
+      <th>EVM Compatibility Level</th>
+      <th>Developer Experience</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ethereum</td>
+      <td>Full native EVM</td>
+      <td class="good">Gold standard, but high gas &amp; slow finality</td>
+    </tr>
+    <tr>
+      <td>Binance Smart Chain</td>
+      <td>Full EVM (slightly modified gas)</td>
+      <td class="good">Drop-in replacement; lower gas, faster blocks</td>
+    </tr>
+    <tr>
+      <td>Polygon PoS</td>
+      <td>Full EVM</td>
+      <td class="good">Cheaper, but a sidechain dependent on Ethereum</td>
+    </tr>
+    <tr>
+      <td>Avalanche C-Chain</td>
+      <td>Full EVM</td>
+      <td class="good">Good, but separate from X/P chains</td>
+    </tr>
+    <tr>
+      <td>Solana</td>
+      <td class="bad">Not EVM compatible (BPF/SBF)</td>
+      <td class="bad">Separate toolchain, Rust/C, no Hardhat</td>
+    </tr>
+    <tr>
+      <td>NEAR Protocol</td>
+      <td class="mid">Aurora (EVM as smart contract)</td>
+      <td class="mid">Works but not native; additional complexity</td>
+    </tr>
+    <tr>
+      <td><strong>MST</strong></td>
+      <td class="good">Full native EVM</td>
+      <td class="good">Identical to Ethereum for developers; lowest gas, fastest finality among EVM L1s</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Developer Decision Factor</div>
+  <p>If you know Solidity and Hardhat, you already know how to build on MST. The learning curve is zero. That's the power of full EVM compatibility - it's not just about code, it's about skills portability.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">EVM Compatibility in Action - Migrations &amp; Builds</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Forking Uniswap v2 on MST - A 30-Minute Job</div>
+      <div class="feature-desc">
+        A developer wants to launch a DEX for a local community token on MST. Instead of building an AMM from scratch, she clones the audited Uniswap v2 core contracts (UniswapV2Pair, UniswapV2Factory, UniswapV2Router), changes the fee recipient address in the constructor, and deploys via Hardhat with MST RPC. The contracts compile without errors. The frontend is a fork of the Uniswap interface, with the router address replaced. Total time: under 30 minutes. The DEX is live on MST with exactly the same security properties as Uniswap on Ethereum, but with sub-cent swap fees. EVM compatibility made this trivial.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Lending Protocol - From Sepolia to MST in One Config Change</div>
+      <div class="feature-desc">
+        A Compound-fork lending protocol was fully developed and tested on Ethereum Sepolia. The team changed the Hardhat network config to MST Testnet RPC, deployed, and all 120 unit tests passed (using Hardhat's mainnet forking, pointed to MST). The contract addresses, ABIs, and event signatures were identical. The only change needed in the frontend: the chain ID and RPC URL in the wallet connection code. Gas costs dropped by 99.8%, making micro-loans economically viable for the first time.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🎟️</div>
+    <div class="feature-content">
+      <div class="feature-title">NFT Ticketing Platform - OpenZeppelin Out of the Box</div>
+      <div class="feature-desc">
+        A ticketing startup built their NFT contract using OpenZeppelin's ERC-721 and ERC-2981 (royalties) libraries. They deployed on MST mainnet without any modification to the OpenZeppelin imports. The contract uses <code>Counters</code> for token ID management and <code>Ownable</code> for access control - all standard OpenZeppelin contracts that are battle-tested on Ethereum. The gas cost to mint an NFT (a ticket) on MST is less than ₹0.50, compared to $15-30 on Ethereum. The startup could never have offered affordable on-chain tickets without EVM compatibility.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🔐</div>
+    <div class="feature-content">
+      <div class="feature-title">Multi-Sig Wallet - Gnosis Safe on MST</div>
+      <div class="feature-desc">
+        The Gnosis Safe multi-sig wallet is a complex set of contracts using delegatecalls, proxy patterns, and EIP-1271 signature validation. A community group ported the entire Gnosis Safe suite to MST by simply deploying the verified bytecode. All signature verification logic (which relies on the <code>ecrecover</code> precompile) worked perfectly because MST's precompile at address 0x01 is identical. The multi-sig now secures a DAO treasury on MST with the same security guarantees as on Ethereum mainnet, audited by the same firms.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 10-Mark Assessment</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">EVM = Ethereum Virtual Machine</div>
+      <div class="feature-desc">A deterministic, stack-based runtime that executes bytecode compiled from Solidity. It is the standard execution environment for smart contracts across dozens of blockchains.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Full EVM Compatibility on MST</div>
+      <div class="feature-desc">MST implements all EVM opcodes, all precompiled contracts (0x01-0x09), the Ethereum gas schedule, and the Ethereum JSON-RPC API. Any Solidity contract that runs on Ethereum runs identically on MST.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Zero Learning Curve for Ethereum Developers</div>
+      <div class="feature-desc">All existing tools (Hardhat, Foundry, Remix, ethers.js, OpenZeppelin, MetaMask/BridgeKey) work unchanged. The only difference is the RPC endpoint and chain ID.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Precompiled Contracts</div>
+      <div class="feature-desc">Fixed addresses (0x01-0x09) that provide cryptographic operations efficiently. <code>ecrecover</code> (0x01) for signature recovery, <code>SHA2‑256</code> (0x02), and the elliptic curve pairings (0x06-0x08) used in ZK proofs are fully supported on MST.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Gas Costs &amp; Security</div>
+      <div class="feature-desc">Gas <em>costs</em> (per opcode) are identical to Ethereum, so security assumptions based on gas remain valid. Gas <em>price</em> (in MSTC) is dramatically lower, making transactions cheap but not altering contract execution economics.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (Blueprint: 5 MCQ + 1 Identify‑Output + 1 T/F = 10 marks)
+════════════════════════════════════════════════════ -->
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.2</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">EVM (Ethereum Virtual Machine)</div>
+    <div class="glossary-def">A deterministic, stack-based virtual machine that executes smart contract bytecode. It is the runtime environment for Ethereum and all EVM-compatible chains.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Bytecode</div>
+    <div class="glossary-def">The low-level hexadecimal representation of a smart contract that the EVM executes. Compiled from Solidity by solc.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Opcodes</div>
+    <div class="glossary-def">Individual instructions in EVM bytecode (e.g., ADD, SSTORE, CALL). Each opcode consumes a predefined amount of gas.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Precompiled Contracts</div>
+    <div class="glossary-def">Built-in contracts at fixed addresses (0x01-0x09) that perform complex cryptographic operations efficiently. Key ones: ecrecover (0x01), SHA-256 (0x02).</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">JSON-RPC</div>
+    <div class="glossary-def">The standard API protocol that wallets and dApps use to communicate with blockchain nodes. MST uses Ethereum-compatible JSON-RPC.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Hardhat</div>
+    <div class="glossary-def">A popular Ethereum development framework (JavaScript) for compiling, testing, and deploying smart contracts. Works on MST unchanged.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">OpenZeppelin</div>
+    <div class="glossary-def">A library of secure, audited smart contract implementations (ERC-20, ERC-721, access control) that works on any EVM chain, including MST.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Chain ID</div>
+    <div class="glossary-def">A unique identifier for a blockchain network (Ethereum mainnet = 1, MST mainnet = 2001). Used to prevent transaction replay across chains.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Gas Schedule</div>
+    <div class="glossary-def">The table defining how much gas each EVM opcode costs. MST uses the same schedule as Ethereum to preserve security invariants.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">EIP-1193</div>
+    <div class="glossary-def">The standard JavaScript provider API that wallets inject into browsers. BridgeKey implements this, so dApps detect it like MetaMask.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 7 · Sub-Module <strong>7.2</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.3 - Trika POSA in Action →</p>
+</div>
+
+

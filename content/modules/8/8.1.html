@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 8.1 - Node.js, npm & VS Code Setup | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  /* Interactive collapsible */
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.1 of 8</div>
+<h1 class="module-title">Node.js, npm &amp; <span class="highlight">VS Code</span> Setup</h1>
+<p class="module-subtitle">Every great blockchain journey begins with the right tools. We install and configure the holy trinity of Web3 development - Node.js, npm, and Visual Studio Code - laying the foundation for Hardhat, Solidity, and your first dApp on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 5 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark each)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment & Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">💚</div>
+    <div class="obj-text">
+      <strong>Install and verify Node.js & npm</strong>
+      Set up the JavaScript runtime and its package manager on Windows, macOS, or Linux, and confirm the installation with terminal commands.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Understand package.json & dependency management</strong>
+      Read and create a manifest file, install OpenZeppelin or Hardhat as dependencies, and explain the difference between dependencies and devDependencies.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text">
+      <strong>Configure Visual Studio Code for Solidity</strong>
+      Install essential extensions - Solidity, Prettier, ESLint, GitLens - and customize settings for linting, formatting, and syntax highlighting of .sol files.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Run your first JavaScript script</strong>
+      Write and execute a Node.js script that prints the current block number of MST Testnet using the ethers.js library, verifying the entire toolchain works.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Developer Who Coded Without npm - A Cautionary Tale</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a solo developer in Chennai began building a DeFi dashboard using React and ethers.js. He manually downloaded the ethers.js file, placed it in a `/lib` folder, and referenced it with a script tag. Everything worked until he needed to add the OpenZeppelin library for token contracts. OpenZeppelin depends on Hardhat, which depends on dozens of other packages - a deep tree of dependencies. Without npm, he spent three days downloading files one by one, resolving versions by hand. The project became unmanageable. He abandoned it.</p>
+  <br>
+  <p>Two months later, he revisited the project with a freshly installed Node.js and npm. He ran <code>npm install --save-dev hardhat @openzeppelin/contracts</code>. In fifteen seconds, every library was installed, version conflicts were resolved, and the project compiled on the first try. The toolchain had transformed a nightmare into a command.</p>
+</div>
+<p>This sub-module ensures you never suffer that fate. You will set up Node.js, npm, and VS Code - the three tools that power 99% of modern blockchain development. Once installed, you can compile Solidity contracts, run automated tests, and deploy to MST Testnet with a single command. The initial setup takes 30 minutes; the productivity it unlocks lasts a lifetime.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Why JavaScript Conquered Blockchain Development</h2>
+<p>When Ethereum launched in 2015, smart contracts were written in Solidity, but the tooling around them was primitive. Developers compiled contracts in a browser-based IDE (Remix) and deployed them manually. There was no testing framework, no package manager, and no reproducible build pipeline. Every developer reinvented the wheel.</p>
+<p>The breakthrough came in 2018 - 2019 with <strong>Hardhat</strong> (originally Buidler), a development environment built entirely on Node.js. Hardhat provided a local Ethereum network, a Solidity compiler, a testing framework, and a plugin system - all powered by Node.js and npm. Because Node.js uses JavaScript, and JavaScript was already the language of web frontends, the same developers who built dApp interfaces could now write their deployment scripts and tests in the same language. This convergence made blockchain development accessible to millions of JavaScript developers worldwide.</p>
+<p>Today, the standard Web3 stack is <strong>Node.js + npm + Hardhat + VS Code</strong>. Whether you're building on Ethereum, Polygon, BSC, or MST - any EVM-compatible chain - you'll use the same tools. MST's full EVM compatibility means that every Hardhat plugin, every OpenZeppelin contract, and every npm library works out of the box. The toolchain you set up today will serve you across the entire blockchain ecosystem.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">A Brief History of the Holy Trinity</h3>
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009</div>
+      <div class="tl-body"><strong>Node.js created by Ryan Dahl.</strong> First runtime to bring JavaScript to the server. Built on Chrome's V8 engine. Enabled non-blocking I/O, making it ideal for tools that interact with networks.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2010</div>
+      <div class="tl-body"><strong>npm launched by Isaac Schlueter.</strong> Originally "Node Package Manager". Now the world's largest software registry with over 2 million packages. Every Solidity tool lives on npm.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015</div>
+      <div class="tl-body"><strong>Visual Studio Code released by Microsoft.</strong> Built on Electron (Node.js), open source, extensible. Quickly became the most popular editor for Web3 development due to its Solidity extension ecosystem.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018</div>
+      <div class="tl-body"><strong>Hardhat (then Buidler) launched.</strong> Node.js-based Ethereum development environment. Defined the modern Solidity workflow: compile, test, deploy - all from JavaScript.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST fully compatible.</strong> MST's EVM compatibility means the exact same Node.js + Hardhat + VS Code toolchain works for MST Testnet and mainnet. Deploy a contract on MST with the same scripts you'd use on Ethereum - just change the RPC URL.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Kitchen, the Recipe Book, and the Chef's Knife</h2>
+<div class="callout analogy">
+  <div class="callout-label">🍳 The Analogy</div>
+  <p>Think of Node.js as the <strong>kitchen</strong> - the environment where code runs. npm is the <strong>recipe book and grocery delivery service</strong> - it fetches all the ingredients (libraries) you need, in the right amounts (versions), and ensures they don't conflict. Visual Studio Code is the <strong>chef's knife</strong> - the tool that makes writing, editing, and organizing code fast and precise. You can cook without them, but you'll spend more time fighting the environment than creating the dish.</p>
+</div>
+<p>Let's break down what each tool actually does:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">N</div><div class="w5-word">Node.js</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is Node.js?</div>
+      <div class="w5-a">Node.js is an open-source, cross-platform JavaScript runtime environment. It allows you to run JavaScript code outside a browser - on your computer or a server. In blockchain development, Node.js runs Hardhat (which compiles Solidity), executes test scripts, and powers deployment scripts. It's the engine that processes all the JavaScript files you'll write to manage smart contracts. Node.js comes with a built-in package manager: npm.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">P</div><div class="w5-word">npm</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is npm?</div>
+      <div class="w5-a">npm is the Node Package Manager. It is a command-line tool and an online registry of over 2 million packages. When you type <code>npm install hardhat</code>, npm downloads Hardhat and every library that Hardhat depends on, placing them in a <code>node_modules</code> folder. It also creates a <code>package.json</code> file that records your project's dependencies. Any developer can clone your project, run <code>npm install</code>, and instantly have the exact same environment. npm also lets you run scripts (like <code>npm test</code> or <code>npm run compile</code>) defined in package.json.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">V</div><div class="w5-word">VS Code</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is Visual Studio Code?</div>
+      <div class="w5-a">Visual Studio Code is a free, open-source code editor developed by Microsoft. It runs on Windows, macOS, and Linux. Its power comes from extensions - thousands of community-built plugins that add language support, debugging, formatting, and linting. For Solidity development, the essential extensions are: <strong>Solidity by Juan Blanco</strong> (syntax highlighting, compilation, error checking), <strong>Prettier</strong> (automatic code formatting), and <strong>ESLint</strong> (code quality rules). VS Code also has a built-in terminal, so you can run npm commands without leaving the editor.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 INSTALLATION FLOWCHART & STEPS (INTERACTIVE) ═══════════════ -->
+<div class="section-label">05 &nbsp; Installation Flowchart &amp; Steps</div>
+<h2 class="section-title">The Complete Setup - From Zero to "Hello, Blockchain"</h2>
+
+<p>Follow this flowchart to get your environment ready. Click each step to reveal detailed instructions.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.1-A · Setup Flowchart</div>
+  <pre>
+  ┌──────────────────────────────────────────────────────────┐
+  │                    START                                 │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 1. Install Node.js (includes npm)                        │
+  │    • Download from nodejs.org (LTS version)              │
+  │    • Run installer (Windows) / brew install node (Mac)   │
+  │    • Verify: node -v  &  npm -v                          │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 2. Install Visual Studio Code                            │
+  │    • Download from code.visualstudio.com                 │
+  │    • Install and launch                                  │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 3. Install VS Code Extensions for Solidity               │
+  │    • Solidity (Juan Blanco)                              │
+  │    • Prettier – Code formatter                           │
+  │    • ESLint – Code linter                                │
+  │    • GitLens – Git integration                           │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 4. Create a new project folder & initialize npm          │
+  │    • mkdir my-dapp  && cd my-dapp                        │
+  │    • npm init -y                                         │
+  │    • (creates package.json)                              │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 5. Install Hardhat & ethers.js                           │
+  │    • npm install --save-dev hardhat ethers               │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │ 6. Write a quick connectivity test                       │
+  │    • Create test.js, connect to MST Testnet RPC          │
+  │    • Get block number & print to console                 │
+  └──────────────────┬───────────────────────────────────────┘
+                     ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │  ✅ SUCCESS! Your Web3 development environment is ready. │
+  └──────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Each step in this flowchart is detailed below. Click any toggle to expand its instructions.</div>
+</div>
+
+<!-- Interactive Step Details -->
+<details>
+  <summary>📥 Step 1: Install Node.js (includes npm)</summary>
+  <div class="content">
+    <p><strong>Why Node.js?</strong> Hardhat, ethers.js, and most blockchain tools run on Node.js. It's the runtime that executes your deployment scripts and tests.</p>
+    <p><strong>Installation:</strong> Go to <code>nodejs.org</code> and download the LTS (Long-Term Support) version. LTS is recommended for stability - currently Node 20.x or 22.x. The installer includes npm automatically.</p>
+    <p><strong>Windows:</strong> Run the .msi installer. Accept the license, choose the default location, and ensure "Add to PATH" is checked. Restart your terminal after installation.</p>
+    <p><strong>macOS:</strong> Use Homebrew: <code>brew install node</code>. Or download the .pkg from nodejs.org.</p>
+    <p><strong>Linux (Ubuntu/Debian):</strong> Use the official NodeSource repository:
+      <code>curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -</code>
+      <code>sudo apt-get install -y nodejs</code></p>
+    <p><strong>Verify:</strong> Open a terminal (Command Prompt on Windows, Terminal on Mac/Linux) and run:
+      <code>node -v</code> - should print a version like <code>v20.11.0</code><br>
+      <code>npm -v</code> - should print a version like <code>10.2.4</code></p>
+    <p>If both commands return version numbers, Node.js and npm are correctly installed.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🖥️ Step 2: Install Visual Studio Code</summary>
+  <div class="content">
+    <p><strong>Why VS Code?</strong> It is the most popular editor among blockchain developers due to its rich extension ecosystem, built-in terminal, and Git integration.</p>
+    <p><strong>Download:</strong> Visit <code>code.visualstudio.com</code> and download the installer for your operating system.</p>
+    <p><strong>Installation:</strong> Run the installer. On Windows, check "Add to PATH" and "Open with Code" context menu options. On macOS, drag VS Code to the Applications folder.</p>
+    <p><strong>Launch:</strong> Open VS Code. You'll see a Welcome page. We'll configure extensions in the next step.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔌 Step 3: Install VS Code Extensions for Solidity</summary>
+  <div class="content">
+    <p>Extensions are the heart of VS Code's power. Click the Extensions icon on the left sidebar (or press Ctrl+Shift+X / Cmd+Shift+X) and search for each:</p>
+    <ul style="margin-left:20px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+      <li><strong>Solidity by Juan Blanco</strong> (solidity) - Syntax highlighting, compilation, code completion, error diagnostics. The most essential extension for .sol files. After installing, VS Code will automatically detect Solidity files and provide IntelliSense.</li>
+      <li><strong>Prettier - Code formatter</strong> (esbenp.prettier-vscode) - Automatically formats your code on save. Configure it to format Solidity files by adding to settings: <code>"[solidity]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }</code></li>
+      <li><strong>ESLint</strong> (dbaeumer.vscode-eslint) - Linting for JavaScript. Catches errors in your Hardhat scripts and tests before you run them.</li>
+      <li><strong>GitLens</strong> (eamodio.gitlens) - Supercharges Git integration. Shows who last modified a line of code, commit history, and more - invaluable for collaborative projects.</li>
+      <li><strong>Material Icon Theme</strong> (optional) - Adds beautiful icons for different file types (.sol, .js, .json), making the file explorer more readable.</li>
+    </ul>
+    <p>After installing, reload VS Code (Ctrl+Shift+P → "Developer: Reload Window").</p>
+  </div>
+</details>
+
+<details>
+  <summary>📁 Step 4: Create a Project & Initialize npm</summary>
+  <div class="content">
+    <p>Open VS Code's integrated terminal (Ctrl+` or View → Terminal).</p>
+    <p>
+      <code>mkdir my-dapp</code> - create a new folder<br>
+      <code>cd my-dapp</code> - enter the folder<br>
+      <code>npm init -y</code> - initialize a new npm project with default values
+    </p>
+    <p>This creates a <code>package.json</code> file, the manifest of your project. It records your project's name, version, scripts, and dependencies. You'll see output like:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+{
+  "name": "my-dapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+    </pre>
+    <p>We'll modify this file later to add scripts like <code>"compile": "hardhat compile"</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔧 Step 5: Install Hardhat & ethers.js</summary>
+  <div class="content">
+    <p>In the terminal (still inside your project folder), run:</p>
+    <p><code>npm install --save-dev hardhat ethers</code></p>
+    <p>This single command does three things:
+      1. Downloads Hardhat and ethers.js from the npm registry.
+      2. Downloads all their dependencies (over 100 packages) recursively.
+      3. Saves them to a <code>node_modules</code> folder and records them as devDependencies in package.json.
+    </p>
+    <p><strong>Why --save-dev?</strong> Hardhat and ethers are development tools, not code that runs in production. Marking them as devDependencies keeps your production dependencies clean (useful when you later build a frontend).</p>
+    <p>After installation, your package.json will contain:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+"devDependencies": {
+  "ethers": "^6.13.0",
+  "hardhat": "^2.22.0"
+}
+    </pre>
+    <p>The caret (^) means "compatible with the specified version, allowing minor and patch updates". This is semantic versioning (SemVer) in action.</p>
+  </div>
+</details>
+
+<details>
+  <summary>✅ Step 6: Write a Quick Connectivity Test</summary>
+  <div class="content">
+    <p>Create a new file in VS Code: <code>test-connection.js</code>. Paste the following code:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const { ethers } = require("ethers");
+
+async function main() {
+  // Connect to MST Testnet RPC
+  const provider = new ethers.JsonRpcProvider("https://testnet-rpc.mstblockchain.com");
+  // Get the latest block number
+  const blockNumber = await provider.getBlockNumber();
+  console.log("Connected to MST Testnet! Latest block:", blockNumber);
+}
+
+main().catch(console.error);
+    </pre>
+    <p>Run it from the terminal: <code>node test-connection.js</code></p>
+    <p>You should see output like: <code>Connected to MST Testnet! Latest block: 2847653</code></p>
+    <p>If you see a block number, congratulations! Your entire toolchain - Node.js, npm, ethers.js - is working and connected to the MST blockchain.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 06 DEEP DIVE: NPM & PACKAGE.JSON ═══════════════ -->
+<div class="section-label">06 &nbsp; Deep Dive: npm &amp; package.json</div>
+<h2 class="section-title">The Engine That Manages Your Dependencies</h2>
+<p>npm is far more than a simple installer. It is a complete dependency management system that solves the "dependency hell" problem that plagued software development for decades. Understanding its internals will save you countless hours of frustration.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The node_modules Folder and the Dependency Tree</h3>
+<p>When you run <code>npm install hardhat</code>, npm looks up "hardhat" in the npm registry, downloads the package, and places it in <code>node_modules/hardhat</code>. But Hardhat itself depends on other packages - solc (the Solidity compiler), mocha (test framework), chai (assertion library), and dozens more. npm recursively downloads all these transitive dependencies. The result is a <code>node_modules</code> folder that can contain hundreds of packages, even if you only directly installed one.</p>
+<p>This recursive installation means you never have to manually track what a package depends on. npm handles it automatically. When a package is updated on the registry, you run <code>npm update</code> and npm resolves the new dependency tree, respecting version constraints.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Semantic Versioning (SemVer)</h3>
+<p>npm packages use a three-part version number: <strong>MAJOR.MINOR.PATCH</strong> (e.g., 2.22.0). The rules are:
+  <ul style="margin-left:24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+    <li><strong>PATCH</strong> (0.0.x): Backward-compatible bug fixes. e.g., 2.22.1 fixes a bug in 2.22.0 without changing the API.</li>
+    <li><strong>MINOR</strong> (0.x.0): Backward-compatible new features. e.g., 2.23.0 adds a new function but doesn't break existing code.</li>
+    <li><strong>MAJOR</strong> (x.0.0): Incompatible API changes. e.g., 3.0.0 might rename functions or remove deprecated features. Upgrading may require code changes.</li>
+  </ul>
+</p>
+<p>In package.json, the caret (^) prefix means "allow updates that do not change the leftmost non-zero digit". So <code>^2.22.0</code> allows versions <code>2.x.x</code> but not <code>3.0.0</code>. The tilde (~) prefix is stricter: <code>~2.22.0</code> allows <code>2.22.x</code> only. Pinning an exact version (<code>2.22.0</code> without a prefix) ensures absolute reproducibility - critical for smart contract deployments where a version change could introduce a vulnerability.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">package-lock.json - The Deterministic Install</h3>
+<p>When you run <code>npm install</code>, npm generates a <code>package‑lock.json</code> file. This file records the exact version of every package (and every transitive dependency) that was installed. When another developer clones your project and runs <code>npm install</code>, npm reads package-lock.json and installs the identical versions - guaranteeing that everyone has the same environment. Always commit package-lock.json to Git. It is your project's fingerprint.</p>
+
+<!-- ═══════════════ 07 COMPARISON TABLE ═══════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">npm vs Yarn vs pnpm - Which Package Manager to Use</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>📦 npm</th><th>🧶 Yarn</th><th>💾 pnpm</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Speed</td><td class="mid">Good (v7+ improved)</td><td class="mid">Fast (parallel installs)</td><td class="good">Very fast (hard links)</td></tr>
+    <tr><td>Disk efficiency</td><td class="bad">Duplicates in each project</td><td class="mid">Plug'n'Play (PnP) reduces duplication</td><td class="good">Content-addressable store, no duplication</td></tr>
+    <tr><td>Default on Node.js</td><td class="good">Yes (bundled)</td><td class="bad">Must be installed separately</td><td class="bad">Must be installed separately</td></tr>
+    <tr><td>Hardhat support</td><td class="good">Fully supported</td><td class="good">Fully supported</td><td class="good">Fully supported</td></tr>
+    <tr><td>Beginner friendly</td><td class="good">Most documentation uses npm</td><td class="mid">Similar syntax</td><td class="mid">Commands similar, but store concept differs</td></tr>
+    <tr><td>Recommendation</td><td colspan="3">Stick with npm for this course - it's the default, most documented, and guaranteed to work with every tutorial.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════ 08 VS CODE SETTINGS & SHORTCUTS ═══════════════ -->
+<div class="section-label">08 &nbsp; VS Code Optimization</div>
+<h2 class="section-title">Supercharge Your Editor for Solidity Productivity</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Essential Settings for Solidity</h3>
+<p>Open VS Code's settings (Ctrl+, or Cmd+,) and search for the following. Click "Edit in settings.json" and add:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+{
+  // Solidity: enable compiler warnings
+  "solidity.compileUsingRemoteVersion": "0.8.24",
+  "solidity.defaultCompiler": "remote",
+  // Format .sol files with Prettier
+  "[solidity]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // Format .js files with Prettier
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  // Enable linting for JavaScript
+  "eslint.enable": true,
+  // Word wrap for long lines
+  "editor.wordWrap": "on"
+}
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Keyboard Shortcuts Every Developer Must Know</h3>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Ctrl+` - Toggle Integrated Terminal</div>
+      <div class="feature-desc">Opens or closes the terminal inside VS Code. You never need to leave the editor to run npm commands or Hardhat scripts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Ctrl+P - Quick File Open</div>
+      <div class="feature-desc">Search and open any file in your project by typing part of its name. Indispensable in large projects with many contracts and scripts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Ctrl+Shift+F - Global Search</div>
+      <div class="feature-desc">Search across all files in your project. Use it to find every occurrence of a function name or event across your entire codebase.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3);">4</div>
+    <div class="feature-content">
+      <div class="feature-title">F5 or Debug Panel - Run and Debug</div>
+      <div class="feature-desc">VS Code has a built-in debugger for Node.js. You can set breakpoints in your Hardhat scripts and step through them to debug deployment issues.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 09 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Node.js is the JavaScript runtime, npm is the package manager</div>
+      <div class="feature-desc">Node.js executes JavaScript outside the browser. npm manages libraries and dependencies. They are installed together. Verify with <code>node -v</code> and <code>npm -v</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">package.json is the project manifest; package-lock.json ensures deterministic installs</div>
+      <div class="feature-desc"><code>npm init -y</code> creates package.json. It lists dependencies and scripts. <code>npm install --save-dev hardhat</code> adds it as a devDependency. Always commit package-lock.json.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">VS Code extensions for Solidity: Solidity (Juan Blanco), Prettier, ESLint</div>
+      <div class="feature-desc">These provide syntax highlighting, automatic formatting, and linting. They are installed via the Extensions panel (Ctrl+Shift+X).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">SemVer: MAJOR.MINOR.PATCH. Caret (^) allows minor/patch updates.</div>
+      <div class="feature-desc"><code>^2.22.0</code> means >=2.22.0 and <3.0.0. Use exact versions for production deployments to avoid unexpected changes.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">A simple connectivity test verifies the full toolchain: Node.js → ethers.js → MST RPC</div>
+      <div class="feature-desc">Use <code>new ethers.JsonRpcProvider("RPC_URL")</code> and <code>getBlockNumber()</code> to confirm you can interact with MST Testnet from your local machine.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 8.1 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">5</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary role of Node.js in blockchain development?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> A blockchain consensus algorithm.</li>
+        <li class="correct"><span class="opt-key">B</span> A JavaScript runtime that executes deployment scripts, tests, and development tools like Hardhat. ✅</li>
+        <li><span class="opt-key">C</span> A package manager for smart contracts.</li>
+        <li><span class="opt-key">D</span> A code editor for writing Solidity.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>Node.js is the runtime environment for JavaScript outside the browser. Hardhat, ethers.js, and deployment scripts all run on Node.js. npm is the package manager; VS Code is the editor.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which command initializes a new npm project and creates a package.json file?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> <code>npm start</code></li>
+        <li class="correct"><span class="opt-key">B</span> <code>npm init -y</code> ✅</li>
+        <li><span class="opt-key">C</span> <code>npm install</code></li>
+        <li><span class="opt-key">D</span> <code>node package.json</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p><code>npm init -y</code> creates a default package.json with project metadata. The <code>-y</code> flag skips the interactive questionnaire.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which VS Code extension is essential for Solidity syntax highlighting and error diagnostics?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Solidity by Juan Blanco ✅</li>
+        <li><span class="opt-key">B</span> Prettier - Code formatter</li>
+        <li><span class="opt-key">C</span> ESLint</li>
+        <li><span class="opt-key">D</span> GitLens</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The "Solidity" extension by Juan Blanco provides syntax highlighting, compilation, and error diagnostics for .sol files. Prettier formats code; ESLint lints JavaScript; GitLens enhances Git.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What does the caret (^) prefix mean in a package.json version like <code>"ethers": "^6.13.0"</code>?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Install exactly version 6.13.0, no other version allowed.</li>
+        <li class="correct"><span class="opt-key">B</span> Allow updates that do not change the leftmost non-zero digit - any 6.x.x version. ✅</li>
+        <li><span class="opt-key">C</span> Install the latest beta version of the package.</li>
+        <li><span class="opt-key">D</span> Install the global version of the package.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The caret (^) allows minor and patch updates. <code>^6.13.0</code> means >=6.13.0 and <7.0.0. This follows Semantic Versioning (SemVer).</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">After installing Node.js, which two terminal commands confirm the installation was successful?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> <code>node -v</code> and <code>npm -v</code> ✅</li>
+        <li><span class="opt-key">B</span> <code>node start</code> and <code>npm start</code></li>
+        <li><span class="opt-key">C</span> <code>node install</code> and <code>npm init</code></li>
+        <li><span class="opt-key">D</span> <code>node --check</code> and <code>npm --verify</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p><code>node -v</code> prints the Node.js version; <code>npm -v</code> prints the npm version. If both show version numbers, the installation is correct.</p></div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 8.1 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">5</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Node.js</div><div class="glossary-def">An open-source JavaScript runtime built on Chrome's V8 engine. Executes JavaScript code outside a browser. Essential for running Hardhat, ethers.js, and deployment scripts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">npm</div><div class="glossary-def">Node Package Manager. A command-line tool and online registry for managing JavaScript libraries. Automatically resolves and installs dependencies.</div></div>
+  <div class="glossary-item"><div class="glossary-term">package.json</div><div class="glossary-def">The manifest file of a Node.js project. Contains metadata, scripts, and dependency lists. Created by <code>npm init</code>.</div></div>
+  <div class="glossary-item"><div class="glossary-term">package-lock.json</div><div class="glossary-def">Auto-generated file that locks the exact version of every dependency. Ensures deterministic installs across different machines.</div></div>
+  <div class="glossary-item"><div class="glossary-term">devDependencies</div><div class="glossary-def">Packages needed only for development (testing, compilation), not for production. Installed with <code>--save-dev</code>. Hardhat and ethers are devDependencies.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SemVer</div><div class="glossary-def">Semantic Versioning: MAJOR.MINOR.PATCH format. Caret (^) allows compatible updates; tilde (~) allows patch updates. Critical for managing dependency risks.</div></div>
+  <div class="glossary-item"><div class="glossary-term">VS Code</div><div class="glossary-def">Visual Studio Code: a free, extensible code editor. The preferred editor for Solidity development due to its rich extension marketplace.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Solidity Extension (Juan Blanco)</div><div class="glossary-def">VS Code extension that provides syntax highlighting, compilation, and error diagnostics for .sol files. The most essential extension for smart contract developers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Prettier</div><div class="glossary-def">An opinionated code formatter that automatically formats code on save. Supports Solidity, JavaScript, and many other languages.</div></div>
+  <div class="glossary-item"><div class="glossary-term">LTS</div><div class="glossary-def">Long-Term Support version of Node.js. Recommended for production and development stability. Even-numbered major versions (18, 20, 22) are LTS.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.1</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.2 - Git & GitHub →</p>
+</div>
+
+</body>
+</html>

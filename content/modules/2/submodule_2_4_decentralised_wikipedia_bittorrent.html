@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 2.4 - Decentralised Systems: Wikipedia & BitTorrent | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand: #6C3CE2; --brand-light: #EDE9FB; --brand-dark: #3C1FA0;
+    --accent: #F6A623; --accent-light: #FEF4E0;
+    --green: #16A34A; --green-light: #DCFCE7;
+    --red: #DC2626; --red-light: #FEE2E2;
+    --blue: #1D6FD8; --blue-light: #DBEAFE;
+    --ink: #111827; --ink-2: #374151; --ink-3: #6B7280;
+    --border: #E5E7EB; --surface: #F9FAFB;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.75; font-size: 16px; max-width: 860px; margin: 0 auto; padding: 48px 32px 96px; }
+  .module-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--brand-light); color: var(--brand-dark); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
+  .module-title { font-size: 38px; font-weight: 900; line-height: 1.15; color: var(--ink); margin-bottom: 12px; }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle { font-size: 18px; color: var(--ink-3); font-weight: 400; margin-bottom: 28px; line-height: 1.6; }
+  .meta-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+  .meta-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .meta-chip.highlight { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green { background: var(--green-light); border-color: #86EFAC; color: #166534; }
+  .section-number { display: inline-block; background: var(--brand); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+  h2.section-title { font-size: 26px; font-weight: 800; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  h2.section-title .icon { width: 38px; height: 38px; border-radius: 9px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  h3.sub-title { font-size: 19px; font-weight: 700; color: var(--ink); margin: 32px 0 14px; padding-left: 14px; border-left: 4px solid var(--brand); }
+  p { margin-bottom: 14px; color: var(--ink-2); line-height: 1.75; }
+  section { margin-bottom: 56px; }
+  .callout { border-radius: var(--radius); padding: 18px 22px; margin: 20px 0; border-left: 5px solid; font-size: 15px; line-height: 1.7; }
+  .callout.tip { background: var(--green-light); border-color: var(--green); }
+  .callout.warning { background: var(--red-light); border-color: var(--red); }
+  .callout.info { background: var(--blue-light); border-color: var(--blue); }
+  .callout.key { background: var(--brand-light); border-color: var(--brand); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; opacity: 0.7; }
+  .callout p { margin-bottom: 0; }
+  .story-block { background: var(--ink); color: #F3F4F6; border-radius: var(--radius); padding: 28px 32px; margin: 24px 0; position: relative; overflow: hidden; }
+  .story-block::before { content: '"'; position: absolute; top: -20px; right: 24px; font-size: 160px; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; }
+  .story-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: block; }
+  .story-block p { color: #D1D5DB; margin-bottom: 10px; }
+  .story-block strong { color: #FCD34D; }
+  .story-block p:last-child { margin-bottom: 0; }
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--ink); }
+  thead th { color: white; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 12px 16px; text-align: left; }
+  thead th:first-child { border-radius: 9px 0 0 0; }
+  thead th:last-child { border-radius: 0 9px 0 0; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 12px 16px; color: var(--ink-2); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--ink); }
+  .cell-green { color: var(--green) !important; font-weight: 700 !important; }
+  .cell-red { color: var(--red) !important; font-weight: 700 !important; }
+  .diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 24px 0; overflow-x: auto; }
+  .diagram-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 16px; }
+  pre { font-family: var(--mono); font-size: 13px; line-height: 1.65; color: var(--ink-2); white-space: pre; overflow-x: auto; margin: 0; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .compare-card { border-radius: var(--radius); border: 1.5px solid; padding: 20px; }
+  .compare-card.bad { border-color: #FCA5A5; background: #FFF7F7; }
+  .compare-card.good { border-color: #6EE7B7; background: #F0FDF9; }
+  .compare-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 15px; font-weight: 800; }
+  .compare-card.bad .compare-card-header { color: #991B1B; }
+  .compare-card.good .compare-card-header { color: #065F46; }
+  .compare-card ul { padding-left: 18px; font-size: 14px; }
+  .compare-card ul li { margin-bottom: 7px; line-height: 1.55; }
+  .compare-card.bad ul li { color: #7F1D1D; }
+  .compare-card.good ul li { color: #064E3B; }
+  .objectives-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .objective-item { display: flex; align-items: flex-start; gap: 10px; background: var(--green-light); border: 1px solid #BBF7D0; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; color: #166534; line-height: 1.5; }
+  .objective-item .check { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; font-size: 11px; margin-top: 1px; }
+  .steps { list-style: none; padding: 0; margin: 16px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); color: white; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 5px; }
+  .step-desc { font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+  .highlight-box { background: var(--brand); color: white; border-radius: var(--radius); padding: 24px 28px; margin: 28px 0; font-size: 18px; font-weight: 700; line-height: 1.5; text-align: center; }
+  .highlight-box span { color: #FCD34D; }
+  .facts-list { list-style: none; padding: 0; counter-reset: fact; }
+  .facts-list li { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); counter-increment: fact; align-items: flex-start; font-size: 15px; color: var(--ink-2); }
+  .facts-list li:last-child { border-bottom: none; }
+  .facts-list li::before { content: counter(fact); display: flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; background: var(--brand); color: white; border-radius: 50%; font-size: 12px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .glossary-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; background: white; }
+  .glossary-term { font-weight: 700; font-size: 14px; color: var(--brand-dark); margin-bottom: 4px; }
+  .glossary-def { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+  .assessment-header { background: linear-gradient(135deg, var(--ink) 0%, #1a2f5e 100%); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .assessment-header p { color: #9CA3AF; font-size: 14px; margin: 0; }
+  .marks-badge-big { background: var(--accent); color: var(--ink); padding: 10px 24px; border-radius: 8px; font-size: 24px; font-weight: 900; white-space: nowrap; }
+  .question-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; }
+  .question-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .q-num { font-size: 13px; font-weight: 700; color: var(--brand); }
+  .q-type { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--brand-light); color: var(--brand-dark); padding: 3px 10px; border-radius: 4px; }
+  .q-marks { font-size: 12px; font-weight: 700; background: var(--ink); color: white; padding: 3px 10px; border-radius: 4px; margin-left: auto; }
+  .difficulty { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .difficulty.easy { background: var(--green-light); color: var(--green); }
+  .difficulty.medium { background: var(--accent-light); color: #B45309; }
+  .difficulty.hard { background: var(--red-light); color: var(--red); }
+  .question-body { padding: 22px; }
+  .question-text { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+  .options { list-style: none; padding: 0; margin: 0 0 20px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 7px; font-size: 15px; border: 1.5px solid var(--border); color: var(--ink-2); background: white; line-height: 1.5; }
+  .option.correct { background: var(--green-light); border-color: #4ADE80; color: #166534; }
+  .option.correct .opt-label { background: var(--green); color: white; border-color: var(--green); }
+  .option .opt-label { min-width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .answer-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-top: 6px; }
+  .answer-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: block; }
+  .answer-block p { font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+  .answer-block p:last-child { margin-bottom: 0; }
+  .tf-verdict { display: inline-block; padding: 4px 14px; border-radius: 4px; font-weight: 800; font-size: 14px; margin-bottom: 10px; }
+  .tf-verdict.true { background: var(--green-light); color: var(--green); }
+  .tf-verdict.false { background: var(--red-light); color: var(--red); }
+  .tf-area { background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: var(--radius); padding: 18px 22px; margin: 16px 0; font-size: 14px; color: #78350F; }
+  .marks-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .mark-cell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--ink-2); }
+  .mark-cell strong { color: var(--ink); display: block; font-size: 14px; margin-bottom: 2px; }
+  .activity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .activity-item { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; background: white; }
+  .activity-item .label { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .activity-item .term { font-size: 15px; font-weight: 700; color: var(--ink); }
+  .match-answer { background: var(--green-light); border: 1px solid #86EFAC; border-radius: var(--radius-sm); padding: 10px 14px; margin: 6px 0; font-size: 13px; color: #166534; }
+  mark { background: var(--brand-light); color: var(--brand-dark); padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+  hr { border: none; border-top: 2px solid var(--border); margin: 52px 0; }
+  @media (max-width: 620px) {
+    body { padding: 24px 16px 64px; }
+    .objectives-grid, .compare-grid, .glossary-grid, .marks-breakdown, .activity-grid { grid-template-columns: 1fr; }
+    .module-title { font-size: 28px; }
+    .assessment-header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 2 · Sub-Module 4 of 6</div>
+<h1 class="module-title">Sub-Module 2.4<br><span class="highlight">Decentralised Systems - Wikipedia &amp; BitTorrent</span></h1>
+<p class="module-subtitle">Before blockchain, two extraordinary decentralised systems already existed: Wikipedia (knowledge without central editor) and BitTorrent (files without central server). Both carry the seeds of everything blockchain does - and both reveal exactly what decentralisation makes possible.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 30 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 15</div>
+  <div class="meta-chip">📝 6 × MCQ (1 mark each)</div>
+  <div class="meta-chip">📝 1 × Component Matching Activity (6 marks)</div>
+  <div class="meta-chip">📝 1 × True/False (1 mark)</div>
+  <div class="meta-chip green">🔰 Module 2 · Phase 1</div>
+</div>
+
+<!-- SECTION 1 -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+  <p>By the end of this sub-module, you will be able to:</p>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="check">✓</div>Explain Wikipedia's decentralised editorial model - community consensus governance without a central editor</div>
+    <div class="objective-item"><div class="check">✓</div>Describe BitTorrent's peer-to-peer architecture - how files are shared without any central server using swarms and pieces</div>
+    <div class="objective-item"><div class="check">✓</div>Identify specific properties that make Wikipedia and BitTorrent resilient - and where each still falls short</div>
+    <div class="objective-item"><div class="check">✓</div>Map components of Wikipedia and BitTorrent directly to blockchain equivalents with precise technical reasoning</div>
+    <div class="objective-item"><div class="check">✓</div>Explain what blockchain adds that neither system has: trustless value transfer, immutability, and economic incentives</div>
+    <div class="objective-item"><div class="check">✓</div>Apply decentralised thinking to Indian real-world scenarios: land records, regional content, and community knowledge</div>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>The Story - Two Systems That Outlasted Their Centralized Rivals</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Two David vs Goliath Stories</span>
+    <p>In 2003, Microsoft launched Encarta - a digital encyclopedia with professional editors, massive funding, and the backing of the world's largest software company. Wikipedia launched in 2001 with zero professional editors, zero salary budget, and zero corporate backing. By 2009, <strong>Microsoft shut down Encarta permanently.</strong> Today, Wikipedia has 58 million articles in 333 languages and 280,000 active volunteer editors - and is the 7th most visited website on Earth.</p>
+    <p>In 2001, the US entertainment industry spent $60 million+ in legal fees shutting down Napster - a centralised music sharing service. It worked. Napster had one central server. Shut it down, Napster died. Then BitTorrent arrived. <strong>Twenty-three years later, after thousands of lawsuits globally, BitTorrent is still running.</strong> Not because of legal immunity - because it has no central server to shut down. Every downloader automatically becomes a server.</p>
+    <p>Both proved something profound before blockchain existed: <strong>decentralisation is more durable than any centralised system, regardless of the money or power backing the centralised alternative.</strong></p>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ Why This Matters for Blockchain</span>
+    <p>Wikipedia shows that knowledge can be governed without a central authority through community consensus. BitTorrent shows that files can be distributed without a central server through peer-to-peer networks. Blockchain combines both insights and adds one thing neither has: <strong>trustless value transfer and cryptographic immutability.</strong> Wikipedia and BitTorrent are blockchain's intellectual parents.</p>
+  </div>
+</section>
+
+<!-- SECTION 3 -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">🕰</div>Background - How Each System Was Born</h2>
+
+  <h3 class="sub-title">3.1 - Wikipedia: The Radical Premise</h3>
+  <p>Wikipedia was co-founded by Jimmy Wales and Larry Sanger in January 2001. The founding premise was genuinely radical: anyone - expert or amateur, known or anonymous - can edit any article at any time, with no pre-approval required. No journalist gatekeepers, no editorial board, no fact-checkers on salary. Just community governance with a transparent edit history that anyone can inspect.</p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🏛️ Indian Panchayat Analogy</span>
+    <p>Imagine a village Panchayat where land records are maintained by the entire community instead of one government official. Any resident can propose a change. Changes are debated openly. The community reaches consensus. The final decision is recorded publicly so everyone can verify. This is exactly Wikipedia's editorial process - decentralised community governance with transparent history. Like a Panchayat record, it is more reliable than one official's record because thousands of people have incentive to catch and correct errors.</p>
+  </div>
+
+  <h3 class="sub-title">3.2 - BitTorrent: Making Censorship Mathematically Difficult</h3>
+  <p>BitTorrent was designed by programmer Bram Cohen and released in 2001. His insight: instead of one server holding a file that everyone downloads from, split the file into many small pieces and distribute those pieces across all users downloading it. Each downloader simultaneously uploads pieces to others. The more popular a file, the faster it downloads - because more people are seeding it. This is the opposite of centralised servers which slow down under heavy load.</p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🚌 Mumbai Local Train Analogy</span>
+    <p>Downloading a file is like getting a newspaper. In a centralised system, one vendor stands at Churchgate - if he leaves, nobody gets a paper. In BitTorrent, every person who got a newspaper automatically carries spare copies and hands them to anyone who asks. The more people who have the paper, the more copies circulate. Removing the original vendor (the server) does nothing - thousands of commuters already have copies and are sharing them.</p>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">🧠</div>Beginner-Friendly Deep Explanation</h2>
+
+  <h3 class="sub-title">4.1 - Wikipedia's Governance Model: How It Actually Works</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">📖 Wikipedia's Full Decentralised Editorial Architecture</div>
+<pre>
+  WHO CAN EDIT:
+  ─────────────────────────────────────────────────────────────
+  Anyone — no account required for most articles.
+  Anonymous users, new users, experienced editors,
+  elected administrators — all can propose changes.
+  No central editor has final authority over content.
+
+  HOW A NEW EDIT FLOWS:
+  ─────────────────────────────────────────────────────────────
+  Step 1: User edits an article → Change published live immediately
+          (Wikipedia does NOT pre-approve edits — optimistic trust)
+  Step 2: Automated bots scan within seconds for obvious vandalism
+          (ClueBot NG catches 85% of vandalism automatically)
+  Step 3: Watchlist editors notified → Human review within minutes
+  Step 4: Contested edit? → Goes to Talk Page for community debate
+  Step 5: Community reaches rough consensus through discussion
+  Step 6: Final version reflects community agreement
+  Step 7: Every version of every article preserved forever
+          (complete edit history — no version ever deleted*)
+
+  *Administrators can delete certain revisions for privacy/legal
+   reasons — one of Wikipedia's remaining centralised weaknesses
+
+  GOVERNANCE LAYERS (All community-elected, not hired):
+  ─────────────────────────────────────────────────────────────
+  Regular Editors:       Edit most articles freely
+  Experienced Editors:   Extra tools, can semi-protect articles
+  Administrators (Admins): Protect pages, block editors (ELECTED)
+  Arbitration Committee: Final dispute resolution (ELECTED)
+  Wikimedia Foundation:  Provides servers — does NOT control content
+                         (explicitly committed to non-interference)
+
+  RESILIENCE IN ACTION:
+  ─────────────────────────────────────────────────────────────
+  One malicious editor vandalises an article:
+  ├─ Bot detects and reverts within 30 seconds
+  ├─ If bot misses: watchlist editor reverts within minutes
+  └─ Editor blocked by admin consensus
+
+  Turkey blocks Wikipedia nationally (2017):
+  ├─ Content survives — servers outside Turkey
+  ├─ Wikimedia refuses to remove content
+  ├─ 300,000+ Turks access via VPN
+  └─ Offline copies on millions of devices globally
+     → CONTENT cannot be censored despite ACCESS being blocked
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.2 - Wikipedia's Limitations: Where Decentralisation Falls Short</h3>
+  <p>Wikipedia is not perfect. Its limitations are important to understand - because they are precisely the gaps blockchain was built to fill.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Wikipedia Limitation</th>
+          <th>Why It Exists</th>
+          <th>How Blockchain Fixes It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Wikimedia Foundation still controls servers</td>
+          <td>Physical hosting still centralised - WMF could face legal pressure or funding crisis</td>
+          <td class="cell-green">Content on IPFS - no foundation needed; content exists as long as any node globally hosts it</td>
+        </tr>
+        <tr>
+          <td>No economic incentive for contributors</td>
+          <td>Editors are unpaid volunteers; burnout is high; 80% of edits by top 20% of editors</td>
+          <td class="cell-green">Token rewards - contributors earn MSTC for verified contributions; economic sustainability built in</td>
+        </tr>
+        <tr>
+          <td>History can be deleted by admins</td>
+          <td>Admins can suppress revision history for privacy/legal reasons - no external audit</td>
+          <td class="cell-green">Blockchain immutability - every entry cryptographically linked; deletion requires 51%+ validator consensus</td>
+        </tr>
+        <tr>
+          <td>Editor identity unverifiable</td>
+          <td>Anyone can create accounts; coordinated inauthentic editing is a known attack vector</td>
+          <td class="cell-green">Cryptographic attribution - private key signatures prove exactly who made each entry, permanently</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.3 - BitTorrent's Architecture: How It Actually Works</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🌊 BitTorrent Download - Complete Technical Flow Without Any Central Server</div>
+<pre>
+  CENTRALISED DOWNLOAD (old model):
+  ──────────────────────────────────────────────────────────
+  One server has the file → You download from it → DONE
+  Problems: Server down = can't download. Slow under load.
+  Government orders server removal = file gone.
+
+  BITTORRENT DOWNLOAD (decentralised):
+  ──────────────────────────────────────────────────────────
+
+  STEP 1: Get a .torrent file or magnet link
+  Contains: File name, total size, piece hashes (SHA-1 of each
+  piece), and hash of the whole file. NOT the actual file —
+  just a cryptographic map of what to download and how to
+  verify each piece arrives uncorrupted.
+
+  STEP 2: Find peers (via Tracker OR DHT)
+  Tracker method (centralised): A server keeps a list of
+  who has the file. Ask the tracker for peer IPs.
+  DHT method (decentralised): No tracker server. Peer
+  discovery distributed across all nodes in the network.
+  Your client asks nearest DHT nodes, who route the query.
+
+  STEP 3: Connect to the swarm
+  ┌──────────────────────────────────────────────────────┐
+  │  SWARM for "file.mp4" (everyone sharing this file): │
+  │  Peer A (Bangalore): Has pieces 1, 3, 7, 12         │
+  │  Peer B (Mumbai):    Has pieces 2, 5, 8, 11         │
+  │  Peer C (Delhi):     Has pieces 4, 6, 9, 13         │
+  │  Peer D (Hyderabad): Has ALL pieces (seeder)        │
+  │  You (Chennai):      Have 0 pieces yet (leecher)    │
+  └──────────────────────────────────────────────────────┘
+
+  STEP 4: Download pieces in parallel from multiple peers
+  Piece 1 ← from Peer A (fastest link to you)
+  Piece 2 ← from Peer B (simultaneously)
+  Piece 3 ← from Peer C (simultaneously)
+  → Massively faster than downloading from one server
+
+  STEP 5: Verify each piece using its SHA-1 hash
+  Piece 1 arrives → Calculate SHA-1 hash
+  Matches expected hash in .torrent file? ✅ Keep
+  Doesn't match? ❌ Discard, re-download from another peer
+  Cryptographic verification ensures zero corruption accepted.
+
+  STEP 6: You become a seeder automatically
+  Once you have all pieces → Your client uploads to others.
+  Every downloader becomes a server. More popular = more seeders
+  = faster download for everyone. Scale improves performance.
+
+  STEP 7: Government orders file takedown
+  Government orders: "Remove this file from BitTorrent."
+  WHO receives the order? Nobody — no central entity.
+  To remove: must reach every seeder globally (impossible).
+  File persists as long as ONE seeder exists anywhere in the world.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.4 - DHT: Removing the Last Centralised Dependency</h3>
+  <p>Early BitTorrent needed a tracker - a central server keeping a list of who had which files. Trackers were chokepoints: shut down the tracker and the swarm couldn't find peers. DHT (Distributed Hash Table) eliminated this last centralised dependency completely.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🗺️ DHT - Fully Decentralised Peer Discovery</div>
+<pre>
+  PROBLEM WITH TRACKER (Centralised):
+  ─────────────────────────────────────────────────────────────
+  Tracker = one server maintaining peer directory.
+  Shut down tracker → peers cannot find each other → swarm dies.
+  UK courts ordered The Pirate Bay's tracker shut down (2009).
+  BitTorrent swarms kept running — because DHT already existed.
+
+  DHT SOLUTION (Decentralised):
+  ─────────────────────────────────────────────────────────────
+  No central tracker. Every peer IS part of the tracker.
+
+  Each peer is responsible for knowing about files whose
+  hash is numerically "close" to their own peer ID:
+
+  Peer ID 1000 → knows who has files with hash ~1000
+  Peer ID 5000 → knows who has files with hash ~5000
+  Peer ID 9000 → knows who has files with hash ~9000
+
+  New query: "Who has file with hash 1023?"
+  → Route query to Peer ID nearest to 1023
+  → That peer has the list of seeders → Found!
+
+  The "tracker" is now distributed across all peers.
+  Every peer holds a tiny piece of the routing table.
+  One peer offline → query routes to nearest alternative.
+  All peers offline → that's the entire internet going dark.
+
+  ═══════════════════════════════════════════════════════
+  BLOCKCHAIN PARALLEL:
+  ═══════════════════════════════════════════════════════
+  BitTorrent DHT: Routing distributed across all peers
+  Blockchain:     Ledger distributed across all validators
+
+  Both: No central directory. Truth distributed everywhere.
+  The difference: Blockchain adds cryptographic consensus
+  (validators AGREE on truth) and value transfer (tokens).
+  DHT routes queries. Blockchain confirms transactions.
+</pre>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">⚙️</div>Technical Deep Dive - Component Mappings</h2>
+
+  <h3 class="sub-title">5.1 - Wikipedia → Blockchain: Every Component Mapped</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Wikipedia Component</th>
+          <th>How It Works</th>
+          <th>Blockchain Equivalent</th>
+          <th>What Blockchain Adds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Community Editors</td>
+          <td>Anyone proposes edits; community accepts or reverts</td>
+          <td class="cell-green">Validators</td>
+          <td>Cryptographic verification - bad proposals fail mathematically, not just through debate</td>
+        </tr>
+        <tr>
+          <td>Talk Pages (Debate)</td>
+          <td>Contested edits debated on article discussion pages</td>
+          <td class="cell-green">Governance DAO</td>
+          <td>On-chain voting with economic stakes - validators lose staked tokens for bad-faith votes</td>
+        </tr>
+        <tr>
+          <td>Edit History</td>
+          <td>Every version preserved; editors can see who changed what, when</td>
+          <td class="cell-green">Blockchain Ledger</td>
+          <td>Cryptographically signed - mathematically provable who made each entry; admins cannot selectively delete</td>
+        </tr>
+        <tr>
+          <td>Vandalism Reversion</td>
+          <td>Community detects and reverts bad edits; repeat offenders blocked</td>
+          <td class="cell-green">Slashing Mechanism</td>
+          <td>Automatic - dishonest validators lose staked MSTC immediately; no manual review needed</td>
+        </tr>
+        <tr>
+          <td>Administrator Elections</td>
+          <td>Community votes to give certain editors administrative tools</td>
+          <td class="cell-green">Validator Election (Trika POSA)</td>
+          <td>Stake-weighted, on-chain - requires economic commitment, not just community popularity</td>
+        </tr>
+        <tr>
+          <td>Wikimedia Foundation (servers)</td>
+          <td>Provides hosting - last centralised dependency</td>
+          <td class="cell-green">IPFS + Distributed Validators</td>
+          <td>No foundation required; content stored on decentralised nodes with cryptographic ownership</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.2 - BitTorrent → Blockchain: Every Component Mapped</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>BitTorrent Component</th>
+          <th>How It Works</th>
+          <th>Blockchain Equivalent</th>
+          <th>What Blockchain Adds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>File Pieces</td>
+          <td>File split into chunks; each downloaded from different peers</td>
+          <td class="cell-green">Transactions (grouped in blocks)</td>
+          <td>Cryptographically signed - each transaction attributed to specific sender via private key; pieces have no authorship</td>
+        </tr>
+        <tr>
+          <td>Swarm (Peer network)</td>
+          <td>All peers jointly serve the file; no one peer is essential</td>
+          <td class="cell-green">Validator Network</td>
+          <td>Validators paid in MSTC - economic incentive to keep participating; BitTorrent seeders volunteer, causing free-rider problem</td>
+        </tr>
+        <tr>
+          <td>SHA-1 Piece Hash</td>
+          <td>Each piece verified against expected hash in .torrent file; corruption detected</td>
+          <td class="cell-green">Block Hash (SHA-256 / Keccak-256)</td>
+          <td>Stronger hashes; entire block signed; hash links blocks into chain making tampering detectable across entire history</td>
+        </tr>
+        <tr>
+          <td>DHT (Peer Discovery)</td>
+          <td>Distributed routing table; no central tracker needed</td>
+          <td class="cell-green">P2P Node Discovery</td>
+          <td>Blockchain also uses Kademlia-style DHT for node discovery - same mechanism, different application</td>
+        </tr>
+        <tr>
+          <td>Seeding (Uploading after download)</td>
+          <td>Voluntary - users upload to others after downloading; no payment</td>
+          <td class="cell-green">Block Production (Validators)</td>
+          <td>Block rewards in MSTC - economic incentive eliminates free-rider problem; validators paid per block validated</td>
+        </tr>
+        <tr>
+          <td>Magnet Link</td>
+          <td>Compact identifier containing file hash - no central server needed to start download</td>
+          <td class="cell-green">Transaction Hash / Contract Address</td>
+          <td>On-chain and immutable - cannot be forged or altered; serves as permanent, cryptographically verifiable pointer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.3 - What Blockchain Adds That Neither System Has</h3>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-card-header">⚠️ What Wikipedia &amp; BitTorrent Cannot Do</div>
+      <ul>
+        <li><strong>Transfer value trustlessly:</strong> No payment layer in either system. You can't send ₹500 to someone via Wikipedia or BitTorrent.</li>
+        <li><strong>Guarantee immutability:</strong> Wikipedia admins can delete edit history. BitTorrent pieces can be replaced (though hash verification catches this).</li>
+        <li><strong>Create economic incentives automatically:</strong> BitTorrent has no seeder payment; Wikipedia editors are unpaid. Both rely on volunteer altruism.</li>
+        <li><strong>Execute programmable logic:</strong> Neither can run a smart contract that auto-pays creators based on views or downloads.</li>
+        <li><strong>Prove ownership with math:</strong> Wikipedia cannot cryptographically prove who wrote what. BitTorrent cannot prove who distributed what.</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">✅ What Blockchain Uniquely Provides</div>
+      <ul>
+        <li><strong>Trustless value transfer:</strong> Smart contracts on MST send MSTC to content creators automatically based on verifiable on-chain events.</li>
+        <li><strong>Cryptographic immutability:</strong> Once confirmed, altering any block requires recomputing all subsequent blocks across 51%+ of validators - economically impossible.</li>
+        <li><strong>Economic incentives (block rewards):</strong> Validators paid per block - sustainable, scalable economic model that volunteer systems cannot match.</li>
+        <li><strong>Programmable logic (smart contracts):</strong> "If X then pay Y" executes automatically without human intervention or trust in any party.</li>
+        <li><strong>Cryptographic attribution:</strong> Every transaction signed with sender's private key - mathematical proof of authorship, not just editorial consensus.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🌍</div>Real-World Case Studies</h2>
+
+  <h3 class="sub-title">Case Study 1 - Turkey Blocks Wikipedia (2017 - 2019): Decentralisation's Limit</h3>
+  <p>In April 2017, the Turkish government blocked access to Wikipedia under national security grounds. The block lasted 2.5 years - until Turkey's own Constitutional Court ruled it unconstitutional in December 2019.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🚫 Turkey Wikipedia Block - What Worked and What Didn't</div>
+<pre>
+  WHAT TURKEY COULD DO (centralised ISP control):
+  ──────────────────────────────────────────────────────────
+  Order Turkish ISPs to block wikipedia.org DNS.
+  ISPs comply → wikipedia.org inaccessible without VPN.
+  This worked. Turkish ISPs are centralised licensed entities.
+
+  WHAT TURKEY COULD NOT DO:
+  ──────────────────────────────────────────────────────────
+  Delete Wikipedia articles → Servers outside Turkish jurisdiction.
+  Wikimedia Foundation refused content removal.
+  Articles about Turkey remained on global Wikipedia.
+
+  Prevent VPN access → 300,000+ Turks switched to VPN.
+
+  Prevent offline access → Kiwix offline reader use surged.
+  Millions of downloaded Wikipedia copies exist on devices.
+
+  LESSON:
+  ──────────────────────────────────────────────────────────
+  Centralised ISP = SPOF for ACCESS (but not for CONTENT).
+  Wikipedia's content survived because Wikimedia refused to comply.
+  BUT: Wikimedia Foundation could, theoretically, be pressured.
+  That remaining centralised dependency is why IPFS matters.
+
+  BLOCKCHAIN IMPROVEMENT:
+  Content on IPFS (content-addressed, no DNS dependency).
+  MST validators globally distributed (no single jurisdiction).
+  Even government-ordered ISP blocks cannot stop P2P access
+  through satellite internet or Tor — true censorship resistance.
+</pre>
+  </div>
+
+  <h3 class="sub-title">Case Study 2 - India's Land Records: The Wikipedia Model Applied</h3>
+  <p>India has one of the world's most contested land record systems. The NCRB estimates 66% of civil court cases involve land disputes. Root cause: land records are maintained by a single government official (Patwari) at district level. Records can be altered with physical access or bribery - because one official has centralised control with no audit trail.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-card-header">❌ Current Patwari System (Centralised)</div>
+      <ul>
+        <li>One official controls records for an entire area</li>
+        <li>Records can be physically altered or pages removed</li>
+        <li>No immutable history - falsification undetectable</li>
+        <li>Community cannot verify - must trust the official</li>
+        <li>66% of civil disputes involve land in India</li>
+        <li>Estimated ₹70,000 crore in annual land fraud losses</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">✅ Blockchain Land Records (AP Pilot)</div>
+      <ul>
+        <li>Records on blockchain - no single official controls</li>
+        <li>Cryptographically signed - alteration requires 51%+ consensus</li>
+        <li>Complete ownership history on-chain - immutable audit trail</li>
+        <li>Multiple authorities and public can verify independently</li>
+        <li>Andhra Pradesh pilot (2017): land fraud down 90% in pilot districts</li>
+        <li>MST Blockchain + SARAL: accessible to citizens via phone number login</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub-title">Case Study 3 - BitTorrent's Free-Rider Problem: Why Blockchain Adds Economics</h3>
+  <p>BitTorrent proves decentralised distribution works technically. But it also exposes the free-rider problem. Once someone downloads a file, they can close BitTorrent. Sharing stops. No economic incentive to continue. Result: popular films have millions of seeders; obscure research papers become unavailable in weeks.</p>
+  <p>MST Blockchain solves this permanently. Validators earn MSTC for every block they help validate. The economic reward makes honest participation rational - not just altruistic. BitTorrent works only when enough people are generous. Blockchain works even when everyone is purely self-interested, because honesty is economically optimal.</p>
+
+  <div class="callout tip">
+    <span class="callout-label">💡 The Critical Insight</span>
+    <p>Decentralisation without economic incentives = volunteer system vulnerable to free-rider problem. Decentralisation WITH economic incentives (blockchain tokens) = self-sustaining, scalable network. This is blockchain's core innovation over Wikipedia and BitTorrent: <strong>making honest participation economically rational, not just morally admirable.</strong></p>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">🔄</div>Step-by-Step: How Wikipedia Handles a Contested Edit</h2>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Edit Submitted - Published Immediately</div>
+        <div class="step-desc">Any user edits an article - say, "History of the Babri Masjid". The edit publishes live instantly. Wikipedia does not pre-approve edits. This is "optimistic updating" - assume good faith until proven otherwise. Every reader sees the change the moment it is saved.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Automated Bot Scan (Within Seconds)</div>
+        <div class="step-desc">ClueBot NG and anti-vandalism bots scan the edit for: profanity insertions, blank-page attacks, link spam, suspicious patterned edits. Bots handle approximately 85% of all vandalism automatically - reverting without any human intervention. If the edit passes bot checks, it moves to human review.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Human Watchlist Review</div>
+        <div class="step-desc">Thousands of editors have articles on their "watchlist." For sensitive articles like political or religious history, dozens of experienced editors receive notifications immediately. A contested edit on a major article is typically seen by a human within 2 - 5 minutes.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Revert or Escalate to Talk Page</div>
+        <div class="step-desc">If an editor disagrees: they may revert and explain on the Talk page. Edit-warring (repeatedly undoing each other) is prohibited - after three reverts in 24 hours, the editor faces blocking. All disputes must move to the Talk page for structured discussion.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Community Consensus on Talk Page</div>
+        <div class="step-desc">Editors present arguments with citations. Community members weigh in. Consensus is reached through reasoned discussion - not majority vote. A rough agreement among engaged editors determines the final content. No central editor makes the call - the community does.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">Article Protection If Needed</div>
+        <div class="step-desc">If conflict persists, an elected administrator can "protect" the article - restricting editing to established accounts or fully locking it temporarily. After a cooling-off period, the talk page process continues. All protection decisions are made by community-elected admins, not company employees.</div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="highlight-box">
+    Wikipedia proved communities can govern knowledge without a central authority.<br>
+    BitTorrent proved files can be shared without a central server.<br>
+    Blockchain proves <span>value can be transferred without a central bank.</span>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - Must-Know Facts</h2>
+  <ul class="facts-list">
+    <li><strong>Wikipedia founded January 2001</strong> - Jimmy Wales and Larry Sanger. Anyone can edit with no pre-approval. Now: 58 million articles, 333 languages, 280,000 active editors. Encarta (Microsoft) shut down 2009. Wikipedia still growing.</li>
+    <li><strong>Wikipedia editorial governance:</strong> Optimistic updating (publish first, revert if bad). Bots handle 85% of vandalism. Contested edits → Talk page discussion → community consensus. Admins are elected by community, not hired.</li>
+    <li><strong>BitTorrent founded 2001</strong> - Bram Cohen. File split into pieces. Every downloader becomes a seeder. More popular file = more seeders = faster download. Opposite of centralised server behaviour.</li>
+    <li><strong>BitTorrent key terms:</strong> Leecher = downloading (incomplete file). Seeder = has full file, uploading. Swarm = all peers sharing a file. Tracker = central server tracking peers (centralised SPOF). DHT = trackerless peer discovery (fully decentralised).</li>
+    <li><strong>SHA-1 piece hash in BitTorrent:</strong> Each piece verified against hash in .torrent file. Corrupted pieces detected and re-downloaded from another peer. Same cryptographic verification principle as blockchain block hashes.</li>
+    <li><strong>DHT eliminates tracker dependency:</strong> Each peer stores routing info for files with hash numerically near their own peer ID. Query routed hop-by-hop to nearest peer. No central server. Equivalent to blockchain's P2P node discovery.</li>
+    <li><strong>What blockchain adds:</strong> Trustless value transfer, cryptographic immutability, economic incentives (token rewards), programmable logic (smart contracts), cryptographic attribution (private key signatures). Neither Wikipedia nor BitTorrent has any of these.</li>
+    <li><strong>Free-rider problem in BitTorrent:</strong> No economic reason to seed after download → popular files survive, rare files die. Blockchain token rewards (MSTC per block) solve this - honest participation is economically rational, not just altruistic.</li>
+    <li><strong>Turkey Wikipedia block (2017 - 2019):</strong> DNS block prevented access via ISP. But content survived on global servers - Wikimedia refused removal. Shows ISP control = access SPOF, not content SPOF. Blockchain on IPFS eliminates even the access vulnerability.</li>
+    <li><strong>Andhra Pradesh blockchain land records pilot (2017):</strong> Replaced single-official Patwari system. Land fraud dropped 90% in pilot districts. Demonstrates real-world application of decentralised record-keeping - Wikipedia model applied to government records with blockchain's immutability.</li>
+  </ul>
+</section>
+
+<!-- SECTION 9 -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">🔐</div>Security Notes</h2>
+
+  <h3 class="sub-title">9.1 - Wikipedia's Vulnerability: Coordinated Inauthentic Editing</h3>
+  <p>Wikipedia's consensus model can be gamed by organised groups. If 50 editors from one political group coordinate to edit the same articles in the same direction, the consensus mechanism reflects their majority - not objective truth. This is a documented attack vector used by state actors to influence Wikipedia articles about political events.</p>
+  <p>Blockchain's defence: validators have economic stakes (MSTC locked in). To game the consensus, an attacker must control 51%+ of staked validators - which would cost hundreds of millions in MSTC. Economic deterrence that Wikipedia's volunteer system cannot match.</p>
+
+  <h3 class="sub-title">9.2 - BitTorrent's Poisoned Pieces: The Hash Verification Defence</h3>
+  <p>Attackers distribute "poisoned" torrents - files where a few pieces are replaced with corrupted or malicious content. BitTorrent's SHA-1 piece hash verification catches this: if a downloaded piece doesn't match the expected hash from the .torrent file, it is discarded immediately and re-requested from a different peer. This is the same cryptographic hash verification principle used in blockchain block validation - the hash is the ground truth.</p>
+</section>
+
+<!-- SECTION 10 -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - Blockchain Knowledge Platforms: Wikipedia + Token Economics</h3>
+  <p>Projects like IQ.wiki (formerly Everipedia, built on EOS) and Golden Protocol are building Wikipedia-style systems where content contributions earn tokens. Contributors earn tokens for verified, cited articles. Validators earn tokens for confirming accuracy. This applies blockchain economics to knowledge curation - solving Wikipedia's free-rider problem while maintaining decentralised governance. For India, a regional-language knowledge platform on MST Blockchain - where Hindi, Tamil, and Marathi contributors earn MSTC - could dramatically expand Indian language internet content beyond what volunteer-only Wikipedia has achieved.</p>
+
+  <h3 class="sub-title">10.2 - BitTorrent's Direct Descendants: IPFS, Filecoin, Arweave</h3>
+  <p>IPFS (InterPlanetary File System) directly descends from BitTorrent's content-addressing principles. Files identified by hash, not server location. Filecoin adds the economic layer: nodes are paid FIL tokens for hosting files. Arweave takes it further - a one-time payment permanently hosts a file across the network forever. MST Blockchain integrates with IPFS for decentralised content storage - inheriting BitTorrent's censorship resistance while adding blockchain's economic incentives and cryptographic ownership proof.</p>
+
+  <h3 class="sub-title">10.3 - Protocol Design: The Highest-Value Engineering Skill in Web3</h3>
+  <p>The engineers who designed BitTorrent's DHT (Bram Cohen) and Wikipedia's governance mechanisms are among the most-cited computer scientists in blockchain research. Understanding these systems at protocol level is the foundation for designing new decentralised protocols. Protocol engineers who design governance mechanisms, token economics, and consensus rules for blockchain networks earn $200,000-$500,000+ annually at major protocols globally. This sub-module is your conceptual foundation for that career path.</p>
+</section>
+
+<!-- SECTION 11 -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="glossary-term">Peer-to-Peer (P2P)</div>
+      <p class="glossary-def">Network where participants communicate directly - no central server. Each node is simultaneously client and server. BitTorrent and blockchain are both P2P.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Swarm</div>
+      <p class="glossary-def">In BitTorrent: all peers sharing a particular file. More peers = faster downloads. Equivalent to the validator network in blockchain - collectively serving the network.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Seeder</div>
+      <p class="glossary-def">BitTorrent peer with the complete file who uploads pieces to others. No economic incentive - purely voluntary. Equivalent to a blockchain validator who has the full ledger.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Leecher</div>
+      <p class="glossary-def">BitTorrent peer currently downloading a file. Simultaneously uploads whatever pieces it has received so far. Becomes a seeder once download is complete.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">DHT (Distributed Hash Table)</div>
+      <p class="glossary-def">Decentralised peer discovery mechanism. Each peer maintains routing info for files with hashes numerically near their own peer ID. Eliminates central tracker dependency.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Magnet Link</div>
+      <p class="glossary-def">URL containing only the hash of a file - no central server needed to start a download. Client uses DHT to find peers with matching content.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Content Addressing</div>
+      <p class="glossary-def">Identifying files by their content hash, not by server location. Used in BitTorrent (piece hashes), IPFS (CID), and blockchain (transaction hashes).</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Community Consensus (Wikipedia)</div>
+      <p class="glossary-def">Decisions reached through discussion and rough agreement, not central authority or formal voting. Equivalent to blockchain consensus - distributed agreement without a single controller.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Talk Page</div>
+      <p class="glossary-def">Wikipedia's discussion forum for each article. Contested edits debated here. Community reaches consensus. Equivalent to blockchain's governance DAO for protocol changes.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Free-Rider Problem</div>
+      <p class="glossary-def">When users benefit from a shared resource without contributing. BitTorrent: users stop seeding after download. Blockchain token rewards make contribution economically rational.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Optimistic Updating</div>
+      <p class="glossary-def">Publishing edits immediately, reverting if bad. Assumes good faith until proven otherwise. Wikipedia's approach. Blockchain uses cryptographic verification instead of assumed trust.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">IPFS (InterPlanetary File System)</div>
+      <p class="glossary-def">Decentralised storage system descended from BitTorrent principles. Files addressed by content hash. No central server. MST Blockchain integrates IPFS for censorship-resistant content storage.</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ASSESSMENT -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 2.4 Assessment</h2>
+      <p>Decentralised Systems - Wikipedia &amp; BitTorrent &nbsp;·&nbsp; 15 marks total across three sections.</p>
+    </div>
+    <div class="marks-badge-big">15 Marks</div>
+  </div>
+
+  <!-- SECTION A — MCQs -->
+  <h3 class="sub-title">Section A - Multiple Choice Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(6 × 1 Mark = 6 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">Choose the single best answer. 1 mark each. No negative marking.</p>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 1</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In BitTorrent, what happens to download speed as more users download a popular file - and why?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Speed decreases - more users compete for the same central server bandwidth</li>
+        <li class="option correct"><div class="opt-label">B</div>Speed increases - more users have pieces of the file and can upload those pieces to new downloaders simultaneously, creating massive parallel transfer</li>
+        <li class="option"><div class="opt-label">C</div>Speed stays constant - BitTorrent allocates fixed bandwidth per user regardless of swarm size</li>
+        <li class="option"><div class="opt-label">D</div>Speed depends only on the original uploader's connection - other peers don't affect it</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> BitTorrent inverts the centralised bottleneck completely. In centralised download: 10,000 simultaneous users = each gets 1/10,000 of server bandwidth = very slow. In BitTorrent: 10,000 users = each has some pieces of the file = 10,000 simultaneous upload sources = each new downloader can get pieces from all 10,000 users simultaneously = dramatically faster. The file is split into pieces; any peer with piece #42 can upload it to anyone who needs it. This is why popular torrents (many seeders) download in minutes while unpopular ones (few seeders) can take days or fail entirely. Blockchain applies this same principle: more validators = more resilient and distributed network.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 2</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Wikipedia defeated Microsoft's Encarta despite Encarta having professional editors and massive corporate funding. What was Wikipedia's structural advantage?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Wikipedia had better technology and a faster website than Encarta</li>
+        <li class="option"><div class="opt-label">B</div>Wikipedia was government-funded and therefore could not be shut down commercially</li>
+        <li class="option correct"><div class="opt-label">C</div>Wikipedia's decentralised community model gave it 280,000+ volunteer editors creating more breadth and depth than any company could afford to pay for - at a fraction of the cost</li>
+        <li class="option"><div class="opt-label">D</div>Wikipedia focused only on popular topics while Encarta tried to cover everything</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> Wikipedia's structural advantage is the community model: 280,000+ volunteer editors contributing out of passion and expertise - covering topics in 333 languages with depth no corporate team could replicate. Encarta's professional team, however expert, was limited by salary budget. Wikipedia's Wikimedia Foundation budget (~$100M/year) is tiny compared to what paying 280,000 editors would cost. Scale through community is the insight. Blockchain applies the same principle: validators worldwide contribute to network security in exchange for token rewards - creating a globally distributed, cost-efficient security infrastructure no single company could fund or build.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 3</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">DHT (Distributed Hash Table) in BitTorrent solved what specific architectural problem - and what is the direct blockchain equivalent?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>DHT speeds up file downloads by compressing data; blockchain equivalent is transaction batching</li>
+        <li class="option correct"><div class="opt-label">B</div>DHT eliminated the centralised tracker (peer discovery server) by distributing the routing table across all peers; blockchain equivalent is P2P node discovery where all validators collectively maintain network topology without any central directory</li>
+        <li class="option"><div class="opt-label">C</div>DHT verifies file authenticity; blockchain equivalent is the SHA-256 block hash</li>
+        <li class="option"><div class="opt-label">D</div>DHT creates payment for seeders; blockchain equivalent is validator rewards</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> BitTorrent originally needed a tracker - a central server maintaining a list of who had which files. Trackers were centralised chokepoints: shut one down and swarms could not find peers. DHT solved this by distributing the peer directory itself. Each peer is responsible for storing routing info about files with hashes numerically close to their own peer ID. A query for file hash X gets routed hop-by-hop through DHT peers until it reaches the peer responsible for that hash range. No central server required. Blockchain uses the same Kademlia-style DHT mechanism for node discovery - when you start an MST node, it finds other validators through P2P DHT, not a central server. Both systems solved the same problem: decentralised directory without a central coordinator.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 4</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">BitTorrent technically solved decentralised file distribution, yet popular streaming platforms like Netflix dominate instead of BitTorrent-based alternatives. What is the PRIMARY architectural reason?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>BitTorrent is technically slower than Netflix streaming</li>
+        <li class="option"><div class="opt-label">B</div>BitTorrent is illegal in most countries while Netflix has legitimate content</li>
+        <li class="option correct"><div class="opt-label">C</div>BitTorrent has no economic incentive for seeders (files become unavailable when people stop sharing), no payment mechanism for content creators, and no discovery or recommendation layer - three gaps blockchain can fill with token economics and smart contracts</li>
+        <li class="option"><div class="opt-label">D</div>BitTorrent requires too much technical knowledge for mainstream users</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> BitTorrent's technical architecture is sound but its economic architecture is missing. Three specific gaps: (1) Free-rider problem - seeders stop seeding when they're done watching. Rare or old content becomes unavailable. Netflix pays content hosting costs ensuring 100% availability. (2) No creator payment - artists cannot earn from BitTorrent distribution. Netflix pays studios and royalties. (3) No discovery layer - you must know what you're searching for. Netflix's recommendation algorithm surfaces relevant content. Blockchain-based streaming solves all three: token rewards for seeders (economic incentive), smart contract micropayments to creators per view, and on-chain recommendation algorithms. MST Blockchain's ecosystem enables exactly this kind of decentralised content economy.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 5</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Andhra Pradesh's blockchain land records pilot reduced land fraud by 90% in pilot districts. Which specific combination of blockchain properties achieved this - and which Wikipedia-style system alone could NOT have achieved the same result?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Blockchain's faster processing speed and larger storage capacity compared to a Wikipedia-style system</li>
+        <li class="option correct"><div class="opt-label">B</div>Blockchain's cryptographic immutability (records cannot be altered without 51%+ validator consensus) COMBINED with cryptographic attribution (private key signatures proving exactly who made each entry) - Wikipedia-style systems still allow admins to delete history and cannot cryptographically prove editor identity</li>
+        <li class="option"><div class="opt-label">C</div>Blockchain's government partnership which Wikipedia-style systems cannot form</li>
+        <li class="option"><div class="opt-label">D</div>Blockchain's ability to store more data than a Wikipedia-style system</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> A Wikipedia-style system applied to land records would be better than the single-Patwari model (more people watching = harder to corrupt) but would still have two critical vulnerabilities: (1) Admins can delete or modify revision history - a corrupt official who gained admin access could erase evidence of fraudulent changes. (2) Editor identity is not cryptographically verified - a corrupt official could create fake accounts to support fraudulent edits. Blockchain's private key signatures solve both: every entry is signed by a specific private key that only the legitimate official holds, creating mathematical proof of who made the entry. And once confirmed by validators, no record can be altered - not by any admin, not by any official, not by any court order without an on-chain governance process. These two properties together make fraud 90% harder in practice.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 6</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">When Turkey blocked Wikipedia via ISP-level DNS blocking, Wikipedia's content survived. What does this reveal about the relationship between "access" and "content" in decentralised systems?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Decentralised systems are completely immune to government interference - Turkey failed entirely</li>
+        <li class="option correct"><div class="opt-label">B</div>Centralised ISPs can restrict access to content, but if the content is stored outside a government's jurisdiction, they cannot delete it - access and content are two different layers with different centralisation levels</li>
+        <li class="option"><div class="opt-label">C</div>Government DNS blocking is always ineffective because VPNs exist</li>
+        <li class="option"><div class="opt-label">D</div>Wikipedia was centralised enough for Turkey to succeed in removing content about Turkey</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> The Turkey incident reveals a crucial distinction between two separate layers. The ACCESS layer (how users reach wikipedia.org) was successfully disrupted - Turkish ISPs blocked the DNS name, making the site inaccessible to most users without a VPN. The CONTENT layer (the actual articles) survived completely - Wikipedia's servers are outside Turkey, and Wikimedia Foundation refused to remove the articles the Turkish government objected to. Turkey could control the pipe (centralised ISPs) but not the content (decentralised storage on global servers). This shows that decentralisation works best when applied to BOTH layers: decentralised content (IPFS) eliminates the content SPOF, and P2P access (DHT-based discovery, satellite internet) eliminates the access SPOF. MST Blockchain with IPFS addresses both layers simultaneously.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION B — COMPONENT MATCHING ACTIVITY -->
+  <h3 class="sub-title" style="margin-top:40px;">Section B - Component Matching Activity &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(6 Marks - 1 mark per correct match)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:8px;">Match each Wikipedia or BitTorrent component (Column A) to its correct blockchain equivalent (Column B). Write the correct letter next to each number. Each match is worth 1 mark.</p>
+
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 7</span><span class="q-type">Component Matching</span>
+      <span class="q-marks">6 Marks</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Match each Column A item to its correct Column B equivalent. There is one correct match per item. No item in Column B is used twice.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0;">
+        <div>
+          <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--brand);margin-bottom:12px;">Column A - Wikipedia / BitTorrent Component</div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">1</div><div class="term">Wikipedia's Talk Page (community debate on edits)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">2</div><div class="term">BitTorrent Seeder (user who has full file, uploads to others)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">3</div><div class="term">Wikipedia's Edit History (full revision log of all versions)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">4</div><div class="term">BitTorrent SHA-1 Piece Hash (verifies each downloaded piece)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">5</div><div class="term">Wikipedia's Bots Reverting Vandalism (automated detection)</div></div>
+          <div class="activity-item"><div class="label">6</div><div class="term">BitTorrent DHT (distributed peer discovery, no central tracker)</div></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px;">Column B - Blockchain Equivalent</div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">A</div><div class="term">Block Hash / Keccak-256 (cryptographically verifies block integrity)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">B</div><div class="term">Governance DAO (on-chain voting on protocol changes)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">C</div><div class="term">P2P Node Discovery (validators find each other without central directory)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">D</div><div class="term">Slashing Mechanism (automatic penalty for dishonest validators)</div></div>
+          <div class="activity-item" style="margin-bottom:8px;"><div class="label">E</div><div class="term">Blockchain Ledger (immutable record of all transactions and states)</div></div>
+          <div class="activity-item"><div class="label">F</div><div class="term">Validator (maintains full ledger, validates and propagates new blocks)</div></div>
+        </div>
+      </div>
+
+      <div class="answer-block" style="margin-top:16px;">
+        <span class="answer-label">✅ Correct Answers + Full Explanations</span>
+
+        <div class="match-answer"><strong>1 → B (Governance DAO):</strong> Wikipedia's Talk Page is where editors debate contested edits and reach community consensus. The blockchain equivalent is the Governance DAO - where stakeholders propose and vote on protocol changes through structured on-chain deliberation. Both are the "disagreement resolution" mechanism of their respective decentralised systems.</div>
+
+        <div class="match-answer"><strong>2 → F (Validator):</strong> A BitTorrent seeder has the complete file and continuously serves pieces to other users. A blockchain validator has the complete ledger and continuously validates new transactions and blocks. Both are the "always-on participants" who maintain the health of their respective networks.</div>
+
+        <div class="match-answer"><strong>3 → E (Blockchain Ledger):</strong> Wikipedia's edit history preserves every version of every article with timestamps and editor IDs. The blockchain ledger preserves every transaction and state change, permanently and in order. Both are the immutable historical record of their systems - though blockchain's is cryptographically stronger (admins cannot delete entries).</div>
+
+        <div class="match-answer"><strong>4 → A (Block Hash / Keccak-256):</strong> BitTorrent's SHA-1 piece hash verifies that each downloaded piece is uncorrupted and matches what was originally shared. Blockchain's block hash (using stronger SHA-256 or Keccak-256) verifies that each block is uncorrupted and links to the previous block. Both use cryptographic hashing for integrity verification - the core security mechanism of both systems.</div>
+
+        <div class="match-answer"><strong>5 → D (Slashing Mechanism):</strong> Wikipedia's bots automatically detect and revert vandalism without human intervention. Blockchain's slashing mechanism automatically penalises (reduces staked tokens) of validators who submit invalid blocks - without requiring human review. Both are the automated, real-time defence against bad-faith participation.</div>
+
+        <div class="match-answer"><strong>6 → C (P2P Node Discovery):</strong> BitTorrent DHT distributes the peer directory across all nodes - no central tracker needed to find who has a file. Blockchain P2P node discovery (also often Kademlia-based DHT) distributes network topology information across all validators - no central server needed to find other nodes. Same mechanism, different application.</div>
+
+        <div class="marks-breakdown">
+          <div class="mark-cell"><strong>6/6:</strong> All six correct matches</div>
+          <div class="mark-cell"><strong>4 - 5/6:</strong> Four to five correct matches</div>
+          <div class="mark-cell"><strong>2 - 3/6:</strong> Two to three correct matches</div>
+          <div class="mark-cell"><strong>0 - 1/6:</strong> Zero to one correct match</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SECTION C — TRUE/FALSE -->
+  <h3 class="sub-title" style="margin-top:40px;">Section C - True/False &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 × 1 Mark = 1 Mark)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">State TRUE or FALSE. Write one clear sentence of justification - required for any mark.</p>
+
+  <!-- TF Q -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 8</span><span class="q-type">True / False</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Statement: "Wikipedia's decentralised model is superior to blockchain in all respects because it has been operating successfully since 2001 without cryptocurrency or tokens."</div>
+      <div class="tf-area"><strong>Think carefully:</strong> What can Wikipedia NOT do? What can blockchain do that Wikipedia cannot? Is "older" the same as "superior in all respects"?</div>
+      <div class="answer-block" style="margin-top:12px;">
+        <div class="tf-verdict false">FALSE</div>
+        <span class="answer-label" style="margin-top:8px;">✅ Required Justification (1 Mark)</span>
+        <p>Wikipedia's community governance model is excellent for knowledge curation but it cannot transfer value trustlessly (no payment layer), cannot guarantee cryptographic immutability (admins can delete history), cannot cryptographically attribute entries to specific identities, cannot automatically reward contributors economically (free-rider problem causes editor burnout), and cannot execute programmable business logic - all of which blockchain provides; the statement confuses operational longevity with architectural completeness across all dimensions, whereas Wikipedia and blockchain are complementary tools designed for different tasks, with blockchain uniquely solving the economic incentive and trustless value transfer problems that have always limited Wikipedia's sustainability and contributor diversity.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div style="background: var(--brand); border-radius: var(--radius); padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div style="color: #C4B5F5; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">Sub-Module 2.4 Assessment Summary</div>
+      <div style="color: white; font-size: 16px; font-weight: 700;">Section A: 6 × MCQ = 6 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section B: Component Matching (6 pairs) = 6 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section C: 1 × True/False = 1 mark</div>
+    </div>
+    <div style="background: white; border-radius: 10px; padding: 14px 28px; text-align: center;">
+      <div style="font-size: 42px; font-weight: 900; color: var(--brand); line-height: 1;">15</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--ink-3);">TOTAL MARKS</div>
+    </div>
+  </div>
+</section>
+
+<div style="text-align:center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);">
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size: 13px; color: var(--ink-3);">Module 2 · Sub-Module 2.4 of 6 &nbsp;·&nbsp; Next: Sub-Module 2.5 - Benefits of Decentralisation →</div>
+</div>
+
+</body>
+</html>

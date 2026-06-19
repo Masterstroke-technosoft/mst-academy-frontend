@@ -1,0 +1,914 @@
+
+
+<div class="module-badge">🎓 Module 9 &nbsp;·&nbsp; Sub-Module 9.5 of 6</div>
+<h1 class="module-title">Frontend Skeleton with <span class="highlight">MST SDK</span></h1>
+<p class="module-subtitle">Turn your smart contracts into a usable dApp - build a React frontend that connects to the BridgeKey wallet, reads on-chain data, and sends transactions, all powered by the MST SDK and optimized for real users. This is the bridge between your Solidity code and the human beings who will use it.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 Frontend Code + Demo Link</div>
+  <div class="meta-chip green">Phase 3 · Capstone Kickoff</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚛️</div>
+    <div class="obj-text">
+      <strong>Set up a React project with MST SDK integration</strong>
+      Initialize a Vite + React app, install MST SDK and ethers.js, and configure the provider for MST Testnet and mainnet. Understand the full project structure and every dependency.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Implement wallet connection using BridgeKey</strong>
+      Write a robust "Connect Wallet" button that requests accounts, switches to MST chain, handles errors gracefully, and displays the user's address - with proper loading, error, and success states throughout the entire lifecycle.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📖</div>
+    <div class="obj-text">
+      <strong>Read data from your smart contracts</strong>
+      Call <code>view</code> functions to display on-chain state in the UI, using custom React hooks that fetch data on mount and refresh after transactions - with caching, error boundaries, and loading skeletons.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">✍️</div>
+    <div class="obj-text">
+      <strong>Send transactions and handle their full lifecycle</strong>
+      Create functions that call state-changing contract methods, show pending confirmations, handle replacement and cancellation, and update the UI when the transaction is mined - all with MST's sub-second block times and sub-paisa fees.
+    </div>
+  </div>
+</div>
+
+<!-- 02 REAL‑WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The dApp That Worked Perfectly - Until a Real Person Used It</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>Meera had built a brilliant decentralized voting contract for her capstone. The smart contracts were flawless, the tests passed with 100% coverage, and even the deployment to MST Testnet went smoothly. She proudly demonstrated the contract to her mentor, running transactions from Hardhat scripts with perfect precision. The mentor nodded thoughtfully, then asked the question that changed everything: <strong>"Can your mother use it?"</strong></p>
+  <br>
+  <p>Meera paused. There was no UI. No wallet connection. No feedback when a transaction was pending. No error messages. To vote, you had to manually craft a calldata string in a terminal. Her brilliant contract was completely inaccessible to anyone who wasn't a developer. Realizing the gap, she spent the next week building a React frontend with a "Connect Wallet" button that used BridgeKey, a clean UI showing the list of candidates with their photos, and a prominent "Vote" button with a loading spinner. She added clear error messages for every common issue - "Please connect your wallet first", "Switch to MST Testnet to vote", "Transaction failed: you have already voted in this election". She even added a success animation when a vote was confirmed.</p>
+  <br>
+  <p>She sent the demo link to five friends - none of whom had ever used crypto. All five successfully voted within a minute, without any guidance. One messaged her: "That was easier than logging into my bank app!" That moment - when a non-technical person uses your dApp effortlessly - is the true test of a blockchain developer. It's not enough to write correct smart contracts; you must make them accessible to the people whose problems you're solving. <strong>This sub-module teaches you to pass that test.</strong> By the end, you'll have a production-quality frontend skeleton that connects real users to your smart contracts on MST, with the same polish and care that Meera learned to apply.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY (EXPANDED) -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Web3 Frontends - From Web3.js to Modern React Hooks</h2>
+<p>The journey of Web3 frontend development is a story of progressive simplification. In Ethereum's earliest days (2015 - 2017), building a dApp frontend meant wrestling with <code>web3.js</code>, a massive monolithic JavaScript library that injected a global <code>web3</code> object into the browser. Frontends were often vanilla HTML files with script tags - no React, no state management, no component architecture. Wallet connection meant "install MetaMask or go home." There were no standards for how wallets should communicate with dApps. Every wallet had its own API. Developers spent more time fighting the tooling than building features.</p>
+
+<p>The release of <strong>ethers.js</strong> v4 in 2018, and especially v5 in 2019, was a watershed moment. ethers.js was lightweight, meticulously documented, and designed with modern JavaScript in mind. It introduced clean abstractions like <code>Provider</code>, <code>Signer</code>, and <code>Contract</code> that made interacting with the blockchain feel natural. Developers started creating custom React hooks - <code>useContract</code>, <code>useProvider</code>, <code>useSigner</code> - that encapsulated the complexity of wallet connection and contract interaction into reusable pieces of logic. The React + ethers.js combination became the de facto standard for Web3 frontends.</p>
+
+<p>The <strong>EIP-1193</strong> standard (Ethereum Provider JavaScript API), finalized in 2020, was the glue that unified the ecosystem. It defined a standard interface that every wallet must expose via <code>window.ethereum</code>. Whether the user has MetaMask, BridgeKey, Coinbase Wallet, or any other EIP-1193-compliant wallet, the dApp interacts with it through the same API. This was revolutionary: developers could write one wallet integration and support dozens of wallets automatically.</p>
+
+<p>Today, building a Web3 frontend is a mature discipline. The typical stack is <strong>React + Vite + ethers.js + a wallet provider</strong>. Vite provides lightning-fast development builds and hot module replacement. React provides a component-based architecture with hooks for state management. ethers.js handles all blockchain communication. And the wallet (BridgeKey, MetaMask) handles key management and transaction signing - the dApp never sees the private key.</p>
+
+<p><strong>MST's position in this ecosystem is uniquely advantageous.</strong> Because MST is fully EVM-compatible, every React-ethers tutorial, every Stack Overflow answer, and every open-source dApp template works on MST with minimal changes. You only need to point the provider to an MST RPC URL and set the correct chain ID. BridgeKey implements EIP-1193 natively, so any code that works with MetaMask works with BridgeKey. And MST's sub-paisa gas fees and ~3-second block times mean that the frontend experience is dramatically better than on Ethereum - users don't wait minutes for confirmations, and they don't pay hundreds of rupees per interaction.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> MST is fully EVM-compatible, so every React-ethers tutorial you find online works on MST. You just need to point the provider to an MST RPC URL and set the correct chain ID. The entire Web3 frontend ecosystem is at your disposal.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION (EXPANDED) -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Frontend Is the Bridge Between Humans and Code</h2>
+<div class="callout analogy">
+  <div class="callout-label">🌉 The Analogy</div>
+  <p>Think of your smart contract as a <strong>bank vault</strong>. It holds value and enforces rules with mathematical precision. But nobody can use the vault directly - they need an <strong>ATM</strong> (the frontend). The ATM has a screen (the UI), buttons (wallet connection and transaction triggers), and a card reader (the wallet). It shows you your balance by reading from the vault's records (view functions), lets you withdraw cash by sending signed instructions (transactions), and prints receipts (transaction confirmations). Building the frontend is like designing that ATM: it must be clear enough for a first-time user, safe enough to protect their funds, and robust enough to handle every edge case - network errors, rejected transactions, insufficient funds - without crashing or confusing the user.</p>
+</div>
+<p>Every dApp frontend has three core layers that work together in a precise sequence. Let's understand each deeply:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">CONNECT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the user prove identity without a password?</div>
+      <div class="w5-a">The frontend requests wallet connection via <code>window.ethereum.request({ method: 'eth_requestAccounts' })</code>. This is the EIP-1193 standard call that every modern wallet implements. The wallet (BridgeKey, MetaMask) prompts the user to approve the connection. After approval, the frontend receives the user's Ethereum address - their public identity on the blockchain - and a <strong>Signer</strong> object that can cryptographically sign transactions. Critically, the frontend <strong>never sees the private key</strong>. The private key remains inside the wallet's secure enclave. All the frontend can do is request that the wallet sign a transaction and return the signature. This is the fundamental security model of Web3: <strong>not your keys, not your coins - and not your dApp's keys either.</strong></div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">R</div><div class="w5-word">READ</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the frontend display on-chain data instantly and for free?</div>
+      <div class="w5-a">Using ethers.js, the frontend creates a <code>Contract</code> instance connected to a <strong>read-only Provider</strong> (typically a JSON-RPC connection to an MST node). It then calls <code>view</code> functions on the contract - functions marked with the <code>view</code> or <code>pure</code> modifier in Solidity. These functions are executed locally by the RPC node against the current blockchain state. They do not create a transaction, do not consume gas, and return results immediately. Examples include <code>balanceOf(address)</code>, <code>totalSupply()</code>, <code>getEscrow(id)</code>. The frontend can call these as often as it wants without any cost to the user. This is how wallets display your token balances and how dApps show you your staked amount or voting power.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WRITE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the frontend change the blockchain state?</div>
+      <div class="w5-a">To modify state, the frontend creates a <code>Contract</code> instance connected with a <strong>Signer</strong> (the wallet). It then calls a state-changing function - any function not marked <code>view</code> or <code>pure</code>. This creates a transaction that is sent to the wallet for signing, then broadcast to the MST network. The frontend tracks the transaction through its lifecycle: <strong>submitted</strong> (waiting for wallet approval), <strong>pending</strong> (broadcast to the network, waiting for inclusion in a block), <strong>confirmed</strong> (included in a block), and <strong>finalized</strong> (enough blocks built on top). On MST, with ~3-second block times, this entire cycle typically completes in under 10 seconds. The frontend must provide visual feedback at each stage - a spinner during pending, a success message with a link to the transaction on MST Explorer, or a clear error message if the transaction reverts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 INTERACTIVE SETUP WALKTHROUGH (MORE DETAILED) -->
+<div class="section-label">05 &nbsp; Interactive Walkthrough</div>
+<h2 class="section-title">Build Your Frontend Skeleton - Step by Step, With Every Detail</h2>
+<p>Click each step to expand the complete code and explanation. By the end, you'll have a fully functional React app that connects to BridgeKey, reads data from your MST contract, and sends transactions - all with proper state management and error handling.</p>
+
+<details>
+  <summary>⚛️ Step 1: Create a React project with Vite - The Foundation</summary>
+  <div class="content">
+    <p>Vite is the modern standard for creating React projects. It's significantly faster than Create React App, with instant hot module replacement and optimized builds. Open your terminal and run:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">npm create vite@latest my-dapp-frontend -- --template react
+cd my-dapp-frontend
+npm install
+    </pre>
+    <p>This creates a minimal React project with the following structure:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">my-dapp-frontend/
+├── index.html              ← Entry HTML file
+├── package.json            ← Project manifest
+├── vite.config.js          ← Vite configuration
+├── src/
+│   ├── App.jsx             ← Main React component
+│   ├── App.css             ← Styles
+│   ├── main.jsx            ← React entry point
+│   └── assets/             ← Images and static files
+    </pre>
+    <p>Open this folder in VS Code. You'll build all your frontend code inside <code>src/</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📦 Step 2: Install MST SDK and ethers.js - The Blockchain Toolkit</summary>
+  <div class="content">
+    <p>The MST SDK provides pre-configured providers for MST networks, simplifying the setup. Install it along with ethers:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">npm install ethers @mstblockchain/mst-sdk
+    </pre>
+    <p>If the MST SDK package is not yet available on npm, you can use plain ethers.js - it works identically on MST because of full EVM compatibility. Simply configure the provider manually:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">npm install ethers
+    </pre>
+    <p>You'll also want to install <code>react-hot-toast</code> for elegant notifications (optional but recommended):</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">npm install react-hot-toast
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🔗 Step 3: Create a wallet connection hook - The Heart of Your dApp</summary>
+  <div class="content">
+    <p>Create the folder <code>src/hooks/</code> and add <code>useWallet.js</code>. This custom React hook encapsulates all wallet state - connection status, address, provider, signer, and the connection function. It's the single source of truth for wallet state in your app:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import { useState, useCallback, useEffect } from 'react';
+import { ethers } from 'ethers';
+
+const MST_TESTNET_CHAIN_ID = '0x1388'; // 5000 in hexadecimal
+
+export function useWallet() {
+  const [address, setAddress] = useState(null);
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [chainId, setChainId] = useState(null);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Listen for account changes (user switches wallet account)
+  useEffect(() =&gt; {
+    if (!window.ethereum) return;
+    const handleAccountsChanged = (accounts) =&gt; {
+      if (accounts.length === 0) {
+        // User disconnected
+        setAddress(null);
+        setSigner(null);
+      } else {
+        setAddress(accounts[0]);
+        reconnect(accounts[0]);
+      }
+    };
+    const handleChainChanged = (chainId) =&gt; {
+      setChainId(chainId);
+      // Refresh the page on chain change (simplest approach)
+      window.location.reload();
+    };
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('chainChanged', handleChainChanged);
+    return () =&gt; {
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      window.ethereum.removeListener('chainChanged', handleChainChanged);
+    };
+  }, []);
+
+  const reconnect = async (addr) =&gt; {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    setProvider(provider);
+    setSigner(signer);
+    setChainId(chainId);
+  };
+
+  const connect = useCallback(async () =&gt; {
+    setConnecting(true);
+    setError(null);
+    try {
+      // Check if wallet is installed
+      if (!window.ethereum) {
+        throw new Error(
+          "No wallet detected! Please install BridgeKey or MetaMask to use this dApp."
+        );
+      }
+
+      // Request accounts (prompts user to approve connection)
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+
+      if (accounts.length === 0) {
+        throw new Error("No accounts found. Please create or unlock your wallet.");
+      }
+
+      // Switch to MST Testnet
+      await switchToMSTTestnet();
+
+      // Create provider and signer
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+
+      setAddress(accounts[0]);
+      setProvider(provider);
+      setSigner(signer);
+      setChainId(chainId);
+    } catch (err) {
+      console.error('Connection error:', err);
+      setError(err.message || 'Failed to connect wallet');
+    } finally {
+      setConnecting(false);
+    }
+  }, []);
+
+  const disconnect = useCallback(() =&gt; {
+    setAddress(null);
+    setProvider(null);
+    setSigner(null);
+    setChainId(null);
+    setError(null);
+  }, []);
+
+  return {
+    address,
+    provider,
+    signer,
+    chainId,
+    connecting,
+    error,
+    connect,
+    disconnect,
+    isConnected: !!address,
+    isMSTNetwork: chainId === MST_TESTNET_CHAIN_ID,
+  };
+}
+
+// Helper function to switch network to MST Testnet
+async function switchToMSTTestnet() {
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x1388' }], // 5000 in hex
+    });
+  } catch (switchError) {
+    // This error code indicates the chain has not been added to the wallet
+    if (switchError.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: '0x1388',
+            chainName: 'MST Testnet',
+            rpcUrls: ['https://testnet-rpc.mstblockchain.com'],
+            nativeCurrency: {
+              name: 'MSTC',
+              symbol: 'MSTC',
+              decimals: 18,
+            },
+            blockExplorerUrls: ['https://testnet-explorer.mstblockchain.com'],
+          }],
+        });
+      } catch (addError) {
+        throw new Error('Failed to add MST Testnet to your wallet');
+      }
+    } else {
+      throw new Error('Failed to switch to MST Testnet');
+    }
+  }
+}
+    </pre>
+    <p>This hook handles the complete wallet lifecycle: installation check, connection request, network switching, account change detection, and disconnect. It exposes a clean API: <code>address</code>, <code>isConnected</code>, <code>connect</code>, <code>disconnect</code>, and status flags.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📖 Step 4: Create a contract interaction hook - Reading and Writing</summary>
+  <div class="content">
+    <p>Create <code>src/hooks/useEscrow.js</code> (or name it for your specific contract). This hook provides functions to read data and send transactions to your deployed contract:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import { useState, useCallback } from 'react';
+import { ethers } from 'ethers';
+
+// Your deployed contract address on MST Testnet
+const CONTRACT_ADDRESS = "0xYourDeployedContractAddress";
+
+// Import your contract's ABI from the Hardhat artifacts
+import EscrowABI from '../abis/Escrow.json';
+
+// Read‑only provider (no signer needed for view calls)
+const readProvider = new ethers.JsonRpcProvider(
+  "https://testnet-rpc.mstblockchain.com"
+);
+
+export function useEscrow(signer, address) {
+  const [loading, setLoading] = useState(false);
+  const [txHash, setTxHash] = useState(null);
+
+  // Get a read‑only contract instance (for view functions)
+  const getReadContract = useCallback(() =&gt; {
+    return new ethers.Contract(CONTRACT_ADDRESS, EscrowABI, readProvider);
+  }, []);
+
+  // Get a signer‑connected contract instance (for transactions)
+  const getWriteContract = useCallback(() =&gt; {
+    if (!signer) throw new Error("Wallet not connected");
+    return new ethers.Contract(CONTRACT_ADDRESS, EscrowABI, signer);
+  }, [signer]);
+
+  // READ: Fetch a specific escrow by ID
+  const fetchEscrow = useCallback(async (escrowId) =&gt; {
+    try {
+      const contract = getReadContract();
+      const escrow = await contract.escrows(escrowId);
+      return {
+        client: escrow.client,
+        freelancer: escrow.freelancer,
+        amount: ethers.formatEther(escrow.amount),
+        status: getStatusText(escrow.status),
+        clientConfirmed: escrow.clientConfirmed,
+        freelancerConfirmed: escrow.freelancerConfirmed,
+      };
+    } catch (err) {
+      console.error("Failed to fetch escrow:", err);
+      throw err;
+    }
+  }, [getReadContract]);
+
+  // READ: Fetch total number of escrows
+  const fetchNextEscrowId = useCallback(async () =&gt; {
+    const contract = getReadContract();
+    const id = await contract.nextEscrowId();
+    return Number(id);
+  }, [getReadContract]);
+
+  // WRITE: Create a new escrow (requires signer)
+  const createEscrow = useCallback(async (freelancerAddress, amountInMSTC) =&gt; {
+    setLoading(true);
+    setTxHash(null);
+    try {
+      const contract = getWriteContract();
+      const amountInWei = ethers.parseEther(amountInMSTC);
+      const tx = await contract.createEscrow(freelancerAddress, {
+        value: amountInWei,
+      });
+      setTxHash(tx.hash);
+      const receipt = await tx.wait();
+      setLoading(false);
+      return receipt;
+    } catch (err) {
+      setLoading(false);
+      throw err;
+    }
+  }, [getWriteContract]);
+
+  // WRITE: Confirm delivery (freelancer)
+  const confirmDelivery = useCallback(async (escrowId) =&gt; {
+    setLoading(true);
+    setTxHash(null);
+    try {
+      const contract = getWriteContract();
+      const tx = await contract.confirmDelivery(escrowId);
+      setTxHash(tx.hash);
+      const receipt = await tx.wait();
+      setLoading(false);
+      return receipt;
+    } catch (err) {
+      setLoading(false);
+      throw err;
+    }
+  }, [getWriteContract]);
+
+  // WRITE: Release funds (client)
+  const releaseFunds = useCallback(async (escrowId) =&gt; {
+    setLoading(true);
+    setTxHash(null);
+    try {
+      const contract = getWriteContract();
+      const tx = await contract.releaseFunds(escrowId);
+      setTxHash(tx.hash);
+      const receipt = await tx.wait();
+      setLoading(false);
+      return receipt;
+    } catch (err) {
+      setLoading(false);
+      throw err;
+    }
+  }, [getWriteContract]);
+
+  return {
+    fetchEscrow,
+    fetchNextEscrowId,
+    createEscrow,
+    confirmDelivery,
+    releaseFunds,
+    loading,
+    txHash,
+  };
+}
+
+// Helper: Convert enum status number to readable text
+function getStatusText(status) {
+  const statuses = ['AWAITING_PAYMENT', 'FUNDED', 'DELIVERED', 'COMPLETED', 'DISPUTED'];
+  return statuses[Number(status)] || 'UNKNOWN';
+}
+    </pre>
+    <p>This hook cleanly separates read operations (free, no wallet needed) from write operations (require signer). Each write function tracks loading state and the transaction hash for UI feedback.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🖥️ Step 5: Build the main App component - Putting It All Together</summary>
+  <div class="content">
+    <p>Replace <code>src/App.jsx</code> with a complete UI that demonstrates all the core functionality:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import { useState } from 'react';
+import { useWallet } from './hooks/useWallet';
+import { useEscrow } from './hooks/useEscrow';
+import toast, { Toaster } from 'react-hot-toast';
+import './App.css';
+
+function App() {
+  const { address, isConnected, connecting, error, connect, disconnect, chainId } = useWallet();
+  const { fetchEscrow, createEscrow, confirmDelivery, releaseFunds, loading, txHash } = useEscrow();
+  const [escrowData, setEscrowData] = useState(null);
+  const [escrowId, setEscrowId] = useState('');
+  const [freelancerAddr, setFreelancerAddr] = useState('');
+  const [amount, setAmount] = useState('');
+
+  // Handle fetching an escrow
+  const handleFetch = async () =&gt; {
+    try {
+      const data = await fetchEscrow(Number(escrowId));
+      setEscrowData(data);
+      toast.success('Escrow loaded!');
+    } catch (err) {
+      toast.error('Failed to load escrow: ' + err.message);
+    }
+  };
+
+  // Handle creating an escrow
+  const handleCreate = async () =&gt; {
+    try {
+      const receipt = await createEscrow(freelancerAddr, amount);
+      toast.success(`Escrow created! Tx: ${receipt.hash.slice(0, 10)}...`);
+    } catch (err) {
+      toast.error('Transaction failed: ' + (err.reason || err.message));
+    }
+  };
+
+  return (
+    <div classname="app">
+      <toaster position="top-right">
+      <header classname="header">
+        <h1>🚀 Freelance Escrow dApp</h1>
+        <p classname="subtitle">Built on MST Blockchain • Sub‑paisa gas fees</p>
+      </header>
+
+      {/* Wallet Connection Section */}
+      <section classname="card">
+        <h2>🔗 Wallet Connection</h2>
+        {!isConnected ? (
+          <div>
+            <button onclick="{connect}" disabled="{connecting}" classname="btn-primary">
+              {connecting ? 'Connecting...' : 'Connect Wallet'}
+            </button>
+            {error &amp;&amp; <p classname="error">{error}</p>}
+          </div>
+        ) : (
+          <div classname="wallet-info">
+            <p>✅ Connected: <code>{address?.slice(0, 6)}...{address?.slice(-4)}</code></p>
+            <p>Network: {chainId === '0x1388' ? 'MST Testnet' : 'Unknown'}</p>
+            <button onclick="{disconnect}" classname="btn-secondary">Disconnect</button>
+          </div>
+        )}
+      </section>
+
+      {/* Read Section */}
+      {isConnected &amp;&amp; (
+        <section classname="card">
+          <h2>📖 View Escrow</h2>
+          <div classname="input-group">
+            <input type="number" placeholder="Escrow ID" value="{escrowId}" onchange="{(e)" ==""> setEscrowId(e.target.value)}
+            /&gt;
+            <button onclick="{handleFetch}" classname="btn-primary">Fetch</button>
+          </div>
+          {escrowData &amp;&amp; (
+            <div classname="data-display">
+              <p><strong>Client:</strong> {escrowData.client}</p>
+              <p><strong>Freelancer:</strong> {escrowData.freelancer}</p>
+              <p><strong>Amount:</strong> {escrowData.amount} MSTC</p>
+              <p><strong>Status:</strong> {escrowData.status}</p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Write Section */}
+      {isConnected &amp;&amp; (
+        <section classname="card">
+          <h2>✍️ Create Escrow</h2>
+          <div classname="input-group">
+            <input type="text" placeholder="Freelancer Address (0x...)" value="{freelancerAddr}" onchange="{(e)" ==""> setFreelancerAddr(e.target.value)}
+            /&gt;
+            <input type="text" placeholder="Amount in MSTC" value="{amount}" onchange="{(e)" ==""> setAmount(e.target.value)}
+            /&gt;
+            <button onclick="{handleCreate}" disabled="{loading}" classname="btn-primary">
+              {loading ? 'Processing...' : 'Create Escrow'}
+            </button>
+          </div>
+          {txHash &amp;&amp; <p classname="tx-info">Transaction: <code>{txHash}</code></p>}
+        </section>
+      )}
+
+      <footer classname="footer">
+        <p>MasterStroke Academy • Capstone Project</p>
+      </footer>
+    </toaster></div>
+  );
+}
+
+export default App;
+    </pre>
+  </div>
+</details>
+
+<!-- 06 WALLET CONNECTION DEEP DIVE (EXPANDED) -->
+<div class="section-label">06 &nbsp; Wallet Connection Deep Dive</div>
+<h2 class="section-title">The Anatomy of a Wallet Connection - Every Step, Every Failure Mode</h2>
+<p>Understanding the wallet connection flow at a deep level is essential for debugging and creating a smooth user experience. Let's trace exactly what happens when the user clicks "Connect Wallet," including every possible failure point and how to handle it.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.5-A · Complete Wallet Connection Sequence Diagram</div>
+  <pre> User clicks "Connect Wallet"
+        │
+        ▼
+ ┌─────────────────────────────┐
+ │ 1. Check window.ethereum     │──(not found)──▶ Show error message:
+ │    (injected by wallet)     │                 "Please install BridgeKey"
+ └────────┬────────────────────┘
+          │(found)
+          ▼
+ ┌─────────────────────────────┐
+ │ 2. eth_requestAccounts       │──(user rejects)──▶ Show: "Connection rejected
+ │    (prompts wallet popup)   │                     by user. Please try again."
+ └────────┬────────────────────┘
+          │(accounts returned)
+          ▼
+ ┌─────────────────────────────┐
+ │ 3. wallet_switchEthereumChain│──(chain not found)──▶ Try wallet_addEthereumChain
+ │    (switch to MST Testnet)  │                        to add MST Testnet config
+ └────────┬────────────────────┘
+          │(success)
+          ▼
+ ┌─────────────────────────────┐
+ │ 4. new BrowserProvider(...)  │──(fails)──▶ Show: "Failed to initialize provider.
+ │    Create ethers provider   │              Please reload the page."
+ └────────┬────────────────────┘
+          │(success)
+          ▼
+ ┌─────────────────────────────┐
+ │ 5. provider.getSigner()      │──(fails)──▶ Show: "Failed to get signer. Ensure
+ │    Create signing capability │              your wallet is unlocked."
+ └────────┬────────────────────┘
+          │(success)
+          ▼
+ ┌─────────────────────────────┐
+ │ 6. Store address, provider,  │
+ │    signer in React state     │
+ │    → UI updates to "Connected"
+ └─────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The wallet connection is an asynchronous, multi-step process with potential failure at each stage. A robust frontend anticipates and handles every error gracefully, providing clear, actionable messages to the user. Never leave the user staring at a frozen button with no feedback.</div>
+</div>
+
+<p>The most critical piece of code for network switching:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">async function switchToMSTTestnet() {
+  try {
+    // Try switching to MST Testnet first
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x1388' }], // 5000 in hexadecimal
+    });
+  } catch (switchError) {
+    // If the chain is not in the wallet, add it
+    if (switchError.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: '0x1388',
+            chainName: 'MST Testnet',
+            nativeCurrency: {
+              name: 'MSTC',
+              symbol: 'MSTC',
+              decimals: 18,
+            },
+            rpcUrls: ['https://testnet-rpc.mstblockchain.com'],
+            blockExplorerUrls: ['https://testnet-explorer.mstblockchain.com'],
+          }],
+        });
+      } catch (addError) {
+        throw new Error(
+          'Failed to add MST Testnet to your wallet. ' +
+          'Please add it manually with Chain ID 5000.'
+        );
+      }
+    } else {
+      throw new Error(
+        'Failed to switch network. Please manually switch to MST Testnet in your wallet.'
+      );
+    }
+  }
+}
+</pre>
+
+<!-- 07 READING AND WRITING DATA (EXPANDED WITH FULL LIFECYCLE) -->
+<div class="section-label">07 &nbsp; Reading and Writing Data</div>
+<h2 class="section-title">The Complete Transaction Lifecycle - From Click to Confirmation</h2>
+<p>Once the wallet is connected, the frontend needs to interact with the deployed contract. This section covers both reading (free, instant) and writing (gas-costing, asynchronous) operations in complete detail, including the UI states that make the experience professional.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Reading Data: View Functions</h3>
+<p>View functions are the simplest interaction. The frontend calls a function on the contract using a read-only provider. No transaction is created, no gas is spent, and the result is returned immediately. This is ideal for displaying balances, escrow details, or any data that the user needs to see before taking action.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">// Read‑only provider — no signer needed
+const readProvider = new ethers.JsonRpcProvider("https://testnet-rpc.mstblockchain.com");
+const contract = new ethers.Contract(ADDRESS, ABI, readProvider);
+
+// This call is free and instant
+const escrow = await contract.escrows(escrowId);
+console.log("Status:", escrow.status);
+console.log("Amount:", ethers.formatEther(escrow.amount));
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Writing Data: The Transaction Lifecycle</h3>
+<p>Sending a transaction is fundamentally different from reading. It's asynchronous, costs gas, requires wallet approval, and goes through multiple stages. The frontend must handle each stage with appropriate UI feedback:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.5-B · Transaction Lifecycle and UI States</div>
+  <pre> ┌───────────┐   User clicks    ┌───────────┐   Wallet signs    ┌───────────┐
+ │   IDLE    │────"Send"────────▶│  PENDING  │────&amp; broadcasts──▶│  MINING   │
+ │ (button)  │                  │ (spinner) │                  │ (pending) │
+ └───────────┘                  └───────────┘                  └─────┬─────┘
+                                                                     │
+                                                    ┌────────────────┼────────────────┐
+                                                    │                │                │
+                                               tx.wait()        User rejects     Network error
+                                                    │                │                │
+                                                    ▼                ▼                ▼
+                                             ┌───────────┐   ┌───────────┐   ┌───────────┐
+                                             │ SUCCESS   │   │ REJECTED  │   │  FAILED   │
+                                             │ (refresh) │   │ (message) │   │ (retry?)  │
+                                             └───────────┘   └───────────┘   └───────────┘
+  </pre>
+  <div class="diagram-caption">A transaction has four possible end states. A well-designed UI communicates each clearly. On MST, the mining phase typically lasts 3 - 5 seconds, meaning the user gets near-instant feedback compared to Ethereum's 15 - 60 second wait.</div>
+</div>
+
+<p>Here's the complete transaction handler with all states:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">async function handleCreateEscrow(freelancerAddress, amountInMSTC) {
+  // 1. IDLE → PENDING: Update UI immediately
+  setTxState({ status: 'pending', message: 'Waiting for wallet approval...' });
+
+  try {
+    const contract = new ethers.Contract(ADDRESS, ABI, signer);
+    const amountWei = ethers.parseEther(amountInMSTC);
+
+    // 2. Send transaction (wallet popup appears)
+    const tx = await contract.createEscrow(freelancerAddress, { value: amountWei });
+
+    // 3. MINING: Transaction submitted, waiting for block
+    setTxState({
+      status: 'mining',
+      message: 'Transaction submitted. Waiting for confirmation...',
+      hash: tx.hash,
+    });
+
+    // 4. Wait for confirmation (block inclusion)
+    const receipt = await tx.wait();
+
+    // 5. SUCCESS: Transaction confirmed
+    setTxState({
+      status: 'success',
+      message: 'Escrow created successfully!',
+      hash: tx.hash,
+      receipt: receipt,
+    });
+
+    // Refresh data
+    await refreshEscrowList();
+  } catch (err) {
+    // 6. ERROR: Determine the type of failure
+    if (err.code === 'ACTION_REJECTED') {
+      setTxState({
+        status: 'rejected',
+        message: 'Transaction was rejected in your wallet.',
+      });
+    } else if (err.reason) {
+      setTxState({
+        status: 'failed',
+        message: `Transaction reverted: ${err.reason}`,
+      });
+    } else {
+      setTxState({
+        status: 'failed',
+        message: `Transaction failed: ${err.message}`,
+      });
+    }
+  }
+}
+</pre>
+
+<!-- 08 COMPLETE FRONTEND ARCHITECTURE VISUALIZATION -->
+<div class="section-label">08 &nbsp; Frontend Architecture Blueprint</div>
+<h2 class="section-title">The Complete Component Tree and Data Flow</h2>
+<p>Understanding how all the pieces fit together is crucial for building maintainable dApps. Here's the complete architecture of a well-structured Web3 frontend:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.5-C · Complete dApp Frontend Architecture</div>
+  <pre> ┌─────────────────────────────────────────────────────────────────────┐
+ │                        index.html                                    │
+ │  ┌───────────────────────────────────────────────────────────────┐  │
+ │  │                        App.jsx                                 │  │
+ │  │  ┌─────────────────────┐  ┌─────────────────────────────┐    │  │
+ │  │  │   useWallet() hook  │  │   useEscrow() hook           │    │  │
+ │  │  │   - address         │  │   - fetchEscrow()            │    │  │
+ │  │  │   - connect()       │  │   - createEscrow()           │    │  │
+ │  │  │   - disconnect()    │  │   - confirmDelivery()        │    │  │
+ │  │  │   - isConnected     │  │   - releaseFunds()           │    │  │
+ │  │  │   - chainId         │  │   - loading, txHash          │    │  │
+ │  │  └─────────┬───────────┘  └──────────────┬──────────────┘    │  │
+ │  │            │                              │                   │  │
+ │  │            ▼                              ▼                   │  │
+ │  │  ┌─────────────────────────────────────────────────────────┐ │  │
+ │  │  │              Components                                  │ │  │
+ │  │  │  • WalletButton (connect/disconnect)                     │ │  │
+ │  │  │  • EscrowCard (display escrow details)                   │ │  │
+ │  │  │  • CreateEscrowForm (inputs + submit)                    │ │  │
+ │  │  │  • TransactionStatus (pending/success/error)             │ │  │
+ │  │  └─────────────────────────────────────────────────────────┘ │  │
+ │  └───────────────────────────────────────────────────────────────┘  │
+ └─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │ ethers.js JSON‑RPC
+                                  ▼
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │                         MST Blockchain                                │
+ │  ┌─────────────────────────────────────────────────────────────────┐ │
+ │  │                 Your Deployed Smart Contract                    │ │
+ │  │                  0xYourContractAddress                           │ │
+ │  └─────────────────────────────────────────────────────────────────┘ │
+ └─────────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The frontend follows a clean separation of concerns: hooks manage state and blockchain interactions, components render the UI. The wallet layer is fully decoupled - the dApp never touches private keys.</div>
+</div>
+
+<!-- 09 MST‑SPECIFIC OPTIMIZATIONS -->
+<div class="section-label">09 &nbsp; MST-Specific Optimizations</div>
+<h2 class="section-title">Leverage MST's Speed and Low Fees for a Superior UX</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Near-instant confirmations (3-second blocks)</div>
+      <div class="feature-desc">After calling <code>tx.wait()</code>, the transaction is typically confirmed within one block - about 3 seconds on MST. Compare this to Ethereum's 15 seconds or more during congestion. Your UI should reflect this speed: use a brief spinner, then immediately show success and refresh data. No need for "check back later" messages or long polling intervals. The user experience feels like a traditional web app, not a slow blockchain interaction.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa gas fees = more interactions are viable</div>
+      <div class="feature-desc">Because transactions cost approximately ₹0.006 on MST, you can design flows with multiple on-chain steps without worrying about user cost. A "multi-step confirm" pattern where each step is a separate transaction (e.g., create escrow → confirm delivery → release funds) costs less than ₹0.02 total. On Ethereum, the same flow could cost ₹2,000+. This enables UX patterns that are simply uneconomical on expensive chains.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">BridgeKey's auto-network switching</div>
+      <div class="feature-desc">MST's BridgeKey wallet automatically detects when a dApp requests the MST chain and can switch networks for the user without manual intervention. This eliminates the common "wrong network" error. If the user is on Ethereum mainnet and visits your MST dApp, BridgeKey prompts them to switch with a single click.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Faucet integration for testnet users</div>
+      <div class="feature-desc">For your capstone demo on MST Testnet, users need MSTC tokens to pay gas. Integrate a "Get Testnet MSTC" button that links to the MST Faucet. This removes the biggest friction point for new users trying your dApp. A simple link or embedded iframe can make the onboarding seamless.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 COMMON PITFALLS AND DEBUGGING (EXPANDED) -->
+<div class="section-label">10 &nbsp; Common Pitfalls and Debugging</div>
+<h2 class="section-title">The Bugs You Will Encounter (And How to Fix Them Immediately)</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">"Unsupported network" when trying to interact</div>
+      <div class="feature-desc">The user's wallet is connected to the wrong chain (e.g., Ethereum mainnet instead of MST Testnet). Check <code>chainId</code> before attempting transactions. Use <code>wallet_switchEthereumChain</code> to prompt the user to switch. Display a clear message: "Please switch to MST Testnet (Chain ID 5000) in your wallet."</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">"Insufficient funds for gas" - even on testnet</div>
+      <div class="feature-desc">Even though gas costs only ₹0.006 per transaction, the user must have MSTC in their wallet. For testnet users, provide a prominent link to the MST Faucet. For mainnet users, ensure your UI explains how to acquire MSTC. Never assume users already have the native coin.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">"Nonce too high" or "Replacement transaction underpriced"</div>
+      <div class="feature-desc">This happens when a previous transaction is still pending in the mempool and the user tries to send another. Implement a transaction queue, or wait for <code>tx.wait()</code> to resolve before enabling the next transaction button. A simple <code>isProcessing</code> flag that disables all transaction buttons during a pending transaction solves this.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">"User rejected the request" - ACTION_REJECTED error</div>
+      <div class="feature-desc">This is normal user behavior (changing their mind, canceling). Handle it gracefully - show a subtle message like "Transaction cancelled" rather than a red error. Don't punish users for changing their mind. Clear the pending state and re-enable the button.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for Your Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">The frontend communicates with the blockchain via a wallet provider (EIP-1193)</div>
+      <div class="feature-desc">Never store private keys in the frontend. Never hardcode mnemonics. The wallet signs transactions; the dApp only receives the signed transaction to broadcast. This is the bedrock of Web3 security.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Use <code>ethers.Contract</code> with a read-only provider for view functions, and with a signer for transactions</div>
+      <div class="feature-desc">View functions cost no gas and execute locally on the RPC node. Transactions require a signer, cost gas, and must be mined. Never mix the two - always create separate contract instances for reads and writes.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Always handle loading, success, and error states for every transaction</div>
+      <div class="feature-desc">Use spinners for pending transactions, success messages with links to the block explorer, and clear error messages for common failures. The UI should never leave the user guessing.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's fast block times (~3s) mean instant UI updates after <code>tx.wait()</code></div>
+      <div class="feature-desc">After the transaction is mined, immediately refetch contract state and update the UI. The user should see their action reflected within seconds, not minutes.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Export your contract's ABI from Hardhat artifacts into a <code>.json</code> file in your frontend</div>
+      <div class="feature-desc">After deploying with Hardhat, copy the ABI from <code>artifacts/contracts/YourContract.sol/YourContract.json</code> into <code>src/abis/</code>. The ABI is the interface that tells ethers.js what functions your contract has.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY (EXPANDED) -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 9.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">EIP-1193</div><div class="glossary-def">Ethereum Provider JavaScript API - the standard interface that every wallet (BridgeKey, MetaMask, Coinbase Wallet) must implement. Defines <code>window.ethereum</code> and methods like <code>eth_requestAccounts</code> and <code>wallet_switchEthereumChain</code>. Ensures one dApp works with all wallets.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BridgeKey</div><div class="glossary-def">MST's native wallet, available as a browser extension and mobile app. Fully EIP-1193 compatible. Supports auto-network switching to MST and integrates with MST's ecosystem features.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BrowserProvider</div><div class="glossary-def">An ethers.js v6 class that wraps <code>window.ethereum</code>. Provides a high-level API for querying the blockchain and sending transactions. Automatically manages the connection to the user's wallet.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Signer</div><div class="glossary-def">An ethers.js object tied to a specific account that can cryptographically sign and send transactions. Obtained via <code>provider.getSigner()</code>. The signer holds the private key inside the wallet - the dApp only receives the ability to request signatures.</div></div>
+  <div class="glossary-item"><div class="glossary-term">tx.wait()</div><div class="glossary-def">An ethers.js method that waits for a transaction to be mined (included in a block) and returns the transaction receipt. Essential for updating the UI after a transaction confirms. On MST, this typically resolves in ~3 seconds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Vite</div><div class="glossary-def">A fast, modern build tool and development server for JavaScript projects. Provides instant hot module replacement and optimized production builds. The recommended way to create React apps for Web3.</div></div>
+  <div class="glossary-item"><div class="glossary-term">ABI</div><div class="glossary-def">Application Binary Interface - a JSON description of a smart contract's functions, parameters, and events. Generated by the Solidity compiler. ethers.js uses the ABI to know how to encode function calls and decode return values.</div></div>
+  <div class="glossary-item"><div class="glossary-term">JSON-RPC Provider</div><div class="glossary-def">A connection to a blockchain node that accepts JSON-RPC requests. The read-only provider uses this to query the blockchain without a wallet. MST's public RPC URL is <code>https://testnet-rpc.mstblockchain.com</code> for testnet.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Custom Hook</div><div class="glossary-def">A React pattern that encapsulates reusable stateful logic. <code>useWallet</code> and <code>useEscrow</code> are custom hooks that keep the component code clean and testable.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chain ID</div><div class="glossary-def">A unique identifier for a blockchain network, used to prevent transaction replay across chains. MST Testnet uses chain ID <code>5000</code> (hex: <code>0x1388</code>). Always check the chain ID before sending transactions.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 9 · Sub-Module <strong>9.5</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 9.6 - Peer Feedback &amp; Iteration →</p>
+</div>
+
+

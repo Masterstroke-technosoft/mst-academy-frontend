@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sub-Module 7.1 - Hybrid Layer-1 Architecture | Masterstroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row {
+      display: grid; grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--orange); background: #FFF7ED; }
+    .compare-table thead th:nth-child(4) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { margin: 24px 0; }
+    .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+    .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+    .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+    .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-right { padding: 0 0 28px 4px; }
+    .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+    .tl-body strong { color: var(--ink); }
+
+    /* ─── FEATURE PILLS ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── STAT CARDS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    /* ─── HIGHLIGHT STRIP ─── */
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .stat-row       { grid-template-columns: 1fr 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚙️ Module 7 &nbsp;·&nbsp; Sub-Module 7.1 of 8</div>
+<h1 class="module-title">Hybrid <span class="highlight">Layer-1 Architecture</span></h1>
+<p class="module-subtitle">Why the world's most advanced blockchains don't force you to choose between public openness and enterprise privacy - MST's dual-zone design explained in detail.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 9 MCQ + 1 True/False</div>
+  <div class="meta-chip green">Phase 2 · MST Architecture & Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧱</div>
+    <div class="obj-text">
+      <strong>Define Hybrid Layer-1 architecture</strong>
+      Explain what it means for a blockchain to have both public and permissioned zones under one consensus.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Contrast public, private, and hybrid models</strong>
+      Know exactly when a pure public chain fails and why a hybrid approach is the enterprise-grade solution.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Apply the concept to real-world scenarios</strong>
+      Map a CBDC, a supply-chain track-and-trace system, and a gaming platform onto MST's dual-zone model.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Describe inter-zone communication</strong>
+      Understand how transactions and data flow between the Public Zone and Permissioned Zone without breaking trust boundaries.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Central Bank's Dilemma - Why Public Chains Are Not Enough</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>It is 2025. The Reserve Bank of India (RBI) has decided to issue a Digital Rupee - a Central Bank Digital Currency (CBDC) - to bring financial inclusion to 300 million unbanked Indians. The technology team evaluates two paths.</p>
+  <br>
+  <p><strong>Option A: Use a pure public blockchain like Ethereum.</strong> The digital Rupee would be an ERC-20 token. Anybody could read every wallet balance. Transaction fees would spike unpredictably. And worst, the RBI would have zero control over which validators process payments - a node in a sanctioned country could order transactions. Regulatorially impossible.</p>
+  <br>
+  <p><strong>Option B: Build a private, permissioned blockchain just for the RBI and partner banks.</strong> Fast, compliant, fully controlled. But then the digital Rupee would be locked inside a walled garden - no interoperability with DeFi, no open innovation, no programmability for the broader economy. It would be a glorified internal database.</p>
+  <br>
+  <p>The team is stuck. Public is too open. Private is too closed. They need a third option - a <strong>hybrid architecture</strong> where the sensitive core (minting, burning, KYC) runs in a permissioned zone under RBI's validator set, while the retail transfer and payments layer runs on a public zone that anyone can verify. Yet both zones share the same consensus, the same gas token, and a secure bridge that allows a Rupee minted in the permissioned zone to flow seamlessly into a public wallet.</p>
+  <br>
+  <p>This is not a theoretical wish. This is <strong>exactly the architecture MST Blockchain delivers</strong> - a hybrid Layer-1 where public and permissioned zones coexist, communicate, and are secured by the same Trika POSA consensus engine. The RBI story is one of dozens: every enterprise, from pharmaceutical supply chains to gaming studios, faces the same public-vs-private deadlock. Hybrid architecture is the unlock.</p>
+</div>
+
+<p>This dilemma captures the fundamental design tension in enterprise blockchain adoption. Pure public chains promise openness and censorship resistance but fail compliance. Private chains deliver control but sacrifice the network effect and composability that make blockchain valuable. A hybrid Layer-1 doesn't choose sides - it lets each application pick the right zone for each component.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution from "One Chain to Rule Them All" to Multi-Zone Architectures</h2>
+
+<p>The blockchain world began with a single, monolithic philosophy: one ledger, one set of rules, open to all. But as real businesses began to explore the technology, it became clear that one size does not fit all. The journey from Bitcoin to hybrid Layer-1s is a story of growing pains and architectural compromises.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2015</div>
+      <div class="tl-body"><strong>The Public-Only Era.</strong> Bitcoin launched as a purely public, permissionless network. Anyone could run a node, mine, or transact. Ethereum followed, adding programmable smart contracts but keeping the same open-to-all philosophy. This worked brilliantly for censorship-resistant money and early DeFi, but enterprises couldn't touch it - data is public, validators are anonymous, and there's no way to enforce KYC/AML at the protocol level.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2016 - 2018</div>
+      <div class="tl-body"><strong>The Private Chain Boom.</strong> Hyperledger Fabric, R3 Corda, and Quorum emerged. These were permissioned blockchains for consortia - banks, supply chains, governments. Nodes required identity verification. Data could be kept confidential between parties. But they were completely isolated from public ecosystems. A token on Hyperledger could never interact with a Uniswap pool. Developers had to choose between the open innovation of public chains and the compliance of private ones.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2019 - 2021</div>
+      <div class="tl-body"><strong>The Sidechain &amp; L2 Compromise.</strong> Polygon, xDai, and various Layer-2 rollups tried to bridge the gap. They offered faster, cheaper transactions while relying on Ethereum's security. But they were still fundamentally public - no native privacy zones, no built-in permissioned validators. Enterprises had to bolt on complex privacy layers or run separate private sidechains with fragile bridges. The integration was clunky and introduced new trust assumptions at every bridge point.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2022 - 2024</div>
+      <div class="tl-body"><strong>The Hybrid Layer-1 Thesis.</strong> A new generation of blockchains - including MST - recognized that the future is not public <em>or</em> private, but <em>both</em>, natively integrated. By designing a single consensus layer that could simultaneously secure an open public zone and one or more permissioned zones, these chains eliminated the need for external bridges. The result: a CBDC can mint in a permissioned zone and circulate in the public zone, a supply-chain contract can keep sensitive pricing data confidential while sharing shipment milestones publicly, and a gaming platform can run provably fair public logic while keeping user KYC data in a compliant sub-zone. All under one network, one token, one trust model.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST's Production Hybrid Architecture.</strong> MST's mainnet runs a Hybrid Layer-1 with the Public Zone (open validator set, EVM-compatible, full transparency) and Permissioned Zones (whitelisted validators, confidential state, enterprise-grade SLAs). The same MSTC token powers gas fees in both zones. Trika POSA validators can participate in one or both zones, and a native inter-zone messaging protocol allows smart contracts to call each other across the boundary with cryptographic guarantees.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Architectural Insight</div>
+  <p>The key realisation that made hybrid Layer-1s possible: <strong>consensus and execution can be separated by zone</strong>. A single set of validators (or overlapping sets) can agree on the ordering of transactions for multiple execution environments, each with its own state, access control, and privacy rules. The blockchain isn't one state machine - it's a <em>federation of state machines</em> that share a common consensus engine.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The City Analogy - Understanding Hybrid Architecture</h2>
+
+<p>Imagine a modern city. The city has <strong>public roads, public parks, and public markets</strong> that anyone can enter, use, and verify. A street vendor selling fruit on a public road must display prices openly - anyone walking by can see the transaction. This is like the <strong>Public Zone</strong> of a blockchain: open, transparent, permissionless. Anyone can deploy a smart contract, send a transaction, or run a node.</p>
+
+<p>But the same city also has <strong>private office buildings, gated residential communities, and bank vaults</strong>. These have restricted entry - you need an ID card, a key, or an invitation. Inside, confidential meetings happen, sensitive data is stored, and strict rules are enforced. Yet these private spaces are still <strong>connected to the public roads</strong> - a delivery truck can leave the private loading dock and drive on the public highway. This is the <strong>Permissioned Zone</strong>: restricted access, confidential data, but still connected to the broader network.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🏙️ The City & The Blockchain</div>
+  <p><strong>Public Zone = City Roads & Public Markets.</strong> Anybody can set up a shop (smart contract), trade goods (tokens), and everyone can see the prices and transactions. Validators are like the city's traffic police - they keep order but don't control who enters.</p>
+  <p><strong>Permissioned Zone = Gated Community or Bank Vault.</strong> Only authorised residents (whitelisted validators) can enter. Inside, confidential deals happen behind closed doors. But the vault still has a door to the street - assets can move out to the public zone under strict rules.</p>
+  <p><strong>Inter-Zone Bridge = The Secure Gate.</strong> When a package (token) moves from the gated community to the public road, the gate checks the paperwork cryptographically. No unauthorised asset can enter or leave without proof.</p>
+</div>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does a hybrid architecture exist?</div>
+      <div class="w5-a">Because real-world applications have <strong>mixed trust requirements</strong>. A CBDC needs the central bank to control minting (permissioned) but wants retail payments to be interoperable with the open ecosystem (public). A supply chain needs confidential pricing between supplier and buyer (permissioned) but public shipment tracking for consumers (public). Hybrid architecture delivers both without forcing a trade-off.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What problem does it solve?</div>
+      <div class="w5-a">The <strong>"enterprise adoption gap"</strong>. Before hybrid chains, a company had to choose between a fully public chain (no privacy, no compliance) and a fully private chain (no interoperability, no public auditability). Hybrid eliminates this binary choice. A single application can have components in both zones, with secure communication between them.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does it work technically?</div>
+      <div class="w5-a">A common consensus engine (Trika POSA) finalises blocks for <strong>all zones simultaneously</strong>. Each zone has its own execution environment (EVM instance), its own state trie, and its own validator access policy. Transactions in the Public Zone are visible to all; transactions in a Permissioned Zone are visible only to authorised parties. A native inter-zone communication protocol (IBC-like) allows smart contracts to send messages and assets across zones, with cryptographic proofs that the source zone's validators approved the transfer.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where is it used in daily life?</div>
+      <div class="w5-a"><strong>CBDC:</strong> Central bank mints digital currency in a Permissioned Zone; citizens use it in the Public Zone for DeFi, payments, etc. <strong>Pharma Supply Chain:</strong> Manufacturer and distributor share confidential pricing in a Permissioned Zone; consumers verify drug authenticity on the Public Zone. <strong>Gaming:</strong> Game logic and random number generation run in the Public Zone (provably fair); player identity and KYC data stay in a Permissioned Zone (compliance). <strong>Enterprise Resource Planning (ERP):</strong> Legacy ERP systems use WASMify to post data to a Permissioned Zone, while public reporting dashboards read from the Public Zone.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are its limitations?</div>
+      <div class="w5-a">A hybrid architecture adds complexity - developers must decide which data goes where and how to handle cross-zone calls. Inter-zone communication is not instant; there's a latency of a few blocks for finality on both sides. Also, the security of a Permissioned Zone depends on its validator set; if that set is small or compromised, the zone's integrity is at risk, though the Public Zone remains unaffected. Proper validator incentive design and slashing conditions are crucial.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Four Layers That Make a Hybrid Layer-1 Work</h2>
+
+<p>Understanding MST's hybrid architecture requires examining four distinct but interconnected layers: the <strong>Consensus Layer</strong>, the <strong>Execution Layer</strong>, the <strong>State Layer</strong>, and the <strong>Inter-Zone Communication Layer</strong>. Each is designed to support multiple zones without sacrificing security or performance.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Consensus Layer - Trika POSA, Unified Across Zones</div>
+      <div class="feature-desc">
+        All zones - public and permissioned - share the same consensus engine. Trika POSA (Proof of Stake Authority) elects a set of validators through staking and reputation. These validators produce and finalise blocks for every zone. A validator can be active in both zones, or only in a specific permissioned zone if it meets that zone's additional identity/KYC requirements. The consensus protocol reaches finality on a block that contains transactions from multiple zones, all in one block - like a multi-container shipping vessel. This unified finality is the magic that eliminates the need for external bridges between zones: they all settle at the same time on the same base ledger.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Execution Layer - Separate EVM Instances per Zone</div>
+      <div class="feature-desc">
+        Each zone runs its own independent instance of the Ethereum Virtual Machine (EVM). The Public Zone's EVM processes transactions from anyone, charges gas in MSTC, and stores all state publicly. A Permissioned Zone's EVM also charges gas in MSTC (from the same token pool), but its validator set is restricted, and its state is only readable by authorised nodes. A transaction calling a smart contract in the Permissioned Zone must be submitted to one of that zone's validators. This design means that a developer deploys the same Solidity bytecode to any zone - the only difference is who can see the state and who can submit transactions.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">State Layer - Partitioned Merkle Tries with Access Control</div>
+      <div class="feature-desc">
+        The global state is not one giant Merkle Patricia Trie but a collection of <strong>zone-specific tries</strong>, each with its own root hash. The consensus block header contains a commitment to all zone roots. When a light client wants to verify a transaction from the Public Zone, it only needs the Public Zone's state root. Permissioned Zone data is cryptographically committed but not revealed - only the zone's validators and authorised observers can retrieve the actual data. This partitioned state allows enterprises to keep sensitive data confidential while still proving to the public that a transaction occurred (via ZK-proofs or Merkle proofs over committed data). MST's WASMify module can generate zero-knowledge proofs that a particular state transition happened in the Permissioned Zone without revealing the underlying data.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Inter-Zone Communication (IZC) - Native, Trustless Bridge</div>
+      <div class="feature-desc">
+        The inter-zone communication protocol allows a smart contract in Zone A to send a message or asset to a contract in Zone B. This is not an external bridge with a separate validator set - it is a native protocol enforced by the same consensus validators. When a cross-zone transaction is initiated, the source zone's validators include a special IZC transaction in the block. The destination zone's validators observe this transaction (since they participate in consensus for all zones) and include a corresponding receiving transaction in the destination zone's next block. The protocol ensures that the message is delivered exactly once, with proof that the source zone confirmed it. This allows a CBDC minted in a Permissioned Zone to flow to a user's public wallet, or a public DeFi protocol to trigger a payout in a private settlement zone - all without trusting a third-party bridge operator.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Critical Distinction</div>
+  <p>A hybrid Layer-1 is <strong>NOT</strong> a public chain with a sidechain attached, nor a private chain that sometimes talks to a public network via a bridge. It is a <strong>single network</strong> with a single consensus engine that simultaneously runs multiple execution environments. The validators are the bridge - they finalise blocks for all zones in the same consensus round. This eliminates the multi-signature trust assumptions and latency of external bridges. When a validator finalises a block, it attests to the state of all zones at that height. Cross-zone communication is simply the validators agreeing to include a message from Zone A's block into Zone B's subsequent block.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising MST's Hybrid Layer-1</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.1-A · The Dual-Zone Architecture of MST</div>
+  <pre>
+  ┌────────────────────────────────────────────────────────────────────┐
+  │                    TRIKA POSA CONSENSUS ENGINE                     │
+  │   (Unified block production & finality for all zones)              │
+  │   Validator Set: V₁, V₂, V₃, ... Vₙ (some authorized for both)    │
+  └───────┬──────────────────────────────┬─────────────────────────────┘
+          │                              │
+   ┌──────▼──────────┐          ┌────────▼─────────────┐
+   │  PUBLIC ZONE    │          │  PERMISSIONED ZONE   │
+   │  (Zone ID: 0)   │          │  (Zone ID: 1001)     │
+   │                 │          │                      │
+   │ • Open Access   │          │ • Whitelisted Nodes  │
+   │ • All State     │          │ • Confidential State │
+   │   Public        │◄────────►│ • Enterprise Val's   │
+   │ • Gas: MSTC     │  IZC     │ • Gas: MSTC          │
+   │ • Any Validator │ Protocol │ • KYC'd Validators   │
+   └─────────────────┘          └──────────────────────┘
+             ▲                            ▲
+             │                            │
+     ┌───────┴───────┐            ┌───────┴────────┐
+     │ DeFi, Gaming, │            │ CBDC Minting,  │
+     │ NFT Market,   │            │ Supply Chain,  │
+     │ Social dApps  │            │ KYC Identity   │
+     └───────────────┘            └────────────────┘
+  </pre>
+  <div class="diagram-caption">MST's architecture runs multiple execution environments (zones) under a single consensus umbrella. Validators that meet permissioned zone criteria can participate in both zones, providing a trustless inter-zone bridge without external relayers.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.1-B · Inter-Zone Communication Flow (CBDC Example)</div>
+  <pre>
+  PERMISSIONED ZONE (RBI)                 PUBLIC ZONE (Retail Users)
+  ──────────────────────                  ─────────────────────────
+  
+  1. RBI mints 100 Digital ₹               
+     in Permissioned Zone.                 
+     Mint TX included in Block #N          
+     (visible only to RBI validators)      
+            │                               
+            ▼                               
+  2. IZC Message created:                   
+     "Transfer 100 ₹ to Public              
+      Wallet 0xABCD..."                     
+     Included in Block #N by               
+     Permissioned Zone validators           
+            │                               
+            ▼                               
+  3. Public Zone validators                 
+     observe IZC message in                 
+     Block #N (they see the                 
+     commitment, not the                    
+     confidential mint details)             
+            │                               
+            ▼                               
+  4. Public Zone Block #N+1                 
+     includes "Receive 100 ₹                
+     from Permissioned Zone"                
+     → balance of 0xABCD                    
+     increases by 100.                      
+     This transaction is fully              
+     public and verifiable.                 
+            │                               
+            ▼                               
+  5. User 0xABCD now has                    
+      100 Digital ₹ in their                
+      BridgeKey wallet on                   
+      the Public Zone.                      
+      Can swap on DEX, send                 
+      to friends, pay merchant.             
+  </pre>
+  <div class="diagram-caption">A CBDC minted in the confidential Permissioned Zone flows to a public wallet via IZC, with the consensus validators ensuring atomicity and proof of origin. The public sees only the arrival - the minting details remain confidential.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Pure Public vs Pure Private vs Hybrid Layer-1 - Head to Head</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>❌ Pure Public (Ethereum)</th>
+      <th>⚠️ Pure Private (Hyperledger)</th>
+      <th>✅ Hybrid Layer-1 (MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validator access</td>
+      <td class="bad">Permissionless - anyone can join</td>
+      <td class="mid">Permissioned - whitelisted only</td>
+      <td class="good">Both: Public zone open, Permissioned zone whitelisted</td>
+    </tr>
+    <tr>
+      <td>Data visibility</td>
+      <td class="bad">All state public</td>
+      <td class="good">Confidential state possible</td>
+      <td class="good">Partitioned: public where needed, confidential where required</td>
+    </tr>
+    <tr>
+      <td>Regulatory compliance</td>
+      <td class="bad">Extremely difficult (KYC/AML)</td>
+      <td class="good">Built-in (identity-based validators)</td>
+      <td class="good">Permissioned zone handles compliance; public zone stays open</td>
+    </tr>
+    <tr>
+      <td>Interoperability</td>
+      <td class="good">High within ecosystem</td>
+      <td class="bad">Isolated - no native DeFi access</td>
+      <td class="good">Native IZC connects zones; assets flow to public DeFi</td>
+    </tr>
+    <tr>
+      <td>Network effect</td>
+      <td class="good">Large developer & user base</td>
+      <td class="bad">Small, consortium-locked</td>
+      <td class="good">Public zone inherits EVM network effects; permissioned zone adds enterprise</td>
+    </tr>
+    <tr>
+      <td>Gas / fee model</td>
+      <td class="bad">Volatile, can be extremely high</td>
+      <td class="mid">Usually free or fixed (internal)</td>
+      <td class="good">Single MSTC token, predictable & low; fees in both zones</td>
+    </tr>
+    <tr>
+      <td>Throughput & finality</td>
+      <td class="mid">~15 TPS, ~6 min finality</td>
+      <td class="good">High TPS, fast (centralised)</td>
+      <td class="good">4000+ TPS, ~3 sec finality (Trika POSA)</td>
+    </tr>
+    <tr>
+      <td>Use case flexibility</td>
+      <td class="bad">DeFi, NFTs only - no enterprise privacy</td>
+      <td class="mid">Enterprise only - no open innovation</td>
+      <td class="good">CBDC, supply chain, gaming, DeFi - all on one network</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Enterprise Sweet Spot</div>
+  <p>The hybrid model lets an enterprise start in a Permissioned Zone for compliance and internal workflows, then gradually expose selected data and assets to the Public Zone as trust and market demand grow. This is <strong>progressive decentralisation</strong> - a company doesn't have to go fully public on day one. It can move along the spectrum as the ecosystem matures.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Hybrid Architecture Solves Real Business Problems</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">CBDC - The Digital Rupee on MST</div>
+      <div class="feature-desc">
+        The Reserve Bank of India issues the Digital Rupee on MST's Permissioned Zone. Minting, burning, and inter-bank settlement happen confidentially among authorised validators (scheduled banks). Retail users receive Digital Rupees in their BridgeKey wallets on the Public Zone, where they can use them for merchant payments, DeFi lending, or cross-border remittances. The inter-zone bridge ensures that every Rupee in the public zone is backed 1:1 by a Rupee locked in the permissioned zone. Regulators can audit the permissioned zone at any time, while the public enjoys censorship-resistant, low-cost transactions. No other architecture delivers this combination of central bank control and public usability.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">💊</div>
+    <div class="feature-content">
+      <div class="feature-title">Pharmaceutical Supply Chain - Track & Trace with Confidential Pricing</div>
+      <div class="feature-desc">
+        A consortium of Indian pharma manufacturers, distributors, and pharmacies runs on MST. The <strong>Permissioned Zone</strong> holds sensitive data: wholesale pricing, batch quality reports, and contractual terms. Only authorised parties can read this data. Meanwhile, the <strong>Public Zone</strong> stores shipment milestones and final dispensing records. A consumer can scan a QR code on a medicine strip and see its entire journey from factory to pharmacy - verifying authenticity on-chain - without ever seeing the confidential commercial data. The hybrid architecture makes public transparency and business confidentiality coexist on the same network.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Provably Fair Gaming with Regulatory Compliance</div>
+      <div class="feature-desc">
+        An online rummy platform uses MST. The <strong>Public Zone</strong> runs the game logic - the SatvaShuffle algorithm records every card shuffle on-chain, so any player can verify the deck was truly random. The <strong>Permissioned Zone</strong> stores player identity, KYC documents, and self-exclusion lists, meeting state gaming regulations. When a player wins, the payout smart contract in the Public Zone checks the Permissioned Zone's KYC oracle (via IZC) to ensure the player is not on a banned list before releasing funds. The game is provably fair <em>and</em> legally compliant - a combination impossible on a pure public chain.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🏭</div>
+    <div class="feature-content">
+      <div class="feature-title">Enterprise ERP Integration via WASMify</div>
+      <div class="feature-desc">
+        A large manufacturing company already runs SAP for inventory management. They want to publish real-time stock levels to a public marketplace without exposing internal cost data. Using <strong>WASMify</strong>, they deploy a lightweight WebAssembly module that reads SAP data, generates a ZK-proof of current stock quantity, and posts it to the Public Zone. The proof is verified by the Public Zone's validators, and the stock level appears on a public dApp that buyers use to place orders. The actual SAP data remains inside the enterprise firewall, never touching the blockchain. Only the cryptographically verified summary enters the public domain.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 10-Mark Assessment</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Definition of Hybrid Layer-1</div>
+      <div class="feature-desc">A single blockchain network that runs <strong>multiple execution environments (zones)</strong> under a unified consensus engine. Each zone can have different access policies, data visibility rules, and validator sets, but they share the same base token and finality.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Public Zone vs Permissioned Zone</div>
+      <div class="feature-desc"><strong>Public Zone:</strong> Open validator set, all state publicly visible, permissionless smart contract deployment. <strong>Permissioned Zone:</strong> Whitelisted validators, confidential state, restricted contract deployment. Both use the same gas token (MSTC).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Inter-Zone Communication (IZC)</div>
+      <div class="feature-desc">A native protocol that allows smart contracts in different zones to exchange messages and assets. It is not an external bridge; the same validators that finalise blocks in both zones include the cross-zone messages, guaranteeing atomicity and trustless delivery.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Why Not Just Use a Sidechain?</div>
+      <div class="feature-desc">Sidechains have their own validator sets and consensus, requiring a separate bridge that introduces additional trust assumptions. In a hybrid Layer-1, the validators are shared - cross-zone communication is as secure as the consensus itself, with no extra layer of trust.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Enterprise Adoption Enabler</div>
+      <div class="feature-desc">Hybrid architecture is the primary reason enterprises can adopt MST. They can keep sensitive data confidential in a permissioned zone while leveraging the liquidity, developers, and composability of the public zone. This progressive model de-risks blockchain adoption.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (UPDATED: 9 MCQ + 1 T/F, 10 marks total)
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 7.1 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">9 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 9 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What is the defining characteristic of MST's Hybrid Layer-1 architecture?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          A public blockchain that uses a sidechain for private transactions
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          A single network with multiple execution zones sharing one consensus engine ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Two separate blockchains connected by a multi-signature bridge
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          A private ledger that periodically publishes hashes to Ethereum
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>The hybrid architecture uses <strong>one consensus engine (Trika POSA)</strong> to finalise blocks for all zones simultaneously. Options A, C, and D all describe architectures with separate validator sets or external bridges - exactly what MST's design avoids.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">In MST's hybrid architecture, the gas token MSTC is used in:</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Only the Public Zone
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          Only Permissioned Zones
+        </li>
+        <li class="correct">
+          <span class="opt-key">C</span>
+          Both the Public Zone and all Permissioned Zones ✅
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          A separate ERC-20 token must be deployed for each zone
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C</div>
+        <p>MSTC is the <strong>universal gas token</strong> across every zone. Whether a user transacts in the Public Zone or a Permissioned Zone, gas fees are paid in MSTC. This unified economic model prevents token fragmentation.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">Which statement about the Public Zone is TRUE?</div>
+      <ul class="options">
+        <li class="correct">
+          <span class="opt-key">A</span>
+          Anyone can deploy a smart contract, and all state is publicly visible ✅
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          Only whitelisted developers can deploy contracts, but state is public
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Anyone can deploy contracts, but state is encrypted and hidden
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          The Public Zone only processes token transfers, not smart contracts
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: A</div>
+        <p>The Public Zone is <strong>fully permissionless</strong>: open validator set, open contract deployment, and completely transparent state. This is what enables censorship-resistant DeFi, NFTs, and dApps.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">A Permissioned Zone on MST is characterised by:</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Open validator access and public state
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Whitelisted validators and confidential state ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          A completely separate blockchain with its own consensus
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Free gas for all transactions
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Permissioned Zones restrict validator participation to <strong>identity-verified, whitelisted entities</strong>. State data is visible only to authorised parties, making these zones suitable for enterprise compliance, CBDCs, and confidential business logic.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What is the primary advantage of Inter-Zone Communication (IZC) over an external blockchain bridge?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          IZC uses a dedicated set of relayers with higher security
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          IZC is validated by the same consensus validators, eliminating additional trust assumptions ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          IZC encrypts all messages end-to-end
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          IZC requires only one confirmation instead of multiple
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>External bridges rely on separate validator sets or multisig committees - a major attack vector (Wormhole, Ronin hacks). MST's IZC is secured by the <strong>same validators that finalise blocks for both zones</strong>, so its security is equivalent to the consensus itself. No extra trust layer.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q6</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">A supply-chain consortium wants to keep wholesale pricing confidential but let consumers verify product authenticity on-chain. Which MST configuration achieves this?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Deploy everything on the Public Zone with encryption
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Pricing logic in a Permissioned Zone, authenticity verification in the Public Zone, linked via IZC ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Run a completely separate private blockchain for the consortium
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Store pricing off-chain and only put authenticity on the Public Zone
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>This is the classic hybrid use case. Confidential data stays in the Permissioned Zone; public verification lives in the Public Zone. IZC links the two so a shipment event in the Permissioned Zone triggers a verifiable commitment in the Public Zone - consumers verify without seeing pricing.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q7</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">A validator in MST's network can participate in:</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Only one zone at a time
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Both the Public Zone and any Permissioned Zone for which it meets the access criteria ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Only the Public Zone - permissioned zones use separate validators
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Only permissioned zones if they hold enough MSTC
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>A validator can serve <strong>multiple zones simultaneously</strong>, provided it satisfies each zone's requirements. For the Public Zone, any staked validator can participate. For a Permissioned Zone, additional identity/KYC verification is required. This overlapping validator set is what makes IZC trustless.</p>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q8</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">How does state partitioning work in MST's hybrid architecture?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          All zones share one global Merkle tree
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Each zone maintains its own state trie, with a single consensus block header committing to all zone roots ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          State is stored off-chain and only hashes are on-chain
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Permissioned Zones have no state - they are purely for computation
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Each zone has its own <strong>independent Merkle Patricia Trie</strong> with its own root hash. The consensus block header contains a cryptographic commitment to all zone roots. A light client verifying a Public Zone transaction only needs the Public Zone root - Permissioned Zone data remains cryptographically committed but not revealed.</p>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q9</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff hard">Hard</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">Why is a pure public blockchain (like Ethereum) unsuitable for a central bank issuing a CBDC?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Public chains are too slow for any financial application
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          The central bank cannot control the validator set or keep sensitive monetary operations confidential ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Public chains cannot handle token transfers
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Gas fees on public chains are always zero
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>A central bank must <strong>control who can mint and burn currency</strong> (regulated entities only) and keep monetary policy operations confidential. On a pure public chain, any validator can process transactions and all state is visible - regulators lose control and confidentiality. MST's hybrid architecture solves this by placing minting/burning in a Permissioned Zone while letting retail CBDC circulate in the Public Zone.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B -->
+    <div class="q-section-header" style="margin-top: 8px;">
+      <div class="q-section-title">Section B - True / False</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 1 mark &nbsp;·&nbsp; 1 mark total</div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q10</div>
+        <div class="q-meta">
+          <span class="q-type">True / False</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">"In MST's hybrid architecture, a Permissioned Zone runs on a completely separate consensus engine from the Public Zone, and they communicate via an external bridge."</div>
+
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Correct Statement:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. In MST's hybrid architecture, both the Public Zone and all Permissioned Zones share the <strong>same consensus engine (Trika POSA)</strong>. Validators produce and finalise blocks for all zones in the same consensus round. Cross-zone communication happens via the native Inter-Zone Communication (IZC) protocol, which is validated by the same validator set - there is <strong>no external bridge</strong> and no separate consensus engine. The zones are execution environments within one unified network, not independent blockchains.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> Correctly states FALSE and explains that a single consensus engine secures all zones, not separate engines with an external bridge.</p>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 7.1 Assessment Summary</div>
+      <div class="score-row">Section A: 9 × MCQ <span>(1 mark each) = 9 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False <span>(1 mark) = 1 mark</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.1</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Hybrid Layer-1</div>
+    <div class="glossary-def">A blockchain that runs multiple execution zones (public and permissioned) under a single consensus engine, allowing different trust models within one network.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Public Zone</div>
+    <div class="glossary-def">The permissionless execution environment where anyone can deploy contracts, send transactions, and run a validator node. All state is publicly visible.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Permissioned Zone</div>
+    <div class="glossary-def">An execution environment with restricted validator access and confidential state. Only authorised entities can read data or submit transactions. Often used for enterprise compliance.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Inter-Zone Communication (IZC)</div>
+    <div class="glossary-def">The native protocol that allows smart contracts in different zones to exchange messages and assets, secured by the same consensus validators without external bridges.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Trika POSA</div>
+    <div class="glossary-def">MST's Proof of Stake Authority consensus mechanism that elects validators through staking and reputation, providing fast finality and energy efficiency. (Covered in depth in Sub-Module 7.3.)</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">State Partitioning</div>
+    <div class="glossary-def">The separation of blockchain state into distinct Merkle tries per zone, allowing different visibility rules for each zone while maintaining a unified consensus commitment.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">CBDC</div>
+    <div class="glossary-def">Central Bank Digital Currency - a digital form of fiat money issued by a central bank. MST's hybrid architecture enables CBDCs with both regulatory control and public interoperability.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">WASMify</div>
+    <div class="glossary-def">MST's module for executing WebAssembly binaries and generating ZK-proofs, allowing off-chain computation to be verified on-chain. (Covered in Sub-Module 7.5.)</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Progressive Decentralisation</div>
+    <div class="glossary-def">A strategy where a project starts with more centralised control (e.g., in a permissioned zone) and gradually moves toward open, public participation as the ecosystem matures.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Finality</div>
+    <div class="glossary-def">The point at which a block and its transactions are irreversibly confirmed. In MST, Trika POSA provides ~3-second finality across all zones simultaneously.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 7 · Sub-Module <strong>7.1</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.2 - EVM Compatibility →</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,361 @@
+{
+  "submoduleId": "17.2",
+  "totalMarks": 30,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "At the transition height, what signature combination is required for a user transaction to be valid?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Only an ECDSA signature",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Both an ECDSA signature and a post-quantum signature",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Only a post-quantum signature (ECDSA is immediately dropped)",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "A one-time migration proof instead of any signature",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "MST’s hybrid transition requires both signatures to maintain backward compatibility. Option C is incorrect because ECDSA is dropped only later (Hₜ + 6 months). Option A describes pre-transition behavior.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>MST’s hybrid transition requires both signatures to maintain backward compatibility. Option C is incorrect because ECDSA is dropped only later (Hₜ + 6 months). Option A describes pre-transition behavior.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "How does a validator node know which post-quantum key is associated with a user’s address?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It is embedded in the transaction itself",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "It queries an on-chain key registry contract",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "It derives the PQ key from the ECDSA public key using a hash",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The user sends a separate registration message before each transaction",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "The PQKeyRegistry contract stores the mapping. Validators call getPQKey(user) during verification. This avoids embedding keys in every transaction (option A) and does not require repeated registration.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>The <code>PQKeyRegistry</code> contract stores the mapping. Validators call <code>getPQKey(user)</code> during verification. This avoids embedding keys in every transaction (option A) and does not require repeated registration.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What happens to legacy wallets that do not produce a post-quantum signature after the transition height?",
+      "options": [
+        {
+          "key": "A",
+          "text": "They are automatically upgraded by the network",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Their transactions are rejected by validators",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "They can still send transactions, but with a warning",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The network forks to keep them operational",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "After Hₜ, validators enforce the hybrid requirement. Non-upgraded wallets cannot transact, but their funds can be recovered via the force-migrate relay.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>After Hₜ, validators enforce the hybrid requirement. Non-upgraded wallets cannot transact, but their funds can be recovered via the force-migrate relay.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Why does MST use Falcon for validator block signatures instead of Dilithium?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Falcon is quantum-resistant while Dilithium is not",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Falcon produces smaller signatures, reducing block propagation time",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Dilithium is not suitable for consensus algorithms",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Falcon is the only NIST-approved signature scheme",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Falcon signatures are ~700 bytes vs Dilithium’s ~2.5 KB, which is critical for high-frequency block signing. Both are quantum-resistant and NIST-approved.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>Falcon signatures are ~700 bytes vs Dilithium’s ~2.5 KB, which is critical for high-frequency block signing. Both are quantum-resistant and NIST-approved.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "What is the purpose of the “shadow-signing” phase for validators?",
+      "options": [
+        {
+          "key": "A",
+          "text": "To test the economic incentives of slashing",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "To allow validators to practice signing blocks with Falcon without enforcement",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "To mine extra blocks in parallel to the main chain",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "To generate secret keys that are later revealed",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "During shadow-signing, validators optionally append Falcon signatures. Other nodes verify them, allowing performance testing and bug detection under live conditions before enforcement.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>During shadow-signing, validators optionally append Falcon signatures. Other nodes verify them, allowing performance testing and bug detection under live conditions before enforcement.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "How does the force-migrate relay contract know which assets to move for an unregistered user?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It scans the blockchain for the user’s balance",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The user’s SARAL wallet pre-authorises a migration allowance during onboarding",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "The user must manually initiate migration from a backup device",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Any third party can call it, but only for assets locked in DeFi",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "During wallet creation, a small proxy contract is deployed that pre-approves the relay contract to migrate assets to a quantum-safe address derived from the user’s Dilithium key. No user action is needed at migration time.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>During wallet creation, a small proxy contract is deployed that pre-approves the relay contract to migrate assets to a quantum-safe address derived from the user’s Dilithium key. No user action is needed at migration time.</p>"
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Which of the following best describes the governance role in MST’s quantum migration?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Governance has no role; the transition is hard-coded",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Governance votes to set the transition height and can accelerate it if needed",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Governance selects which users must migrate first",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Governance manually verifies each quantum-safe key",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "The on-chain DAO sets the block height for Hₜ. This allows the community to react to quantum breakthroughs by accelerating the timeline, while maintaining a predictable default.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>The on-chain DAO sets the block height for Hₜ. This allows the community to react to quantum breakthroughs by accelerating the timeline, while maintaining a predictable default.</p>"
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "If a user loses access to their SARAL wallet after the transition height but before registering a PQ key, how can their funds be recovered?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Through the standard SARAL biometric recovery flow, which regenerates the Dilithium key from the enclave backup",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The funds are permanently lost",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "The user must contact MST support to manually override the registry",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The force-migrate relay requires a court order to act",
+          "isCorrect": false
+        }
+      ],
+      "explanation": "SARAL’s recovery uses Shamir secret sharing of the enclave seed. The Dilithium keypair is derived from the same seed as the ECDSA keypair. Thus, standard SARAL recovery restores both keys, and the user can immediately sign hybrid transactions. No external override is needed.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>SARAL’s recovery uses Shamir secret sharing of the enclave seed. The Dilithium keypair is derived from the same seed as the ECDSA keypair. Thus, standard SARAL recovery restores both keys, and the user can immediately sign hybrid transactions. No external override is needed.</p>"
+    },
+    {
+      "id": "q9",
+      "number": 9,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"MST requires a hard fork to enforce post-quantum signatures on transactions.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: Explains that hybrid transactions are a subset of old rules, avoiding a permanent fork.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains that hybrid transactions are a subset of old rules, avoiding a permanent fork.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q10",
+      "number": 10,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"Users must create a new MST address to use post-quantum signatures.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: Describes the key registry mechanism that avoids address changes.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Describes the key registry mechanism that avoids address changes.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q11",
+      "number": 11,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"After the transition height, a validator that has registered a Falcon key can still choose to sign blocks with only an ECDSA signature.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: Explains that hybrid signatures are mandatory for validators after Hₜ, with slashing risk.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains that hybrid signatures are mandatory for validators after Hₜ, with slashing risk.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q12",
+      "number": 12,
+      "type": "true_false",
+      "difficulty": "Hard",
+      "marks": 2,
+      "text": "\"If a SARAL user never opens their wallet after the transition height, their funds will eventually become inaccessible.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: References the force-migrate relay mechanism and pre-authorisation.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> References the force-migrate relay mechanism and pre-authorisation.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q13",
+      "number": 13,
+      "type": "true_false",
+      "difficulty": "Hard",
+      "marks": 2,
+      "text": "\"MST’s quantum-ready pillar uses Dilithium for both user transactions and validator block signatures.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: Correctly distinguishes Dilithium (users) and Falcon (validators) with size justification.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Correctly distinguishes Dilithium (users) and Falcon (validators) with size justification.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q14",
+      "number": 14,
+      "type": "true_false",
+      "difficulty": "Hard",
+      "marks": 2,
+      "text": "\"The hybrid signature phase permanently adds 2.5 KB to every MST transaction forever.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE.+1 mark: Explains the temporary nature and eventual single-sig post-quantum format.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains the temporary nature and eventual single-sig post-quantum format.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q15",
+      "number": 15,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "Explain, in detail, how a quantum computer would attack an ECDSA-secured wallet, and describe the exact sequence of events that MST’s quantum-ready pillar uses to protect that wallet before, during, and after the quantum break. Include the roles of the key registry, the hybrid transaction, and the force-migrate relay.",
+      "explanation": "1 mark: Correctly describes the quantum attack (Shor’s algorithm recovers private key from public key).1 mark: Mentions SARAL dual-key generation and on-chain registration of Dilithium pubkey.1 mark: Explains hybrid signature enforcement at Hₜ and why it defeats the attack.1 mark: Describes post-transition single-sig safety.1 mark: Includes the force-migrate relay as a safety net for non-upgraded users.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly describes the quantum attack (Shor’s algorithm recovers private key from public key).<br><strong>1 mark:</strong> Mentions SARAL dual-key generation and on-chain registration of Dilithium pubkey.<br><strong>1 mark:</strong> Explains hybrid signature enforcement at Hₜ and why it defeats the attack.<br><strong>1 mark:</strong> Describes post-transition single-sig safety.<br><strong>1 mark:</strong> Includes the force-migrate relay as a safety net for non-upgraded users.</p>"
+    },
+    {
+      "id": "q16",
+      "number": 16,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "You are the CTO of a DeFi protocol deploying on MST. Design a smart-contract modifier that ensures only quantum-safe users can interact with your vault after the transition height. Describe the modifier’s logic, the on-chain call it must make, and explain why this pattern protects your protocol from both classical and quantum attackers.",
+      "explanation": "1 mark: Modifier logic correct: checks pqRegistry.getPQKey(msg.sender).length > 0.1 mark: Queries the correct registry contract (not a local mapping).1 mark: Explains that without the PQ key, the transaction cannot have a valid hybrid signature.1 mark: Optional block-height gating (check block.number >= transitionHeight).1 mark: Addresses unregistered users (revert with helpful message or suggest force-migrate).",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Modifier logic correct: checks <code>pqRegistry.getPQKey(msg.sender).length &gt; 0</code>.<br><strong>1 mark:</strong> Queries the correct registry contract (not a local mapping).<br><strong>1 mark:</strong> Explains that without the PQ key, the transaction cannot have a valid hybrid signature.<br><strong>1 mark:</strong> Optional block-height gating (check <code>block.number &gt;= transitionHeight</code>).<br><strong>1 mark:</strong> Addresses unregistered users (revert with helpful message or suggest force-migrate).</p>"
+    }
+  ]
+}

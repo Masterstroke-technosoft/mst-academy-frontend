@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 11.2 - Automated Market Makers (AMMs) | MasterStroke Academy</title>
+<meta name="description" content="Master Automated Market Makers (AMMs) – the engines of decentralized trading. Learn constant product formula, impermanent loss, Uniswap v2/v3, and why MST's sub‑paisa fees revolutionise liquidity provision for everyone.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .identify-output {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .io-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .io-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .io-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .io-data { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .io-answer { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .io-answer-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .io-answer p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 11 &nbsp;·&nbsp; Sub-Module 11.2 of 6</div>
+<h1 class="module-title">Automated Market Makers <span class="highlight">(AMMs)</span></h1>
+<p class="module-subtitle">Discover how decentralized exchanges work without order books - using mathematical formulas, liquidity pools, and the constant product rule. Master impermanent loss, compare Uniswap v2 and v3, and see why MST's sub-paisa fees transform liquidity provision into a viable strategy for everyone, not just whales.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (5 marks) + 1 Identify-Output (Impermanent Loss - 15 marks)</div>
+  <div class="meta-chip green">Phase 4 · DeFi & RWA Orbitals</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">📐</div>
+    <div class="obj-text">
+      <strong>Derive prices from the constant product formula x*y=k</strong>
+      Use the math behind AMMs to calculate swap amounts, price impact, and pool share - and explain why the curve never runs out of liquidity.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Calculate impermanent loss for any price change</strong>
+      Quantify the risk of providing liquidity versus simply holding tokens, and determine when trading fees compensate for the loss.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Compare Uniswap v2 and v3 capital efficiency</strong>
+      Understand concentrated liquidity, tick ranges, and how v3 allows LPs to provide liquidity within specific price intervals.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Leverage MST's low fees for profitable LP strategies</strong>
+      See how sub-paisa gas costs enable smaller positions and active management, making AMMs accessible to retail users.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Liquidity Provider Who Lost Money - Without Losing a Single Token</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>Anjali, a software engineer in Pune, decided to put her savings to work. She had ₹50,000 worth of ETH and ₹50,000 worth of USDC. Instead of letting them sit idle, she deposited both into the ETH/USDC liquidity pool on Uniswap. She'd heard that liquidity providers earn trading fees - passive income just for providing tokens. For the first month, everything was great. She earned ₹800 in fees. But then the price of ETH doubled. When she withdrew her liquidity, she was shocked: she had less ETH than she started with, and more USDC. The total value was ₹2,20,000 - which was ₹20,000 less than if she had simply held the tokens separately. She had experienced <strong>impermanent loss</strong> - the hidden cost of being an LP.</p>
+  <br>
+  <p>Anjali learned an essential lesson: AMMs are brilliant, but they come with trade-offs. Understanding the math behind them is the only way to make informed decisions. This sub-module gives you that understanding. You'll learn how AMMs price assets, why impermanent loss happens, and how to calculate it yourself. And you'll discover why MST's low fees change the game - they make providing liquidity profitable even for small positions and frequent adjustments.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Order Books to Mathematical Robots - The AMM Revolution</h2>
+<p>Traditional exchanges - like the Bombay Stock Exchange or Coinbase - use an <strong>order book</strong> model. Buyers and sellers place orders at specific prices, and the exchange matches them. This works well for highly liquid assets, but it requires market makers (professional firms) to continuously quote prices. In crypto, especially for new tokens, order books often suffer from low liquidity and wide spreads.</p>
+<p>In 2016, an Ethereum researcher named <strong>Vitalik Buterin</strong> proposed the idea of an on-chain automated market maker. The concept was simple: instead of matching buyers and sellers, let a smart contract hold a pool of two tokens and use a mathematical formula to determine the price. The first implementation was <strong>Bancor</strong> in 2017, but it was <strong>Uniswap</strong>, launched by Hayden Adams in November 2018, that perfected the model and brought AMMs to the masses.</p>
+<p>Uniswap v1 used the <strong>constant product formula</strong>: <code>x * y = k</code>, where x and y are the reserves of the two tokens. When a trader swaps token A for token B, they add to one reserve and remove from the other, but the product k remains constant (ignoring fees). This simple rule created a fully automated, always-available market with no order book, no spreads set by humans, and no central authority.</p>
+<p>Uniswap v2 (2020) added ERC-20/ERC-20 pairs (v1 only supported ETH as one side) and introduced the concept of <strong>LP tokens</strong> representing a provider's share of the pool. Uniswap v3 (2021) introduced <strong>concentrated liquidity</strong>, allowing LPs to provide liquidity within specific price ranges, dramatically improving capital efficiency. Today, Uniswap processes billions in daily volume, and its AMM design has been copied by hundreds of protocols across dozens of chains - including MST.</p>
+
+<div class="highlight-strip">
+  <strong>MST advantage:</strong> Because MST is fully EVM-compatible, Uniswap v2 and v3 contracts can be deployed on MST with minimal changes. And because gas fees are ~100,000× lower than Ethereum's, active LP management - adjusting positions, claiming fees, rebalancing - becomes economically practical. On Ethereum, each adjustment can cost ₹500+; on MST, ₹0.006.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Robot Market Maker - Always Ready to Trade</h2>
+<div class="callout analogy">
+  <div class="callout-label">🤖 The Analogy</div>
+  <p>Imagine a vending machine that never runs out of snacks, and the price changes automatically based on how many snacks are left. If people buy a lot of chips, the machine raises the price. If nobody buys, the price drops. The machine doesn't care who's buying or selling - it just follows a simple rule. An AMM is exactly that vending machine, but for tokens. It holds a pool of two tokens and uses a formula to decide how many of each you get. No human sets the price; the math does.</p>
+</div>
+<p>Every AMM has three core components. Let's understand them in plain language:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">P</div><div class="w5-word">POOL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a liquidity pool?</div>
+      <div class="w5-a">A <strong>liquidity pool</strong> is a smart contract that holds two tokens (e.g., MSTC and USDC). Anyone can deposit equal values of both tokens to become a <strong>liquidity provider (LP)</strong>. LPs earn a share of the trading fees. The pool never runs out of liquidity because the formula adjusts the price as tokens are traded - it just gets more and more expensive to drain it completely.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FORMULA</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the constant product formula?</div>
+      <div class="w5-a">The core of Uniswap-style AMMs is <strong>x * y = k</strong>. Here, x is the amount of token A in the pool, y is the amount of token B, and k is a constant (before fees). When a trader swaps, they change x and y, but the product stays the same. This formula automatically raises the price as demand increases and lowers it as supply increases - exactly like supply and demand in traditional markets, but enforced by code.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LOSS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is impermanent loss?</div>
+      <div class="w5-a"><strong>Impermanent loss (IL)</strong> is the difference between the value of your tokens if you'd simply held them versus providing them as liquidity. It happens when the price of the tokens changes relative to each other. The loss is "impermanent" because if the price returns to the original, the loss disappears. But if you withdraw while the price is far from your entry, the loss becomes permanent. Trading fees can offset IL, but LPs must understand this risk.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: CONSTANT PRODUCT -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - The Constant Product</div>
+<h2 class="section-title">x * y = k - The Formula That Runs Decentralized Trading</h2>
+<p>Let's explore the math behind AMMs with concrete numbers. No advanced degree required - just multiplication and division.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How a Swap Works</h3>
+<p>Suppose an MSTC/USDC pool starts with <strong>100 MSTC</strong> and <strong>10,000 USDC</strong>. The constant product k = 100 × 10,000 = <strong>1,000,000</strong>. The current price of MSTC is 10,000 USDC / 100 MSTC = <strong>100 USDC per MSTC</strong>.</p>
+<p>Now a trader wants to buy 1 MSTC. How much USDC must they pay? After the swap, the new MSTC reserve will be 99 (since they take 1 out), so the new USDC reserve must satisfy:</p>
+<p style="text-align:center; font-size:18px; font-weight:600; color:var(--ink);">x' * y' = k → (100 - 1) * y' = 1,000,000 → 99 * y' = 1,000,000 → y' = 10,101.01 USDC</p>
+<p>The trader must add <strong>101.01 USDC</strong> to the pool (from 10,000 to 10,101.01). So the price they pay for 1 MSTC is 101.01 USDC - slightly more than the spot price of 100 USDC. This is called <strong>slippage</strong> or <strong>price impact</strong>. The larger the trade relative to the pool, the worse the price.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Price Curve</h3>
+<p>The constant product formula creates a hyperbola. Near the middle, the curve is relatively flat - small trades have low price impact. Toward the edges (near zero of one token), the curve becomes extremely steep - draining the last of a token is astronomically expensive. This means the pool can never be completely drained; it just gets prohibitively costly.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.2-A · Constant Product Curve (x * y = 1,000,000)</div>
+  <pre>
+ USDC (y)
+  ▲
+  │
+  │        * (100, 10000)
+  │           \
+  │            \
+  │             \
+  │              \
+  │               \
+  │                \
+  │                 \
+  │                  * (200, 5000)
+  │
+  └─────────────────────────────▶ MSTC (x)
+
+  • At (100 MSTC, 10,000 USDC): Price = 100 USDC per MSTC
+  • At (200 MSTC, 5,000 USDC): Price = 25 USDC per MSTC (MSTC cheaper)
+  • The curve never touches the axes — infinite liquidity, finite price
+  </pre>
+  <div class="diagram-caption">The curve shows all possible reserve pairs that maintain k=1,000,000. The slope at any point is the price. Moving along the curve by adding one token and removing the other is a swap.</div>
+</div>
+
+<!-- 06 IMPERMANENT LOSS DEEP DIVE -->
+<div class="section-label">06 &nbsp; Impermanent Loss - The Silent Risk</div>
+<h2 class="section-title">Why Liquidity Providers Can Lose Value</h2>
+<p>Impermanent loss occurs because AMMs automatically rebalance your portfolio as the price changes. When one token rises in value, the pool sells it (to arbitrageurs) to maintain the constant product, reducing your exposure to the winner and increasing exposure to the loser. Here's the math.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Impermanent Loss Formula</h3>
+<p>If you deposit tokens when the price ratio is P, and later the price changes by a factor of r (so the new price is r × P), the impermanent loss (as a percentage of your initial deposit value) is:</p>
+<p style="text-align:center; font-size:17px; font-weight:600; color:var(--ink);">IL = 2√r / (1 + r) - 1</p>
+<p>This formula assumes no fees are earned. Let's test it:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Price stays the same (r = 1):</strong> IL = 2√1 / (1+1) - 1 = 2/2 - 1 = 0. No loss.</li>
+  <li><strong>Price doubles (r = 2):</strong> IL = 2√2 / 3 - 1 ≈ 2.828/3 - 1 ≈ 0.9427 - 1 = <strong>-5.73%</strong>. You lose ~5.7% relative to holding.</li>
+  <li><strong>Price quadruples (r = 4):</strong> IL = 2√4 / 5 - 1 = 4/5 - 1 = <strong>-20%</strong>.</li>
+  <li><strong>Price drops by half (r = 0.5):</strong> IL = 2√0.5 / 1.5 - 1 ≈ 1.414/1.5 - 1 ≈ 0.9427 - 1 = <strong>-5.73%</strong> (symmetric).</li>
+</ul>
+<p>Notice: <strong>impermanent loss is symmetric</strong> - a 2x increase and a 2x decrease both cause the same percentage loss. The loss increases as the price moves further from your entry. Importantly, trading fees can offset this loss. If the pool earns 0.3% fees on every trade, high-volume pools can compensate for significant IL.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 11.2-B · Impermanent Loss vs Price Change</div>
+  <pre>
+  IL (% loss)
+   0% ┤
+       │
+  -10% ┤          ****
+       │        **
+  -20% ┤      **
+       │     *
+  -30% ┤   **
+       │  *
+  -40% ┤ *
+       │*
+  -50% ┤────────────────────────────
+       0.25x   0.5x    1x    2x    4x   (price ratio r)
+  </pre>
+  <div class="diagram-caption">The curve flattens for extreme price changes. Even a 4x change results in only ~20% IL, which is often covered by fees in high-volume pools.</div>
+</div>
+
+<!-- 07 INTERACTIVE IL CALCULATION -->
+<div class="section-label">07 &nbsp; Interactive Impermanent Loss Calculator</div>
+<h2 class="section-title">Calculate Your Own IL - Hands-On</h2>
+<p>Let's walk through a real scenario and compute impermanent loss step by step. Click to see the worked example.</p>
+
+<details>
+  <summary>🧮 Example: MSTC/USDC Pool - Price Doubles</summary>
+  <div class="content">
+    <p><strong>Initial Deposit:</strong> You provide 10 MSTC and 1,000 USDC to the pool. The price of MSTC is 100 USDC. Total value = 2,000 USDC.</p>
+    <p><strong>Price doubles:</strong> External market price of MSTC rises to 200 USDC. Arbitrageurs trade against the pool to align the pool price with the market. After arbitrage, the pool reserves adjust according to the constant product:</p>
+    <p>Initial k = 10 × 1,000 = 10,000. New MSTC price = 200 USDC → USDC/MSTC ratio must be 200. So (y / x) = 200, and y = 200x. Plug into x*y=10,000: x*(200x)=200x²=10,000 → x²=50 → x≈7.07 MSTC, y≈1,414.21 USDC.</p>
+    <p><strong>Your share:</strong> If you own 100% of the pool (for simplicity), your tokens are now 7.07 MSTC + 1,414.21 USDC = 7.07×200 + 1,414.21 = 2,828.21 USDC. If you had just held: 10 MSTC × 200 + 1,000 USDC = 3,000 USDC. Loss = 3,000 - 2,828.21 = 171.79 USDC, which is <strong>5.73%</strong> of 3,000. Matches the IL formula for r=2 (5.73%).</p>
+  </div>
+</details>
+
+<!-- 08 UNISWAP V2 VS V3 -->
+<div class="section-label">08 &nbsp; Uniswap v2 vs v3</div>
+<h2 class="section-title">Concentrated Liquidity - More Bang for Your Buck</h2>
+<p>Uniswap v2 spreads liquidity evenly across all price ranges from 0 to infinity. That's safe, but capital-inefficient - most of the liquidity sits unused because prices rarely visit extremes. Uniswap v3 introduced <strong>concentrated liquidity</strong>: LPs can choose a price range (e.g., 1,800 - 2,200 USDC per ETH) and provide liquidity only within that range. This means capital is concentrated where it's needed most, earning far higher fees per dollar deposited.</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>Uniswap v2</th><th>Uniswap v3</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Liquidity distribution</td><td>Uniform across all prices (0 to ∞)</td><td>Concentrated in user-selected price ranges</td></tr>
+    <tr><td>Capital efficiency</td><td>Lower - most liquidity unused at extremes</td><td>Up to 4,000× more efficient for stable pairs</td></tr>
+    <tr><td>LP position</td><td>Fungible LP tokens (ERC-20)</td><td>Non-fungible position (NFT representing range)</td></tr>
+    <tr><td>Fee tiers</td><td>0.3% default</td><td>Multiple tiers: 0.05%, 0.3%, 1%</td></tr>
+    <tr><td>Impermanent loss</td><td>As described above</td><td>Can be higher if price exits your range</td></tr>
+    <tr><td>Complexity</td><td>Simple: deposit and forget</td><td>Active management recommended</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> Uniswap v3 requires active management - moving liquidity ranges as prices change. On Ethereum, each adjustment costs ₹500-₹2,000 in gas, wiping out profits for small LPs. On MST, the same adjustment costs ~₹0.006. This means <strong>anyone</strong> can actively manage a v3 position, not just whales.
+</div>
+
+<!-- 09 MST ADVANTAGES FOR AMMs -->
+<div class="section-label">09 &nbsp; MST Advantages for AMMs</div>
+<h2 class="section-title">Why MST Is the Perfect AMM Playground</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa swaps</div>
+      <div class="feature-desc">A swap on Uniswap (MST) costs ~₹0.006 in gas versus ₹500-₹1,500 on Ethereum. Even small trades become economical, encouraging more volume and higher fee revenue for LPs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Frequent compounding</div>
+      <div class="feature-desc">LPs can claim and reinvest trading fees daily or even hourly without gas costs eating into returns. This compounding effect significantly boosts APY.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Concentrated liquidity for everyone</div>
+      <div class="feature-desc">Active v3 LP strategies require moving ranges. MST's near-zero fees make it possible for retail users to adjust positions as often as needed, democratizing the most capital-efficient AMM model.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">No front-running by MEV bots?</div>
+      <div class="feature-desc">MST's high throughput and efficient consensus reduce the window for sandwich attacks and other MEV exploits. Plus, low fees reduce the incentive for bots to extract small amounts of value.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How AMMs Power the DeFi Economy</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap - The King of AMMs</div>
+      <div class="feature-desc">Uniswap processes over $1 billion in daily volume. Its v3 on Ethereum mainnet dominates trading for large pairs, while v2 and v3 forks thrive on low-cost chains like MST. Uniswap's success proved that AMMs can replace order books for the vast majority of crypto trading.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">📈</div>
+    <div class="feature-content">
+      <div class="feature-title">Curve Finance - AMM for Stablecoins</div>
+      <div class="feature-desc">Curve modified the constant product formula to be nearly flat for stable pairs (e.g., USDC/DAI), minimizing slippage and impermanent loss. It became the backbone of stablecoin trading. MST could host Curve forks, enabling low-cost stable swaps.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🥞</div>
+    <div class="feature-content">
+      <div class="feature-title">PancakeSwap - AMM on BNB Chain</div>
+      <div class="feature-desc">PancakeSwap proved that a Uniswap v2 fork on a low-fee chain can explode in popularity. It attracted millions of users priced out of Ethereum. MST can replicate this success with even lower fees and faster transactions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Constant product: x * y = k</div>
+      <div class="feature-desc">The core of Uniswap. The product of reserves stays constant before fees. Price = y/x. Swaps change reserves but keep k unchanged (except for fee growth).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Impermanent loss formula: IL = 2√r/(1+r) - 1</div>
+      <div class="feature-desc">Where r is the price ratio (new price / old price). Symmetrical loss for price increases and decreases. Fees can offset IL.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v3 concentrated liquidity boosts capital efficiency</div>
+      <div class="feature-desc">LPs choose a price range. Capital is not spread across all prices, earning far higher fees per dollar when the price is within range.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees unlock active AMM strategies for everyone</div>
+      <div class="feature-desc">Frequent adjustments, compounding, and v3 range shifts cost ~₹0.006 on MST versus ₹500+ on Ethereum, democratizing LP management.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 11.2 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">20</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the fundamental mathematical rule behind Uniswap's AMM?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Price = total liquidity / 2</li>
+        <li class="correct"><span class="opt-key">B</span> x * y = k (constant product of reserves) ✅</li>
+        <li><span class="opt-key">C</span> x + y = k</li>
+        <li><span class="opt-key">D</span> Price = (x - y) / k</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The constant product formula ensures the product of the two token reserves remains constant (before fees). This governs all swaps and pricing.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is impermanent loss?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> The potential loss LPs face relative to simply holding tokens, caused by price divergence between the paired assets. ✅</li>
+        <li><span class="opt-key">B</span> A permanent loss of tokens due to smart contract bugs.</li>
+        <li><span class="opt-key">C</span> The fee charged by the AMM for every swap.</li>
+        <li><span class="opt-key">D</span> The decrease in token value due to inflation.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Impermanent loss occurs because the pool automatically rebalances as prices change, leaving LPs with less value than if they had simply held the tokens.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">If the price of an asset in an AMM doubles (r=2), what is the approximate impermanent loss?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 0%</li>
+        <li class="correct"><span class="opt-key">B</span> ~5.7% ✅</li>
+        <li><span class="opt-key">C</span> ~20%</li>
+        <li><span class="opt-key">D</span> ~50%</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>From the IL formula, r=2 gives IL = 2√2/3 - 1 ≈ -5.73%. This is independent of the specific tokens.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does Uniswap v3 improve capital efficiency over v2?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By allowing LPs to concentrate liquidity within specific price ranges, rather than spreading it uniformly from 0 to ∞. ✅</li>
+        <li><span class="opt-key">B</span> By removing impermanent loss entirely.</li>
+        <li><span class="opt-key">C</span> By requiring only one token instead of two.</li>
+        <li><span class="opt-key">D</span> By using an order book instead of a formula.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Concentrated liquidity lets LPs allocate capital exactly where it's needed, earning higher fees per dollar deposited.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why are AMMs particularly powerful on MST compared to Ethereum?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> MST's extremely low gas fees make frequent LP actions (compounding, range adjustments) economically viable for small positions. ✅</li>
+        <li><span class="opt-key">B</span> MST does not support smart contracts, so AMMs are simpler.</li>
+        <li><span class="opt-key">C</span> MST has no impermanent loss.</li>
+        <li><span class="opt-key">D</span> MST uses a different formula that guarantees profits.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Low fees are the game-changer. They allow active strategies and micro-positions that would be obliterated by gas on Ethereum.</p></div>
+    </div>
+
+    <!-- SECTION B: IDENTIFY‑OUTPUT (IMPERMANENT LOSS) -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Identify-Output (Impermanent Loss Calculation)</div>
+      <div class="q-section-meta">1 Question · 15 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff medium">Medium</span><span class="q-marks">15 marks</span></div></div>
+      <div class="q-text">Compute impermanent loss for a liquidity provider in an ETH/USDC pool. Show all steps.</div>
+      <div class="identify-output">
+        <div class="io-header"><div class="io-badge">📋 SCENARIO</div></div>
+        <div class="io-scenario">Vikram deposits 5 ETH and 10,000 USDC into an ETH/USDC liquidity pool when 1 ETH = 2,000 USDC. After some time, the price of ETH rises to 3,000 USDC. Vikram withdraws his liquidity. Assume no trading fees were earned and Vikram owns 100% of the pool for simplicity.</div>
+        <div class="io-data">
+          <strong>Given:</strong><br>
+          • Initial ETH: 5, Initial USDC: 10,000<br>
+          • Initial price: 2,000 USDC/ETH<br>
+          • New price: 3,000 USDC/ETH<br>
+          • Constant product k = 5 × 10,000 = 50,000<br>
+          • Vikram owns the entire pool (100%).<br><br>
+          <strong>Task:</strong> (a) Calculate the new pool reserves after arbitrage to match the new price. (b) Determine the total value of Vikram's withdrawn tokens at the new price. (c) Determine the value he would have had if he simply held the tokens. (d) Compute the impermanent loss in USDC and as a percentage.
+        </div>
+        <div class="io-answer">
+          <div class="io-answer-label">✅ Correct Calculation</div>
+          <p>
+            <strong>(a) New reserves:</strong> Price = y/x = 3,000, so y = 3,000x. Plug into x*y = 50,000: x * (3,000x) = 3,000x² = 50,000 → x² = 50,000/3,000 = 16.666… → <strong>x ≈ 4.0825 ETH</strong>. Then y = 3,000 × 4.0825 ≈ <strong>12,247.45 USDC</strong>.<br><br>
+            <strong>(b) Value if withdrawn:</strong> 4.0825 ETH × 3,000 + 12,247.45 USDC = 12,247.5 + 12,247.45 = <strong>24,494.95 USDC</strong>.<br><br>
+            <strong>(c) Value if held:</strong> 5 ETH × 3,000 + 10,000 USDC = 15,000 + 10,000 = <strong>25,000 USDC</strong>.<br><br>
+            <strong>(d) Impermanent loss:</strong> 25,000 - 24,494.95 = <strong>505.05 USDC</strong>. As a percentage: (505.05 / 25,000) × 100 ≈ <strong>2.02%</strong>. (Note: the formula gives IL = 2√(1.5)/(2.5) - 1 = 2×1.2247/2.5 - 1 = 0.9798 - 1 = -0.0202, i.e., 2.02% loss.)
+          </p>
+          <div class="marks-bd"><span>15 marks breakdown:</span> (a) 4 marks for correct x and y reserves; (b) 3 marks for correct withdrawn value; (c) 3 marks for correct held value; (d) 5 marks for correct USDC loss and percentage (3 marks for USDC, 2 marks for %). Partial credit for correct method even if arithmetic slightly off.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 11.2 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 1 × Identify-Output <span>(15 marks) = 15 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">20</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 11.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">AMM</div><div class="glossary-def">Automated Market Maker - a decentralized exchange that uses a mathematical formula to set prices instead of an order book.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Constant Product</div><div class="glossary-def">The formula x*y=k used by Uniswap. Ensures that the product of token reserves remains constant, determining swap prices.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquidity Pool</div><div class="glossary-def">A smart contract that holds two tokens and allows users to trade between them, with liquidity provided by LPs who earn fees.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Impermanent Loss</div><div class="glossary-def">The loss LPs experience relative to holding tokens, caused by price changes between the paired assets. Can be offset by trading fees.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Concentrated Liquidity</div><div class="glossary-def">Uniswap v3 feature allowing LPs to provide liquidity only within a chosen price range, boosting capital efficiency.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Slippage</div><div class="glossary-def">The difference between the expected price of a trade and the actual execution price, caused by the trade moving the AMM curve.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 11 · Sub-Module <strong>11.2</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 11.3 - Lending & Borrowing →</p>
+</div>
+
+</body>
+</html>

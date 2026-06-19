@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 16.1 - DID & Verifiable Credentials | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand: #6C3CE2;
+      --brand-light: #EDE9FB;
+      --brand-dark: #3C1FA0;
+      --brand-mid: #8B5CF6;
+      --accent: #F6A623;
+      --accent-light: #FEF4E0;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --blue: #1D6FD8;
+      --blue-light: #DBEAFE;
+      --orange: #EA580C;
+      --orange-light: #FFEDD5;
+      --teal: #0D9488;
+      --teal-light: #CCFBF1;
+      --ink: #111827;
+      --ink-2: #374151;
+      --ink-3: #6B7280;
+      --ink-4: #9CA3AF;
+      --border: #E5E7EB;
+      --border-2: #D1D5DB;
+      --surface: #F9FAFB;
+      --surface-2: #F3F4F6;
+      --white: #FFFFFF;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent); }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand); }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red); }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal); }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── FEATURE LIST ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="module-badge">🔐 Module 16 &nbsp;·&nbsp; Sub-Module 16.1</div>
+<h1 class="module-title">Decentralised <span class="highlight">Identity</span> & Verifiable Credentials</h1>
+<p class="module-subtitle">From paper ration cards to self-sovereign Aadhaar - building an identity layer that you truly own, without a central database.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity & Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🆔</div>
+    <div class="obj-text">
+      <strong>Explain Decentralised Identifiers (DIDs)</strong>
+      Define W3C DID Core concepts: DID, DID document, DID method, and how they replace centralised identifiers.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📜</div>
+    <div class="obj-text">
+      <strong>Describe the Verifiable Credentials (VC) model</strong>
+      Understand the roles - Issuer, Holder, Verifier - and the proof-based trust triangle.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text">
+      <strong>Connect to Digital Aadhaar & Indian identity stack</strong>
+      Map VC flows to Aadhaar, DigiLocker, and Co-WIN certificates - what changes with self-sovereign identity.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔏</div>
+    <div class="obj-text">
+      <strong>Design a DID-based certificate system</strong>
+      Architect a complete issuance and verification workflow using DIDs and VCs for tamper-proof academic credentials.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Ration Card That Travelled 200 km Without You</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>It is 2019. A migrant worker from Darbhanga, Bihar, travels to Delhi for construction work. At the Public Distribution System (PDS) shop in Delhi, he needs subsidised grain. But his ration card - a physical paper - is still registered in Darbhanga. The Delhi shop cannot verify his entitlement; the Bihar database is not linked. He is told, "Go back and get a transfer."</p>
+  <br>
+  <p>Meanwhile, his cousin in Darbhanga uses a photocopy of the same ration card to collect grain twice - once using the original card in Darbhanga, and once using the photocopy at a different shop. By the time the government realises, 600 kg of rice has vanished from the system. <strong>The culprit: a centralised, paper-based identity system that cannot be verified across borders in real time, and can be duplicated.</strong></p>
+  <br>
+  <p>Now imagine the same worker with a <strong>digital identity wallet on his phone</strong>. Inside the wallet is a Verifiable Credential - a digitally signed proof issued by the Bihar Food & Civil Supplies Department - stating: "This person is entitled to 5 kg of rice per month under NFSA, Aadhaar-linked." The Delhi PDS shop scans a QR code. Instantly, the shop's system verifies the cryptographic signature from the Bihar government - <strong>without needing to call a central Bihar server</strong>. The grain is dispensed, and the transaction is recorded on the state blockchain. The credential cannot be duplicated, because the verification requires the holder's private key, and the digital signature from the Issuer (Bihar government) is unforgeable.</p>
+</div>
+
+<p>This is not a utopian fantasy. It is the core of <strong>W3C Decentralised Identifiers (DIDs) and Verifiable Credentials (VCs)</strong> - the global standard for self-sovereign identity. In India, this is already being piloted with DigiLocker, the National Digital Health Mission (ABHA), and blockchain-based academic certificates from IIT Madras. The technology replaces the paper ration card with a cryptographic proof that you control, and that anyone can verify offline or online.</p>
+
+<!-- SECTION 3: BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Centralised Identity to Self-Sovereign Identity</h2>
+<p>Identity systems have evolved through four phases. Understanding this progression is essential to appreciate why DIDs and VCs represent a paradigm shift, not just a tech upgrade.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Centralised Identity (Pre-2000)</div>
+      <div class="feature-desc">A single authority issues and controls identities. Example: A ration card issued by the Food Department - if the department's ledger is lost, your identity vanishes. You cannot reuse the same identity across services. Each service (bank, telco, PDS) creates its own silo.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Federated Identity (2000-2015)</div>
+      <div class="feature-desc">Multiple services rely on a central identity provider. Example: "Login with Google" or "Login with Facebook." Google acts as the central gatekeeper - if Google suspends your account, you lose access to all linked services. Aadhaar authentication works similarly: UIDAI is the central verifier.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--accent);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">User-Centric Identity (2015-2020)</div>
+      <div class="feature-desc">Users consent to share specific attributes, but the identity provider still controls the underlying credentials. Example: DigiLocker - you see your documents, but the issuing authority stores them. You cannot independently prove a document's authenticity without the issuer's server being online.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Self-Sovereign Identity (SSI) - 2020 onwards</div>
+      <div class="feature-desc">You hold cryptographic proofs directly. No central server required for verification. You can prove your age without revealing your birthdate, or prove you are a college graduate without sharing your full mark sheet. DIDs and VCs are the W3C standards that make this possible. <strong>MST Blockchain's identity layer is built on SSI principles, integrating SARAL for non-custodial key management.</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The W3C Connection</div>
+  <p>The World Wide Web Consortium (W3C) published the <strong>DID Core Recommendation</strong> in July 2022 and the <strong>Verifiable Credentials Data Model v1.1</strong> in 2022. These are open, royalty-free standards - the same W3C that gave us HTML and CSS. Any blockchain, including MST, can implement these standards, making identities interoperable across systems, borders, and chains.</p>
+</div>
+
+<!-- SECTION 4: BEGINNER-FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">DIDs and VCs - Like Aadhaar, But You Hold the Proof</h2>
+
+<p>Let's start with a simple analogy. Your physical <strong>Aadhaar card</strong> has a 12-digit number (identifier), your name, date of birth, and a QR code that a shopkeeper can scan to verify your identity - but the verification requires UIDAI's server to respond. If UIDAI's server is down, the shopkeeper cannot verify your Aadhaar.</p>
+
+<p>Now imagine a new kind of Aadhaar - let's call it <strong>"Self-Aadhaar"</strong>. Instead of a 12-digit number assigned by UIDAI, you generate your own identifier - a <strong>Decentralised Identifier (DID)</strong> - that looks like <code>did:mst:0xabc123...def</code>. You store a document (the DID Document) on the MST Blockchain that contains your public key and service endpoints. No central authority issues this identifier; you create it yourself. Then, when a government agency needs to attest that you are over 18, they issue a Verifiable Credential - a digitally signed JSON file - directly to your wallet. The credential says: "The holder of DID:mst:0xabc... is over 18 years old" and is signed by the government's private key. Now, when a wine shop scans your QR code, their app verifies the digital signature using the government's public key (published on-chain) - <strong>all offline, no UIDAI server needed</strong>.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🔑 The Three-Party Trust Triangle</div>
+  <p>Every VC ecosystem involves exactly three roles: <strong>Issuer</strong> (e.g., a university issuing a degree), <strong>Holder</strong> (you, storing the credential in your wallet), and <strong>Verifier</strong> (an employer checking your degree). The Issuer signs the credential; the Holder presents it; the Verifier checks the signature against the Issuer's DID Document on-chain. <strong>Trust is derived from cryptography, not from a phone call to the university.</strong></p>
+</div>
+
+<!-- W5 Grid for DIDs and VCs -->
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why do we need DIDs instead of Aadhaar numbers?</div>
+      <div class="w5-a">Aadhaar numbers are centrally issued and can be revoked or correlated across services. DIDs are <strong>self-generated</strong> and can be <strong>pairwise unique</strong> - you can have a different DID for your bank, your hospital, and your grocery store, preventing cross-service tracking. Moreover, DIDs eliminate the central honey-pot: there is no UIDAI database to breach.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What exactly is a Verifiable Credential?</div>
+      <div class="w5-a">A Verifiable Credential is a tamper-evident, cryptographically signed set of claims about a subject (the DID holder). It follows the W3C data model: <code>@context</code>, <code>type</code>, <code>issuer</code>, <code>issuanceDate</code>, <code>credentialSubject</code>, and a <code>proof</code> object (the digital signature). It can be stored in a mobile wallet and presented as a QR code or JSON-LD file. The credential itself does NOT contain sensitive data - it can use <strong>selective disclosure</strong> (e.g., prove age > 18 without revealing birthdate) via zero-knowledge proofs.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does verification work without a central server?</div>
+      <div class="w5-a">1. The Issuer's DID and public key are recorded on the MST Blockchain. 2. The Issuer signs the VC with its private key. 3. The Holder presents the VC to the Verifier. 4. The Verifier resolves the Issuer's DID from the blockchain, retrieves the public key, and cryptographically verifies the signature - <strong>all without contacting the Issuer's server</strong>. This is called <strong>off-line verification</strong>.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where is this already used in India?</div>
+      <div class="w5-a">• <strong>DigiLocker:</strong> issues digitally signed documents, moving towards DID-based architecture. • <strong>ABHA (Ayushman Bharat Health Account):</strong> uses a 14-digit health ID linked to your Aadhaar; the next phase plans SSI for health records. • <strong>IIT Madras:</strong> issued blockchain-based degree certificates (2022) that can be verified without contacting the institute. • <strong>Co-WIN vaccination certificates:</strong> are digitally signed and can be verified offline - a precursor to full VCs.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the current limitations?</div>
+      <div class="w5-a">DID methods vary widely (some use blockchains, some don't). Interoperability is still maturing - not all wallets support all methods. Key recovery remains a challenge: if you lose your private key, you lose your identity, unless you have a recovery mechanism (like social recovery or SARAL). Also, legal acceptance in India for VC-based proofs vs. physical documents is still evolving.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: TECHNICAL DEEP DIVE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The W3C DID Core & Verifiable Credentials Data Model</h2>
+
+<p>Now we go under the hood. You will encounter DIDs and VCs in almost every modern blockchain application, including MST’s identity layer. Let's dissect the specification.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.1 Decentralised Identifiers (DID)</h3>
+<p>A <strong>DID</strong> is a globally unique identifier that does not require a centralised registration authority. It is a URI conforming to the generic format:</p>
+<div class="diagram-wrap">
+  <pre>did:example:123456789abcdefghi
+│   │       │
+│   │       └── method‑specific identifier
+│   └── DID method name (identifies the DID method, e.g., "mst", "ethr", "key", "web")
+└── scheme (always "did")</pre>
+</div>
+<p>The <strong>DID method</strong> specifies how the DID is created, resolved, updated, and deactivated. For example, <code>did:mst:0x...</code> uses the MST Blockchain as the verifiable data registry. <code>did:key:z6Mk...</code> is a self-contained method where the identifier is derived directly from the public key (no blockchain needed).</p>
+<p>Every DID resolves to a <strong>DID Document</strong> - a JSON-LD document containing:</p>
+<ul style="margin:0 0 16px 20px; color:var(--ink-2); font-size:15px;">
+  <li><code>id</code> - the DID itself</li>
+  <li><code>verificationMethod</code> - public keys and their types (e.g., Ed25519VerificationKey2020)</li>
+  <li><code>authentication</code> - which keys can authenticate as the DID subject</li>
+  <li><code>service</code> - endpoints for interacting with the DID subject (e.g., a credential-exchange endpoint)</li>
+  <li><code>assertionMethod</code> - keys authorised to issue Verifiable Credentials</li>
+  <li><code>keyAgreement</code> - keys for encrypted communication</li>
+</ul>
+<p>On the MST Blockchain, a DID Document can be stored on-chain or referenced via a smart contract registry. SARAL Protocol uses a DID method that ties a biometric-derived key pair to a <code>did:mst:</code> identifier, enabling non-custodial key recovery.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.2 Verifiable Credentials (VC) Data Model</h3>
+<p>A Verifiable Credential is structured as follows (simplified W3C JSON-LD):</p>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.1-A · Structure of a Verifiable Credential</div>
+  <pre>{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1"
+  ],
+  "id": "http://university.edu/credentials/1872",
+  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
+  "issuer": "did:mst:0xabc123...university",
+  "issuanceDate": "2025-08-15T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:mst:0xdef456...student",
+    "degree": {
+      "type": "Bachelor of Technology",
+      "name": "Computer Science"
+    }
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-08-15T10:00:00Z",
+    "verificationMethod": "did:mst:0xabc123...university#keys-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z5hTJ...signaturebase64url"
+  }
+}</pre>
+  <div class="diagram-caption">The `proof` object contains the digital signature. The Verifier can validate it using the public key from the Issuer's DID Document. The credential is self-contained: no need to phone the university.</div>
+</div>
+
+<p><strong>Selective Disclosure and Zero-Knowledge Proofs:</strong> A full VC can be presented as a whole. But advanced implementations use <strong>BBS+ signatures</strong> or ZK-SNARKs to allow the Holder to derive a <strong>subset proof</strong>. For example, from a degree credential, the Holder can prove "I graduated in 2025" without revealing the exact degree name or marks. This is how you prove you are above 18 without revealing your birthdate.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.3 The Issuance & Verification Flow</h3>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.1-B · VC Lifecycle: Issuance to Verification</div>
+  <pre>
+  ┌─────────┐         1. Issues VC                ┌──────────────┐
+  │ ISSUER  │ ──────────────────────────────────▶ │   HOLDER     │
+  │ (Univ)  │  Signs credential with its private   │ (Student)    │
+  └────┬────┘  key. Writes DID Doc on‑chain.       └──────┬───────┘
+       │                                                    │
+       │  DID Document published on MST Blockchain          │
+       │  (public keys, service endpoints)                  │ 2. Presents VC
+       │                                                    │    (QR code or JSON)
+       │                                                    │
+       │                                                    ▼
+       │                                            ┌──────────────┐
+       └──────────────────────────────────────────▶ │  VERIFIER    │
+             3. Verifier resolves Issuer's DID      │  (Employer)  │
+             from MST, retrieves public key,        └──────────────┘
+             verifies proof.
+  </pre>
+  <div class="diagram-caption">The Issuer's DID Document is the trust anchor. The Verifier never contacts the Issuer. This is off-line, cryptographically secure identity verification.</div>
+</div>
+
+<h3 style="font-size:18px; margin-top:28px;">5.4 DID Methods in Practice</h3>
+<table class="compare-table">
+  <thead>
+    <tr><th>DID Method</th><th>Registry</th><th>Key Features</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>did:key</code></td><td>No registry (self-contained)</td><td>Identifier derived from public key. Simplest method, ideal for ephemeral DIDs. No blockchain cost.</td></tr>
+    <tr><td><code>did:ethr</code></td><td>Ethereum (or EVM chains)</td><td>Uses Ethereum addresses as DIDs; DID Document stored on-chain via a registry contract. MST supports a similar <code>did:mst</code> method.</td></tr>
+    <tr><td><code>did:web</code></td><td>HTTPS domain</td><td>DID Document hosted at <code>https://example.com/.well‑known/did.json</code>. Legacy-friendly but centralised.</td></tr>
+    <tr><td><code>did:indy</code></td><td>Hyperledger Indy ledger</td><td>Purpose-built for SSI; supports ZKP-enabled credentials (AnonCreds). Used by Sovrin network.</td></tr>
+    <tr><td><code>did:mst</code> (proposed)</td><td>MST Blockchain</td><td>Register DID Documents via a smart contract; integrates with SARAL for key recovery; supports ZK-proofs via WASMify.</td></tr>
+  </tbody>
+</table>
+
+<p>MST’s SARAL Protocol implements a <code>did:mst</code> method where the DID Document is stored on-chain and updated only via a threshold signature scheme derived from biometric authentication. This ensures that even if a user loses their device, they can recover their DID without a seed phrase - by proving their identity using SARAL’s secure enclave-backed recovery flow.</p>
+
+<!-- SECTION 6: REAL WORLD CASE STUDIES -->
+<div class="section-label">06 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Indian Implementations & The MST Vision</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">DigiLocker - The World's Largest Digital Document Wallet</div>
+      <div class="feature-desc">DigiLocker has over 270 million users and stores 7.5 billion documents. Currently, documents are digitally signed by issuers (e.g., CBSE marksheet), but verification often requires checking with the issuer's server. The next architecture, "DigiLocker 2.0", is exploring <strong>W3C VC standards</strong> - making documents self-verifiable. Once a VC is in your DigiLocker wallet, any third party can verify it offline. MST's identity layer can provide the underlying DID registry for such a system, with SARAL enabling biometric-based wallet access.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🩺</div>
+    <div class="feature-content">
+      <div class="feature-title">ABHA (Health ID) - Verifiable Health Records</div>
+      <div class="feature-desc">The Ayushman Bharat Health Account assigns a 14-digit unique health ID. In the current implementation, health records are linked via consent managers, but the records themselves are stored in centralised Health Information Exchanges. With SSI, a patient could hold a VC stating "vaccinated against COVID-19 on 15/08/2025" without revealing their full health history. The doctor verifies the VC's signature - all without accessing a central health database. MST's ZK-based privacy features can enable selective disclosure: prove you are vaccinated without revealing which vaccine or where.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🎓</div>
+    <div class="feature-content">
+      <div class="feature-title">IIT Madras - Blockchain Degree Certificates</div>
+      <div class="feature-desc">In 2022, IIT Madras issued blockchain-verified degree certificates to its graduating batch. The certificate is essentially a Verifiable Credential stored on Ethereum (and could be bridged to MST). Any employer can verify the certificate by checking the digital signature against IIT Madras's DID on-chain. <strong>No phone calls, no email to the registrar.</strong> This eliminates fake degree rackets. MST’s WASMify can further enrich this: a Verifier can run an on-chain check that the credential hasn't been revoked, using a revocation registry smart contract.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--accent);">🏢</div>
+    <div class="feature-content">
+      <div class="feature-title">MST’s SARAL + DID Integration - Bank Account Opening</div>
+      <div class="feature-desc">Imagine opening a bank account entirely online. Instead of uploading your Aadhaar PDF and waiting for KYC verification, you present a Verifiable Credential from UIDAI (or a regulated issuer) stating "this DID holder's name is X, and their Aadhaar number is linked". The bank verifies the signature using UIDAI's public DID. The entire process takes seconds. SARAL ensures the user never sees a seed phrase - they just authenticate with fingerprint, and the wallet generates the DID and signs the presentation. This is the MST vision for India's Digital Personal Data Protection Act (DPDPA) compliant identity layer.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: DESIGNING A DID‑BASED CERTIFICATE SYSTEM (hands‑on thinking) -->
+<div class="section-label">07 &nbsp; Applied Design Exercise</div>
+<h2 class="section-title">Designing an MST-Powered Academic Certificate System</h2>
+
+<p>Let's walk through a practical scenario. <strong>Problem:</strong> Fake academic certificates cost the Indian economy ₹40,000 crore annually. A university wants to issue tamper-proof, instantly verifiable degree certificates using DIDs and VCs on the MST Blockchain. You are the blockchain architect. What do you build?</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Step 1: DID Registry on MST</div>
+      <div class="feature-desc">Deploy a smart contract that acts as a DID Registry. The university creates a <code>did:mst:univ123</code> and writes its DID Document (public keys, service endpoints) onto the registry. Each graduating student also generates a DID (using SARAL wallet) - no personal data on-chain, only the DID and public key.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Step 2: Credential Issuance</div>
+      <div class="feature-desc">The university's system creates a VC following the W3C schema: issuer = university DID, subject = student DID, degree details, and signs it with the university's private key. The VC is sent to the student's wallet. The university also records a hash of the credential on-chain (for revocation status).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Step 3: Verification by Employer</div>
+      <div class="feature-desc">The student shares the VC (as a QR code or file). The employer's app resolves the university DID from MST, retrieves the public key, and verifies the signature. It also checks the on-chain revocation registry: is this credential still valid? The entire verification takes under 2 seconds, works offline (after DID resolution), and doesn't require the university's server.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Step 4: Privacy & Selective Disclosure</div>
+      <div class="feature-desc">Optionally, use ZK-proofs (via WASMify) so the student can prove "I have a B.Tech degree from an AICTE-approved institution" without revealing their exact CGPA or even their name. This is the gold standard of privacy-preserving identity.</div>
+    </div>
+  </div>
+</div>
+
+<p>This exact architecture is what you would describe in the assessment's descriptive design question.</p>
+
+<!-- SECTION 8: ASSESSMENT PREPARATION -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">DID format:</div><div class="feature-desc"><code>did:method:method‑specific‑id</code>. The method defines how the DID is resolved. DID Documents contain verification methods, authentication, and services.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">W3C VC Data Model roles:</div><div class="feature-desc">Issuer (signs), Holder (stores and presents), Verifier (checks signature). Trust is derived from the Issuer's DID Document, not from a central server.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Self-Sovereign Identity (SSI) principles:</div><div class="feature-desc">Existence, Control, Access, Transparency, Persistence, Portability, Interoperability, Consent, Minimisation, Protection.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Indian digital identity stack:</div><div class="feature-desc">Aadhaar (unique ID), DigiLocker (document wallet), ABHA (health ID), DEPA (consent framework). SSI adds portability and cryptographic verifiability without central server dependency.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">MST's SARAL Protocol:</div><div class="feature-desc">Provides non-custodial DID generation and key recovery using biometrics and secure enclaves. No seed phrases. Integrates with <code>did:mst</code> method for on-chain DID Documents.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">06</div><div class="feature-content"><div class="feature-title">Verifiable Presentation:</div><div class="feature-desc">A Holder can combine multiple VCs into a single presentation, signed by the Holder's DID, to prove a set of claims to a Verifier without revealing the raw credentials if ZK is used.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 16.1 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">15</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">8 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 8 marks total</div>
+    </div>
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following best describes a Decentralised Identifier (DID)?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>A unique ID issued by a central authority like UIDAI</li>
+        <li class="correct"><span class="opt-key">B</span>A globally unique, self-sovereign URI that resolves to a DID Document and requires no central registration authority ✅</li>
+        <li><span class="opt-key">C</span>An email address used as a username on a blockchain</li>
+        <li><span class="opt-key">D</span>A hash of a public key stored in a central database</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>DIDs are self-generated, not issued by a central body. They follow the W3C standard and resolve to a DID Document that contains public keys. Option A describes a centralised ID; C is not a DID; D describes a hash but misses the resolution mechanism.</p>
+      </div>
+    </div>
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the W3C Verifiable Credentials model, who signs the credential?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>The Issuer ✅</li>
+        <li><span class="opt-key">B</span>The Holder</li>
+        <li><span class="opt-key">C</span>The Verifier</li>
+        <li><span class="opt-key">D</span>The Blockchain Validator</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The Issuer creates and signs the VC using its private key. The Holder stores it, and the Verifier checks the signature. The blockchain validator is not involved in signing credentials.</p></div>
+    </div>
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which component contains the public keys for verifying a DID subject's signatures?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The Verifiable Credential proof block</li>
+        <li class="correct"><span class="opt-key">B</span>The DID Document ✅</li>
+        <li><span class="opt-key">C</span>The Smart Contract wallet</li>
+        <li><span class="opt-key">D</span>The genesis block</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The DID Document, retrieved by resolving the DID, contains verification methods (public keys). The proof block contains the signature; the DID Document contains the key to verify it.</p></div>
+    </div>
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What advantage does a Verifiable Credential have over a traditional digitally signed PDF certificate?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>It is always cheaper to issue</li>
+        <li class="correct"><span class="opt-key">B</span>It can be verified offline using the Issuer's DID Document on a blockchain, without contacting the Issuer's server ✅</li>
+        <li><span class="opt-key">C</span>It cannot be revoked</li>
+        <li><span class="opt-key">D</span>It contains no personally identifiable information</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The key advantage is offline verifiability via a public DID registry. A VC can be revoked (through a revocation registry), may still contain PII (unless ZK is used), and cost depends on the blockchain. A PDF signature typically requires checking the issuer's certificate authority online.</p></div>
+    </div>
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which Indian government platform currently stores digitally signed documents and is evolving towards W3C Verifiable Credentials?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>UMANG</li>
+        <li><span class="opt-key">B</span>Co-WIN</li>
+        <li class="correct"><span class="opt-key">C</span>DigiLocker ✅</li>
+        <li><span class="opt-key">D</span>e-Hospital</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C</div><p>DigiLocker issues digitally signed documents and is actively exploring W3C VC standards for offline verification. Co-WIN issues certificates but is not a general document wallet.</p></div>
+    </div>
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which W3C standard defines the data model for Verifiable Credentials?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>DID Core</li>
+        <li class="correct"><span class="opt-key">B</span>Verifiable Credentials Data Model v1.1 ✅</li>
+        <li><span class="opt-key">C</span>JSON Web Signature</li>
+        <li><span class="opt-key">D</span>Solid Protocol</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The W3C Verifiable Credentials Data Model specifies the structure and proof mechanisms for VCs. DID Core deals with identifiers.</p></div>
+    </div>
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In MST’s SARAL Protocol, how does a user create a DID without managing a seed phrase?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The DID is derived from the user's Aadhaar number</li>
+        <li class="correct"><span class="opt-key">B</span>SARAL uses biometric-based secure enclaves to generate and recover keys, which are then used to form a DID ✅</li>
+        <li><span class="opt-key">C</span>The MST validator generates the DID on behalf of the user</li>
+        <li><span class="opt-key">D</span>The DID is hardcoded in the BridgeKey wallet</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>SARAL provides non-custodial key generation via biometrics and secure enclaves, never exposing a seed phrase. The DID is derived from the user's public key, but the key itself is generated using SARAL’s recovery mechanism.</p></div>
+    </div>
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of an `assertionMethod` in a DID Document?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>To authenticate the DID subject during login</li>
+        <li><span class="opt-key">B</span>To encrypt messages for the DID subject</li>
+        <li class="correct"><span class="opt-key">C</span>To specify which keys are authorised to issue Verifiable Credentials on behalf of the DID subject ✅</li>
+        <li><span class="opt-key">D</span>To list service endpoints</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C</div><p><code>assertionMethod</code> lists the verification methods that can be used to assert claims (i.e., issue VCs). <code>authentication</code> is for login; <code>keyAgreement</code> for encryption; <code>service</code> for endpoints.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question &nbsp;·&nbsp; 2 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Verifiable Credentials eliminate the need for a central identity authority because the credential itself contains all the information required for verification."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this:</div>
+        <div class="tf-sample">
+          <strong>FALSE.</strong> While the VC contains the cryptographic proof, the Verifier still needs to <strong>resolve the Issuer's DID</strong> to obtain the public key necessary to verify the signature. The Issuer's DID Document is typically stored on a verifiable data registry (e.g., the MST Blockchain). Thus, there is still a trust anchor - but it is a <strong>decentralised registry</strong>, not a central authority. The verification does not require contacting the Issuer's server, but it does require access to the DID Document. The phrase "contains all the information" is misleading because the public key is external to the credential.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that the Verifier must resolve the Issuer's DID Document to obtain the public key, and that this document is on a registry (blockchain) - not self-contained. Mentions that the registry is decentralised, not a central authority.</p>
+      </div>
+    </div>
+
+    <!-- SECTION C: DESCRIPTIVE DESIGN -->
+    <div class="q-section-header"><div class="q-section-title">Section C - Descriptive Design Question</div><div class="q-section-meta">1 Question &nbsp;·&nbsp; 5 marks</div></div>
+    <div class="question-block" style="padding-bottom:28px;">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">
+        Design a Decentralised Identity and Verifiable Credential system for <strong>Indian driving licences</strong> using the MST Blockchain. Your answer must include:<br>
+        (a) The DID method and how the RTO (Regional Transport Office) and the citizen create DIDs. (2 marks)<br>
+        (b) The structure of the driving licence VC (key fields and the proof type). (1 mark)<br>
+        (c) How a traffic police officer verifies the licence without internet connectivity, and how revocation works if the licence is suspended. (2 marks)
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📝 Model Answer Outline</div>
+        <p>
+          <strong>(a) DID Creation:</strong> The RTO creates a DID <code>did:mst:rto‑ka‑01</code> and writes its DID Document (with an <code>assertionMethod</code> key) to the MST DID Registry smart contract. The citizen generates a DID using SARAL wallet (<code>did:mst:citizen‑xyz</code>) - no personal data on-chain. (2 marks)
+        </p>
+        <p>
+          <strong>(b) VC Structure:</strong> The RTO issues a VC with type <code>DrivingLicenceCredential</code>, issuer = RTO DID, subject = citizen DID, claims: { licenceNumber, vehicleClass, validFrom, validTo }. The proof is an <code>Ed25519Signature2020</code> signed with the RTO's private key. (1 mark)
+        </p>
+        <p>
+          <strong>(c) Offline Verification & Revocation:</strong> The officer's device resolves the RTO DID from the MST chain (or a cached copy of the DID Document). The officer scans the QR code; the app verifies the signature using the RTO's public key from the DID Document. <strong>No internet needed</strong> for signature verification after initial DID resolution. For revocation, the RTO maintains a <strong>Revocation Registry smart contract</strong> on MST. When a licence is suspended, the RTO adds the VC's ID to the revocation list. The officer's app (which can sync the revocation list periodically) checks if the credential ID is revoked. (2 marks)
+        </p>
+        <div class="marks-bd"><span>Total 5 marks:</span> (a) 2 marks for DID creation & method; (b) 1 mark for VC structure; (c) 2 marks for offline verification & revocation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 16.1 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × Descriptive Design <span>(5 marks) = 5 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">15</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Decentralised Identifier (DID)</div><div class="glossary-def">A W3C standard, self-sovereign, globally unique URI that resolves to a DID Document containing public keys and service endpoints.</div></div>
+  <div class="glossary-item"><div class="glossary-term">DID Document</div><div class="glossary-def">A JSON-LD file containing cryptographic material (verification methods), authentication, and services associated with a DID.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Verifiable Credential (VC)</div><div class="glossary-def">A tamper-evident, cryptographically signed set of claims about a subject, following the W3C VC Data Model.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Issuer</div><div class="glossary-def">The entity that creates and signs a VC, asserting claims about a subject. Its public key is recorded in its DID Document.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Holder</div><div class="glossary-def">The entity that receives and stores VCs, typically in a digital wallet, and can present them to verifiers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Verifier</div><div class="glossary-def">The party that checks the authenticity of a VC by verifying the Issuer's signature against the Issuer's DID Document.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Self-Sovereign Identity (SSI)</div><div class="glossary-def">An identity model where individuals control their own identifiers and credentials without relying on a central authority.</div></div>
+  <div class="glossary-item"><div class="glossary-term">DigiLocker</div><div class="glossary-def">India's national digital document wallet, evolving towards W3C VC standards for offline verifiable documents.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SARAL Protocol</div><div class="glossary-def">MST's non-custodial key management protocol that uses biometrics and secure enclaves to generate and recover DIDs without seed phrases.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Revocation Registry</div><div class="glossary-def">A smart contract or list that records revoked VC IDs, enabling verifiers to check if a credential is still valid.</div></div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.1</strong> &nbsp;·&nbsp; Next: Sub-Module 16.2 - MST's AI & Identity Security →</p>
+</div>
+</body>
+</html>

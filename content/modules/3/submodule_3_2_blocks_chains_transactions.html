@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.2 - Blocks, Chains & Transactions | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand:#6C3CE2; --brand-light:#EDE9FB; --brand-dark:#3C1FA0; --brand-mid:#8B5CF6;
+    --accent:#F6A623; --accent-light:#FEF4E0;
+    --green:#16A34A; --green-light:#DCFCE7;
+    --red:#DC2626; --red-light:#FEE2E2;
+    --blue:#1D6FD8; --blue-light:#DBEAFE;
+    --orange:#EA580C; --orange-light:#FFEDD5;
+    --teal:#0D9488; --teal-light:#CCFBF1;
+    --ink:#111827; --ink-2:#374151; --ink-3:#6B7280; --ink-4:#9CA3AF;
+    --border:#E5E7EB; --border-2:#D1D5DB;
+    --surface:#F9FAFB; --surface-2:#F3F4F6; --white:#FFFFFF;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    --radius:10px; --radius-sm:6px; --radius-lg:16px; --radius-xl:22px;
+    --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:0 4px 12px rgba(0,0,0,0.10),0 2px 4px rgba(0,0,0,0.06);
+  }
+  body { font-family:var(--sans); color:var(--ink); background:#fff; line-height:1.75; font-size:16px; max-width:880px; margin:0 auto; padding:48px 32px 100px; }
+
+  .module-badge { display:inline-flex; align-items:center; gap:8px; background:var(--brand-light); color:var(--brand-dark); font-size:11.5px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:20px; }
+  .module-title { font-size:clamp(28px,4vw,40px); font-weight:900; line-height:1.15; color:var(--ink); margin-bottom:12px; letter-spacing:-0.02em; }
+  .module-title .highlight { color:var(--brand); }
+  .module-subtitle { font-size:17px; color:var(--ink-3); font-weight:400; margin-bottom:28px; line-height:1.65; max-width:680px; }
+  .meta-bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:52px; padding-bottom:32px; border-bottom:2px solid var(--border); }
+  .meta-chip { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-size:13px; font-weight:500; color:var(--ink-2); }
+  .meta-chip.purple { background:var(--brand-light); border-color:#C4B5F5; color:var(--brand-dark); }
+  .meta-chip.green  { background:var(--green-light);  border-color:#86EFAC; color:#14532D; }
+  .meta-chip.orange { background:var(--accent-light); border-color:#FCD34D; color:#92400E; }
+
+  .section-label { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--brand); margin-bottom:10px; margin-top:52px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-title { font-size:24px; font-weight:800; color:var(--ink); margin-bottom:18px; letter-spacing:-0.01em; line-height:1.3; }
+
+  p { color:var(--ink-2); margin-bottom:16px; font-size:15.5px; line-height:1.8; }
+  p strong { color:var(--ink); font-weight:700; }
+  p:last-child { margin-bottom:0; }
+  code { font-family:var(--mono); font-size:13px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:2px 6px; color:var(--brand-dark); }
+
+  .callout { border-radius:var(--radius-lg); padding:20px 24px; margin:24px 0; border-left:4px solid; }
+  .callout-label { font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .callout p { font-size:15px; margin:0; }
+  .callout.story   { background:#FAFAF5; border-color:var(--accent); }
+  .callout.story .callout-label { color:#92400E; }
+  .callout.key     { background:var(--brand-light); border-color:var(--brand); }
+  .callout.key .callout-label { color:var(--brand-dark); }
+  .callout.warning { background:var(--red-light); border-color:var(--red); }
+  .callout.warning .callout-label { color:var(--red); }
+  .callout.insight { background:var(--teal-light); border-color:var(--teal); }
+  .callout.insight .callout-label { color:var(--teal); }
+  .callout.analogy { background:var(--accent-light); border-color:var(--accent); }
+  .callout.analogy .callout-label { color:#92400E; }
+
+  .obj-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .obj-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .obj-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .obj-text { font-size:14px; color:var(--ink-2); line-height:1.55; }
+  .obj-text strong { display:block; color:var(--ink); font-weight:700; font-size:13.5px; margin-bottom:2px; }
+
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px 24px; margin:24px 0; overflow-x:auto; }
+  .diagram-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:20px; text-align:center; }
+  .diagram-wrap pre { font-family:var(--mono); font-size:13px; line-height:1.65; color:var(--ink-2); white-space:pre; margin:0; }
+  .diagram-caption { font-size:12px; color:var(--ink-4); text-align:center; margin-top:16px; font-style:italic; }
+
+  .compare-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px; }
+  .compare-table thead th { padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border-bottom:2px solid var(--border); }
+  .compare-table thead th:first-child  { color:var(--ink-3); background:var(--surface); }
+  .compare-table thead th:nth-child(2) { color:var(--blue);   background:#EFF6FF; }
+  .compare-table thead th:nth-child(3) { color:var(--orange); background:var(--orange-light); }
+  .compare-table tbody tr { border-bottom:1px solid var(--border); }
+  .compare-table tbody tr:hover td { background:var(--surface); }
+  .compare-table tbody td { padding:13px 16px; vertical-align:top; color:var(--ink-2); line-height:1.55; }
+  .compare-table tbody td:first-child { font-weight:600; color:var(--ink); background:var(--surface); }
+  .compare-table .good { color:var(--green); font-weight:600; }
+  .compare-table .bad  { color:var(--red);   font-weight:600; }
+  .compare-table .mid  { color:var(--orange); font-weight:600; }
+
+  .feature-list { display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+  .feature-item { display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .feature-num { width:28px; height:28px; border-radius:50%; background:var(--brand); color:white; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .feature-content { flex:1; }
+  .feature-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .feature-desc  { font-size:14px; color:var(--ink-2); line-height:1.6; }
+
+  /* Block anatomy visual */
+  .block-anatomy { border:2px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin:24px 0; }
+  .block-top { background:var(--brand); color:white; padding:12px 20px; font-size:13px; font-weight:800; letter-spacing:0.05em; text-align:center; }
+  .block-section { border-bottom:1px solid var(--border); }
+  .block-section:last-child { border-bottom:none; }
+  .block-section-header { background:var(--surface-2); padding:10px 20px; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); border-bottom:1px solid var(--border); }
+  .block-field { display:grid; grid-template-columns:180px 1fr; border-bottom:1px solid var(--border); }
+  .block-field:last-child { border-bottom:none; }
+  .block-field-name  { padding:12px 20px; font-family:var(--mono); font-size:13px; font-weight:600; color:var(--brand-dark); background:var(--brand-light); border-right:1px solid #C4B5F5; }
+  .block-field-value { padding:12px 20px; font-size:14px; color:var(--ink-2); line-height:1.5; }
+  .block-field-value strong { color:var(--ink); }
+  .block-field-value .tag { display:inline-block; background:var(--accent-light); color:#92400E; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; margin-left:8px; }
+
+  /* UTXO viz */
+  .utxo-flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:16px 0; }
+  .utxo-coin { background:var(--accent-light); border:1.5px solid var(--accent); border-radius:8px; padding:10px 16px; text-align:center; font-size:13px; font-weight:700; color:#92400E; }
+  .utxo-arrow { font-size:20px; color:var(--ink-3); }
+  .utxo-result { background:var(--green-light); border:1.5px solid var(--green); border-radius:8px; padding:10px 16px; text-align:center; font-size:13px; font-weight:700; color:#14532D; }
+
+  /* Steps */
+  .steps-list { list-style:none; padding:0; margin:20px 0; counter-reset:steps; }
+  .steps-list li { counter-increment:steps; display:flex; gap:14px; margin-bottom:16px; }
+  .steps-list li::before { content:counter(steps); font-family:var(--mono); font-size:12px; font-weight:800; color:white; background:var(--brand); min-width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:3px; }
+  .steps-list li .step-body { font-size:14.5px; color:var(--ink-2); line-height:1.65; }
+  .steps-list li .step-body strong { color:var(--ink); }
+
+  /* Mempool visual */
+  .mempool-box { background:var(--surface); border:2px dashed var(--border-2); border-radius:var(--radius-lg); padding:20px 24px; margin:20px 0; }
+  .mempool-title { font-size:12px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:14px; text-align:center; }
+  .mempool-items { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+  .mempool-tx { background:white; border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:12.5px; color:var(--ink-2); font-family:var(--mono); }
+  .mempool-tx.high { border-color:var(--green); background:var(--green-light); color:#14532D; }
+  .mempool-tx.mid  { border-color:var(--accent); background:var(--accent-light); color:#92400E; }
+
+  /* Glossary */
+  .glossary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .glossary-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+  .glossary-term { font-size:13px; font-weight:700; color:var(--brand); margin-bottom:4px; }
+  .glossary-def  { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+
+  /* Assessment */
+  .assessment-section { margin-top:64px; }
+  .assessment-header { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .assessment-header h2 { font-size:20px; font-weight:800; color:white; }
+  .marks-total-badge { background:white; border-radius:10px; padding:10px 20px; text-align:center; flex-shrink:0; }
+  .marks-total-badge .num   { font-size:32px; font-weight:900; color:var(--brand); line-height:1; }
+  .marks-total-badge .label { font-size:10px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; }
+  .assessment-body { border:2px solid var(--border); border-top:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); overflow:hidden; }
+  .q-section-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .q-section-title { font-size:13px; font-weight:700; color:var(--ink); }
+  .q-section-meta  { font-size:12px; color:var(--ink-3); }
+  .question-block { padding:28px 28px 0; border-bottom:1px solid var(--border); }
+  .question-block:last-child { border-bottom:none; padding-bottom:28px; }
+  .q-header { display:flex; gap:10px; align-items:flex-start; margin-bottom:14px; }
+  .q-badge { background:var(--brand); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; white-space:nowrap; letter-spacing:0.04em; flex-shrink:0; margin-top:1px; }
+  .q-meta  { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .q-type  { font-size:11.5px; font-weight:600; color:var(--ink-3); }
+  .q-diff  { font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:4px; }
+  .q-diff.easy   { background:var(--green-light);  color:#14532D; }
+  .q-diff.medium { background:var(--accent-light); color:#92400E; }
+  .q-diff.hard   { background:var(--red-light);    color:#7F1D1D; }
+  .q-marks { font-size:12px; color:var(--ink-3); margin-left:auto; font-weight:500; flex-shrink:0; }
+  .q-text { font-size:15.5px; font-weight:600; color:var(--ink); margin-bottom:18px; line-height:1.6; }
+  .options { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:8px; }
+  .options li { display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14.5px; color:var(--ink-2); line-height:1.5; }
+  .options li.correct { border-color:var(--green); background:var(--green-light); color:var(--ink); }
+  .opt-key { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--ink-3); flex-shrink:0; margin-top:1px; min-width:18px; }
+  .options li.correct .opt-key { color:var(--green); }
+  .answer-box { background:var(--green-light); border:1.5px solid #86EFAC; border-radius:var(--radius); padding:18px 20px; margin-bottom:28px; }
+  .answer-box-label { font-size:10.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--green); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .answer-box p { font-size:14.5px; color:var(--ink-2); line-height:1.7; margin:0; }
+  .answer-box p strong { color:var(--ink); }
+  .answer-box .marks-bd { margin-top:12px; padding-top:10px; border-top:1px solid #86EFAC; font-size:13px; color:#14532D; }
+  .answer-box .marks-bd span { font-weight:700; }
+
+  /* Identify output question */
+  .identify-box { background:var(--surface-2); border:1.5px solid var(--border-2); border-radius:var(--radius); padding:16px 20px; margin-bottom:16px; font-family:var(--mono); font-size:13.5px; color:var(--ink-2); line-height:1.7; }
+  .identify-label { font-size:10.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:8px; }
+
+  .score-summary { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg); padding:28px 32px; margin-top:40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+  .score-left {}
+  .score-label { color:#C4B5F5; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+  .score-row   { color:white; font-size:15px; font-weight:600; margin-bottom:4px; }
+  .score-row span { color:#C4B5F5; font-weight:400; }
+  .score-badge { background:white; border-radius:12px; padding:16px 28px; text-align:center; flex-shrink:0; }
+  .score-badge .score-num  { font-size:44px; font-weight:900; color:var(--brand); line-height:1; }
+  .score-badge .score-text { font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+
+  .page-footer { text-align:center; margin-top:64px; padding-top:32px; border-top:2px solid var(--border); }
+  .page-footer p { font-size:13px; color:var(--ink-3); margin-bottom:4px; }
+
+  .tf-box { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .tf-verdict { display:inline-block; font-size:13px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 14px; border-radius:6px; margin-bottom:10px; }
+  .tf-verdict.false { background:var(--red-light); color:#7F1D1D; }
+  .tf-verdict.true  { background:var(--green-light); color:#14532D; }
+  .tf-must-write { font-size:11.5px; font-weight:700; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; }
+  .tf-sample { font-size:14.5px; color:var(--ink-2); line-height:1.7; border-left:3px solid var(--brand); padding-left:12px; }
+
+  @media(max-width:640px){
+    body{padding:28px 18px 72px;}
+    .obj-grid,.glossary-grid{grid-template-columns:1fr;}
+    .module-title{font-size:26px;}
+    .block-field{grid-template-columns:1fr;}
+    .block-field-name{border-right:none;border-bottom:1px solid #C4B5F5;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="module-badge">🎓 Module 3 &nbsp;·&nbsp; Sub-Module 3.2 of 9</div>
+<h1 class="module-title">Blocks, Chains <span class="highlight">&amp; Transactions</span></h1>
+<p class="module-subtitle">What exactly goes inside a block? How do blocks link into a chain? And why does Bitcoin work like physical cash while Ethereum works like a bank account? All of it - from the inside out.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 6 MCQ + 1 Identify-Output (UTXO)</div>
+  <div class="meta-chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     01. LEARNING OBJECTIVES
+══════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧱</div>
+    <div class="obj-text">
+      <strong>Describe the complete anatomy of a block</strong>
+      Name and explain every field in a block header and understand what the block body contains.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Explain how blocks form a chain</strong>
+      Understand the role of PrevHash and why it makes the chain tamper-evident.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💸</div>
+    <div class="obj-text">
+      <strong>Differentiate UTXO vs Account Model</strong>
+      Explain why Bitcoin uses physical-cash-style UTXOs while Ethereum and MST use bank-balance-style accounts.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📮</div>
+    <div class="obj-text">
+      <strong>Trace a transaction's full lifecycle</strong>
+      Follow a transaction from creation in your wallet all the way to confirmation in a block.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     02. REAL WORLD STORY
+══════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The UPI Payment vs. The Bitcoin UTXO - Two Ways to Send Money</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>You want to send ₹500 to your friend Priya. You open Google Pay, type her number, enter ₹500, and hit send. Done in 3 seconds. Behind the scenes, the NPCI (National Payments Corporation of India) server simply looked up two numbers: your account balance went from ₹5,000 to ₹4,500. Priya's went from ₹2,000 to ₹2,500. Two numbers changed. That's it. This is the <strong>account model</strong>.</p>
+  <br>
+  <p>Now imagine you're paying with physical cash. You have a ₹500 note and a ₹200 note in your wallet. To pay Priya ₹500, you hand over the ₹500 note. You get no change because it's exact. But to pay Rahul ₹300, you hand over your ₹200 note - that's not enough, so you also use the ₹500 note - get ₹400 change back. Each note has a <strong>unique identity</strong>. You consume some notes, create new ones. This is the <strong>UTXO model</strong> - and this is exactly how Bitcoin works.</p>
+  <br>
+  <p>But here's the question nobody asks: <strong>where do all these transactions actually live?</strong> They don't float in the air. They are packaged into containers - called <strong>blocks</strong> - that are sealed, stamped, and linked into a permanent chain. This sub-module opens up those containers and shows you everything inside.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     03. ANATOMY OF A BLOCK
+══════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Technical Deep Dive - The Anatomy of a Block</div>
+<h2 class="section-title">What Is Actually Inside a Block?</h2>
+
+<p>A block is a container with two distinct parts: a <strong>Header</strong> (the metadata - like the label on a postal package) and a <strong>Body</strong> (the actual contents - the transactions). Let's dissect each field precisely.</p>
+
+<div class="block-anatomy">
+  <div class="block-top">⬡ BLOCK #847,293 &nbsp;·&nbsp; Bitcoin Network &nbsp;·&nbsp; Mined: 2024-01-15 10:42:07 UTC</div>
+
+  <div class="block-section">
+    <div class="block-section-header">BLOCK HEADER - Metadata</div>
+    <div class="block-field">
+      <div class="block-field-name">Previous Hash</div>
+      <div class="block-field-value"><strong>0x0000000000000000000a7f3c...</strong> <span class="tag">🔗 The Chain</span><br>The cryptographic fingerprint (SHA-256 hash) of the previous block. This is what creates the "chain" - every block points backwards to its parent. Change any block and this reference breaks.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Merkle Root</div>
+      <div class="block-field-value"><strong>0xab12f3e9c7d8...</strong> <span class="tag">📋 TX Summary</span><br>A single hash that summarises ALL transactions in this block. If even one transaction is altered, the Merkle Root changes. Allows light clients (mobile wallets) to verify transactions without downloading the full block. (Covered deeply in 3.8.)</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Timestamp</div>
+      <div class="block-field-value"><strong>1705315327</strong> (Unix epoch = 2024-01-15 10:42:07 UTC)<br>When the miner/validator produced this block. Used to adjust mining difficulty and prevent future-dating attacks.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Nonce</div>
+      <div class="block-field-value"><strong>3,847,291</strong> <span class="tag">⛏️ PoW Answer</span><br>In Proof of Work, miners try billions of nonce values until the resulting block hash falls below the difficulty target. This is the "answer" the miner found. In PoS chains (Ethereum, MST), the nonce is repurposed as a transaction counter.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Difficulty / Target</div>
+      <div class="block-field-value"><strong>0x00000000000000000003A30C...</strong><br>The current mining difficulty target. The block hash must be numerically smaller than this target to be valid. Difficulty adjusts every 2,016 blocks (~2 weeks) in Bitcoin to maintain the 10-minute average block time.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Version</div>
+      <div class="block-field-value"><strong>0x20000000</strong><br>Protocol version. Used to signal support for new features or soft fork activations. Validators use this to know which rule set applies to this block.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">Block Hash (own)</div>
+      <div class="block-field-value"><strong>0x00000000000000000001a2b3...</strong> <span class="tag">🆔 This Block's ID</span><br>Computed from all the above header fields. Not stored in the header itself - it is computed by every node independently. The next block will include this as its PrevHash.</div>
+    </div>
+  </div>
+
+  <div class="block-section">
+    <div class="block-section-header">BLOCK BODY - Transaction List</div>
+    <div class="block-field">
+      <div class="block-field-name">Coinbase TX</div>
+      <div class="block-field-value"><strong>Block reward: 3.125 BTC → Miner's address</strong><br>The first transaction in every block. Created by the miner - no sender, only a recipient. This is how new Bitcoin enters circulation. Bitcoin's current reward (post-2024 halving) is 3.125 BTC per block.</div>
+    </div>
+    <div class="block-field">
+      <div class="block-field-name">TX #2…#3,500</div>
+      <div class="block-field-value"><strong>User transactions</strong> - transfers of value, smart contract calls, token swaps<br>Each transaction contains: Sender address, Recipient address, Amount, Gas fee, Digital signature proving authorisation, Nonce (replay protection). Average Bitcoin block: ~2,000 - 3,500 transactions. Ethereum: ~100 - 300 (heavier TXs). MST: 4,000+ TPS capacity.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Chain Is Made of One Field</div>
+  <p>The entire "chain" property of blockchain comes from <strong>one field: PrevHash</strong>. Each block header stores the hash of the previous block. This creates an unbreakable sequence - like a DNA chain where each link carries genetic code from its parent. Alter any block, its hash changes, and every subsequent block's PrevHash reference becomes invalid - instantly detectable by all nodes.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     04. TRANSACTION LIFECYCLE
+══════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Transaction Lifecycle</div>
+<h2 class="section-title">From Your Wallet to the Blockchain - A Transaction's Journey</h2>
+
+<p>A common misconception is that a transaction is "sent" directly to the blockchain. In reality, it passes through several stages. Understanding this is critical for building dApps - many bugs come from not understanding transaction finality.</p>
+
+<ol class="steps-list">
+  <li>
+    <div class="step-body">
+      <strong>You create and sign the transaction.</strong> In your BridgeKey wallet (or MetaMask), you specify: recipient address, amount, gas limit, and gas price. Your wallet uses your <em>private key</em> to create a digital signature - mathematical proof that you authorised this and nobody else could have. The private key never leaves your device. (Signatures are covered in Module 4.)
+    </div>
+  </li>
+  <li>
+    <div class="step-body">
+      <strong>Broadcast to the peer-to-peer network.</strong> Your signed transaction is sent to one or more nearby nodes (like sending a WhatsApp message to a group - it propagates outward). Each node that receives it checks: Is the signature valid? Does the sender have sufficient balance? Is the nonce correct? Valid transactions are stored and forwarded. Invalid ones are dropped silently.
+    </div>
+  </li>
+  <li>
+    <div class="step-body">
+      <strong>Waiting in the Mempool (Memory Pool).</strong> Every node maintains a <em>mempool</em> - a waiting room of valid but unconfirmed transactions. Think of it as the queue at a government office. All transactions sit here until a validator or miner picks them up. Higher gas fees get priority - like paying for fast-track processing.
+    </div>
+  </li>
+  <li>
+    <div class="step-body">
+      <strong>Selected by a validator/miner.</strong> The node producing the next block selects transactions from the mempool - typically choosing the highest-fee transactions first (maximising their revenue). On MST (Trika POSA), the Cabinet validator whose turn it is selects transactions and assembles the block.
+    </div>
+  </li>
+  <li>
+    <div class="step-body">
+      <strong>Included in a block and propagated.</strong> The new block containing your transaction is assembled: header fields are filled, the Merkle Root is computed from all included transactions, and (in PoW) the nonce is found. The completed block is broadcast to the entire network.
+    </div>
+  </li>
+  <li>
+    <div class="step-body">
+      <strong>Confirmed - the transaction is final.</strong> Other nodes verify the block (check all transactions are valid, block hash is correct, PrevHash matches) and add it to their chain. Your transaction is now permanently recorded. On MST: ~3 seconds. On Ethereum: ~12 seconds. On Bitcoin: ~10 minutes. More blocks built on top = higher "confirmations" = lower risk of reversal.
+    </div>
+  </li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.2-A · Full Transaction Lifecycle - From Wallet to Block</div>
+  <pre>
+  YOUR WALLET                NETWORK NODES                  BLOCKCHAIN
+  ──────────────────────     ────────────────────────────    ──────────────────
+        │                           │                              │
+        │  ① Create TX              │                              │
+        │  (To, Amount, Gas)        │                              │
+        │                           │                              │
+        │  ② Sign with Private Key  │                              │
+        │  → TX Hash: 0xabc...def   │                              │
+        │                           │                              │
+        ├─── BROADCAST TX ─────────►│                              │
+        │                           │                              │
+        │                    ③ Validate TX                         │
+        │                    ✓ Signature valid?                    │
+        │                    ✓ Balance sufficient?                 │
+        │                    ✓ Nonce correct?                      │
+        │                           │                              │
+        │                    ④ Add to MEMPOOL                      │
+        │                    ┌──────────────────┐                  │
+        │                    │  High fee TX  🟢 │ ← picked first   │
+        │                    │  High fee TX  🟢 │                  │
+        │                    │  Mid  fee TX  🟡 │                  │
+        │                    │  Low  fee TX  🔴 │ ← waits longer   │
+        │                    └──────────────────┘                  │
+        │                           │                              │
+        │                    ⑤ Validator picks TXs                 │
+        │                    Assembles Block N+1                   │
+        │                    Computes Merkle Root                  │
+        │                           │                              │
+        │                           ├── BROADCAST BLOCK ──────────►│
+        │                           │                              │
+        │                           │                       ⑥ Block verified
+        │                           │                       & added to chain
+        │                           │                              │
+        │◄── CONFIRMATION ──────────┤◄─────────────────────────────┤
+        │    "TX confirmed in        │                              │
+        │     Block #847,293"        │                              │
+  </pre>
+  <div class="diagram-caption">A transaction is not instantly recorded - it travels through creation, signing, broadcast, mempool queuing, block inclusion, and finally confirmation.</div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Why Gas Fees Exist - The IndiGo Priority Boarding Analogy</div>
+  <p>The mempool is like an airport check-in queue. Everyone wants to board (get their transaction confirmed). The plane (block) has limited seats (~3,500 transactions for Bitcoin, more for MST). Validators are the airlines - they pick passengers who paid for priority boarding (higher gas fee) first. When demand is high (e.g., during a popular NFT mint), gas fees spike because everyone is competing for the same limited seats. On MST, with 4,000+ TPS capacity, this congestion problem is dramatically reduced.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     05. UTXO vs ACCOUNT MODEL
+══════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; UTXO vs Account Model - The Two Philosophies of Money</div>
+<h2 class="section-title">How Bitcoin Tracks Money vs How Ethereum (and MST) Track Money</h2>
+
+<p>This is one of the most important conceptual distinctions in blockchain. The two models represent fundamentally different answers to the question: <em>"What does it mean to 'have' digital money?"</em></p>
+
+<div class="callout analogy">
+  <div class="callout-label">🔑 The Core Analogy</div>
+  <p><strong>UTXO (Bitcoin):</strong> Think of physical cash. You have a ₹500 note, a ₹200 note, and a ₹100 note. Total: ₹800. Each note has a unique identity. To pay ₹300, you hand over the ₹200 + ₹100 notes - those notes are "consumed" (spent) and a new "note" of change is created.<br><br><strong>Account Model (Ethereum, MST):</strong> Think of a Paytm or bank account. You have a balance: ₹800. To pay ₹300, the system subtracts ₹300 from your balance and adds ₹300 to the recipient's balance. No individual "notes" - just a number that changes.</p>
+</div>
+
+<h3 style="font-size:18px; font-weight:800; color:var(--ink); margin:28px 0 16px;">UTXO (Unspent Transaction Output) - Bitcoin's Model</h3>
+
+<p><strong>UTXO</strong> stands for <strong>Unspent Transaction Output</strong>. In Bitcoin, your "wallet balance" is not actually stored anywhere as a single number. Instead, Bitcoin tracks discrete "coins" - outputs of previous transactions that have not yet been spent.</p>
+
+<p>When Priya received 0.3 BTC from Ravi last Tuesday, that creates a UTXO: a specific output worth 0.3 BTC, associated with Priya's address. When she wants to spend it, she must use the entire UTXO as an <em>input</em> to a new transaction - and create new UTXOs as outputs (payment to recipient + change back to herself).</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.2-B · UTXO Transaction - How Bitcoin Cash "Flows"</div>
+  <pre>
+  PRIYA'S UTXO SET (her "wallet"):
+  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+  │ UTXO-A          │  │ UTXO-B          │  │ UTXO-C          │
+  │ From: Ravi      │  │ From: Employer  │  │ From: Amazon    │
+  │ Value: 0.30 BTC │  │ Value: 0.20 BTC │  │ Value: 0.10 BTC │
+  └─────────────────┘  └─────────────────┘  └─────────────────┘
+  Total "balance" = 0.60 BTC (sum of all UTXOs she controls)
+
+  PRIYA WANTS TO PAY RAHUL 0.40 BTC (network fee: 0.01 BTC)
+  Total required: 0.41 BTC
+
+  OPTION: Use UTXO-A (0.30) + UTXO-B (0.20) = 0.50 BTC as INPUTS
+
+  ┌─────────────────┐
+  │ TRANSACTION     │
+  │                 │
+  │ INPUTS:         │
+  │  UTXO-A: 0.30   │──── CONSUMED (destroyed) ─────────────────────┐
+  │  UTXO-B: 0.20   │──── CONSUMED (destroyed) ────────────────────┐ │
+  │                 │                                              │ │
+  │ OUTPUTS:        │                                              ▼ ▼
+  │  0.40 → Rahul   │────────────────────────────► NEW UTXO: 0.40 BTC (Rahul's)
+  │  0.09 → Priya   │────────────────────────────► NEW UTXO: 0.09 BTC (change back)
+  │  0.01 → Miner   │────────────────────────────► NEW UTXO: 0.01 BTC (fee)
+  │                 │
+  │ SUM IN = SUM OUT│  0.30 + 0.20 = 0.40 + 0.09 + 0.01 ✅
+  └─────────────────┘
+
+  UTXO-C (0.10 BTC) is UNTOUCHED — still in Priya's UTXO set
+  </pre>
+  <div class="diagram-caption">In UTXO model, "spending" means consuming existing UTXOs as inputs and creating new UTXOs as outputs. Old UTXOs are destroyed; new ones are created. The sum of inputs must always equal the sum of outputs (including fees).</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:800; color:var(--ink); margin:28px 0 16px;">Account Model - Ethereum &amp; MST's Approach</h3>
+
+<p>Ethereum, and MST (as an EVM-compatible chain), use the <strong>account model</strong>. This is conceptually simpler: every address has a stored balance. A transaction simply <em>decrements</em> the sender's balance and <em>increments</em> the recipient's balance by the specified amount.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.2-C · Account Model - How Ethereum / MST Track Balances</div>
+  <pre>
+  GLOBAL STATE (think: the world's most public ledger)
+  ┌────────────────────────────────────────────────────┐
+  │  Address           Balance     Nonce               │
+  │  ──────────────────────────────────────────────    │
+  │  0xRavi...         5.00 ETH    Tx count: 42        │
+  │  0xPriya...        2.30 ETH    Tx count: 18        │
+  │  0xRahul...        0.80 ETH    Tx count: 7         │
+  │  0xContract...     100 ETH     (smart contract)    │
+  └────────────────────────────────────────────────────┘
+
+  RAVI SENDS 1 ETH TO PRIYA (gas fee: 0.01 ETH)
+         │
+         ▼
+  ┌────────────────────────────────────────────────────┐
+  │  AFTER TRANSACTION:                                 │
+  │  0xRavi...         3.99 ETH    Nonce: 43  ← +1     │
+  │  0xPriya...        3.30 ETH    Nonce: 18            │
+  │  Validator...      +0.01 ETH   (fee collected)      │
+  └────────────────────────────────────────────────────┘
+
+  Simple arithmetic. No "notes" or UTXOs.
+  State is updated globally with every block.
+  </pre>
+  <div class="diagram-caption">The account model maintains a global state - a giant ledger of every address and its current balance. Transactions modify this state by adjusting balances. The "Nonce" prevents replay attacks - each transaction must have a nonce exactly one higher than the previous one from that address.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:800; color:var(--ink); margin:28px 0 16px;">Side-by-Side Comparison</h3>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>🟠 UTXO (Bitcoin)</th>
+      <th>🟣 Account Model (Ethereum / MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mental model</td>
+      <td>Physical cash - discrete notes with unique identities</td>
+      <td>Bank account - a single balance number per address</td>
+    </tr>
+    <tr>
+      <td>Where is balance stored?</td>
+      <td>Nowhere as a single number - computed by summing all unspent outputs</td>
+      <td>Stored directly as a field in the global state trie</td>
+    </tr>
+    <tr>
+      <td>Privacy</td>
+      <td class="good">Higher - can use fresh output address for each TX</td>
+      <td class="mid">Lower - one address, full history publicly visible</td>
+    </tr>
+    <tr>
+      <td>Smart contract support</td>
+      <td class="bad">Very difficult - no shared mutable state</td>
+      <td class="good">Natural - contracts have their own account with balance &amp; storage</td>
+    </tr>
+    <tr>
+      <td>Parallel processing</td>
+      <td class="good">Easier - UTXOs from different wallets are independent</td>
+      <td class="mid">Harder - global state creates ordering dependencies</td>
+    </tr>
+    <tr>
+      <td>Replay attack prevention</td>
+      <td class="good">UTXOs can only be spent once by design</td>
+      <td class="good">Account nonce - each TX must increment nonce by exactly 1</td>
+    </tr>
+    <tr>
+      <td>Complexity for developers</td>
+      <td class="bad">High - must track which UTXOs to consume</td>
+      <td class="good">Low - just read balance, check approval, send</td>
+    </tr>
+    <tr>
+      <td>Real-world analogy</td>
+      <td>₹500 note, ₹200 note - each note is unique</td>
+      <td>Paytm wallet balance - just a number that changes</td>
+    </tr>
+    <tr>
+      <td>Used by</td>
+      <td>Bitcoin, Litecoin, Bitcoin Cash, Dogecoin</td>
+      <td class="good">Ethereum, MST, Polygon, BNB Chain, Avalanche C-Chain</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Why MST Uses the Account Model</div>
+  <p>MST is EVM-compatible and uses the account model - specifically because it's designed for <strong>smart contracts, DeFi, gaming, and enterprise applications</strong>. The account model makes it trivial to write code like: "IF delivery confirmed THEN transfer ₹500." With UTXOs, this kind of programmable logic is extremely difficult to implement. The account model's simplicity is precisely what enabled Ethereum's smart contract ecosystem - and MST inherits all of it.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     06. ARCHITECTURE DIAGRAM — CHAIN OF BLOCKS
+══════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture - The Chain Structure</div>
+<h2 class="section-title">How Blocks Link Together to Form the Chain</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.2-D · The Complete Block Chain - Header Fields Linking Each Block to the Next</div>
+  <pre>
+  GENESIS BLOCK (#0)            BLOCK #1                      BLOCK #2
+  ┌──────────────────────┐      ┌──────────────────────┐      ┌──────────────────────┐
+  │ PrevHash: 0000000000 │      │ PrevHash: A1B2C3D4...│◄─┐   │ PrevHash: E5F6G7H8...│◄─┐
+  │ MerkleRoot: 4a7f...  │      │ MerkleRoot: 9c3b...  │  │   │ MerkleRoot: 2d8e...  │  │
+  │ Timestamp: 03Jan2009 │      │ Timestamp: ...        │  │   │ Timestamp: ...        │  │
+  │ Nonce: 2,083,236,893 │      │ Nonce: 1,639,876     │  │   │ Nonce: 4,912,003     │  │
+  │                      │      │                      │  │   │                      │  │
+  │ TRANSACTIONS:        │      │ TRANSACTIONS:        │  │   │ TRANSACTIONS:        │  │
+  │ Coinbase: 50 BTC     │      │ Coinbase: 50 BTC     │  │   │ Coinbase: 50 BTC     │  │
+  │ (Satoshi only)       │      │ TX: Satoshi→Hal:10   │  │   │ TX: ...              │  │
+  │                      │      │ TX: ...              │  │   │                      │  │
+  │ Block Hash: A1B2C3D4 │──────┼──────────────────────┘  │   │ Block Hash: I9J0K1   │
+  └──────────────────────┘      │ Block Hash: E5F6G7H8 │───┘   └──────────────────────┘
+                                └──────────────────────┘
+         Block #0 hash                Block #1 hash                Block #2 hash
+         becomes Block #1's           becomes Block #2's           becomes Block #3's
+         PrevHash                     PrevHash                     PrevHash
+
+  ──────────────────────────────────────────────────────────────────────────────────────
+  KEY INSIGHT: The hash of each block is computed FROM its header fields.
+  Since PrevHash is one of those fields, every block's hash depends on its parent's hash.
+  This creates an unbreakable temporal ordering — you cannot insert a block between
+  existing blocks, and you cannot modify any historical block without recomputing
+  every subsequent block hash. At Bitcoin's scale, this is computationally impossible.
+  ──────────────────────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="diagram-caption">The chain is not just a metaphor - it is a cryptographic data structure where every block provably contains and depends on every prior block.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     07. MEMPOOL DEEP DIVE
+══════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; The Mempool - The Blockchain's Waiting Room</div>
+<h2 class="section-title">Why Transactions Don't Confirm Instantly</h2>
+
+<p>The mempool (Memory Pool) is a temporary data store on each node for transactions that have been validated but not yet included in a block. It is the most misunderstood part of blockchain by beginners - and the source of the most user confusion.</p>
+
+<div class="mempool-box">
+  <div class="mempool-title">🏊 MEMPOOL - Current Unconfirmed Transactions (Illustrative)</div>
+  <div class="mempool-items">
+    <div class="mempool-tx high">Ravi → Priya: 0.5 BTC | Fee: 50 sat/vB 🟢</div>
+    <div class="mempool-tx high">Anita → Contract: Swap USDT | Fee: 45 sat/vB 🟢</div>
+    <div class="mempool-tx mid">Rahul → Exchange: 0.2 ETH | Fee: 25 sat/vB 🟡</div>
+    <div class="mempool-tx mid">Ali → Priya: 0.1 BTC | Fee: 20 sat/vB 🟡</div>
+    <div class="mempool-tx">John → Mary: 0.05 BTC | Fee: 5 sat/vB 🔴</div>
+    <div class="mempool-tx">Sita → Exchange: Tiny TX | Fee: 2 sat/vB 🔴</div>
+  </div>
+  <p style="text-align:center; margin-top:14px; font-size:13px; color:var(--ink-3);">🟢 = High fee = Gets into next block &nbsp;·&nbsp; 🟡 = Medium = Waits 1-2 blocks &nbsp;·&nbsp; 🔴 = Low = May wait hours</p>
+</div>
+
+<p>During times of high network activity (a popular NFT launch, a market crash triggering mass trading), the mempool fills up with thousands of pending transactions. Miners/validators only include the highest-fee transactions in each block. Low-fee transactions can wait hours or even days. This is why gas fee estimators exist - they help you bid enough to get confirmed quickly without overpaying.</p>
+
+<div class="callout insight">
+  <div class="callout-label">💡 MST's Solution to the Mempool Problem</div>
+  <p>Because MST uses Trika POSA with 4,000+ TPS capacity, the mempool rarely fills up. A standard block produces in 3 seconds, and with high throughput, most transactions are confirmed within one block. The gas fees on MST are deliberately kept low to enable retail and gaming use cases - making it practical for everyday transactions like a Swiggy delivery payment confirmation triggering on-chain.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     08. REAL WORLD CASE STUDIES
+══════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Blocks and Transactions in the Wild</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">₿</div>
+    <div class="feature-content">
+      <div class="feature-title">Bitcoin Block #170 - The First Ever Bitcoin Transaction</div>
+      <div class="feature-desc">On 12 January 2009, Satoshi Nakamoto sent 10 BTC to Hal Finney - the first person-to-person Bitcoin transaction in history. This transaction exists in Block #170. You can look it up on blockchain.com right now - the exact inputs, outputs, amounts, and timestamp, permanently preserved. This is the power of the append-only ledger: 15 years later, that transaction is still there, unchanged, freely verifiable by anyone on Earth.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">🍕</div>
+    <div class="feature-content">
+      <div class="feature-title">The ₹52 Crore Pizza - UTXO in Action</div>
+      <div class="feature-desc">On 22 May 2010, programmer Laszlo Hanyecz paid 10,000 BTC for two pizzas - the first known commercial Bitcoin transaction. He consumed UTXOs worth 10,000 BTC as inputs. New UTXOs were created: the pizza seller received 10,000 BTC. At Bitcoin's peak (November 2021, ~$69,000/BTC), those pizzas were worth $690 million (~₹57 crore). This transaction is permanently recorded in the Bitcoin blockchain and is now called "Bitcoin Pizza Day" (22 May). Every year it is verifiable.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--brand);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">MST Gaming - Every Card Deal in a Block</div>
+      <div class="feature-desc">On MST, when a poker game begins using the SatvaShuffle protocol, the deck commitment (a hash of the shuffled deck) is submitted as a transaction and included in a block. Every player can see the commitment before any cards are dealt. After the game, the actual deck is revealed - players can verify the commitment matches. This entire verification happens through transactions in blocks. The block timestamp proves the commitment was made before the game started - making post-hoc cheating impossible.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     09. ASSESSMENT PREP
+══════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Header Fields (Must Memorise)</div>
+      <div class="feature-desc">PrevHash (creates the chain), Merkle Root (summarises all TXs), Timestamp, Nonce (PoW answer), Version, Difficulty/Target. The block's own hash is computed FROM these fields - it is not stored in the header.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">UTXO = Unspent Transaction Output</div>
+      <div class="feature-desc">Bitcoin's model. Your balance = sum of all UTXOs you control. To spend, you consume UTXOs as inputs and create new UTXOs as outputs. Inputs must equal outputs (plus fee). Each UTXO can only be spent once.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Account Model = Ethereum / MST</div>
+      <div class="feature-desc">Each address has a stored balance (like a Paytm wallet). Transactions decrement sender and increment recipient. A "nonce" (transaction counter) prevents replay attacks. The nonce must increment by exactly 1 for each transaction from the same address.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">The Mempool</div>
+      <div class="feature-desc">The temporary pool of valid, unconfirmed transactions on each node. Validators/miners select transactions from the mempool - prioritising by gas fee. High demand = high fees. Low demand = cheap and fast.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Coinbase Transaction</div>
+      <div class="feature-desc">The FIRST transaction in every block. Has no inputs (no sender). Creates new currency out of thin air - the block reward. This is the only way new BTC (or MSTC) enters circulation.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">06</div>
+    <div class="feature-content">
+      <div class="feature-title">Why UTXO Is Better for Privacy</div>
+      <div class="feature-desc">In UTXO model, you can use a fresh address for every transaction's change output - making it harder to link your complete transaction history. In the account model, your address is persistent and your entire history is permanently visible.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     ASSESSMENT
+══════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 3.2 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">6 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 6 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Which field in a block header creates the "chain" by linking each block to the one before it?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Timestamp</li>
+        <li><span class="opt-key">B</span> Merkle Root</li>
+        <li class="correct"><span class="opt-key">C</span> Previous Hash (PrevHash) ✅</li>
+        <li><span class="opt-key">D</span> Nonce</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>The <strong>Previous Hash</strong> field stores the cryptographic hash of the preceding block. This is what makes it a <em>chain</em> - each block provably and mathematically references its parent. Changing any block changes its hash, which breaks this reference in the next block, cascading an invalidation through every subsequent block. The Merkle Root summarises the transactions within the block, the Timestamp records when it was mined, and the Nonce is the PoW puzzle answer - none of these create the chain linking.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">UTXO stands for:</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Universal Token eXchange Output</li>
+        <li class="correct"><span class="opt-key">B</span> Unspent Transaction Output ✅</li>
+        <li><span class="opt-key">C</span> Unified Transfer eXchange Operation</li>
+        <li><span class="opt-key">D</span> Unverified Transaction Origin</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p><strong>Unspent Transaction Output</strong>. In Bitcoin's model, when you receive Bitcoin, you don't receive a "balance update" - you receive a specific output from a previous transaction that hasn't been spent yet. This is a UTXO. Your total wallet "balance" is simply the sum of all UTXOs your private key can spend. Options A, C, and D are fabricated acronyms designed as distractors.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Priya has 3 UTXOs: 0.3 BTC, 0.2 BTC, and 0.1 BTC. She wants to send 0.4 BTC to Rahul (network fee: 0.01 BTC). Which combination of UTXOs should she use as inputs, and what change does she receive?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Use only 0.3 BTC UTXO; receive 0.1 BTC change</li>
+        <li class="correct"><span class="opt-key">B</span> Use 0.3 BTC + 0.2 BTC UTXOs; receive 0.09 BTC change ✅</li>
+        <li><span class="opt-key">C</span> Use all three UTXOs; receive 0.19 BTC change</li>
+        <li><span class="opt-key">D</span> Use only the 0.1 BTC UTXO repeated 5 times</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>Total required = 0.40 BTC (payment) + 0.01 BTC (fee) = <strong>0.41 BTC</strong>. Only the 0.3 BTC UTXO (Option A) is insufficient (only 0.30 BTC). Using 0.3 + 0.2 = 0.50 BTC: send 0.40 to Rahul, 0.01 to miner = 0.50 − 0.41 = <strong>0.09 BTC change</strong> back to Priya. Option C (all three = 0.60 BTC) works but is wasteful - creates a larger UTXO change. Option D is impossible - UTXOs are discrete units, you cannot "use the same UTXO multiple times."</p>
+        <div class="marks-bd"><span>Examiner note:</span> This is the classic UTXO arithmetic question. Always check: inputs ≥ payment + fee. Change = inputs − payment − fee.</div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Where do valid, signed transactions wait before being included in a block?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Genesis Pool</li>
+        <li><span class="opt-key">B</span> State Trie</li>
+        <li class="correct"><span class="opt-key">C</span> Mempool (Memory Pool) ✅</li>
+        <li><span class="opt-key">D</span> Block Header</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>The <strong>Mempool</strong> (Memory Pool) is the temporary holding area on each node for transactions that have been validated (signature correct, balance sufficient, nonce correct) but not yet included in a confirmed block. Validators/miners select from the mempool - usually prioritising by gas fee - to assemble each new block. The State Trie is Ethereum's data structure for account balances. Block Headers contain metadata, not pending transactions. "Genesis Pool" does not exist.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">MST Blockchain uses which transaction model?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Account model (like Ethereum) - each address has a stored balance ✅</li>
+        <li><span class="opt-key">B</span> UTXO model (like Bitcoin) - discrete unspent outputs</li>
+        <li><span class="opt-key">C</span> A hybrid of UTXO and Account model</li>
+        <li><span class="opt-key">D</span> Neither - MST uses its own proprietary model</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: A - Explanation</div>
+        <p>MST is <strong>EVM-compatible</strong> (Ethereum Virtual Machine compatible), meaning it inherits Ethereum's architecture - including the account model. Every address on MST has a balance field in the state trie, and transactions adjust balances through arithmetic operations. This is what makes it possible for Solidity smart contracts (written for Ethereum) to run unchanged on MST. The UTXO model is used by Bitcoin-family coins.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q6</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">The Merkle Root in a block header serves what primary purpose?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> It stores the hash of the previous block to create the chain</li>
+        <li class="correct"><span class="opt-key">B</span> It is a single cryptographic summary of all transactions in the block, enabling fraud detection and light-client verification ✅</li>
+        <li><span class="opt-key">C</span> It records the wallet address of the block's creator (validator/miner)</li>
+        <li><span class="opt-key">D</span> It stores the solution to the Proof-of-Work puzzle</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>The <strong>Merkle Root</strong> is a single 32-byte hash that summarises ALL transactions in the block. It is computed by hashing pairs of transaction hashes repeatedly (a Merkle tree) until one root hash remains. Two critical functions: (1) If any transaction in the block is altered, the Merkle Root changes - tamper detection. (2) A mobile wallet (light client) can verify that a specific transaction is in a block by only downloading the Merkle Root + a short "proof path" - without downloading all 3,000+ transactions. Option A describes PrevHash. Option D describes the Nonce (PoW answer).</p>
+      </div>
+    </div>
+
+    <!-- SECTION B -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - Identify-Output: UTXO Arithmetic</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 4 marks</div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q7</div>
+        <div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff medium">Medium</span><span class="q-marks">4 marks</span></div>
+      </div>
+      <div class="q-text">Arjun has the following UTXOs in his Bitcoin wallet:<br><br>
+        &nbsp;&nbsp;• UTXO-X: 0.50 BTC<br>
+        &nbsp;&nbsp;• UTXO-Y: 0.30 BTC<br>
+        &nbsp;&nbsp;• UTXO-Z: 0.15 BTC<br><br>
+        He wants to send <strong>0.60 BTC to Kavya</strong>. The network fee is <strong>0.01 BTC</strong>.<br><br>
+        (a) What is the total amount required for this transaction? <em>(1 mark)</em><br>
+        (b) Which UTXOs must Arjun use as inputs? Justify why he cannot use UTXO-X alone. <em>(1 mark)</em><br>
+        (c) List all the outputs this transaction creates and their amounts. <em>(1 mark)</em><br>
+        (d) After this transaction completes, list Arjun's remaining UTXO set. <em>(1 mark)</em>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer - 4 Marks</div>
+        <p><strong>(a) Total amount required:</strong><br>
+        Payment to Kavya: 0.60 BTC + Network fee: 0.01 BTC = <strong>0.61 BTC total required as inputs</strong>.</p>
+        <br>
+        <p><strong>(b) UTXOs to use and justification:</strong><br>
+        Arjun must use <strong>UTXO-X (0.50 BTC) + UTXO-Y (0.30 BTC)</strong> = 0.80 BTC total inputs.<br>
+        He cannot use UTXO-X alone because 0.50 BTC < 0.61 BTC required — insufficient to cover both the payment and fee. In the UTXO model, each UTXO must be used entirely (you cannot "partially" spend a UTXO), so he must combine UTXOs to meet or exceed the total requirement. UTXO-X + UTXO-Z = 0.65 BTC would also work — accept either valid combination with correct reasoning.</p>
+        <br>
+        <p><strong>(c) Transaction outputs:</strong><br>
+        Using UTXO-X + UTXO-Y (0.80 BTC input):<br>
+        • Output 1: <strong>0.60 BTC → Kavya's address</strong> (the payment)<br>
+        • Output 2: <strong>0.19 BTC → Arjun's own address</strong> (change: 0.80 − 0.60 − 0.01 = 0.19)<br>
+        • Output 3: <strong>0.01 BTC → Miner/Validator</strong> (the network fee)<br>
+        Total outputs: 0.60 + 0.19 + 0.01 = 0.80 BTC ✅ (equals total inputs)</p>
+        <br>
+        <p><strong>(d) Arjun's remaining UTXO set after the transaction:</strong><br>
+        • UTXO-Z: <strong>0.15 BTC</strong> (untouched - was not used as input)<br>
+        • New change UTXO: <strong>0.19 BTC</strong> (created as output from this transaction)<br>
+        Total remaining balance: 0.15 + 0.19 = <strong>0.34 BTC</strong></p>
+        <div class="marks-bd"><span>1 mark each for:</span> correct total (a), correct input selection + justification (b), correct three outputs with amounts (c), correct remaining UTXO set (d).</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 3.2 Assessment Summary</div>
+      <div class="score-row">Section A: 6 × MCQ <span>(1 mark each) = 6 marks</span></div>
+      <div class="score-row">Section B: 1 × Identify-Output UTXO Problem <span>= 4 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 3.2</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Block Header</div>
+    <div class="glossary-def">The metadata section of a block containing: PrevHash, Merkle Root, Timestamp, Nonce, Version, and Difficulty. The block's own hash is computed from these fields.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Block Body</div>
+    <div class="glossary-def">The section of a block containing the actual list of transactions, starting with the Coinbase transaction followed by user transactions ordered by fee.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">UTXO (Unspent Transaction Output)</div>
+    <div class="glossary-def">Bitcoin's model of tracking value. Discrete "coins" output by previous transactions that have not yet been spent. Your balance = sum of all UTXOs your keys control.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Account Model</div>
+    <div class="glossary-def">Ethereum/MST's approach: each address has a stored balance field. Transactions deduct from sender and add to recipient - like a bank account number.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Mempool (Memory Pool)</div>
+    <div class="glossary-def">A temporary holding area on each node for valid but unconfirmed transactions. Validators select from the mempool - higher gas fees get priority.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Coinbase Transaction</div>
+    <div class="glossary-def">The first transaction in every block. Has no inputs - it creates new currency (the block reward) out of thin air, paid to the miner/validator.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Nonce (Block)</div>
+    <div class="glossary-def">In PoW: the number miners repeatedly adjust to find a valid block hash. In account model: a per-address transaction counter preventing replay attacks.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Merkle Root</div>
+    <div class="glossary-def">A single hash summarising all transactions in a block. If any transaction is altered, the Merkle Root changes. Enables light-client transaction verification without downloading the full block.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Transaction Confirmation</div>
+    <div class="glossary-def">A transaction is "confirmed" once it is included in a block. Each additional block built on top is another "confirmation" - more confirmations = lower risk of reversal.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Replay Attack</div>
+    <div class="glossary-def">An attack where a valid signed transaction is maliciously rebroadcast. Prevented in UTXO model by nature (spent UTXOs cannot be reused) and in account model by the nonce.</div>
+  </div>
+</div>
+
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.2</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.3 - Cryptographic Hashing →</p>
+</div>
+
+</body>
+</html>

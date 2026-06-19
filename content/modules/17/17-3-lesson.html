@@ -1,0 +1,319 @@
+
+
+<div class="module-badge">⚛️ Module 17 &nbsp;·&nbsp; Sub-Module 17.3 of 3</div>
+<h1 class="module-title">Security Audit of <span class="highlight">Your Capstone</span></h1>
+<p class="module-subtitle">
+  Turn your code into a fortress. Run Slither, Mythril, and manual review to uncover hidden bugs - then produce a professional audit report that would convince any VC your smart contracts are safe.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 50 Marks</div>
+  <div class="meta-chip blue">🛡️ Practical Audit Report</div>
+  <div class="meta-chip orange">Slither · Mythril · Echidna</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text"><strong>Run automated security analysis on any Solidity project</strong>Install and execute Slither and Mythril, interpret their output, and prioritise findings.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text"><strong>Identify common vulnerabilities in your own capstone</strong>Spot reentrancy, unchecked external calls, integer issues, and access control flaws using static analysis.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📝</div>
+    <div class="obj-text"><strong>Write a professional-grade audit report</strong>Document each vulnerability with severity, description, exploit scenario, and remediation.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛠️</div>
+    <div class="obj-text"><strong>Apply fixes and re-audit</strong>Learn the iterative security loop: audit → fix → verify with tools → regression test.</div>
+  </div>
+</div>
+
+<!-- 02 REAL WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DeFi Protocol That Audited Itself to Sleep - and Woke Up Rich</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>A few months after the quantum-ready deployment (story from 17.2), BharatFi’s CTO Ananya faces a new challenge. Her lending protocol holds over ₹500 crore in stablecoin deposits. The codebase is now feature-complete, but she knows that invisible bugs can drain every rupee in seconds. The DeFi graveyard is littered with unaudited protocols - over $3.8 billion lost in 2023 alone.</p>
+  <br>
+  <p>Ananya’s team runs Slither across 22 smart contract files. Within seconds, Slither flags a missing access control on the <code>setInterestRate()</code> function - a bug that would let anyone manipulate loan rates and drain the reserves. Mythril discovers a deeper path: an external call inside a loop that could be exploited via reentrancy, stealing collateral. The team then writes an Echidna invariant test that continuously fuzzes the liquidation logic, breaking it 14 times overnight.</p>
+  <br>
+  <p>Two weeks later, Ananya presents a 48-page audit report to her investors. It includes every finding, severity ranking, code snippets, exploit simulations, and the exact pull request that fixed each issue. She also attaches a video of the fuzzer catching a new bug in real time. The investors are not just reassured - they increase the funding round by $2 million because they’ve never seen a team this thorough.</p>
+  <br>
+  <p>When BharatFi launches, it passes two external audits without a single high-severity finding. The protocol has remained un-hacked for five years. That’s the power of treating security auditing as a core development skill - not an afterthought.</p>
+</div>
+
+<!-- 03 WHY AUDITING MATTERS -->
+<div class="section-label">03 &nbsp; Why Auditing Matters</div>
+<h2 class="section-title">The Economic Reality of Smart Contract Bugs</h2>
+<p>Smart contracts are immutable and often handle millions of dollars. Unlike Web2 applications, a single bug cannot be patched with a server update - it requires a complex governance proposal, a migration of funds, or, in the worst case, a hard fork. The cost of a single missed vulnerability can be existential. Automated analysis tools don’t replace human reasoning, but they dramatically increase the surface area of bugs you can find before an attacker does.</p>
+<p>Real-world audits have revealed critical flaws in multi-billion-dollar protocols: the Poly Network hack ($610M) stemmed from a privilege escalation bug; the Wormhole bridge exploit ($326M) was a signature verification bypass; the Euler Finance attack ($197M) exploited a missing health-factor check. In every case, a thorough audit - especially one that combined static analysis with manual reasoning - would likely have prevented the loss. As a developer graduating from this program, you are not just writing code; you are responsible for assets that may one day exceed your entire net worth. Internalizing audit discipline now protects both your users and your career.</p>
+<p>Moreover, investors and grant committees increasingly require audit reports before releasing funds. An MST scaleGrant review explicitly checks whether the applicant has performed a self-audit and engaged a third party. Your capstone audit report is therefore not just an assignment - it is a launchpad for real funding.</p>
+
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-value">$3.8B</div>
+    <div class="stat-label">Lost in DeFi hacks in 2023 (CertiK data)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">82%</div>
+    <div class="stat-label">of exploits involve unaudited or poorly audited contracts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">Massive</div>
+    <div class="stat-label">spike in audit requests after major exploits - often too late</div>
+  </div>
+</div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ The Uncomfortable Truth</div>
+  <p>No tool catches every bug. Slither and Mythril can detect many common vulnerability patterns, but they cannot replace expert human review. They will flag syntactic issues and known patterns, yet subtle logic bugs - like an incorrect fee calculation or a misaligned economic incentive - require a developer’s deep understanding of the protocol’s intended behavior. This sub-module teaches you to combine automated tools with manual reasoning, the same methodology used by firms like Trail of Bits and OpenZeppelin.</p>
+</div>
+
+<!-- 04 TOOLING SETUP -->
+<div class="section-label">04 &nbsp; Setting Up Your Audit Toolkit</div>
+<h2 class="section-title">Slither, Mythril &amp; Echidna: Your Automated Security Squad</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Slither - Static Analysis for Solidity</div>
+      <div class="feature-desc">
+        <p>Developed by Trail of Bits, Slither is the industry-standard static analyzer for Solidity. It parses the abstract syntax tree (AST) and builds a control-flow graph, enabling it to detect reentrancy, uninitialized storage variables, shadowed variables, unsafe low-level calls, and many other bug classes. Because it works directly on Solidity code without executing transactions, Slither returns results almost instantly - perfect for a CI/CD pipeline.</p>
+        <p>Slither’s detector library is extensive. Each detector targets a specific vulnerability: <code>reentrancy-eth</code>, <code>unchecked-lowlevel</code>, <code>missing-zero-check</code>, <code>suicidal</code>, <code>arbitrary-send</code>, etc. You can run all detectors with a single command or select a subset. The output includes a description, the exact code lines, and a reference link to a detailed documentation page. It also supports custom plugins, so you can write your own analysis rules for project-specific invariants.</p>
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Mythril - Symbolic Execution &amp; Taint Analysis</div>
+      <div class="feature-desc">
+        <p>Mythril, developed by ConsenSys, takes a different approach: symbolic execution. It translates smart contract bytecode into logical formulas and explores every possible execution path, treating inputs as symbolic variables. When it finds a path that violates a security property (e.g., an assertion failure, a selfdestruct call by an unauthorized user), it generates the exact transaction sequence needed to trigger it.</p>
+        <p>This makes Mythril particularly effective at finding multi-transaction exploits, complex reentrancy across multiple contracts, and integer overflow paths that static analysis might miss. However, symbolic execution is computationally expensive; Mythril may need several minutes per contract, and you sometimes have to tune the timeout and transaction count to avoid endless loops. Still, it is an invaluable complement to Slither.</p>
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Echidna - Property-Based Fuzzing</div>
+      <div class="feature-desc">
+        <p>Echidna, also from Trail of Bits, flips the script: instead of looking for specific known bugs, it lets you define <strong>invariants</strong> (e.g., “totalSupply never exceeds initialSupply,” “only the owner can withdraw,” “the sum of all user balances equals the contract’s balance”). Then it generates random sequences of valid transactions - deposits, withdrawals, transfers, liquidations - and checks whether any sequence breaks your invariants.</p>
+        <p>Fuzzing is brutally effective at finding edge cases that neither static analysis nor human review would ever consider. Echidna supports assertion-checking, custom property functions, and even symbolic execution integration. While it is optional for this sub-module, I strongly encourage you to try it on your capstone’s core financial logic; many production protocols now run Echidna campaigns daily as part of their CI.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout code">
+  <div class="callout-label">💻 Installation Commands</div>
+  <pre># Install Slither (requires Python 3.8+)
+pip3 install slither-analyzer
+
+# Install Mythril
+pip3 install mythril
+
+# Install Echidna (via Docker)
+docker pull ghcr.io/crytic/echidna/echidna:latest
+
+# To run Echidna after pulling:
+docker run -it ghcr.io/crytic/echidna/echidna:latest</pre>
+</div>
+<p style="margin-top:12px;">Ensure your system has <code>solc</code> (the Solidity compiler) available in the PATH. Slither and Mythril will invoke the compiler automatically based on the <code>pragma</code> in your contracts. If your project uses multiple compiler versions, ensure you have them installed or use a version manager like <code>solc-select</code>.</p>
+
+<!-- 05 RUNNING SLITHER -->
+<div class="section-label">05 &nbsp; Running Slither on Your Capstone</div>
+<h2 class="section-title">From Source Code to Actionable Bug List in 5 Seconds</h2>
+<p>Navigate to your project’s root directory and run:</p>
+<div class="callout code">
+  <div class="callout-label">💻 Slither Command</div>
+  <pre>slither . --print human-summary</pre>
+</div>
+<p>Slither will compile your contracts (using Hardhat or solc) and output a list of detected issues, each with a severity (High/Medium/Low/Informational) and a reference to the exact line of code.</p>
+<p>Let’s walk through a typical output. Suppose Slither finds a reentrancy in your <code>withdraw</code> function. The report will look like this:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 17.3-A · Sample Slither Output - Reentrancy Detected</div>
+  <pre>  INFO:Detectors:
+  Reentrancy in MyLending.withdraw(address,uint256) (contracts/Lending.sol#42‑58):
+    External calls:
+    - (success) = msg.sender.call{value: amount}() (contracts/Lending.sol#53)
+    State variables written after the call(s):
+    - balances[msg.sender] = 0 (contracts/Lending.sol#58)
+  Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities
+  </pre>
+  <div class="diagram-caption">Slither pinpointed a classic reentrancy bug where state is updated after an external call - the exact pattern that led to the $60M DAO hack.</div>
+</div>
+
+<p>For each finding, ask yourself: <strong>Can this actually be exploited in my deployment context?</strong> A reentrancy in a function that only the owner can call might be low risk. But a public withdrawal function? Critical. Slither will also flag “informational” items like missing docstrings or unused variables - fix them for completeness, but they don’t indicate security flaws.</p>
+<p>To get a deeper view, run <code>slither . --print vars-and-auth</code> to see which functions can be called by which roles. This can reveal missing access controls that the detectors missed. You can also output all findings as a JSON file for programmatic processing: <code>slither . --json output.json</code>.</p>
+
+<!-- 06 RUNNING MYTHRIL -->
+<div class="section-label">06 &nbsp; Running Mythril for Deeper Symbolic Analysis</div>
+<h2 class="section-title">Going Beyond Static: Finding Multi-Transaction Exploits</h2>
+<p>Mythril works best on individual contracts. Run it on your most critical contract (e.g., the lending core):</p>
+<div class="callout code">
+  <div class="callout-label">💻 Mythril Command</div>
+  <pre>myth analyze contracts/Lending.sol --execution-timeout 60</pre>
+</div>
+<p>Mythril symbolically executes the contract, considering all possible inputs. If it finds a path that leads to, say, the contract’s balance being drained, it will output the exact transaction sequence to trigger it.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 17.3-B · Mythril Exploit Trace - Unprotected Selfdestruct</div>
+  <pre>  ==== Unprotected SELFDESTRUCT ====
+  SWC ID: 106
+  Severity: High
+  Contract: Lending
+  Function name: emergencyStop()
+  PC address: 451
+  The contract can be killed by anyone.
+  Anyone can call emergencyStop() and selfdestruct the contract, sending all ether to an arbitrary address.
+
+  Initial State:
+    Contract balance: 100 ETH
+    Owner: 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4
+
+  Transaction Sequence:
+    Attacker calls emergencyStop(attackerAddress) with 0 wei.
+    Contract selfdestructs, transferring 100 ETH to attackerAddress.
+  </pre>
+  <div class="diagram-caption">A single forgotten access control modifier could let anyone destroy your contract and steal all assets. Mythril catches exactly that.</div>
+</div>
+<p>When reading Mythril output, note the “Transaction Sequence” carefully. It often involves multiple calls across different functions. Try to simulate the sequence mentally or in a local Hardhat node to confirm the exploit. Sometimes Mythril’s generated input may be impractical (e.g., requiring impossibly precise block timestamps), but it’s still a strong indicator that access controls are insufficient.</p>
+
+<!-- 07 MANUAL AUDIT CHECKLIST -->
+<div class="section-label">07 &nbsp; Manual Audit Checklist</div>
+<h2 class="section-title">The 10-Point Human Review Every Developer Must Do</h2>
+<p>Automated tools are fast, but they can’t reason about business logic. Use this checklist after your tools finish. For each point, you should physically walk through the relevant functions in your code and ask the questions below.</p>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--red);">1</div><div class="feature-content"><div class="feature-title">Access Control</div><div class="feature-desc">Every state-changing function must have an appropriate modifier (onlyOwner, onlyRole). Verify that admin functions cannot be called by regular users. Check that the constructor sets the owner correctly and that there are no missing initializers in upgradeable contracts. Also verify that role-based access (e.g., OpenZeppelin’s AccessControl) is correctly configured with unique role identifiers.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--red);">2</div><div class="feature-content"><div class="feature-title">Reentrancy</div><div class="feature-desc">Apply the Checks-Effects-Interactions pattern: perform all validations, update internal state (e.g., deduct balance), and only then make external calls. If your logic requires interaction before state updates, use OpenZeppelin’s ReentrancyGuard. Verify that reentrancy guards are on every function that transfers value or tokens, including those that call untrusted contracts (e.g., hooks). Also check for cross-function reentrancy where two functions share state and can be called in sequence.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--orange);">3</div><div class="feature-content"><div class="feature-title">Integer Overflow / Underflow</div><div class="feature-desc">Solidity ≥0.8 has built-in overflow checks, but beware of assembly blocks (Yul) or explicit unchecked blocks. If you use older compiler versions, verify SafeMath is applied consistently. Also check for unsafe type conversions (e.g., uint256 to uint128) - always use OpenZeppelin’s SafeCast. Examine loops that accumulate values: they could overflow the gas limit or the numeric type.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--orange);">4</div><div class="feature-content"><div class="feature-title">Front-Running &amp; MEV</div><div class="feature-desc">Can an attacker observe a pending transaction and profit by submitting their own first? Analyze the mempool visibility: any transaction with a predictable outcome can be front-run. Mitigations include commit-reveal schemes, time-weighted average price (TWAP) oracles, and accepting slippage parameters. Also consider sandwich attacks on AMM trades: does your DEX integration use a sensible <code>minAmountOut</code>?</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--orange);">5</div><div class="feature-content"><div class="feature-title">Denial of Service (Gas Griefing, Block Stuffing)</div><div class="feature-desc">Loops over unbounded arrays can exceed block gas limits, permanently locking functions. Use pull-over-push for payments: let users withdraw funds themselves instead of the contract looping over recipients. Avoid dynamic arrays that grow indefinitely; consider using mappings with iteration patterns (like OpenZeppelin’s EnumerableSet). Also, check that external calls cannot be forced to revert, blocking progress (e.g., a malicious token with a failing transfer).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--orange);">6</div><div class="feature-content"><div class="feature-title">Unchecked External Calls</div><div class="feature-desc">Always check the return value of low-level calls (<code>call</code>, <code>delegatecall</code>). Avoid relying on <code>transfer</code> and <code>send</code> due to gas stipend limitations; prefer checked low-level <code>call</code> patterns (<code>require(success, "call failed")</code>). When interacting with unknown ERC-20 tokens, use OpenZeppelin’s <code>SafeERC20</code> to handle non-standard implementations (USDT, for example, does not return a boolean).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--orange);">7</div><div class="feature-content"><div class="feature-title">Flash Loan Attacks</div><div class="feature-desc">Can a malicious actor use a flash loan to manipulate prices in an AMM and then exploit your contract within a single block? Always fetch prices from reliable oracles (Chainlink, TWAP) - not from a spot DEX reserve. If your contract relies on a liquidity pool’s price, ensure it uses a time-weighted average. Check that governance actions (e.g., changing collateral factors) have timelocks to prevent instantaneous attack execution.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--green);">8</div><div class="feature-content"><div class="feature-title">Upgradeability Safety</div><div class="feature-desc">If using proxy patterns (UUPS, Transparent, Beacon), ensure storage layout compatibility between implementation versions. No constructors in implementation contracts - use initializers instead. The proxy admin must be a secure multisig; avoid centralized upgrade keys. Test upgrades in a production-like environment, including state migration scripts. Verify that the implementation contract cannot be selfdestructed (use OpenZeppelin’s <code>UUPSUpgradeable</code> correctly).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--green);">9</div><div class="feature-content"><div class="feature-title">Event Emission</div><div class="feature-desc">Every state-changing function should emit an event. This is critical for off-chain monitoring, subgraph indexing, and user transparency. Index important parameters (addresses, token IDs) for efficient filtering. Events should be emitted before external calls to follow the Checks-Effects-Interactions pattern.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--green);">10</div><div class="feature-content"><div class="feature-title">Business Logic Consistency</div><div class="feature-desc">Does the implementation match the specification? Walk through the intended user flow and compare it to the code. Often, logic bugs are invisible to tools. For example: does the fee calculation use basis points correctly? Are withdrawal limits applied before or after the withdrawal? Is the auction end time exclusive or inclusive? These details matter hugely in production. Write a short script (in Hardhat or Foundry) that simulates the complete user lifecycle and verifies that all balances and states end up as expected.</div></div></div>
+</div>
+
+<p style="margin-top:16px;">Spend at least 30 minutes on this checklist. Keep a text file open and note every deviation you find, even if it seems minor. Many of the worst hacks started with a “low-severity” bug that was chained with another seemingly harmless issue.</p>
+
+<!-- 08 AUDIT REPORT STRUCTURE -->
+<div class="section-label">08 &nbsp; Writing the Audit Report</div>
+<h2 class="section-title">From Findings to a Document That Investors Trust</h2>
+<p>A professional audit report is not a dump of tool output. It is a structured document that communicates risk to both technical and non-technical stakeholders. Follow this gold-standard template - the same structure used by Trail of Bits, ConsenSys Diligence, and OpenZeppelin.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">A</div>
+    <div class="feature-content">
+      <div class="feature-title">Executive Summary</div>
+      <div class="feature-desc">One paragraph. How many contracts were audited? How many lines of code? How many findings (by severity: Critical, High, Medium, Low, Informational)? Is the code ready for deployment, or are there critical blockers? State the final recommendation clearly. Example: “We audited 4 contracts totaling 820 lines of Solidity. We discovered 2 high-severity, 3 medium, and 5 low issues. After fixes, all high and medium issues were resolved. The protocol is ready for mainnet deployment with the recommended mitigations in place.”</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">B</div>
+    <div class="feature-content">
+      <div class="feature-title">Audit Scope &amp; Methodology</div>
+      <div class="feature-desc">List the exact contracts and file paths. State which tools were used (Slither, Mythril, Echidna if used), the manual review approach (checklist, code walkthrough, peer review), and any limitations (e.g., “We did not perform formal verification”). Also mention the commit hash of the audited codebase for reproducibility.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">C</div>
+    <div class="feature-content">
+      <div class="feature-title">Findings (Ordered by Severity)</div>
+      <div class="feature-desc">Each finding includes: <strong>Severity</strong> (Critical/High/Medium/Low/Informational), <strong>Description</strong> (plain English, what is wrong), <strong>Affected Code</strong> (snippet with file name and line numbers), <strong>Exploit Scenario</strong> (step-by-step how an attacker would exploit it), <strong>Recommendation</strong> (specific code fix), and <strong>Status</strong> (Fixed, Acknowledged, Disputed). Use a consistent severity classification (see glossary). Critical findings must be fixed before launch.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">D</div>
+    <div class="feature-content">
+      <div class="feature-title">Tool Output Appendix</div>
+      <div class="feature-desc">Include the raw Slither and Mythril logs (and Echidna if used) as an appendix. This shows due diligence and allows others to replicate your analysis. Also include the “after-fix” re-run outputs to prove issues were resolved.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">E</div>
+    <div class="feature-content">
+      <div class="feature-title">Conclusion</div>
+      <div class="feature-desc">A brief paragraph summarizing the overall security posture, any remaining risks, and final deployment recommendation. If there are acknowledged issues, explain why they are acceptable (e.g., low probability, requires admin compromise).</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Pro Tip</div>
+  <p>A good audit report demonstrates not just that you found bugs, but that you understood their impact and fixed them correctly. Include the commit hash of the fix for each issue. This turns your report into a verifiable artifact of your engineering rigor.</p>
+</div>
+
+<!-- 09 PRACTICAL WALKTHROUGH -->
+<div class="section-label">09 &nbsp; Practical Walkthrough</div>
+<h2 class="section-title">Auditing Your Capstone: Step-by-Step</h2>
+<p>Let’s assume your capstone is a simple NFT marketplace with minting, listing, and buying. Here’s how you’d audit it end-to-end.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 17.3-C · Audit Workflow for Your Capstone</div>
+  <pre>  1. Install tools (Slither, Mythril) as described above.
+  2. Run Slither across the whole project:
+         slither . --print human-summary
+  3. For each high‑severity finding, open the file and understand the bug.
+  4. Run Mythril on the core contract (Marketplace.sol):
+         myth analyze contracts/Marketplace.sol --execution-timeout 60
+  5. For each Mythril finding, simulate the transaction sequence mentally.
+  6. Go through the manual checklist (access control, reentrancy, etc.).
+  7. Document all findings in a preliminary table.
+  8. Fix each real vulnerability in your smart contract code.
+  9. Re‑run Slither and Mythril to verify fixes; ensure no high/medium findings remain.
+  10. (Bonus) Write an Echidna invariant test for a critical invariant (e.g., "Marketplace contract balance never negative").
+  11. Compile the final audit report in PDF format.
+  12. Commit all changes and note fix commit hashes in the report.
+  </pre>
+</div>
+
+<p>During manual review, pay special attention to functions that move funds: <code>buyItem()</code>, <code>withdrawFunds()</code>, <code>royaltyPayments</code>. Verify that the seller receives the correct amount after deducting marketplace fees, that royalties are sent to the correct address, and that re-entrancy cannot occur when transferring ETH to multiple parties in sequence.</p>
+<p>If your capstone uses SARAL for identity, also verify that the quantum-safe modifier from Sub-Module 17.2 is correctly applied. If you integrated WASMify oracles, confirm that the data validation logic rejects impossible values (e.g., a temperature of −1000°C). Every external data source is a potential attack vector.</p>
+
+<!-- 10 ASSESSMENT PREPARATION -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Key Reminders Before You Submit</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div><div class="feature-content"><div class="feature-title">Tool output must be genuine</div><div class="feature-desc">Run the tools on your actual capstone code. Fabricated output is easily detected and will result in a zero.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div><div class="feature-content"><div class="feature-title">Severity classification is your responsibility</div><div class="feature-desc">Tools may label everything “High.” You must apply the classification based on real exploitability in your context. A missing docstring is not High severity.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div><div class="feature-content"><div class="feature-title">Fix then verify</div><div class="feature-desc">After applying fixes, re-run the tools and include the new output. The report must show that critical/high findings were resolved or severity reduced.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div><div class="feature-content"><div class="feature-title">Business logic counts</div><div class="feature-desc">A human-identified business logic bug (e.g., incorrect fee calculation) is just as valid as a tool-found reentrancy. Document it with the same rigor.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 17.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Static Analysis</div><div class="glossary-def">Analysis of code without executing it, by examining structure, data flow, and patterns. Slither is a static analyzer.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Symbolic Execution</div><div class="glossary-def">A technique that treats inputs as symbolic variables and explores all possible execution paths. Mythril uses this to find multi-step exploits.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Fuzzing (Property-Based)</div><div class="glossary-def">A testing method that feeds random inputs to a program and checks whether user-defined invariants hold. Echidna is a fuzzer for EVM.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Reentrancy</div><div class="glossary-def">A vulnerability where an external call allows an attacker to re-enter the calling contract before state updates are complete, potentially draining funds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">A secure coding pattern: perform all checks, update contract state, then make external calls. Prevents reentrancy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Access Control</div><div class="glossary-def">Restricting who can call a function. Often implemented with modifiers like <code>onlyOwner</code> or role-based systems (OpenZeppelin AccessControl).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Severity Classification</div><div class="glossary-def">Categorizing a vulnerability’s impact: Critical (direct fund loss, no constraints), High (fund loss with constraints), Medium (indirect loss, DoS), Low (best practice violation), Informational (code style).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Audit Report</div><div class="glossary-def">A structured document summarizing all vulnerabilities found, their exploitability, remediation, and final status, along with methodology and tool output.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 17 · Sub-Module <strong>17.3</strong> of 3 &nbsp;·&nbsp; You’ve completed Post-Quantum Security &amp; Final Hardening!</p>
+</div>
+
+

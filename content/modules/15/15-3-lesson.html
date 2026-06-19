@@ -1,0 +1,519 @@
+
+
+<div class="module-badge">🎓 Module 15 &nbsp;·&nbsp; Sub-Module 15.3 of 5</div>
+<h1 class="module-title">Proposal Lifecycle &amp; <span class="highlight">Execution</span></h1>
+<p class="module-subtitle">From a casual idea on a forum to a smart contract automatically moving millions - a DAO proposal is the heartbeat of decentralized governance. Discover every stage of the journey, how OpenZeppelin Governor and TimelockController power it on MST, and why sub-paisa fees turn every holder into an active participant.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 Drag-Drop (proposal stages) + Multi-Select</div>
+  <div class="meta-chip green">Phase 4 · DAOs &amp; Governance</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔄</div>
+    <div class="obj-text">
+      <strong>Map the complete lifecycle of a DAO proposal</strong>
+      From temperature check to final execution, identify each state, who acts, and what checks apply.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Configure OpenZeppelin Governor contracts for MST</strong>
+      Set voting delay, voting period, quorum, and proposal threshold - and understand how each parameter shapes the DAO.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⏳</div>
+    <div class="obj-text">
+      <strong>Integrate TimelockController for safe execution</strong>
+      Explain why a timelock is essential, how to set its minimum delay, and how to grant the governor executor rights.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Optimize the entire process on MST</strong>
+      See how low fees and fast finality enable multi-stage on-chain proposals that are impractical on Ethereum.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Proposal That Almost Drained the Treasury - Until the Timelock Saved It</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a medium-sized DeFi DAO received a proposal: "Upgrade the staking contract to v2." The proposer had written the new contract, and the community was excited. The vote passed with 85% approval. But a sharp-eyed community member, while reviewing the code during the mandatory 48-hour timelock, discovered a hidden function that would allow the proposer to drain the entire staking pool. The community panicked. The DAO's multisig signers quickly canceled the proposal before it could execute. The treasury was safe. The timelock - that seemingly bureaucratic delay - had saved the DAO.</p>
+  <br>
+  <p>This story illustrates why a DAO proposal isn't just "vote and done." It's a carefully designed pipeline of checks, delays, and execution controls. In this sub-module, you'll learn every stage of that pipeline, from the moment an idea is posted on a forum to the instant a smart contract executes the community's will - all powered by OpenZeppelin's battle-tested contracts, and made affordable by MST's sub-paisa fees.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Paper Ballots to Smart Contract Execution - The Evolution of DAO Governance</h2>
+<p>In traditional organizations, a proposal follows a familiar path: someone writes a memo, it circulates for comments, a committee votes, and if approved, an executive implements it. The process relies on trust in the executives. In a DAO, the smart contract IS the executive. This required building a complete governance machine on-chain.</p>
+<p>Early DAOs (2016-2018) used custom, often buggy, voting contracts. Each DAO built its own, leading to fragmentation and security incidents. The breakthrough came when OpenZeppelin released its <strong>Governor</strong> framework in 2021, inspired by Compound's Governor Alpha and Bravo. It provided a modular, audited set of contracts that handled the entire proposal lifecycle: creating proposals, casting votes, counting results, queuing in a timelock, and executing. DAOs could inherit these contracts, configure parameters, and focus on their community rather than reinventing governance.</p>
+<p>Key milestones in the evolution of on-chain proposal execution:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>2016 - The DAO:</strong> First major DAO. Proposals were simple: invest ETH in projects. No timelock, no quorum - anyone could propose, and token holders voted directly.</li>
+  <li><strong>2020 - Compound Governor Alpha:</strong> Introduced the modern lifecycle: proposal threshold, voting delay, voting period, and execution. Became the blueprint.</li>
+  <li><strong>2021 - OpenZeppelin Governor:</strong> Modular, extensible version of Compound's model. Added support for timelocks, quorum fractions, and multiple voting styles.</li>
+  <li><strong>Today - MST-native DAOs:</strong> Full EVM compatibility means OpenZeppelin Governor works out of the box on MST. Sub-paisa gas lets DAOs run fully on-chain governance without pricing out small holders.</li>
+</ul>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> A DAO proposal is a state machine. Each stage has specific rules, actors, and outcomes. Understanding this machine is the foundation of building and auditing governance systems.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Seven Steps of a Proposal - Like a Bill Becoming a Law</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏛️ The Analogy</div>
+  <p>A DAO proposal is like a bill becoming a law. First, someone writes a draft (the proposal). It's introduced to the parliament (submitted on-chain). There's a mandatory reading period (voting delay). Then parliament debates and votes (voting period). If it passes, the bill goes to the president for review (timelock). If the president doesn't veto, it becomes law (execution). In a DAO, the "president" is a timelock smart contract - a mandatory waiting period that gives everyone time to exit if they disagree. After the wait, anyone can trigger execution, and the code runs automatically.</p>
+</div>
+
+<p>Let's explore the seven stages in detail, with code snippets from OpenZeppelin's Governor contract.</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">IDEA</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Temperature Check &amp; Off-Chain Discussion</div>
+      <div class="w5-a">Before anything goes on-chain, a proposal starts as an idea. The community discusses it on a forum (like Discourse) or a voting platform (like Snapshot). This "temperature check" gauges sentiment. If the idea has broad support, the proposer formalizes it into an on-chain proposal. This prevents spam and ensures that only serious proposals consume gas and attention.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">SUBMIT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Proposal Submission (propose)</div>
+      <div class="w5-a">The proposer calls <code>governor.propose()</code> with the proposal details: target addresses, calldata, and a description. The contract checks if the proposer holds enough tokens (the proposal threshold). If yes, the proposal enters the <strong>Pending</strong> state. A unique proposal ID is generated. The proposal is now on-chain and visible to all.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">DELAY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Voting Delay (Pending → Active)</div>
+      <div class="w5-a">After submission, there's a waiting period (e.g., 1 day) before voting begins. This gives token holders time to review the proposal, discuss it, and decide their position. The contract enforces this delay; no one can vote until it expires. This is the <code>votingDelay()</code> parameter.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">④</div><div class="w5-word">VOTE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Voting Period (Active → Succeeded/Defeated)</div>
+      <div class="w5-a">Token holders cast their votes: For, Against, or Abstain. Voting power is determined by the governance token balance at a past block (the snapshot). The voting period lasts for a fixed duration (e.g., 3 days). At the end, the contract counts votes. If the proposal meets quorum and has more For than Against, it <strong>succeeds</strong>; otherwise, it's <strong>defeated</strong>. This is the <code>votingPeriod()</code> and <code>quorum()</code> logic.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">⑤</div><div class="w5-word">QUEUE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Queuing in the Timelock (Succeeded → Queued)</div>
+      <div class="w5-a">If the proposal succeeds, it doesn't execute immediately. It must be <strong>queued</strong> in the TimelockController. Anyone can call <code>governor.queue()</code> to initiate this. The timelock records the execution details and starts its countdown (e.g., 48 hours). This gives the community time to exit before the proposal takes effect - a critical safety mechanism.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">⑥</div><div class="w5-word">EXECUTE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Execution (Queued → Executed)</div>
+      <div class="w5-a">After the timelock delay expires, anyone can call <code>governor.execute()</code>. This triggers the TimelockController to execute the proposal's actions - calling the specified contracts with the specified calldata. The execution is atomic and unstoppable. The proposal state changes to <strong>Executed</strong>, and the transaction's effects are permanent on the blockchain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: THE GOVERNOR CONTRACT -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - OpenZeppelin Governor</div>
+<h2 class="section-title">The Engine That Runs the Proposal Machine</h2>
+<p>OpenZeppelin's Governor contract is the industry standard for on-chain DAO governance. It's a modular, inheritable framework that provides the full proposal lifecycle. Let's see a complete configuration for an MST-based DAO.</p>
+
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+contract MST_DAO is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MST_DAO")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)  // 4% quorum
+        GovernorTimelockControl(_timelock)
+    {}
+
+    // The delay before voting on a proposal starts
+    function votingDelay() public pure override returns (uint256) { return 1 days; }
+    // The duration of the voting period
+    function votingPeriod() public pure override returns (uint256) { return 3 days; }
+    // Minimum tokens required to create a proposal
+    function proposalThreshold() public pure override returns (uint256) { return 10_000e18; }
+    // quorum is defined by the QuorumFraction extension
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+        return super.quorum(blockNumber);
+    }
+    // The following are overrides required by Solidity
+    function state(uint256 proposalId) public view override(Governor, GovernorTimelockControl) returns (ProposalState) {
+        return super.state(proposalId);
+    }
+    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) internal override(Governor, GovernorTimelockControl) {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+    }
+    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+        return super._cancel(targets, values, calldatas, descriptionHash);
+    }
+    function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
+        return super._executor();
+    }
+    function supportsInterface(bytes4 interfaceId) public view override(Governor, GovernorTimelockControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+}
+</pre>
+
+<p>Let's break down the key parameters:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>votingDelay:</strong> Time between proposal submission and the start of voting. Set to 1 day to allow token holders to review the proposal.</li>
+  <li><strong>votingPeriod:</strong> Duration that voting is active. 3 days is typical - long enough for broad participation, short enough to maintain momentum.</li>
+  <li><strong>proposalThreshold:</strong> Minimum number of tokens a proposer must hold (or be delegated) to submit a proposal. Here, 10,000 tokens. This prevents spam.</li>
+  <li><strong>quorum:</strong> Minimum participation required for a proposal to pass. The <code>GovernorVotesQuorumFraction</code> sets quorum as a percentage of total token supply (here 4%). If fewer than 4% of tokens vote, the proposal fails even if the majority is in favor.</li>
+  <li><strong>TimelockControl:</strong> Ensures that proposals are queued in a timelock before execution. The timelock delay is configured separately in the TimelockController contract.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Proposal States - The Full Enum</h3>
+<p>The Governor contract defines eight possible states for a proposal. Understanding this enum is essential for frontend developers building DAO dashboards.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">enum ProposalState {
+    Pending,   // Submitted, waiting for voting delay to expire
+    Active,    // Voting is ongoing
+    Canceled,  // Proposal was canceled (by proposer or guardian)
+    Defeated,  // Voting ended, but didn't meet quorum or lost
+    Succeeded, // Voting passed, waiting to be queued
+    Queued,    // Queued in timelock, waiting for execution delay
+    Expired,   // Timelock delay passed but never executed (rare)
+    Executed   // Proposal actions have been performed
+}
+</pre>
+
+<!-- 06 THE TIMELOCK — YOUR SAFETY NET -->
+<div class="section-label">06 &nbsp; The TimelockController - Your Safety Net</div>
+<h2 class="section-title">Why Every DAO Needs a Mandatory Waiting Period</h2>
+<p>The TimelockController is a separate smart contract that acts as a mandatory waiting room for proposals. After a proposal passes, it must be queued in the timelock and wait for a set period (e.g., 48 hours) before it can be executed. During this time:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>Token holders who disagree can <strong>exit the DAO</strong> (sell their tokens) before the change takes effect. This is the ultimate check on majority power - if a proposal is truly harmful, the market will react and token price will drop before execution.</li>
+  <li>The proposal can be <strong>canceled</strong> by a designated guardian (often a multisig) if a vulnerability is discovered.</li>
+  <li>The community has a final opportunity to <strong>review the code</strong> that will be executed.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Deploying and Configuring a TimelockController</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">// Deploy TimelockController with a 2‑day minimum delay
+uint256 minDelay = 2 days;
+address[] memory proposers = new address[](1);
+address[] memory executors = new address[](1);
+proposers[0] = address(governorContract); // only governor can propose (queue)
+executors[0] = address(0); // anyone can execute
+
+TimelockController timelock = new TimelockController(
+    minDelay,
+    proposers,
+    executors,
+    address(0) // admin (set to zero to disable admin functions)
+);
+</pre>
+<p>The timelock's <code>minDelay</code> is the minimum time a proposal must wait before execution. The proposers (usually only the governor contract) can schedule (queue) proposals. The executors (often set to the zero address, meaning anyone) can execute them after the delay.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.3-A · Full Proposal Lifecycle State Machine</div>
+  <pre>                         ┌──────────┐
+                         │  IDEA    │ (off‑chain discussion)
+                         └────┬─────┘
+                              │ propose() called
+                              ▼
+                         ┌──────────┐
+                         │ PENDING  │ (waiting for voting delay)
+                         └────┬─────┘
+                              │ voting delay expires
+                              ▼
+                         ┌──────────┐
+                    ┌───▶│ ACTIVE   │ (voting period)
+                    │    └────┬─────┘
+                    │         │ voting period ends
+                    │         ▼
+                    │  ┌──────────────────┐
+                    │  │  Counting votes   │
+                    │  └────┬──────┬──────┘
+                    │       │      │
+                    │  passes   fails
+                    │       │      │
+                    │       ▼      ▼
+                    │  ┌──────────┐ ┌──────────┐
+                    │  │SUCCEEDED │ │ DEFEATED │
+                    │  └────┬─────┘ └──────────┘
+                    │       │ queue()
+                    │       ▼
+                    │  ┌──────────┐
+                    │  │ QUEUED   │ (waiting in timelock)
+                    │  └────┬─────┘
+                    │       │ after timelock delay
+                    │       ▼
+                    │  ┌──────────┐
+                    │  │ EXECUTED │
+                    │  └──────────┘
+                    │
+                    │  (at any point before execution,
+                    │   proposal can be canceled)
+                    └─── CANCELED ◄──────────┘
+  </pre>
+  <div class="diagram-caption">The seven states and the transitions between them. Note that cancellation is possible from Pending, Active, Succeeded, or Queued states.</div>
+</div>
+
+<!-- 07 INTERACTIVE EXAMPLES -->
+<div class="section-label">07 &nbsp; Interactive Examples - Click to Explore</div>
+
+<details>
+  <summary>📝 Example 1: Submitting a Proposal to Fund a Developer</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> A DAO wants to pay 5,000 USDC to a developer for building a new frontend. The proposal has passed off-chain discussion.</p>
+    <p><strong>On-chain proposal creation (using ethers.js on MST):</strong></p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">const governor = new ethers.Contract(governorAddress, GovernorABI, signer);
+const targets = [usdcAddress];
+const values = [0];
+const calldatas = [
+  new ethers.Interface(["function transfer(address,uint256)"]).encodeFunctionData("transfer", [developerAddress, ethers.parseUnits("5000", 6)])
+];
+const description = "Fund frontend development (Proposal #42)";
+const tx = await governor.propose(targets, values, calldatas, description);
+await tx.wait();
+console.log("Proposal submitted, tx:", tx.hash);
+    </pre>
+    <p>The proposal now enters the Pending state. The voting delay countdown begins.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🗳️ Example 2: Voting on a Proposal</summary>
+  <div class="content">
+    <p>After the voting delay, the proposal becomes Active. Token holders can cast their votes.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">// Vote FOR proposal with ID 42
+const voteTx = await governor.castVote(42, 1); // 0=Against, 1=For, 2=Abstain
+await voteTx.wait();
+    </pre>
+    <p>Voting power is determined by the governance token balance at the snapshot block. If Alice holds 1% of tokens, her vote counts as 1% of the total.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⏳ Example 3: Queuing and Executing</summary>
+  <div class="content">
+    <p>After the voting period ends, the proposal succeeds. Anyone can queue it in the timelock.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">// Queue the proposal
+const queueTx = await governor.queue(targets, values, calldatas, ethers.keccak256(ethers.toUtf8Bytes(description)));
+await queueTx.wait();
+// Wait for the timelock delay (e.g., 2 days)
+// Then execute
+const executeTx = await governor.execute(targets, values, calldatas, ethers.keccak256(ethers.toUtf8Bytes(description)));
+await executeTx.wait();
+// The USDC transfer occurs automatically
+    </pre>
+  </div>
+</details>
+
+<!-- 08 MST‑SPECIFIC ADVANTAGES -->
+<div class="section-label">08 &nbsp; MST-Specific Advantages</div>
+<h2 class="section-title">Why MST Makes the Proposal Lifecycle Affordable for Everyone</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa proposal creation</div>
+      <div class="feature-desc">On Ethereum, submitting a proposal can cost ₹2,000-₹5,000 in gas, effectively barring small holders from participating. On MST, the same transaction costs ~₹0.01. This means proposals can be submitted by anyone who meets the token threshold, not just whales.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Affordable voting for every holder</div>
+      <div class="feature-desc">Casting a vote on MST costs ~₹0.006. A holder with 100 tokens can vote on every proposal for less than a rupee a year. On Ethereum, the same participation would cost thousands of rupees, leading to massive voter apathy. Low fees = high turnout = more legitimate governance.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Fast finality for execution</div>
+      <div class="feature-desc">MST's ~3-second block time means that when a proposal is executed, the effects are confirmed almost immediately. There's no risk of chain re-organization, which can happen on slower chains.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Full EVM compatibility</div>
+      <div class="feature-desc">OpenZeppelin Governor, TimelockController, and ERC20Votes contracts work identically on MST. No code changes needed. Deploy the same audited contracts with the same tools (Hardhat, OpenZeppelin).</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Don't Let These Mistakes Sabotage Your DAO</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Setting quorum too high or too low</div>
+      <div class="feature-desc">If quorum is 20% of total supply and only 10% of tokens are actively held (the rest are lost or in cold storage), no proposal will ever pass. Set quorum based on <strong>circulating supply</strong>, not total supply. Many DAOs use a quorum of 2-4% of total supply, which reflects actual participation.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Forgetting to grant the timelock executor role</div>
+      <div class="feature-desc">If the governor contract is not granted the <code>PROPOSER_ROLE</code> on the timelock, proposals can pass but never be queued. Always grant the governor address as a proposer when deploying the timelock. Test the full lifecycle on a testnet before mainnet.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the snapshot block</div>
+      <div class="feature-desc">Voting power is determined at a past block (the snapshot). If tokens are transferred after the snapshot, the new holder does NOT gain voting power for ongoing proposals. This prevents flash loan attacks. Always understand when the snapshot is taken.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 REAL‑WORLD CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Proposals That Shaped the DeFi Landscape</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap DAO - The Fee Switch Proposal</div>
+      <div class="feature-desc">Uniswap's DAO has debated the "fee switch" for years - a proposal that would turn on protocol fees, diverting a portion of trading fees from LPs to UNI token holders. Multiple proposals have been submitted, debated, and voted on. The process follows the exact lifecycle described above: temperature check on the forum, formal on-chain proposal, voting period, and (if passed) queuing. The DAO has not yet passed the fee switch, demonstrating that governance can be slow and deliberate - exactly as designed.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">⚖️</div>
+    <div class="feature-content">
+      <div class="feature-title">MakerDAO - Emergency Shutdown Proposal</div>
+      <div class="feature-desc">During the March 2020 market crash, MakerDAO faced a systemic deficit. An emergency proposal was submitted to mint new MKR tokens and auction them to cover the debt. The proposal went through the full lifecycle, including a shortened voting period (due to emergency powers) and a timelock. The proposal passed and was executed, recapitalizing the system. This demonstrated that the Governor + Timelock framework can handle both routine and emergency governance.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 HANDS‑ON: DEPLOYING A GOVERNOR + TIMELOCK ON MST -->
+<div class="section-label">11 &nbsp; Hands-On: Deploy Your Own Governor on MST</div>
+<h2 class="section-title">Step-by-Step Deployment Guide</h2>
+<p>Follow these steps to deploy a fully functional Governor contract with a TimelockController on MST Testnet.</p>
+
+<details>
+  <summary>🧱 Step 1: Deploy a Governance Token (ERC20Votes)</summary>
+  <div class="content">
+    <p>First, deploy an ERC-20 token that supports voting. Use OpenZeppelin's ERC20Votes extension.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">// contracts/MyGovernanceToken.sol
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+contract MyGovToken is ERC20Votes {
+    constructor() ERC20("MyGovToken", "MGT") {
+        _mint(msg.sender, 1_000_000 * 10**decimals());
+    }
+}
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>⏳ Step 2: Deploy the TimelockController</summary>
+  <div class="content">
+    <p>Deploy the timelock with a 2-day minimum delay. The governor address will be added later as a proposer.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">const Timelock = await ethers.getContractFactory("TimelockController");
+const timelock = await Timelock.deploy(2 * 24 * 3600, [], [], ethers.ZeroAddress);
+await timelock.deployed();
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🏛️ Step 3: Deploy the Governor contract</summary>
+  <div class="content">
+    <p>Deploy the Governor, passing the token and timelock addresses. Then grant roles.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">const Governor = await ethers.getContractFactory("MST_DAO");
+const governor = await Governor.deploy(token.address, timelock.address);
+await governor.deployed();
+
+// Grant the governor as a proposer and executor on the timelock
+const PROPOSER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("PROPOSER_ROLE"));
+const EXECUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("EXECUTOR_ROLE"));
+await timelock.grantRole(PROPOSER_ROLE, governor.address);
+await timelock.grantRole(EXECUTOR_ROLE, governor.address);
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🧪 Step 4: Test the full proposal lifecycle</summary>
+  <div class="content">
+    <p>Submit a test proposal, advance time (using Hardhat's time helpers), vote, queue, and execute. Verify that the target contract is called correctly. Gas cost on MST Testnet: less than ₹0.05 total for the entire lifecycle.</p>
+  </div>
+</details>
+
+<!-- 12 ASSESSMENT PREP -->
+<div class="section-label">12 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">A DAO proposal follows seven states: Pending → Active → Succeeded/Defeated → Queued → Executed.</div>
+      <div class="feature-desc">Learn the exact order: Idea, Proposal Submission, Voting Delay, Voting, Queuing (Timelock), Execution.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">OpenZeppelin Governor + TimelockController is the industry standard for on-chain DAO governance.</div>
+      <div class="feature-desc">It provides voting delay, voting period, quorum, proposal threshold, and timelock execution out of the box.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">The timelock is a mandatory safety delay (e.g., 48 hours) between proposal success and execution.</div>
+      <div class="feature-desc">It allows token holders to exit before a harmful proposal takes effect, and gives time for code review.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees make multi-step on-chain governance practical for all token holders.</div>
+      <div class="feature-desc">Proposal creation, voting, queuing, and execution together cost less than ₹0.05 on MST vs. ₹5,000+ on Ethereum.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 15.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Proposal Lifecycle</div><div class="glossary-def">The sequence of states a DAO proposal goes through: Pending, Active, Succeeded/Defeated, Queued, Executed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Governor Contract</div><div class="glossary-def">OpenZeppelin's modular smart contract that manages the entire proposal lifecycle, voting, and execution.</div></div>
+  <div class="glossary-item"><div class="glossary-term">TimelockController</div><div class="glossary-def">A smart contract that enforces a mandatory delay between a proposal passing and its execution, providing a safety window.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Voting Delay</div><div class="glossary-def">The time between proposal submission and the start of voting, allowing token holders to review the proposal.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Voting Period</div><div class="glossary-def">The duration during which token holders can cast their votes (For, Against, Abstain).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Quorum</div><div class="glossary-def">The minimum number of votes (or percentage of total supply) required for a proposal to be valid.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Proposal Threshold</div><div class="glossary-def">The minimum number of tokens a user must hold (or have delegated) to submit a proposal.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Snapshot</div><div class="glossary-def">The past block number at which token balances are recorded to determine voting power, preventing flash loan attacks.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 15 · Sub-Module <strong>15.3</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 15.4 - Treasury Management →</p>
+</div>
+
+

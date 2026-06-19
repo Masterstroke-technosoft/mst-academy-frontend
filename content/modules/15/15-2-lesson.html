@@ -1,0 +1,457 @@
+
+
+<div class="module-badge">🎓 Module 15 &nbsp;·&nbsp; Sub-Module 15.2 of 5</div>
+<h1 class="module-title">Governance <span class="highlight">Models</span></h1>
+<p class="module-subtitle">One token, one vote? Or one person, one vote? The architecture of decision-making in a DAO - from simple majority to quadratic voting, from liquid democracy to conviction-based consensus. Discover how each model shapes power, participation, and outcomes, and which one fits your DAO best on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (10 marks) + 5 Multi-Select (5 marks)</div>
+  <div class="meta-chip green">Phase 4 · DAOs &amp; Governance</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🗳️</div>
+    <div class="obj-text">
+      <strong>Classify and compare the six major DAO governance models</strong>
+      From token-weighted voting to quadratic voting, delegation, conviction voting, reputation-based, and holographic consensus - understand the mechanics, trade-offs, and ideal use cases for each.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Diagnose governance failures like plutocracy and voter apathy</strong>
+      Identify why large token holders dominate decisions, why most holders never vote, and which model tweaks can fix these structural problems.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Calculate voting power under quadratic and conviction models</strong>
+      Use real numbers to determine how many votes a user has, and how conviction accumulates over time.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏗️</div>
+    <div class="obj-text">
+      <strong>Design a governance system for any type of DAO</strong>
+      Choose the right model for a protocol DAO, a social club, a grant-giving organization, or an investment collective - and explain why.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DAO That Was Captured by a Single Whale</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a small DeFi protocol's DAO had a simple governance rule: <strong>1 token = 1 vote</strong>. It felt democratic. Anyone could buy tokens and vote. A proposal came up to divert treasury funds to a "community initiative" that would supposedly boost the protocol's growth. A whale who had recently accumulated 55% of the tokens on the open market voted in favor. The proposal passed. The treasury was drained into a contract controlled by the whale's team. The funds were never seen again. The DAO was devastated.</p>
+  <br>
+  <p>This was a textbook <strong>governance attack</strong> - also called a <strong>plutocracy exploit</strong>. Simple token voting had allowed wealth to buy control. The community later learned about <strong>quadratic voting</strong>, where voting power is the square root of tokens held, making it exponentially expensive to dominate. They migrated to a <strong>conviction voting</strong> model, where votes accumulate over time, preventing flash attacks. And they implemented <strong>delegation</strong>, where experts could be elected to represent passive holders. This sub-module teaches you all these models so your DAO never suffers the same fate.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Athenian Democracy to Quadratic Voting - The Quest for Fair Governance</h2>
+<p>The question of how to make collective decisions fairly has haunted humanity for millennia. Ancient Athens experimented with direct democracy - every citizen voted on every issue. It was fair but impossibly slow at scale. Representative democracy solved scale by electing officials, but introduced principal-agent problems: representatives often served their own interests, not the people's.</p>
+<p>Blockchain DAOs inherited this challenge in a new form. The default became <strong>token-weighted voting</strong>: hold more tokens, cast more votes. It was simple to implement (a smart contract literally reads your balance), but it immediately created a system where the rich ruled. As DAOs grew, the flaws became visible. A 2022 study by Snapshot Labs found that in the average DAO, the top 1% of token holders controlled over 70% of the voting power. Most proposals passed with fewer than 10% of tokens voting. Governance had become a spectator sport.</p>
+<p>In response, researchers and developers began adapting political science models to the blockchain. <strong>Quadratic voting</strong>, proposed by economist Glen Weyl, made each additional vote exponentially more expensive in tokens. <strong>Liquid democracy</strong> allowed delegation to trusted experts. <strong>Conviction voting</strong>, pioneered by the 1Hive project, made voting power accumulate over time, favoring long-term commitment over flash purchases. <strong>Reputation-based voting</strong> tied voting power to contributions, not capital. Each model tackled a different weakness of the simple 1-token-1-vote baseline.</p>
+<p>On MST, with its sub-paisa gas fees, all these sophisticated models become practical. On Ethereum, quadratic voting might cost ₹500 per vote - only the rich participate. On MST, it costs ₹0.006 - true democratic participation is finally economically viable.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> There is no perfect governance model. Each trades off fairness, efficiency, and security differently. The skill is choosing the right model - or combination of models - for your DAO's specific purpose and community.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Voting Power = The Recipe for Your DAO's Cake</h2>
+<div class="callout analogy">
+  <div class="callout-label">🎂 The Analogy</div>
+  <p>Imagine your DAO is baking a cake, and the recipe is decided by vote. In <strong>simple token voting</strong>, whoever bought the most ingredients (tokens) decides the recipe - the sugar tycoon always wins. In <strong>quadratic voting</strong>, each additional bag of sugar you buy gives you less voting power - so no one person can dominate. In <strong>delegation</strong>, if you don't know much about baking, you can assign your vote to a master chef. In <strong>conviction voting</strong>, you can't just show up with a truckload of sugar and win - you have to keep adding it day after day, showing you really care about the cake. Each model changes who gets to decide the recipe.</p>
+</div>
+
+<p>Let's explore the six major models in depth:</p>
+
+<!-- 05 TECHNICAL DEEP DIVE: MODEL 1 - SIMPLE TOKEN VOTING -->
+<div class="section-label">05 &nbsp; Model 1 - Simple Token-Weighted Voting</div>
+<h2 class="section-title">1 Token = 1 Vote - The Default, and Its Dangers</h2>
+<p>This is the simplest and most common DAO governance model. Your voting power is directly proportional to the number of governance tokens you hold (or have delegated to you). If Alice holds 1,000 tokens and Bob holds 100 tokens, Alice has 10× Bob's voting power.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How It Works</h3>
+<p>The smart contract reads your token balance at a specific block number (the "snapshot") and assigns you that many votes. You can vote For, Against, or Abstain on any active proposal. If the number of For votes exceeds a threshold (e.g., &gt;50% of total votes cast, or &gt;quorum), the proposal passes.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Simple to implement:</strong> OpenZeppelin's <code>GovernorCountingSimple</code> does this out of the box.</li>
+  <li><strong>Capital-aligned:</strong> Those with the most financial stake have the most say - they have "skin in the game."</li>
+  <li><strong>Liquid:</strong> Tokens can be bought and sold on the open market, making governance participation fluid.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Plutocracy:</strong> Wealthy token holders can dominate, buying control on the open market. A single whale can pass proposals that benefit them at the expense of the community.</li>
+  <li><strong>Voter apathy:</strong> Small holders feel their vote doesn't matter. Most tokens never vote. A 2023 study found average DAO voter turnout was just 8%.</li>
+  <li><strong>Governance attacks:</strong> An attacker can borrow tokens (via flash loan) just before a snapshot, vote, and immediately sell - manipulating governance without long-term commitment.</li>
+</ul>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.2-A · Simple Token Voting - Power Distribution</div>
+  <pre>  Tokens Held         Voting Power
+  ─────────────────────────────────
+  Whale A: 55,000  ████████████████████████████████████  55%
+  Whale B: 20,000  ████████████████                    20%
+  Medium C: 10,000 ████████                             10%
+  Small D:   5,000 ████                                  5%
+  Small E:   5,000 ████                                  5%
+  Small F:   5,000 ████                                  5%
+  ─────────────────────────────────
+  2 whales control 75% of votes
+  </pre>
+  <div class="diagram-caption">With simple token voting, a small number of large holders can control every decision. The majority of holders have negligible influence.</div>
+</div>
+
+<!-- 06 MODEL 2: QUADRATIC VOTING -->
+<div class="section-label">06 &nbsp; Model 2 - Quadratic Voting</div>
+<h2 class="section-title">Making It Expensive to Dominate</h2>
+<p>Quadratic voting (QV) is a radical departure: instead of voting power being linear with tokens, it's the <strong>square root</strong>. If Alice holds 100 tokens, she gets √100 = 10 votes. If she holds 10,000 tokens, she gets √10,000 = 100 votes. To double her voting power, she needs 4× the tokens. To triple it, she needs 9×. This makes it progressively more expensive to accumulate outsized influence, while still giving larger stakeholders more say than smaller ones.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Math</h3>
+<p style="text-align:center; font-size:18px; font-weight:600; color:var(--ink);">Voting Power = √(Tokens Held)</p>
+<table class="compare-table">
+  <thead>
+    <tr><th>Tokens Held</th><th>Simple Voting Power</th><th>Quadratic Voting Power</th><th>Tokens Needed to Double (QV)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>100</td><td>100</td><td>10</td><td> - </td></tr>
+    <tr><td>400</td><td>400</td><td>20</td><td>400 (4× from 100)</td></tr>
+    <tr><td>900</td><td>900</td><td>30</td><td> - </td></tr>
+    <tr><td>10,000</td><td>10,000</td><td>100</td><td> - </td></tr>
+    <tr><td>40,000</td><td>40,000</td><td>200</td><td>40,000 (4× from 10k)</td></tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Reduces whale dominance:</strong> A whale with 55% of tokens gets √55 ≈ 7.4 votes out of √100 = 10 total - far less than 55%.</li>
+  <li><strong>Encourages broad participation:</strong> Small holders' votes carry more weight relative to their token holdings, incentivizing them to vote.</li>
+  <li><strong>Resists governance attacks:</strong> Buying tokens for a flash attack is far less effective when each additional token gives diminishing returns.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Sybil attacks:</strong> A whale could split tokens across many wallets, each getting √N votes, circumventing the quadratic cost. This requires identity verification to prevent.</li>
+  <li><strong>Complexity:</strong> Harder to implement and explain to users. Not natively supported by OpenZeppelin; requires custom contracts.</li>
+  <li><strong>Capital disincentive:</strong> Reduces the benefit of holding many tokens, which may discourage large investors from supporting the DAO.</li>
+</ul>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.2-B · Quadratic vs Linear Voting Power</div>
+  <pre>  Voting Power
+  100 ┤                                    ● (10,000 tokens, 100 votes linear)
+      │
+   80 ┤
+      │
+   60 ┤
+      │
+   40 ┤
+      │                    ● (10,000 tokens, 100 votes quadratic)
+   20 ┤              ● (400 tokens)
+      │        ● (100 tokens)
+    0 ┤────────────────────────────────────────────▶ Tokens Held
+      0       2,000      5,000      10,000
+  </pre>
+  <div class="diagram-caption">Quadratic voting compresses extreme holdings. A 10,000-token whale gets only √10,000 = 100 votes - far less than the 10,000 they'd get in simple voting.</div>
+</div>
+
+<!-- 07 MODEL 3: DELEGATION (LIQUID DEMOCRACY) -->
+<div class="section-label">07 &nbsp; Model 3 - Delegation / Liquid Democracy</div>
+<h2 class="section-title">Vote Yourself, or Send a Representative</h2>
+<p>Liquid democracy combines the best of direct and representative democracy. Token holders can vote directly on any proposal, or they can <strong>delegate</strong> their voting power to a trusted representative - an expert, a community leader, or a friend. Delegation can be revoked at any time. This solves a key problem: most token holders lack the time or expertise to evaluate every proposal, but they still want their voice to count.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How It Works</h3>
+<p>The governance token contract (e.g., OpenZeppelin's <code>ERC20Votes</code>) includes a <code>delegate(address)</code> function. When Alice delegates to Bob, Bob's voting power increases by Alice's token balance. Alice can vote directly on any proposal, which overrides the delegation for that specific vote (in some implementations). Delegation chains can form: Alice → Bob → Carol, where Carol ends up with the combined power.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Expertise:</strong> Complex proposals can be evaluated by experts who have time and knowledge, not just capital.</li>
+  <li><strong>Inclusivity:</strong> Small holders can pool their votes via delegation, collectively matching the influence of a whale.</li>
+  <li><strong>Flexibility:</strong> You can vote on issues you care about and delegate the rest. Delegation can be changed at any time.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Delegate capture:</strong> If a few delegates accumulate most of the power, the DAO effectively becomes an oligarchy.</li>
+  <li><strong>Lazy delegation:</strong> Users may delegate to popular figures without understanding their positions.</li>
+  <li><strong>Whale delegates:</strong> A whale who is also a delegate can concentrate enormous power - their own tokens plus delegated tokens.</li>
+</ul>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.2-C · Liquid Democracy Delegation Chains</div>
+  <pre>  ┌─────────┐    ┌─────────┐    ┌─────────┐
+  │ Alice   │    │ Bob     │    │ Carol   │
+  │ 100     │───▶│ 200     │───▶│ 500     │
+  │ tokens  │    │ tokens  │    │ tokens  │
+  └─────────┘    └────┬────┘    └────┬────┘
+                      │              │
+         ┌────────────┘              │
+         ▼                           ▼
+  ┌─────────────────────────────────────┐
+  │         Carol's Total Power:         │
+  │  500 (own) + 200 (Bob) + 100 (Alice) │
+  │  = 800 votes                         │
+  └─────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Delegation chains allow small holders to combine their power under a trusted representative. Carol acts as a delegate for Alice and Bob.</div>
+</div>
+
+<!-- 08 MODEL 4: CONVICTION VOTING -->
+<div class="section-label">08 &nbsp; Model 4 - Conviction Voting</div>
+<h2 class="section-title">Prove You Care by Locking Your Tokens Over Time</h2>
+<p>Conviction voting, pioneered by the 1Hive project for Aragon DAOs, is a radical model where voting power is not based on your token balance, but on <strong>how long you've locked your tokens in favor of a proposal</strong>. When a proposal is created, token holders can stake their tokens on it. Their voting power starts at zero and grows over time according to a curve. The longer they keep their tokens staked on the proposal, the more conviction they accumulate. If enough conviction accumulates to pass a threshold, the proposal can be executed.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Conviction Curve</h3>
+<p style="text-align:center; font-size:18px; font-weight:600; color:var(--ink);">Conviction(t) = Tokens Staked × (1 - e^(-λ·t))</p>
+<p>Where t is the time staked, and λ (lambda) is a rate parameter. The conviction approaches the staked amount asymptotically - it never exceeds it, but grows quickly at first and then levels off.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Key Features</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>No fixed voting period:</strong> Proposals stay open indefinitely. Anyone can stake at any time.</li>
+  <li><strong>Tokens can be withdrawn:</strong> If a user changes their mind, they can unstake their tokens from a proposal, losing their accumulated conviction.</li>
+  <li><strong>Execution threshold:</strong> A proposal passes when total conviction exceeds a threshold (e.g., 10% of total token supply).</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Resists flash attacks:</strong> An attacker cannot buy tokens and immediately pass a proposal - they'd need to stake for weeks or months.</li>
+  <li><strong>Signals commitment:</strong> Only those who truly care about a proposal will lock tokens for an extended period.</li>
+  <li><strong>Continuous:</strong> No "voting deadline" pressure. The community can deliberate indefinitely.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Slow:</strong> Important decisions may take weeks to reach the conviction threshold.</li>
+  <li><strong>Capital opportunity cost:</strong> Staking tokens on a proposal means they can't be used elsewhere (e.g., in DeFi). This may discourage participation unless the DAO provides yield.</li>
+  <li><strong>Whales still have advantage:</strong> A whale staking many tokens will reach the threshold faster than many small holders combined.</li>
+</ul>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.2-D · Conviction Voting - Power Over Time</div>
+  <pre>  Conviction
+  100 ┤                                    ╭────────────
+      │                              ╭─────╯
+   80 ┤                         ╭────╯
+      │                    ╭────╯
+   60 ┤               ╭────╯
+      │          ╭────╯
+   40 ┤     ╭────╯
+      │╭────╯
+   20 ┤╯
+      │
+    0 ┤────────────────────────────────────────────────▶ Time (days)
+      0     2     4     6     8    10    12    14
+  </pre>
+  <div class="diagram-caption">Conviction grows quickly at first, then asymptotically approaches the staked amount. A whale with 100 tokens staked approaches 100 conviction; a small holder with 20 tokens approaches 20.</div>
+</div>
+
+<!-- 09 MODEL 5: REPUTATION‑BASED VOTING -->
+<div class="section-label">09 &nbsp; Model 5 - Reputation-Based Voting</div>
+<h2 class="section-title">Power from Contribution, Not Capital</h2>
+<p>Reputation-based voting breaks the link between tokens and voting power entirely. Instead, voting power is earned through <strong>contributions to the DAO</strong> - completing tasks, receiving peer endorsements, or holding non-transferable reputation tokens (sometimes called "soulbound tokens" or SBTs). This model is ideal for DAOs where the goal is to reward active participants, not passive investors.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How It Works</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Non-transferable reputation tokens:</strong> Minted for specific achievements (e.g., "Completed 5 code reviews", "Served as moderator for 6 months"). Cannot be bought or sold.</li>
+  <li><strong>Peer endorsement:</strong> Community members vouch for each other, similar to how academic citations work. Your reputation score increases when trusted members endorse you.</li>
+  <li><strong>Contribution tracking:</strong> Platforms like Coordinape and SourceCred calculate reputation scores from GitHub commits, forum posts, and meeting attendance.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Meritocratic:</strong> Those who actually do the work have the most say, not those who simply bought tokens.</li>
+  <li><strong>Sybil-resistant:</strong> Non-transferable tokens can't be accumulated by a single attacker across multiple wallets.</li>
+  <li><strong>Community-aligned:</strong> Voting power reflects genuine commitment and expertise, aligning governance with long-term success.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Subjective:</strong> Who decides what counts as a valuable contribution? The reputation system itself becomes a governance challenge.</li>
+  <li><strong>Inertia:</strong> Early contributors accumulate reputation and may become entrenched, making it hard for newcomers to gain influence.</li>
+  <li><strong>Complexity:</strong> Harder to implement than simple token voting. Requires off-chain tracking or sophisticated on-chain mechanisms.</li>
+</ul>
+
+<!-- 10 MODEL 6: HOLOGRAPHIC CONSENSUS -->
+<div class="section-label">10 &nbsp; Model 6 - Holographic Consensus</div>
+<h2 class="section-title">Let the Crowd Filter Proposals Before the DAO Votes</h2>
+<p>Holographic consensus, pioneered by DAOstack, addresses a practical problem: as a DAO grows, the number of proposals can become overwhelming. Most token holders can't evaluate 50 proposals a week. Holographic consensus introduces a <strong>prediction market</strong> layer: a small group of "predictors" stake tokens on which proposals they believe will pass. The proposals that accumulate enough stake become "boosted" and get attention from the full DAO. This acts as a scalable attention filter.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How It Works</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>A proposal is submitted to the DAO.</li>
+  <li>Anyone can stake tokens to "boost" the proposal - effectively betting that it will pass.</li>
+  <li>If enough tokens are staked (reaching a threshold), the proposal becomes "boosted" and goes to a full DAO vote.</li>
+  <li>If the proposal passes, the boosters are rewarded. If it fails, they lose their stake. This incentivizes careful selection.</li>
+</ol>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Strengths</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Scalable:</strong> The full DAO only votes on proposals that have passed the booster filter, reducing voter fatigue.</li>
+  <li><strong>Economic incentives align:</strong> Boosters put skin in the game, so they only boost proposals they genuinely believe in.</li>
+  <li><strong>Attention economy:</strong> Helps surface high-quality proposals in a sea of noise.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Weaknesses</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Booster capture:</strong> A wealthy group could boost only their own proposals, gatekeeping the DAO.</li>
+  <li><strong>Complexity:</strong> Adds another layer to governance, which can confuse participants.</li>
+  <li><strong>Still experimental:</strong> Few DAOs use this model in production compared to simpler alternatives.</li>
+</ul>
+
+<!-- 11 COMPARISON TABLE -->
+<div class="section-label">11 &nbsp; Master Comparison</div>
+<h2 class="section-title">Which Model Fits Your DAO? - Complete Comparison</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Model</th><th>Power Basis</th><th>Whale Resistance</th><th>Speed</th><th>Complexity</th><th>Best For</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Simple Token Voting</strong></td><td>Tokens held</td><td class="bad">Low</td><td class="good">Fast</td><td class="good">Very simple</td><td>Protocol DAOs, early stage</td></tr>
+    <tr><td><strong>Quadratic Voting</strong></td><td>√(Tokens held)</td><td class="good">High</td><td class="good">Fast</td><td class="mid">Moderate</td><td>Public goods, community DAOs</td></tr>
+    <tr><td><strong>Delegation</strong></td><td>Tokens + delegated</td><td class="mid">Medium</td><td class="good">Fast</td><td class="mid">Moderate</td><td>Any DAO (often combined)</td></tr>
+    <tr><td><strong>Conviction Voting</strong></td><td>Time × tokens</td><td class="good">High</td><td class="bad">Slow</td><td class="mid">Moderate</td><td>Grant DAOs, treasury spending</td></tr>
+    <tr><td><strong>Reputation-Based</strong></td><td>Contributions</td><td class="good">Very high</td><td class="mid">Medium</td><td class="bad">High</td><td>Worker DAOs, social clubs</td></tr>
+    <tr><td><strong>Holographic Consensus</strong></td><td>Staking + market</td><td class="mid">Medium</td><td class="mid">Medium</td><td class="bad">High</td><td>Large, high-volume DAOs</td></tr>
+  </tbody>
+</table>
+
+<!-- 12 COMBINING MODELS -->
+<div class="section-label">12 &nbsp; Combining Models</div>
+<h2 class="section-title">The Best DAOs Mix and Match</h2>
+<p>In practice, the most successful DAOs combine multiple models. For example:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Uniswap DAO:</strong> Simple token voting + delegation. Any UNI holder can vote or delegate. The combined power of small holders delegating to informed representatives has successfully passed major proposals.</li>
+  <li><strong>1Hive / Gardens:</strong> Conviction voting for treasury spending + quadratic voting for membership decisions. This ensures that routine spending (grants) has a continuous, deliberate process, while membership changes require broader consensus.</li>
+  <li><strong>Gitcoin DAO:</strong> Quadratic funding for grant allocation (a variant of quadratic voting applied to funding, not just voting) + simple token voting for protocol parameters.</li>
+  <li><strong>MST-based DAOs (future):</strong> Could combine conviction voting for treasury (slow, deliberate) with quadratic voting for emergency proposals (fast, whale-resistant), all running on sub-paisa fees.</li>
+</ul>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> On Ethereum, combining multiple governance models (e.g., quadratic + conviction) would be prohibitively expensive due to complex on-chain calculations. On MST, you can run quadratic voting, conviction curves, and delegation all on-chain for paise per vote. This enables rich, multi-layered governance that's actually used.
+</div>
+
+<!-- 13 INTERACTIVE EXAMPLES -->
+<div class="section-label">13 &nbsp; Interactive Examples - Click to Explore</div>
+<details>
+  <summary>🗳️ Example 1: Calculate Quadratic Voting Power</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> A DAO has 10,000 total tokens. Alice holds 1,000 tokens. Bob holds 100 tokens. What is their quadratic voting power?</p>
+    <p><strong>Alice:</strong> √1,000 ≈ 31.6 votes</p>
+    <p><strong>Bob:</strong> √100 = 10 votes</p>
+    <p><strong>Ratio:</strong> Alice has 3.16× Bob's power in QV, versus 10× in simple voting. QV compresses the gap by a factor of √10 ≈ 3.16.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⏳ Example 2: Conviction Voting - How Long Until a Proposal Passes?</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> A DAO uses conviction voting with threshold = 500 conviction units. Alice stakes 100 tokens. The conviction function is Conviction(t) = Tokens × (1 - e^(-0.1·t)). How many days until her conviction reaches 500?</p>
+    <p>We need 100 × (1 - e^(-0.1·t)) = 500 → 1 - e^(-0.1·t) = 5 → impossible - conviction can never exceed the staked amount. Alice's conviction asymptotically approaches 100. To reach 500, she'd need to stake at least 500 tokens, or attract more stakers. This illustrates that conviction voting requires significant collective commitment - a single user can't pass a proposal alone unless they stake above the threshold.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔗 Example 3: Delegation Chain Power Accumulation</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> Alice delegates 500 tokens to Bob. Bob delegates 300 tokens to Carol. Carol holds 200 tokens. What is Carol's total voting power on a simple token-voting DAO?</p>
+    <p>Carol's total = 200 (own) + 300 (Bob's, which includes Alice's via Bob) = 500 votes. However, the chain is: Carol receives Bob's 300 (which already includes Alice's 500? No - Bob only has 300 of his own plus the delegated 500 from Alice = 800. Wait, re-read: Bob delegates 300 to Carol. Bob's total = 300 (own) + 500 (Alice) = 800. He delegates only 300 to Carol. So Carol gets 200 + 300 = 500. This shows how delegation amounts are explicit, not automatic cascading of all delegated power.</p>
+  </div>
+</details>
+
+<!-- 14 COMMON PITFALLS -->
+<div class="section-label">14 &nbsp; Common Pitfalls in Governance Design</div>
+<h2 class="section-title">Don't Let Your DAO Become a Cautionary Tale</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Choosing a model based on trend, not need</div>
+      <div class="feature-desc">Quadratic voting is trendy, but if your DAO has 50 members who all know each other, simple voting with delegation works perfectly. Pick the simplest model that solves your actual problems.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the quorum problem</div>
+      <div class="feature-desc">If quorum is set too high, no proposals ever pass. If set too low, a single active voter can control the DAO. Quorum should be set based on historical participation rates, and adjusted as the DAO grows.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">No emergency mechanism</div>
+      <div class="feature-desc">Every DAO needs a way to act quickly in a crisis. A multisig of trusted community members for emergency actions, with a time-limited scope and community override, is a common and prudent pattern.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 ASSESSMENT PREP -->
+<div class="section-label">15 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Simple token voting gives power proportional to tokens. Quadratic voting uses √(tokens).</div>
+      <div class="feature-desc">QV compresses the gap between large and small holders, making domination exponentially more expensive.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegation (liquid democracy) allows token holders to assign their votes to trusted experts.</div>
+      <div class="feature-desc">Combines direct and representative democracy. OpenZeppelin's ERC20Votes supports delegation natively.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Conviction voting accumulates power over time - Conviction(t) = Tokens × (1 - e^(-λ·t)).</div>
+      <div class="feature-desc">Resists flash attacks. Requires long-term commitment. Best for treasury spending and grant allocation.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees make complex, multi-model governance economically viable.</div>
+      <div class="feature-desc">Quadratic voting, conviction curves, and delegation all cost paise per vote on MST, enabling rich governance at scale.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">16 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 15.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Simple Token Voting</div><div class="glossary-def">Governance model where 1 token = 1 vote. The most common and simplest to implement, but vulnerable to plutocracy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Quadratic Voting</div><div class="glossary-def">Voting power = √(tokens held). Makes it exponentially more expensive to accumulate outsized influence, reducing whale dominance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquid Democracy</div><div class="glossary-def">A system where token holders can vote directly or delegate their voting power to trusted representatives, and change delegates at any time.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Conviction Voting</div><div class="glossary-def">Voting power grows over time as tokens are staked on a proposal. Prevents flash attacks and signals long-term commitment.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Reputation-Based Voting</div><div class="glossary-def">Voting power is earned through contributions, not capital. Uses non-transferable reputation tokens or soulbound tokens.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Holographic Consensus</div><div class="glossary-def">A prediction market layer that filters proposals before a full DAO vote. Boosters stake tokens on proposals to surface them.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Plutocracy</div><div class="glossary-def">Rule by the wealthy - a risk in token-voting systems where large holders can dominate decisions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Quorum</div><div class="glossary-def">The minimum number of votes required for a proposal to be valid. Prevents a tiny minority from making decisions.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 15 · Sub-Module <strong>15.2</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 15.3 - Proposal Lifecycle &amp; Execution →</p>
+</div>
+
+

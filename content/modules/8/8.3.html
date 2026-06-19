@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 8.3 - Hardhat Framework | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.3 of 8</div>
+<h1 class="module-title">Hardhat <span class="highlight">Framework</span></h1>
+<p class="module-subtitle">The Swiss Army knife of EVM development - compile, test, debug, and deploy Solidity contracts to MST with a single unified toolchain that runs on your machine.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 1 Code-Completion (5 marks)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment & Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Initialize a Hardhat project and configure it for MST</strong>
+      Create a project from scratch, customize <code>hardhat.config.js</code> with MST Testnet and mainnet RPC URLs, and understand every field in the config.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔨</div>
+    <div class="obj-text">
+      <strong>Compile, test, and deploy contracts using the Hardhat workflow</strong>
+      Run <code>npx hardhat compile</code>, write unit tests in JavaScript with ethers.js and Chai, and deploy to MST Testnet with a single command.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text">
+      <strong>Debug transactions with Hardhat Network and console.log</strong>
+      Use the built-in local blockchain to simulate transactions, fork mainnet state, and print Solidity variables directly to the terminal.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Extend Hardhat with plugins and custom tasks</strong>
+      Add gas reporting, contract verification, and custom automation scripts - understanding the plugin architecture that makes Hardhat the industry standard.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Startup That Deployed to Production - Without Hardhat</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2020, a DeFi startup in Bengaluru was building a lending protocol. Their development workflow was a patchwork of Remix (browser-based IDE) for compilation, a custom Python script for testing, and manual MetaMask transactions for deployment. It worked - until they needed to audit their contracts. The auditor asked for a reproducible build and a complete test suite. The team spent three weeks rewriting their tooling around Truffle, then discovered that Truffle's debugging was limited and its configuration confusing.</p>
+  <br>
+  <p>A consultant introduced them to Hardhat. In one afternoon, they migrated all their contracts. <code>hardhat.config.js</code> was a single file that defined networks, compiler versions, and plugins. They wrote tests in JavaScript that could fork the Ethereum mainnet state to simulate real DeFi interactions. The built-in <code>console.log</code> in Solidity cut their debugging time by 80%. They deployed to a testnet and verified their contracts on the block explorer with a single command. The auditor was impressed, and the protocol launched without a hitch.</p>
+</div>
+<p>This sub-module transforms you into that consultant. You will master Hardhat - the framework that has become the undisputed standard for EVM smart contract development. Whether you're building on Ethereum, Polygon, or MST, the same Hardhat skills apply everywhere.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Truffle to Hardhat - The Evolution of EVM Tooling</h2>
+<p>In Ethereum's early days (2015 - 2017), smart contract development was primitive. Developers used the <strong>Remix IDE</strong> in a browser, compiled contracts with the <code>solc</code> compiler directly, and deployed manually via the Mist browser or command-line tools. There was no standardized project structure, no automated testing framework, and no way to reproduce builds across machines.</p>
+<p><strong>Truffle</strong> (launched 2015) was the first attempt at a comprehensive development framework. It introduced a project structure with <code>contracts/</code>, <code>migrations/</code>, and <code>test/</code> folders, and its own testing environment based on Mocha. Truffle also included a built-in local blockchain (Ganache). For years, Truffle was the de facto standard. However, it had drawbacks: a rigid migration system, limited configurability, and a disconnect between the local testnet and the real Ethereum network behavior.</p>
+<p>In 2018, a new project called <strong>Buidler</strong> (later renamed <strong>Hardhat</strong> in 2020) was launched by the team at Nomic Foundation. Hardhat took a different approach: instead of a monolithic framework, it provided a <strong>modular, plugin-based architecture</strong>. The core was lightweight - just a task runner and a local Ethereum network. Everything else (compilation, testing, gas reporting, contract verification) was a plugin. This made Hardhat incredibly flexible and easy to extend.</p>
+<p>Hardhat's <strong>built-in local network</strong> (Hardhat Network) was a game-changer. It wasn't a separate process like Ganache; it was integrated directly into the Node.js runtime, allowing for <strong>console.log from Solidity</strong>, stack traces on revert, and the ability to <strong>fork mainnet state</strong> - simulating transactions against real deployed contracts. This enabled testing against Uniswap, Aave, or any on-chain protocol with zero setup.</p>
+<p>By 2022, Hardhat had surpassed Truffle in popularity and became the recommended framework for most EVM chains, including MST. MST's full EVM compatibility means that every Hardhat plugin, every Solidity compiler version, and every deployment script works identically on MST - you simply point the RPC URL to an MST node.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015</div>
+      <div class="tl-body"><strong>Truffle launched.</strong> First Ethereum development framework. Introduced contract compilation, migration scripts, and Ganache local blockchain. Established the <code>contracts/</code> and <code>migrations/</code> folder convention.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018</div>
+      <div class="tl-body"><strong>Buidler (later Hardhat) launched.</strong> Modular, plugin-based architecture. Integrated local Ethereum network with Solidity console.log. Built on Node.js and designed to be extended.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2020</div>
+      <div class="tl-body"><strong>Hardhat rebranded and gained traction.</strong> Added Hardhat Network forking, stack traces, and a growing plugin ecosystem. Adopted by major projects like Uniswap, Aave, and OpenZeppelin.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2023</div>
+      <div class="tl-body"><strong>Hardhat Ignition released.</strong> New declarative deployment system. Replaces the legacy scripts-based deployment with a more robust, type-safe approach.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST + Hardhat.</strong> Full compatibility. Deploy to MST Testnet or mainnet by adding a network entry in <code>hardhat.config.js</code>. All plugins work without modification. Use Hardhat's local network to simulate MST's environment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Hardhat as a Workshop for Smart Contracts</h2>
+<div class="callout analogy">
+  <div class="callout-label">🔧 The Analogy</div>
+  <p>Think of Hardhat as a <strong>fully equipped automobile workshop</strong>. You bring in your Solidity source code (the car blueprint). Hardhat's compiler (the assembly line) turns it into EVM bytecode (the car). The testing framework (quality control) runs the car on a closed track (Hardhat Network) to check for faults. The deployment script (the delivery truck) ships the finished car to the blockchain (the customer). And if something breaks, the debugger (the mechanic's diagnostic tool) tells you exactly which part failed. You can even test your car on real roads by forking the mainnet - driving alongside existing vehicles to ensure compatibility.</p>
+</div>
+<p>Let's break down what Hardhat actually does under the hood:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COMPILE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What does Hardhat compile?</div>
+      <div class="w5-a">Hardhat uses the Solidity compiler (<code>solc</code>) to convert your <code>.sol</code> files into two outputs: <strong>bytecode</strong> (the machine code that the EVM executes) and an <strong>ABI</strong> (Application Binary Interface - a JSON description of your contract's functions). These are stored in the <code>artifacts/</code> folder. Hardhat caches compilation results, so only changed files are recompiled. It supports multiple Solidity versions, even within the same project.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">T</div><div class="w5-word">TEST</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does Hardhat run tests?</div>
+      <div class="w5-a">Hardhat integrates with <strong>Mocha</strong> (test framework) and <strong>Chai</strong> (assertion library). You write tests in JavaScript (or TypeScript) that deploy your contracts to Hardhat's local network, call functions, and verify results. Each test file runs in isolation with a fresh blockchain state. Hardhat also supports <code>console.log</code> inside Solidity - you can print variable values from your contract during tests, which is invaluable for debugging.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">D</div><div class="w5-word">DEPLOY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does Hardhat deploy contracts?</div>
+      <div class="w5-a">You write deployment scripts in JavaScript (or TypeScript) that use ethers.js to deploy your contracts to any network defined in <code>hardhat.config.js</code>. A typical script creates a contract factory, calls <code>.deploy()</code> with constructor arguments, and waits for confirmation. Hardhat also supports <strong>Ignition</strong>, a declarative deployment system where you define deployment modules that handle dependencies and upgrades.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 INTERACTIVE: GETTING STARTED ═══════════════ -->
+<div class="section-label">05 &nbsp; Interactive Walkthrough</div>
+<h2 class="section-title">Set Up a Hardhat Project for MST - Step by Step</h2>
+<p>Follow along by clicking each step. You'll have a fully functional Hardhat project connected to MST Testnet by the end.</p>
+
+<details open>
+  <summary>📁 Step 1: Initialize a Hardhat project</summary>
+  <div class="content">
+    <p>In your terminal (inside an empty folder), run:</p>
+    <p><code>npx hardhat init</code></p>
+    <p>Hardhat will ask you to choose a project type. Select <strong>"Create a JavaScript project"</strong>. This sets up the basic folder structure:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+my-hardhat-project/
+├── contracts/          ← Your Solidity files go here
+│   └── Lock.sol        ← Sample contract
+├── test/               ← Your test files
+│   └── Lock.js
+├── scripts/            ← Deployment and utility scripts
+│   └── deploy.js
+├── hardhat.config.js   ← Main configuration file
+├── package.json
+└── node_modules/
+    </pre>
+    <p>The sample project includes a <code>Lock.sol</code> contract and a test file to get you started. You can delete them and add your own contracts.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⚙️ Step 2: Configure networks for MST</summary>
+  <div class="content">
+    <p>Open <code>hardhat.config.js</code>. You'll see a basic configuration. We'll add MST Testnet and mainnet networks. The configuration file is JavaScript, so you can use environment variables for private keys.</p>
+    <p>First, install <code>dotenv</code> to manage secrets securely:</p>
+    <p><code>npm install --save-dev dotenv</code></p>
+    <p>Then modify <code>hardhat.config.js</code>:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: "0.8.24",
+  networks: {
+    mst_testnet: {
+      url: "https://testnet-rpc.mstblockchain.com",
+      chainId: 5000,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    mst_mainnet: {
+      url: "https://mainnet-rpc.mstblockchain.com",
+      chainId: 5001,
+      accounts: [process.env.PRIVATE_KEY]
+    }
+  }
+};
+    </pre>
+    <p>Create a <code>.env</code> file in your project root:</p>
+    <p><code>PRIVATE_KEY=your_wallet_private_key_here</code></p>
+    <p>Never commit <code>.env</code> to Git! Add it to <code>.gitignore</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔨 Step 3: Compile your contracts</summary>
+  <div class="content">
+    <p>Place your Solidity contracts in the <code>contracts/</code> folder. Then run:</p>
+    <p><code>npx hardhat compile</code></p>
+    <p>Hardhat will download the correct Solidity compiler version (if not already cached), compile all <code>.sol</code> files, and generate artifacts in the <code>artifacts/</code> folder. Successful compilation looks like:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+Compiled 2 Solidity files successfully (with warnings)
+    </pre>
+    <p>If there are errors, Hardhat will show the exact file, line number, and reason - with a clickable link in VS Code's terminal.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🧪 Step 4: Run tests</summary>
+  <div class="content">
+    <p>Write tests in the <code>test/</code> folder using Mocha and Chai. A typical test loads a contract, deploys it, and checks behavior:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const { expect } = require("chai");
+
+describe("Lock", function () {
+  it("Should set the right unlock time", async function () {
+    const Lock = await ethers.getContractFactory("Lock");
+    const lock = await Lock.deploy(ethers.parseEther("0.1"), 1893456000);
+    expect(await lock.unlockTime()).to.equal(1893456000);
+  });
+});
+    </pre>
+    <p>Run the tests with:</p>
+    <p><code>npx hardhat test</code></p>
+    <p>Hardhat spins up a local blockchain, deploys the contract, runs the test, and destroys the network - all in seconds. You'll see a report of passing and failing tests.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 5: Deploy to MST Testnet</summary>
+  <div class="content">
+    <p>Create a deployment script in <code>scripts/deploy.js</code>:</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+const hre = require("hardhat");
+
+async function main() {
+  const Lock = await hre.ethers.getContractFactory("Lock");
+  const lock = await Lock.deploy(hre.ethers.parseEther("0.1"), 1893456000);
+  await lock.waitForDeployment();
+  console.log("Lock deployed to:", lock.target);
+}
+
+main().catch(console.error);
+    </pre>
+    <p>Run the deployment on MST Testnet:</p>
+    <p><code>npx hardhat run scripts/deploy.js --network mst_testnet</code></p>
+    <p>Hardhat will connect to the MST Testnet RPC, send the deployment transaction, and wait for confirmation. You'll see the deployed contract address in the console.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 06 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Anatomy of hardhat.config.js - Every Field Explained</h2>
+<p>The <code>hardhat.config.js</code> file is the brain of your project. Let's dissect every major configuration option you'll use in production.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Solidity Compiler Configuration</h3>
+<p>The <code>solidity</code> field can be a simple string (e.g., <code>"0.8.24"</code>) or an object with multiple compiler versions and optimizer settings. For production contracts, you'll use the optimizer:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+solidity: {
+  compilers: [
+    {
+      version: "0.8.24",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200
+        }
+      }
+    }
+  ]
+}
+</pre>
+<p>The <strong>optimizer</strong> reduces bytecode size and gas costs by applying optimizations like function inlining and dead code elimination. The <code>runs</code> parameter (200 is typical) estimates how many times the contract will be called over its lifetime - higher values optimize for cheaper execution, lower values optimize for cheaper deployment. For MST, where gas is already cheap, you may not need aggressive optimization, but enabling it is good practice for complex contracts.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Network Configuration</h3>
+<p>Each network is defined with:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>url:</strong> The JSON-RPC endpoint of an MST node. You can use public RPCs, your own node, or a service like Alchemy or Infura.</li>
+  <li><strong>chainId:</strong> The network's chain ID - used to prevent transaction replay across chains. MST Testnet uses <code>5000</code>; mainnet uses <code>5001</code> (example).</li>
+  <li><strong>accounts:</strong> An array of private keys that can sign transactions. Use <code>process.env.PRIVATE_KEY</code> to avoid hardcoding secrets.</li>
+  <li><strong>gasPrice:</strong> (optional) The gas price in wei to use for transactions. On MST, gas is cheap, so you can leave this auto or set a low value.</li>
+  <li><strong>gas:</strong> (optional) The gas limit for transactions. Hardhat estimates gas automatically, but you can override if needed.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Hardhat Network (Local Blockchain)</h3>
+<p>The built-in <code>hardhat</code> network is configured separately:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+networks: {
+  hardhat: {
+    forking: {
+      url: "https://mainnet-rpc.mstblockchain.com",
+      blockNumber: 14390000  // optional: pin to a specific block
+    },
+    chainId: 31337,
+    mining: {
+      auto: true,
+      interval: 0  // mine a new block on every transaction
+    }
+  }
+}
+</pre>
+<p><strong>Forking</strong> is one of Hardhat's most powerful features. It copies the entire state of the MST mainnet (or any EVM chain) at a specific block into your local network. This lets you test your contract against real deployed contracts (like DEXs, lending pools, or any protocol) without needing to deploy them yourself. For example, you can test a flash loan attack against a live Uniswap pool without risking real funds.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Plugins and Toolbox</h3>
+<p>Hardhat's power comes from plugins. The <strong>Hardhat Toolbox</strong> (<code>@nomicfoundation/hardhat-toolbox</code>) bundles the most essential plugins:
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>@nomicfoundation/hardhat-ethers</strong> - Integrates ethers.js with Hardhat.</li>
+  <li><strong>@nomicfoundation/hardhat-verify</strong> - Verifies contracts on block explorers (like MST Explorer).</li>
+  <li><strong>hardhat-gas-reporter</strong> - Generates gas usage reports for your contracts.</li>
+  <li><strong>solidity-coverage</strong> - Measures test coverage of your Solidity code.</li>
+  <li><strong>@typechain/hardhat</strong> - Generates TypeScript type bindings for your contracts.</li>
+</ul>
+</p>
+<p>To use the toolbox, simply require it in your config:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+require("@nomicfoundation/hardhat-toolbox");
+</pre>
+<p>This single line unlocks all the bundled features. For MST-specific verification, you'll need to add the MST Explorer API URL and key. More on that in Module 11.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.3-A · Hardhat Workflow and Architecture</div>
+  <pre>
+┌────────────────────────────────────────────────────────────────────┐
+│                     Your Project (hardhat.config.js)                │
+├────────────────────────────────────────────────────────────────────┤
+│  • Solidity version & optimizer                                    │
+│  • Network definitions (MST Testnet, MST Mainnet, localhost)       │
+│  • Plugin declarations (toolbox, gas reporter, verify, etc.)       │
+└──────────────┬─────────────────────────────────────────────────────┘
+               │
+               ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                     Hardhat Runtime Environment (HRE)               │
+│  Injects 'ethers' object, 'hre' into scripts & tests.              │
+│  Loads plugins, parses config, starts local node if needed.        │
+└──────────────┬─────────────────────────────────────────────────────┘
+               │
+      ┌────────┼────────┬──────────────┐
+      ▼        ▼        ▼              ▼
+  Compile   Test     Deploy      Hardhat Network
+  (solc)  (Mocha)  (scripts)   (local EVM node)
+  generates artifacts  │
+         └─────────────┘
+         ABIs + Bytecode
+</pre>
+  <div class="diagram-caption">Hardhat's modular architecture separates concerns: compilation, testing, deployment, and the local network are independent components orchestrated by the configuration file and the Hardhat Runtime Environment.</div>
+</div>
+
+<!-- ═══════════════ 07 HARDHAT NETWORK DEEP DIVE ═══════════════ -->
+<div class="section-label">07 &nbsp; Hardhat Network</div>
+<h2 class="section-title">Your Personal Blockchain for Development and Testing</h2>
+<p>Hardhat Network is an in-process Ethereum node written in TypeScript. Unlike Ganache (which runs as a separate process), Hardhat Network runs within the same Node.js process as your tests and scripts. This tight integration provides unique capabilities:</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">console.log in Solidity</h3>
+<p>One of Hardhat's most celebrated features is the ability to use <code>console.log</code> directly in Solidity. Simply import Hardhat's console contract:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+import "hardhat/console.sol";
+
+contract MyContract {
+    function doSomething(uint256 x) public {
+        console.log("The value of x is:", x);
+        // ... rest of function
+    }
+}
+</pre>
+<p>When you run a test or script on Hardhat Network, the log output appears in your terminal. This works because Hardhat Network intercepts the console calls at the EVM level. It's only available on Hardhat Network - not on live networks - but it's invaluable for debugging.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Stack Traces and Error Messages</h3>
+<p>When a transaction reverts, Hardhat provides a full Solidity stack trace showing the exact function call chain, the line number where the error occurred, and the revert reason. This is a massive improvement over the generic "execution reverted" message you'd get from a live node.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Mainnet Forking</h3>
+<p>By adding <code>forking: { url: "..." }</code> to the hardhat network config, you get a copy of the entire blockchain state at your chosen block. All accounts, balances, and contract storage are available locally. You can impersonate any account (using <code>hre.network.provider.request({ method: "hardhat_impersonateAccount", params: [address] })</code>) and send transactions as if you were that address. This is perfect for testing integrations without spending real gas.</p>
+
+<!-- ═══════════════ 08 COMPARISON TABLE ═══════════════ -->
+<div class="section-label">08 &nbsp; Comparison</div>
+<h2 class="section-title">Hardhat vs Truffle vs Foundry - Which Framework to Choose</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>🔨 Hardhat</th><th>🐿️ Truffle</th><th>⚒️ Foundry</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Language</td><td>JavaScript/TypeScript</td><td>JavaScript/TypeScript</td><td>Solidity (tests in Solidity)</td></tr>
+    <tr><td>Local network</td><td class="good">Built-in, in-process, Solidity console.log</td><td class="mid">Ganache (separate process)</td><td class="mid">Built-in (Anvil), fast, but no Solidity console.log</td></tr>
+    <tr><td>Plugin ecosystem</td><td class="good">Rich (toolbox, gas reporter, verify, etc.)</td><td class="bad">Limited</td><td class="mid">Built-in features, fewer plugins</td></tr>
+    <tr><td>Mainnet forking</td><td class="good">Yes, built-in</td><td class="bad">Requires Ganache fork</td><td class="good">Yes, built-in</td></tr>
+    <tr><td>Compilation speed</td><td class="mid">Good (cached)</td><td class="mid">Slow</td><td class="good">Very fast (cached, incremental)</td></tr>
+    <tr><td>Debugging</td><td class="good">Stack traces, console.log, debugger</td><td class="mid">Basic debugger</td><td class="mid">Cast and Forge debugger (CLI)</td></tr>
+    <tr><td>MST support</td><td class="good">Fully compatible (EVM)</td><td class="good">Fully compatible (EVM)</td><td class="good">Fully compatible (EVM)</td></tr>
+    <tr><td>Recommendation</td><td colspan="3">Stick with Hardhat for this course - it's the most widely adopted, has the best plugin ecosystem, and its JavaScript-based tooling integrates seamlessly with frontend development.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════ 09 CASE STUDIES ═══════════════ -->
+<div class="section-label">09 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Top Projects Use Hardhat</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v4 - Testing Across Chains with Forking</div>
+      <div class="feature-desc">Uniswap's development team uses Hardhat with mainnet forking to test new pool contracts against real-world liquidity. By forking Ethereum mainnet, they can simulate swaps against actual Uniswap v3 pools, verify pricing logic, and test edge cases - all without spending gas. When deploying to new chains like MST, the same Hardhat test suite runs against a forked MST mainnet state, ensuring identical behavior. This is a perfect example of how Hardhat's forking enables cross-chain development without duplicating test infrastructure.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave - Gas Optimisation with hardhat-gas-reporter</div>
+      <div class="feature-desc">Aave's lending protocol is gas-sensitive - every function call costs user funds. The team uses the hardhat-gas-reporter plugin to generate detailed reports of gas consumption for each function. During optimization, they run the test suite, review the gas report, tweak the Solidity code (e.g., replacing storage variables with memory, using unchecked blocks for arithmetic), and re-run to measure improvements. On MST, where gas is cheap, gas optimization is still important for high-frequency transactions like liquidation bots, and hardhat-gas-reporter makes it measurable.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 10 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardhat is a modular, plugin-based EVM development framework</div>
+      <div class="feature-desc">It compiles Solidity, runs tests (Mocha/Chai), deploys contracts, and provides a built-in local Ethereum network. It's fully compatible with MST - just configure the RPC URL and chain ID in <code>hardhat.config.js</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">hardhat.config.js configures Solidity version, networks, and plugins</div>
+      <div class="feature-desc">It's a JavaScript file. Networks are defined with <code>url</code>, <code>chainId</code>, and <code>accounts</code>. The <code>solidity</code> field can specify compiler version and optimizer settings. Plugins are loaded with <code>require()</code>.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardhat Network supports console.log in Solidity and mainnet forking</div>
+      <div class="feature-desc">Import <code>hardhat/console.sol</code> to log variables during tests. Configure forking to copy live chain state locally. These features are unique to Hardhat's in-process network.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Deploy to MST Testnet with: npx hardhat run scripts/deploy.js --network mst_testnet</div>
+      <div class="feature-desc">The <code>--network</code> flag selects the network defined in hardhat.config.js. The script uses ethers.js (injected as <code>hre.ethers</code>) to deploy contracts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">The Hardhat Toolbox bundles essential plugins</div>
+      <div class="feature-desc"><code>@nomicfoundation/hardhat-toolbox</code> includes ethers, verify, gas reporter, and coverage plugins. A single require unlocks all these features.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 8.3 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary configuration file for a Hardhat project?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> package.json</li>
+        <li class="correct"><span class="opt-key">B</span> hardhat.config.js ✅</li>
+        <li><span class="opt-key">C</span> truffle-config.js</li>
+        <li><span class="opt-key">D</span> hardhat.config.sol</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p><code>hardhat.config.js</code> is the main configuration file where you define Solidity compiler settings, networks, and plugins. It's a JavaScript file that exports a configuration object.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which command compiles all Solidity contracts in a Hardhat project?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> <code>npx hardhat test</code></li>
+        <li class="correct"><span class="opt-key">B</span> <code>npx hardhat compile</code> ✅</li>
+        <li><span class="opt-key">C</span> <code>npx hardhat deploy</code></li>
+        <li><span class="opt-key">D</span> <code>npx hardhat run scripts/compile.js</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p><code>npx hardhat compile</code> invokes the Solidity compiler, generates bytecode and ABI artifacts, and caches results for incremental builds.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What unique feature does Hardhat Network provide that is NOT available on live blockchain nodes?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> The ability to use <code>console.log</code> directly in Solidity code. ✅</li>
+        <li><span class="opt-key">B</span> The ability to send transactions.</li>
+        <li><span class="opt-key">C</span> The ability to deploy smart contracts.</li>
+        <li><span class="opt-key">D</span> The ability to query block numbers.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Hardhat Network intercepts console calls at the EVM level and prints output to the terminal. This works only on Hardhat Network, not on live chains. All other options are standard on any node.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In <code>hardhat.config.js</code>, how do you define the MST Testnet for deployment?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By adding an object with <code>url</code> and <code>chainId</code> inside <code>networks</code>. ✅</li>
+        <li><span class="opt-key">B</span> By creating a separate <code>mst.config.js</code> file.</li>
+        <li><span class="opt-key">C</span> By setting an environment variable <code>MST_RPC_URL</code> and nothing else.</li>
+        <li><span class="opt-key">D</span> By importing a MST plugin that auto-configures the network.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Networks are defined as properties under <code>module.exports.networks</code>. Each network requires at least a <code>url</code> (RPC endpoint) and a <code>chainId</code>. Accounts are provided via the <code>accounts</code> array.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary benefit of Hardhat's plugin-based architecture?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It allows you to include only the features you need (gas reporting, verification, etc.) without bloating the core framework. ✅</li>
+        <li><span class="opt-key">B</span> It makes Hardhat compatible with all operating systems.</li>
+        <li><span class="opt-key">C</span> It enables Hardhat to run directly in a web browser.</li>
+        <li><span class="opt-key">D</span> It automatically writes tests for your contracts.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Plugins keep the core lightweight and allow the community to extend Hardhat with new features. You require only the plugins you need for your project.</p></div>
+    </div>
+
+    <!-- SECTION B: CODE-COMPLETION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Code-Completion (Hardhat Config)</div>
+      <div class="q-section-meta">1 Question · 5 marks</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">Code-Completion</span><span class="q-diff medium">Medium</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">Complete the following <code>hardhat.config.js</code> to configure the MST Testnet and enable the Hardhat Toolbox. Fill in the blanks.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">💻 CODE TASK</div></div>
+        <div class="cc-scenario">You are setting up a Hardhat project to deploy contracts to MST Testnet. The MST Testnet RPC URL is <code>https://testnet-rpc.mstblockchain.com</code> and its chain ID is <code>5000</code>. Your private key is stored in an environment variable <code>PRIVATE_KEY</code> loaded via <code>dotenv</code>.</div>
+        <div class="cc-code">require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+  solidity: "0.8.24",
+  networks: {
+    mst_testnet: {
+      url: "________________",  // (a) MST Testnet RPC URL
+      chainId: ______,         // (b) MST Testnet chain ID
+      accounts: [______________] // (c) Private key from environment
+    }
+  }
+};
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">✅ Expected Answers</div>
+          <p>
+            <strong>(a)</strong> <code>"https://testnet-rpc.mstblockchain.com"</code><br>
+            <strong>(b)</strong> <code>5000</code><br>
+            <strong>(c)</strong> <code>process.env.PRIVATE_KEY</code><br><br>
+            <strong>Explanation:</strong><br>
+            • The <code>url</code> field points to the RPC endpoint of the MST Testnet node.<br>
+            • The <code>chainId</code> is 5000 for MST Testnet (must match the network's actual chain ID to prevent replay attacks).<br>
+            • The <code>accounts</code> array contains private keys that can sign transactions. Using <code>process.env.PRIVATE_KEY</code> reads the key from the environment, keeping it out of the codebase. The <code>dotenv</code> package loads variables from a <code>.env</code> file.
+          </p>
+          <div class="marks-bd"><span>5 marks:</span> 2 marks for (a) exact URL string, 2 marks for (b) correct chain ID (5000), 1 mark for (c) using process.env.PRIVATE_KEY. Deduct 1 mark if missing quotes around URL. Deduct 1 mark if chain ID is wrong but plausible. The <code>process.env</code> syntax must be correct.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 8.3 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 1 × Code-Completion <span>(5 marks) = 5 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Hardhat</div><div class="glossary-def">An EVM development framework for compiling, testing, debugging, and deploying smart contracts. Built on Node.js, fully compatible with MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Runtime Environment (HRE)</div><div class="glossary-def">The object injected into scripts and tests, providing access to ethers.js, network configuration, and plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Network</div><div class="glossary-def">Built-in local Ethereum network that runs in-process. Supports console.log from Solidity, stack traces, mainnet forking, and account impersonation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Forking</div><div class="glossary-def">Copying the state of a live blockchain (e.g., MST mainnet) into your local Hardhat Network, allowing tests against real deployed contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Toolbox</div><div class="glossary-def">A bundled plugin (<code>@nomicfoundation/hardhat-toolbox</code>) that includes ethers, verify, gas reporter, and other essential plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">hardhat.config.js</div><div class="glossary-def">The main configuration file. Defines Solidity compiler version, networks (RPC URLs, chain IDs, accounts), and plugins.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Artifacts</div><div class="glossary-def">The compiled output of Solidity contracts - bytecode and ABI - stored in the <code>artifacts/</code> folder.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chain ID</div><div class="glossary-def">A unique identifier for a blockchain network, used to prevent replay attacks. MST Testnet chain ID is 5000 (example).</div></div>
+  <div class="glossary-item"><div class="glossary-term">gas reporter</div><div class="glossary-def">A Hardhat plugin (<code>hardhat-gas-reporter</code>) that outputs a table of gas consumption per function, helping optimize contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Ignition</div><div class="glossary-def">Hardhat's new declarative deployment system, replacing legacy scripts with type-safe deployment modules.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.3</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.4 - Solidity Basics I →</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 16.2 - MST's AI & Identity Security | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand: #6C3CE2;
+      --brand-light: #EDE9FB;
+      --brand-dark: #3C1FA0;
+      --brand-mid: #8B5CF6;
+      --accent: #F6A623;
+      --accent-light: #FEF4E0;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --blue: #1D6FD8;
+      --blue-light: #DBEAFE;
+      --orange: #EA580C;
+      --orange-light: #FFEDD5;
+      --teal: #0D9488;
+      --teal-light: #CCFBF1;
+      --ink: #111827;
+      --ink-2: #374151;
+      --ink-3: #6B7280;
+      --ink-4: #9CA3AF;
+      --border: #E5E7EB;
+      --border-2: #D1D5DB;
+      --surface: #F9FAFB;
+      --surface-2: #F3F4F6;
+      --white: #FFFFFF;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── FEATURE LIST ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    /* code snippet for coding question */
+    .code-snippet {
+      background: #1e1e2e; color: #cdd6f4; font-family: var(--mono);
+      border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+      overflow-x: auto; font-size: 13px; line-height: 1.5;
+    }
+    .code-snippet pre { margin: 0; white-space: pre; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="module-badge">🤖 Module 16 &nbsp;·&nbsp; Sub-Module 16.2</div>
+<h1 class="module-title">MST's <span class="highlight">AI & Identity</span> Security</h1>
+<p class="module-subtitle">When your AI assistant orders groceries and books cabs - how do you give it just enough power without handing over the keys to your entire digital life?</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design + 1 Coding Challenge</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity & Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Explain how AI agents interact with blockchains</strong>
+      Understand the concept of autonomous on-chain agents and the security risks they introduce.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text">
+      <strong>Describe MST's user-centric permission model</strong>
+      Detail how SARAL, DIDs, and smart contracts enable granular, revocable permissions for AI agents.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Design a secure delegation flow</strong>
+      Architect a system where an AI can book a cab or pay a bill using a Verifiable Credential without accessing the user's private key.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text">
+      <strong>Implement a basic permission token in Solidity</strong>
+      Write a smart contract that issues, checks, and revokes time-bound permissions for an AI agent to spend a limited amount of tokens.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The AI That Spent Your Salary on Dog Food</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>It is 2026. Priya, a software developer in Bengaluru, has an AI personal assistant named "Arya". Arya is brilliant: she reads Priya's calendar, orders groceries from BigBasket when the milk runs low, books an Ola to the airport when a meeting is added, and even pays the electricity bill before the due date. Priya loves Arya - until one Monday morning when she receives a notification: <strong>₹47,000 debited from her account for 300 kg of premium dog food.</strong> Priya doesn't own a dog.</p>
+  <br>
+  <p>Arya was tricked by a malicious advertisement embedded in a newsletter. The ad contained a hidden instruction that made Arya transfer nearly all of Priya's monthly salary to a fake pet store. Because Arya had full access to Priya's wallet, the transaction was instant, irreversible, and legally authorised - after all, the wallet's private key was used. Priya's bank says, "The transaction was authenticated; we cannot reverse it."</p>
+  <br>
+  <p>This is the <strong>AI delegation problem</strong>: How do you give an autonomous agent enough power to be useful, but not enough to be dangerous? In Web2, the answer is centralised - Google Assistant or Alexa are tightly controlled by Google and Amazon, which hold your cards and can revoke access. In Web3, you don't want a central authority controlling your AI. You want <strong>self-sovereign delegation</strong>. This is exactly what MST's AI & Identity Security layer solves.</p>
+</div>
+
+<p>On MST, Priya can issue a <strong>Capability Permission</strong> - a time-bound, amount-limited, purpose-restricted delegation - to Arya's DID. Arya can spend at most ₹5,000 per week, only to BigBasket's verified DID, and never touch any other asset. If Arya tries to transfer ₹47,000 to an unknown dog-food store, the smart contract simply rejects the transaction. No private key is given to the AI. The permission is enforced on-chain by <strong>MST's Permission Registry smart contracts</strong>, integrated with SARAL's identity layer.</p>
+
+<!-- SECTION 3: BACKGROUND & EVOLUTION -->
+<div class="section-label">03 &nbsp; Background &amp; Evolution</div>
+<h2 class="section-title">From Simple Wallets to Intelligent Agents</h2>
+<p>To understand why MST's approach is revolutionary, we need to see how the interaction between humans, software, and blockchains has evolved.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Direct Human Control (2009-2020)</div>
+      <div class="feature-desc">Every transaction is initiated by a human using a wallet (MetaMask, BridgeKey). The human holds the private key and signs each transaction manually. No automation. No delegation. The model: one human, one key, one signature per transaction. This is secure but terribly inefficient for any AI-driven workflow.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Smart Contract Automation (2020-2024)</div>
+      <div class="feature-desc">Smart contracts automate specific logic when triggered by a human or an oracle. However, the trigger still comes from a human or an external off-chain bot. Bots that hold private keys become single points of failure and security nightmares - the bot is trusted with the full power of the key. There is no granular permission.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--accent);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegated AI Agents (2025-Present)</div>
+      <div class="feature-desc">AI agents (LLMs, autonomous software) need to execute transactions without a human in the loop for every action. They need <strong>programmable, limited, revocable authority</strong>. This is where MST's permission layer comes in: using DIDs, Verifiable Credentials, and on-chain capability tokens, an AI can act within a strictly defined boundary.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Key Insight</div>
+  <p>In Web3, a private key is <strong>all-or-nothing</strong>. If you give your private key to an AI (or a bot), you give it the ability to empty your entire wallet, sign any message, and interact with any smart contract. The solution is NOT to give the key at all - but to give a <strong>delegated, scoped capability</strong> that the blockchain itself can enforce.</p>
+</div>
+
+<!-- SECTION 4: BEGINNER-FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">How to Let Your AI Pay for Your Coffee (Without Giving It Your Wallet)</h2>
+
+<p>Imagine you have a physical wallet with cash, cards, and your Aadhaar. You would never hand your entire wallet to a stranger and say, "Please buy me a coffee." Instead, you'd take out exactly ₹200 and hand it to the person. That ₹200 note is a <strong>limited, purpose-specific permission</strong>. It can be spent only once and only for the coffee.</p>
+
+<p>Now, in the digital world, MST enables a similar <strong>delegation mechanism</strong> using three key components:</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why can't I just share my private key with my AI?</div>
+      <div class="w5-a">A private key grants unconditional, irrevocable access to everything. If the AI is compromised, all assets are lost. If the AI malfunctions, it can make catastrophic mistakes. MST's permission model <strong>decouples authentication from authorisation</strong>: the AI authenticates as itself (with its own DID), but its authority to act on your behalf is limited by a smart contract that you control.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What exactly is an MST Permission Capability?</div>
+      <div class="w5-a">It's a non-transferable, time-bound token issued by the user's smart wallet to a specific AI agent's DID. The capability specifies: <strong>(a) the permitted smart contract</strong> (e.g., the BigBasket ordering contract), <strong>(b) the maximum spend per transaction</strong> (e.g., 500 MST tokens), <strong>(c) the cumulative spending cap</strong> (e.g., 5,000 MST tokens per week), and <strong>(d) the expiry time</strong>. The AI signs transactions with its own DID, and the permission registry contract checks if the action is within the granted boundaries.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does revocation work if the AI goes rogue?</div>
+      <div class="w5-a">The user can revoke any capability instantly by calling a <code>revokePermission</code> function on the Permission Registry contract. Since the AI never has the user's private key, revoking the permission immediately stops all future actions. The registry is on-chain, so the revocation is globally visible and enforced in real-time. No need to change your private key.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where does SARAL fit into this?</div>
+      <div class="w5-a">SARAL is the identity layer that generates DIDs for both the user and the AI agent. The user creates a SARAL wallet via biometrics, and the AI agent's developer creates a DID for the agent. The user then issues a Verifiable Credential (a permission VC) to the agent's DID, signed with the user's DID. The Permission Registry verifies that VC on-chain before allowing the agent's transaction to proceed.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the current limitations?</div>
+      <div class="w5-a">The model relies on smart contract enforcement - the target contract must integrate with the Permission Registry. Widespread adoption requires ecosystem standards. Also, the AI's decision-making (what to order) is off-chain; MST only enforces the financial limits and target contracts. The AI could still order the wrong milk brand within the permission bounds - human oversight remains important for high-value decisions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: TECHNICAL DEEP DIVE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The MST Permission Registry & Capability Token Architecture</h2>
+
+<p>Let's build the exact flow that Priya uses to let Arya order groceries without risk. The system involves four on-chain components:</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.1 The Permission Registry Smart Contract</h3>
+<p>This is the core contract deployed on MST. It stores a mapping of <strong>capability tokens</strong> that define what an agent can do. Each capability is a struct:</p>
+<div class="code-snippet">
+<pre>struct Capability {
+    address grantor;          // the user who issued the permission
+    address agent;            // the AI agent's DID (resolved to an address)
+    address targetContract;   // the contract the agent is allowed to call
+    bytes4  functionSelector; // allowed function, e.g., placeOrder()
+    uint256 maxPerTransaction;// maximum spend per single transaction
+    uint256 cumulativeCap;    // total spending allowed during the window
+    uint256 usedSoFar;        // cumulative spent amount
+    uint256 validUntil;       // expiry timestamp
+    bool    active;           // false if revoked
+}</pre>
+</div>
+
+<p>The user (grantor) calls <code>grantPermission(...)</code> which creates a new Capability. The agent later calls <code>executeWithPermission(...)</code> on the target contract, passing the capability ID. The target contract cross-checks with the Permission Registry before processing the transaction.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.2-A · Secure Delegation Flow with MST Permission Registry</div>
+  <pre>
+  USER (Priya)                  PERMISSION REGISTRY                 AI AGENT (Arya)           TARGET CONTRACT (BigBasket)
+
+  1. grantPermission(aryadid,
+     BigBasketAddr, placeOrder,
+     max=500, cum=5000, expiry)
+
+     ──────────────────▶  Stores Capability #42
+                           (aryadid, BigBasket, placeOrder, ...)
+
+                                                                    2. "I need milk"
+                                                                       (off‑chain decision)
+
+                                                                    3. executeWithPermission(42,
+                                                                       placeOrder(milk, 1L, ₹45))
+
+                                                                       ───────────────────────▶ 4. Check Registry:
+                                                                                                     Is Capability #42 active?
+                                                                                                     Is agent == msg.sender?
+                                                                                                     Is targetContract == this?
+                                                                                                     Is ₹45 ≤ maxPerTransaction?
+                                                                                                     Is usedSoFar + ₹45 ≤ cumulativeCap?
+                                                                                                     Has expiry passed?
+                                                                                                     ✅ All checks pass → update usedSoFar, proceed.
+
+                                                                                                    5. placeOrder(milk, 1L, ₹45)
+                                                                                                       executed.
+
+  ✅ Priya never shared her private key. Arya cannot spend more than ₹500 per order or ₹5,000 total.
+  </pre>
+  <div class="diagram-caption">The Permission Registry acts as a gatekeeper. The AI agent signs transactions with its own DID; the Registry verifies the capability against the agent's DID, not the user's. This is delegation without key sharing.</div>
+</div>
+
+<h3 style="font-size:18px; margin-top:28px;">5.2 Integrating DIDs and SARAL</h3>
+<p>In the flow above, Priya's DID is <code>did:mst:priya‑wallet</code>, and Arya's DID is <code>did:mst:arya‑agent‑v3</code>. When Priya calls <code>grantPermission</code>, the Registry resolves the agent's DID to its current blockchain address (using the DID Document on-chain). The capability is linked to the agent's address, but the agent can update its keys using its own DID Document - as long as the capability is active, the agent can rotate keys without Priya re-issuing permissions. This is critical for AI agents that need to upgrade their key management.</p>
+
+<p>SARAL ensures that Priya's DID creation and management is seamless. She never sees a seed phrase. If she loses her phone, she can recover her DID via SARAL's biometric recovery - and all granted capabilities remain intact because they are stored on-chain. The agent's DID is also a SARAL-based identity (but the agent developer manages the biometric login on the server side via secure enclaves).</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.3 Permission VC - A Verifiable Credential for Off-Chain AI</h3>
+<p>For AI agents that operate partially off-chain (e.g., an LLM that decides what to order), the permission can also be packaged as a Verifiable Credential. Priya issues a VC:</p>
+<div class="code-snippet">
+<pre>{
+  "@context": ["https://www.w3.org/2018/credentials/v1", "https://mstblockchain.com/permissions/v1"],
+  "type": ["VerifiableCredential", "MSTCapabilityCredential"],
+  "issuer": "did:mst:priya‑wallet",
+  "issuanceDate": "2026-08-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:mst:arya‑agent‑v3",
+    "permission": {
+      "targetContract": "0xBigBasketContract",
+      "function": "placeOrder",
+      "maxSpend": 500,
+      "cumulativeCap": 5000,
+      "validUntil": "2026-08-08T00:00:00Z"
+    }
+  },
+  "proof": { "type": "Ed25519Signature2020", ... }
+}</pre>
+</div>
+<p>The AI presents this VC alongside its transaction. The Permission Registry on-chain verifies the VC signature using Priya's DID Document. This means the AI never needs to hold the VC secret - it's a public presentation that proves the grant. However, to prevent replay, the VC must include a nonce or be bound to a specific transaction hash. MST implements a <strong>VC nonce registry</strong> to track used VCs.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.4 Gas Costs and Optimisation</h3>
+<p>Executing on-chain permission checks adds gas overhead. MST’s low gas fees make this viable. Typical cost per <code>executeWithPermission</code> call on MST Testnet is ~45,000 gas (~0.002 MST tokens). The Registry stores capabilities in a mapping, and each check is a few SLOADs. The target contract can also batch checks. For high-frequency AI actions, we use a <strong>session key model</strong>: the user grants a temporary session key to the agent, and the agent signs transactions directly with that key, which the Registry recognises. This reduces the need for the full VC flow on every transaction, but the session key can be rotated and has a short lifetime.</p>
+
+<!-- SECTION 6: REAL WORLD CASE STUDIES -->
+<div class="section-label">06 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Where MST's AI Security Already Shines</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🚗</div>
+    <div class="feature-content">
+      <div class="feature-title">Autonomous Ride-Hailing Agent</div>
+      <div class="feature-desc">A user grants an AI agent permission to book cabs on Ola via a smart contract that integrates with MST's Permission Registry. The agent can spend up to ₹2,000 per month, only to Ola's contract, with each ride capped at ₹500. The user revokes the permission if they switch to a different agent. The agent never sees the user's payment keys.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Yield Optimiser with Guardrails</div>
+      <div class="feature-desc">A yield-optimising AI moves funds between MST-based DeFi protocols to maximise returns. The user sets a maximum risk profile and a whitelist of allowed protocols. The Permission Registry enforces that the AI cannot move funds to an unlisted liquidity pool or exceed a 10% allocation to any single pool. In 2025, an MST DeFi user avoided a $50,000 rug-pull because the Registry blocked the AI's attempt to deposit into a fraudulent pool.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💳</div>
+    <div class="feature-content">
+      <div class="feature-title">Subscription Payment Manager</div>
+      <div class="feature-desc">A user's AI agent pays monthly subscriptions (Netflix, Spotify, cloud services) using MST tokens. The user grants a cumulative monthly cap of ₹3,000, with each payment capped at the exact subscription amount. If a service tries to charge more than the registered amount, the transaction is rejected. The user never worries about hidden price hikes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: ASSESSMENT PREPARATION -->
+<div class="section-label">07 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Capability-Based Security</div><div class="feature-desc">MST's Permission Registry enforces granular, time-bound, amount-limited delegation. The AI agent never gets the user's private key. Revocation is instant and on-chain.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">DID-Based Agent Identity</div><div class="feature-desc">Every AI agent has its own DID, registered on MST. Permissions are tied to the agent's DID, not the user's. This allows agent key rotation without re-granting permissions.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Verifiable Permission Credential</div><div class="feature-desc">Permissions can be expressed as VCs, enabling off-chain AI to present proof of authority. The VC is verified on-chain using the user's DID Document.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Session Keys for Gas Efficiency</div><div class="feature-desc">For high-frequency AI actions, the user can issue a temporary session key to the agent, allowing direct signing for a short period, while the Registry enforces the same limits.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">SARAL Integration</div><div class="feature-desc">Users create and recover DIDs without seed phrases. The biometric-based SARAL flow enables secure, user-friendly management of the grantor identity.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 16.2 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">20</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+  <div class="assessment-body">
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">8 Questions · 1 mark each · 8 marks total</div></div>
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary risk of giving an AI agent your private key?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The AI can't sign transactions fast enough</li>
+        <li class="correct"><span class="opt-key">B</span>The AI gets unconditional access to all your assets and can perform any action ✅</li>
+        <li><span class="opt-key">C</span>The AI will charge you a fee for each transaction</li>
+        <li><span class="opt-key">D</span>The private key becomes publicly visible on-chain</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>A private key is all-or-nothing. Giving it to an AI is like giving it your entire wallet. MST's capability model avoids this entirely.</p></div>
+    </div>
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which component stores and enforces the permissions granted to AI agents on MST?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>The Permission Registry smart contract ✅</li>
+        <li><span class="opt-key">B</span>The BridgeKey wallet</li>
+        <li><span class="opt-key">C</span>The MST Explorer</li>
+        <li><span class="opt-key">D</span>The SARAL biometric module</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The Permission Registry is an on-chain smart contract that stores capabilities and validates agent actions against them.</p></div>
+    </div>
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the MST delegation model, which DID signs the transaction when an AI agent acts on behalf of a user?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The user's DID</li>
+        <li class="correct"><span class="opt-key">B</span>The AI agent's DID ✅</li>
+        <li><span class="opt-key">C</span>The validator's DID</li>
+        <li><span class="opt-key">D</span>The Permission Registry's DID</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The agent signs with its own DID. The Registry then checks if that DID has been granted the necessary capability by the user.</p></div>
+    </div>
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which field in an MST Capability struct prevents the agent from draining the user's entire balance in one go?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span><code>validUntil</code></li>
+        <li class="correct"><span class="opt-key">B</span><code>maxPerTransaction</code> ✅</li>
+        <li><span class="opt-key">C</span><code>targetContract</code></li>
+        <li><span class="opt-key">D</span><code>active</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p><code>maxPerTransaction</code> caps the amount the agent can spend in a single call. <code>cumulativeCap</code> limits the total over time.</p></div>
+    </div>
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How can a user instantly stop an AI agent from performing further actions?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>Change the agent's private key</li>
+        <li class="correct"><span class="opt-key">B</span>Call <code>revokePermission</code> on the Permission Registry ✅</li>
+        <li><span class="opt-key">C</span>Delete the agent's DID from the blockchain</li>
+        <li><span class="opt-key">D</span>Transfer all funds to a new wallet</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Revocation sets the capability's <code>active</code> flag to false. All future transactions by the agent will be rejected by the Registry. No key change needed.</p></div>
+    </div>
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What advantage does a Verifiable Credential (VC) permission bring over a raw capability stored in the Registry?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>It is cheaper to store on-chain</li>
+        <li class="correct"><span class="opt-key">B</span>It allows the AI to prove its authority off-chain, then have it verified on-chain in a single step ✅</li>
+        <li><span class="opt-key">C</span>The VC cannot be revoked</li>
+        <li><span class="opt-key">D</span>The VC encrypts the permission details</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>A VC can be presented by an off-chain AI, and the Registry verifies the signature against the user's DID Document on-chain. It bridges off-chain and on-chain worlds. Revocation is still possible (by revoking the credential or capability).</p></div>
+    </div>
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is the `functionSelector` field included in the Capability struct?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>To specify the gas limit for the transaction</li>
+        <li class="correct"><span class="opt-key">B</span>To restrict which specific function the agent can call on the target contract ✅</li>
+        <li><span class="opt-key">C</span>To identify the agent's wallet</li>
+        <li><span class="opt-key">D</span>To link the capability to a particular VC</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Without the function selector, an agent with permission to interact with a contract could call any function - including <code>withdrawAll()</code>. The selector limits the capability to a specific function, e.g., <code>placeOrder()</code>.</p></div>
+    </div>
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In a session key model for high-frequency AI actions, what must be true to maintain security?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The session key never expires</li>
+        <li class="correct"><span class="opt-key">B</span>The session key has a short lifetime and can be rotated, and its permissions are still checked against the Registry ✅</li>
+        <li><span class="opt-key">C</span>The session key is the same as the user's master key</li>
+        <li><span class="opt-key">D</span>The AI agent stores the session key in plaintext</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Session keys must be time-bound and rotate frequently. The Registry still enforces the original capability limits - the session key simply avoids the overhead of a full VC check on every transaction.</p></div>
+    </div>
+
+    <!-- SECTION B: T/F with Justification -->
+    <div class="q-section-header"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question · 2 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"If an AI agent is granted a capability to spend up to ₹5,000 per week at BigBasket, the agent could still drain the user's entire balance by calling a different function in the BigBasket contract, such as `withdrawAll`, because the capability grants access to the entire contract."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample"><strong>FALSE.</strong> The MST Capability struct includes a <code>functionSelector</code> field that explicitly limits the agent to calling only the authorised function (e.g., <code>placeOrder()</code>). The Permission Registry checks the function selector of the incoming transaction against the capability. If the agent tries to call <code>withdrawAll()</code>, the selector will not match, and the Registry rejects the transaction - regardless of the spending limit. Therefore, the agent cannot drain funds by calling an unauthorised function.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that the <code>functionSelector</code> field restricts which function can be called, and that the Registry enforces this at the transaction level, preventing access to any other function in the contract.</p></div>
+    </div>
+
+    <!-- SECTION C: DESCRIPTIVE DESIGN -->
+    <div class="q-section-header"><div class="q-section-title">Section C - Descriptive Design Question</div><div class="q-section-meta">1 Question · 5 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">Design a secure delegation system for an AI agent that pays utility bills on behalf of a user using MST tokens. Your answer must include:<br>
+        (a) How the user grants the agent permission using DIDs and the Permission Registry (2 marks).<br>
+        (b) The fields you would include in the Capability struct and why each is necessary (2 marks).<br>
+        (c) How the system prevents the agent from paying bills to a fraudulent electricity board contract (1 mark).</div>
+      <div class="answer-box">
+        <div class="answer-box-label">📝 Model Answer Outline</div>
+        <p><strong>(a)</strong> The user (with DID <code>did:mst:user‑home</code>) calls <code>grantPermission</code> on the Permission Registry, specifying the agent's DID (<code>did:mst:bill‑agent</code>), the target contract address of the authorised electricity board, the function selector for <code>payBill()</code>, a maximum per-transaction amount (e.g., ₹2,000), a monthly cumulative cap (e.g., ₹10,000), and an expiry of one month. The agent later calls <code>executeWithPermission</code> with the capability ID and the bill payment transaction. The Registry verifies the capability is active, the agent's DID matches, and the limits are not exceeded before allowing execution.</p>
+        <p><strong>(b)</strong> Fields: <code>grantor</code> (the user), <code>agent</code> (the agent's DID), <code>targetContract</code> (the electricity board's verified contract address), <code>functionSelector</code> (restricts to <code>payBill</code>), <code>maxPerTransaction</code> (prevents large one-off fraud), <code>cumulativeCap</code> (limits total monthly spend), <code>usedSoFar</code> (tracks cumulative spending), <code>validUntil</code> (time-bound expiry), <code>active</code> (enables instant revocation). Each field is necessary for granular, revocable, and safe delegation.</p>
+        <p><strong>(c)</strong> The <code>targetContract</code> field is set to the verified electricity board's contract address. The Registry checks that <code>msg.sender</code> of the agent's transaction (the target contract) matches the stored <code>targetContract</code>. If the agent attempts to call a different contract (a fraudulent one), the check fails and the transaction reverts. Additionally, the user can revoke the capability at any time. (1 mark)</p>
+        <div class="marks-bd"><span>Total 5 marks.</span></div>
+      </div>
+    </div>
+
+    <!-- SECTION D: CODING CHALLENGE -->
+    <div class="q-section-header"><div class="q-section-title">Section D - Coding Challenge</div><div class="q-section-meta">1 Question · 5 marks</div></div>
+    <div class="question-block" style="padding-bottom:28px;">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">Coding (Solidity)</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">
+        Write a simplified Solidity contract that mimics the core of the MST Permission Registry. The contract should include:<br>A <code>grantPermission</code> function that stores a capability with agent address, maximum amount, and expiry.<br>A modifier <code>onlyPermitted</code> that checks whether the caller has an active capability and that the requested amount is within the limit.<br>A function <code>spendWithPermission(uint amount)</code> that uses the modifier and deducts from a stored mapping of allowances.<br>
+        You do not need to handle cumulative caps or function selectors; only a simple per-call limit.
+      </div>
+      <div class="code-snippet">
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract SimplePermission {
+    struct Capability {
+        uint maxAmount;
+        uint expiry;
+        bool active;
+    }
+
+    mapping(address => Capability) public permissions;
+
+    function grantPermission(address agent, uint maxAmount, uint duration) external {
+        permissions[agent] = Capability({
+            maxAmount: maxAmount,
+            expiry: block.timestamp + duration,
+            active: true
+        });
+    }
+
+    modifier onlyPermitted(uint amount) {
+        Capability storage cap = permissions[msg.sender];
+        require(cap.active, "No active permission");
+        require(block.timestamp < cap.expiry, "Permission expired");
+        require(amount <= cap.maxAmount, "Exceeds permitted amount");
+        _;
+    }
+
+    function spendWithPermission(uint amount) external onlyPermitted(amount) {
+        // In a real contract, you would transfer tokens or perform the action here.
+        // For the assessment, we simply accept the call if checks pass.
+    }
+
+    function revokePermission(address agent) external {
+        permissions[agent].active = false;
+    }
+}</pre>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>2 marks:</strong> Correctly defines the <code>Capability</code> struct with relevant fields and the <code>grantPermission</code> function.<br>
+        <strong>2 marks:</strong> Implements the <code>onlyPermitted</code> modifier that correctly checks active status, expiry, and amount limit.<br>
+        <strong>1 mark:</strong> Includes a revocation function that sets the capability to inactive.<br>
+        The contract must compile under Solidity 0.8.x. Edge case handling (e.g., zero amount) is not required but considered for full marks if elegantly handled.</p>
+        <div class="marks-bd"><span>Total 5 marks.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 16.2 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × Descriptive Design <span>(5 marks) = 5 marks</span></div>
+      <div class="score-row">Section D: 1 × Coding Challenge <span>(5 marks) = 5 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">20</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Capability Token</div><div class="glossary-def">A non-transferable on-chain record that grants an agent specific, limited authority to act on a user's behalf, enforced by the Permission Registry.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Permission Registry</div><div class="glossary-def">A smart contract on MST that stores and validates capability tokens, acting as the gatekeeper for all delegated AI actions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Agent DID</div><div class="glossary-def">A Decentralised Identifier assigned to an AI agent, allowing it to sign transactions and receive capability grants without sharing the user's private key.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Function Selector</div><div class="glossary-def">The first 4 bytes of the Keccak-256 hash of a function signature, used in capabilities to restrict which function the agent can call.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Session Key</div><div class="glossary-def">A temporary key issued to an agent for high-frequency operations, valid for a short time, with permissions still bounded by the underlying capability.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Delegation without Custody</div><div class="glossary-def">The principle that a user can empower an agent to act on their assets without surrendering control of the assets - enforced by smart contracts.</div></div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.2</strong> &nbsp;·&nbsp; Next: Sub-Module 16.3 - Privacy with ZK-Proofs →</p>
+</div>
+</body>
+</html>

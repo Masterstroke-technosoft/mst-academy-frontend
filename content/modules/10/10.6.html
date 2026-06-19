@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 10.6 - Code Review & Refactoring | Masterstroke Academy</title>
+    <meta name="description" content="Master the art of smart contract code review and refactoring. Learn systematic checklists, gas optimization patterns, and how to turn messy code into production‑ready contracts.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #0D9488;
+            --brand-light: #CCFBF1;
+            --brand-dark: #115E59;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #99F6E4;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #99F6E4;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #99F6E4;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🔍 Module 10 · Sub-Module 10.6 of 6</div>
+    <h1 class="module-title">Code Review & <span class="highlight">Refactoring</span></h1>
+    <p class="module-subtitle">The final polish that separates hobby code from professional contracts. Learn the systematic review checklists used by top auditing firms, master refactoring patterns that slash gas costs and improve readability, and turn your capstone project into a production-ready smart contract.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 30 Marks (Audit Report)</div>
+        <div class="meta-chip">📋 Document issues found in your own capstone code</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity & Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">📋</div>
+            <div class="feature-title">Conduct a systematic code review of any Solidity smart contract</div>
+            <div class="feature-desc">Use a professional checklist covering security, gas efficiency, readability, adherence to standards, and test coverage. Identify issues that testing and fuzzing alone cannot catch.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔧</div>
+            <div class="feature-title">Apply gas-saving refactoring techniques</div>
+            <div class="feature-desc">Replace loops with mappings, cache storage variables in memory, remove redundant operations, and use short-circuit evaluation to reduce transaction costs by up to 90%.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📖</div>
+            <div class="feature-title">Improve code readability and maintainability</div>
+            <div class="feature-desc">Extract helper functions, use descriptive names, add NatSpec comments, and apply consistent formatting so that your code tells a clear story to auditors, collaborators, and your future self.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📝</div>
+            <div class="feature-title">Produce a professional audit-style report for your own project</div>
+            <div class="feature-desc">Document every issue found, classify its severity (critical, high, medium, low), explain the impact, and provide the exact fix. This is exactly what a smart contract auditor delivers.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Missing Review That Cost ₹2 Crore</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>A Web3 gaming startup in Hyderabad had built a play-to-earn platform where players earned tokens by completing quests. The lead developer, working alone under a tight deadline, wrote a 400-line contract over two nights. The code worked. The test suite passed. The contract was deployed.</p>
+        <br>
+        <p>Three weeks later, a player noticed that if they called the <code>claimReward</code> function at exactly the right millisecond, they could claim the same reward twice. The bug was a classic reentrancy issue - the contract sent tokens before updating the reward counter. But there was a second, subtler problem: the contract used a <code>for</code> loop to iterate over all players to distribute daily bonuses. With 2,000 active players, the loop consumed 2.8 million gas - within the block limit. But the developer never asked: what happens at 10,000 players? At 50,000?</p>
+        <br>
+        <p>Five months later, the player base hit 8,000. The daily bonus function became permanently unusable - the loop consumed more gas than the block limit. The contract was frozen. ₹2 crore worth of tokens were locked forever. The post-mortem revealed that a single one-hour code review by another developer would have caught both issues immediately. The reentrancy was visible to a trained eye, and the unbounded loop was flagged by every static analysis tool.</p>
+        <br>
+        <p><strong>Code review is not a formality. It is the last line of defense before immutability.</strong> In traditional software, you can fix bugs post-deployment. In blockchain, deployment is forever. Every minute spent reviewing code pays back in prevented disasters. This sub-module teaches you exactly how to perform that review - on your own code, on a teammate's code, and on the contracts you'll evaluate professionally.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; Why Code Review Is Non-Negotiable for Smart Contracts</div>
+    <h2 class="section-title">Immutability + Money = Every Line Must Be Justified</h2>
+    <p>In traditional software development, code review is a best practice. In blockchain development, it is a survival requirement. Smart contracts are immutable, handle real money, and are publicly visible to attackers worldwide. A single un-reviewed line can be exploited within hours of deployment.</p>
+    <p><strong>Code review catches what testing cannot:</strong></p>
+    <p><strong>1. Logical errors:</strong> Tests verify that code behaves as written. Reviews verify that code behaves as <strong>intended</strong>. A test might pass because the developer wrote the test to match the buggy code. A reviewer asks: "Is this actually correct?"</p>
+    <p><strong>2. Architecture flaws:</strong> A function might work correctly in isolation but create a vulnerability when combined with other functions. Reviewers see the big picture that individual tests miss.</p>
+    <p><strong>3. Gas inefficiencies:</strong> Tests rarely check gas consumption. A reviewer notices that a loop will become impossible at scale, or that a storage variable is read three times when once would suffice.</p>
+    <p><strong>4. Readability:</strong> Code that is hard to read is hard to audit. A reviewer ensures that variable names are clear, comments are helpful, and the logic flows logically - so that future auditors and developers can understand the contract quickly.</p>
+    <p><strong>5. Standards compliance:</strong> Is your ERC-20 token actually compliant with the standard? Does it emit the correct events with the correct parameters? A reviewer verifies these details that tests often overlook.</p>
+
+    <div class="section-label">04 &nbsp; The Code Review Checklist - A Systematic Approach</div>
+    <h2 class="section-title">Every Line, Every Function, Every Pattern</h2>
+    <p>Professional auditors and senior developers don't review code randomly. They follow a structured checklist that ensures nothing is missed. Below is the checklist you should use for every smart contract you review - starting with your capstone project.</p>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">1</div>
+            <div class="feature-title">Security Vulnerabilities</div>
+            <div class="feature-desc"><strong>Reentrancy:</strong> Any external call before state updates? Any function that sends ETH or calls an external contract? Apply Checks-Effects-Interactions or ReentrancyGuard.<br><strong>Integer overflow/underflow:</strong> Any arithmetic that could overflow? Downcasting without validation?<br><strong>Access control:</strong> Every state-changing function has a proper modifier? No public functions that should be restricted?<br><strong>tx.origin:</strong> Search the entire codebase for <code>tx.origin</code>. If found, it's almost certainly a bug.<br><strong>Front-running susceptibility:</strong> Can a transaction be front-run for profit? Does the contract use commit-reveal or Flashbots?<br><strong>Denial of Service:</strong> Any unbounded loops? Any single-point dependency (single owner, single oracle)?<br><strong>Signature verification:</strong> Are signed messages protected against replay attacks with nonce and expiry?</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">2</div>
+            <div class="feature-title">Gas Efficiency</div>
+            <div class="feature-desc"><strong>Storage reads:</strong> Are the same storage variables read multiple times? Cache them in memory.<br><strong>Storage writes:</strong> Are multiple writes happening when one would do? Batch updates.<br><strong>Loops:</strong> Any loops that could grow unboundedly? Replace with mappings and counters.<br><strong>Data types:</strong> Are smaller types (uint64, uint128) used appropriately for packing? Or are they used unnecessarily where uint256 would be cheaper?<br><strong>String operations:</strong> Are strings stored on-chain? Could they be stored as bytes32 or moved off-chain?<br><strong>Events:</strong> Are events emitted for all state changes? Are parameters indexed for efficient filtering?<br><strong>Constructor vs. immutable:</strong> Variables set once at deployment should use <code>immutable</code> to save storage reads.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">3</div>
+            <div class="feature-title">Readability & Maintainability</div>
+            <div class="feature-desc"><strong>Function length:</strong> Any function over 30 lines? Extract helper functions.<br><strong>Naming:</strong> Are variable and function names descriptive? <code>calculateReward</code> vs. <code>calc</code>?<br><strong>Magic numbers:</strong> Any unexplained constants? Replace with named constants (e.g., <code>uint256 public constant MAX_FEE = 1000;</code>).<br><strong>NatSpec comments:</strong> Every function has <code>@notice</code> and <code>@param</code>? Every contract has <code>@title</code> and <code>@dev</code>?<br><strong>Consistent style:</strong> Indentation, brace placement, spacing - all consistent? Run a linter (Solhint) before review.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">4</div>
+            <div class="feature-title">Standards & Interoperability</div>
+            <div class="feature-desc"><strong>ERC compliance:</strong> Does your token correctly implement the standard? All mandatory functions present and correct? Events emitted correctly?<br><strong>ABI compatibility:</strong> Does the ABI match the interface? Are function selectors correct?<br><strong>Upgradeability:</strong> If using a proxy, is the storage layout preserved? Unstructured storage used for proxy variables?<br><strong>External contract interactions:</strong> Are calls to other contracts checked for success? Are return values validated?</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">5</div>
+            <div class="feature-title">Testing Coverage</div>
+            <div class="feature-desc"><strong>Unit tests:</strong> Every function tested? Happy path, edge cases, reverts?<br><strong>Fuzz tests:</strong> Invariant tests written? Random inputs tested?<br><strong>Coverage report:</strong> Branch coverage ≥ 90%? Uncovered lines reviewed and justified?<br><strong>Formal verification:</strong> Critical invariants specified and proven? (If applicable)</div>
+        </div>
+    </div>
+
+    <div class="section-label">05 &nbsp; Refactoring - Transforming Messy Code into Professional Contracts</div>
+    <h2 class="section-title">Why Refactoring Matters and When to Do It</h2>
+    <p><strong>Refactoring</strong> is the process of restructuring existing code without changing its external behavior. The contract does the same thing - it's just cleaner, more efficient, and easier to audit. You refactor after you have a working, tested contract, but <strong>before</strong> deployment. You refactor to improve gas efficiency, readability, and security posture.</p>
+
+    <p><strong>Common refactoring patterns:</strong></p>
+    <p><strong>1. Extract helper functions:</strong> If a function does three different things, break it into three functions. Each function should do one thing well.</p>
+    <p><strong>2. Replace magic numbers with constants:</strong> <code>require(msg.value >= 1000000000000000000)</code> becomes <code>require(msg.value >= MIN_DEPOSIT)</code> where <code>MIN_DEPOSIT</code> is a named constant.</p>
+    <p><strong>3. Cache storage in memory:</strong> If you read a state variable three times in a function, read it once into memory and use the local copy. This can save thousands of gas.</p>
+    <p><strong>4. Use modifiers for shared conditions:</strong> If multiple functions check <code>require(msg.sender == owner)</code>, create an <code>onlyOwner</code> modifier and apply it to all of them.</p>
+    <p><strong>5. Replace arrays with mappings for large lists:</strong> If an array can grow without bound, replace it with a mapping and a counter. This prevents the contract from becoming unusable.</p>
+    <p><strong>6. Short-circuit evaluation:</strong> Put the cheapest condition first in <code>if</code> and <code>require</code> statements. If the cheap condition fails, the expensive one is never evaluated, saving gas.</p>
+    <p><strong>7. Remove dead code:</strong> Any variable that is written but never read? Any function that is never called? Delete it. Every line costs gas to deploy.</p>
+
+    <div class="section-label">06 &nbsp; Before-And-After Refactoring Example</div>
+    <h2 class="section-title">From a Messy First Draft to a Production-Ready Contract</h2>
+    <p>Below is a contract as it might look after a first pass - functional, but with multiple issues. Then we refactor it step by step, explaining every change.</p>
+
+    <p><strong>BEFORE - The messy contract:</strong></p>
+    <div class="code-block-wrap"><pre>
+// BEFORE: Messy, inefficient, hard to audit
+contract BadVault {
+    mapping(address => uint256) public b;
+    address public o;
+    uint256 public t;
+    bool public l;
+
+    constructor() { o = msg.sender; }
+
+    function d() public payable { b[msg.sender] += msg.value; t += msg.value; }
+
+    function w(uint256 a) public {
+        require(a > 0);
+        require(b[msg.sender] >= a);
+        b[msg.sender] -= a;
+        t -= a;
+        (bool s, ) = msg.sender.call{value: a}("");
+        require(s);
+    }
+
+    function p() public { require(msg.sender == o); l = !l; }
+
+    function f() public {
+        require(l);
+        uint256 total = 0;
+        for (uint256 i = 0; i < 1000; i++) {
+            total += i;
+        }
+        payable(o).transfer(total);
+    }
+}</pre></div>
+
+    <p><strong>Issues found:</strong> (1) Reentrancy in <code>w()</code> - ETH sent before balance updated. (2) <code>tx.origin</code> not used but <code>msg.sender</code> in <code>p()</code> is fine. (3) Unbounded loop in <code>f()</code> - but bounded to 1000, so okay. However, the loop does nothing useful. (4) No events. (5) Terrible naming. (6) Magic numbers. (7) No NatSpec. (8) No access control on <code>d()</code> (deposit should be public anyway). (9) <code>t</code> (totalDeposits) and <code>b</code> (balances) - inconsistent naming. (10) <code>l</code> (locked) is a boolean with unclear purpose.</p>
+
+    <p><strong>AFTER - The refactored, production-ready contract:</strong></p>
+    <div class="code-block-wrap"><pre>
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/**
+ * @title SecureVault
+ * @notice A simple ETH vault with deposit, withdraw, and emergency pause.
+ * @dev Uses Checks‑Effects‑Interactions to prevent reentrancy.
+ */
+contract SecureVault {
+    // ─── State Variables ───
+    mapping(address => uint256) public balances;
+    uint256 public totalDeposited;
+    address public immutable owner;
+    bool public paused;
+
+    // ─── Constants ───
+    uint256 private constant MIN_WITHDRAWAL = 0.001 ether;
+
+    // ─── Events ───
+    event Deposited(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, uint256 amount);
+    event Paused(address indexed owner);
+    event Unpaused(address indexed owner);
+
+    // ─── Modifiers ───
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+    modifier whenNotPaused() {
+        require(!paused, "Contract paused");
+        _;
+    }
+
+    // ─── Constructor ───
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // ─── Functions ───
+    function deposit() public payable whenNotPaused {
+        require(msg.value > 0, "Zero deposit");
+        balances[msg.sender] += msg.value;
+        totalDeposited += msg.value;
+        emit Deposited(msg.sender, msg.value);
+    }
+
+    function withdraw(uint256 amount) public whenNotPaused {
+        require(amount >= MIN_WITHDRAWAL, "Below minimum withdrawal");
+        uint256 userBalance = balances[msg.sender];
+        require(userBalance >= amount, "Insufficient balance");
+
+        // EFFECTS: update state BEFORE external call
+        balances[msg.sender] = userBalance - amount;
+        totalDeposited -= amount;
+
+        emit Withdrawn(msg.sender, amount);
+
+        // INTERACTIONS: send ETH LAST
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+
+    function togglePause() public onlyOwner {
+        paused = !paused;
+        if (paused) {
+            emit Paused(msg.sender);
+        } else {
+            emit Unpaused(msg.sender);
+        }
+    }
+}</pre></div>
+
+    <p><strong>What changed and why:</strong></p>
+    <p><strong>1. Naming:</strong> <code>b</code> → <code>balances</code>. <code>o</code> → <code>owner</code>. <code>d()</code> → <code>deposit()</code>. <code>w()</code> → <code>withdraw()</code>. <code>p()</code> → <code>togglePause()</code>. <code>l</code> → <code>paused</code>. Now anyone can understand what the contract does without reading the logic.</p>
+    <p><strong>2. Reentrancy fix:</strong> Withdraw now updates <code>balances[msg.sender]</code> and <code>totalDeposited</code> before the external <code>call</code>. The contract uses the Checks-Effects-Interactions pattern.</p>
+    <p><strong>3. Events:</strong> Every state change now emits an event. Frontend applications can now react to deposits, withdrawals, and pause toggles without polling.</p>
+    <p><strong>4. NatSpec:</strong> The contract header explains what the contract does. Every function describes its purpose. Future auditors will understand the intent immediately.</p>
+    <p><strong>5. Constants:</strong> <code>MIN_WITHDRAWAL</code> is a named constant instead of a magic number. If the minimum changes, it's updated in one place.</p>
+    <p><strong>6. immutable owner:</strong> Since <code>owner</code> is set only in the constructor, it's marked <code>immutable</code>. This stores it in the contract bytecode instead of storage, saving gas on every read.</p>
+    <p><strong>7. Modifiers:</strong> <code>onlyOwner</code> and <code>whenNotPaused</code> are defined once and reused, making the code DRY (Don't Repeat Yourself).</p>
+    <p><strong>8. Removed dead code:</strong> The meaningless loop in <code>f()</code> is gone. Every line of bytecode costs gas to deploy - don't deploy code you don't need.</p>
+    <p><strong>9. Gas optimization:</strong> In <code>withdraw()</code>, <code>balances[msg.sender]</code> is read once into <code>userBalance</code> (memory) and used for both the balance check and the update. This saves a storage read (~2,100 gas).</p>
+
+    <div class="section-label">07 &nbsp; Peer Review vs. Self-Review vs. Professional Audit</div>
+    <h2 class="section-title">Three Levels of Code Review - When to Use Each</h2>
+    <p><strong>Self-review:</strong> Before you ask anyone else to look at your code, review it yourself. Use the checklist. Pretend you are an auditor who has never seen the code. Question every line: "Why is this here? Could it fail? Could it be simpler?" Self-review catches 60-70% of issues and saves your reviewer's time.</p>
+    <p><strong>Peer review:</strong> Ask a classmate or colleague to review your code. A fresh pair of eyes will see things you missed - assumptions you made, edge cases you didn't consider, naming that makes sense to you but no one else. Peer reviews are the standard in professional development teams.</p>
+    <p><strong>Professional audit:</strong> For contracts managing significant value (>$1M), hire a professional auditing firm (Trail of Bits, OpenZeppelin, CertiK). They bring specialized tools, deep expertise, and a legal reputation that gives users confidence. Audits cost $20K-$100K+ depending on complexity. The MST grant program includes audit support for scaleGrant recipients.</p>
+
+    <div class="section-label">08 &nbsp; Review Tools - Automate What You Can</div>
+    <h2 class="section-title">Static Analysis, Linters, and Formatters</h2>
+    <p>Automated tools can catch many issues before human review even begins. Run these tools on your code before submitting it for peer review.</p>
+    <p><strong>1. Slither:</strong> A static analysis tool that detects common vulnerabilities (reentrancy, unchecked returns, shadowed variables). Install with <code>pip install slither‑analyzer</code>, run with <code>slither contracts/</code>.</p>
+    <p><strong>2. Mythril:</strong> A symbolic execution tool that explores all possible paths through your contract. Finds more complex bugs than Slither but is slower. Run with <code>myth analyze contracts/MyContract.sol</code>.</p>
+    <p><strong>3. Solhint:</strong> A Solidity linter that enforces style rules (naming, ordering, line length). Install with <code>npm install solhint</code>, configure with a <code>.solhint.json</code> file.</p>
+    <p><strong>4. Prettier + solhint:</strong> Format your code automatically with Prettier (for JS/TS) and Solhint (for Solidity). Consistent formatting makes code reviews faster because reviewers can focus on logic, not whitespace.</p>
+
+    <div class="section-label">09 &nbsp; The Code Review Workflow - Step by Step</div>
+    <h2 class="section-title">From Opening a Pull Request to Merging Confidently</h2>
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 10.6-A · The Complete Code Review Workflow</div>
+        <pre>
+STEP 1: Self‑Review           STEP 2: Automated Tools        STEP 3: Peer Review
+(Authors checks own code)     (Slither, Mythril, Solhint)     (Another developer reviews)
+         │                            │                              │
+         ▼                            ▼                              ▼
+    Find obvious issues         Catch vulnerabilities          Fresh perspective
+    before anyone else          and style violations           catches missed issues
+    looks at your code          automatically                 and questions assumptions
+
+        STEP 4: Fix Issues           STEP 5: Re‑Review              STEP 6: Deploy
+        (Author addresses            (Reviewer verifies             (Only when all issues
+         all feedback)                fixes are correct)             are resolved)
+              │                            │                              │
+              ▼                            ▼                              ▼
+         Update code,                  Approve PR,                   Confidently deploy
+         write tests for              merge to main                  knowing the contract
+         any new changes                                             has been thoroughly
+                                                                    reviewed
+        </pre>
+        <div class="diagram-caption">A structured review workflow catches issues at multiple stages, from automated tools to human reviewers.</div>
+    </div>
+
+    <div class="section-label">10 &nbsp; Writing the Audit Report - Your Assessment Deliverable</div>
+    <h2 class="section-title">How to Document Issues Like a Professional Auditor</h2>
+    <p>An audit report is a structured document that describes every vulnerability, inefficiency, and improvement opportunity found during review. Each finding includes a severity rating, a description of the issue, the impact, and the recommended fix.</p>
+
+    <p><strong>Severity classification:</strong></p>
+    <p><strong>Critical:</strong> Can result in complete loss of funds, permanent freezing of the contract, or theft by any user. Must be fixed before deployment.</p>
+    <p><strong>High:</strong> Can result in partial loss of funds under specific conditions, or make the contract unusable over time. Fix before deployment.</p>
+    <p><strong>Medium:</strong> Significant gas inefficiency, missing access control that could be exploited with effort, or missing event emissions that break frontend integration. Fix before deployment.</p>
+    <p><strong>Low:</strong> Style violations, missing comments, inconsistent naming. Fix eventually - not a security risk, but reduces auditability.</p>
+    <p><strong>Informational:</strong> Suggestions for improvement that are not bugs or vulnerabilities. Optional.</p>
+
+    <p><strong>Report format:</strong></p>
+    <div class="code-block-wrap"><pre>
+ISSUE #1: Reentrancy vulnerability in withdraw()
+Severity: CRITICAL
+Location: contracts/Vault.sol, line 42
+Description: The withdraw() function sends ETH to the caller before updating
+the user's balance. An attacker can re‑enter the function through a fallback
+and withdraw more than their balance.
+Impact: An attacker can drain the entire contract's ETH balance.
+Recommendation: Update the balance BEFORE the external call, following the
+Checks‑Effects‑Interactions pattern.
+
+ISSUE #2: Unbounded loop in distributeRewards()
+Severity: HIGH
+Location: contracts/Vault.sol, line 78
+Description: The distributeRewards() function loops over all users using a
+dynamic array that grows with each new user. Eventually, the gas consumed
+will exceed the block gas limit.
+Impact: The distributeRewards() function will become permanently unusable,
+trapping funds for all users.
+Recommendation: Replace the array with a mapping and a counter. Use a
+withdrawal pattern where users claim their own rewards rather than the
+contract pushing rewards to all users.</pre></div>
+
+    <div class="section-label">11 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card">
+        <div class="fact-num">01</div>
+        <div class="fact-text"><strong>Code review is the last line of defense before immutability.</strong> Smart contracts cannot be patched after deployment. Every issue found during review is a disaster prevented.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">02</div>
+        <div class="fact-text"><strong>Use a systematic checklist covering security, gas, readability, standards, and testing.</strong> Professional auditors follow checklists to ensure nothing is missed. You should too.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">03</div>
+        <div class="fact-text"><strong>Refactoring improves code without changing behavior.</strong> Better naming, extracted helpers, and gas optimizations turn functional code into professional, auditable contracts.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">04</div>
+        <div class="fact-text"><strong>Run automated tools before human review.</strong> Slither, Mythril, and Solhint catch issues instantly and save your reviewer's time for deeper analysis.</div>
+    </div>
+    <div class="fact-card">
+        <div class="fact-num">05</div>
+        <div class="fact-text"><strong>An audit report documents every finding with severity, impact, and fix.</strong> This is the standard deliverable for professional auditors and MST grant applicants.</div>
+    </div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 10.6 Assessment - Audit Report on Your Capstone Code</h2>
+            <div class="marks-total-badge"><div class="num">30</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">R1</div>
+                <div class="a-type">Issue Identification</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">12 marks</div>
+                <div class="a-question"><strong>Identify at least 6 issues in your own capstone contract (12 marks)</strong><br>Review your capstone project's smart contracts using the checklist from this sub-module. Document every issue you find: security vulnerabilities, gas inefficiencies, readability problems, missing events, and style violations. Each issue must include: a clear description, the exact line number, the severity (Critical/High/Medium/Low), and a detailed explanation of the impact.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks per issue</strong> (up to 6 issues, 12 marks total). Each issue must be: (a) a genuine finding (not fabricated), (b) correctly classified by severity, (c) described with specific impact, and (d) located by line number.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R2</div>
+                <div class="a-type">Fix Implementation</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">12 marks</div>
+                <div class="a-question"><strong>Provide the fix for every issue found (12 marks)</strong><br>For each issue identified in R1, provide the exact code change that fixes it. Show the "before" and "after" code. Explain why your fix resolves the issue without introducing new problems.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks per fix</strong> (up to 6 fixes, 12 marks total). Each fix must: (a) correctly address the identified issue, (b) show the exact code change, and (c) include an explanation of why it works.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R3</div>
+                <div class="a-type">Refactored Contract</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">6 marks</div>
+                <div class="a-question"><strong>Submit the refactored, production-ready version of your contract (6 marks)</strong><br>After applying all fixes and improvements, submit the complete refactored contract. It should have: clear naming, NatSpec comments, proper access control, efficient gas usage, and events for all state changes.</div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> Clear, descriptive naming and NatSpec comments on all functions.<br><strong>2 marks:</strong> All fixes from R2 correctly implemented.<br><strong>2 marks:</strong> Gas optimizations applied (cached storage, immutable variables, short-circuit evaluation).</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 10.6 Assessment Summary</div>
+            <div class="score-row">R1: Issue Identification = 12 marks</div>
+            <div class="score-row">R2: Fix Implementation = 12 marks</div>
+            <div class="score-row">R3: Refactored Contract = 6 marks</div>
+            <div class="score-badge"><div class="score-num">30</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.6</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Code Review</div><div class="g-def">A systematic examination of source code by one or more developers to identify bugs, security vulnerabilities, and style issues before the code is deployed.</div></div>
+        <div class="glossary-card"><div class="g-term">Refactoring</div><div class="g-def">Restructuring existing code to improve readability, efficiency, or maintainability without changing its external behavior.</div></div>
+        <div class="glossary-card"><div class="g-term">NatSpec</div><div class="g-def">Ethereum Natural Specification Format - a documentation standard for Solidity using tags like @notice, @dev, @param, and @return.</div></div>
+        <div class="glossary-card"><div class="g-term">Static Analysis</div><div class="g-def">Automated examination of source code without executing it. Tools like Slither detect patterns that indicate potential vulnerabilities.</div></div>
+        <div class="glossary-card"><div class="g-term">Severity Classification</div><div class="g-def">A rating system (Critical, High, Medium, Low, Informational) that communicates the potential impact of a finding in an audit report.</div></div>
+        <div class="glossary-card"><div class="g-term">Checks-Effects-Interactions</div><div class="g-def">A design pattern that prevents reentrancy by structuring functions in three steps: validate conditions, update state, then make external calls.</div></div>
+        <div class="glossary-card"><div class="g-term">Solhint</div><div class="g-def">A Solidity linter that enforces style rules and best practices automatically, similar to ESLint for JavaScript.</div></div>
+        <div class="glossary-card"><div class="g-term">Audit Report</div><div class="g-def">A structured document delivered by smart contract auditors listing every vulnerability, its severity, impact, and recommended fix.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.6</strong> of 6 · Next: Module 11 - DeFi & RWA Orbitals →</p>
+    </div>
+
+</body>
+</html>

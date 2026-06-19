@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 15.4 - Treasury Management | MasterStroke Academy</title>
+<meta name="description" content="Master the art of managing a DAO's billions. Learn multisig wallets, treasury diversification, risk frameworks, on-chain execution, and how MST's sub‑paisa fees enable active treasury management for all DAOs.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 15 &nbsp;·&nbsp; Sub-Module 15.4 of 5</div>
+<h1 class="module-title">Treasury <span class="highlight">Management</span></h1>
+<p class="module-subtitle">A DAO's treasury is its beating heart. Holding millions in tokens, stablecoins, and NFTs, the treasury must be secured against theft, diversified against market crashes, and spent wisely through governance. Learn how to build, protect, and grow a DAO treasury using multisig wallets, Gnosis Safe, on-chain execution, and MST's unique cost advantages.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1 mark each)</div>
+  <div class="meta-chip green">Phase 4 · DAOs & Governance</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Design a secure DAO treasury from scratch</strong>
+      Choose between multisig wallets, smart contract treasuries, and institutional custody - and understand the trade-offs of each model.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Implement Gnosis Safe as a multisig treasury</strong>
+      Set up a 3-of-5 Safe, add modules for spending limits and batch transactions, and connect it to the DAO's governance for on-chain execution of approved proposals.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📊</div>
+    <div class="obj-text">
+      <strong>Diversify and actively manage treasury assets</strong>
+      Apply the endowment model - stablecoins, native tokens, yield-bearing assets - and learn when to convert protocol revenue to stable assets.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Leverage MST for cost-efficient treasury operations</strong>
+      Rebalance, pay contributors, and execute swaps with sub-paisa gas fees - making active treasury management feasible for DAOs of any size.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DAO That Lost ₹10 Crore Because of a Single Private Key</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a promising DeFi DAO had accumulated ₹10 crore in its treasury - a mix of ETH, USDC, and governance tokens. The treasury was controlled by a single externally-owned account (EOA) held by the founder. One morning, the founder woke up to find that his private key had been compromised through a phishing attack. The attacker drained the entire treasury in a single transaction. The DAO had no multisig, no timelock, no governance-controlled treasury. It was a single point of failure. The DAO collapsed within weeks.</p>
+  <br>
+  <p>Contrast this with a well-managed DAO: its treasury is a <strong>Gnosis Safe multisig</strong> requiring 3 of 5 signers - all respected community members with hardware wallets. Spending proposals go through the DAO's Governor contract, are queued in a timelock, and are executed automatically via the Safe's module system. No single person can move a rupee without consensus. On MST, every treasury action - paying a contributor, swapping tokens for stablecoins, funding a grant - costs a fraction of a paisa, enabling active, democratic management. This sub-module teaches you to build the second kind of treasury.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Single Keys to Smart Contract Safes - The Evolution of DAO Treasuries</h2>
+<p>In the early days of crypto (2011-2016), project treasuries were simple: a single Bitcoin or Ethereum address controlled by one person. This worked for small amounts, but as ICOs raised millions, the risk of a single compromised key became unacceptable. The first major innovation was the <strong>multisignature (multisig) wallet</strong> - a smart contract that requires M-of-N signatures to execute any transaction. The most popular implementation, <strong>Gnosis Safe</strong>, launched in 2018 and quickly became the standard for DAO treasuries.</p>
+<p>Parallel to multisig development, DAOs began integrating treasuries with on-chain governance. Instead of multisig signers manually executing every approved proposal, a <strong>Governor contract</strong> could queue and execute transactions directly through the multisig, making the governance process fully automated. Projects like Moloch DAO (2019) pioneered this pattern, where a proposal could be submitted, voted on, and if passed, the treasury would automatically execute the transfer.</p>
+<p>Today, the most sophisticated DAOs use a layered treasury: a <strong>core multisig</strong> for high-value assets, <strong>operational wallets</strong> for smaller, frequent payments (managed by a subset of signers or a DAO-elected team), and <strong>yield strategies</strong> to put idle assets to work. On MST, the sub-paisa transaction costs mean that even small, frequent treasury operations - like paying a monthly stipend to a contributor - can be executed on-chain without wasting funds on gas.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> A DAO treasury is not just a wallet. It's a <strong>financial engine</strong> that must be secured, governed, diversified, and deployed. The architecture you choose determines whether your DAO thrives or becomes a cautionary tale.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The DAO's Bank Account - But No Single Person Has the Password</h2>
+<div class="callout analogy">
+  <div class="callout-label">🔐 The Analogy</div>
+  <p>Imagine a bank vault with three locks, and the keys are held by three different people. To open the vault, at least two of them must turn their keys simultaneously. That's a <strong>2-of-3 multisig</strong>. The vault also has a rule: it can only be opened if a majority of the town's citizens (token holders) voted to allow it. That's a <strong>governance-controlled treasury</strong>. And the vault is smart enough to invest some of its gold in interest-bearing bonds while keeping enough cash on hand for daily expenses - that's <strong>treasury management</strong>.</p>
+</div>
+
+<p>Let's explore the core concepts:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">M</div><div class="w5-word">MULTISIG</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a multisig wallet?</div>
+      <div class="w5-a">A <strong>multisig</strong> (multi-signature) is a smart contract that requires multiple private keys to authorize a transaction. Common configurations: 2-of-3, 3-of-5, 4-of-7. This means that even if one key is stolen, the attacker cannot move funds. Gnosis Safe is the most trusted multisig on EVM chains, securing over $100 billion in assets.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">SAFE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does Gnosis Safe work as a DAO treasury?</div>
+      <div class="w5-a">A Gnosis Safe can be deployed on any EVM chain, including MST. It's a smart contract wallet with features like: <strong>owner management</strong> (add/remove signers via another multisig vote), <strong>modules</strong> (allow custom logic like spending limits, allowance for specific addresses), and <strong>transaction builder</strong> (batch multiple actions into one transaction). For DAOs, the Safe can be configured to only execute transactions that have been approved by the Governor contract - creating a fully on-chain governance-to-execution pipeline.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">D</div><div class="w5-word">DIVERSIFY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How should a DAO diversify its treasury?</div>
+      <div class="w5-a">The "endowment model" is widely used: hold a mix of <strong>stablecoins</strong> (USDC, DAI) for operational expenses, <strong>native protocol tokens</strong> for long-term alignment, and <strong>blue-chip crypto assets</strong> (ETH, MSTC) for growth. Yield-bearing assets (staked tokens, lending deposits) can generate passive income. The key principle: don't be 100% in any single asset. A DAO whose treasury is 90% in its own governance token is one market crash away from insolvency.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: MULTISIG & GNOSIS SAFE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - Multisig Wallets & Gnosis Safe</div>
+<h2 class="section-title">Build a 3-of-5 Multisig Treasury on MST</h2>
+<p>Gnosis Safe is the gold standard for multisig treasuries. Let's walk through setting up a Safe on MST and integrating it with governance.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Deploying a Gnosis Safe</h3>
+<p>Gnosis Safe is available through its web interface (app.safe.global) or via smart contract deployment. On MST, you can deploy the Safe contracts using the official factory. The core contracts are:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Safe Proxy Factory:</strong> Creates new Safe instances deterministically.</li>
+  <li><strong>Safe Singleton:</strong> The master copy (implementation) contract.</li>
+  <li><strong>MultiSend:</strong> Allows batching multiple transactions into one.</li>
+  <li><strong>Default Fallback Handler:</strong> Handles incoming ETH and token transfers.</li>
+</ul>
+<p>A typical deployment script for MST (using Hardhat):</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+const { ethers } = require("hardhat");
+
+async function deploySafe() {
+  // Deploy the Safe singleton and factory
+  const Safe = await ethers.getContractFactory("Safe");
+  const safeSingleton = await Safe.deploy();
+  await safeSingleton.deployed();
+
+  const Factory = await ethers.getContractFactory("SafeProxyFactory");
+  const factory = await Factory.deploy();
+  await factory.deployed();
+
+  // Create a new Safe with 5 owners, threshold 3
+  const owners = [addr1, addr2, addr3, addr4, addr5];
+  const threshold = 3;
+  const tx = await factory.createProxyWithNonce(
+    safeSingleton.address,
+    "0x", // initializer (empty for default)
+    saltNonce
+  );
+  const receipt = await tx.wait();
+  // The new Safe address is emitted in the event
+  console.log("Safe deployed at:", safeAddress);
+}
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Adding Modules for Spending Limits</h3>
+<p>Gnosis Safe supports modules - smart contracts that extend its functionality. A common module is the <strong>SpendingLimit</strong> module, which allows a designated address to spend up to a certain amount per day without requiring full multisig approval. This is useful for operational expenses.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// Enable the SpendingLimit module for an operations wallet
+const spendingLimitModule = await deploySpendingLimit(
+  safeAddress,
+  operationsWallet,
+  ethers.parseEther("100"), // max 100 MSTC per day
+  RESET_TIME_ONE_DAY
+);
+// Enable the module in the Safe
+await safe.enableModule(spendingLimitModule.address);
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Connecting Safe to DAO Governance</h3>
+<p>To enable fully on-chain treasury execution, the Safe should be the <strong>executor</strong> of the DAO's Governor contract. When a proposal passes, the Governor queues it in the Timelock, and upon execution, the Timelock calls the Safe's <code>execTransaction</code> function.</p>
+<p>Alternatively, the Safe itself can be one of the <strong>targets</strong> of a proposal, meaning the proposal instructs the Safe to perform a transaction. For example, a proposal could call <code>safe.execTransaction(to, value, data, operation, ...)</code> with signatures collected off-chain via the Safe's UI, or with on-chain approval from the Safe's owners (who could be the Governor contract itself or individual signers).</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.4-A · DAO Treasury Architecture with Gnosis Safe</div>
+  <pre>
+  ┌──────────────────────┐        ┌──────────────────────────┐
+  │   DAO Governor        │───────▶│   TimelockController      │
+  │ (proposal lifecycle)  │        │ (queues approved proposals)│
+  └──────────────────────┘        └────────────┬─────────────┘
+                                               │
+                                               │ execute()
+                                               ▼
+                                    ┌──────────────────────────┐
+                                    │   Gnosis Safe (Treasury) │
+                                    │   Owners: 5 signers       │
+                                    │   Threshold: 3‑of‑5       │
+                                    │   Modules: SpendingLimit, │
+                                    │            Allowance      │
+                                    └────────────┬─────────────┘
+                                                 │
+                              ┌──────────────────┼──────────────────┐
+                              ▼                  ▼                  ▼
+                        Pay contributor    Swap tokens on      Fund grant
+                        (0.5 MSTC gas)     DEX (0.006 MSTC)   (0.006 MSTC)
+  </pre>
+  <div class="diagram-caption">The Governor and Timelock handle the democratic process; the Safe holds the assets and executes the decisions. Modules provide fine-grained spending control.</div>
+</div>
+
+<!-- 06 TREASURY DIVERSIFICATION STRATEGIES -->
+<div class="section-label">06 &nbsp; Treasury Diversification &amp; Risk Management</div>
+<h2 class="section-title">Don't Put All Your Eggs in One Basket - Especially If the Basket Is Your Own Token</h2>
+<p>One of the most common and dangerous treasury mistakes is over-concentration in the DAO's own governance token. If the token price crashes, the treasury becomes worthless, and the DAO can no longer pay contributors or fund operations. Professional DAOs follow diversification principles:</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Endowment Model</h3>
+<p>Inspired by university endowments (like Harvard's), this model divides the treasury into:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Operating Reserve (20-30%):</strong> Stablecoins (USDC, DAI) for paying contributors, grants, and operational costs for the next 12-24 months. This ensures the DAO can survive a multi-year bear market.</li>
+  <li><strong>Core Holdings (30-50%):</strong> Blue-chip crypto assets like MSTC, ETH, or BTC. These provide long-term growth potential and are relatively liquid.</li>
+  <li><strong>Protocol-Owned Liquidity (10-20%):</strong> The DAO's own governance token paired with a stablecoin or native token, deposited in a DEX to provide liquidity and earn fees. This also defends against price manipulation.</li>
+  <li><strong>Yield-Bearing Assets (10-20%):</strong> Staked tokens, lending deposits (on Aave or Compound), or LP tokens in yield farms. These generate passive income for the DAO without selling core assets.</li>
+  <li><strong>Illiquid / Strategic (5-10%):</strong> NFT collections, early-stage investments, or real-world assets. These are long-term bets.</li>
+</ul>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.4-B · Ideal DAO Treasury Allocation (Endowment Model)</div>
+  <pre>
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                  DAO TREASURY (100%)                              │
+  ├─────────────┬─────────────┬──────────────┬────────────┬─────────┤
+  │  Operating  │   Core      │  Protocol‑   │  Yield‑    │ Illiquid│
+  │  Reserve    │  Holdings   │  Owned       │  Bearing   │ & Strate│
+  │  (Stable)   │  (MSTC,ETH) │  Liquidity   │  (Staking, │ gic     │
+  │  20‑30%     │  30‑50%     │  10‑20%      │  Lending)  │  5‑10%  │
+  └─────────────┴─────────────┴──────────────┴────────────┴─────────┘
+  </pre>
+  <div class="diagram-caption">A diversified treasury can survive market downturns while still capturing upside. The exact percentages depend on the DAO's risk tolerance and stage.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Diversification Mechanics on MST</h3>
+<p>On MST, actively managing a treasury is economically feasible because each rebalancing transaction costs ~₹0.006. A DAO can:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Swap tokens on a DEX:</strong> If the DAO receives protocol fees in MSTC, it can periodically swap a portion to USDC to build the operating reserve. Gas cost: ~₹0.006 per swap.</li>
+  <li><strong>Deposit into lending protocols:</strong> Idle USDC can be deposited into Aave (on MST) to earn yield. Gas cost: ~₹0.006 per deposit/withdrawal.</li>
+  <li><strong>Stake MSTC:</strong> Earn staking rewards while retaining exposure to MSTC. Liquid staking (if available) allows the staked MSTC to be used in DeFi.</li>
+  <li><strong>Provide liquidity:</strong> Deposit protocol-owned tokens into a DEX pool to earn trading fees and deepen liquidity. Gas cost: ~₹0.012 for add/remove liquidity.</li>
+</ul>
+
+<!-- 07 TREASURY EXECUTION PATTERNS -->
+<div class="section-label">07 &nbsp; Treasury Execution Patterns</div>
+<h2 class="section-title">How Money Leaves the Treasury - Three Common Flows</h2>
+<p>In a DAO, every treasury disbursement must be authorized. Here are the three most common patterns, from least to most trustless.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Pattern 1: Multisig Signers Execute Manually</h3>
+<p>The proposal passes (on-chain or off-chain via Snapshot). Multisig signers review the result, then manually sign and execute the transaction from the Safe. This is simple but relies on the signers being responsive and honest. It introduces a trust assumption: the signers must faithfully execute the community's will.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Pattern 2: Governor + Timelock → Safe (Automated)</h3>
+<p>The proposal passes on-chain through the Governor contract. It is queued in the Timelock. After the delay, anyone calls <code>execute()</code>, and the Timelock sends the transaction to the Safe. The Safe must have the Timelock as an authorized module or owner. This removes the need for signer intervention - the code executes automatically.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Pattern 3: DAO-Controlled Treasury Smart Contract</h3>
+<p>Instead of a separate Safe, the treasury is a custom smart contract that integrates directly with the Governor. Proposals call functions like <code>treasury.transfer(token, to, amount)</code>. This is the most trustless model, but it requires a custom, audited treasury contract.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.4-C · Three Treasury Execution Patterns</div>
+  <pre>
+  PATTERN 1 (Manual):              PATTERN 2 (Automated):        PATTERN 3 (Custom):
+  ┌──────────┐                    ┌──────────┐                  ┌──────────┐
+  │ Proposal │                    │ Proposal │                  │ Proposal │
+  │ passes   │                    │ passes   │                  │ passes   │
+  └────┬─────┘                    └────┬─────┘                  └────┬─────┘
+       │                               │                            │
+       ▼                               ▼                            ▼
+  ┌──────────┐                    ┌──────────┐                  ┌──────────┐
+  │ Signers  │                    │ Timelock │                  │ Treasury │
+  │ manually │                    │ queues & │                  │ Contract │
+  │ execute  │                    │ executes │                  │ executes │
+  │ from Safe│                    │ via Safe │                  │ directly │
+  └──────────┘                    └──────────┘                  └──────────┘
+  Trust in signers               Minimal trust                  No trust
+  </pre>
+  <div class="diagram-caption">Move toward Patterns 2 or 3 as the DAO matures and requires full on-chain trustlessness.</div>
+</div>
+
+<!-- 08 INTERACTIVE EXAMPLES -->
+<div class="section-label">08 &nbsp; Interactive Examples - Click to Explore</div>
+
+<details>
+  <summary>💸 Example 1: Pay a Contributor from the Treasury</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> A DAO has approved a proposal to pay a developer 1,000 USDC for completing a frontend feature. The treasury is a 3-of-5 Safe. Two of the five signers are traveling; the remaining three must execute the payment.</p>
+    <p><strong>Process:</strong> One signer creates the transaction in the Safe UI, specifying the USDC contract address, the <code>transfer</code> function, and the developer's address and amount. The transaction is submitted for signing. The other two available signers approve it via the Safe UI (or via a script using their keys). Once 3 signatures are collected, the transaction is broadcast to the MST network. Gas cost: ~₹0.006. The developer receives 1,000 USDC.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔄 Example 2: Rebalance Treasury - Sell MSTC for USDC</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> The DAO's treasury has accumulated 100,000 MSTC from protocol fees, but its operating reserve in USDC is low. The DAO wants to sell 10,000 MSTC for USDC to ensure it can pay contributors for the next year.</p>
+    <p><strong>On-chain execution via proposal:</strong> A proposal is created targeting the DEX router contract with calldata for <code>swapExactTokensForTokens(10000 MSTC, minUSDC, [MSTC, USDC], treasury, deadline)</code>. The proposal passes governance, is queued, and executes. The Safe calls the router, which swaps MSTC for USDC and deposits the USDC back into the Safe. Total gas: ~₹0.018 (approval + swap). On Ethereum, this rebalance could cost ₹2,000+. On MST, it's a no-brainer.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📊 Example 3: Earn Yield on Idle Stablecoins</summary>
+  <div class="content">
+    <p><strong>Scenario:</strong> The treasury has 50,000 USDC sitting idle. The DAO wants to deposit it into Aave (on MST) to earn ~5% APY.</p>
+    <p><strong>Process:</strong> A proposal targets the Aave lending pool contract on MST with calldata for <code>deposit(USDC, 50000, treasury, 0)</code>. After governance approval, the Safe deposits the USDC and receives aUSDC (interest-bearing tokens). The aUSDC stays in the Safe. When the DAO needs the funds, a reverse proposal withdraws them. The gas cost for deposit is ~₹0.006; for withdrawal, ~₹0.006. The yield earned can pay for the gas thousands of times over.</p>
+  </div>
+</details>
+
+<!-- 09 MST‑SPECIFIC ADVANTAGES -->
+<div class="section-label">09 &nbsp; MST-Specific Advantages for Treasury Management</div>
+<h2 class="section-title">Why MST Makes Active Treasury Management Affordable</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa transaction costs</div>
+      <div class="feature-desc">Every treasury action - paying contributors, swapping tokens, harvesting yield - costs ~₹0.006 on MST. On Ethereum, the same actions cost ₹500-₹2,000 each. This means DAOs on MST can actively manage their treasuries daily without burning funds on gas. A DAO with 100 treasury transactions per year would spend ₹0.60 on MST vs. ₹50,000+ on Ethereum.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Full EVM compatibility with Gnosis Safe</div>
+      <div class="feature-desc">Gnosis Safe contracts deploy and function identically on MST. The Safe UI can be pointed at an MST RPC. All modules (SpendingLimit, Allowance) work out of the box.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Fast finality for time-sensitive treasury operations</div>
+      <div class="feature-desc">MST's ~3-second block time means that when a multisig transaction is executed, the funds move almost instantly. There's no 15-minute wait for confirmations, which is critical during market volatility when a DAO needs to quickly move assets.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Hybrid zones for compliance</div>
+      <div class="feature-desc">For DAOs that need to interact with regulated entities, MST's permissioned zones allow a part of the treasury (e.g., the operating reserve) to be managed with KYC compliance, while the core holdings remain on the public zone.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 COMMON PITFALLS -->
+<div class="section-label">10 &nbsp; Common Pitfalls in Treasury Management</div>
+<h2 class="section-title">Don't Let Your DAO Become the Next Cautionary Tale</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Single-signer treasury (or 1-of-N with N=1)</div>
+      <div class="feature-desc">A single private key controlling the treasury is a recipe for disaster. Always use at least a 2-of-3 multisig, with keys held by different people on different devices, ideally hardware wallets.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">100% allocation in native governance token</div>
+      <div class="feature-desc">If the DAO's token crashes 90%, the treasury becomes worthless and the DAO cannot pay contributors. Diversify into stablecoins and blue-chip assets.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">No operational reserve for a bear market</div>
+      <div class="feature-desc">DAOs should hold at least 12-24 months of operating expenses in stablecoins. This ensures the DAO can survive a multi-year crypto winter without selling core assets at the bottom.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring smart contract risk in yield strategies</div>
+      <div class="feature-desc">Depositing treasury funds into unaudited yield farms can lead to loss of principal. Stick to battle-tested protocols (Aave, Compound, major DEXs) and consider insurance (like Nexus Mutual) for large deposits.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 REAL‑WORLD CASE STUDIES -->
+<div class="section-label">11 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Top DAOs Manage Billions</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap DAO - The $2.5 Billion Treasury</div>
+      <div class="feature-desc">Uniswap's treasury, held in a Gnosis Safe and governed by UNI token holders, is one of the largest DAO treasuries. It consists primarily of UNI tokens (protocol-owned), plus ETH and stablecoins from the fee switch (not yet activated). The DAO has funded developer grants, liquidity mining programs, and a political advocacy arm (DeFi Education Fund). The treasury's execution is a mix of manual multisig (for early grants) and on-chain proposals (for larger, recurring programs).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💰</div>
+    <div class="feature-content">
+      <div class="feature-title">MakerDAO - Diversified with Real-World Assets</div>
+      <div class="feature-desc">MakerDAO's treasury includes not just crypto assets but also real-world assets (RWAs) like U.S. Treasury bonds, managed through legal structures. The DAO's governance votes on risk parameters and allocation. This demonstrates that DAOs can manage traditional financial instruments, bridging DeFi and traditional finance. MST's RWA Orbitals could enable similar diversification for DAOs in India.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">⚖️</div>
+    <div class="feature-content">
+      <div class="feature-title">Gitcoin DAO - Quadratic Funding from the Treasury</div>
+      <div class="feature-desc">Gitcoin DAO uses a quadratic funding model: the community donates to projects, and the DAO matches those donations from its treasury, with the match amount determined by the number of unique donors (not the amount). This ensures that projects with broad community support get the most funding. The treasury holds GTC tokens and ETH, and disbursements are executed via Snapshot + Safe.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 TOOLS & RESOURCES -->
+<div class="section-label">12 &nbsp; Tools &amp; Resources</div>
+<h2 class="section-title">The Treasury Manager's Toolkit</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🛡️</div>
+    <div class="feature-content">
+      <div class="feature-title">Gnosis Safe (app.safe.global)</div>
+      <div class="feature-desc">The industry-standard multisig wallet. Supports MST through custom RPC configuration. Offers modules for spending limits, batch transactions, and wallet-connect integration.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">📊</div>
+    <div class="feature-content">
+      <div class="feature-title">Zerion & DeBank</div>
+      <div class="feature-desc">Portfolio tracking dashboards that show all assets held by a Safe address, including tokens, NFTs, and DeFi positions. Essential for monitoring treasury composition.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🔗</div>
+    <div class="feature-content">
+      <div class="feature-title">OpenZeppelin Defender</div>
+      <div class="feature-desc">Automated monitoring and alerting for smart contracts. Can watch the Safe for unauthorized transactions, large withdrawals, or unusual activity.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🗳️</div>
+    <div class="feature-content">
+      <div class="feature-title">Tally / Boardroom</div>
+      <div class="feature-desc">Governance dashboards that display proposal status, voting power, and enable token holders to vote and delegate. Integrates with Governor contracts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 ASSESSMENT PREP -->
+<div class="section-label">13 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">A multisig wallet requires M-of-N signatures to execute transactions, eliminating single points of failure.</div>
+      <div class="feature-desc">Gnosis Safe is the standard multisig for DAO treasuries, securing over $100 billion.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">The endowment model diversifies the treasury into operating reserves (stablecoins), core holdings (blue-chip), and yield-bearing assets.</div>
+      <div class="feature-desc">Never be 100% in a single asset, especially the DAO's own token.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's sub-paisa fees enable active treasury management - daily rebalancing, yield harvesting, and contributor payments - without burning assets on gas.</div>
+      <div class="feature-desc">On Ethereum, frequent treasury actions are prohibitively expensive. On MST, they're practically free.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT: 10 MCQs -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 15.4 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">10 Questions · 1 mark each · 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary advantage of a multisig wallet for a DAO treasury?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It eliminates single points of failure by requiring multiple signatures to execute any transaction. ✅</li>
+        <li><span class="opt-key">B</span> It allows anyone to withdraw funds.</li>
+        <li><span class="opt-key">C</span> It automatically invests idle assets.</li>
+        <li><span class="opt-key">D</span> It is faster than a single-key wallet.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A multisig requires M-of-N signatures, so even if one key is compromised, funds cannot be moved without the other signers.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is the most popular multisig wallet for DAO treasuries on EVM chains?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Gnosis Safe. ✅</li>
+        <li><span class="opt-key">B</span> MetaMask.</li>
+        <li><span class="opt-key">C</span> Trust Wallet.</li>
+        <li><span class="opt-key">D</span> Coinbase Wallet.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Gnosis Safe is the industry standard for multisig treasuries, securing over $100 billion in assets across multiple chains.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the "endowment model" in treasury management?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Diversifying the treasury into multiple asset classes - stablecoins, blue-chip crypto, yield-bearing assets, and strategic holdings. ✅</li>
+        <li><span class="opt-key">B</span> Holding 100% of the treasury in the DAO's own governance token.</li>
+        <li><span class="opt-key">C</span> Storing all funds in a single bank account.</li>
+        <li><span class="opt-key">D</span> Never spending any treasury funds.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The endowment model diversifies the treasury to reduce risk, ensure operational resilience, and capture long-term growth.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is it risky for a DAO to hold 90% of its treasury in its own governance token?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> If the token price crashes, the treasury becomes worthless and the DAO cannot pay its expenses. ✅</li>
+        <li><span class="opt-key">B</span> The token will automatically be burned.</li>
+        <li><span class="opt-key">C</span> It violates securities laws.</li>
+        <li><span class="opt-key">D</span> It prevents the DAO from voting on proposals.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Over-concentration in a single volatile asset, especially the DAO's own token, creates insolvency risk during market downturns.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a common module used with Gnosis Safe for DAO operations?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> SpendingLimit module - allows a designated address to spend up to a certain amount per day without full multisig approval. ✅</li>
+        <li><span class="opt-key">B</span> ERC-20 module.</li>
+        <li><span class="opt-key">C</span> Uniswap module.</li>
+        <li><span class="opt-key">D</span> Staking module.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The SpendingLimit module enables efficient day-to-day operations by delegating limited spending authority to a designated address.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How can a DAO's treasury execute transactions automatically after a governance proposal passes?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By integrating the Governor contract with a Timelock and the Gnosis Safe, so the execution is triggered on-chain. ✅</li>
+        <li><span class="opt-key">B</span> By having a single person manually send the funds.</li>
+        <li><span class="opt-key">C</span> By posting the transaction on social media.</li>
+        <li><span class="opt-key">D</span> By waiting for a bank transfer.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The Governor + Timelock + Safe pipeline enables trustless, automated execution of approved proposals.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is MST's sub-paisa gas fee particularly beneficial for treasury management?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It makes frequent treasury operations (rebalancing, yield harvesting, contributor payments) economically viable. ✅</li>
+        <li><span class="opt-key">B</span> It eliminates the need for a multisig.</li>
+        <li><span class="opt-key">C</span> It automatically diversifies the treasury.</li>
+        <li><span class="opt-key">D</span> It prevents all smart contract risks.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>On expensive chains, gas costs can exceed the value of treasury operations. MST's low fees enable active, democratic treasury management.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the recommended minimum operating reserve for a DAO treasury?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> 12 - 24 months of operating expenses in stablecoins. ✅</li>
+        <li><span class="opt-key">B</span> 1 month of expenses.</li>
+        <li><span class="opt-key">C</span> 100% of the treasury.</li>
+        <li><span class="opt-key">D</span> Zero - the DAO should not hold stablecoins.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A healthy operating reserve ensures the DAO can survive extended bear markets without selling core assets at depressed prices.</p></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is a risk when deploying treasury funds into yield farms?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Smart contract risk - a bug in the yield farm contract could lead to loss of principal. ✅</li>
+        <li><span class="opt-key">B</span> The yield is always guaranteed.</li>
+        <li><span class="opt-key">C</span> The funds become more liquid.</li>
+        <li><span class="opt-key">D</span> The gas costs are zero.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Yield farming involves interacting with external smart contracts, which carry bug and exploit risks. Always use audited, battle-tested protocols.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How can a DAO on MST interact with Gnosis Safe?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Gnosis Safe contracts are EVM-compatible and can be deployed on MST; the Safe UI can be configured to use an MST RPC. ✅</li>
+        <li><span class="opt-key">B</span> Gnosis Safe only works on Ethereum mainnet.</li>
+        <li><span class="opt-key">C</span> MST has its own proprietary multisig that replaces Safe.</li>
+        <li><span class="opt-key">D</span> DAOs cannot use multisig wallets on MST.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Because MST is fully EVM-compatible, Gnosis Safe contracts work identically. The UI can connect to an MST RPC endpoint.</p></div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 15.4 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ <span>(1 mark each) = 10 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">14 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 15.4</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Multisig (Multi-Signature)</div><div class="glossary-def">A smart contract wallet requiring M-of-N signatures to execute a transaction. Eliminates single points of failure.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gnosis Safe</div><div class="glossary-def">The most widely used multisig wallet on EVM chains, supporting modules, spending limits, and integration with DAO governance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Endowment Model</div><div class="glossary-def">A treasury diversification strategy that allocates assets across operating reserves, core holdings, yield-bearing assets, and strategic investments.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SpendingLimit Module</div><div class="glossary-def">A Gnosis Safe module that allows a designated address to spend up to a limit per day, enabling efficient operations without full multisig approval.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Treasury Execution Pipeline</div><div class="glossary-def">The flow from a governance proposal passing → queuing in a timelock → automatic execution by the treasury.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Operating Reserve</div><div class="glossary-def">The portion of a treasury held in stablecoins to cover operational expenses for 12 - 24 months, insulating the DAO from market downturns.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 15 · Sub-Module <strong>15.4</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 15.5 - Hands-On: Build a Simple DAO →</p>
+</div>
+
+</body>
+</html>

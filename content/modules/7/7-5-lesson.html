@@ -1,0 +1,514 @@
+
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🌉 Module 7 &nbsp;·&nbsp; Sub-Module 7.5 of 8</div>
+<h1 class="module-title"><span class="highlight">WASMify</span> - ZK-Verified Real-World Bridge</h1>
+<p class="module-subtitle">How MST's WebAssembly runtime lets enterprises run existing C, C++, and Rust code on-chain, with zero-knowledge proofs that verify off-chain computations without revealing sensitive data - the bridge between legacy systems and Web3.</p>
+
+<div class="meta-bar">
+    <div class="meta-chip">⏱ 50 Minutes</div>
+    <div class="meta-chip purple">🎯 20 Marks</div>
+    <div class="meta-chip">📋 6 MCQ + 1 Identify-Output + 1 T/F with Justification + 1 Descriptive Design</div>
+    <div class="meta-chip green">Phase 2 · MST Architecture &amp; Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+    <div class="obj-card">
+        <div class="obj-icon">🧩</div>
+        <div class="obj-text">
+            <strong>Explain what WASMify is</strong>
+            Describe how MST executes WebAssembly modules on-chain and why this bridges traditional software with blockchain.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🔐</div>
+        <div class="obj-text">
+            <strong>Understand the ZK-verification layer</strong>
+            Detail how zero-knowledge proofs allow off-chain computation results to be verified on-chain without revealing the underlying data.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🏭</div>
+        <div class="obj-text">
+            <strong>Apply WASMify to enterprise use cases</strong>
+            Design a supply-chain, IoT, or ERP integration using WASMify to bring real-world data on-chain trustlessly.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">⚖️</div>
+        <div class="obj-text">
+            <strong>Compare WASMify with traditional oracles</strong>
+            Evaluate why WASMify's ZK-verified computation model is more secure and flexible than centralised or decentralised oracle networks.
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Factory That Couldn't Speak Blockchain</h2>
+
+<div class="callout story">
+    <div class="callout-label">📖 Story</div>
+    <p>Maruti Suzuki's Manesar plant runs a sophisticated SAP ERP system written in ABAP and C++. Every day, 5,000 car parts arrive from 200 suppliers. The receiving dock scans each pallet, updates the SAP inventory, and generates a three-way match between the purchase order, the goods receipt, and the invoice. This system is fast, reliable, and entirely off-chain.</p>
+    <br>
+    <p>The company wants to bring this data on-chain to trigger smart contract payments - paying a supplier automatically when goods are received and verified. The problem: the SAP system cannot call a smart contract directly. And even if it could, Maruti does not want to expose its entire inventory database on a public blockchain. The pricing agreements with suppliers are confidential. The production schedules are trade secrets.</p>
+    <br>
+    <p>Traditional oracles would require Maruti to run a Chainlink node, expose an API, and trust that the node operator won't leak the data. That's a non-starter for a publicly listed company with strict data governance.</p>
+    <br>
+    <p>Enter <strong>WASMify</strong>. Maruti's existing C++ inventory module - the same code that has run for years - is compiled to WebAssembly (WASM). A lightweight WASMify runtime sits at the edge of Maruti's network, watching the SAP database. When a goods receipt is recorded, the WASM module computes a cryptographic proof that "Pallet #45821 arrived at Dock 7 at 14:32 IST." The proof - but not the raw SAP data - is posted to an MST smart contract. The smart contract verifies the ZK-proof using WASMify's on-chain verifier. If valid, it releases payment to the supplier.</p>
+    <br>
+    <p><strong>No SAP data ever leaves Maruti's firewall.</strong> The proof is public and verifiable, but it reveals nothing about inventory levels, pricing, or supplier identities beyond what is strictly needed. WASMify bridged a C++ ERP system to a Solidity smart contract without rewriting a single line of business logic.</p>
+</div>
+
+<p>WASMify solves the deepest problem in enterprise blockchain adoption: <strong>how to connect legacy systems to smart contracts without exposing confidential data and without trusting a third-party oracle</strong>.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Oracle Networks to Verifiable Computation - Why WASMify Exists</h2>
+
+<div class="timeline">
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2015 - 2017</div>
+            <div class="tl-body"><strong>The Oracle Problem Emerges.</strong> Smart contracts are deterministic walled gardens - they cannot fetch external data. The first oracles were simple: a trusted entity would post data on-chain. Chainlink (2017) improved this by decentralising the oracle network, but the fundamental problem remained: you must trust the oracle nodes to report honestly and keep your data confidential.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2017</div>
+            <div class="tl-body"><strong>WebAssembly Becomes a W3C Standard.</strong> WASM emerged as a portable, sandboxed binary format that runs at near-native speed in browsers and on servers. Its key property: code written in C, C++, Rust, Go, or even Python (compiled) can run identically anywhere - on a laptop, in a browser, or in a blockchain node.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2018 - 2020</div>
+            <div class="tl-body"><strong>Zero-Knowledge Proofs Mature.</strong> zk-SNARKs and zk-STARKs evolved from theoretical cryptography to practical toolkits (ZoKrates, Circom, StarkWare). It became possible to prove that a computation was performed correctly without revealing the inputs. The missing piece: how to run arbitrary business logic inside a ZK proof without rewriting everything in a ZK-DSL.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2021 - 2023</div>
+            <div class="tl-body"><strong>ZK-WASM Research.</strong> Projects like zkWASM and RISC Zero demonstrated that a WebAssembly runtime could be implemented inside a ZK circuit. This meant any program compiled to WASM could be executed inside a ZK proof. The output would be both the computation result and a proof of correct execution - verifiable by anyone without re-running the program.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">2024 - Today</div>
+            <div class="tl-body"><strong>WASMify on MST.</strong> MST integrates a ZK-WASM runtime directly into its validator nodes. Enterprises compile existing code (C++, Rust, Python) to WASM, run it off-chain with private data, and submit the result + ZK proof to an MST smart contract. The contract verifies the proof against an on-chain WASM bytecode hash, ensuring the correct code was executed on the claimed inputs. No oracle trusted. No data leaked. Legacy systems now speak blockchain.</div>
+        </div>
+    </div>
+</div>
+
+<div class="callout insight">
+    <div class="callout-label">💡 The WASMify Breakthrough</div>
+    <p>WASMify doesn't ask enterprises to rewrite their code. It asks them to <strong>recompile</strong> their code. A C++ inventory module that has run reliably for a decade becomes a ZK-provable computation with a single compilation target change. That's the power of the WASM standard combined with ZK proofs.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Notary Public Analogy - How WASMify Verifies Without Seeing</h2>
+
+<div class="callout analogy">
+    <div class="callout-label">📜 The Notary &amp; The Sealed Envelope</div>
+    <p>Imagine you need to prove to a bank that you earn more than ₹50,000 per month, but you don't want to show them your exact salary slip. You take your salary slip to a notary public. The notary verifies the document, stamps it, and gives you a sealed certificate that says "Verified: income &gt; ₹50,000." The bank trusts the notary's stamp without ever seeing the original document.</p>
+    <p>In WASMify, the <strong>salary slip is your SAP data</strong>, the <strong>notary is the ZK-WASM runtime</strong>, the <strong>sealed certificate is the ZK proof</strong>, and the <strong>bank is the MST smart contract</strong>. The smart contract verifies the cryptographic stamp without ever seeing the confidential business data.</p>
+</div>
+
+<div class="w5-grid">
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+        <div class="w5-content">
+            <div class="w5-q">Why does WASMify exist?</div>
+            <div class="w5-a">Because enterprises cannot expose confidential data on public blockchains, and they cannot rewrite decades of legacy code in Solidity. WASMify lets them run existing code, keep data private, and prove results on-chain - all without trusting an oracle operator.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+        <div class="w5-content">
+            <div class="w5-q">What exactly is WASMify?</div>
+            <div class="w5-a">WASMify is MST's <strong>off-chain computation framework with on-chain ZK verification</strong>. It consists of: (1) an off-chain WASM runtime that executes WebAssembly modules with private inputs, (2) a ZK prover that generates a cryptographic proof of correct execution, and (3) an on-chain verifier smart contract that checks the proof against the known WASM bytecode hash.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+        <div class="w5-content">
+            <div class="w5-q">How does the technical flow work?</div>
+            <div class="w5-a">1) Developer writes a computation in C++/Rust (e.g., "verify GPS coordinates are within a delivery zone"). 2) Code is compiled to WASM bytecode. 3) The WASM bytecode hash is registered on-chain in a WASMify Registry contract. 4) Off-chain, the WASM module runs with private inputs (actual GPS data). 5) The ZK prover generates a proof: "I ran bytecode hash 0xABC with inputs that satisfy the condition, and the output is TRUE." 6) The proof is submitted to the on-chain verifier. 7) The verifier checks the proof in ~200k gas. 8) If valid, a smart contract state changes (e.g., payment released).</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+        <div class="w5-content">
+            <div class="w5-q">Where is WASMify deployed?</div>
+            <div class="w5-a">WASMify is integrated into MST's validator nodes and available as a standalone edge runtime for enterprises. It is the backbone of MST's RWA (Real-World Asset) Orbitals, supply-chain track-and-trace, IoT data verification, and any dApp that needs trustless off-chain computation with on-chain settlement.</div>
+        </div>
+    </div>
+    <div class="w5-row">
+        <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+        <div class="w5-content">
+            <div class="w5-q">What are the limitations?</div>
+            <div class="w5-a">ZK-WASM proof generation is computationally intensive - currently, proving a complex computation may take minutes on commodity hardware, though MST is investing in GPU acceleration. The WASM module must be deterministic (no random number generation without a seeded VRF). Very large datasets (gigabytes) may not fit in the WASM linear memory limit (currently 4GB). And the on-chain verifier must be kept updated as the ZK proving system evolves.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Four Components of WASMify - From Code to Verified Proof</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">1</div>
+        <div class="feature-content">
+            <div class="feature-title">WASM Compilation Target - Any Language to Any Chain</div>
+            <div class="feature-desc">
+                WebAssembly is a portable, low-level bytecode format supported by LLVM, the most widely used compiler infrastructure. This means <strong>any language that compiles to LLVM can compile to WASM</strong>: C, C++, Rust, Go (via TinyGo), Zig, and increasingly Python (via Pyodide) and .NET (via Blazor). For an enterprise, this is transformative: the exact same C++ code that runs their inventory system can be compiled to WASM with zero logic changes. The WASM binary is deterministic - given the same inputs, it produces the same outputs on any platform. This determinism is essential for ZK-proof generation, which requires that the computation be reproducible.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">2</div>
+        <div class="feature-content">
+            <div class="feature-title">Off-Chain WASM Runtime - The Computation Engine</div>
+            <div class="feature-desc">
+                WASMify provides a lightweight runtime that executes WASM modules outside the blockchain. The runtime loads the WASM bytecode, injects the private inputs (from a database, an IoT sensor, or an API call), and executes the module sandboxed - the WASM code cannot access the host filesystem or network, ensuring it only operates on the provided data. The output is a simple result (e.g., a boolean, a number, a hash) plus a complete <strong>execution trace</strong> - a record of every instruction executed and every memory access. This trace is passed to the ZK prover. The runtime can be deployed on-premises (inside the enterprise firewall), on a cloud instance, or on an MST validator node, depending on the trust model.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">3</div>
+        <div class="feature-content">
+            <div class="feature-title">ZK Prover - Turning Computation into a Verifiable Proof</div>
+            <div class="feature-desc">
+                The ZK prover takes the WASM bytecode, the public inputs, and the execution trace, and generates a <strong>zero-knowledge proof</strong> - typically a zk-STARK (for transparency and post-quantum security) or a zk-SNARK (for smaller proof size). The proof cryptographically attests: "The WASM program with bytecode hash <code>H</code>, when executed with <em>some</em> private inputs, produced output <code>O</code>, and the execution was correct according to the WASM specification." The private inputs are never revealed. The public inputs (like the WASM hash and the output) are committed in the proof. The proof itself is a few kilobytes (for SNARKs) to a few hundred kilobytes (for STARKs) and can be submitted in a single blockchain transaction.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">4</div>
+        <div class="feature-content">
+            <div class="feature-title">On-Chain Verifier - The Smart Contract Gatekeeper</div>
+            <div class="feature-desc">
+                MST nodes include a precompiled contract (similar to <code>ecrecover</code> at 0x01) specifically for WASMify proof verification. The verifier takes three inputs: the WASM bytecode hash (stored on-chain when the module is registered), the claimed output, and the ZK proof. It runs a constant-time cryptographic verification (~200,000 gas) and returns <code>true</code> if the proof is valid. A smart contract can then use this result to release funds, update state, or trigger another contract. The verifier does not re-execute the WASM code - it only checks the proof. This is the magic of ZK: <strong>verification is exponentially cheaper than execution</strong>. The on-chain verifier is also used to anchor the WASM bytecode hash, ensuring that only approved modules can generate valid proofs.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ Why WASMify Replaces Traditional Oracles</div>
+    <p>A traditional oracle reports <em>data</em>. You must trust the oracle to report honestly. WASMify reports a <em>proof of computation</em>. You trust the cryptography, not the operator. Even if the WASM runtime is compromised, it cannot forge a valid proof for a different computation because the proof is tied to the specific bytecode hash registered on-chain.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising the WASMify Data Flow</h2>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 7.5-A · WASMify Architecture - Off-Chain to On-Chain</div>
+    <pre>  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                        ENTERPRISE PREMISES (OFF‑CHAIN)                  │
+  │                                                                         │
+  │  ┌──────────┐    ┌──────────────┐    ┌──────────────┐                  │
+  │  │  SAP /   │    │  WASMify     │    │  ZK Prover   │                  │
+  │  │  ERP     │───▶│  Runtime     │───▶│  (STARK/     │                  │
+  │  │  (C++)   │    │  (execute    │    │   SNARK)     │                  │
+  │  │          │    │   WASM)      │    │              │                  │
+  │  └──────────┘    └──────────────┘    └──────┬───────┘                  │
+  │                                             │                           │
+  │  Private data        WASM bytecode          │ ZK Proof + output        │
+  │  never leaves        (pre‑registered        │ (submitted on‑chain)     │
+  │  the firewall        on‑chain)              │                           │
+  └─────────────────────────────────────────────┼───────────────────────────┘
+                                                │
+  ┌─────────────────────────────────────────────▼───────────────────────────┐
+  │                        MST BLOCKCHAIN (ON‑CHAIN)                        │
+  │                                                                         │
+  │  ┌───────────────────────────┐    ┌──────────────────────────────┐     │
+  │  │  WASMify Registry        │    │  WASMify Verifier (Precompile)│     │
+  │  │  (stores bytecode hash)  │    │  • Checks proof validity      │     │
+  │  │  0xDEF... registered      │    │  • ~200k gas                 │     │
+  │  └───────────────────────────┘    └──────────────┬───────────────┘     │
+  │                                                  │                      │
+  │                                                  ▼                      │
+  │  ┌──────────────────────────────────────────────────────────────────┐  │
+  │  │  Smart Contract (e.g., PaymentEscrow)                            │  │
+  │  │  if (wasmifyVerifier.verify(bytecodeHash, output, proof)) {       │  │
+  │  │      releasePayment(supplier);                                    │  │
+  │  │  }                                                                │  │
+  │  └──────────────────────────────────────────────────────────────────┘  │
+  └─────────────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="diagram-caption">The enterprise's private data stays behind the firewall. Only the ZK proof and the public output touch the blockchain. The smart contract trusts the verified proof, not the data submitter.</div>
+</div>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 7.5-B · WASMify Proof Lifecycle - Supply Chain Example</div>
+    <pre>  STEP 1: REGISTRATION (once)        STEP 2: EXECUTION (per event)
+  ────────────────────────           ───────────────────────────
+  Developer compiles:                IoT sensor: Temp = 4.2°C
+    check_temp.cpp → check_temp.wasm  GPS: 28.6139°N, 77.2090°E
+  WASM hash: 0x1A2B3C...             
+  Registered on‑chain via              WASMify Runtime executes
+  WASMifyRegistry.register(0x1A2B)    check_temp.wasm(4.2, GPS)
+                                      → Output: VALID + Hash(pallet_ID)
+  STEP 3: PROVING                     
+  ────────────────                    STEP 4: VERIFICATION (on‑chain)
+  ZK Prover generates proof π:        ──────────────────────────────
+  "I executed bytecode 0x1A2B        
+   on some inputs, output = VALID,    PaymentEscrow.sol:
+   and the execution was correct"     require(verifier.verify(
+                                        0x1A2B, "VALID", π));
+                                      // Payment released to supplier
+    </pre>
+    <div class="diagram-caption">A temperature-checking WASM module is registered once. Every time a pallet arrives, the module runs off-chain with private sensor data, and only the VALID/INVALID result is posted with a proof.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">WASMify vs Traditional Oracles - Why ZK-Verification Wins</h2>
+
+<table class="compare-table">
+    <thead>
+        <tr>
+            <th>Feature</th>
+            <th>Centralised Oracle</th>
+            <th>Decentralised Oracle (Chainlink)</th>
+            <th>WASMify (MST)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Trust model</td>
+            <td class="bad">Trust the single operator</td>
+            <td class="mid">Trust majority of nodes</td>
+            <td class="good">Trust the cryptography (ZK proof)</td>
+        </tr>
+        <tr>
+            <td>Data confidentiality</td>
+            <td class="bad">Operator sees all data</td>
+            <td class="bad">All oracle nodes see data</td>
+            <td class="good">Private inputs never leave enterprise</td>
+        </tr>
+        <tr>
+            <td>Computation capability</td>
+            <td class="mid">Simple data relay</td>
+            <td class="mid">Limited off-chain computation</td>
+            <td class="good">Full WASM: any language, complex logic</td>
+        </tr>
+        <tr>
+            <td>Legacy code reuse</td>
+            <td class="bad">Rewrite as API</td>
+            <td class="bad">Rewrite as Chainlink adapter</td>
+            <td class="good">Recompile existing C++/Rust code</td>
+        </tr>
+        <tr>
+            <td>Verification cost (on-chain)</td>
+            <td class="good">Low (just read storage)</td>
+            <td class="good">Low (read aggregated result)</td>
+            <td class="mid">~200k gas per proof verification</td>
+        </tr>
+        <tr>
+            <td>Proof of correct execution</td>
+            <td class="bad">None</td>
+            <td class="mid">Economic (stake slashing)</td>
+            <td class="good">Cryptographic (ZK proof)</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout insight">
+    <div class="callout-label">💡 The Enterprise Decision</div>
+    <p>If your use case requires only a public price feed (like ETH/USD), a decentralised oracle is sufficient. If your use case involves <strong>confidential business logic</strong> that must be proven correct without revealing the underlying data, WASMify is the only viable option.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">WASMify in Production - Where It Changes the Game</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--orange);">🚚</div>
+        <div class="feature-content">
+            <div class="feature-title">Cold Chain Pharmaceutical Logistics</div>
+            <div class="feature-desc">
+                A vaccine distributor uses WASMify to verify temperature compliance during transport. Their existing C++ IoT monitoring code is compiled to WASM. At each delivery checkpoint, the WASM runtime reads the temperature log from the truck's sensor, computes whether all readings stayed within the 2 - 8°C range, and generates a ZK proof. The proof is submitted to an MST smart contract that releases payment only if the proof is valid. The temperature data itself stays on the distributor's server - the buyer sees only the VALID/INVALID result with cryptographic certainty.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">🏭</div>
+        <div class="feature-content">
+            <div class="feature-title">Automotive Supply Chain - Just-In-Time Manufacturing</div>
+            <div class="feature-desc">
+                An automotive OEM uses WASMify to connect their SAP MM (Materials Management) module to a smart contract-based supplier payment system. When a goods receipt is posted in SAP, a WASM module (compiled from the existing ABAP-to-C++ translation layer) generates a proof that the goods were received against a specific purchase order. The proof triggers an on-chain payment. SAP pricing data remains confidential; only the receipt confirmation reaches the chain.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--green);">🏦</div>
+        <div class="feature-content">
+            <div class="feature-title">Trade Finance - Document Verification Without Data Exposure</div>
+            <div class="feature-desc">
+                A trade finance consortium uses WASMify to verify shipping documents. A bank's document checking system (written in Python, compiled to WASM via Pyodide) runs off-chain, verifying that a bill of lading matches the letter of credit terms. The ZK proof confirms compliance without revealing the actual document contents to the blockchain. The importer's bank and exporter's bank both trust the proof, releasing funds instantly.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--brand);">📡</div>
+        <div class="feature-content">
+            <div class="feature-title">IoT Mesh Networks - Verifiable Sensor Data for Parametric Insurance</div>
+            <div class="feature-desc">
+                A parametric crop insurance product uses WASMify to verify rainfall data from a network of IoT sensors across Maharashtra. The WASM module (Rust, compiled to WASM) aggregates readings from multiple sensors, computes the rainfall index, and generates a proof that the index fell below the policy threshold. The proof triggers an automatic payout to farmers. Sensor data remains on the IoT network; only the cryptographically verified index result reaches the insurance smart contract.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 20-Mark Assessment</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+        <div class="feature-content">
+            <div class="feature-title">WASMify = WASM Runtime + ZK Prover + On-Chain Verifier</div>
+            <div class="feature-desc">Three components: off-chain execution of WebAssembly, ZK proof generation, and on-chain proof verification via a precompiled contract.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+        <div class="feature-content">
+            <div class="feature-title">Any Language → WASM → ZK Proof</div>
+            <div class="feature-desc">C, C++, Rust, Go, Python (compiled) can all produce WASM bytecode. WASMify wraps this in a ZK circuit, generating a proof of correct execution.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+        <div class="feature-content">
+            <div class="feature-title">Private Inputs Never Leave the Enterprise</div>
+            <div class="feature-desc">Only the ZK proof and the public output reach the blockchain. The verifier confirms execution correctness without knowing the inputs.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+        <div class="feature-content">
+            <div class="feature-title">Bytecode Hash Anchored On-Chain</div>
+            <div class="feature-desc">The WASM bytecode hash is registered in the WASMify Registry. The verifier only accepts proofs that reference a registered hash, preventing malicious code execution.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+        <div class="feature-content">
+            <div class="feature-title">Replaces Trust with Cryptography</div>
+            <div class="feature-desc">Unlike oracles that require trust in node operators, WASMify replaces trust with ZK proofs - economic incentives and reputation are unnecessary when math guarantees correctness.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (6 MCQ + 1 Identify‑Output + 1 T/F Just + 1 Descriptive Design = 20 marks)
+════════════════════════════════════════════════════ -->
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.5</h2>
+
+<div class="glossary-grid">
+    <div class="glossary-item">
+        <div class="glossary-term">WASMify</div>
+        <div class="glossary-def">MST's off-chain computation framework with on-chain ZK verification, enabling legacy code to connect to smart contracts without exposing private data.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">WebAssembly (WASM)</div>
+        <div class="glossary-def">A portable, sandboxed binary instruction format that runs at near-native speed. Can be compiled from C, C++, Rust, Go, and many other languages.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">ZK Proof (Zero-Knowledge Proof)</div>
+        <div class="glossary-def">A cryptographic proof that a computation was performed correctly, without revealing the inputs. Allows verification without trust.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">WASMify Registry</div>
+        <div class="glossary-def">An on-chain smart contract storing the hashes of approved WASM modules. The verifier only accepts proofs referencing registered hashes.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">ZK Prover</div>
+        <div class="glossary-def">The off-chain component that generates a ZK proof from the WASM execution trace. Computationally intensive but run outside the blockchain.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">On-Chain Verifier (Precompile)</div>
+        <div class="glossary-def">A built-in smart contract on MST that verifies ZK proofs in ~200k gas, acting as the cryptographic gatekeeper for WASMify.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Execution Trace</div>
+        <div class="glossary-def">A complete record of every instruction and memory operation during WASM execution, used by the ZK prover to generate the proof.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">LLVM</div>
+        <div class="glossary-def">A compiler infrastructure that supports many languages and can target WASM, enabling C/C++/Rust code to run in WASMify.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Private Input</div>
+        <div class="glossary-def">Data fed to the WASM module that remains confidential - the ZK proof attests to correct processing without revealing this data.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Deterministic Computation</div>
+        <div class="glossary-def">A computation that always produces the same output for the same input. Required for ZK proof generation to be reproducible.</div>
+    </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+    <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+    <p>Module 7 · Sub-Module <strong>7.5</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.6 - Gaming &amp; Fairness Protocols →</p>
+</div>
+
+

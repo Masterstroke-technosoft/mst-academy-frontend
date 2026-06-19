@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 5.4 - Coins vs Tokens & Gas | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  /* ─── PROSE ─── */
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  /* ─── OBJECTIVE GRID ─── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  /* ─── W5 GRID ─── */
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  /* ─── VISUAL DIAGRAM ─── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  /* ─── TIMELINE ─── */
+  .timeline { margin: 24px 0; }
+  .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+  .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+  .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+  .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-right { padding: 0 0 28px 4px; }
+  .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+  .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+  .tl-body strong { color: var(--ink); }
+
+  /* ─── FEATURE PILLS ─── */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── TWO COLUMN ─── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .col-card {
+    border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+  }
+  .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+  .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+  .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+  .col-card.green .col-card-title { color: #14532D; }
+  .col-card.red   .col-card-title { color: #7F1D1D; }
+  .col-card ul    { padding-left: 0; list-style: none; }
+  .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+  .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+  /* ─── ASSESSMENT ─── */
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  /* TF justification */
+  .tf-box {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  }
+  .tf-verdict {
+    display: inline-block; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+  .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+  .tf-must-write {
+    font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 8px;
+  }
+  .tf-sample {
+    font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+    border-left: 3px solid var(--brand); padding-left: 12px;
+  }
+
+  /* Identify Output box */
+  .identify-output {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .io-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .io-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .io-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .io-data { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .io-answer { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .io-answer-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .io-answer p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .stat-row       { grid-template-columns: 1fr 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 5 &nbsp;·&nbsp; Sub-Module 5.4 of 6</div>
+<h1 class="module-title">Coins vs Tokens &amp; <span class="highlight">Gas</span></h1>
+<p class="module-subtitle">Why sending USDT costs ETH - a comprehensive exploration of native currencies, smart-contract assets, and the computational fuel that powers every blockchain transaction.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 2 T/F with Justification (2 marks) + 1 Identify-Output (6 marks)</div>
+  <div class="meta-chip green">Phase 2 · Cryptocurrency & Tokenomics</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🪙</div>
+    <div class="obj-text">
+      <strong>Define coin vs token with protocol-level precision</strong>
+      Explain why MSTC is a native asset stored in the world state trie, while USDT is a record inside a smart contract's mapping - and the gas, security, and interoperability implications of that architectural difference.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⛽</div>
+    <div class="obj-text">
+      <strong>Deconstruct the EVM gas mechanism down to opcodes</strong>
+      From transaction base cost (21,000 gas) to SSTORE (20,000 gas) and LOG3 - understand precisely why an ERC-20 transfer costs ~65,000 gas and how gas prevents infinite loops and denial-of-service attacks.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Compute real-world gas fees in multiple currencies</strong>
+      Convert gas limits, gas prices (Gwei), and fiat exchange rates into ETH, MSTC, and INR - and compare costs across Ethereum, BSC, Polygon, and MST to understand why low fees unlock mass adoption.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Design token economies aware of gas constraints</strong>
+      Avoid the common pitfall of building a dApp that requires users to hold a second asset just to interact - and learn patterns (like meta-transactions and gas stations) that can smooth UX while respecting the underlying economic layer.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD INTRODUCTION STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Car Without Petrol - Why Tokens Strand Users</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a freelance graphic designer in Pune received 800 USDT for a project. She tried to send 200 USDT to her mother in Kolhapur. MetaMask displayed an error: “Insufficient ETH for gas.” She had $800 in tokens, but exactly 0 ETH. The transaction was impossible.</p>
+  <br>
+  <p>She had to buy ETH from an exchange, wait 30 minutes, and pay ₹300 in gas fees just to move her own stablecoin. The experience was bewildering. She owned the asset, but the blockchain demanded a different currency - its native coin - to process the transfer. This is not a wallet bug; it is an architectural law of every EVM blockchain: <strong>gas fees are paid exclusively in the native coin, never in tokens.</strong> Just as a car cannot run without fuel regardless of how many passengers are inside, a token cannot move without the native coin.</p>
+</div>
+<p>This sub-module explains why this happens, how gas is calculated at the opcode level, and why MST's native coin MSTC makes these fees nearly invisible - but never zero. We'll explore the economic incentives, the security model, and the real-world consequences of the coin-token-gas triad.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Blockchain Transaction Fees</h2>
+<p>When Bitcoin launched in January 2009, there were no tokens. Bitcoin's ledger tracked only one asset: BTC. The fee model was straightforward - attach a small amount of BTC to a transaction, and a miner would include it in the next block. Fees were optional but practically necessary for timely inclusion. Miners prioritized transactions with higher fees, creating a simple fee market. The fee compensated miners for the electricity and hardware used to secure the network. Transaction size in bytes mattered more than computational complexity because Bitcoin's Script language was intentionally limited - no loops, no complex state changes, no Turing completeness.</p>
+
+<p>In 2015, Ethereum introduced a radically different model. Vitalik Buterin envisioned a <strong>world computer</strong> - a Turing-complete blockchain where anyone could deploy arbitrary code. But Turing-completeness brought a critical problem: if a smart contract could run forever, an attacker could freeze the entire network with an infinite loop. The solution was <strong>gas</strong>.</p>
+
+<p>Every operation on the Ethereum Virtual Machine (EVM) - adding two numbers, storing a variable, calling another contract - was assigned a <strong>gas cost</strong> defined in the Ethereum Yellow Paper. Users set a <strong>gas limit</strong> (maximum units they'll pay for) and a <strong>gas price</strong> (how much native coin per unit). If a transaction runs out of gas, it reverts - but the validators keep the fee, because they already did the work. This economic incentive makes infinite loops financially impossible: the attacker's ETH balance drains long before the network halts.</p>
+
+<p>Meanwhile, the <strong>ERC-20 token standard</strong> emerged in November 2015, authored by Fabian Vogelsteller. ERC-20 defined a common interface for fungible tokens on Ethereum: <code>totalSupply()</code>, <code>balanceOf(address)</code>, <code>transfer(address,uint256)</code>, <code>approve(address,uint256)</code>, <code>transferFrom(address,address,uint256)</code>, <code>allowance(address,address)</code>, plus the <code>Transfer</code> and <code>Approval</code> events. This standard unleashed an explosion of tokens. By 2017, during the ICO boom, thousands of ERC-20 tokens were created. Users suddenly held diverse assets - USDT, BAT, OMG, ZRX - but every transfer of these tokens required ETH for gas. The coin-token distinction became a mass-market pain point, as millions of new users discovered they needed a separate asset just to move their holdings.</p>
+
+<p>Ethereum's gas model evolved further with <strong>EIP-1559</strong> in August 2021, which restructured fees into a <em>base fee</em> (burned, reducing ETH supply) and a <em>priority fee</em> (tip to validators). This improved fee estimation but did not reduce average costs. During periods of high demand - NFT mints, DeFi liquidations - gas prices still spike to 500+ Gwei. A simple ERC-20 token transfer that consumes 65,000 gas can cost over ₹8,000 at peak congestion.</p>
+
+<p>MST Blockchain was designed from the ground up to address this exact pain point. With a throughput of 4,000+ transactions per second and the Trika POSA consensus mechanism, MST maintains stable gas prices around 10 - 12 Gwei. The native coin <strong>MSTC</strong> powers the network at a fraction of a paisa per token transfer, enabling micropayments, gaming, and everyday transactions that are economically impossible on high-fee chains.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009</div>
+      <div class="tl-body"><strong>Bitcoin Launch.</strong> Single-asset chain. Fees are simple tips paid in BTC. No tokens, no gas, no smart contracts.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015</div>
+      <div class="tl-body"><strong>Ethereum Frontier & EVM.</strong> Gas mechanism introduced. ERC-20 standard proposed, creating the coin-token distinction. First tokens launch.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2017</div>
+      <div class="tl-body"><strong>ICO Boom.</strong> Thousands of ERC-20 tokens created. Mass adoption reveals pain of needing ETH to move any token. Gas price spikes during high demand.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2021</div>
+      <div class="tl-body"><strong>EIP-1559.</strong> London hard fork restructures gas fees (base fee + priority fee). Improves estimation but doesn't reduce costs. Gas prices hit 500+ Gwei during NFT mania.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST Blockchain.</strong> High-throughput L1 with stable, low gas prices (~12 Gwei). Native coin MSTC enables sub-paisa token transfers. The same ERC-20 transfer that costs ₹760 on Ethereum costs ₹0.006 on MST - a 120,000× reduction.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Coin, Token, Gas - The Highway, The Car & The Toll</h2>
+<div class="callout analogy">
+  <div class="callout-label">🚦 The Analogy</div>
+  <p>Imagine the blockchain is a <strong>highway</strong>. The <strong>native coin</strong> (MSTC, ETH) is the only currency accepted at the toll booth. A <strong>token</strong> (USDT, an NFT, a governance token) is the <strong>passenger inside the car</strong> - the valuable cargo you want to move. The <strong>gas fee</strong> is the toll you pay to drive on the highway. You cannot pay the toll with the passenger's gold watch (the token); you must use the designated currency. If you show up at the toll plaza with a car full of gold but no rupees, you are not getting through. That's exactly why you need ETH to move USDT on Ethereum, and MSTC to move USDT on MST.</p>
+</div>
+
+<p>Now let's formalize the definitions with precise technical boundaries that will be tested:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COIN</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a native coin?</div>
+      <div class="w5-a">A <strong>coin</strong> is the native asset of a blockchain, defined at the <strong>protocol level</strong> - not inside a smart contract. It is created through block rewards or staking incentives. Its balance is stored directly in the chain's world state trie as a simple account field. It is used to pay gas fees, reward validators, and secure the network through staking. Examples: BTC on Bitcoin, ETH on Ethereum, <strong>MSTC on MST</strong>. A coin exists independently of any application - it is the lifeblood of the chain itself.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">T</div><div class="w5-word">TOKEN</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a token?</div>
+      <div class="w5-a">A <strong>token</strong> is a digital asset created by a <strong>smart contract</strong> deployed on an existing blockchain. It does not have its own consensus mechanism; it inherits the host chain's security. Its balance is stored inside the contract's <code>mapping(address => uint256)</code>. Tokens follow standards like ERC-20 (fungible), ERC-721 (non-fungible), or ERC-1155 (multi-asset) to ensure interoperability across wallets and dApps. Examples: USDT on MST, an MST-minted NFT, a DAO governance token. A token transfer is a smart contract function call, not a protocol-level operation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">G</div><div class="w5-word">GAS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is gas?</div>
+      <div class="w5-a"><strong>Gas</strong> is the unit that measures computational effort on the EVM. Every opcode has a fixed gas cost. Total fee = gas used × gas price (denominated in Gwei, where 1 Gwei = 10⁻⁹ of the native coin). Gas prevents infinite loops, compensates validators, and prioritizes transactions. A native coin transfer costs 21,000 gas. An ERC-20 token transfer costs ~65,000 gas - regardless of the token amount. Whether you send 1 USDT or 1,000,000 USDT, the gas consumed is identical, because the computational steps (storage reads/writes) are exactly the same.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Coin vs Token - An EVM-Level Dissection</h2>
+
+<p>The difference between a native coin and a token is not superficial - it is embedded in the architecture of the Ethereum Virtual Machine (EVM) and every EVM-compatible chain, including MST. Understanding this at the opcode level is essential for every blockchain developer.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How Native Coin Transfers Work</h3>
+<p>When you send 1 MSTC from Alice to Bob, the transaction does <strong>not</strong> invoke any smart contract. Instead, the EVM processes a built-in value transfer. The account state - stored in the world state trie as a simple balance field - is updated: Alice's balance decreases by 1 MSTC + gas fee; Bob's balance increases by 1 MSTC. The only opcodes involved are the base transaction cost (21,000 gas) and the two balance updates (essentially SSTORE operations on the account storage, but the base cost already covers simple value transfer overhead). No contract bytecode is executed. No external CALL is made. The transaction is simple, direct, and efficient.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How Token Transfers Work</h3>
+<p>Now consider sending 100 USDT - an ERC-20 token - from Alice to Bob. USDT is a smart contract deployed at a specific address on the blockchain. The token balance is not a native account field; it is stored inside the contract's persistent storage as <code>mapping(address => uint256) public balanceOf;</code>. To transfer tokens, Alice sends a transaction <strong>to the USDT contract address</strong> with calldata encoding the <code>transfer(address to, uint256 amount)</code> function call.</p>
+
+<p>The EVM then executes the contract's <code>transfer()</code> function, which performs these operations step by step:</p>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>SLOAD</strong> - Read Alice's current balance from contract storage. This is a storage read operation. If this storage slot was already accessed in the same transaction (warm access), it costs 100 gas. If it's the first access (cold access), it costs 2,100 gas because the node must verify a Merkle proof.</li>
+  <li><strong>GT, SUB, ISZERO, PUSH, JUMPI</strong> - The <code>require(balance >= amount)</code> check is compiled into a series of cheap arithmetic and control flow opcodes. These cost 3 gas each for arithmetic, and 10 gas for jumps. Total: approximately 30 - 50 gas.</li>
+  <li><strong>SSTORE</strong> - Write Alice's new balance (old balance minus amount). If Alice's balance slot was previously zero and is becoming non-zero, this costs 20,000 gas. If the slot was already non-zero and is being updated to another non-zero value, this costs 5,000 gas. If the balance is being set to zero (full transfer), it costs 5,000 gas plus a 15,000 gas refund at the end of the transaction.</li>
+  <li><strong>SSTORE</strong> - Write Bob's new balance (old balance plus amount). Same cost structure as above. If Bob previously had zero tokens, this is a 20,000 gas operation.</li>
+  <li><strong>LOG3</strong> - Emit the <code>Transfer(address indexed from, address indexed to, uint256 value)</code> event. Events are logged in the transaction receipt and are crucial for off-chain indexing (wallets, explorers, dApps). The base cost is 375 gas. Each indexed parameter (topic) costs an additional 375 gas. The non-indexed data (the amount) costs 8 gas per byte. For a standard Transfer event with three indexed parameters (from, to are indexed; value is not), the total is approximately 375 + 375×2 + 8×32 = 1,381 gas. However, depending on compiler optimizations and the exact number of topics, it typically falls between 500 - 1,500 gas.</li>
+</ol>
+
+<p>These additional opcodes push the total gas consumption to approximately <strong>65,000 gas</strong> - roughly three times the cost of a native coin transfer. The dominant cost is the SSTORE writes, which persist data on-chain forever and are therefore priced accordingly to reflect their permanent storage burden on every full node.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 5.4-A · Native Coin Transfer vs ERC-20 Token Transfer - Opcode Comparison</div>
+  <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                NATIVE COIN TRANSFER (MSTC)                       │
+├─────────────────────────────────────────────────────────────────┤
+│ TX { to: 0xBob, value: 5 MSTC, gasLimit: 21000, gasPrice: 10 Gwei }│
+│ EVM Execution:                                                   │
+│   • Base TX cost (nonce check, signature, intrinsic gas): 21,000 │
+│   • Update Alice.balance (SSTORE, non‑zero update): 5,000         │
+│   • Update Bob.balance (SSTORE, non‑zero update): 5,000           │
+│   Total gas: ~21,000 (base cost already covers simple updates)   │
+│   Fee: 21,000 × 10⁻⁸ MSTC = 0.00021 MSTC (≈ ₹0.002 at ₹10/MSTC) │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                ERC‑20 TOKEN TRANSFER (USDT)                       │
+├─────────────────────────────────────────────────────────────────┤
+│ TX { to: USDT_contract, data: transfer(0xBob, 100000000),       │
+│      gasLimit: 65000, gasPrice: 10 Gwei }                        │
+│ Contract execution:                                               │
+│   • require(balanceOf[Alice] >= amount) → SLOAD (cold): 2,100    │
+│   • Arithmetic & control flow (SUB, ISZERO, JUMPI): ~50          │
+│   • balanceOf[Alice] -= amount → SSTORE (non‑zero update): 5,000 │
+│   • balanceOf[Bob] += amount → SSTORE (fresh write to zero): 20,000│
+│   • emit Transfer(Alice, Bob, amount) → LOG3: ~1,200             │
+│   • Base TX cost: 21,000                                          │
+│   Total gas: ~65,000 gas                                          │
+│   Fee: 65,000 × 10⁻⁸ MSTC = 0.00065 MSTC (≈ ₹0.0065)            │
+└─────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Native coin transfers are protocol-level operations that modify account state directly. Token transfers are smart contract function calls that require multiple storage operations (SLOAD, SSTORE) and event emissions (LOG3). The gas unit difference (~3×) is structural; the fiat cost difference across chains is driven by gas price and native coin value.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Immutable Rule</div>
+  <p><strong>Gas fees are ALWAYS paid in the blockchain's native coin.</strong> Never in USDT. Never in an NFT. Never in any ERC-20, ERC-721, or ERC-1155 token. This is enforced at the protocol level. Even if a dApp offers "gasless" transactions through meta-transactions or a paymaster, a relayer is still paying the native coin behind the scenes. The economic layer does not disappear - it is merely abstracted. The validators must be compensated for their work, and that compensation is always in the coin that secures the network.</p>
+</div>
+
+<p><strong>Gas fees are per transaction, not per token.</strong> Whether you send 0.01 USDT or 1,000,000 USDT, the gas consumed is nearly identical because the computational steps - reading two storage slots, writing two storage slots, emitting one event - do not depend on the numeric value of the amount. Sending a million USDT does not require a million times more gas; it requires exactly the same gas as sending one USDT. The fee scales with network computation, not with value transferred. This is why gas fees are a fixed overhead - and why low-fee chains like MST unlock micro-transactions that are impossible on Ethereum.</p>
+
+<!-- ═══════════════ 06 GAS ECONOMICS DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Gas Economics</div>
+<h2 class="section-title">The Mathematics of Gas - From Opcodes to Rupees</h2>
+<p>Understanding gas pricing requires three layers: (1) the gas cost per operation as defined in the Yellow Paper, (2) the gas limit and gas price set by the user, and (3) the fiat conversion of the native coin. Let's examine each layer in detail.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Layer 1: EVM Opcode Gas Costs (Ethereum Yellow Paper)</h3>
+<table class="compare-table">
+  <thead>
+    <tr><th>Operation</th><th>Opcode</th><th>Gas Cost</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Transaction base cost</td><td> - </td><td>21,000</td><td>Every TX pays this. Covers nonce check, signature verification, and intrinsic gas for calldata.</td></tr>
+    <tr><td>ADD / SUB / MUL / DIV</td><td>ADD, SUB, MUL, DIV</td><td>3 - 5</td><td>Arithmetic is extremely cheap. Computation is rarely the bottleneck.</td></tr>
+    <tr><td>Storage read (warm)</td><td>SLOAD</td><td>100</td><td>Reading a storage slot already accessed in the same TX. Very efficient.</td></tr>
+    <tr><td>Storage read (cold)</td><td>SLOAD</td><td>2,100</td><td>First access to a storage slot in a transaction. Requires Merkle proof verification.</td></tr>
+    <tr><td>Storage write (new)</td><td>SSTORE</td><td>20,000</td><td>Writing a non-zero value to a previously zero storage slot. The single most expensive operation because it permanently expands the state.</td></tr>
+    <tr><td>Storage write (update)</td><td>SSTORE</td><td>5,000</td><td>Updating an existing non-zero storage slot to another non-zero value. Cheaper than fresh write.</td></tr>
+    <tr><td>Storage delete (set to zero)</td><td>SSTORE</td><td>5,000 (+ 15,000 refund)</td><td>Clearing a storage slot gives a gas refund of up to 1/5 of the total gas used. Incentivizes state cleanup.</td></tr>
+    <tr><td>LOG0 - LOG4 (events)</td><td>LOG0 - LOG4</td><td>375 + 8/byte data + 375/topic</td><td>Events are cheap relative to storage. Indexed parameters (topics) are efficient.</td></tr>
+    <tr><td>External contract call</td><td>CALL</td><td>100 (warm) + value transfer fee</td><td>Calling another contract. Token transfers use this internally via the ERC-20 interface.</td></tr>
+    <tr><td>Memory expansion</td><td>MSTORE, MLOAD</td><td>3 + quadratic expansion cost</td><td>Memory is cheap but expands quadratically. Most token transfers stay within small bounds.</td></tr>
+    <tr><td>Balance check</td><td>BALANCE</td><td>100 (warm), 2,600 (cold)</td><td>Reading the native coin balance of an account. Used by wallets to display balances.</td></tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Layer 2: Gas Limit & Gas Price - The User-Controlled Levers</h3>
+<p>Every transaction includes two critical parameters:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Gas Limit (startGas):</strong> The maximum gas units the sender is willing to consume. If the transaction needs more gas than the limit, it fails and <strong>all gas up to the limit is still consumed</strong> - the validators did the work. For a native coin send, 21,000 is sufficient. For an ERC-20 transfer, a safe limit is 80,000 - 100,000 to account for variations (cold storage slots, complex token logic like deflationary tokens that burn or reflect).</li>
+  <li><strong>Gas Price:</strong> The amount of native coin the sender pays per gas unit, measured in Gwei (1 Gwei = 10⁻⁹ of the native coin, so 1 ETH = 1,000,000,000 Gwei). Validators prioritize transactions with higher gas prices because they earn more for including them. On congested networks like Ethereum, gas prices can spike to 500+ Gwei as users outbid each other for block space. On MST, high throughput means block space is rarely contested, so gas prices remain stable at ~10 - 12 Gwei.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Layer 3: Fiat Conversion - The Real Cost to Users</h3>
+<p>The total fee in native coin = <strong>Gas Used × Gas Price</strong>. To convert to INR:</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);">Fee (INR) = (Gas Used × Gas Price in Gwei × 10⁻⁹) × (Coin Price in INR)</p>
+
+<p>Let's compute the fiat cost of a 65,000-gas ERC-20 token transfer across several major blockchains, using realistic current prices:</p>
+<table class="compare-table">
+  <thead>
+    <tr><th>Chain</th><th>Native Coin</th><th>Gas Price (Gwei)</th><th>Coin Price (INR)</th><th>Fee per 65k TX (INR)</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Ethereum (normal)</td><td>ETH</td><td>30</td><td>₹2,60,000</td><td class="mid">₹507.00</td><td>Typical off-peak. Still too expensive for small transfers.</td></tr>
+    <tr><td>Ethereum (congested)</td><td>ETH</td><td>45</td><td>₹2,60,000</td><td class="bad">₹760.50</td><td>Common during DeFi activity. Many users priced out.</td></tr>
+    <tr><td>Ethereum (NFT spike)</td><td>ETH</td><td>500</td><td>₹2,60,000</td><td class="bad">₹8,450.00</td><td>During high-demand mints. Economically absurd for most use cases.</td></tr>
+    <tr><td>BNB Chain</td><td>BNB</td><td>3</td><td>₹50,000</td><td class="mid">₹9.75</td><td>Much better, but still ~₹10 per transfer.</td></tr>
+    <tr><td>Polygon PoS</td><td>MATIC</td><td>50</td><td>₹80</td><td class="mid">₹0.26</td><td>Good for many dApps, though fees can rise during congestion.</td></tr>
+    <tr><td>MST Blockchain</td><td>MSTC</td><td>12</td><td>₹8</td><td class="good">₹0.00624</td><td>Sub-paisa cost. Enables true micropayments.</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>Key Insight:</strong> On MST, a token transfer costs approximately <strong>₹0.006</strong> - less than one paisa. The same operation on a congested Ethereum costs ₹760, a <strong>121,875× difference</strong>. This is not a marginal improvement; it fundamentally changes what's possible. Micro-payments (₹1-₹10), in-game transactions, per-stream royalties, and machine-to-machine payments become economically viable only on a chain with sub-paisa fees.
+</div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Common Misconceptions About Gas</div>
+  <p><strong>Myth 1: "Gas fees are a percentage of the amount transferred."</strong> False. Gas cost depends on computational steps, not value. Sending ₹10 costs the same gas as sending ₹10,00,000.<br><strong>Myth 2: "If I run out of gas, my money is lost."</strong> Partially false. The transaction reverts, so no value is transferred, but you <em>still pay</em> the gas fee for the computation that was performed. Always set a sufficient gas limit.<br><strong>Myth 3: "MST transactions are free."</strong> False. They are extremely cheap (~₹0.006 per token transfer), but validators are still compensated in MSTC for their work. The economic incentive layer remains intact - it's just scaled to sub-paisa levels.<br><strong>Myth 4: "A token transfer costs less gas if I send a smaller amount."</strong> False. The gas is per transaction, not per token. The computational steps (storage reads, writes, event emission) are identical regardless of the numeric value of the amount.</p>
+</div>
+
+<!-- ═══════════════ 07 COMPARISON TABLE ═══════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Coin vs Token - Complete Comparison Matrix</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Property</th><th>🪙 Native Coin (MSTC)</th><th>🎟️ Token (USDT on MST)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Where defined</strong></td><td>At the blockchain protocol level - in the genesis block and consensus rules.</td><td>Inside a smart contract deployed by a developer on the blockchain.</td></tr>
+    <tr><td><strong>Creation mechanism</strong></td><td>Block rewards, staking incentives, or genesis allocation.</td><td>A smart contract's <code>mint()</code> function, controlled by a developer or DAO.</td></tr>
+    <tr><td><strong>Pays gas fees?</strong></td><td class="good">Yes - the ONLY asset accepted by the network for gas. This is a protocol-level invariant.</td><td class="bad">No - all token operations require gas paid in the native coin. No exceptions.</td></tr>
+    <tr><td><strong>Transfer method</strong></td><td>Protocol-level value transfer. No contract bytecode executed. Direct state trie modification.</td><td>Smart contract function call (e.g., <code>transfer()</code>). Executes full EVM bytecode including storage operations.</td></tr>
+    <tr><td><strong>Gas per transfer</strong></td><td>~21,000 gas (base cost + simple balance updates).</td><td>~65,000 gas (base + 2× SLOAD + 2× SSTORE + LOG3).</td></tr>
+    <tr><td><strong>Storage location</strong></td><td>In the world state trie - key: address hash, value: balance. Directly managed by the EVM.</td><td>Inside the token contract's <code>mapping(address => uint256)</code>. Managed by the contract's own code.</td></tr>
+    <tr><td><strong>Interoperability</strong></td><td>Every dApp and wallet can accept it natively without any additional configuration or token list.</td><td>Wallets and dApps must explicitly know the token's contract address to display balances or allow transfers.</td></tr>
+    <tr><td><strong>Network security role</strong></td><td>Staked for validator election in Trika POSA. Secures the network through economic incentives.</td><td>None. Tokens have no direct role in consensus or network security. They exist purely as application-layer assets.</td></tr>
+    <tr><td><strong>Supply control</strong></td><td>Governed by protocol rules - typically capped (Bitcoin) or inflation-controlled (Ethereum). On MST, supply is managed through staking rewards and transaction fees.</td><td>Governed by the token contract's mint/burn logic and the deployer's permissions. Can be fixed, inflationary, or deflationary.</td></tr>
+    <tr><td><strong>Examples on MST</strong></td><td>MSTC</td><td>USDT, USDC, MST-minted NFTs, governance tokens, in-game assets, loyalty points.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════ 08 REAL‑WORLD CASE STUDIES ═══════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">When Gas Makes or Breaks Applications</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">💸</div>
+    <div class="feature-content">
+      <div class="feature-title">The $4 Million Gas Bill - Otherdeed NFT Mint (May 2022)</div>
+      <div class="feature-desc">During Yuga Labs' Otherdeed land sale, buyers collectively paid over <strong>$4 million in ETH gas fees</strong> in a single day just to mint virtual land parcels. The minted NFTs were ERC-721 tokens, but every mint required ETH for gas. Many users had budgeted ETH for the mint price (~$6,000 worth of APE tokens) but forgot to reserve ETH for gas. Their transactions failed - and the gas fees were still consumed. Some individuals lost $3,000+ in failed transactions. On MST, a similar high-demand NFT mint would cost a few paise per transaction. Failed mints would be economically trivial, and users wouldn't need to hold a second asset just to participate. This is why gaming and NFT projects are migrating to low-fee L1s like MST.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Axie Infinity - When Gas Killed a Game Economy</div>
+      <div class="feature-desc">Axie Infinity, the pioneering play-to-earn game, launched on Ethereum in 2018. Breeding two Axies (NFTs) required multiple smart contract calls - approving the marketplace, initiating the breed, claiming the egg. These operations consumed 200,000 - 500,000 gas per breed, costing $50-$150 at typical gas prices - often exceeding the market value of the resulting Axie. Players were spending more on gas than they earned. In 2021, Sky Mavis migrated the entire game to a custom sidechain (Ronin) with its own native coin (RON) and negligible fees. The lesson: a game economy cannot survive on a high-fee chain. MST's gaming-focused design (with protocols for fair randomness and provable shuffles) provides a native, low-fee environment - no sidechain migration required.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">India's Digital Rupee (e₹) - A CBDC Token on a Permissioned Lane</div>
+      <div class="feature-desc">The Reserve Bank of India's Central Bank Digital Currency (CBDC) pilot issues the Digital Rupee as a <strong>token</strong> on a permissioned blockchain. Banks run smart contracts to mint and burn e₹, and the token circulates among retail users and merchants. However, the underlying blockchain still has a native coin that pays validators for processing transactions and maintaining the network. MST's hybrid architecture - with public and permissioned zones - is ideally suited for this model: the e₹ token lives in a permissioned zone with regulatory compliance, while MSTC silently pays the validator fees in the background. Retail users never see MSTC; they simply spend e₹ as easily as UPI. The coin-token-gas architecture is preserved underneath, but the user experience is seamless.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🌐</div>
+    <div class="feature-content">
+      <div class="feature-title">Micro-Lending & Remittances - The Impact of Sub-Paisa Fees</div>
+      <div class="feature-desc">Consider a migrant worker in Mumbai sending ₹500 home to his family in Bihar every week via a USDC remittance dApp. On Ethereum, a ₹760 gas fee makes this impossible - the fee exceeds the amount being sent. On BNB Chain, a ₹10 fee is still 2% of the transfer - comparable to traditional remittance services like Western Union. On Polygon, ₹0.26 is excellent but can spike during congestion. On MST, a ₹0.006 fee is <strong>0.0012%</strong> of the transfer - effectively invisible. This enables true micro-lending (loans of ₹200), per-stream royalty payments to artists (₹0.50 per play), automated daily savings of small amounts (₹10), and machine-to-machine payments for IoT devices. Low gas fees are not a luxury; they are a <strong>prerequisite for financial inclusion</strong> and the next wave of Web3 adoption.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--teal);">📊</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Liquidation Cascades - When Gas Costs Cause Systemic Risk</div>
+      <div class="feature-desc">In decentralized lending protocols like Aave and Compound, positions are liquidated when collateral value falls below a threshold. Liquidators compete to repay the debt and claim the collateral at a discount. On Ethereum, during market crashes, gas prices spike to 500+ Gwei as liquidators race to submit transactions. In several instances, liquidations failed because the gas cost exceeded the liquidation profit - leaving underwater positions unclosed and causing bad debt for the protocol. On a low-fee chain like MST, gas costs are never a barrier to timely liquidations. The protocol remains solvent even in extreme market conditions. This demonstrates that gas economics are not just a UX issue - they directly impact the security and solvency of DeFi protocols.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 09 ASSESSMENT PREPARATION ═══════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Coin = Protocol Level, Token = Smart Contract</div>
+      <div class="feature-desc">Native coins exist at the consensus layer and are stored in the world state trie. Tokens are records inside a smart contract's storage mapping. Gas fees are paid <strong>exclusively</strong> in the native coin - this is an architectural invariant across all EVM chains.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Gas Fee Formula = Gas Used × Gas Price</div>
+      <div class="feature-desc">Gas used is determined by EVM opcodes (21,000 base + ~44,000 for ERC-20 storage operations). Gas price is user-set in Gwei (1 Gwei = 10⁻⁹ native coin). The fee is per transaction, not proportional to the amount of tokens transferred.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">ERC-20 Transfer = ~65,000 Gas (3× a Coin Transfer)</div>
+      <div class="feature-desc">The extra 44,000 gas comes from SSTORE (writing two storage slots: sender and receiver balances) and LOG3 (emitting the Transfer event). Whether you send 1 USDT or 1,000,000 USDT, the gas cost is roughly the same because the computational steps are identical.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST Fee Advantage: ~₹0.006 per Token Transfer vs ₹760 on Ethereum</div>
+      <div class="feature-desc">At current prices: MSTC = ₹8, gas price = 12 Gwei → 0.00078 MSTC = ₹0.00624. ETH = ₹2,60,000, gas price = 45 Gwei → 0.002925 ETH = ₹760.50. That's a 121,875× reduction - not a marginal improvement, but a category-defining difference.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Gas Abstraction Shifts Costs, Doesn't Eliminate Them</div>
+      <div class="feature-desc">Even when a dApp offers "gasless" transactions via meta-transactions, a relayer or paymaster is still paying the native coin to validators. The economic layer persists; only the UX is simplified. Never claim a blockchain transaction is truly free - validators must always be compensated.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 5.4 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- MCQ Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which statement correctly describes the relationship between a native coin and a token on an EVM blockchain?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Coins and tokens are interchangeable terms; both can pay gas fees.</li>
+        <li class="correct"><span class="opt-key">B</span> A native coin exists at the protocol level and pays gas; a token is a smart-contract asset that requires gas in the native coin to move. ✅</li>
+        <li><span class="opt-key">C</span> Tokens are native to the chain, while coins are created by smart contracts.</li>
+        <li><span class="opt-key">D</span> Stablecoins like USDT can pay gas fees directly because of their stable value.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The native coin is the protocol-level asset used exclusively for gas. Tokens are smart-contract-based and cannot pay gas fees. This is the foundational distinction in blockchain economics.</p></div>
+    </div>
+
+    <!-- MCQ Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">A user has 10,000 USDT in their MST wallet but 0 MSTC. They attempt to send 500 USDT. What happens?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> The transaction succeeds; gas is automatically deducted from USDT.</li>
+        <li><span class="opt-key">B</span> The transaction fails because USDT cannot be transferred on MST.</li>
+        <li class="correct"><span class="opt-key">C</span> The transaction fails because gas must be paid in MSTC, the native coin. ✅</li>
+        <li><span class="opt-key">D</span> The MST network automatically converts USDT to MSTC for gas.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: C</div><p>Gas fees are always paid in the native coin. Without MSTC, the wallet cannot even submit the transaction. This is a protocol-level requirement, not a wallet limitation.</p></div>
+    </div>
+
+    <!-- MCQ Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why does an ERC-20 token transfer cost approximately 65,000 gas while a native coin transfer costs only 21,000 gas?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Tokens are more valuable, so the network charges a premium.</li>
+        <li class="correct"><span class="opt-key">B</span> Token transfers execute smart contract code, which includes expensive storage writes (SSTORE) and event emissions (LOG3). ✅</li>
+        <li><span class="opt-key">C</span> Native coin transfers are free; only token transfers cost gas.</li>
+        <li><span class="opt-key">D</span> Token transfers require more validators to reach consensus.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>ERC-20 transfers call the <code>transfer()</code> function, which reads and writes storage slots (SLOAD, SSTORE) and emits events (LOG3). These additional opcodes add ~44,000 gas on top of the 21,000 base cost. The value transferred does not affect the gas cost.</p></div>
+    </div>
+
+    <!-- MCQ Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which factor primarily explains why the same token transfer costs ₹760 on Ethereum but ₹0.006 on MST?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Ethereum uses more gas units for the same operation.</li>
+        <li class="correct"><span class="opt-key">B</span> The gas price (in Gwei) and the native coin's fiat value are vastly different between the two chains. ✅</li>
+        <li><span class="opt-key">C</span> MST validators work for free, eliminating the need for gas.</li>
+        <li><span class="opt-key">D</span> Ethereum deliberately sets higher gas limits for token transfers.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The gas <em>units</em> consumed are identical (~65,000) because both chains use the same EVM opcode pricing. The fiat cost difference comes from gas price (45 Gwei on congested Ethereum vs 12 Gwei on MST) and the coin's INR value (₹2,60,000/ETH vs ₹8/MSTC).</p></div>
+    </div>
+
+    <!-- MCQ Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">On MST, the native coin MSTC is used for all of the following EXCEPT:</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Paying gas fees for token transfers.</li>
+        <li><span class="opt-key">B</span> Staking for validator election in Trika POSA.</li>
+        <li class="correct"><span class="opt-key">C</span> Acting as a stablecoin pegged to the Indian Rupee. ✅</li>
+        <li><span class="opt-key">D</span> Rewarding validators for producing blocks.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: C</div><p>MSTC is a volatile native coin, not a stablecoin. Its price fluctuates with the market. A rupee-pegged stablecoin would be a separate ERC-20 token deployed on MST, not the native asset.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <!-- T/F Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"If a dApp on MST uses a relayer to pay gas fees on behalf of users, the transactions become genuinely free - no native coin is consumed at all."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. Even when a relayer pays gas on behalf of the user, the relayer is still spending <strong>MSTC</strong> - the native coin - to compensate validators for processing the transaction. The validators perform real computational work (SSTORE, SLOAD, LOG3) and must be paid in the native coin to maintain the economic security of the network. The gas fee is not eliminated; it is shifted from the end user to the relayer. The cost is real; only the UX is abstracted. If transactions were genuinely free, an attacker could flood the network with infinite spam at zero cost - exactly the problem gas was invented to prevent. Gas abstraction is a UX improvement, not an elimination of gas economics.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Justification explains that validators still receive MSTC for their work, the economic layer persists, and that truly free transactions would break the network's denial-of-service protection. Must mention that gas is still consumed by the relayer.</p></div>
+    </div>
+
+    <!-- T/F Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Sending 1,000,000 USDT in a single transaction costs significantly more gas than sending 1 USDT, because the network charges a fee proportional to the value transferred."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. Gas fees are <strong>per transaction, not per token</strong> and are determined solely by the computational steps required - not by the value transferred. The ERC-20 <code>transfer()</code> function performs the same operations regardless of the amount: it reads the sender's balance (SLOAD), subtracts the amount using simple arithmetic (SUB, 3 gas), updates storage (SSTORE), and emits an event (LOG3). Whether the amount is 1 USDT or 1,000,000 USDT, the number of storage reads and writes is identical, so the gas consumed (~65,000 gas) is the same. The fee scales with network computation, not with economic value. A 1,000,000 USDT transfer costs the same ₹0.006 on MST as a 1 USDT transfer.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Justification explains that gas depends on opcode execution (SLOAD, SSTORE count), which is constant regardless of the token amount. Must explicitly state that gas is per transaction, not proportional to value, and give a concrete example of identical cost for different amounts.</p></div>
+    </div>
+
+    <!-- SECTION C: IDENTIFY-OUTPUT -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - Identify-Output (Gas Calculation)</div>
+      <div class="q-section-meta">1 Question · 6 marks</div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff medium">Medium</span><span class="q-marks">6 marks</span></div></div>
+      <div class="q-text">Calculate the total gas fee for an ERC-20 token transfer on Ethereum and MST, then compare the results.</div>
+      <div class="identify-output">
+        <div class="io-header"><div class="io-badge">📋 SCENARIO</div></div>
+        <div class="io-scenario">Arjun wants to send 1,000 USDC (an ERC-20 token) from his wallet to a friend. The USDC transfer function consumes exactly 65,000 gas.</div>
+        <div class="io-data">
+          <strong>Given Data:</strong><br>
+          • Ethereum gas price: 45 Gwei (1 Gwei = 10⁻⁹ ETH)<br>
+          • ETH price: ₹2,60,000 per ETH<br>
+          • MST gas price: 12 Gwei (1 Gwei = 10⁻⁹ MSTC)<br>
+          • MSTC price: ₹8 per MSTC<br><br>
+          <strong>Task:</strong> Compute (a) total fee in ETH, (b) total fee in INR for Ethereum, (c) total fee in MSTC, (d) total fee in INR for MST, (e) the cost ratio between the two.
+        </div>
+        <div class="io-answer">
+          <div class="io-answer-label">✅ Correct Calculation (Expected Output)</div>
+          <p>
+            <strong>(a) Ethereum fee in ETH:</strong> 65,000 × 45 × 10⁻⁹ = 0.002925 ETH<br>
+            <strong>(b) Ethereum fee in INR:</strong> 0.002925 × ₹2,60,000 = <strong>₹760.50</strong><br><br>
+            <strong>(c) MST fee in MSTC:</strong> 65,000 × 12 × 10⁻⁹ = 0.00078 MSTC<br>
+            <strong>(d) MST fee in INR:</strong> 0.00078 × ₹8 = <strong>₹0.00624</strong><br><br>
+            <strong>(e) Cost ratio:</strong> ₹760.50 ÷ ₹0.00624 ≈ <strong>121,875×</strong> - the same token transfer is over 120,000 times more expensive on Ethereum than on MST.<br><br>
+            <em>Note: The gas cost is identical (65,000 gas units) regardless of whether Arjun sends 1 USDC or 1,000 USDC. The fee scales with computation, not value.</em>
+          </p>
+          <div class="marks-bd"><span>6 marks:</span> 1 mark for (a), 1 mark for (b), 1 mark for (c), 1 mark for (d), 1 mark for correct ratio (e), 1 mark for correct Gwei conversion (10⁻⁹) shown in all steps. Unit errors (e.g., forgetting 10⁻⁹) lose 0.5 marks each. The ratio must be approximately correct (120,000 - 122,000). No marks awarded if the student claims fees are proportional to transfer amount.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 5.4 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 2 × True/False with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section C: 1 × Identify-Output <span>(6 marks) = 6 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 5.4</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Native Coin</div><div class="glossary-def">The primary asset of a blockchain, defined at the protocol level. Used for gas fees, staking, and validator rewards. On MST: <strong>MSTC</strong>. Stored in the world state trie, not in a smart contract.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Token</div><div class="glossary-def">A digital asset created by a smart contract on an existing blockchain. Follows standards like ERC-20, ERC-721, ERC-1155. Cannot pay gas fees directly. Its balance is stored in the contract's internal mapping.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas</div><div class="glossary-def">Unit measuring computational effort on the EVM. Total fee = gas used × gas price. Prevents infinite loops, compensates validators, and prioritizes transactions. Fee is per transaction, not per token amount.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Limit</div><div class="glossary-def">Maximum gas a user authorizes for a transaction. Standard: 21,000 (coin send), 65,000 - 100,000 (ERC-20 transfer). If exceeded, the transaction fails but all gas up to the limit is still consumed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gwei</div><div class="glossary-def">1 Gwei = 10⁻⁹ of the native coin. Gas prices are quoted in Gwei. Example: 20 Gwei = 0.000000020 ETH. Named after Claude Shannon, the father of information theory.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SSTORE</div><div class="glossary-def">EVM opcode for writing to persistent storage. Costs 20,000 gas (new slot) or 5,000 gas (update). The most expensive common opcode because it permanently expands the blockchain state.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SLOAD</div><div class="glossary-def">EVM opcode for reading from storage. Costs 100 gas (warm, already accessed) or 2,100 gas (cold, first access). Used in every token balance check during transfers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">EIP-1559</div><div class="glossary-def">Ethereum Improvement Proposal implemented in August 2021. Restructured gas fees into a base fee (burned) and a priority fee (tip). Improved estimation but did not reduce average costs significantly.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Abstraction</div><div class="glossary-def">UX pattern where a relayer or paymaster pays gas on behalf of the user. Gas is still consumed in the native coin; only the payer changes. The economic layer remains intact.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MSTC</div><div class="glossary-def">The native coin of MST Blockchain. Pays for all computation, secures Trika POSA consensus through staking, and serves as the network's economic foundation. Used to pay gas for all transactions.</div></div>
+  <div class="glossary-item"><div class="glossary-term">World State Trie</div><div class="glossary-def">The Merkle Patricia Trie data structure storing all account balances and contract storage in an EVM blockchain. Native coin balances are stored here directly, not inside contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Relayer</div><div class="glossary-def">A service that submits transactions on behalf of users, paying gas in the native coin. Enables gasless UX while preserving on-chain economics and network security.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Meta-Transaction</div><div class="glossary-def">A transaction signed by the user but submitted and paid for by a relayer. The user's signature authorizes the action; the relayer pays the gas. Enables dApps to subsidize user gas costs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Station Network (GSN)</div><div class="glossary-def">A decentralized network of relayers that allows dApps to pay gas on behalf of their users. Similar to meta-transactions but with a standardized protocol for relayer compensation.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 5 · Sub-Module <strong>5.4</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 5.5 - Stablecoins & CBDCs →</p>
+</div>
+
+</body>
+</html>

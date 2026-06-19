@@ -1,0 +1,399 @@
+
+
+    <div class="module-badge">📝 Module 8 &nbsp;·&nbsp; Sub-Module 8.4 of 8</div>
+    <h1 class="module-title">Solidity <span class="highlight">Basics I</span></h1>
+    <p class="module-subtitle">The language that powers every smart contract on Ethereum and MST. From your first pragma to a working Hello World contract - this is where you stop reading about blockchain and start writing it.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks</div>
+        <div class="meta-chip">📋 6 MCQ + 2 T/F with Justification + 1 Identify-Output</div>
+        <div class="meta-chip green">Phase 2 · Development Environment &amp; Solidity</div>
+    </div>
+
+    <!-- 1. LEARNING OBJECTIVES -->
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+        <div class="feature-item"><div class="feature-num">🔧</div><div class="feature-content"><strong>Write a complete, compilable Solidity smart contract from scratch</strong> starting with the pragma directive and ending with a deployed contract on the MST testnet.</div></div>
+        <div class="feature-item"><div class="feature-num">📐</div><div class="feature-content"><strong>Explain every component of a Solidity file</strong> - pragma, contract declaration, state variables, constructor, and functions - and what each piece does when the contract runs on the EVM.</div></div>
+        <div class="feature-item"><div class="feature-num">🔢</div><div class="feature-content"><strong>Choose the correct data type</strong> for any variable based on its purpose, size, and gas cost implications.</div></div>
+        <div class="feature-item"><div class="feature-num">👁️</div><div class="feature-content"><strong>Apply function visibility modifiers</strong> - public, private, internal, external - correctly to control who can call each function in your contract.</div></div>
+    </div>
+
+    <!-- 2. REAL-WORLD STORY -->
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Developer Who Confused a Contract with a Class</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>Meera was a brilliant Java developer from Pune. She had built banking applications for five years. When her company pivoted to Web3, she dove into Solidity with confidence. "It's just like Java," she thought. "Contracts are classes. Functions are methods. Simple."</p>
+        <br>
+        <p>Within her first week, she wrote a token contract, deployed it to the testnet, and sent 500 tokens to her colleague. The transaction went through. But when her colleague tried to send those tokens back, the transaction failed. Meera had declared the transfer function as <strong>private</strong> - thinking "private" was a security feature that prevented unauthorized access. She didn't realize that <strong>private</strong> in Solidity means the function cannot be called from outside the contract at all - not even by its legitimate users. The tokens were stuck forever.</p>
+        <br>
+        <p>This story illustrates the single most important lesson of Solidity: <strong>it is not Java, JavaScript, Python, or C++</strong>. It borrows syntax from these languages, but it is fundamentally different. It runs on a blockchain, where code is immutable once deployed, where every operation costs real money (gas), and where mistakes cannot be patched with a quick update. Solidity demands precision, deep understanding of its unique concepts, and a completely different mental model from traditional programming. This sub-module is where you build that foundation.</p>
+    </div>
+
+    <!-- 3. WHAT IS SOLIDITY? -->
+    <div class="section-label">03 &nbsp; What Is Solidity?</div>
+    <h2 class="section-title">Solidity - The Language of the EVM</h2>
+    <p>Solidity is a <strong>high-level, statically typed, contract-oriented programming language</strong> designed specifically for writing smart contracts that run on the Ethereum Virtual Machine (EVM). It was created by Gavin Wood (Ethereum's first CTO) and developed by Christian Reitwiessner and the Ethereum Foundation's Solidity team. The first version, Solidity 0.1.0, was released in July 2015.</p>
+    <p>Solidity is <strong>statically typed</strong>, meaning every variable's type must be known at compile time - you cannot assign a string to an integer variable. It is <strong>contract-oriented</strong>, meaning the primary building block is the <strong>contract</strong>, which encapsulates state (data stored on the blockchain) and behavior (functions that modify that state). It is <strong>curly-brace syntax</strong>, making it visually familiar to developers who know JavaScript, C++, or Java.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Critical Distinction</div>
+        <p>Solidity is <strong>not</strong> a general-purpose programming language. You don't use it to build websites, mobile apps, or desktop software. You use it exclusively for <strong>smart contracts</strong>: self-executing programs that run on a blockchain, control digital assets, and cannot be modified after deployment. Every line of Solidity you write will be deployed to a blockchain, will cost gas to execute, and will be publicly visible forever. This changes everything about how you think about code.</p>
+    </div>
+
+    <details>
+        <summary>🔬 Click to expand: The Journey of Solidity Code - From .sol File to EVM Bytecode</summary>
+        <div class="details-content">
+            <p>When you run <strong>npx hardhat compile</strong>, the Solidity compiler (solc) performs several transformations:</p>
+            <p><strong>1. Lexical Analysis:</strong> The source code is broken into tokens (keywords, identifiers, operators, literals).</p>
+            <p><strong>2. Parsing:</strong> Tokens are organized into an Abstract Syntax Tree (AST) representing the grammatical structure of the code.</p>
+            <p><strong>3. Semantic Analysis:</strong> Type checking, scope resolution, and other semantic validations are performed. This is where errors like type mismatches are caught.</p>
+            <p><strong>4. Optimization:</strong> The compiler applies optimizations to reduce gas costs, such as removing unused code and simplifying expressions.</p>
+            <p><strong>5. Code Generation:</strong> The AST is translated into <strong>EVM bytecode</strong> - a sequence of hexadecimal opcodes that the EVM can execute. This bytecode, along with the <strong>ABI</strong> (Application Binary Interface), is stored in the <strong>artifacts/</strong> folder.</p>
+            <p>The ABI is a JSON file that describes the contract's functions, parameters, and return types. Frontend applications and other contracts use the ABI to know how to interact with your deployed contract.</p>
+        </div>
+    </details>
+
+    <!-- 4. THE SOLIDITY FILE STRUCTURE -->
+    <div class="section-label">04 &nbsp; File Structure</div>
+    <h2 class="section-title">Anatomy of a Solidity File - Line by Line</h2>
+
+    <div class="code-block-wrap">
+        <pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract SimpleStorage {
+    // State variable – stored on the blockchain forever
+    uint256 public storedData;
+
+    // Constructor – runs once, when the contract is deployed
+    constructor(uint256 initialValue) {
+        storedData = initialValue;
+    }
+
+    // Function – can read and modify state
+    function set(uint256 newValue) public {
+        storedData = newValue;
+    }
+
+    // Function – reads state but does not modify it (free to call!)
+    function get() public view returns (uint256) {
+        return storedData;
+    }
+}</pre>
+    </div>
+
+    <p>Let's dissect every line of this contract to understand exactly what it does. This contract is small, but it contains <strong>every fundamental concept</strong> you need to understand before building more complex applications.</p>
+
+    <!-- 5. SPDX LICENSE AND PRAGMA -->
+    <div class="section-label">05 &nbsp; Pragma &amp; License</div>
+    <h2 class="section-title">The SPDX License and Pragma Directive</h2>
+
+    <p><strong>SPDX License Identifier.</strong> The first line of every Solidity file should be a comment specifying the license under which the code is distributed: <code>// SPDX‑License‑Identifier: MIT</code>. SPDX stands for Software Package Data Exchange. This is a standardized way to declare the license. Solidity ≥0.6.8 generates a warning if this line is missing. Common licenses include MIT (permissive, widely used in open-source blockchain projects), GPL-3.0 (copyleft, requires derivative works to also be open source), and UNLICENSED (all rights reserved, no permission to use the code).</p>
+
+    <p><strong>The Pragma Directive.</strong> The line <code>pragma solidity ^0.8.20;</code> is the <strong>version pragma</strong>. It tells the Solidity compiler (solc) which version of the language this code was written for. The caret (^) means "any version from 0.8.20 up to, but not including, 0.9.0." This is important because Solidity is a rapidly evolving language. Breaking changes are introduced in major version increments (0.7.x to 0.8.x, and eventually 1.0.0). The pragma ensures your contract compiles with a compatible compiler version.</p>
+
+    <div class="callout warning">
+        <div class="callout-label">⚠️ Why Pragma Matters</div>
+        <p>If you write code for Solidity 0.8.20 and someone tries to compile it with Solidity 0.7.0, it will fail because of syntax and semantic differences. Similarly, if Solidity 0.9.0 introduces breaking changes, your code protected by <code>^0.8.20</code> will not compile with it. This protects your contract from being compiled with an incompatible compiler that could introduce vulnerabilities or unexpected behavior.</p>
+    </div>
+
+    <!-- 6. THE CONTRACT DECLARATION -->
+    <div class="section-label">06 &nbsp; The Contract</div>
+    <h2 class="section-title">The Contract - Your On-Chain Object</h2>
+
+    <p>A <strong>contract</strong> in Solidity is the fundamental building block. It is similar to a <strong>class</strong> in object-oriented languages like Java or C++, but with critical differences. A contract encapsulates:</p>
+    <p><strong>State Variables:</strong> Data that is permanently stored on the blockchain. These are the contract's memory. Every state variable consumes storage space, which costs gas to write and update.</p>
+    <p><strong>Functions:</strong> Executable code that can read and modify state variables. Functions are the contract's behavior.</p>
+    <p><strong>Events:</strong> Logging mechanisms that emit data to the blockchain logs, which frontend applications can listen to.</p>
+    <p><strong>Modifiers:</strong> Reusable condition checks that can be attached to functions (covered in depth in Sub-Module 8.6).</p>
+    <p><strong>Constructor:</strong> A special function that runs only once, when the contract is deployed. It is used to set initial state - like assigning the contract owner or setting initial parameter values.</p>
+
+    <div class="callout analogy">
+        <div class="callout-label">🏠 The House Analogy</div>
+        <p>Think of a contract like a <strong>house blueprint</strong>. When you deploy the contract, you build one specific house from that blueprint. The state variables are the furniture and belongings inside the house - they persist and can be rearranged. The functions are the doors and windows - they let people interact with the house. The constructor is the construction crew that builds the house and sets the initial furniture arrangement. Once the house is built (deployed), you cannot change the blueprint - but you can interact with the house through its doors (functions).</p>
+    </div>
+
+    <!-- 7. STATE VARIABLES -->
+    <div class="section-label">07 &nbsp; State Variables</div>
+    <h2 class="section-title">State Variables - Permanent Data on the Blockchain</h2>
+    <p>A <strong>state variable</strong> is a value that is stored directly in the contract's storage on the blockchain. It persists permanently between function calls and between transactions. State variables are the most expensive thing in Solidity - writing to storage costs 20,000 gas for a 32-byte slot (or 5,000 gas for a non-zero to non-zero update). Reading from storage costs 2,100 gas (cold access) or 100 gas (warm access). This is why efficient Solidity developers carefully consider what truly needs to be stored on-chain.</p>
+
+    <div class="code-block-wrap">
+        <pre>contract StateDemo {
+    // Simple value types
+    uint256 public count;          // Unsigned integer – 0 by default
+    address public owner;          // Ethereum address – 0x0 by default
+    bool public isActive;          // Boolean – false by default
+    string public name;            // String – "" by default
+
+    // The 'public' keyword auto‑generates a getter function:
+    // function count() public view returns (uint256) { return count; }
+}</pre>
+    </div>
+
+    <p><strong>Default Values.</strong> Every state variable has a default value - the zero value for its type. This is different from many other languages where uninitialized variables contain garbage or cause errors. In Solidity, <code>uint256</code> defaults to 0, <code>bool</code> to false, <code>address</code> to 0x0000...0000, <code>string</code> to "". This is guaranteed by the EVM. You never read uninitialized memory in Solidity.</p>
+
+    <!-- 8. DATA TYPES – THE BASICS -->
+    <div class="section-label">08 &nbsp; Data Types</div>
+    <h2 class="section-title">The Fundamental Data Types of Solidity</h2>
+
+    <p>Solidity is <strong>statically typed</strong> - every variable has a type, and that type is fixed at compile time. Understanding the types and when to use each one is essential for writing efficient, secure contracts. Here are the core types you will use in every contract.</p>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">1</div>
+            <div class="feature-content">
+                <div class="feature-title">uint - Unsigned Integers (0 and above)</div>
+                <div class="feature-desc"><code>uint256</code> is the most common type in Solidity. It stores whole numbers from 0 to 2²⁵⁶-1 (approximately 1.15 × 10⁷⁷). Solidity supports sizes from <code>uint8</code> (0 to 255) to <code>uint256</code>, in steps of 8. <strong>Always prefer uint256 unless you have a specific gas-saving reason to use a smaller size.</strong> The EVM operates on 256-bit words, so smaller uints require extra masking operations that can actually cost more gas. The primary use case for smaller uints is when packing multiple variables into a single storage slot.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">2</div>
+            <div class="feature-content">
+                <div class="feature-title">int - Signed Integers (negative, zero, positive)</div>
+                <div class="feature-desc"><code>int256</code> stores values from -2²⁵⁵ to 2²⁵⁵-1. Use int when you need negative numbers, which is rare in most smart contracts. Most blockchain values (token balances, timestamps, counters) are naturally non-negative, so uint is the default choice.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">3</div>
+            <div class="feature-content">
+                <div class="feature-title">bool - True or False</div>
+                <div class="feature-desc">Stores <code>true</code> or <code>false</code>. Used for flags, conditions, and status indicators. Defaults to <code>false</code>. Example: <code>bool public isPaused = false;</code></div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">4</div>
+            <div class="feature-content">
+                <div class="feature-title">address - The 20-Byte Blockchain Address</div>
+                <div class="feature-desc"><code>address</code> is a 20-byte (160-bit) value that uniquely identifies an account or contract on the blockchain. It comes with built-in members: <code>.balance</code> returns the address's native coin balance, <code>.transfer(amount)</code> sends native coins, and <code>.call{value: amount}("")</code> is the modern, recommended way to send native coins. <code>address payable</code> is a subtype that allows all these operations plus transfer and send.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">5</div>
+            <div class="feature-content">
+                <div class="feature-title">string - Text Data</div>
+                <div class="feature-desc"><code>string</code> stores UTF-8 encoded text. Strings are <strong>expensive</strong> in Solidity because they are dynamic-sized arrays of bytes. Each character costs storage. For short, fixed-length text (like names or symbols), consider using <code>bytes32</code> instead, which fits in a single storage slot.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">6</div>
+            <div class="feature-content">
+                <div class="feature-title">bytes - Raw Byte Data</div>
+                <div class="feature-desc"><code>bytes</code> is a dynamic array of bytes. <code>bytes32</code> is a fixed-size 32-byte value, useful for storing hashes, identifiers, and short text efficiently. <code>bytes1</code> through <code>bytes32</code> are fixed-size variants. When in doubt between string and bytes32, use bytes32 for fixed-length data.</div>
+            </div>
+        </div>
+    </div>
+
+    <details>
+        <summary>🔬 Click to expand: Why uint256 Is the Default - The EVM's 256-Bit Architecture</summary>
+        <div class="details-content">
+            <p>The EVM's stack operates on 256-bit words. When you use a smaller type like uint8, the EVM must perform additional operations to mask off the unused bits after every arithmetic operation. This masking costs gas. For a single uint8, the overhead is small, but if you use uint8 everywhere thinking it saves gas, you may actually increase costs. The correct optimization strategy is to use uint256 for most variables and pack multiple small variables into a single 256-bit storage slot using struct packing - a topic covered in Sub-Module 8.5.</p>
+        </div>
+    </details>
+
+    <!-- 9. FUNCTIONS AND VISIBILITY -->
+    <div class="section-label">09 &nbsp; Functions &amp; Visibility</div>
+    <h2 class="section-title">Functions - The Actions Your Contract Can Perform</h2>
+    <p>Functions are the executable units of a Solidity contract. They can read state, modify state, emit events, and interact with other contracts. Every function has a <strong>visibility specifier</strong> that determines who can call it, and optional <strong>mutability modifiers</strong> that tell the compiler (and the caller) whether the function modifies state.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.4-A · Function Visibility - Who Can Call What</div>
+        <pre>                        ┌─────────────────────────────────────────────────┐
+                        │              THE CONTRACT                        │
+                        │                                                  │
+    EXTERNAL CALLER     │  ┌──────────────┐    ┌──────────────┐           │
+    (User, dApp,        │  │   public     │    │   external   │           │
+     other contract)    │  │  function    │    │  function    │           │
+         │              │  │              │    │              │           │
+         │   ✅ CAN     │  │ Called from: │    │ Called from: │           │
+         │   call       │  │ • Inside ✅  │    │ • Inside ❌  │           │
+         ├──────────────┼──│ • Outside ✅ │    │ • Outside ✅ │           │
+         │              │  └──────────────┘    └──────────────┘           │
+         │              │                                                  │
+         │   ❌ CANNOT  │  ┌──────────────┐    ┌──────────────┐           │
+         │   call       │  │   internal   │    │   private    │           │
+         └──────────────┼──│  function    │    │  function    │           │
+                        │  │              │    │              │           │
+                        │  │ Called from: │    │ Called from: │           │
+                        │  │ • Inside ✅  │    │ • Inside ✅  │           │
+                        │  │ • Child ✅   │    │ • Child ❌   │           │
+                        │  │ • Outside ❌ │    │ • Outside ❌ │           │
+                        │  └──────────────┘    └──────────────┘           │
+                        └─────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">Four visibility levels control access. Public and external are the only ones callable from outside the contract.</div>
+    </div>
+
+    <table class="compare-table">
+        <thead>
+            <tr><th style="background:var(--surface);color:var(--ink-3);">Visibility</th><th style="background:var(--brand-light);color:var(--brand-dark);">Called from Inside?</th><th style="background:var(--brand-light);color:var(--brand-dark);">Called from Outside?</th><th style="background:var(--brand-light);color:var(--brand-dark);">Inherited by Child?</th><th style="background:var(--brand-light);color:var(--brand-dark);">Typical Use</th></tr>
+        </thead>
+        <tbody>
+            <tr><td style="font-weight:600;">public</td><td>✅ Yes</td><td>✅ Yes</td><td>✅ Yes</td><td>Main user-facing functions, auto-generates getter for state variables</td></tr>
+            <tr><td style="font-weight:600;">external</td><td>❌ No</td><td>✅ Yes</td><td>✅ Yes</td><td>Functions only called from outside (slightly cheaper gas than public)</td></tr>
+            <tr><td style="font-weight:600;">internal</td><td>✅ Yes</td><td>❌ No</td><td>✅ Yes</td><td>Helper functions, internal logic shared with child contracts</td></tr>
+            <tr><td style="font-weight:600;">private</td><td>✅ Yes</td><td>❌ No</td><td>❌ No</td><td>Internal logic that should not be inherited</td></tr>
+        </tbody>
+    </table>
+
+    <p><strong>Function Mutability Modifiers.</strong> Beyond visibility, functions can be marked with modifiers that describe their relationship to state:</p>
+    <p><strong>view</strong> - The function reads state but does not modify it. When called externally, view functions cost <strong>zero gas</strong> (they are executed locally by the node, not as a transaction). Use view for getters, balance checks, and any function that returns information without changing anything.</p>
+    <p><strong>pure</strong> - The function neither reads nor modifies state. It is a mathematical function that operates only on its inputs. Like view, pure functions cost zero gas when called externally. Use pure for calculations, string manipulation, and utility functions.</p>
+    <p><strong>payable</strong> - The function can receive native coins (MSTC, ETH). Without this modifier, any attempt to send coins to the function will cause the transaction to revert. Use payable for deposit functions, purchase functions, and any function that should accept payment.</p>
+    <p><strong>(no modifier)</strong> - The function can read and modify state. It costs gas and must be executed as a transaction.</p>
+
+    <!-- 10. THE CONSTRUCTOR -->
+    <div class="section-label">10 &nbsp; The Constructor</div>
+    <h2 class="section-title">The Constructor - Your Contract's Birth Certificate</h2>
+    <p>The <strong>constructor</strong> is a special function that runs exactly once, at the moment the contract is deployed to the blockchain. It cannot be called again. It is defined using the <code>constructor</code> keyword (not the contract name - that was the old syntax, pre-Solidity 0.5.0). The constructor is used for one-time setup: setting the contract owner, initializing state variables with deployment-specific values, and performing any setup that must happen before the contract is usable.</p>
+
+    <div class="code-block-wrap">
+        <pre>contract Token {
+    address public immutable owner;
+    uint256 public immutable deployTime;
+
+    constructor(string memory name, string memory symbol) {
+        owner = msg.sender;       // The address that deployed the contract
+        deployTime = block.timestamp; // When the contract was deployed
+        _name = name;
+        _symbol = symbol;
+    }
+}</pre>
+    </div>
+
+    <p>In this example, the constructor captures <code>msg.sender</code> - the address that submitted the deployment transaction. This is the most common pattern for setting the contract's owner. The <code>immutable</code> keyword (introduced in Solidity 0.6.5) tells the compiler that these variables can only be set in the constructor and will never change. Immutable variables are stored in the contract's bytecode, not in storage, making them much cheaper to read than regular state variables.</p>
+
+    <details>
+        <summary>🔧 Click to expand: msg.sender - The Single Most Important Global Variable</summary>
+        <div class="details-content">
+            <p><code>msg.sender</code> returns the <strong>address that directly called the current function</strong>. In a simple transaction from a user's wallet, msg.sender is the user's address. In a call from one contract to another, msg.sender is the calling contract's address. This is the foundation of access control in Solidity - the <code>onlyOwner</code> pattern compares msg.sender to the stored owner address.</p>
+            <p><strong>Warning:</strong> Do not confuse <code>msg.sender</code> with <code>tx.origin</code>. tx.origin returns the original sender of the transaction (the wallet), even if the call passed through multiple contracts. Using tx.origin for access control is a known vulnerability - a malicious contract can trick a user into calling it, and then the malicious contract calls your contract, where tx.origin would return the user's address (not the malicious contract's). Always use msg.sender.</p>
+        </div>
+    </details>
+
+    <!-- 11. HELLO WORLD CONTRACT -->
+    <div class="section-label">11 &nbsp; Your First Contract</div>
+    <h2 class="section-title">Hello World on MST - Write, Compile, Deploy</h2>
+
+    <p>Below is a complete, compilable "Hello World" contract that you will now write, compile, and deploy to the MST testnet. This contract stores a greeting message, allows the owner to update it, and lets anyone read the current message. It combines every concept from this sub-module into a working example.</p>
+
+    <div class="code-block-wrap">
+        <pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/**
+ * @title HelloWorld
+ * @notice A simple contract that stores and retrieves a greeting message.
+ *         Only the contract owner can update the greeting.
+ */
+contract HelloWorld {
+    // The owner of the contract (set during deployment)
+    address public immutable owner;
+
+    // The greeting message stored on the blockchain
+    string private greeting;
+
+    // Event emitted when the greeting is updated
+    event GreetingUpdated(
+        address indexed updater,
+        string oldGreeting,
+        string newGreeting
+    );
+
+    /**
+     * @notice Constructor sets the initial greeting and records the owner.
+     * @param initialGreeting The first greeting message.
+     */
+    constructor(string memory initialGreeting) {
+        owner = msg.sender;
+        greeting = initialGreeting;
+    }
+
+    /**
+     * @notice Updates the greeting message. Only the owner can call this.
+     * @param newGreeting The new greeting message.
+     */
+    function updateGreeting(string memory newGreeting) public {
+        require(msg.sender == owner, "Only the owner can update the greeting");
+        string memory oldGreeting = greeting;
+        greeting = newGreeting;
+        emit GreetingUpdated(msg.sender, oldGreeting, newGreeting);
+    }
+
+    /**
+     * @notice Returns the current greeting. Anyone can call this (no cost).
+     * @return The current greeting message.
+     */
+    function getGreeting() public view returns (string memory) {
+        return greeting;
+    }
+}</pre>
+    </div>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.4-B · HelloWorld Contract - Deployment and Interaction Flow</div>
+        <pre>DEPLOYMENT:
+  Deployer (0xABC...) → Submits constructor("Hello, MST!")
+  Contract created at address 0x789...
+  State: owner = 0xABC..., greeting = "Hello, MST!"
+  Event: (no event emitted during constructor)
+
+INTERACTION 1 – Read (free):
+  Anyone → Calls getGreeting()
+  Returns: "Hello, MST!"
+  No transaction needed. No gas cost.
+
+INTERACTION 2 – Update (costs gas):
+  Owner (0xABC...) → Calls updateGreeting("Namaste, MST!")
+  require(msg.sender == owner) → ✅ Passes
+  State: greeting = "Namaste, MST!"
+  Event: GreetingUpdated(0xABC..., "Hello, MST!", "Namaste, MST!")
+
+INTERACTION 3 – Unauthorized update (fails):
+  Random user (0xDEF...) → Calls updateGreeting("Hacked!")
+  require(msg.sender == owner) → ❌ FAILS! 0xDEF... ≠ 0xABC...
+  Transaction reverts. No state change. No event emitted.
+  Gas is still consumed for the attempted computation.
+        </pre>
+        <div class="diagram-caption">The complete lifecycle of the HelloWorld contract, from deployment through authorized and unauthorized interactions.</div>
+    </div>
+
+    <!-- 12. ASSESSMENT PREP -->
+    <div class="section-label">12 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">pragma solidity ^0.8.20; specifies the compiler version. The caret allows patch and minor updates but not major.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">A contract is a collection of state variables (data on-chain) and functions (executable behavior).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">State variables are stored permanently on the blockchain. Every write costs gas. Default values are zero values.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Four visibility levels: public (inside + outside + inherited), external (outside only), internal (inside + inherited), private (inside only).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">view and pure functions cost zero gas when called externally. payable allows receiving native coins.</div></div></div>
+    </div>
+
+    <!-- 13. ASSESSMENT -->
+    
+
+    <div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 8.4</h2>
+    <div class="glossary-grid">
+        <div class="glossary-item"><div class="glossary-term">Solidity</div><div class="glossary-def">A high-level, statically typed, contract-oriented programming language for writing smart contracts on the Ethereum Virtual Machine (EVM).</div></div>
+        <div class="glossary-item"><div class="glossary-term">Pragma</div><div class="glossary-def">A compiler directive that specifies the Solidity version the code is compatible with. Prevents compilation with incompatible compiler versions.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Contract</div><div class="glossary-def">The fundamental building block in Solidity, similar to a class. Encapsulates state variables, functions, events, and modifiers.</div></div>
+        <div class="glossary-item"><div class="glossary-term">State Variable</div><div class="glossary-def">A variable stored permanently on the blockchain as part of the contract's storage. Expensive to write, cheaper to read.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Constructor</div><div class="glossary-def">A special function that executes once when the contract is deployed. Used to set initial state and capture deployment-time values.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Visibility</div><div class="glossary-def">Controls who can call a function: public (anyone), external (outside only), internal (this contract + children), private (this contract only).</div></div>
+        <div class="glossary-item"><div class="glossary-term">view</div><div class="glossary-def">A function modifier indicating the function reads state but does not modify it. Free to call externally.</div></div>
+        <div class="glossary-item"><div class="glossary-term">pure</div><div class="glossary-def">A function modifier indicating the function neither reads nor modifies state. Operates only on inputs. Free to call externally.</div></div>
+        <div class="glossary-item"><div class="glossary-term">msg.sender</div><div class="glossary-def">A global variable that returns the address that directly called the current function. Foundation of access control.</div></div>
+        <div class="glossary-item"><div class="glossary-term">immutable</div><div class="glossary-def">A keyword for variables set only in the constructor and stored in bytecode, saving gas on every read compared to regular storage variables.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 8 · Sub-Module <strong>8.4</strong> of 8 · Next: Sub-Module 8.5 - Data Types &amp; Storage →</p>
+    </div>
+
+

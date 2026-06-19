@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Sub-Module 20.3 - Technical Interview Prep | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row {
+      display: grid; grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { margin: 24px 0; }
+    .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+    .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+    .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+    .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-right { padding: 0 0 28px 4px; }
+    .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+    .tl-body strong { color: var(--ink); }
+
+    /* ─── FEATURE PILLS ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── STAT CARDS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    /* TF justification */
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    /* ─── HIGHLIGHT STRIP ─── */
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .stat-row       { grid-template-columns: 1fr 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚡ Module 20 &nbsp;·&nbsp; Sub-Module 20.3 of 5</div>
+<h1 class="module-title">Technical Interview Prep - <span class="highlight">Cracking the Solidity & System Design Round</span></h1>
+<p class="module-subtitle">A top-tier protocol interview is a pressure cooker: 45 minutes to write a multi-sig wallet, then design a DEX. This sub-module simulates exactly that - with the same problem patterns and evaluation rubrics used by Uniswap, Polygon, and Coinbase.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 50 Marks</div>
+  <div class="meta-chip">📋 3 Coding (10 each) + 2 System Design (10 each)</div>
+  <div class="meta-chip green">Phase 4 · Career Launchpad</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Solve the 7 most-asked Solidity puzzle patterns</strong>
+      Multi-sig wallets, time-locks, staking pools, upgradeable proxies, access-controlled mints - under time pressure.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏗️</div>
+    <div class="obj-text">
+      <strong>Structure a system design answer for any DeFi/NFT protocol</strong>
+      Requirements → Architecture diagram → Smart contract layout → Frontend bridge → Security & scaling.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⏲️</div>
+    <div class="obj-text">
+      <strong>Manage time in a live coding interview</strong>
+      Use the 5-minute thinking / 20-minute coding / 5-minute testing framework to avoid running out of time.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🎯</div>
+    <div class="obj-text">
+      <strong>Communicate trade-offs clearly</strong>
+      Explain why you chose `mapping` over array, why `calldata` over `memory`, and how you'd mitigate reentrancy - the “why” is often worth half the marks.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL-WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Coinbase Interview That Changed Everything</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, Vikram - a bright Solidity developer from Pune - applied for a Smart Contract Engineer role at Coinbase. The technical screen was a 45-minute live coding session on CoderPad. The problem: <em>“Implement a time-locked vault where a beneficiary can withdraw only after a deadline, and the owner can deposit anytime. Include emergency withdrawal for the owner.”</em></p>
+  <br>
+  <p>Vikram panicked. He spent the first 10 minutes over-engineering the deposit mechanism, forgot to use `block.timestamp` for the deadline check, and completely omitted the emergency withdrawal. Time ran out. The interviewer politely ended the call. The feedback: <em>“Candidate knows syntax but lacks problem-solving structure under pressure.”</em></p>
+  <br>
+  <p>Vikram didn't give up. For the next 3 weeks, he practiced the <strong>7 classic Solidity puzzle patterns</strong> (multi-sig, time-lock, staking, voting, escrow, crowdsale, proxy upgrade) on a timer. He learned to <strong>talk through his thinking</strong> before writing a single line. He studied the <strong>evaluation rubric</strong> that interviewers use: correctness (30%), gas efficiency (20%), security considerations (30%), communication (20%).</p>
+  <br>
+  <p>His next interview - with a DeFi protocol - asked him to implement a staking contract with reward distribution. He solved it in 30 minutes, explained why he used `block.timestamp` for reward calculation (and its limitations), handled reentrancy with a nonReentrant modifier, and passed all test cases. He got the offer - ₹32 LPA, remote.</p>
+  <br>
+  <p><strong>The difference? Structured practice, not just knowledge.</strong> This sub-module replicates that exact training.</p>
+</div>
+
+<p>Web3 technical interviews are fundamentally different from Web2. They test not just algorithmic thinking but <strong>security awareness, gas intuition, and EVM-specific design patterns</strong>. A candidate who writes a perfectly functional contract that silently accepts reentrancy will fail. One who catches the reentrancy bug during the interview and explains it will get hired - even if the contract isn't perfect.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">How Web3 Technical Interviews Evolved</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2017 - 2019</div>
+      <div class="tl-body"><strong>The “Do you know Solidity?” era.</strong> Interviews were conversational. Questions like “What's a modifier?” or “Explain ERC-20” were sufficient. Supply of developers was so low that basic syntax knowledge often got you hired.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2020 - 2022</div>
+      <div class="tl-body"><strong>DeFi summer raises the bar.</strong> The hacks (Poly Network, Wormhole, Cream Finance) made security the #1 hiring filter. Live coding became standard. Typical problems: implement a simple AMM, fix a reentrancy bug in a given contract, or write a staking pool. System design rounds emerged for senior roles.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2023 - Present</div>
+      <div class="tl-body"><strong>Multi-stage, rubric-driven hiring.</strong> Top protocols now have: (1) a take-home assignment (2-4 hours), (2) a live coding round (45-60 min, 1-2 problems), (3) a system design round (60 min), (4) a culture/values fit. The evaluation is formalised: correctness, gas optimisation, security, and communication each have weight.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">MST Ecosystem</div>
+      <div class="tl-body"><strong>What MST protocols test.</strong> MST-native projects often include questions about Trika POSA (validator staking), SARAL integration (how would you onboard users without seed phrases?), or WASMify (design an off-chain computation feed). Knowing the ecosystem gives you a distinct edge.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Anatomy of a Web3 Technical Interview</h2>
+
+<p>Understanding the format is half the battle. A typical live coding + system design interview for a mid-level smart contract engineer follows this structure:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 20.3-A · Standard 60-Minute Technical Interview Flow</div>
+  <pre>
+  [0‑5 min]   Introductions & icebreaker
+  [5‑10 min]  Coding Problem 1 (warm‑up) – e.g., implement a withdraw pattern
+  [10‑30 min] Coding Problem 2 (main challenge) – e.g., multi‑sig or staking pool
+  [30‑50 min] System Design – e.g., design a decentralised exchange on MST
+  [50‑60 min] Candidate questions & closing
+  </pre>
+  <div class="diagram-caption">The coding segment is timed tightly: expect 20-25 minutes for the main problem. The system design is open-ended - they want to see your thinking process, not a perfect diagram.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Secret: Talk Before You Type</div>
+  <p>Interviewers don't just want working code - they want to see <strong>how you think</strong>. Narrate your approach: “First I'll define the state variables - a mapping for balances, a deadline timestamp, and an owner address. Then I'll write the deposit function, using `payable` and updating the mapping. Next, the withdraw with a `require` on deadline. Finally, an emergency withdrawal guarded by `onlyOwner`.” If you hit a syntax error, debug out loud. Communication counts for up to 30% of the score.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE – THE 7 CORE PATTERNS
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The 7 Must-Know Solidity Puzzle Patterns (With Solutions)</h2>
+
+<p>Every coding problem in a Web3 interview is a variation of one of these seven patterns. Master them, and you'll recognise the problem immediately and know the template.</p>
+
+<div class="feature-list">
+
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Multi-Signature Wallet</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> A contract where N owners can submit transactions, and M confirmations are needed to execute.<br>
+        <strong>Core logic:</strong> `mapping(uint => mapping(address => bool)) confirmations`; `executeTransaction` requires `confirmCount >= required`.<br>
+        <strong>Watch for:</strong> Ensure a transaction cannot be executed twice; reset confirmations on execution. Use a struct for `Transaction` (to, value, data, executed). Gas tip: use `bytes` for calldata, not `string`.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Time-Locked Vault</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> Owner deposits; beneficiary withdraws only after a deadline. Owner can emergency-withdraw anytime.<br>
+        <strong>Core:</strong> `uint deadline = block.timestamp + lockTime;` In `withdraw`, `require(block.timestamp >= deadline, "too early");`.<br>
+        <strong>Security:</strong> Owner emergency withdraw must be separate and owner-only. Use `onlyOwner` modifier. Consider `block.timestamp` manipulation (miners can shift it slightly - acceptable for non-critical timing but mention it).
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Staking Pool with Reward Distribution</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> Users stake tokens, earn rewards proportional to stake and time. Reward rate is fixed per second.<br>
+        <strong>Core:</strong> Track `rewardPerTokenStored`, `userRewardPerTokenPaid`, and `rewards` mapping. Update rewards on every stake/unstake. Use `block.timestamp` for time calculation.<br>
+        <strong>Pitfall:</strong> Reentrancy in `withdraw` - use `nonReentrant`. Ensure rewards are minted or the contract holds enough tokens. Gas: cache storage variables in memory.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Simple AMM (Constant Product)</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> A pool with two tokens. Add liquidity, swap, remove liquidity. Maintain `x * y = k`.<br>
+        <strong>Core:</strong> `swap(tokenIn, amountIn, tokenOut)` calculates `amountOut = reserveOut - (k / (reserveIn + amountIn))`. Mint LP tokens proportionally.<br>
+        <strong>Security:</strong> Ensure `amountOut` >= `minAmountOut` passed as parameter for slippage. Use `SafeMath` in older Solidity versions (0.8+ is safe). Beware of reentrancy if tokens are ERC-777.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Crowdsale / ICO</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> Sell tokens at a fixed price in exchange for ETH/MST. Cap the total sale. Allow owner to withdraw raised funds.<br>
+        <strong>Core:</strong> Track `weiRaised`, `cap`, `rate`. `buyTokens() payable` mints tokens based on `msg.value * rate`. Require `weiRaised + msg.value <= cap`.<br>
+        <strong>Trap:</strong> Must not allow purchase after cap is reached or deadline expired. Owner withdrawal should use pull pattern (not push).
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">6</div>
+    <div class="feature-content">
+      <div class="feature-title">Voting / Governance</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> Token holders vote on proposals. Each token = 1 vote. Proposal passes if quorum and majority reached within a deadline.<br>
+        <strong>Core:</strong> `Proposal` struct (description, voteCount, deadline, executed). `vote(proposalId)` checks deadline, adds votes. `execute` requires `voteCount > quorum`.<br>
+        <strong>Nuance:</strong> Prevent double-voting (track `hasVoted` mapping). Ensure proposal execution cannot be re-entered. Use snapshot of voting power to prevent flash-loan attacks.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">7</div>
+    <div class="feature-content">
+      <div class="feature-title">Upgradeable Proxy (Minimal)</div>
+      <div class="feature-desc">
+        <strong>Problem:</strong> Implement a simple proxy that delegates calls to an implementation contract. Owner can upgrade the implementation.<br>
+        <strong>Core:</strong> Use `delegatecall` in the fallback. Store implementation address in a specific storage slot (EIP-1967). `upgradeTo` only for owner.<br>
+        <strong>Critical:</strong> `delegatecall` runs in the proxy's context - state variables must match layout. Mention OpenZeppelin Upgrades plugin as production solution.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- System Design Section -->
+<div class="section-title" style="margin-top:40px;">System Design: The 4-Step Framework</div>
+<p>In a system design round, you're asked to design a protocol from scratch - e.g., “Design a decentralised exchange on MST.” Use this structure:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">1</div><div class="w5-word">REQUIREMENTS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Gather functional & non-functional requirements</div>
+      <div class="w5-a">Functional: users can swap tokens, provide liquidity, earn fees. Non-functional: handle 1000 swaps/sec, gas must be < 200k per swap, trustless, no admin keys.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">2</div><div class="w5-word">ARCHITECTURE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Draw the high-level architecture</div>
+      <div class="w5-a">Smart contracts: Factory, Pair (for each token pair), Router. Frontend: React + ethers.js, connects via BridgeKey wallet. Indexing: subgraph for trade history. Oracles: maybe Chainlink for price feeds (if needed). MST specifics: use SARAL for user onboarding, WASMify for off-chain computation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">3</div><div class="w5-word">DATA FLOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Describe a key flow</div>
+      <div class="w5-a">Swap: User sends tokenA to Router → Router identifies Pair address → calls Pair.swap() → Pair calculates output using x*y=k → transfers tokenB to user. Events emitted for indexing.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">4</div><div class="w5-word">TRADE-OFFS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Discuss scaling, security, upgrades</div>
+      <div class="w5-a">Scaling: deploy on MST (high throughput, low fees). Security: audits, reentrancy guards, slippage protection. Upgradeability: proxy pattern. Risks: impermanent loss for LPs, oracle manipulation.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">How Interviewers Evaluate Your Code</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 20.3-B · Live Coding Evaluation Rubric (Typical Weights)</div>
+  <pre>
+  ┌────────────────────────────────────────────────────┐
+  │                EVALUATION CRITERIA                  │
+  ├───────────────┬──────────┬─────────────────────────┤
+  │ Correctness   │  30%     │ Does it pass tests?     │
+  │ Security      │  30%     │ Reentrancy, overflow,   │
+  │               │          │ access control, checks   │
+  │ Gas/Efficiency│  20%     │ storage vs memory, loops│
+  │ Communication │  20%     │ Explains thinking,      │
+  │               │          │ trade‑offs, edge cases   │
+  └───────────────┴──────────┴─────────────────────────┘
+  </pre>
+  <div class="diagram-caption">You can pass with a partially working contract if you clearly explain the remaining logic and highlight security issues. A perfect contract with no security discussion may fail.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Weak vs. Strong Interview Performance</h2>
+
+<table class="compare-table">
+  <thead><tr><th>Behavior</th><th class="bad">❌ Weak Candidate</th><th class="good">✅ Strong Candidate</th></tr></thead>
+  <tbody>
+    <tr><td>Starts coding</td><td class="bad">Immediately, without clarifying requirements.</td><td class="good">Asks clarifying questions: “Should the owner be able to withdraw all funds, or only a percentage?”</td></tr>
+    <tr><td>During coding</td><td class="bad">Silently types, gets stuck, debug panic.</td><td class="good">Narrates approach: “Now I'll add a require to check the deadline…”</td></tr>
+    <tr><td>Handles reentrancy</td><td class="bad">Ignores it or mentions it only after prompting.</td><td class="good">Adds `nonReentrant` proactively and explains why: “This prevents a malicious ERC-777 token from re-entering during withdraw.”</td></tr>
+    <tr><td>Gas awareness</td><td class="bad">Uses `memory` for everything, loops over large arrays.</td><td class="good">Caches storage in memory, uses `calldata` for function params, avoids unbounded loops.</td></tr>
+    <tr><td>System design</td><td class="bad">Jumps straight to code: “We'll write a Solidity contract…”</td><td class="good">First sketches requirements, draws box diagram of contracts, discusses indexing, frontend, and security.</td></tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL-WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Interview Experiences from Indian Developers</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">Polygon - Live Coding: “Build a vesting contract”</div>
+      <div class="feature-desc"><strong>Neha, Bangalore.</strong> Given 30 minutes. She wrote a contract where tokens unlock linearly over 12 months. The interviewer then asked, “What if the owner wants to revoke?” She explained the trade-off: adding revoke makes it less trustless but more practical. She got the job.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">📊</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap - System Design: “Design a lending protocol”</div>
+      <div class="feature-desc"><strong>Rohit, Delhi.</strong> He drew on a virtual whiteboard: CollateralManager, InterestRateModel, Oracle. He mentioned liquidation thresholds, health factor calculation, and why they use Compound's model. The feedback: “Great structure, but forgot flash loan attack prevention.” He still got an offer because he discussed it when prompted.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Before You Start - The 5-Minute Drill</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">1</div><div class="feature-content"><div class="feature-title">Clarify inputs/outputs</div><div class="feature-desc">What functions are required? Who calls them? What are the edge cases? Ask before coding.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">2</div><div class="feature-content"><div class="feature-title">Write the skeleton</div><div class="feature-desc">State variables, constructor, function signatures - get the structure right before filling logic.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">3</div><div class="feature-content"><div class="feature-title">Add access control & checks</div><div class="feature-desc">`require`, modifiers, `nonReentrant` - security first, then logic.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">4</div><div class="feature-content"><div class="feature-title">Test mentally</div><div class="feature-desc">Trace a deposit → withdraw flow in your head before declaring done.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">5</div><div class="feature-content"><div class="feature-title">Discuss trade-offs</div><div class="feature-desc">Even if code is incomplete, verbalising security considerations earns major points.</div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (50 MARKS – TIMED CHALLENGE)
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 20.3 Assessment - Mock Technical Interview</h2>
+    <div class="marks-total-badge">
+      <div class="num">50</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: CODING PROBLEM 1 -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Coding Challenge 1: Multi-Signature Wallet</div>
+      <div class="q-section-meta">10 marks &nbsp;·&nbsp; Time: 15 min</div>
+    </div>
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">C1</div>
+        <div class="q-meta"><span class="q-type">Live Coding</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div>
+      </div>
+      <div class="q-text">
+        Implement a basic multi-signature wallet in Solidity with the following requirements:<br>
+        • The constructor receives an array of owner addresses and a required number of confirmations (M out of N).<br>
+        • Any owner can submit a transaction (to, value, data).<br>
+        • Other owners can confirm; once M confirmations are reached, anyone can execute the transaction.<br>
+        • A transaction cannot be executed more than once.<br>
+        • Include appropriate access control and event emissions.
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Scheme (10 marks)</div>
+        <p>
+          <strong>3 marks</strong> - Correct state variables (owners mapping, transaction struct, confirmations mapping, transactionCount).<br>
+          <strong>2 marks</strong> - `submitTransaction` with event, `confirmTransaction` with proper confirmation logic.<br>
+          <strong>3 marks</strong> - `executeTransaction` with require checks (confirmCount >= required, not executed, valid to address). Reset confirmations or mark executed.<br>
+          <strong>2 marks</strong> - Security: onlyOwner modifier for submitting? (any owner can submit), require checks, prevent re-execution. Emit events.<br>
+          <em>Note: Partial code with clear communication of missing parts can still earn up to 7 marks if logic is sound.</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION B: CODING PROBLEM 2 -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - Coding Challenge 2: Staking Pool with Rewards</div>
+      <div class="q-section-meta">10 marks &nbsp;·&nbsp; Time: 15 min</div>
+    </div>
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">C2</div>
+        <div class="q-meta"><span class="q-type">Live Coding</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div>
+      </div>
+      <div class="q-text">
+        Build a staking contract where users stake an ERC-20 token and earn reward tokens at a fixed rate of 10 tokens per second, distributed proportionally among all stakers. Functions: `stake(uint256 amount)`, `withdraw(uint256 amount)`, `getReward()`. Use the “reward per token” accumulator pattern to avoid looping over stakers.
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Scheme (10 marks)</div>
+        <p>
+          <strong>2 marks</strong> - State variables: `rewardPerTokenStored`, `userRewardPerTokenPaid`, `rewards`, `totalSupply` of staked tokens.<br>
+          <strong>2 marks</strong> - `updateReward` modifier / internal function that updates global and user reward accumulators before any stake/unstake/getReward.<br>
+          <strong>2 marks</strong> - `stake` and `withdraw` correctly update user balance and totalSupply, invoke `updateReward`.<br>
+          <strong>2 marks</strong> - `getReward` transfers accumulated reward to user, resets rewards mapping.<br>
+          <strong>2 marks</strong> - Security: nonReentrant on withdraw/getReward, use SafeERC20 for token transfers, proper visibility.
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION C: CODING PROBLEM 3 -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section C - Coding Challenge 3: Time-Locked Vault</div>
+      <div class="q-section-meta">10 marks &nbsp;·&nbsp; Time: 10 min</div>
+    </div>
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">C3</div>
+        <div class="q-meta"><span class="q-type">Live Coding</span><span class="q-diff medium">Medium</span><span class="q-marks">10 marks</span></div>
+      </div>
+      <div class="q-text">
+        Create a vault where an owner can deposit Ether, and a beneficiary can withdraw the entire balance only after a specific unlock timestamp. The owner can also perform an emergency withdrawal of all funds at any time. Include events for deposits and withdrawals.
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Scheme (10 marks)</div>
+        <p>
+          <strong>2 marks</strong> - Constructor sets owner, beneficiary, unlockTime.<br>
+          <strong>2 marks</strong> - `deposit() payable` onlyOwner, emits event.<br>
+          <strong>3 marks</strong> - `withdraw()` only beneficiary, `require(block.timestamp >= unlockTime, "too early")`, transfers entire balance.<br>
+          <strong>2 marks</strong> - `emergencyWithdraw()` onlyOwner, transfers balance regardless of time.<br>
+          <strong>1 mark</strong> - Events: Deposited, Withdrawn.
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION D: SYSTEM DESIGN 1 -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section D - System Design 1: Decentralised Exchange on MST</div>
+      <div class="q-section-meta">10 marks &nbsp;·&nbsp; Time: 15 min</div>
+    </div>
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">SD1</div>
+        <div class="q-meta"><span class="q-type">System Design</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div>
+      </div>
+      <div class="q-text">
+        Design a decentralised token exchange (like Uniswap) that runs on MST blockchain. Discuss the smart contract architecture, the user flow for a swap, how you'd handle liquidity provision, and how you'd integrate MST-specific features (SARAL, WASMify, low fees). Draw a rough architecture diagram (describe it textually).
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Scheme (10 marks)</div>
+        <p>
+          <strong>3 marks</strong> - Clear contract separation: Factory, Pair (or Pool), Router. Explain constant product AMM.<br>
+          <strong>2 marks</strong> - User flow: Wallet connection (BridgeKey) → Router swap call → Pair executes transfer → events for indexing.<br>
+          <strong>2 marks</strong> - Liquidity: LP tokens, fee accrual, impermanent loss mention.<br>
+          <strong>2 marks</strong> - MST specifics: Use SARAL for mobile wallet login; WASMify for complex price computation off-chain; low fees enable micro-swaps.<br>
+          <strong>1 mark</strong> - Security: reentrancy guards, slippage protection (`minAmountOut`), Oracle usage for safety.
+        </p>
+      </div>
+    </div>
+
+    <!-- SECTION E: SYSTEM DESIGN 2 -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section E - System Design 2: NFT Marketplace with Royalties</div>
+      <div class="q-section-meta">10 marks &nbsp;·&nbsp; Time: 15 min</div>
+    </div>
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">SD2</div>
+        <div class="q-meta"><span class="q-type">System Design</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div>
+      </div>
+      <div class="q-text">
+        Design an NFT marketplace on MST where creators can mint NFTs (ERC-721) and list them for sale. Implement royalties: every secondary sale sends a percentage to the original creator. Discuss how you'd store metadata (IPFS), handle offers, and ensure the marketplace fee is configurable. Mention how you'd use MST's low fees for a better creator experience.
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Scheme (10 marks)</div>
+        <p>
+          <strong>3 marks</strong> - Contract design: NFT contract (ERC-721) + Marketplace contract (listing, buying, bidding). Royalty using EIP-2981.<br>
+          <strong>2 marks</strong> - Metadata: IPFS link stored in `tokenURI`. Frontend fetches JSON.<br>
+          <strong>2 marks</strong> - Listing flow: seller approves marketplace, lists with price. Buyer pays, marketplace transfers NFT, distributes fee and royalty.<br>
+          <strong>2 marks</strong> - MST: low gas enables cheap listing/cancel; SARAL for creator onboarding without seed phrase; WASMify for off-chain auction logic.<br>
+          <strong>1 mark</strong> - Security: reentrancy guard on purchase; ensure royalty payment cannot be bypassed.
+        </p>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 20.3 Assessment Summary</div>
+      <div class="score-row">Section A: Multi-Sig Wallet <span>(10 marks)</span></div>
+      <div class="score-row">Section B: Staking Pool <span>(10 marks)</span></div>
+      <div class="score-row">Section C: Time-Locked Vault <span>(10 marks)</span></div>
+      <div class="score-row">Section D: DEX System Design <span>(10 marks)</span></div>
+      <div class="score-row">Section E: NFT Marketplace Design <span>(10 marks)</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">50</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 20.3</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Multi-Signature (Multi-Sig)</div>
+    <div class="glossary-def">A smart contract requiring M-of-N owners to approve a transaction before it executes. Increases security for organisational funds.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Time-Lock</div>
+    <div class="glossary-def">A smart contract pattern that restricts access to funds until a future timestamp. Used for vesting, delayed payments, or security cooling-off periods.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Staking Pool</div>
+    <div class="glossary-def">A contract where users lock tokens to earn rewards, typically proportional to their stake and staking duration.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">AMM (Automated Market Maker)</div>
+    <div class="glossary-def">A decentralised exchange model that uses a mathematical formula (e.g., x*y=k) instead of an order book, enabling permissionless trading.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Reentrancy Attack</div>
+    <div class="glossary-def">A vulnerability where a malicious contract calls back into the victim contract before the first invocation finishes, potentially draining funds.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Gas Efficiency</div>
+    <div class="glossary-def">Optimising smart contract code to minimise transaction costs by using `calldata`, packing storage, and avoiding redundant operations.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">System Design Interview</div>
+    <div class="glossary-def">An open-ended discussion where the candidate designs the architecture, contracts, and infrastructure of a Web3 application, evaluated on structure and trade-off analysis.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">EIP-2981 (Royalty Standard)</div>
+    <div class="glossary-def">A standard that enables NFT marketplaces to retrieve royalty payment information, ensuring creators earn from secondary sales.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 20 · Sub-Module <strong>20.3</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 20.4 - Networking & Community →</p>
+</div>
+
+</body>
+</html>

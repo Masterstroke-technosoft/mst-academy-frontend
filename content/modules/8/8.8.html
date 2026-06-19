@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 8.8 - First dApp Contract: To-Do List | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #6C3CE2;
+            --brand-light: #EDE9FB;
+            --brand-dark: #3C1FA0;
+            --brand-mid: #8B5CF6;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --blue: #1D6FD8;
+            --blue-light: #DBEAFE;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 28px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 10px;
+            margin-top: 52px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.analogy {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .callout.analogy .callout-label {
+            color: #92400E;
+        }
+        .callout.insight {
+            background: #F0FDF4;
+            border-color: var(--green);
+        }
+        .callout.insight .callout-label {
+            color: var(--green);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .feature-content {
+            flex: 1;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        details {
+            margin: 16px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        details summary {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--brand-dark);
+            cursor: pointer;
+            background: var(--brand-light);
+            list-style: none;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '▶ ';
+            font-size: 12px;
+        }
+        details[open] summary::before {
+            content: '▼ ';
+        }
+        details .details-content {
+            padding: 0 18px 16px;
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+        .q-section-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .q-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .q-section-meta {
+            font-size: 12px;
+            color: var(--ink-3);
+        }
+        .question-block {
+            padding: 28px 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            padding-bottom: 28px;
+        }
+        .q-header {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .q-badge {
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .q-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .q-type {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--ink-3);
+        }
+        .q-diff {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .q-diff.easy {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .q-diff.medium {
+            background: var(--accent-light);
+            color: #92400E;
+        }
+        .q-diff.hard {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .q-marks {
+            font-size: 12px;
+            color: var(--ink-3);
+            margin-left: auto;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .q-text {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .options li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.5;
+            cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-3);
+            flex-shrink: 0;
+            margin-top: 1px;
+            min-width: 18px;
+        }
+        .options li.correct .opt-key {
+            color: var(--green);
+        }
+        .answer-box {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .answer-box p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .answer-box .marks-bd {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #86EFAC;
+            font-size: 13px;
+            color: #14532D;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .glossary-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .glossary-term {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .rubric-table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        .rubric-table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        .rubric-table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        .rubric-table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🚀 Module 8 &nbsp;·&nbsp; Sub-Module 8.8 of 8</div>
+    <h1 class="module-title">First dApp Contract: <span class="highlight">To-Do List</span></h1>
+    <p class="module-subtitle">Your first full-stack decentralized application. From a blank VS Code window to a working React frontend connected to a smart contract on the MST testnet - every line of code explained, every decision justified, every concept from Modules 1-8 brought together in one project.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 30 Marks (Mini Project)</div>
+        <div class="meta-chip">📋 GitHub Repo + Contract + Tests + Frontend</div>
+        <div class="meta-chip green">Phase 2 · Development Environment & Solidity</div>
+    </div>
+
+    <!-- 1. LEARNING OBJECTIVES -->
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will have built…</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+        <div class="feature-item"><div class="feature-num">📝</div><div class="feature-content"><strong>A complete Solidity smart contract</strong> for a decentralized To-Do List with task creation, completion toggling, and event logging - deployed to the MST testnet.</div></div>
+        <div class="feature-item"><div class="feature-num">🧪</div><div class="feature-content"><strong>A comprehensive test suite</strong> using Hardhat and Chai that validates every function, edge case, and event emission in your contract.</div></div>
+        <div class="feature-item"><div class="feature-num">🖥️</div><div class="feature-content"><strong>A React frontend</strong> built with Vite, connected to your contract via ethers.js and the MST SDK - users can add tasks, toggle completion, and view the list.</div></div>
+        <div class="feature-item"><div class="feature-num">🌐</div><div class="feature-content"><strong>A deployed, verified, and fully functional dApp</strong> that you can share as a portfolio piece and use as a template for all future projects.</div></div>
+    </div>
+
+    <!-- 2. REAL-WORLD STORY -->
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Intern's First dApp That Landed a Job</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>Aarav, a final-year engineering student from Jaipur, had spent months learning Solidity from tutorials. He understood mappings, modifiers, and events. But when he sat for an interview at a Web3 startup, the interviewer didn't ask him to explain mappings. The interviewer opened a browser, navigated to MSTScan, and said: <strong>"Show me a contract you deployed. Walk me through the code, the tests, and the frontend. Prove you can build."</strong></p>
+        <br>
+        <p>Aarav pulled up his To-Do List dApp - a project he had built by following this exact sub-module. He showed the Solidity contract with its Task struct and toggle function. He demonstrated the test suite, pointing out how he tested edge cases like toggling a non-existent task. He showed the React frontend, explaining how he used ethers.js to read from and write to the blockchain. He even walked the interviewer through the deployment transaction on MSTScan.</p>
+        <br>
+        <p>Twenty minutes later, the interviewer said: <strong>"This is exactly what we look for. Not theory. Not multiple-choice answers. A working dApp with clean code, tests, and a frontend. When can you start?"</strong> Aarav got the job - not because he memorized definitions, but because he had built something real, deployed it, and could explain every decision. This sub-module is where you build your Aarav moment.</p>
+    </div>
+
+    <!-- 3. PROJECT PLANNING -->
+    <div class="section-label">03 &nbsp; Project Planning</div>
+    <h2 class="section-title">What Are We Building? Requirements & Architecture</h2>
+    <p>Before writing a single line of code, we define exactly what our dApp must do. A clear specification prevents scope creep, ensures we build the right thing, and gives us a checklist for testing.</p>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">1</div>
+            <div class="feature-content">
+                <div class="feature-title">Functional Requirements</div>
+                <div class="feature-desc"><strong>Create Task:</strong> Any user can add a new task with a text description. The task is stored on the blockchain with a unique ID.<br><strong>Toggle Task:</strong> Any user can mark a task as completed or uncompleted by its ID.<br><strong>View All Tasks:</strong> Anyone can read the complete list of tasks - no gas cost, no wallet required.<br><strong>View Task Count:</strong> Anyone can see how many tasks exist.<br><strong>Events:</strong> The contract emits events when tasks are created or toggled, enabling frontend reactivity.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">2</div>
+            <div class="feature-content">
+                <div class="feature-title">Architecture Decisions</div>
+                <div class="feature-desc"><strong>Smart Contract:</strong> A single Solidity contract (TodoList.sol) that manages all task data and logic. No ownership restrictions - anyone can add and toggle tasks for simplicity.<br><strong>Data Structure:</strong> A struct for Task (id, content, completed) and a dynamic array to store all tasks.<br><strong>Frontend:</strong> React with Vite for fast builds, ethers.js for blockchain interaction, and Tailwind CSS for styling.<br><strong>Network:</strong> Deploy to MST Testnet (Chain ID 4545) for testing and demonstration.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">3</div>
+            <div class="feature-content">
+                <div class="feature-title">Tech Stack</div>
+                <div class="feature-desc"><strong>Smart Contract:</strong> Solidity 0.8.20, Hardhat framework<br><strong>Testing:</strong> Hardhat + Chai + ethers.js<br><strong>Frontend:</strong> React 18 + Vite + ethers.js + MST SDK<br><strong>Deployment:</strong> Hardhat scripts to MST Testnet (RPC: https://testnetrpc.mstblockchain.com)<br><strong>Version Control:</strong> Git + GitHub (public repository)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.8-A · To-Do List dApp Architecture</div>
+        <pre>
+┌──────────────────────────────────────────────────────────────────────┐
+│                        THE USER                                       │
+│  Opens browser → Connects MST BridgeKey wallet → Uses dApp           │
+└──────────────────────┬───────────────────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                    REACT FRONTEND (Vite)                               │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────────────┐  │
+│  │   AddTaskForm  │  │   TaskList     │  │   WalletConnect        │  │
+│  │   (write tx)   │  │   (read data)  │  │   (BridgeKey)          │  │
+│  └───────┬────────┘  └───────┬────────┘  └───────────┬────────────┘  │
+│          │                   │                       │               │
+│          └───────────────────┼───────────────────────┘               │
+│                              │                                        │
+│                     ethers.js + MST SDK                                │
+│                     (contract ABI + address)                           │
+└──────────────────────┬───────────────────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────────────────┐
+│                   MST TESTNET (Chain ID 4545)                         │
+│  ┌────────────────────────────────────────────────────────────────┐  │
+│  │              TodoList.sol (deployed contract)                   │  │
+│  │  Task[] public tasks;                                          │  │
+│  │  function createTask(string) public;                            │  │
+│  │  function toggleCompleted(uint) public;                         │  │
+│  │  function getTaskCount() public view returns (uint);            │  │
+│  │  event TaskCreated(uint id, string content);                    │  │
+│  │  event TaskToggled(uint id, bool completed);                    │  │
+│  └────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">The three-layer architecture: React frontend → ethers.js/MST SDK → Smart Contract on MST Testnet.</div>
+    </div>
+
+    <!-- 4. SMART CONTRACT DEVELOPMENT -->
+    <div class="section-label">04 &nbsp; Smart Contract</div>
+    <h2 class="section-title">The TodoList Smart Contract - Complete Code & Explanation</h2>
+    <p>Below is the complete, production-ready TodoList smart contract. Every design decision is explained. Copy this code into <strong>contracts/TodoList.sol</strong> in your Hardhat project.</p>
+
+    <div class="code-block-wrap">
+        <pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/**
+ * @title TodoList
+ * @notice A decentralized to‑do list where anyone can add tasks and toggle completion.
+ *         All data is stored permanently on the blockchain.
+ * @dev Uses a dynamic array of Task structs. No access control for simplicity.
+ */
+contract TodoList {
+
+    // ─── DATA STRUCTURE ───
+
+    /**
+     * @dev Represents a single task in the to‑do list.
+     * @param id The unique identifier (index in the tasks array).
+     * @param content The text description of the task.
+     * @param completed Whether the task has been marked as completed.
+     */
+    struct Task {
+        uint256 id;
+        string content;
+        bool completed;
+    }
+
+    // ─── STATE VARIABLES ───
+
+    /// @notice The dynamic array storing all tasks. Public visibility auto‑generates a getter.
+    Task[] public tasks;
+
+    // ─── EVENTS ───
+
+    /**
+     * @notice Emitted when a new task is created.
+     * @param id The unique identifier of the new task.
+     * @param content The text description of the new task.
+     */
+    event TaskCreated(uint256 indexed id, string content);
+
+    /**
+     * @notice Emitted when a task's completion status is toggled.
+     * @param id The unique identifier of the toggled task.
+     * @param completed The new completion status.
+     */
+    event TaskToggled(uint256 indexed id, bool completed);
+
+    // ─── FUNCTIONS ───
+
+    /**
+     * @notice Creates a new task and adds it to the list.
+     * @param content The text description of the task (cannot be empty).
+     * @return The ID of the newly created task.
+     */
+    function createTask(string memory content) public returns (uint256) {
+        // Validate input
+        require(bytes(content).length > 0, "Task content cannot be empty");
+        require(bytes(content).length <= 280, "Task content too long (max 280 chars)");
+
+        uint256 taskId = tasks.length;
+
+        // Push a new Task struct to the array
+        tasks.push(Task({
+            id: taskId,
+            content: content,
+            completed: false
+        }));
+
+        // Emit event for frontend to listen
+        emit TaskCreated(taskId, content);
+
+        return taskId;
+    }
+
+    /**
+     * @notice Toggles the completion status of a task by its ID.
+     * @param taskId The ID of the task to toggle.
+     */
+    function toggleCompleted(uint256 taskId) public {
+        // Validate that the task exists
+        require(taskId < tasks.length, "Task does not exist");
+
+        // Toggle the completed flag
+        tasks[taskId].completed = !tasks[taskId].completed;
+
+        // Emit event for frontend to listen
+        emit TaskToggled(taskId, tasks[taskId].completed);
+    }
+
+    /**
+     * @notice Returns the total number of tasks.
+     * @return The current length of the tasks array.
+     */
+    function getTaskCount() public view returns (uint256) {
+        return tasks.length;
+    }
+
+    /**
+     * @notice Returns all tasks. Useful for frontend display.
+     * @return An array of all Task structs.
+     * @dev Be careful: if the array is very large, this may hit gas limits when called on‑chain.
+     *      For this project, the array is small. For production, consider pagination.
+     */
+    function getAllTasks() public view returns (Task[] memory) {
+        return tasks;
+    }
+}</pre>
+    </div>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 Design Decisions Explained</div>
+        <p><strong>Why an array instead of a mapping?</strong> An array allows easy iteration over all tasks for display. A mapping would be more gas-efficient for lookups but would require additional tracking of keys for iteration. For a to-do list with a reasonable number of tasks, the array is the simpler, more readable choice.</p>
+        <p><strong>Why no access control?</strong> This is an intentionally open contract - anyone can add tasks and toggle any task. This keeps the project focused on the core concepts without the complexity of ownership. In a production app, you would likely restrict task modification to the task creator using msg.sender tracking.</p>
+        <p><strong>Why events?</strong> Events allow the frontend to react to blockchain state changes without polling. When a user adds a task, the TaskCreated event fires, and the frontend listener updates the UI instantly - providing a Web2-like user experience.</p>
+    </div>
+
+    <!-- 5. COMPREHENSIVE TESTING -->
+    <div class="section-label">05 &nbsp; Testing</div>
+    <h2 class="section-title">Writing a Comprehensive Test Suite</h2>
+    <p>Testing smart contracts is <strong>not optional</strong> - it is the most important part of development. Smart contracts handle real money and cannot be patched after deployment. Every function, every edge case, every revert condition must be tested. Here is the complete test file for our TodoList contract.</p>
+
+    <div class="code-block-wrap">
+        <pre>// test/TodoList.test.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
+
+describe("TodoList Contract", function () {
+    let TodoList;
+    let todoList;
+    let owner;
+    let addr1;
+
+    // Deploy a fresh contract before each test
+    beforeEach(async function () {
+        TodoList = await ethers.getContractFactory("TodoList");
+        [owner, addr1] = await ethers.getSigners();
+        todoList = await TodoList.deploy();
+        await todoList.waitForDeployment();
+    });
+
+    describe("Deployment", function () {
+        it("Should start with zero tasks", async function () {
+            expect(await todoList.getTaskCount()).to.equal(0);
+        });
+
+        it("Should return an empty array for getAllTasks", async function () {
+            const allTasks = await todoList.getAllTasks();
+            expect(allTasks.length).to.equal(0);
+        });
+    });
+
+    describe("createTask", function () {
+        it("Should create a task and increment the count", async function () {
+            await todoList.createTask("Learn Solidity");
+            expect(await todoList.getTaskCount()).to.equal(1);
+        });
+
+        it("Should store the correct task content", async function () {
+            await todoList.createTask("Build a dApp");
+            const task = await todoList.tasks(0);
+            expect(task.content).to.equal("Build a dApp");
+            expect(task.completed).to.equal(false);
+            expect(task.id).to.equal(0);
+        });
+
+        it("Should emit a TaskCreated event", async function () {
+            await expect(todoList.createTask("Write tests"))
+                .to.emit(todoList, "TaskCreated")
+                .withArgs(0, "Write tests");
+        });
+
+        it("Should revert if content is empty", async function () {
+            await expect(
+                todoList.createTask("")
+            ).to.be.revertedWith("Task content cannot be empty");
+        });
+
+        it("Should revert if content exceeds 280 characters", async function () {
+            const longString = "a".repeat(281);
+            await expect(
+                todoList.createTask(longString)
+            ).to.be.revertedWith("Task content too long");
+        });
+
+        it("Should allow multiple tasks to be created", async function () {
+            await todoList.createTask("Task 1");
+            await todoList.createTask("Task 2");
+            await todoList.createTask("Task 3");
+            expect(await todoList.getTaskCount()).to.equal(3);
+        });
+
+        it("Should allow any address to create a task", async function () {
+            await todoList.connect(addr1).createTask("Task from addr1");
+            const task = await todoList.tasks(0);
+            expect(task.content).to.equal("Task from addr1");
+        });
+    });
+
+    describe("toggleCompleted", function () {
+        beforeEach(async function () {
+            await todoList.createTask("Test Task");
+        });
+
+        it("Should toggle completed from false to true", async function () {
+            await todoList.toggleCompleted(0);
+            const task = await todoList.tasks(0);
+            expect(task.completed).to.equal(true);
+        });
+
+        it("Should toggle completed from true back to false", async function () {
+            await todoList.toggleCompleted(0); // false → true
+            await todoList.toggleCompleted(0); // true → false
+            const task = await todoList.tasks(0);
+            expect(task.completed).to.equal(false);
+        });
+
+        it("Should emit a TaskToggled event", async function () {
+            await expect(todoList.toggleCompleted(0))
+                .to.emit(todoList, "TaskToggled")
+                .withArgs(0, true);
+        });
+
+        it("Should revert if task ID does not exist", async function () {
+            await expect(
+                todoList.toggleCompleted(999)
+            ).to.be.revertedWith("Task does not exist");
+        });
+
+        it("Should allow any address to toggle a task", async function () {
+            await todoList.connect(addr1).toggleCompleted(0);
+            const task = await todoList.tasks(0);
+            expect(task.completed).to.equal(true);
+        });
+    });
+
+    describe("getAllTasks", function () {
+        it("Should return all tasks in order", async function () {
+            await todoList.createTask("First");
+            await todoList.createTask("Second");
+            await todoList.createTask("Third");
+
+            const allTasks = await todoList.getAllTasks();
+            expect(allTasks.length).to.equal(3);
+            expect(allTasks[0].content).to.equal("First");
+            expect(allTasks[1].content).to.equal("Second");
+            expect(allTasks[2].content).to.equal("Third");
+        });
+
+        it("Should return tasks with correct completion status", async function () {
+            await todoList.createTask("Task A");
+            await todoList.createTask("Task B");
+            await todoList.toggleCompleted(0);
+
+            const allTasks = await todoList.getAllTasks();
+            expect(allTasks[0].completed).to.equal(true);
+            expect(allTasks[1].completed).to.equal(false);
+        });
+    });
+});</pre>
+    </div>
+
+    <div class="callout insight">
+        <div class="callout-label">💡 Testing Best Practices</div>
+        <p>Notice how each test is <strong>independent</strong> - the <code>beforeEach</code> block deploys a fresh contract for every test. This ensures tests don't interfere with each other. Also notice how we test both <strong>happy paths</strong> (normal usage) and <strong>sad paths</strong> (invalid inputs, reverts). Both are equally important.</p>
+    </div>
+
+    <!-- 6. DEPLOYMENT -->
+    <div class="section-label">06 &nbsp; Deployment</div>
+    <h2 class="section-title">Deploying to the MST Testnet</h2>
+    <p>With the contract written and tested, we deploy to the MST Testnet where real users can interact with it. Here is the deployment script and the Hardhat configuration.</p>
+
+    <div class="code-block-wrap">
+        <pre>// scripts/deploy.js
+const hre = require("hardhat");
+
+async function main() {
+    console.log("Deploying TodoList to MST Testnet...");
+
+    const TodoList = await hre.ethers.getContractFactory("TodoList");
+    const todoList = await TodoList.deploy();
+    await todoList.waitForDeployment();
+
+    const address = await todoList.getAddress();
+    console.log("TodoList deployed to:", address);
+    console.log("Verify with: npx hardhat verify --network mst_testnet", address);
+}
+
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});</pre>
+    </div>
+
+    <div class="code-block-wrap">
+        <pre>// hardhat.config.js (MST Testnet network configuration)
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+
+module.exports = {
+    solidity: "0.8.20",
+    networks: {
+        mst_testnet: {
+            url: "https://testnetrpc.mstblockchain.com",
+            chainId: 4545,
+            accounts: [process.env.PRIVATE_KEY]
+        }
+    }
+};</pre>
+    </div>
+
+    <!-- 7. FRONTEND DEVELOPMENT -->
+    <div class="section-label">07 &nbsp; Frontend</div>
+    <h2 class="section-title">Building the React Frontend with Vite</h2>
+    <p>The frontend is where users interact with your smart contract. We'll build it with React (using Vite for fast setup), ethers.js for blockchain interaction, and Tailwind CSS for styling. The frontend connects to the user's MST BridgeKey wallet and provides a clean interface for managing tasks.</p>
+
+    <p><strong>Project Setup:</strong></p>
+    <div class="code-block-wrap">
+        <pre># Create a new Vite React project
+npm create vite@latest todo-frontend -- --template react
+cd todo-frontend
+npm install ethers
+npm install -D tailwindcss @tailwindcss/vite
+# Copy your contract ABI from artifacts/contracts/TodoList.sol/TodoList.json
+# into src/abis/TodoList.json</pre>
+    </div>
+
+    <p><strong>The Main App Component (src/App.jsx):</strong></p>
+    <div class="code-block-wrap">
+        <pre>import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import TodoListABI from './abis/TodoList.json';
+
+const CONTRACT_ADDRESS = "0x_YOUR_DEPLOYED_CONTRACT_ADDRESS_"; // Replace!
+
+function App() {
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [contract, setContract] = useState(null);
+    const [account, setAccount] = useState('');
+    const [tasks, setTasks] = useState([]);
+    const [newTask, setNewTask] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    // Connect wallet
+    const connectWallet = async () => {
+        if (window.ethereum) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, TodoListABI.abi, signer);
+
+            setProvider(provider);
+            setSigner(signer);
+            setContract(contract);
+            setAccount(address);
+
+            // Listen for account changes
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) disconnectWallet();
+                else setAccount(accounts[0]);
+            });
+        } else {
+            alert('Please install MST BridgeKey or MetaMask!');
+        }
+    };
+
+    const disconnectWallet = () => {
+        setProvider(null); setSigner(null); setContract(null);
+        setAccount(''); setTasks([]);
+    };
+
+    // Fetch all tasks
+    const fetchTasks = async () => {
+        if (!contract) return;
+        const allTasks = await contract.getAllTasks();
+        setTasks(allTasks.map(t => ({
+            id: Number(t.id),
+            content: t.content,
+            completed: t.completed
+        })));
+    };
+
+    // Add a new task
+    const addTask = async (e) => {
+        e.preventDefault();
+        if (!contract || !newTask.trim()) return;
+        setLoading(true);
+        try {
+            const tx = await contract.createTask(newTask.trim());
+            await tx.wait();
+            setNewTask('');
+            await fetchTasks();
+        } catch (err) {
+            alert('Error: ' + (err.reason || err.message));
+        }
+        setLoading(false);
+    };
+
+    // Toggle task completion
+    const toggleTask = async (taskId) => {
+        if (!contract) return;
+        setLoading(true);
+        try {
+            const tx = await contract.toggleCompleted(taskId);
+            await tx.wait();
+            await fetchTasks();
+        } catch (err) {
+            alert('Error: ' + (err.reason || err.message));
+        }
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        if (contract) fetchTasks();
+    }, [contract]);
+
+    return (
+        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+            <h1>📝 Decentralized To‑Do List</h1>
+
+            {!account ? (
+                <button onClick={connectWallet} style={{ padding: '12px 24px', fontSize: '16px' }}>
+                    Connect MST BridgeKey
+                </button>
+            ) : (
+                <>
+                    <p>Connected: {account.slice(0, 6)}...{account.slice(-4)}</p>
+                    <button onClick={disconnectWallet}>Disconnect</button>
+
+                    <form onSubmit={addTask} style={{ marginTop: '20px' }}>
+                        <input
+                            type="text"
+                            value={newTask}
+                            onChange={(e) => setNewTask(e.target.value)}
+                            placeholder="Enter a new task..."
+                            style={{ padding: '10px', width: '70%', fontSize: '16px' }}
+                        />
+                        <button type="submit" disabled={loading}
+                            style={{ padding: '10px 20px', marginLeft: '10px', fontSize: '16px' }}>
+                            {loading ? 'Adding...' : 'Add Task'}
+                        </button>
+                    </form>
+
+                    <div style={{ marginTop: '30px' }}>
+                        {tasks.length === 0 ? (
+                            <p>No tasks yet. Add one above!</p>
+                        ) : (
+                            tasks.map((task) => (
+                                <div key={task.id} style={{
+                                    display: 'flex', alignItems: 'center',
+                                    padding: '10px', border: '1px solid #ddd',
+                                    marginBottom: '8px', borderRadius: '8px',
+                                    background: task.completed ? '#e8f5e9' : '#fff'
+                                }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={task.completed}
+                                        onChange={() => toggleTask(task.id)}
+                                        disabled={loading}
+                                    />
+                                    <span style={{
+                                        marginLeft: '10px', flex: 1,
+                                        textDecoration: task.completed ? 'line-through' : 'none',
+                                        color: task.completed ? '#888' : '#000'
+                                    }}>
+                                        {task.content}
+                                    </span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+export default App;</pre>
+    </div>
+
+    <div class="callout warning">
+        <div class="callout-label">⚠️ Critical: Update CONTRACT_ADDRESS</div>
+        <p>Replace <strong>0x_YOUR_DEPLOYED_CONTRACT_ADDRESS_</strong> with the actual address output by your deployment script. This is the link between your frontend and your specific deployed contract on the MST Testnet.</p>
+    </div>
+
+    <!-- 8. COMPLETE WORKFLOW -->
+    <div class="section-label">08 &nbsp; Complete Workflow</div>
+    <h2 class="section-title">The End-to-End Journey - Step by Step</h2>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.8-B · The Complete To-Do dApp Development Workflow</div>
+        <pre>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  STEP 1              STEP 2              STEP 3              STEP 4          │
+│  Initialize          Write Smart         Write Tests         Deploy to       │
+│  Hardhat Project     Contract            (Hardhat/Chai)      MST Testnet     │
+│                                                                              │
+│  npx hardhat init    contracts/          test/               npx hardhat run │
+│  npm install         TodoList.sol        TodoList.test.js    scripts/deploy  │
+│  (dependencies)      (200 lines)         (150 lines)         --network        │
+│                                                                mst_testnet    │
+│       │                   │                   │                   │          │
+│       ▼                   ▼                   ▼                   ▼          │
+│  package.json        Task struct         17 tests total       Contract at     │
+│  hardhat.config      createTask()        All passing ✅       0x7a3b...       │
+│  .gitignore          toggleCompleted()   Deployment test      on MST Testnet  │
+│  .env                getAllTasks()       Event tests          Chain ID 4545   │
+│                      getTaskCount()      Revert tests                         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  STEP 5              STEP 6              STEP 7              STEP 8          │
+│  Create React        Install ethers.js   Build Frontend      Connect & Test  │
+│  Project (Vite)      & Copy ABI         Components           End‑to‑End      │
+│                                                                              │
+│  npm create vite@    npm install         App.jsx             Connect wallet  │
+│  latest todo-        ethers              AddTaskForm         Add 3 tasks     │
+│  frontend            Copy ABI JSON       TaskList            Toggle 2 tasks  │
+│                       to src/abis/       TaskItem            Verify on       │
+│                                          WalletConnect       MSTScan         │
+│       │                   │                   │                   │          │
+│       ▼                   ▼                   ▼                   ▼          │
+│  React + Vite         ethers.js           Working dApp        Portfolio      │
+│  Tailwind CSS         Contract instance   Full‑stack          piece ready    │
+│                        connects to MST    blockchain app      for GitHub     │
+└─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">Eight steps from empty folder to a deployed, functional, full-stack dApp on the MST Testnet.</div>
+    </div>
+
+    <!-- 9. ASSESSMENT PREP -->
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">The complete dApp stack: Solidity (contract) → Hardhat (compile/test/deploy) → ethers.js (interact) → React (frontend).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">Events (TaskCreated, TaskToggled) enable the frontend to react to blockchain state changes without polling.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">The ABI (Application Binary Interface) is the bridge between your frontend JavaScript and your deployed Solidity contract.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Hardhat tests use beforeEach to deploy a fresh contract for each test, ensuring test isolation.</div></div></div>
+    </div>
+
+    <!-- 10. ASSESSMENT -->
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 8.8 Assessment - Mini Project</h2>
+            <div class="marks-total-badge"><div class="num">30</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+            <div class="q-section-header"><div class="q-section-title">Project Submission Requirements</div><div class="q-section-meta">Submit a GitHub repository with all deliverables</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">R1</div><div class="q-meta"><span class="q-type">Deliverable</span><span class="q-diff medium">Required</span><span class="q-marks">10 marks</span></div></div>
+                <div class="q-text"><strong>Smart Contract (TodoList.sol) - 10 marks</strong><br>Submit the complete Solidity contract with the Task struct, createTask, toggleCompleted, getTaskCount, and getAllTasks functions. Must include events and proper input validation. The contract must compile successfully with Solidity 0.8.20.</div>
+                <div class="answer-box">
+                    <div class="answer-box-label">📊 Grading Rubric</div>
+                    <p><strong>4 marks:</strong> Correct Task struct and state variable (array).<br><strong>3 marks:</strong> createTask with validation and event emission.<br><strong>2 marks:</strong> toggleCompleted with existence check and event emission.<br><strong>1 mark:</strong> getTaskCount and getAllTasks view functions.</p>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">R2</div><div class="q-meta"><span class="q-type">Deliverable</span><span class="q-diff medium">Required</span><span class="q-marks">8 marks</span></div></div>
+                <div class="q-text"><strong>Test Suite (TodoList.test.js) - 8 marks</strong><br>Submit a Hardhat test file with at least 12 tests covering deployment, task creation (including edge cases like empty content), task toggling (including non-existent task ID), and event emission verification.</div>
+                <div class="answer-box">
+                    <div class="answer-box-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> Deployment tests (initial state).<br><strong>3 marks:</strong> createTask tests (happy path + empty string + long string + event).<br><strong>2 marks:</strong> toggleCompleted tests (toggle + double toggle + non-existent ID + event).<br><strong>1 mark:</strong> getAllTasks test verifying correct ordering.</p>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">R3</div><div class="q-meta"><span class="q-type">Deliverable</span><span class="q-diff medium">Required</span><span class="q-marks">6 marks</span></div></div>
+                <div class="q-text"><strong>Deployment to MST Testnet - 6 marks</strong><br>Submit the deployment script, the deployed contract address on MST Testnet (Chain ID 4545), and a link to the verified contract on MSTScan. The contract must be verified so source code is visible on the explorer.</div>
+                <div class="answer-box">
+                    <div class="answer-box-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> Correct deployment script.<br><strong>2 marks:</strong> Successful deployment to MST Testnet (contract address provided).<br><strong>2 marks:</strong> Contract verified on MSTScan (source code visible).</p>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">R4</div><div class="q-meta"><span class="q-type">Deliverable</span><span class="q-diff hard">Required</span><span class="q-marks">6 marks</span></div></div>
+                <div class="q-text"><strong>React Frontend - 6 marks</strong><br>Submit the complete React frontend built with Vite that includes: wallet connection (BridgeKey or MetaMask), display of all tasks with completion status, a form to add new tasks, and the ability to toggle task completion. The frontend must be connected to your deployed MST Testnet contract.</div>
+                <div class="answer-box">
+                    <div class="answer-box-label">📊 Grading Rubric</div>
+                    <p><strong>2 marks:</strong> Wallet connection and account display.<br><strong>2 marks:</strong> Task display with correct completion status and styling.<br><strong>2 marks:</strong> Add task form and toggle functionality with transaction handling.</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-left">
+                <div class="score-label">Sub-Module 8.8 Assessment Summary</div>
+                <div class="score-row">R1: Smart Contract = 10 marks</div>
+                <div class="score-row">R2: Test Suite = 8 marks</div>
+                <div class="score-row">R3: Deployment & Verification = 6 marks</div>
+                <div class="score-row">R4: React Frontend = 6 marks</div>
+            </div>
+            <div class="score-badge"><div class="score-num">30</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <!-- 11. SUBMISSION CHECKLIST -->
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Submission Checklist</div>
+    <h2 class="section-title">Before You Submit - The Final Review</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">All Solidity code compiles with 0.8.20 without warnings.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">All 17 tests pass (or more, if you added extra edge cases).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">Contract deployed and verified on MST Testnet (MSTScan link works).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">React frontend connects to BridgeKey, displays tasks, adds tasks, and toggles completion.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">GitHub repository is public with a clear README containing setup instructions, screenshots, and the deployed contract address.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--green);">✓</div><div class="feature-content"><div class="feature-title">.env and private keys are NOT committed to GitHub (check .gitignore).</div></div></div>
+    </div>
+
+    <!-- 12. GLOSSARY -->
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 8.8</h2>
+    <div class="glossary-grid">
+        <div class="glossary-item"><div class="glossary-term">dApp</div><div class="glossary-def">Decentralized Application - a frontend (web/mobile) connected to a smart contract backend on a blockchain.</div></div>
+        <div class="glossary-item"><div class="glossary-term">ABI</div><div class="glossary-def">Application Binary Interface - a JSON file that describes a contract's functions and parameters, used by ethers.js to interact with deployed contracts.</div></div>
+        <div class="glossary-item"><div class="glossary-term">BrowserProvider</div><div class="glossary-def">An ethers.js class that connects to the user's wallet (BridgeKey/MetaMask) via window.ethereum.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Signer</div><div class="glossary-def">An ethers.js object representing a wallet that can sign and send transactions to the blockchain.</div></div>
+        <div class="glossary-item"><div class="glossary-term">waitForDeployment</div><div class="glossary-def">A Hardhat method that waits until a contract deployment transaction is confirmed on the blockchain.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Vite</div><div class="glossary-def">A fast build tool and development server for modern JavaScript projects. Used as an alternative to Create React App.</div></div>
+        <div class="glossary-item"><div class="glossary-term">MSTScan</div><div class="glossary-def">The block explorer for MST Blockchain where you can view transactions, blocks, and verified contract source code.</div></div>
+        <div class="glossary-item"><div class="glossary-term">beforeEach</div><div class="glossary-def">A Mocha/Chai hook that runs before every test case, used to deploy a fresh contract for test isolation.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 8 · Sub-Module <strong>8.8</strong> of 8 · Next: Module 9 - Capstone Kickoff →</p>
+    </div>
+
+</body>
+</html>

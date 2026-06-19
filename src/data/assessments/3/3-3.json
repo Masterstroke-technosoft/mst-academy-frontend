@@ -1,0 +1,160 @@
+{
+  "submoduleId": "3.3",
+  "totalMarks": 10,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which hash algorithm does Ethereum (and MST Blockchain, as an EVM-compatible chain) use internally - including for the <code>keccak256()</code> Solidity opcode?",
+      "options": [
+        {
+          "key": "A",
+          "text": "SHA-256",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "MD5",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Keccak-256",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "BLAKE2b",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "Ethereum chose Keccak-256 (the 2012 SHA-3 competition winner) for all internal operations - including address derivation, transaction hashing, and the keccak256() Solidity built-in. Bitcoin uses SHA-256. MD5 is a broken 128-bit hash not used in any serious blockchain. BLAKE2b is a modern high-speed hash used in some contexts (e.g., Zcash) but not Ethereum/MST.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p>Ethereum chose <strong>Keccak-256</strong> (the 2012 SHA-3 competition winner) for all internal operations - including address derivation, transaction hashing, and the <code>keccak256()</code> Solidity built-in. Bitcoin uses SHA-256. MD5 is a broken 128-bit hash not used in any serious blockchain. BLAKE2b is a modern high-speed hash used in some contexts (e.g., Zcash) but not Ethereum/MST.</p>\n        <div class=\"marks-bd\"><span>Common trap:</span> Ethereum's Keccak-256 is NOT identical to NIST's final SHA-3 standard - they use different padding. They produce different outputs for the same input.</div>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "You hash a 50 MB video file using SHA-256. What is the size of the output?",
+      "options": [
+        {
+          "key": "A",
+          "text": "50 MB (same as input)",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "25 MB (half of input)",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Exactly 256 bits (32 bytes = 64 hexadecimal characters)",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "Variable - depends on input content",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "SHA-256 always produces exactly 256 bits = 32 bytes = 64 hexadecimal characters - regardless of input size. Hash \"a\" (1 byte) or a 50 MB video - the output is always 64 hex chars. This is the \"Fixed Output Size\" property. It's what makes block header PrevHash fields a predictable 32 bytes.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p>SHA-256 always produces exactly <strong>256 bits</strong> = 32 bytes = 64 hexadecimal characters - regardless of input size. Hash \"a\" (1 byte) or a 50 MB video - the output is always 64 hex chars. This is the \"Fixed Output Size\" property. It's what makes block header PrevHash fields a predictable 32 bytes.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "The \"avalanche effect\" in cryptographic hashing means:",
+      "options": [
+        {
+          "key": "A",
+          "text": "Large inputs cause the hash function to run slower",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Running the hash function multiple times produces a more secure output",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "A tiny change in the input (even a single bit) produces a completely different output",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "The hash function gets faster as block count increases",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "The avalanche effect is the property that a minimal input change causes a drastic output change - roughly half the output bits flip. Changing \"Hello!\" to \"Hello.\" (one character) produces a completely different SHA-256 hash. This is critical for blockchain: it means any tampering with a block's data changes its hash dramatically - making subtle, undetectable forgery impossible.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p>The <strong>avalanche effect</strong> is the property that a minimal input change causes a drastic output change - roughly half the output bits flip. Changing \"Hello!\" to \"Hello.\" (one character) produces a completely different SHA-256 hash. This is critical for blockchain: it means any tampering with a block's data changes its hash dramatically - making subtle, undetectable forgery impossible.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "UIDAI (Aadhaar) stores a hash of your biometric data rather than the biometric image itself. Which property of cryptographic hash functions makes this secure?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Determinism - same fingerprint always produces the same hash",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Fixed output size - the hash is smaller than the fingerprint image",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Pre-image resistance - the hash cannot be reversed to reconstruct the original fingerprint",
+          "isCorrect": true
+        },
+        {
+          "key": "D",
+          "text": "Collision resistance - no two fingerprints produce the same hash",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "C",
+      "explanation": "Pre-image resistance (one-way property) is what makes storing a biometric hash secure. Even if an attacker steals the entire hash database, they cannot compute the original fingerprint from the hash - the function is irreversible. Note that Determinism (A) and Collision Resistance (D) are also relevant properties for Aadhaar's functioning, but they are not what makes it secure against database theft - that specific security property is pre-image resistance.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: C - Explanation</div>\n        <p><strong>Pre-image resistance</strong> (one-way property) is what makes storing a biometric hash secure. Even if an attacker steals the entire hash database, they cannot compute the original fingerprint from the hash - the function is irreversible. Note that Determinism (A) and Collision Resistance (D) are also relevant properties for Aadhaar's functioning, but they are not what makes it <em>secure</em> against database theft - that specific security property is pre-image resistance.</p>\n        <div class=\"marks-bd\"><span>Exam tip:</span> When a question asks specifically about \"protecting stored data\" or \"security against database breaches,\" the answer is pre-image resistance.</div>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "other",
+      "difficulty": "Medium",
+      "marks": 5,
+      "text": "Complete the following Solidity smart contract. It should:<br><br>\n        (a) Implement a function <code>hashEntry()</code> that takes a <code>string</code> (player name) and a <code>uint256</code> (score), and returns their <code>keccak256</code> hash as a unique record ID. <em>(2 marks)</em><br><br>\n        (b) Implement a function <code>storeEntry()</code> that stores this hash in a mapping from the caller's address to their record ID. <em>(1 mark)</em><br><br>\n        (c) Implement a function <code>verifyEntry()</code> that takes a player name and score, recomputes the hash, and checks if it matches the stored record ID for the caller. Returns <code>true</code> if it matches. <em>(2 marks)</em>",
+      "explanation": "Marks Breakdown:",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Complete Model Answer</div>\n        <div class=\"code-wrap\" style=\"margin:12px 0;\">\n          <div class=\"code-header\">\n            <div class=\"code-lang\">Solidity · Complete Solution</div>\n            <div class=\"code-dots\"><div class=\"code-dot\" style=\"background:#FF5F56\"></div><div class=\"code-dot\" style=\"background:#FFBD2E\"></div><div class=\"code-dot\" style=\"background:#27C93F\"></div></div>\n          </div>\n          <div class=\"code-body\">\n<pre><span class=\"c-cmt\">// SPDX-License-Identifier: MIT</span>\n<span class=\"c-kw\">pragma solidity</span> ^0.8.0;\n\n<span class=\"c-kw\">contract</span> <span class=\"c-fn\">GameLeaderboard</span> {\n\n    <span class=\"c-cmt\">// Mapping: player address → their record hash</span>\n    <span class=\"c-kw\">mapping</span>(<span class=\"c-type\">address</span> =&gt; <span class=\"c-type\">bytes32</span>) <span class=\"c-kw\">public</span> records;\n\n    <span class=\"c-cmt\">// (a) Compute hash from player name + score</span>\n<span class=\"c-hl\">    <span class=\"c-kw\">function</span> <span class=\"c-fn\">hashEntry</span>(<span class=\"c-type\">string memory</span> playerName, <span class=\"c-type\">uint256</span> score)</span>\n<span class=\"c-hl\">        <span class=\"c-kw\">public pure returns</span> (<span class=\"c-type\">bytes32</span>)</span>\n<span class=\"c-hl\">    {</span>\n<span class=\"c-hl\">        <span class=\"c-kw\">return</span> <span class=\"c-fn\">keccak256</span>(<span class=\"c-fn\">abi.encodePacked</span>(playerName, score));</span>\n<span class=\"c-hl\">    }</span>\n\n    <span class=\"c-cmt\">// (b) Store the hash for the caller's address</span>\n<span class=\"c-hl\">    <span class=\"c-kw\">function</span> <span class=\"c-fn\">storeEntry</span>(<span class=\"c-type\">string memory</span> playerName, <span class=\"c-type\">uint256</span> score) <span class=\"c-kw\">public</span> {</span>\n<span class=\"c-hl\">        records[msg.sender] = <span class=\"c-fn\">hashEntry</span>(playerName, score);</span>\n<span class=\"c-hl\">    }</span>\n\n    <span class=\"c-cmt\">// (c) Verify that the caller's stored entry matches the provided data</span>\n<span class=\"c-hl\">    <span class=\"c-kw\">function</span> <span class=\"c-fn\">verifyEntry</span>(<span class=\"c-type\">string memory</span> playerName, <span class=\"c-type\">uint256</span> score)</span>\n<span class=\"c-hl\">        <span class=\"c-kw\">public view returns</span> (<span class=\"c-type\">bool</span>)</span>\n<span class=\"c-hl\">    {</span>\n<span class=\"c-hl\">        <span class=\"c-type\">bytes32</span> computed = <span class=\"c-fn\">keccak256</span>(<span class=\"c-fn\">abi.encodePacked</span>(playerName, score));</span>\n<span class=\"c-hl\">        <span class=\"c-kw\">return</span> computed == records[msg.sender];</span>\n<span class=\"c-hl\">    }</span>\n}</pre>\n          </div>\n        </div>\n        <p><strong>Marks Breakdown:</strong></p>\n        <div class=\"marks-bd\">\n          <span>(a) 2 marks:</span> 1 mark for correct <code>keccak256()</code> usage, 1 mark for correct <code>abi.encodePacked(playerName, score)</code> with both parameters and correct return type <code>bytes32</code>.<br><br>\n          <span>(b) 1 mark:</span> Correctly assigns result to <code>records[msg.sender]</code>. Must use <code>msg.sender</code> (not a hardcoded address). Can call <code>hashEntry()</code> internally or recompute inline.<br><br>\n          <span>(c) 2 marks:</span> 1 mark for correctly recomputing the hash, 1 mark for comparing computed hash to <code>records[msg.sender]</code> and returning the boolean result.\n        </div>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "true_false",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "\"Given the SHA-256 hash of a password, a modern computer can reverse-engineer the original password within a few hours using available computing power.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: States FALSE and provides a coherent justification referencing pre-image resistance, the astronomically large output space (2²⁵⁶), or the computational infeasibility of brute force.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div>\n        <p><strong>1 mark:</strong> States FALSE and provides a coherent justification referencing pre-image resistance, the astronomically large output space (2²⁵⁶), or the computational infeasibility of brute force.</p>",
+      "tfVerdict": "FALSE"
+    }
+  ]
+}

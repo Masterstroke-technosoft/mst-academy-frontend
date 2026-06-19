@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 13.3 - WASMify: MST's ZK-Powered Oracle Bridge | MasterStroke Academy</title>
+<meta name="description" content="Master MST's revolutionary WASMify oracle – run any code off‑chain, prove it with zero‑knowledge, and settle on MST. Deep dive into WebAssembly, ZK‑proofs, and building trustless real‑world data feeds for supply chain, gaming, and AI.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .design-task {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .dt-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .dt-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .dt-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .dt-requirements { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .dt-rubric { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .dt-rubric-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .dt-rubric p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 13 &nbsp;·&nbsp; Sub-Module 13.3 of 5</div>
+<h1 class="module-title">WASMify - MST's <span class="highlight">ZK-Powered Oracle Bridge</span></h1>
+<p class="module-subtitle">What if your smart contract could run any code - in Rust, C, Python - off-chain, and then bring a tiny mathematical proof back to the chain that guarantees the result is correct? That's WASMify. It's not just an oracle; it's a trustless bridge to the real world, built on WebAssembly and zero-knowledge proofs, and it's native to MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 30 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1 mark each) + 1 Descriptive Design (20 marks)</div>
+  <div class="meta-chip green">Phase 4 · Oracles & WASMify</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Explain how WebAssembly enables portable, sandboxed off-chain execution</strong>
+      Describe the role of WASM in running complex logic securely outside the EVM, and why it's the perfect companion to a deterministic blockchain.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text">
+      <strong>Deconstruct a zero-knowledge proof pipeline</strong>
+      Trace the journey from a WASM computation to a ZK proof, and understand how the smart contract verifies it without re-executing the work - trusting math over the executor.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Architect a WASMify feed for real-world data</strong>
+      Design end-to-end flows for supply chain IoT, identity verification, and AI inference that leverage WASMify's unique trust model and MST's sub-paisa fees.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Contrast WASMify with Chainlink and centralised oracles</strong>
+      Articulate the trust, cost, and complexity trade-offs - and know exactly when to recommend WASMify over traditional oracle networks.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Cold-Chain Miracle - How a Mumbai Pharma Company Saved ₹50 Lakh in Lost Vaccines</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2024, a pharmaceutical logistics company in Mumbai was shipping a ₹2 crore batch of temperature-sensitive vaccines from Pune to Dubai. The contract with the buyer specified that the vaccines must never exceed 8°C during transit. If they did, the entire shipment would be rejected and destroyed - a ₹2 crore loss.</p>
+  <br>
+  <p>The shipping container was fitted with IoT sensors that recorded temperature every 30 seconds. That's over 57,000 data points for a 48-hour journey. The buyer didn't trust the seller's word; the seller needed a trustless way to prove compliance.</p>
+  <br>
+  <p>Enter WASMify on MST. The logistics company wrote a simple program in Rust that read the entire temperature log, checked every data point against the 8°C threshold, and output a single boolean: <strong>true</strong> if the shipment was compliant, <strong>false</strong> otherwise. This program was compiled to WebAssembly and run on an off-chain server. The server produced a <strong>zero-knowledge proof</strong> - a cryptographic certificate that the program was executed correctly with the actual temperature data - and submitted only the proof and the boolean result to an MST smart contract. The contract verified the proof in milliseconds, and the payment was released automatically. The buyer received cryptographic certainty; the seller received instant payment. Neither party had to trust the other. The total gas cost on MST? ₹0.008. The equivalent using a traditional oracle that submitted all 57,000 data points on-chain would have cost over ₹3,00,000 in gas on Ethereum and exposed sensitive logistics data to the world. WASMify made the impossible practical.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From WebAssembly to Zero-Knowledge - The Twin Revolutions</h2>
+<p>WASMify sits at the intersection of two transformative technologies: <strong>WebAssembly (WASM)</strong> and <strong>zero-knowledge proofs (ZKPs)</strong>. Understanding each is key to grasping why WASMify is a paradigm shift.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">WebAssembly: The Universal Portable Binary</h3>
+<p>WebAssembly was announced in 2015 as a joint effort by Google, Mozilla, Microsoft, and Apple. The goal was to create a fast, safe, portable binary format that could run anywhere - browsers, servers, embedded devices. Unlike JavaScript, WASM is a compilation target: you write code in Rust, C, C++, Go, or Python (via toolchains), and compile it to <code>.wasm</code>. The WASM runtime executes this binary in a sandboxed environment with near-native performance. In the blockchain world, WASM is revolutionary because it allows complex, non-deterministic logic to be run off-chain, while still being verifiable. Instead of trying to cram everything into the EVM, developers can write in familiar languages, run the code wherever they want, and only submit a proof of correct execution to the chain.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Zero-Knowledge Proofs: Verifying Without Revealing</h3>
+<p>Zero-knowledge proofs were first conceptualized in the 1980s by Shafi Goldwasser, Silvio Micali, and Charles Rackoff. A ZKP allows a prover to convince a verifier that a statement is true without revealing any additional information. In the context of computation, a <strong>ZK-SNARK</strong> (Succinct Non-Interactive Argument of Knowledge) or <strong>ZK-STARK</strong> (Scalable Transparent Argument of Knowledge) can prove that a specific program was executed correctly on specific inputs, producing a specific output - all without revealing the inputs or requiring the verifier to re-run the program. The proof is tiny (a few hundred bytes) and verification is fast (a few milliseconds). This is exactly what blockchains need: a way to verify off-chain computation without trusting the executor.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">MST's Synthesis: WASMify</h3>
+<p>MST's WASMify bridges these two worlds. It provides a framework where developers can write a WASM module, execute it off-chain, and generate a ZK proof of execution using a proving backend (like RISC Zero, SP1, or zkWASM). The proof and the output are submitted to an MST smart contract, which verifies the proof using a pre-deployed verifier contract. If the proof is valid, the contract accepts the output as truth. Because the verification is purely mathematical, there is no trust assumption - not in the executor, not in the data provider, not in any committee. <strong>Trust the math, not the messenger.</strong></p>
+
+<div class="highlight-strip">
+  <strong>The WASMify Advantage:</strong> Write complex logic in Rust, Python, or C → compile to WASM → execute anywhere → generate ZK proof → submit proof to MST → verify instantly → trustless result. All with fees measured in paise.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Magic Box That Proves It Did Its Homework</h2>
+<div class="callout analogy">
+  <div class="callout-label">🎁 The Analogy</div>
+  <p>Imagine you're a teacher, and a student claims they solved a very complex math problem. You don't have time to check every step of their work - that would take hours. Instead, the student hands you a sealed magic box. You press a button, and a green light flashes along with a piece of paper that says "Correct." You trust the green light because the box is mathematically guaranteed to only flash green if the student did the work correctly. You don't need to see their notebook, their scratch paper, or even know what numbers they used. The box proves it. WASMify is that magic box for blockchain: the student is the off-chain server, the math problem is the real-world data processing, and the green light is the ZK proof verified by the smart contract.</p>
+</div>
+
+<p>Let's explore the architecture of WASMify step by step:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">WASM</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is a WASM module in WASMify?</div>
+      <div class="w5-a">A <strong>WASM module</strong> is a compiled program that performs a specific off-chain computation. It can be written in Rust, C, C++, Python (via Pyodide or similar), or any language that targets WebAssembly. The module defines: (1) the inputs it expects, (2) the computation logic, and (3) the output it produces. For example, a module might take a temperature log file, check every data point against a threshold, and return a boolean. The module is deterministic: given the same inputs, it always produces the same output. This determinism is essential for generating a ZK proof.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">EXEC</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is the module executed off-chain?</div>
+      <div class="w5-a">Any party - the dApp operator, a third-party service, or even the user - can run the WASM module on their own hardware. They provide the required inputs (the temperature log, an identity document, a GPS trace) and execute the module. The execution produces an <strong>output</strong> (the result) and an <strong>execution trace</strong> (a record of every computational step). The execution trace is the raw material for generating the ZK proof. The executor never needs to be trusted - if they lie about the output, the proof will be invalid. If they use incorrect inputs, the proof will be invalid (unless the inputs themselves are also proven, which is possible with recursive proofs).</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">PROOF</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is the ZK proof generated?</div>
+      <div class="w5-a">The execution trace is fed into a <strong>ZK prover</strong> - a specialized piece of software that mathematically encodes the entire computation into a cryptographic proof. This proof is <strong>succinct</strong> (small, typically a few hundred bytes) and <strong>non-interactive</strong> (the verifier doesn't need to communicate with the prover). The proof certifies: "There exists some input for which this WASM module, when executed, produced this output, and the execution was valid." The proof does not reveal the input, preserving privacy. The prover is computationally intensive - generating a proof for a complex program can take seconds to minutes - but it only needs to be done once per submission. The result: a tiny, trustless certificate of computation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">④</div><div class="w5-word">VERIFY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the MST smart contract verify the proof?</div>
+      <div class="w5-a">The proof and the output are submitted to an MST smart contract. The contract calls a <strong>verifier function</strong> - a piece of Solidity code that implements the ZK verification algorithm. This verification is <strong>fast and cheap</strong>: it takes a few milliseconds of EVM time and costs about 200,000 - 300,000 gas (approximately ₹0.02-₹0.03 on MST). If the proof is valid, the contract accepts the output as truth and proceeds with its logic - releasing a payment, minting an NFT, or updating a state variable. If the proof is invalid, the transaction reverts. The verifier does not need to know the original inputs; it only checks the mathematical validity of the proof.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: THE WASMIFY PIPELINE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - The WASMify Pipeline</div>
+<h2 class="section-title">From Rust Code to Verifiable On-Chain Truth - A Complete Walkthrough</h2>
+<p>Let's follow a concrete WASMify feed from start to finish. We'll use the cold-chain vaccine example.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 1: Write the WASM Module in Rust</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// cold_chain_check.rs
+#[no_mangle]
+pub extern "C" fn check_temperature(temps_ptr: *const u8, len: usize) -> u32 {
+    let temps = unsafe { std::slice::from_raw_parts(temps_ptr, len) };
+    for &temp in temps {
+        if temp > 8 { // Temperature exceeded 8°C
+            return 0; // false — shipment failed
+        }
+    }
+    1 // true — shipment compliant
+}
+</pre>
+<p>This simple Rust function takes a pointer to a byte array of temperatures and its length, checks each byte, and returns 1 (pass) or 0 (fail). It is compiled to WASM using <code>wasm-pack</code> or <code>rustc --target wasm32-unknown-unknown</code>.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 2: Generate the ZK Proof</h3>
+<p>The WASM binary is loaded into a ZK proving framework that supports WASM execution traces, such as <strong>RISC Zero</strong> (which uses the RISC-V ISA as an intermediate layer) or <strong>zkWASM</strong> (a specialized ZK prover for WASM). The framework executes the WASM binary with the actual temperature data as input, producing:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>The <strong>output</strong> (e.g., <code>1</code>)</li>
+  <li>A <strong>ZK proof</strong> (a few hundred bytes, often serialized as a hex string)</li>
+  <li>Optionally, a <strong>public input commitment</strong> - but in this privacy-preserving example, the temperature data is kept private</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 3: Submit to the MST Smart Contract</h3>
+<p>A transaction is sent to the WASMify consumer contract on MST, calling a function like <code>verifyAndSettle(bytes calldata proof, uint256 output)</code>. The proof is passed as calldata (cheap on MST). The gas cost for the transaction is the base 21,000 gas plus the cost of the verification algorithm (e.g., 200,000 gas). Total: ~221,000 gas, or ~₹0.021 on MST.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 4: On-Chain Verification and Action</h3>
+<p>The consumer contract calls the <strong>WASMify Verifier Contract</strong>, a pre-deployed contract on MST that contains the ZK verification logic. The verifier checks the proof against the claimed output. If valid, the consumer contract executes its business logic:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function verifyAndSettle(bytes calldata proof, uint256 result) external {
+    require(wasmifyVerifier.verify(proof, result), "Invalid proof");
+    if (result == 1) {
+        // Shipment compliant — release payment
+        payable(seller).transfer(amount);
+        emit ShipmentCertified(shipmentId);
+    } else {
+        // Shipment failed — refund buyer
+        payable(buyer).transfer(amount);
+        emit ShipmentRejected(shipmentId);
+    }
+}
+</pre>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.3-A · Complete WASMify Pipeline</div>
+  <pre>
+  ┌───────────────────────────────────────────────────────┐
+  │               OFF‑CHAIN (Any Server)                   │
+  │                                                        │
+  │  Rust Code ──▶ WASM Binary ──▶ Execute with Real Data  │
+  │                                    │                   │
+  │                                    ▼                   │
+  │                        ┌───────────────────────┐       │
+  │                        │  ZK Prover (RISC Zero)│       │
+  │                        │  Generates proof +    │       │
+  │                        │  output               │       │
+  │                        └───────────┬───────────┘       │
+  └────────────────────────────────────┼───────────────────┘
+                                       │ Submit proof + output
+                                       ▼
+  ┌───────────────────────────────────────────────────────┐
+  │               ON‑CHAIN (MST)                           │
+  │                                                        │
+  │  Consumer Contract                                     │
+  │  ┌─────────────────────────────────────────┐           │
+  │  │  verifyAndSettle(proof, output)          │           │
+  │  │  ┌───────────────────────────────────┐  │           │
+  │  │  │  WASMify Verifier                 │  │           │
+  │  │  │  Verifies ZK proof                │  │           │
+  │  │  │  (200k gas, ~₹0.02)               │  │           │
+  │  │  └───────────────────────────────────┘  │           │
+  │  │  If valid → release payment              │           │
+  │  └─────────────────────────────────────────┘           │
+  └───────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The entire pipeline separates concerns: heavy computation happens off-chain, trustless verification happens on-chain. Only the proof bridges the two worlds.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The WASMify Paradigm</div>
+  <p>Traditional oracles ask: <em>"Who can I trust to bring data on-chain?"</em> WASMify asks: <em>"No one. I'll verify the computation mathematically."</em> This shift from <strong>economic trust</strong> (staking, reputation, committees) to <strong>cryptographic trust</strong> (ZK proofs) is the defining feature of WASMify.</p>
+</div>
+
+<!-- 06 COMPARISON WITH TRADITIONAL ORACLES -->
+<div class="section-label">06 &nbsp; Comparison with Traditional Oracles</div>
+<h2 class="section-title">WASMify vs Chainlink vs Centralised - When to Use Which</h2>
+<p>Each oracle model excels in different scenarios. Here's a detailed comparison, including the new ZK paradigm.</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Property</th><th>🔗 Centralised Oracle</th><th>🔗 Chainlink (Decentralised)</th><th>🔷 WASMify (ZK Oracle)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Trust model</strong></td><td class="bad">Trust 1 operator</td><td class="mid">Trust majority of committee + staking</td><td class="good">Trust math (ZK proof) - no operator trust</td></tr>
+    <tr><td><strong>Data complexity</strong></td><td class="bad">Simple values only</td><td class="mid">Simple to medium values</td><td class="good">Any complexity: IoT, AI, ML, large datasets</td></tr>
+    <tr><td><strong>Privacy</strong></td><td class="bad">Data exposed to operator</td><td class="bad">Data exposed to multiple node operators</td><td class="good">Inputs can remain fully private (ZK)</td></tr>
+    <tr><td><strong>Latency</strong></td><td class="good">Low (~3 sec)</td><td class="mid">Medium (15 - 60 sec)</td><td class="mid">Low on-chain (~3 sec) + proof generation (seconds to minutes)</td></tr>
+    <tr><td><strong>Gas cost per update (MST)</strong></td><td class="good">~₹0.006</td><td class="good">~₹0.04 (7 nodes)</td><td class="good">~₹0.02 (single proof)</td></tr>
+    <tr><td><strong>Maturity</strong></td><td class="good">Very mature</td><td class="good">Mature, battle-tested</td><td class="mid">Emerging, rapidly maturing</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Prototypes, non-critical</td><td>Financial price feeds, DeFi</td><td>Supply chain, identity, AI, private data, complex logic</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>MST Synergy:</strong> WASMify's proof verification costs are manageable (~₹0.02) on MST, making it economically viable to use for every shipment, every identity check, every AI inference. On Ethereum, the same verification could cost ₹2,000+, limiting it to only the most high-value use cases. MST's low fees are what make trustless ZK oracles practical at scale.
+</div>
+
+<!-- 07 INTERACTIVE USE CASE EXPLORER -->
+<div class="section-label">07 &nbsp; Interactive Use Case Explorer</div>
+<h2 class="section-title">Where WASMify Shines - Click to Explore</h2>
+
+<details>
+  <summary>🚚 Supply Chain: Verifying Cold-Chain Compliance</summary>
+  <div class="content">
+    <p><strong>Problem:</strong> Pharmaceutical shipments must be proven to stay within temperature limits without exposing the full sensor log to competitors or regulators.</p>
+    <p><strong>WASMify Solution:</strong> A Rust WASM module processes the entire temperature log off-chain and produces a ZK proof that the temperature never exceeded 8°C. Only the proof and a boolean are submitted on-chain. The buyer's smart contract verifies the proof and releases payment automatically. The full log remains private, and no oracle operator saw the data.</p>
+    <p><strong>Why not Chainlink?</strong> Chainlink would require submitting the entire temperature log to multiple node operators, which is expensive, slow, and violates privacy. WASMify eliminates all these issues.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🆔 Identity: Proving Age Without Revealing Birthdate</summary>
+  <div class="content">
+    <p><strong>Problem:</strong> A Web3 delivery app needs to verify users are over 18, but storing or transmitting government IDs is a privacy and legal liability.</p>
+    <p><strong>WASMify Solution:</strong> A WASM module takes the user's digital ID (e.g., Aadhaar XML) as a private input, extracts the birthdate, computes age, and outputs a boolean (over18 = true/false). The ZK proof guarantees the computation was correct without revealing the birthdate or ID number. The smart contract verifies the proof and grants access if over18 is true.</p>
+    <p><strong>Why not Chainlink?</strong> Chainlink nodes would need to see the ID to verify it, which is a non-starter for privacy regulations. WASMify keeps the ID entirely off-chain.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🤖 AI Inference: Verifying a Machine Learning Model's Prediction</summary>
+  <div class="content">
+    <p><strong>Problem:</strong> A DeFi protocol wants to use an AI model to predict loan default risk, but users need assurance that the model was actually run - not a fake result.</p>
+    <p><strong>WASMify Solution:</strong> The AI model is compiled to a WASM module (using frameworks like ONNX-WASM or tract). The loan application data is passed as input. The module runs inference and outputs a risk score. A ZK proof is generated showing the model was executed correctly. The smart contract verifies the proof and uses the risk score to approve or deny the loan. The model itself remains proprietary, and the user's data remains private.</p>
+    <p><strong>Why not Chainlink?</strong> AI inference is computationally heavy and would be prohibitively expensive to run on-chain or to submit via multiple oracle nodes. WASMify off-loads the heavy lifting off-chain while preserving trust.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🎲 Gaming: Provably Fair Randomness with FortunaX + WASMify</summary>
+  <div class="content">
+    <p><strong>Problem:</strong> Online casinos need to prove that their card shuffles and dice rolls are truly random and not rigged, but revealing the randomness algorithm could allow players to cheat.</p>
+    <p><strong>WASMify Solution:</strong> MST's FortunaX protocol uses WASMify to generate verifiable randomness. A WASM module implementing a VRF (Verifiable Random Function) is run off-chain with a secret seed. It produces random numbers and a ZK proof that the numbers were generated according to the specified algorithm. The smart contract verifies the proof and uses the random numbers for the game. Players can verify the proof themselves to ensure fairness, but the seed remains secret to prevent prediction.</p>
+  </div>
+</details>
+
+<!-- 08 GAS & COST ANALYSIS -->
+<div class="section-label">08 &nbsp; Gas &amp; Cost Analysis</div>
+<h2 class="section-title">Is WASMify Affordable? A Complete Breakdown</h2>
+<p>Let's compute the exact costs for a typical WASMify feed on MST versus Ethereum.</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Operation</th><th>Gas Used</th><th>Cost on Ethereum (₹)</th><th>Cost on MST (₹)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>ZK proof submission (base TX)</td><td>21,000</td><td class="bad">₹2,340</td><td class="good">₹0.002</td></tr>
+    <tr><td>ZK proof verification (e.g., Groth16 verifier)</td><td>~230,000</td><td class="bad">₹25,650</td><td class="good">₹0.022</td></tr>
+    <tr><td><strong>Total per WASMify update</strong></td><td><strong>~251,000</strong></td><td class="bad"><strong>₹27,990</strong></td><td class="good"><strong>₹0.024</strong></td></tr>
+    <tr><td>Chainlink update (7 nodes) per update</td><td>~455,000</td><td>₹50,700</td><td>₹0.04</td></tr>
+    <tr><td>Centralised oracle per update</td><td>65,000</td><td>₹7,250</td><td>₹0.006</td></tr>
+  </tbody>
+</table>
+
+<p>The data is stark: on Ethereum, a single WASMify verification costs ₹27,990 - completely unaffordable for most use cases. On MST, the same verification costs ₹0.024 - less than a postage stamp. This cost differential is what makes WASMify practical for real-world, high-frequency use cases.</p>
+
+<div class="highlight-strip">
+  <strong>Bottom line:</strong> WASMify would be a theoretical curiosity on expensive chains. On MST, it's a practical tool that can be deployed in production at scale. This is why MST is the native home of ZK-powered oracles.
+</div>
+
+<!-- 09 DEVELOPER WORKFLOW -->
+<div class="section-label">09 &nbsp; Developer Workflow</div>
+<h2 class="section-title">Your First WASMify Feed - A Hands-On Guide</h2>
+<p>Ready to build? Here's the step-by-step developer workflow for creating a WASMify oracle on MST.</p>
+
+<details>
+  <summary>🛠️ Step 1: Write and compile your WASM module</summary>
+  <div class="content">
+    <p>Write your computation logic in Rust (recommended for ZK ecosystem support). Use the <code>wasm32-unknown-unknown</code> target. Keep the interface simple: a single function that takes a pointer and length, and returns an integer or a boolean. Test it locally with sample data.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔐 Step 2: Generate a ZK proof for your first execution</summary>
+  <div class="content">
+    <p>Use a ZK proving backend compatible with WASM. MST's developer toolkit provides a CLI that integrates with RISC Zero or zkWASM. Run your module with real data and generate a proof file (JSON or hex). Store the proof - you'll need it for the on-chain submission.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📜 Step 3: Deploy your consumer contract on MST Testnet</summary>
+  <div class="content">
+    <p>Write a Solidity contract that imports the WASMify Verifier interface and calls <code>verifier.verify(proof, output)</code>. Deploy it using Hardhat with MST Testnet configuration. Cost: ~₹0.02.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 4: Submit the proof and watch the magic</summary>
+  <div class="content">
+    <p>From a script or your frontend, call <code>verifyAndSettle(proof, output)</code> on your consumer contract. The transaction will verify the proof on-chain. If it succeeds, your business logic executes. If the proof is bad, it reverts.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔄 Step 5: Automate the pipeline for production</summary>
+  <div class="content">
+    <p>Set up a lightweight server (could be a serverless function) that listens for events on your consumer contract, runs the WASM module with fresh data, generates a proof, and submits it. This closes the loop, creating a fully automated, trustless oracle feed.</p>
+  </div>
+</details>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Who's Already Building with WASMify</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🌡️</div>
+    <div class="feature-content">
+      <div class="feature-title">Cold-Chain Pharma Verification</div>
+      <div class="feature-desc">A global pharmaceutical company is piloting WASMify to certify vaccine shipments across Southeast Asia. Each shipment's temperature log is verified off-chain, and a ZK proof of compliance is stored permanently on MST - replacing costly third-party auditors with trustless on-chain certification. Estimated savings: $2 million annually in audit costs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏛️</div>
+    <div class="feature-content">
+      <div class="feature-title">Digital Identity for Government Services</div>
+      <div class="feature-desc">An Indian state government is exploring WASMify to allow citizens to prove eligibility for subsidies without revealing their full identity. A WASM module checks the citizen's income certificate (stored off-chain) and outputs a boolean for eligibility. The ZK proof is verified on-chain, triggering the subsidy payment. Privacy is preserved, and the government gets an auditable on-chain record of compliance.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🤖</div>
+    <div class="feature-content">
+      <div class="feature-title">AI-Powered Insurance Underwriting</div>
+      <div class="feature-desc">A DeFi insurance protocol uses WASMify to run a machine learning model that assesses the risk of a policy. The applicant submits their data privately; the model runs off-chain and produces a risk score and a ZK proof. The smart contract verifies the proof and automatically sets the premium based on the score. The model's intellectual property is protected, and the user's data is never exposed on-chain.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 COMMON PITFALLS -->
+<div class="section-label">11 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Avoid These Mistakes When Building with WASMify</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Assuming the proof guarantees input correctness</div>
+      <div class="feature-desc">A ZK proof certifies that <em>if</em> the prover used the claimed inputs, the output is correct. It does not certify that the inputs themselves are true. For example, a WASM proof can show that a temperature log was checked correctly, but it cannot guarantee that the temperature log accurately reflects the actual temperatures. That requires hardware attestation or trusted sensors - a separate problem.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Underestimating proof generation time</div>
+      <div class="feature-desc">ZK proof generation is computationally intensive. For complex WASM modules, generating a proof can take several minutes on consumer hardware. This is fine for hourly updates but may not suit sub-second applications. Use it for periodic certifications, not real-time trading.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardcoding the verifier contract address</div>
+      <div class="feature-desc">The WASMify Verifier contract may be upgraded or moved. Always use a registry or a proxy to look up the latest verifier address, rather than hardcoding it, to ensure your consumer contract remains functional after updates.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 ASSESSMENT PREP -->
+<div class="section-label">12 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">WASMify = off-chain WASM execution + ZK proof + on-chain verification</div>
+      <div class="feature-desc">It replaces economic trust with cryptographic trust, eliminating the need for oracle committees.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">ZK proof guarantees correct execution, not input truth</div>
+      <div class="feature-desc">Proofs verify the computation, but the inputs themselves must be trustworthy (via hardware attestation or trusted sources).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">WASMify on MST is economically viable - ~₹0.024 per update</div>
+      <div class="feature-desc">On Ethereum, it's prohibitively expensive. MST's low fees make trustless oracles practical at scale.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Ideal for private, complex data - supply chain, identity, AI</div>
+      <div class="feature-desc">Chainlink excels at public price feeds; WASMify excels at everything else.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 13.3 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">30</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">10 Questions · 1 mark each · 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary advantage of using WebAssembly (WASM) for off-chain oracle computation?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> WASM is a portable, sandboxed binary format that can run complex logic written in multiple languages, and its execution can be proven via ZK. ✅</li>
+        <li><span class="opt-key">B</span> WASM is the only language supported by Chainlink.</li>
+        <li><span class="opt-key">C</span> WASM automatically connects to any IoT sensor.</li>
+        <li><span class="opt-key">D</span> WASM replaces the need for a blockchain.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>WASM allows developers to write in familiar languages (Rust, C, Python) and run code off-chain, with ZK proofs guaranteeing correct execution.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What does a zero-knowledge proof in WASMify guarantee?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> That the WASM module was executed correctly, producing the claimed output from some input, without revealing the input. ✅</li>
+        <li><span class="opt-key">B</span> That the input data is true and accurate.</li>
+        <li><span class="opt-key">C</span> That the smart contract is bug-free.</li>
+        <li><span class="opt-key">D</span> That the oracle server has high uptime.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A ZK proof certifies correct execution, not the truthfulness of the inputs. Input trust must be established separately.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does the MST smart contract verify a WASMify ZK proof?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By calling a pre-deployed verifier contract that mathematically checks the proof without re-executing the computation. ✅</li>
+        <li><span class="opt-key">B</span> By re-running the WASM module on-chain.</li>
+        <li><span class="opt-key">C</span> By asking a Chainlink node to confirm the result.</li>
+        <li><span class="opt-key">D</span> By trusting the submitter's reputation.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The verifier contract performs cryptographic verification, which is fast and cheap, without re-executing the original computation.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is WASMify particularly suitable for supply chain IoT data?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It can process large, private sensor logs off-chain and only submit a tiny ZK proof on-chain. ✅</li>
+        <li><span class="opt-key">B</span> It requires no programming.</li>
+        <li><span class="opt-key">C</span> It automatically installs sensors.</li>
+        <li><span class="opt-key">D</span> It is the only oracle that works with IoT.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Supply chain data is voluminous and often private. WASMify's off-chain processing and ZK proof model is ideal.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the approximate total gas cost for a WASMify proof verification on MST?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> ~250,000 gas, costing about ₹0.024. ✅</li>
+        <li><span class="opt-key">B</span> ~50,000 gas, costing about ₹0.005.</li>
+        <li><span class="opt-key">C</span> ~5,000,000 gas, costing about ₹500.</li>
+        <li><span class="opt-key">D</span> ~0 gas, it's free.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Proof verification uses around 250k gas; on MST with 12 Gwei gas price and ₹8 per MSTC, that's roughly ₹0.024.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which oracle model is most appropriate for a DeFi lending protocol needing ETH/USD price feeds?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Chainlink (decentralised oracle network) - mature, battle-tested for financial price feeds. ✅</li>
+        <li><span class="opt-key">B</span> WASMify - it's cheaper.</li>
+        <li><span class="opt-key">C</span> Centralised oracle - it's simplest.</li>
+        <li><span class="opt-key">D</span> Any oracle works equally well.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>For well-established price feeds, Chainlink provides the most mature, widely-used infrastructure. WASMify is better for novel or complex data types.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does WASMify preserve privacy?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> The ZK proof does not reveal the inputs; only the verifier sees the proof, which guarantees correctness without exposing the data. ✅</li>
+        <li><span class="opt-key">B</span> It encrypts the data on-chain.</li>
+        <li><span class="opt-key">C</span> It deletes the data after use.</li>
+        <li><span class="opt-key">D</span> It anonymizes the user's identity.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The ZK proof is a cryptographic certificate that reveals nothing about the private inputs, making it ideal for age verification, identity, and sensitive business data.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a limitation of WASMify?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> ZK proof generation is computationally intensive and can take seconds to minutes. ✅</li>
+        <li><span class="opt-key">B</span> It cannot handle any real-world data.</li>
+        <li><span class="opt-key">C</span> It only works on Ethereum.</li>
+        <li><span class="opt-key">D</span> It requires the user to trust a committee of validators.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Proof generation is resource-heavy, though it improves with better hardware and algorithms. It's not suitable for sub-second latency requirements.</p></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is MST's low gas fee critical for WASMify adoption?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It makes proof verification economically viable for frequent, real-world applications. ✅</li>
+        <li><span class="opt-key">B</span> It allows WASMify to generate proofs faster.</li>
+        <li><span class="opt-key">C</span> It reduces the size of the proof.</li>
+        <li><span class="opt-key">D</span> It eliminates the need for a verifier contract.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>On Ethereum, proof verification costs thousands of rupees, limiting use to occasional high-value events. On MST, it costs paise, enabling use cases like every shipment or every API call.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is the correct order of a WASMify pipeline?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Write Rust → compile to WASM → execute with real data → generate ZK proof → submit proof to MST → verify on-chain. ✅</li>
+        <li><span class="opt-key">B</span> Write Solidity → deploy contract → fetch data → submit transaction.</li>
+        <li><span class="opt-key">C</span> Fetch data → submit to Chainlink → wait for aggregation → read on-chain.</li>
+        <li><span class="opt-key">D</span> Generate proof first, then write the code.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The WASMify flow is: code → compile → execute → prove → submit → verify. This order reflects the off-chain then on-chain split.</p></div>
+    </div>
+
+    <!-- SECTION B: DESCRIPTIVE DESIGN -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Descriptive Design Task</div>
+      <div class="q-section-meta">1 Question · 20 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">20 marks</span></div></div>
+      <div class="q-text">Design a WASMify-based oracle system for a cold-chain pharmaceutical shipment verification on MST. Produce a detailed architecture diagram and explain each component.</div>
+      <div class="design-task">
+        <div class="dt-header"><div class="dt-badge">💊 SCENARIO</div></div>
+        <div class="dt-scenario">A pharmaceutical company needs to prove to a buyer that a vaccine shipment never exceeded 8°C during transit. The temperature log contains 57,600 data points (one every 30 seconds for 48 hours). The solution must be trustless, preserve the privacy of the logistics data, and cost less than ₹1 per shipment. Use MST and WASMify.</div>
+        <div class="dt-requirements">
+          <strong>Required in your design:</strong><br>
+          (a) A system architecture diagram showing: IoT sensors, off-chain server, WASM module, ZK prover, MST smart contracts (consumer + verifier), and the buyer/seller.<br>
+          (b) Description of the WASM module: what it computes, its inputs and outputs.<br>
+          (c) How the ZK proof is generated and what it proves.<br>
+          (d) How the MST smart contract verifies the proof and releases payment.<br>
+          (e) Why WASMify is superior to Chainlink or a centralised oracle for this use case (address: data complexity, privacy, cost, trust).<br>
+          (f) A cost estimate for one shipment on MST, with gas breakdown.
+        </div>
+        <div class="dt-rubric">
+          <div class="dt-rubric-label">📊 Marking Rubric (20 marks)</div>
+          <p>
+            <strong>(a) Diagram (5 marks):</strong> Clear, labeled boxes for each component; arrows showing data flow. IoT → off-chain server → WASM → ZK prover → MST contract. Must include verifier contract.<br>
+            <strong>(b) WASM module (4 marks):</strong> Explains that it takes temperature log and threshold, iterates over all points, returns boolean. Mentions Rust, compilation to WASM.<br>
+            <strong>(c) ZK proof generation (4 marks):</strong> Describes proof that the module was executed correctly on the given (private) input, producing the claimed output. Mentions ZK prover, execution trace.<br>
+            <strong>(d) On-chain verification (3 marks):</strong> Consumer contract calls WASMify Verifier; if valid, releases payment to seller. Mentions gas cost and verification time.<br>
+            <strong>(e) Superiority of WASMify (2 marks):</strong> Compares to Chainlink (data too large, privacy violation) and centralised (trust issue). Emphasizes trustlessness and data privacy.<br>
+            <strong>(f) Cost estimate (2 marks):</strong> Estimates ~250,000 gas = ₹0.024 per shipment on MST. Mentions that this is far cheaper than alternative oracle models on Ethereum and meets the ₹1 budget.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 13.3 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ <span>(1 mark each) = 10 marks</span></div>
+      <div class="score-row">Section B: 1 × Descriptive Design <span>(20 marks) = 20 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">30</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 13.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">WebAssembly (WASM)</div><div class="glossary-def">A portable binary instruction format enabling high-performance execution of code written in multiple languages in a sandboxed environment.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Zero-Knowledge Proof (ZKP)</div><div class="glossary-def">A cryptographic method that proves a statement is true without revealing the underlying data or requiring the verifier to re-compute.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's framework combining WASM off-chain execution with ZK proof generation and on-chain verification for trustless oracles.</div></div>
+  <div class="glossary-item"><div class="glossary-term">ZK Prover</div><div class="glossary-def">Software that takes an execution trace and produces a ZK proof. Runs off-chain and is computationally heavy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Verifier Contract</div><div class="glossary-def">An MST smart contract that cryptographically verifies a ZK proof. Fast and cheap on-chain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Execution Trace</div><div class="glossary-def">A record of every step taken during a computation, used by the ZK prover to construct a proof of correct execution.</div></div>
+  <div class="glossary-item"><div class="glossary-term">RISC Zero</div><div class="glossary-def">A popular ZK proving framework that uses the RISC-V instruction set as an intermediate representation for proving WASM execution.</div></div>
+  <div class="glossary-item"><div class="glossary-term">zkWASM</div><div class="glossary-def">A specialized ZK prover designed to work directly with WebAssembly bytecode, generating proofs of WASM execution.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 13 · Sub-Module <strong>13.3</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 13.4 - Designing a WASMify Feed →</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+
+
+    <div class="module-badge">⚡ Module 14 · Sub-Module 14.5 of 7</div>
+    <h1 class="module-title">Sharding &amp; <span class="highlight">Modular Chains</span></h1>
+    <p class="module-subtitle">How Ethereum plans to split its blockchain into parallel shards, why Celestia separates data availability from execution, and the fundamental shift from monolithic to modular architecture that is reshaping the entire blockchain industry.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks (MCQ + True/False)</div>
+        <div class="meta-chip">📋 Ethereum Danksharding, Celestia, Data Availability</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s &amp; Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🧩</div>
+            <div class="feature-title">Explain sharding - the database technique that is transforming blockchain architecture</div>
+            <div class="feature-desc">Understand how splitting a blockchain into parallel shards multiplies throughput, and why early sharding proposals evolved into the Danksharding model.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📦</div>
+            <div class="feature-title">Master Proto-Danksharding (EIP-4844) and blob transactions</div>
+            <div class="feature-desc">Know exactly how blob-carrying transactions work, why they slash rollup costs by 90-99%, and what KZG commitments have to do with data availability.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🏗️</div>
+            <div class="feature-title">Deconstruct the modular blockchain thesis - execution, settlement, consensus, and data availability as separate layers</div>
+            <div class="feature-desc">See how Celestia pioneered the modular approach by doing only one thing - data availability - and letting other chains handle the rest.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">⚖️</div>
+            <div class="feature-title">Compare monolithic and modular architectures and understand MST's position</div>
+            <div class="feature-desc">Analyse the trade-offs between simplicity (monolithic) and flexibility (modular), and why MST's high-throughput L1 offers a different path.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Day Ethereum Gas Fees Broke a Billion-Dollar Protocol</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In May 2021, during the peak of the DeFi and NFT boom, Ethereum gas prices hit an all-time high. A simple token swap on Uniswap cost over ₹15,000 in gas fees. Minting an NFT on OpenSea cost ₹25,000. For a brief period, Ethereum became unusable for anyone except whales - the very thing it was supposed to democratise was now a playground for the rich.</p>
+        <br>
+        <p>The root cause was not a bug in Ethereum's code. It was a fundamental architectural limitation: <strong>every single Ethereum node had to process every single transaction</strong>. All 500,000 validators were redundantly doing the same work. This is like requiring every bank teller in the world to watch every transaction at every branch before approving a single withdrawal. It is insanely secure, but insanely inefficient. The network could only handle about 30 transactions per second - and it was being asked to handle thousands.</p>
+        <br>
+        <p>The solution that the Ethereum community has been working towards for over five years is called <strong>sharding</strong>. Instead of every node processing every transaction, the network would be split into multiple parallel chains (shards), each processing a subset of transactions. But the original sharding plan turned out to be incredibly complex - it would require shards to communicate with each other, users to manage cross-shard transactions, and developers to build for a fragmented ecosystem.</p>
+        <br>
+        <p>Then, in 2020, a researcher named Dankrad Feist proposed a radical simplification: <strong>don't shard execution - shard data.</strong> Instead of splitting transaction processing across shards, just use shards to store the data that rollups need to post. Rollups would handle execution; Ethereum would handle data availability and security. This insight, which became known as <strong>Danksharding</strong>, fundamentally reshaped Ethereum's roadmap - and it is now being implemented, starting with Proto-Danksharding (EIP-4844) in March 2024. In this sub-module, you'll learn exactly how this works, and how the modular blockchain revolution it sparked is reshaping the entire industry.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Is Sharding? - The Database Technique That Inspired Blockchain Scaling</div>
+    <h2 class="section-title">Divide and Conquer - How Splitting Data Across Servers Multiplies Throughput</h2>
+    <p><strong>Sharding</strong> is a database architecture technique where a large database is split into smaller, more manageable pieces called <strong>shards</strong>. Each shard contains a subset of the data and can be stored on a different server. When a query comes in, only the server holding the relevant shard needs to process it - not every server in the system. This is how Google, Amazon, and every major internet company handle billions of users: they shard their databases so that no single machine has to hold or process everything.</p>
+    <p>In the blockchain context, sharding means splitting the blockchain into multiple parallel chains (shards), each with its own state and its own set of validators. Instead of every validator processing every transaction (as Bitcoin and Ethereum do today), each shard processes only the transactions that belong to that shard. The result is that throughput increases linearly with the number of shards: 64 shards can process roughly 64 times as many transactions as a single chain.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.5-A · Monolithic Chain vs. Sharded Chain</div>
+        <pre>MONOLITHIC CHAIN:                          SHARDED CHAIN (64 shards):
+                                           
+┌─────────────────────┐                    ┌──────┐ ┌──────┐ ┌──────┐
+│  SINGLE CHAIN       │                    │Shard0│ │Shard1│ │Shard2│
+│                     │                    │State │ │State │ │State │
+│  Every validator    │                    └──┬───┘ └──┬───┘ └──┬───┘
+│  processes every    │                       │        │        │
+│  transaction        │                    ┌──┴────────┴────────┴──┐
+│                     │                    │   BEACON CHAIN       │
+│  30 TPS             │                    │ (coordinates shards, │
+│                     │                    │  finality, consensus) │
+└─────────────────────┘                    └──────────────────────┘
+                                                    │
+                                           Each shard processes its own
+                                           transactions in parallel.
+                                           Total TPS ≈ 30 × 64 = 1,920 TPS
+        </pre>
+        <div class="diagram-caption">Sharding splits the blockchain into parallel chains, each handling a portion of the total transaction load. The Beacon Chain coordinates the shards and provides finality.</div>
+    </div>
+
+    <p><strong>The original Ethereum sharding plan (2015-2020)</strong> envisioned 64 shards, each processing its own transactions and smart contracts. Users would have accounts on specific shards, and cross-shard communication would be handled by a central Beacon Chain. This was enormously complex: developers would need to decide which shard to deploy their contracts on, users would need to manage assets across shards, and the cross-shard communication protocol was a nightmare of edge cases and security assumptions.</p>
+    <p><strong>The breakthrough - data sharding instead of execution sharding:</strong> Dankrad Feist's key insight was that the rollup-centric roadmap made execution sharding unnecessary. If all execution was happening on rollups anyway, Ethereum L1 didn't need to shard execution - it only needed to provide enough cheap data storage for rollups to post their compressed transaction data. This is <strong>Danksharding</strong>: the shards don't process transactions; they just store data. Rollups do the heavy lifting of execution; Ethereum provides the data availability and security backbone.</p>
+
+    <div class="section-label">04 &nbsp; Proto-Danksharding (EIP-4844) - The First Step Towards Danksharding</div>
+    <h2 class="section-title">Blobs, KZG Commitments, and the 90% Rollup Fee Reduction</h2>
+    <p>In March 2024, Ethereum shipped the Cancun-Deneb upgrade, which included <strong>EIP-4844 (Proto-Danksharding)</strong>. This is the first concrete step on the road to full Danksharding, and it introduced a revolutionary new transaction type: <strong>blob-carrying transactions</strong>.</p>
+    <p><strong>What is a blob?</strong> A blob (Binary Large Object) is a chunk of data - up to 128 KB - that can be attached to a transaction. Unlike the data in regular transaction calldata, blobs are <strong>not stored permanently</strong> on Ethereum. They are stored temporarily (for about 18 days) and then deleted. This temporary storage is vastly cheaper than permanent calldata storage. Rollups can post their compressed transaction data as blobs instead of as calldata, reducing their data posting costs by 90-99%.</p>
+    <p><strong>Why temporary storage?</strong> The data that rollups post to L1 is needed only for a short period - long enough for anyone to reconstruct the rollup's state if they need to challenge a transaction. After a few weeks, the data has served its purpose. There is no need to burden Ethereum's permanent state with it. By using temporary blob storage, rollups get the security of L1 data availability without the permanent storage cost.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.5-B · How EIP-4844 Blob Transactions Work</div>
+        <pre>BEFORE EIP‑4844 (Rollup posts data as calldata):
+┌─────────────────────────────────────────────────────────────────┐
+│ Rollup posts compressed tx data as Ethereum calldata            │
+│ → Stored PERMANENTLY in Ethereum's state                        │
+│ → Costs ~$0.10‑$0.50 per transaction (expensive!)              │
+│ → Every Ethereum node must store this data forever              │
+└─────────────────────────────────────────────────────────────────┘
+
+AFTER EIP‑4844 (Rollup posts data as blobs):
+┌─────────────────────────────────────────────────────────────────┐
+│ Rollup posts compressed tx data as BLOBS                        │
+│ → Stored TEMPORARILY for ~18 days (then pruned)                 │
+│ → Costs ~$0.001‑$0.01 per transaction (90‑99% cheaper!)         │
+│ → Only beacon nodes store blobs; execution nodes only store     │
+│   the KZG commitment (a tiny 48‑byte proof)                     │
+└─────────────────────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">EIP-4844 introduces blob storage that is cheap because it's temporary. This reduces rollup costs dramatically without compromising security.</div>
+    </div>
+
+    <p><strong>How KZG commitments make blobs secure:</strong> A blob is 128 KB of data. The Ethereum execution layer does not store or verify the entire blob - that would defeat the purpose. Instead, the execution layer stores only a <strong>KZG commitment</strong> - a 48-byte cryptographic proof that acts as a fingerprint of the blob's contents. If a rollup later claims "the data was X," anyone can verify that claim against the KZG commitment without needing the original data. This is the cryptographic magic that makes Danksharding work: the full data is available to anyone who wants it (by downloading from beacon nodes), but the execution layer only needs to check a tiny proof.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 KZG Commitments Explained Simply</div>
+        <p>Think of a KZG commitment like a <strong>cryptographic hash with superpowers</strong>. A regular hash (like SHA-256) gives you a fingerprint of data. If someone later claims "the original data was this," you can hash their claim and compare it to the fingerprint. But with KZG, you can do something much more powerful: you can prove specific properties of the data (like "this data is a valid polynomial of degree N") without revealing the data itself. This is what enables data availability sampling - proving that data is available without everyone downloading the whole thing.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; Full Danksharding - The Endgame for Ethereum's Data Layer</div>
+    <h2 class="section-title">64 Shards of Data, All Secured by the Beacon Chain</h2>
+    <p>Proto-Danksharding (EIP-4844) supports only a small number of blobs per block (target of 3, maximum of 6). This provides enough cheap data for current rollup demand, but as rollups grow, more data capacity will be needed. <strong>Full Danksharding</strong> is the next step: splitting the data layer into 64 shards, each capable of holding multiple blobs, and using <strong>data availability sampling (DAS)</strong> to verify that all the data is available without requiring every node to download it.</p>
+    <p><strong>Data Availability Sampling (DAS):</strong> This is the breakthrough that makes full sharding feasible. The problem with 64 shards of data is that no single node could possibly download and verify all of it. DAS solves this by letting each node randomly sample small portions of the data from each shard. Through the magic of erasure coding and KZG commitments, if a node successfully samples enough random pieces, it can be statistically certain that the entire data is available - even though it has only downloaded a tiny fraction.</p>
+    <p><strong>The analogy:</strong> Imagine you have a 1,000-page book, and you want to verify that the entire book exists in a library without reading all 1,000 pages. If you randomly read 30 pages from different parts of the book and they all match what they're supposed to be, you can be &gt;99.99% confident that the whole book is there. If even one page were missing, the erasure coding would make it detectable by sampling. This is how DAS allows thousands of light nodes to verify 64 shards of data collectively, without any single node shouldering the entire burden.</p>
+
+    <div class="section-label">06 &nbsp; The Modular Blockchain Thesis - Unbundling the Monolith</div>
+    <h2 class="section-title">Execution, Settlement, Consensus, and Data Availability as Separate Layers</h2>
+    <p>A <strong>monolithic blockchain</strong> does everything itself: it executes transactions, reaches consensus on their order, settles finality, and stores all the data. Bitcoin and Ethereum L1 are monolithic. This works, but it means the chain can only scale as fast as its weakest component. A <strong>modular blockchain</strong> unbundles these four functions into separate, specialised layers that can be optimised independently.</p>
+    <p>The four layers of a modular blockchain stack:</p>
+    <p><strong>1. Execution Layer:</strong> Processes transactions and computes state transitions. This is what rollups do - they execute transactions off-chain and post the results (and the data needed to verify them) to a data availability layer.</p>
+    <p><strong>2. Data Availability (DA) Layer:</strong> Stores the transaction data and makes it available for anyone to download and verify. This is what Celestia does - it guarantees that data is published and available, without caring what the data means.</p>
+    <p><strong>3. Consensus Layer:</strong> Orders transactions and reaches agreement on the canonical chain. In a modular stack, the consensus layer often overlaps with the DA layer.</p>
+    <p><strong>4. Settlement Layer:</strong> Provides finality and dispute resolution. This is what Ethereum provides for its rollups - a neutral, secure court where disputes can be resolved.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.5-C · Monolithic vs. Modular Blockchain Architecture</div>
+        <pre>MONOLITHIC (Ethereum L1):                  MODULAR (Celestia + Rollups):
+                                           
+┌───────────────────────┐                  ┌─────────────────────┐
+│    ETHEREUM L1        │                  │   EXECUTION LAYER   │
+│                       │                  │ (Rollups: Arbitrum, │
+│  Execution            │                  │  Optimism, zkSync)  │
+│  Consensus            │                  └─────────┬───────────┘
+│  Settlement           │                            │ posts data
+│  Data Availability    │                  ┌─────────▼───────────┐
+│                       │                  │  DATA AVAILABILITY  │
+│  Does everything,     │                  │  + CONSENSUS LAYER  │
+│  but scales slowly    │                  │ (Celestia)          │
+└───────────────────────┘                  │                     │
+                                           │ Only does DA +      │
+                                           │ consensus. Let      │
+                                           │ rollups handle      │
+                                           │ execution.          │
+                                           └─────────┬───────────┘
+                                                     │
+                                           ┌─────────▼───────────┐
+                                           │  SETTLEMENT LAYER   │
+                                           │ (Ethereum for fraud │
+                                           │  proofs, or Celestia│
+                                           │  for sovereign L2s) │
+                                           └─────────────────────┘
+        </pre>
+        <div class="diagram-caption">Modular blockchains separate concerns: execution on rollups, data availability on Celestia, settlement on Ethereum or elsewhere.</div>
+    </div>
+
+    <div class="section-label">07 &nbsp; Celestia - The First Modular Blockchain Built Only for Data Availability</div>
+    <h2 class="section-title">A Chain That Doesn't Execute Smart Contracts - and That's the Point</h2>
+    <p><strong>Celestia</strong> (formerly called LazyLedger) is a blockchain that was purpose-built to do exactly one thing: <strong>order transactions and guarantee their data is available</strong>. It does not execute smart contracts. It does not have a virtual machine. It does not even know what the transactions it stores actually mean. It simply orders them, makes the data available, and lets other chains (sovereign rollups) handle execution.</p>
+    <p>This is a radically different philosophy from traditional blockchains. Celestia's creators argued that the hardest problem in scaling is not execution - it's data availability. Execution can be off-loaded to rollups. Consensus can be inherited from the data availability layer. But if the data isn't available, no amount of clever rollup technology can save you. By focusing exclusively on data availability, Celestia can optimise for that one thing and achieve massive throughput.</p>
+
+    <p><strong>How Celestia works:</strong></p>
+    <p><strong>1. Rollups post transaction data to Celestia.</strong> When a rollup processes a batch of transactions, it publishes the compressed data to Celestia instead of to Ethereum. Celestia orders this data and includes it in blocks.</p>
+    <p><strong>2. Celestia uses data availability sampling.</strong> Light nodes on Celestia can verify that data is available by randomly sampling small portions, using the same DAS technique that full Danksharding will use. This allows Celestia to have very large blocks (up to 8 MB) without requiring every node to download everything.</p>
+    <p><strong>3. Sovereign rollups read the data and execute.</strong> Each rollup is a "sovereign" chain that reads its own data from Celestia, executes transactions, and maintains its own state. There is no central settlement layer - each rollup is responsible for its own validity rules.</p>
+    <p><strong>4. Light nodes are first-class citizens.</strong> Celestia is designed so that even the lightest node (a mobile phone, theoretically) can verify data availability by sampling. This is in contrast to Ethereum, where running a full node requires significant hardware.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 Sovereign Rollups vs. Smart Contract Rollups</div>
+        <p>On Ethereum, rollups like Arbitrum deploy a smart contract on L1 that enforces the rollup's rules. This contract verifies fraud proofs and processes withdrawals. These are <strong>smart contract rollups</strong> - the L1 enforces the rollup's validity. On Celestia, rollups are <strong>sovereign</strong> - they enforce their own rules. Celestia doesn't know or care whether a rollup's transactions are valid. The rollup's own full nodes check validity. This gives sovereign rollups more flexibility (they can fork independently, change their rules without L1 governance) but requires users to run rollup-specific nodes to verify correctness.</p>
+    </div>
+
+    <div class="section-label">08 &nbsp; Data Availability Sampling - The Cryptographic Breakthrough Enabling Modular Chains</div>
+    <h2 class="section-title">How Light Nodes Can Verify Massive Blocks Without Downloading Them</h2>
+    <p>Data availability sampling (DAS) is the cryptographic technique that makes both Danksharding and Celestia possible. Without it, sharding would require every node to download every shard's data - defeating the purpose of sharding. With DAS, light nodes can verify data availability by downloading only a tiny fraction of the data.</p>
+    <p><strong>How DAS works, step by step:</strong></p>
+    <p><strong>1. Erasure coding:</strong> The original data block (e.g., 1 MB) is expanded using erasure coding into a larger block (e.g., 2 MB). Erasure coding is like RAID for data - if any portion of the expanded data is lost, the original can be reconstructed from the remaining portions. This is the same technology that allows a scratched DVD to still play.</p>
+    <p><strong>2. KZG commitments:</strong> A KZG commitment is generated for the entire data block. This commitment allows anyone to verify that a specific piece of data is part of the committed block, without needing the whole block.</p>
+    <p><strong>3. Random sampling:</strong> A light node randomly selects a small number of positions in the erasure-coded data (e.g., 30 positions out of thousands) and requests just those pieces from full nodes. For each piece, the light node verifies the KZG proof that the piece is correct.</p>
+    <p><strong>4. Statistical certainty:</strong> If all sampled pieces are valid, the light node can be &gt;99.99% confident that the entire data block is available. The mathematics of erasure coding guarantees that if enough random samples check out, the full data must be reconstructable.</p>
+
+    <p><strong>The beautiful result:</strong> A network of thousands of light nodes, each downloading only a few kilobytes of data, can collectively verify that hundreds of megabytes of data are available. No single node needs to download everything. This is how Celestia achieves scalable data availability without sacrificing decentralisation - and it's the same principle that will power Ethereum's full Danksharding.</p>
+
+    <div class="section-label">09 &nbsp; Monolithic vs. Modular - The Great Debate</div>
+    <h2 class="section-title">Which Architecture Wins, and When?</h2>
+    <table>
+        <thead><tr><th>Property</th><th>Monolithic (Ethereum L1, Solana, MST)</th><th>Modular (Celestia + Rollups)</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Complexity for developers</strong></td><td>Low - one chain, one set of rules</td><td>High - must choose DA layer, settlement layer, rollup framework</td></tr>
+            <tr><td><strong>Composability</strong></td><td>Full - all dApps share one state</td><td>Fragmented - dApps on different rollups cannot interact atomically</td></tr>
+            <tr><td><strong>Scalability ceiling</strong></td><td>Limited by hardware (single chain)</td><td>Very high - can add more rollups and DA capacity independently</td></tr>
+            <tr><td><strong>Security model</strong></td><td>Unified - one consensus, one security budget</td><td>Fragmented - security depends on each layer's design</td></tr>
+            <tr><td><strong>User experience</strong></td><td>Simple - one wallet, one gas token</td><td>Complex - bridging, multiple tokens, multiple UIs</td></tr>
+            <tr><td><strong>Innovation speed</strong></td><td>Slower - changes affect the whole chain</td><td>Faster - each layer can innovate independently</td></tr>
+            <tr><td><strong>Current maturity</strong></td><td>Mature (Bitcoin, Ethereum, Solana)</td><td>Early (Celestia launched 2023, ecosystem growing)</td></tr>
+        </tbody>
+    </table>
+    <p>The modular approach is not inherently better - it's a trade-off. Modular chains sacrifice composability and simplicity for scalability and flexibility. Monolithic chains sacrifice scalability for simplicity and composability. Which is "better" depends on the use case. A DeFi protocol that needs atomic composability with other protocols may be better on a monolithic chain. A high-throughput gaming ecosystem may benefit from a modular architecture where each game runs its own rollup.</p>
+
+    <div class="section-label">10 &nbsp; MST's Approach - A High-Throughput Monolith with Modular Ambitions</div>
+    <h2 class="section-title">Why MST Chose the Monolithic Path - and How It Can Adopt Modularity Later</h2>
+    <p>MST Blockchain is fundamentally a <strong>monolithic L1</strong>, designed to scale at the base layer. With 4,000+ TPS, ~3-second blocks, and fees a fraction of a paisa, MST delivers performance that Ethereum can only achieve through rollups - natively, without fragmentation. This is a deliberate design choice: for most applications, the simplicity of a single high-throughput chain outweighs the scalability ceiling of a modular approach.</p>
+    <p>However, MST is not ideologically opposed to modularity. Several features in MST's ecosystem point toward a future where modular components can be integrated:</p>
+    <p><strong>WASMify:</strong> Already separates execution from the base chain - WebAssembly modules can run off-chain and be verified on-chain. This is essentially a modular execution layer.</p>
+    <p><strong>ZK-based Communication:</strong> Uses zero-knowledge proofs for private messaging, a technology that can be extended to ZK-Rollups if scaling demands it.</p>
+    <p><strong>Fast finality + low fees:</strong> Makes MST an ideal settlement layer for future rollups. Verifying a ZK proof on MST costs a fraction of what it costs on Ethereum.</p>
+    <p>The likely trajectory for MST is a <strong>hybrid approach</strong>: a high-throughput L1 for most applications, with the ability to support modular execution layers (via WASMify and ZK proofs) for applications that need dedicated throughput or privacy. This gives developers the best of both worlds: the simplicity of a monolithic chain for everyday use, and the flexibility of modular components when needed.</p>
+
+    <div class="section-label">11 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Sharding splits a blockchain into parallel shards to multiply throughput.</strong> Ethereum's original plan was execution sharding; the current plan (Danksharding) is data sharding - storing rollup data across shards without sharding execution.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>EIP-4844 (Proto-Danksharding) introduced blob transactions</strong> that store rollup data temporarily (~18 days) instead of permanently, reducing rollup costs by 90-99%.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>KZG commitments are 48-byte cryptographic proofs</strong> that allow verifying data availability without downloading the full data. They are the foundation of both Danksharding and Celestia.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Celestia is a modular blockchain that only does data availability and consensus.</strong> It does not execute smart contracts. Rollups post data to Celestia and handle execution themselves as sovereign chains.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Data Availability Sampling (DAS) lets light nodes verify massive blocks</strong> by randomly sampling tiny portions. Combined with erasure coding and KZG commitments, it provides statistical certainty that all data is available.</div></div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.5</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Sharding</div><div class="g-def">Splitting a blockchain into multiple parallel chains (shards) to increase throughput. Can be execution sharding or data sharding.</div></div>
+        <div class="glossary-card"><div class="g-term">Danksharding</div><div class="g-def">Ethereum's current sharding plan - shards store rollup data (data sharding) rather than processing transactions. Named after researcher Dankrad Feist.</div></div>
+        <div class="glossary-card"><div class="g-term">Proto-Danksharding (EIP-4844)</div><div class="g-def">The first step toward Danksharding, introducing blob-carrying transactions. Shipped in March 2024 as part of the Cancun-Deneb upgrade.</div></div>
+        <div class="glossary-card"><div class="g-term">Blob</div><div class="g-def">A temporary data container (up to 128 KB) attached to a transaction. Stored for ~18 days, then deleted. 90-99% cheaper than permanent calldata.</div></div>
+        <div class="glossary-card"><div class="g-term">KZG Commitment</div><div class="g-def">A 48-byte cryptographic proof that allows verifying data availability without downloading the full data. Named after Kate, Zaverucha, and Goldberg.</div></div>
+        <div class="glossary-card"><div class="g-term">Data Availability Sampling (DAS)</div><div class="g-def">A technique where light nodes randomly sample small portions of data to statistically verify that the entire data block is available.</div></div>
+        <div class="glossary-card"><div class="g-term">Celestia</div><div class="g-def">A modular blockchain that only handles data availability and consensus. Execution is off-loaded to sovereign rollups that post data to Celestia.</div></div>
+        <div class="glossary-card"><div class="g-term">Sovereign Rollup</div><div class="g-def">A rollup that enforces its own validity rules independently, rather than relying on an L1 smart contract. Uses Celestia for data availability.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.5</strong> of 7 · Next: Sub-Module 14.6 - Cross-Chain Bridges →</p>
+    </div>
+
+

@@ -1,0 +1,436 @@
+
+
+<div class="module-badge">🎓 Module 13 &nbsp;·&nbsp; Sub-Module 13.2 of 5</div>
+<h1 class="module-title">Centralised vs <span class="highlight">Decentralised Oracles</span></h1>
+<p class="module-subtitle">One messenger or a thousand? The choice between a single oracle provider and a distributed network of oracles is the single most important architectural decision for your dApp's data pipeline. In this sub-module, we'll dissect both models - their trust assumptions, costs, failure modes, and ideal use cases - and reveal how MST's WASMify introduces a third path that eliminates the need for committees entirely through zero-knowledge proofs.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (5 marks) + 2 T/F with Justification (4 marks) + 1 Identify-Output (6 marks)</div>
+  <div class="meta-chip green">Phase 4 · Oracles &amp; WASMify</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Compare centralised and decentralised oracle architectures with precision</strong>
+      Evaluate the trade-offs in trust, latency, cost, and data freshness - and articulate exactly when a single provider is acceptable versus when a decentralised network is essential.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Deconstruct Chainlink's node economics and aggregation mechanics</strong>
+      Explain how staking, reputation, and median aggregation create a trust-minimised data feed, and identify the residual trust assumptions that still exist.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧮</div>
+    <div class="obj-text">
+      <strong>Calculate the cost-benefit of each oracle model for a given dApp</strong>
+      Estimate gas costs, node fees, and latency for a price feed versus a supply-chain IoT feed, and recommend the most appropriate architecture.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Contextualise WASMify as a third oracle paradigm</strong>
+      See how ZK-verified off-chain computation sidesteps the entire centralised-vs-decentralised debate by replacing economic trust with cryptographic proof, and where it fits in the oracle landscape.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Two Betting Platforms - One Survived, One Didn't</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, two sports betting dApps launched within a month of each other. Both allowed users to bet on IPL cricket match outcomes, and both used smart contracts to hold funds and pay out winners automatically.</p>
+  <br>
+  <p><strong>BetFast</strong> used a centralised oracle: a single server run by the founding team that scraped ESPNcricinfo for match results and pushed them on-chain. It was lightning-fast - results appeared within 30 seconds of a match ending. Gas costs were minimal because only one transaction was needed per match. For six months, everything ran perfectly. Then, during the IPL final, the server crashed under heavy load. The match result never reached the smart contract. ₹2 crore in user funds sat locked in the contract for three days while the founders scrambled to reboot the server. Users rioted on Twitter. The platform never recovered.</p>
+  <br>
+  <p><strong>BetDecentral</strong> used a decentralised oracle network. Five independent node operators, each pulling from different sports data APIs, submitted the match result to an on-chain aggregation contract. The median result was accepted. When one node submitted a wrong score (its API had a bug), the median filter caught it. When another node went offline, the remaining four still delivered the result. The platform processed the IPL final without a hitch. The cost? Five on-chain transactions instead of one, totalling about ₹0.03 on MST. The lesson: <strong>redundancy is expensive only in gas; trust is expensive in reputation.</strong></p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Oracle Trust Models - From Single Servers to Zero-Knowledge Proofs</h2>
+<p>The history of oracles is a history of trust reduction. Every generation has attempted to push the trust boundary further out - from trusting a person, to trusting a committee, to trusting mathematics itself.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Phase 1: The Centralised Era (2015 - 2018)</h3>
+<p>In the earliest dApps, the developer was the oracle. They ran a Node.js server with a simple script: watch the blockchain for requests, fetch data from an API, call a function on the contract with the result. This was the era of <strong>Oraclize</strong> (later Provable), which provided "authenticity proofs" - cryptographic evidence that the data from a specific API had not been tampered with. However, Oraclize was still a single company; users had to trust that the company's server was honest and the TLS proofs were genuine. The single point of failure was glaring.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Phase 2: The Decentralised Era (2019 - Present)</h3>
+<p>Chainlink launched in 2017 and matured into the dominant decentralised oracle network by 2019. The key innovation: <strong>don't trust one oracle; trust a committee of independent oracles, economically incentivised to be honest.</strong> This model proved itself during the DeFi summer of 2020, securing billions in lending and trading protocols. Today, Chainlink's price feeds are the industry standard, and other decentralised networks like Tellor, Band Protocol, and API3 compete with variations on the committee model.</p>
+<p>However, decentralised oracles are not perfect. They are slow (multiple nodes must submit), expensive (multiple transactions), and still carry residual trust in the committee majority. A 51% attack on the oracle nodes, or collusion, is theoretically possible. Also, they are ill-suited for large or private data, where submitting the full dataset on-chain is impractical or undesirable.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Phase 3: The ZK Era (Emerging)</h3>
+<p>The next frontier, which MST's WASMify spearheads, is the <strong>zero-knowledge oracle</strong>. Instead of trusting a committee, a single entity can perform off-chain computation and produce a ZK proof that the computation was correct. The smart contract verifies the proof. Trust shifts from people to mathematics. This model is trust-minimised, fast (single transaction), and can handle complex, private data. It's the holy grail of oracles - and it's becoming practical today.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> Every oracle model makes a trade-off between <strong>trust</strong>, <strong>cost</strong>, <strong>speed</strong>, and <strong>data complexity</strong>. There is no one-size-fits-all. The skill is knowing which model fits which use case.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">One Referee vs a Panel of Judges - Which Do You Trust More?</h2>
+<div class="callout analogy">
+  <div class="callout-label">⚽ The Analogy</div>
+  <p>A <strong>centralised oracle</strong> is like a single referee in a football match. He's fast, decisive, and costs less than a panel. But if he's bribed, or if he simply makes a mistake, the entire game is affected with no recourse. A <strong>decentralised oracle</strong> is like a panel of five judges in an Olympic gymnastics event. Each judge submits a score independently. The highest and lowest scores are discarded, and the average of the remaining three is taken. Bribing one judge is useless because their score is thrown out. Bribing three judges is expensive and risky. The panel is slower and more expensive, but far more trustworthy. A <strong>ZK oracle</strong> is like having a robot referee that records the entire game on video, runs a computer vision algorithm to detect fouls, and produces a cryptographic certificate that the algorithm was run correctly. You don't need to trust the robot - you can verify the certificate yourself.</p>
+</div>
+
+<p>Let's examine each model's strengths and weaknesses in a structured way:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">CENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Centralised Oracle: The Single Source</div>
+      <div class="w5-a">A single server or service that fetches data and submits it on-chain. <strong>Strengths:</strong> Fast (one transaction), cheap (one gas fee), simple to implement. <strong>Weaknesses:</strong> Single point of failure - server downtime, hacking, or malicious operator can compromise the entire dApp. Also a single point of censorship - a government could pressure the operator to manipulate data. Best for: low-value, non-financial applications where speed matters more than absolute trust, or as a temporary solution during prototyping.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">D</div><div class="w5-word">DECENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Decentralised Oracle Network: The Committee</div>
+      <div class="w5-a">Multiple independent node operators fetch data from multiple sources, aggregate it, and submit it on-chain via a coordinating contract. <strong>Strengths:</strong> No single point of failure, economic incentives for honesty (staking/slashing), battle-tested in DeFi securing billions. <strong>Weaknesses:</strong> Slower (multiple transactions must be submitted and aggregated), more expensive (multiple gas fees), still has residual trust in the committee majority, and complex to set up. Best for: high-value DeFi protocols, insurance, prediction markets - anywhere financial loss from bad data would be catastrophic.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">Z</div><div class="w5-word">ZK-PROOF</div></div>
+    <div class="w5-content">
+      <div class="w5-q">ZK Oracle (WASMify): The Mathematical Certificate</div>
+      <div class="w5-a">A single entity executes off-chain computation and produces a zero-knowledge proof of correct execution. The smart contract verifies the proof. <strong>Strengths:</strong> Trustless (no need to trust any operator), fast (single transaction), can handle complex/private data, no need for a network of staked nodes. <strong>Weaknesses:</strong> ZK proof generation is computationally intensive (though improving rapidly), requires specialised tooling, and is still an emerging technology with a smaller developer ecosystem. Best for: supply chain (complex IoT data), identity verification (privacy-critical), AI oracles, and any use case where the data is too large, complex, or sensitive for traditional oracles.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: CENTRALISED ORACLES -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - Centralised Oracles</div>
+<h2 class="section-title">The Single-Provider Model - Simple, Fast, and Fragile</h2>
+<p>A centralised oracle is the simplest possible data bridge. The architecture is straightforward:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.2-A · Centralised Oracle Architecture</div>
+  <pre>  ┌──────────────────┐     HTTP Request     ┌──────────────────┐
+  │   Oracle Server   │────────────────────▶│   Data Source    │
+  │  (Node.js / Go)  │◀────────────────────│  (Web API, DB)   │
+  └────────┬─────────┘     JSON Response    └──────────────────┘
+           │
+           │ Signs &amp; submits transaction
+           │ with data to smart contract
+           ▼
+  ┌──────────────────┐
+  │   Blockchain     │
+  │  (MST / Ethereum)│
+  │  ┌────────────┐  │
+  │  │  Consumer   │  │
+  │  │  Contract   │  │
+  │  └────────────┘  │
+  └──────────────────┘
+  </pre>
+  <div class="diagram-caption">One server, one data source, one transaction. The simplicity is seductive, but the trust assumption is absolute: the oracle operator must be honest and always available.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Implementation Example</h3>
+<p>Here's a minimal centralised oracle in JavaScript using ethers.js, fetching the ETH/USD price from CoinGecko and submitting it to a smart contract on MST every 10 minutes:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">const { ethers } = require("ethers");
+const axios = require("axios");
+
+// Connect to MST Testnet
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc.mstblockchain.com");
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+// Consumer contract ABI and address
+const oracleConsumer = new ethers.Contract(
+  "0xYourConsumerContract",
+  ["function updatePrice(uint256 price) external"],
+  wallet
+);
+
+async function fetchAndSubmit() {
+  try {
+    // Fetch price from CoinGecko API
+    const response = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&amp;vs_currencies=usd"
+    );
+    const price = Math.round(response.data.ethereum.usd); // e.g., 260000 (in cents)
+
+    // Submit to smart contract
+    const tx = await oracleConsumer.updatePrice(price);
+    await tx.wait();
+    console.log(`Price updated: ${price} at block ${tx.blockNumber}`);
+  } catch (error) {
+    console.error("Oracle update failed:", error.message);
+  }
+}
+
+// Run every 10 minutes
+setInterval(fetchAndSubmit, 10 * 60 * 1000);
+fetchAndSubmit();
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Failure Modes of Centralised Oracles</h3>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Server Downtime</div>
+      <div class="feature-desc">If the oracle server crashes, the data stops flowing. The smart contract operates on stale data or freezes entirely. In DeFi, stale prices can lead to incorrect liquidations or prevent them entirely, causing bad debt.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Data Source Manipulation</div>
+      <div class="feature-desc">Even if the oracle server is honest, the API it fetches from might be compromised. If a single exchange's price feed is hacked to show ETH = $1, the oracle will faithfully report that price, and the smart contract will act on it - potentially liquidating all positions.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Malicious Operator</div>
+      <div class="feature-desc">The oracle operator could intentionally submit false data to profit - for example, manipulating a price feed to trigger liquidations and then buying the liquidated collateral at a discount. This is an "oracle attack" and has happened multiple times in DeFi history.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ When is a centralised oracle acceptable?</div>
+  <p>Centralised oracles are acceptable for <strong>prototyping</strong>, <strong>testnets</strong>, <strong>low-value applications</strong> (where the cost of an attack exceeds the potential gain), and <strong>non-financial data</strong> (e.g., displaying a blog feed on a dApp). They are <strong>not acceptable</strong> for any application handling significant value, where a single malicious or failed data point could cause real financial damage.</p>
+</div>
+
+<!-- 06 TECHNICAL DEEP DIVE: DECENTRALISED ORACLES -->
+<div class="section-label">06 &nbsp; Technical Deep Dive - Decentralised Oracles</div>
+<h2 class="section-title">Chainlink's Committee Model - Strength in Numbers</h2>
+<p>Chainlink's architecture solves the centralised oracle's single point of failure by introducing redundancy at every layer: multiple nodes, multiple data sources, and on-chain aggregation. Let's examine how each component contributes to trust minimisation.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Five Layers of Chainlink Security</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Multiple Independent Node Operators:</strong> Instead of one server, a feed might use 7 - 21 independent nodes, each run by different entities with different infrastructure, located in different jurisdictions. No single operator controls the feed.</li>
+  <li><strong>Multiple Data Sources:</strong> Each node fetches from multiple APIs (e.g., Binance, Coinbase, Kraken, Gemini) and aggregates locally before submitting. This prevents a single exchange's API bug or manipulation from affecting the result.</li>
+  <li><strong>On-Chain Aggregation:</strong> The Aggregator contract receives all submissions and computes a <strong>weighted median</strong>. The median is resistant to outliers - if one node submits a wildly wrong price, it has zero effect on the final answer.</li>
+  <li><strong>Economic Incentives (Staking):</strong> Nodes stake LINK tokens. If they submit data that deviates from the consensus, their stake can be slashed. This creates a financial disincentive for dishonesty.</li>
+  <li><strong>Reputation System:</strong> Nodes build on-chain reputation over time. Consumers can choose feeds that use high-reputation nodes, creating a market for reliable data.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.2-B · Chainlink Decentralised Oracle Network</div>
+  <pre>  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+  │  Node 1  │ │  Node 2  │ │  Node 3  │ │  Node 4  │ │  Node 5  │
+  │ Binance  │ │ Coinbase │ │ Kraken   │ │ Gemini   │ │ Bitstamp │
+  │ $2,000   │ │ $2,002   │ │ $1,999   │ │ $2,001   │ │ $99 (bug)│
+  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘
+       │            │            │            │            │
+       └────────────┴────────────┼────────────┴────────────┘
+                                │ all submit on‑chain
+                                ▼
+                    ┌───────────────────────┐
+                    │  Aggregation Contract │
+                    │  Sorted: 99, 1999,    │
+                    │  2000, 2001, 2002     │
+                    │  Median: 2000 ✅      │
+                    └───────────┬───────────┘
+                                │
+                                ▼
+                    ┌───────────────────────┐
+                    │  Lending Protocol     │
+                    │  ETH/USD = $2,000     │
+                    └───────────────────────┘
+  </pre>
+  <div class="diagram-caption">Node 5 submitted a bug price of $99, but the median ($2,000) was unaffected. Even if Nodes 4 and 5 colluded, they'd need to control a majority of nodes to influence the median.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Remaining Trust Assumptions in Chainlink</h3>
+<p>Despite its robustness, Chainlink is not fully trustless:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Committee majority collusion:</strong> If a majority of nodes collude, they can control the median. The cost of this attack is high (acquiring 51% of the staked LINK), but it's theoretically possible.</li>
+  <li><strong>Data source manipulation at scale:</strong> If a major exchange's API is hacked across all nodes that use it, the median could be skewed if multiple nodes rely on the same compromised source.</li>
+  <li><strong>Smart contract risk:</strong> The Aggregator contract itself could have a bug. Chainlink's contracts are audited, but no code is bug-free.</li>
+  <li><strong>Liveness:</strong> If too many nodes go offline simultaneously, the feed may stop updating. Chainlink requires a minimum number of submissions before it considers an answer valid.</li>
+</ul>
+
+<!-- 07 COST COMPARISON -->
+<div class="section-label">07 &nbsp; Cost Comparison</div>
+<h2 class="section-title">Gas, Fees, and Latency - The Real Numbers</h2>
+<p>Let's compare the concrete costs of each model for a typical price feed update on MST versus Ethereum, to understand why chain choice matters as much as oracle choice.</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Metric</th><th>Centralised Oracle</th><th>Decentralised Oracle (Chainlink)</th><th>ZK Oracle (WASMify)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Transactions per update</strong></td><td>1</td><td>5 - 21 (one per node, plus aggregation)</td><td>1 (proof submission)</td></tr>
+    <tr><td><strong>Gas cost on Ethereum (₹)</strong></td><td class="bad">₹500-₹1,500</td><td class="bad">₹2,500-₹31,500</td><td class="bad">₹800-₹2,000</td></tr>
+    <tr><td><strong>Gas cost on MST (₹)</strong></td><td class="good">₹0.006</td><td class="good">₹0.03-₹0.12</td><td class="good">₹0.008</td></tr>
+    <tr><td><strong>Latency</strong></td><td>~3 sec (1 block)</td><td>~15 - 60 sec (multiple blocks)</td><td>~3 sec (1 block) + proof generation</td></tr>
+    <tr><td><strong>Trust model</strong></td><td>Trust 1 operator</td><td>Trust majority of committee</td><td>Trust math (ZK proof)</td></tr>
+    <tr><td><strong>Data complexity</strong></td><td>Simple values only</td><td>Simple to medium values</td><td>Any complexity (IoT, ML, large datasets)</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>MST game-changer:</strong> On Ethereum, using a decentralised oracle with 7 nodes costs ₹17,500 per update - which means updates can only happen every hour or day. On MST, the same update costs ₹0.04 - making minute-by-minute updates economically viable. <strong>Chain choice determines oracle feasibility.</strong>
+</div>
+
+<!-- 08 THE THIRD WAY: WASMIFY -->
+<div class="section-label">08 &nbsp; The Third Way - WASMify ZK Oracles</div>
+<h2 class="section-title">Verifiable Computation: Neither Centralised Nor Decentralised - Trustless</h2>
+<p>WASMify sidesteps the entire trust debate. Instead of asking "who do I trust to give me data?", it asks: <strong>"how can I verify the data is correct, regardless of who submitted it?"</strong></p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How It Works - Step by Step</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Write a WASM module:</strong> Compose a program (in Rust, C, Python compiled to WASM) that defines the computation - e.g., "fetch temperature data from IoT sensor X, verify it stayed below -20°C for the entire journey, return TRUE/FALSE".</li>
+  <li><strong>Execute off-chain:</strong> Any party - the dApp operator, a third-party service, even a user - runs the WASM module on their hardware. The execution produces a result and a <strong>ZK proof</strong> that the computation was performed exactly as specified, with the correct inputs.</li>
+  <li><strong>Submit proof on-chain:</strong> The proof (a few hundred bytes) is submitted to an MST smart contract.</li>
+  <li><strong>Verify on-chain:</strong> The contract runs a verification algorithm. If the proof is valid, it accepts the result as truth and proceeds with its logic. If the proof is invalid, it rejects the submission.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.2-C · WASMify vs Chainlink - Trust Model Comparison</div>
+  <pre>  CHAINLINK:                          WASMify:
+  ┌──────────────────────┐            ┌──────────────────────┐
+  │  Trust 7/21 nodes     │            │  Trust ZK Math       │
+  │  to be honest and     │            │  (no nodes needed)   │
+  │  available            │            │                      │
+  └──────────┬───────────┘            └──────────┬───────────┘
+             │                                   │
+             ▼                                   ▼
+  ┌──────────────────────┐            ┌──────────────────────┐
+  │  Economic Security    │            │  Cryptographic       │
+  │  (staking, slashing)  │            │  Security            │
+  │                       │            │  (ZK proof verified) │
+  └──────────────────────┘            └──────────────────────┘
+  </pre>
+  <div class="diagram-caption">Chainlink secures data through economic incentives; WASMify secures it through mathematics. Both are valid, but they excel in different scenarios.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ When to Use Which</div>
+  <p><strong>Chainlink (Decentralised):</strong> Best for simple, high-frequency, public data where a well-established network already exists (e.g., ETH/USD price feeds). The infrastructure is mature and battle-tested.<br><br>
+  <strong>WASMify (ZK):</strong> Best for complex, private, or novel data where no oracle network exists (e.g., supply chain IoT data, identity verification, AI inference). Also ideal when you want minimal trust assumptions and can tolerate the proof generation overhead.<br><br>
+  <strong>Centralised:</strong> Best for prototypes, testnets, and non-critical applications. Never for production financial applications.</p>
+</div>
+
+<!-- 09 INTERACTIVE SCENARIO BUILDER -->
+<div class="section-label">09 &nbsp; Interactive Scenario Builder</div>
+<h2 class="section-title">Choose the Right Oracle for Your dApp</h2>
+<p>Click each scenario to see the recommended oracle architecture and detailed reasoning.</p>
+
+<details>
+  <summary>💹 Scenario 1: DeFi lending protocol needs ETH/USD price every 5 minutes</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> Decentralised Oracle (Chainlink or similar).</p>
+    <p><strong>Reasoning:</strong> This is the canonical Chainlink use case. The data is simple (one number), public, and high-value (wrong prices = bad liquidations). Chainlink's ETH/USD feed is already running on many chains and can be deployed on MST. On MST, 5-minute updates with 7 nodes cost only ~₹0.04 per update - easily sustainable. WASMify would also work but is overkill for a simple price feed; Chainlink's mature infrastructure is the pragmatic choice.</p>
+  </div>
+</details>
+<details>
+  <summary>🚚 Scenario 2: Cold-chain pharma logistics - verify vaccine shipment never exceeded 8°C</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> ZK Oracle (WASMify).</p>
+    <p><strong>Reasoning:</strong> The IoT temperature data log could be megabytes in size, private to the shipping company, and requires complex processing (checking every data point against a threshold). Submitting the entire log on-chain via Chainlink would be astronomically expensive and a privacy violation. WASMify can process the entire log off-chain, produce a ZK proof that temperature never exceeded 8°C, and submit only the proof (~200 bytes) on-chain. The smart contract verifies the proof, and the vaccine shipment is certified compliant. Neither centralised nor decentralised traditional oracles can handle this efficiently.</p>
+  </div>
+</details>
+<details>
+  <summary>🆔 Scenario 3: Age verification for Web3 delivery app - prove user is &gt;18 without revealing birthdate</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> ZK Oracle (WASMify).</p>
+    <p><strong>Reasoning:</strong> This is a privacy-critical use case. Traditional oracles would require the user's identity document to be submitted on-chain or to the oracle operator - a privacy and compliance nightmare. WASMify can take the user's digital ID as a private input, compute whether age &gt; 18, and produce a ZK proof of the result without revealing the ID or birthdate. The proof is verified on-chain. Zero personal data is exposed. This is impossible with Chainlink or a centralised oracle.</p>
+  </div>
+</details>
+<details>
+  <summary>🧪 Scenario 4: Prototyping a hackathon project - need any ETH price, fast, simple</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> Centralised Oracle.</p>
+    <p><strong>Reasoning:</strong> For a prototype, speed and simplicity trump everything. Run a 50-line Node.js script that fetches from CoinGecko and pushes to your contract. It's good enough for a demo. Just don't put real money behind it. Once the project graduates from prototype to production, upgrade to Chainlink or WASMify depending on the data complexity.</p>
+  </div>
+</details>
+
+<!-- 10 COMMON PITFALLS -->
+<div class="section-label">10 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Oracle Architecture Mistakes That Cost Real Money</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using a centralised oracle for a production DeFi protocol</div>
+      <div class="feature-desc">This is the #1 mistake. A centralised oracle may work for months, but it will fail at the worst possible moment - during a market crash, when liquidations are critical and the server is overloaded. The cost of a decentralised oracle (₹0.04/update on MST) is negligible compared to the reputational and financial damage of a failure.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">All nodes using the same data source</div>
+      <div class="feature-desc">A decentralised oracle with 21 nodes, all fetching from the same API, is effectively a centralised oracle with extra steps. True decentralisation requires <strong>source-level diversity</strong>. Each node should fetch from different, independent data providers.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the freshness of oracle data</div>
+      <div class="feature-desc">An oracle that updates every hour is useless for a lending protocol where prices can move 10% in minutes. Always define acceptable staleness thresholds in your smart contract (e.g., <code>require(block.timestamp - updatedAt &lt; 300, "Stale price")</code>).</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Centralised = 1 provider → fast, cheap, single point of failure</div>
+      <div class="feature-desc">Use only for prototypes and non-financial apps. Never for production DeFi.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Decentralised (Chainlink) = multiple nodes + aggregation → trust minimised, costlier, battle-tested</div>
+      <div class="feature-desc">Standard for DeFi price feeds. Requires economic incentives (staking). Residual trust in committee majority.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">ZK Oracle (WASMify) = ZK proof → trustless, handles complex/private data, emerging tech</div>
+      <div class="feature-desc">No need for a committee. Trust math, not people. Best for supply chain, identity, AI, and privacy-critical data.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees make decentralised and ZK oracles economically viable</div>
+      <div class="feature-desc">On Ethereum, a 7-node Chainlink update costs ₹17,500+. On MST, the same costs ₹0.04. Oracle choice is chain-dependent.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 13.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Centralised Oracle</div><div class="glossary-def">A single data provider that fetches external data and submits it on-chain. Fast and simple but creates a single point of failure.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Decentralised Oracle</div><div class="glossary-def">A network of independent node operators that fetch data from multiple sources, aggregate it, and submit on-chain. Trust-minimised through redundancy and economic incentives.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chainlink</div><div class="glossary-def">The leading decentralised oracle network. Uses staking, reputation, and median aggregation to provide reliable data feeds for DeFi.</div></div>
+  <div class="glossary-item"><div class="glossary-term">ZK Oracle</div><div class="glossary-def">An oracle that uses zero-knowledge proofs to verify off-chain computation, eliminating the need to trust the data provider. MST's WASMify implements this model.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Median Aggregation</div><div class="glossary-def">A statistical method where the middle value of sorted submissions is selected, making the result resistant to outliers and manipulation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Source-Level Diversity</div><div class="glossary-def">The practice of having oracle nodes fetch data from different, independent data providers to avoid a shared single point of failure at the data source.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's framework for verifiable off-chain computation. Executes WASM modules off-chain, generates ZK proofs, and verifies them on-chain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Staking (in oracles)</div><div class="glossary-def">Node operators locking tokens as collateral to incentivise honest behaviour. Bad data results in slashing (loss of stake).</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 13 · Sub-Module <strong>13.2</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 13.3 - WASMify - MST's ZK-Powered Oracle Bridge →</p>
+</div>
+
+

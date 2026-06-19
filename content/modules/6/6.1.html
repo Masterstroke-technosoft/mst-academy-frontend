@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 6.1 - The Web2 Trap Revisited | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  /* ─── PROSE ─── */
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  /* ─── OBJECTIVE GRID ─── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  /* ─── W5 GRID ─── */
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  /* ─── VISUAL DIAGRAM ─── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  /* ─── FEATURE PILLS ─── */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── STAT CARDS ─── */
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+  .stat-card {
+    background: var(--brand-light); border: 1px solid #C4B5F5;
+    border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+  .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+  /* ─── ASSESSMENT ─── */
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  /* ─── SCORE SUMMARY ─── */
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  /* ─── FOOTER ─── */
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  /* ─── GLOSSARY ─── */
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  /* ─── HIGHLIGHT STRIP ─── */
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .stat-row       { grid-template-columns: 1fr 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🎓 Module 6 &nbsp;·&nbsp; Sub-Module 6.1 of 5</div>
+<h1 class="module-title">The <span class="highlight">Web2 Trap</span> Revisited</h1>
+<p class="module-subtitle">Why the apps you love silently extract value from the people who create it - and how blockchain rewrites the rules of ownership. Four real people, one economic trap, and the architecture that keeps them captive.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 20 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (marks vary by difficulty: 1+2+2+2+3)</div>
+  <div class="meta-chip green">Phase 2 · Why MST Blockchain</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🪤</div>
+    <div class="obj-text">
+      <strong>Define the Web2 trap in simple terms</strong>
+      Explain why the apps that connect us are actually digital landlords - and why providers and users end up paying rent forever.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📊</div>
+    <div class="obj-text">
+      <strong>Identify the four rent seeking levers</strong>
+      Commission, data moat, algorithm control, and deplatforming power - with fresh examples from food delivery, ride hailing, e commerce, and content creation.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔄</div>
+    <div class="obj-text">
+      <strong>Contrast Web2 platforms with Web3 protocols</strong>
+      Show how smart contracts and tokens flip the script - from “platform extracts” to “community owns and governs”.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Internalise the developer's perspective</strong>
+      Recognise that every line of code you write for a centralised app reinforces the trap - and why building on MST gives the power back to users.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">Four People, One Trap - A Day in the Life of Web2</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p><strong>Meera</strong> runs a cloud kitchen in Pune. She sells butter chicken on a popular food delivery app. Last month her total orders were ₹3,50,000. After the app took its 28% commission, deducted GST on that commission, subtracted packaging costs, and forced her to co-fund a “Free Delivery” promotion, Meera was left with ₹1,60,000. Out of that she paid ₹90,000 for ingredients, ₹40,000 in rent and electricity, and ₹20,000 to her two helpers. Her own salary? Zero. The app made over ₹98,000 from her orders - without cooking a single meal.</p>
+  <br>
+  <p><strong>Vikram</strong> drives an auto-rickshaw in Bengaluru, but he also drives for a ride hailing platform. Yesterday he completed 14 trips and earned ₹2,100 in fares. The platform took ₹525 (25%). Fuel cost ₹600. Vehicle EMI ₹350. Vikram took home ₹625 for 11 hours of work - that's ₹56 per hour, less than the minimum wage for unskilled labour in Karnataka. The platform made ₹525 from Vikram's labour - without owning the vehicle, buying the fuel, or bearing the accident risk.</p>
+  <br>
+  <p><strong>Priya</strong> sells handmade jewellery on a popular e commerce marketplace. A necklace priced at ₹800 is sold. The marketplace charges 15% referral fee (₹120), a closing fee of ₹30, and shipping of ₹60. She also pays 18% GST on the fees. Priya's net realisation: ₹575. The raw materials cost ₹350. Her margin is ₹225 for 3 hours of intricate work - ₹75 per hour. The marketplace earned over ₹170 from this one sale simply by connecting Priya to a buyer. Priya cannot even email the buyer to tell them about her new collection - the marketplace owns that relationship.</p>
+  <br>
+  <p><strong>Arjun</strong> is a tech educator on YouTube. His channel has 5 lakh subscribers. Last month a video explaining pointers in C got 3 lakh views. The ad revenue was ₹48,000. YouTube took its 45% cut - ₹21,600. Arjun received ₹26,400. Then YouTube changed its advertiser friendly guidelines retroactively - three older videos were demonetised without warning. Arjun lost ₹15,000 of his projected income overnight. He has no way to reach his subscribers outside YouTube - the platform holds his audience hostage.</p>
+  <br>
+  <p>These are not isolated sob stories. <strong>They are the inevitable mathematics of a centralised platform economy.</strong> In every case, the person doing the actual work - cooking, driving, creating, making - earns a fraction of the value they generate. The platform that owns the database, the matching algorithm, and the customer relationship captures the lion's share. And if any of these four people try to leave, they leave behind their entire business. The platform is not a partner. It is a rent seeking landlord - and the rent keeps going up.</p>
+</div>
+
+<p>We call this the <strong>Web2 trap</strong>. It is the single most important reason why blockchain exists - because blockchain is, at its core, a technology for removing the need to trust a central rent seeker. Understanding this trap in granular, human detail is the foundation for everything you will learn in the MST ecosystem.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Open Internet to Digital Feudalism - How We Got Here</h2>
+
+<p>The internet was born as a decentralised network. In the 1990s, anyone could set up a server, publish a website, and reach the world - no permission needed. The early web was a chaotic, vibrant, peer to peer playground. So what changed? The short answer: <strong>aggregation beats distribution when it is easier for users.</strong></p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏗️</div>
+    <div class="feature-content">
+      <div class="feature-title">Phase 1: The Aggregator Gold Rush (2005 - 2012)</div>
+      <div class="feature-desc">Companies realised they could build a single website that gathered all the scattered suppliers in one place. Expedia aggregated hotels. Amazon aggregated sellers. YouTube aggregated videos. The pitch was irresistible: “We will bring you customers - just pay us a small cut.” In exchange for discovery, suppliers handed over their customer relationships. At first the cut was small - 5%, 10% - because platforms were fighting for market share. But the architecture was already centralised: the platform owned the database.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">📱</div>
+    <div class="feature-content">
+      <div class="feature-title">Phase 2: The Smartphone Lock-In (2010 - 2016)</div>
+      <div class="feature-desc">The iPhone and Android turned aggregators into apps. Now a platform was not just a website - it lived on your home screen, collected your location, your contacts, your usage patterns. App stores added another 30% tax on top. In India, the Jio revolution brought 500 million new users online, all of them accessing the internet primarily through apps owned by a handful of companies. The web became a walled garden.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">📈</div>
+    <div class="feature-content">
+      <div class="feature-title">Phase 3: Network Effects Become Moats (2016 - 2020)</div>
+      <div class="feature-desc">Once a food delivery app has most of the restaurants and most of the hungry customers, a new competitor cannot break in - even with a better product. Restaurants will not leave because that is where the orders are. Customers will not leave because that is where their favourite restaurants are. This is the <strong>network effect moat</strong>. The platform no longer needs to be the best; it just needs to be the biggest. And now that the moat is built, the platform can raise its fees. And they did.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">💰</div>
+    <div class="feature-content">
+      <div class="feature-title">Phase 4: The Harvest (2020 - Now)</div>
+      <div class="feature-desc">With competition crushed and providers locked in, platforms switched from growth to extraction. Commissions that were 10% five years ago are now 28%. Delivery fees, surge pricing, and mandatory promotions erode provider income further. Algorithms are tuned not for the best match but for maximum platform revenue. Creators, drivers, sellers, and restaurateurs are working harder than ever - and earning less. <strong>The platform lifecycle is complete: subsidise, dominate, lock, extract.</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Developer's Realisation</div>
+  <p>As a developer, you might think: “I just build the features - the business model is someone else's problem.” But the architecture you choose <strong>is</strong> the business model. A centralised database with one admin who can read, write, and delete is a system where one party has absolute power. A blockchain is a system where power is distributed by code. Every line of Solidity you write is a choice: do you build another digital landlord, or do you build a digital commons?</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Web2 Trap - Explained Like You Are Catching Up with a Friend</h2>
+
+<p>Let us strip away the jargon. The Web2 trap is simply this: <strong>someone else owns the room where you do business, and they charge you rent for every single transaction - forever.</strong> The more successful you become inside that room, the more rent you pay. And you can never leave, because all your customers are inside that room and you do not have their phone numbers.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🏢 The Architect &amp; the Building Owner Analogy</div>
+  <p>Imagine you are an architect. You design beautiful houses. A company called “BuildConnect” says: “Set up your office inside our building. We will bring clients to you. We only take 20% of every project fee.” Sounds fair. Years pass. Your reputation grows - you have designed 200 houses. But BuildConnect now takes 30%. They decide which clients see your profile. They also sell your floor plans to other architects without paying you. And if you try to move out, you walk away with nothing - no client list, no portfolio, no reviews. All of that belongs to BuildConnect. You built a career inside someone else's building. <strong>That is the Web2 trap.</strong></p>
+</div>
+
+<!-- W5 Grid -->
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does the Web2 trap happen?</div>
+      <div class="w5-a">Because Web2 platforms are built as <strong>centralised databases</strong>. One company controls the server, the code, and all the data. That company's goal is to maximise profit - and the most reliable way to do that is to increase the rent it charges to both sides of the market. Once users are locked in by network effects, the platform has no incentive to lower fees. The architecture guarantees exploitation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What exactly gets trapped?</div>
+      <div class="w5-a"><strong>Three things:</strong> (1) <strong>Providers</strong> - the people who actually create the value: chefs, drivers, artisans, creators. They cannot leave without losing their entire income. (2) <strong>Consumers</strong> - their data, preferences, and social connections are locked inside the platform; switching means starting from zero. (3) <strong>Data itself</strong> - the most valuable resource of the 21st century. The platform collects it for free and monetises it for billions, while the people who generated the data see none of that value.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the platform maintain control?</div>
+      <div class="w5-a">Through <strong>four levers</strong>: (1) <strong>Commission</strong> - a percentage fee on every transaction. (2) <strong>Data moat</strong> - hoarding all customer information so providers cannot build independent relationships. (3) <strong>Algorithmic control</strong> - deciding who gets seen and who gets buried, with zero transparency. (4) <strong>Deplatforming power</strong> - the ability to delete your account and destroy your business with a single click.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where do we see this trap in everyday life?</div>
+      <div class="w5-a"><strong>Everywhere.</strong> Food delivery (Swiggy/Zomato), ride hailing (Ola/Uber), e commerce (Amazon/Flipkart), home services (Urban Company), hotel booking (OYO), content creation (YouTube/Instagram), even online dating. Any app that sits between two groups and takes a cut is operating this model. The only question is how far along the extraction curve they are.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Can we fix this trap while staying within Web2?</div>
+      <div class="w5-a">Not structurally. Regulation can cap commissions (like the EU's Digital Markets Act), but it cannot change the fact that a single company owns the database. That company will always find new ways to extract value - through advertising, data sales, or priority placement. The only permanent solution is to change the architecture: from <strong>one company owning the platform</strong> to <strong>the community owning the protocol</strong>. That is the blockchain thesis in one sentence.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Four Levers of Platform Rent Seeking - Anatomy of a Trap</h2>
+
+<p>The Web2 trap is not a random accident of capitalism. It is a precise, engineered system with four interlocking components. As a blockchain developer, you need to understand each lever not just economically, but <strong>architecturally</strong> - because your code will replace these levers with smart contracts.</p>
+
+<div class="feature-list">
+
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Lever 1: Commission Extraction - The Percentage Tax</div>
+      <div class="feature-desc">
+        <p>Every time a transaction flows through the platform, the platform takes a cut. In food delivery, it is 23 to 28%. In ride hailing, it is 20 to 25%. In app stores, it is 15 to 30%. In e commerce marketplaces, total fees can reach 45% when you add referral fees, closing fees, shipping charges, and advertising.</p>
+        <p>The crucial point: <strong>the percentage rises over time.</strong> When platforms were competing for market share, commissions were low (5 to 10%). Once they won, commissions jumped. This is not a one time tax - it is a permanent, growing rent on every transaction forever. And because the platform processes the payment, the provider has no choice: if they want to get paid, they pay the tax.</p>
+        <p><strong>Developer's lens:</strong> In a Web2 app, the payment flow is <code>Customer → Platform → Provider (minus cut)</code>. In a Web3 dApp on MST, the flow is <code>Customer → Smart Contract → Provider</code>, with a gas fee of fractions of a paisa. The platform's 28% rent is replaced by an open protocol's sub paisa fee. The difference in take rate is not 10% - it is 10,000x.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Lever 2: Data Moat - The Information Asymmetry Weapon</div>
+      <div class="feature-desc">
+        <p>The platform captures every interaction: who clicked what, who ordered when, who abandoned the cart, who lives near whom. This data is a goldmine. The platform uses it to optimise its own revenue - showing you the restaurant that pays the highest commission, not necessarily the one you would like best. But the restaurant never sees this data.</p>
+        <p>Imagine Priya, the jewellery seller. She does not know that 40% of people who viewed her necklace also looked at earrings. If she knew that, she could create a combo offer. But Amazon knows - and Amazon sells the data to big brands or uses it to launch its own competing jewellery line. <strong>The data asymmetry means the platform always has more information than the provider - and information is power.</strong></p>
+        <p><strong>Developer's lens:</strong> In a centralised system, all data sits in one database controlled by one entity. That entity can read, analyse, and monetise it freely. In a blockchain system, data is on a public ledger. Privacy can be preserved with zero knowledge proofs, but the key point is: <strong>no single party gets a god view of everyone's behaviour.</strong> The data moat collapses.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Lever 3: Algorithmic Control - The Invisible Hand That Crushes You</div>
+      <div class="feature-desc">
+        <p>Who decides which restaurant appears first when you search “biryani near me”? The platform's algorithm. That algorithm is a black box - proprietary, unauditable, and tuned for one thing: <strong>platform profit per search</strong>. A restaurant can drop from rank 3 to rank 30 overnight based on a metric it does not control and cannot see.</p>
+        <p>YouTube's recommendation algorithm is legendary for this. A creator's video that was getting 100,000 views per day can suddenly stop being recommended - with no explanation. The creator's income halved, and they have zero recourse. The algorithm is the platform's ultimate weapon: it can make or break any provider silently, without accountability.</p>
+        <p><strong>Developer's lens:</strong> In Web3, ranking logic can be encoded in open source smart contracts. The rules are transparent. If the community wants to change the ranking formula, they vote on it. No black box. No secret tuning. The algorithm becomes a public good, not a corporate weapon.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Lever 4: Deplatforming - The Nuclear Option</div>
+      <div class="feature-desc">
+        <p>At any moment, for any reason - or no reason - the platform can delete your account. Your 5 star rating, your 2,000 positive reviews, your 5 lakh subscribers, your 10 years of transaction history - gone. You have no recourse, no appeal, no backup. You are a tenant, not an owner.</p>
+        <p>This is not theoretical. Creators get demonetised for “advertiser friendly” violations that did not exist when they uploaded the video. Drivers get deactivated after a single customer complaint, even if it is false. Small sellers get suspended for “policy violations” that are never clearly specified. <strong>The threat of deplatforming keeps everyone compliant - and terrified.</strong></p>
+        <p><strong>Developer's lens:</strong> On a blockchain, your reputation is on chain. Your transaction history, your reviews, your credentials - they live on a public ledger that <strong>no single entity can erase</strong>. A protocol can have community moderation rules, but it cannot unilaterally delete your existence. This is the difference between tenancy and ownership.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="highlight-strip">
+  <strong>Architectural insight:</strong> All four levers are made possible by a single design decision - <strong>centralisation of the database and the business logic</strong>. The platform owns the only copy of the truth. Once you distribute the data and make the logic transparent and immutable, none of these levers can exist in their current form. That is not an incremental improvement - it is a category change.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising the Value Extraction</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 6.1-A · How the Platform Extracts Value from Every Transaction</div>
+  <pre>
+  WEB2 PLATFORM ECONOMICS (e.g., Food Delivery)
+  ─────────────────────────────────────────────
+
+  CUSTOMER orders a ₹300 meal
+        │
+        ▼
+  ┌─────────────────────────────────────────┐
+  │           THE PLATFORM                  │
+  │  Takes:                                 │
+  │  • 25% commission        – ₹75.00       │
+  │  • GST on commission     – ₹13.50       │
+  │  • Promo co‑funding      – ₹40.00       │
+  │  • Delivery fee (from    – ₹35.00       │
+  │    customer)                            │
+  │  ─────────────────────────────────────  │
+  │  Platform earns:          ₹163.50        │
+  │  (from a ₹300 order)                    │
+  └─────────────────────────────────────────┘
+        │
+        ▼
+  RESTAURANT receives: ₹171.50
+  Minus packaging (₹25) = ₹146.50
+  Minus ingredient cost (₹100) = ₹46.50 GROSS MARGIN
+  Minus rent, salary, electricity...
+  ─────────────────────────────────────
+  Restaurant's actual take‑home: often near ZERO or NEGATIVE
+  </pre>
+  <div class="diagram-caption">The platform earns ₹163.50 on a ₹300 order - more than the restaurant's gross margin. The platform owns no kitchen, buys no ingredients, and bears no food wastage risk. This is pure rent extraction.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 6.1-B · Web2 vs Web3 - Where Does the Money Go?</div>
+  <pre>
+  WEB2 MODEL                    WEB3 MODEL (on MST)
+  ─────────                     ────────────────────
+
+  Customer pays ₹300            Customer pays ₹300
+        │                              │
+        ▼                              ▼
+  ┌──────────────┐              ┌──────────────────┐
+  │  PLATFORM    │              │  SMART CONTRACT  │
+  │  (central)   │              │  (open‑source)   │
+  │  takes ₹75   │              │  takes ₹0.02 gas │
+  └──────┬───────┘              └────────┬─────────┘
+         │                               │
+         ▼                               ▼
+  Restaurant gets ₹225            Restaurant gets ₹299.98
+  (minus packaging etc.)          (minus packaging etc.)
+
+  Customer data owned by          Customer data owned by
+  the platform                    the customer (self‑sovereign)
+
+  Restaurant rating locked        Restaurant rating on‑chain,
+  inside the platform             portable across any dApp
+
+  Platform decides who sees       Community governs
+  what (black‑box algo)           ranking rules (transparent)
+  </pre>
+  <div class="diagram-caption">The architecture changes everything. In Web2, the platform is an unavoidable, rent seeking middleman. In Web3, the protocol is a thin, transparent, community owned layer that costs fractions of a paisa to use. The money stays with the people who actually create the value.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Web2 Platform vs Web3 Protocol - The Ownership Shift</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>❌ Web2 Platform (Swiggy, Uber, YouTube)</th>
+      <th>✅ Web3 Protocol (powered by MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Who owns the customer?</td>
+      <td class="bad">The platform - restaurants never see customer contact info</td>
+      <td class="good">The customer owns their own identity; the provider can interact directly if the customer consents</td>
+    </tr>
+    <tr>
+      <td>Transaction fee</td>
+      <td class="bad">20 to 45% of order value, and rising</td>
+      <td class="good">&lt;0.01% - only the blockchain gas fee (paisas, not rupees)</td>
+    </tr>
+    <tr>
+      <td>Data access</td>
+      <td class="bad">Platform hoards all data; providers get zero insight into their own customers</td>
+      <td class="good">Data is on a public ledger; providers can analyse market trends without any intermediary's permission</td>
+    </tr>
+    <tr>
+      <td>Ranking & visibility</td>
+      <td class="bad">Opaque, unauditable algorithm controlled by the platform; can bury you overnight</td>
+      <td class="good">Transparent, open source ranking logic; changes require community governance vote</td>
+    </tr>
+    <tr>
+      <td>Deplatforming risk</td>
+      <td class="bad">Account can be deleted instantly; all reputation and customer history lost forever</td>
+      <td class="good">On chain reputation cannot be deleted by anyone; community moderation, not corporate whim</td>
+    </tr>
+    <tr>
+      <td>Who governs?</td>
+      <td class="bad">CEO and board of directors; providers and users have zero say</td>
+      <td class="good">Token holders (including providers and users) vote on protocol upgrades, fee parameters, and treasury</td>
+    </tr>
+    <tr>
+      <td>Equity upside</td>
+      <td class="bad">VCs, founders, and shareholders capture all equity value</td>
+      <td class="good">Early providers and users receive protocol tokens; they share in the network's growth</td>
+    </tr>
+    <tr>
+      <td>Interoperability</td>
+      <td class="bad">Walled garden - your Swiggy rating does not work on Zomato</td>
+      <td class="good">Composable - on chain reputation and assets work across any dApp in the MST ecosystem</td>
+    </tr>
+    <tr>
+      <td>Developer cost to integrate</td>
+      <td class="bad">Proprietary APIs, rate limits, approval processes; you build on rented land</td>
+      <td class="good">Open, permissionless smart contracts; deploy once, works forever, no gatekeeper approval needed</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Not Just “Cheaper” - Fundamentally Different</div>
+  <p>A Web3 protocol is not just a cheaper version of a Web2 platform. It is a different species. In Web2, the platform <strong>owns</strong> the marketplace. In Web3, the marketplace <strong>owns itself</strong> - and the value flows to the people who use it, not to a distant corporation. This is the revolution you are training to build.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">The Web2 Trap in India - Same Pattern, Different Industries</h2>
+
+<div class="feature-list">
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🍛</div>
+    <div class="feature-content">
+      <div class="feature-title">Food Delivery - The Restaurant Squeeze</div>
+      <div class="feature-desc">The National Restaurant Association of India (NRAI) has been locked in a public battle with Swiggy and Zomato since 2019. Their complaints: commissions have risen from ~10% to 23 - 28%, mandatory discounting forces restaurants to sell below cost, customer data is never shared, and cloud kitchens owned by the platforms themselves get preferential placement. In 2024, the NRAI filed a formal complaint with the Competition Commission of India (CCI) alleging anti competitive practices. Meanwhile, restaurants report that delivery orders now <strong>lose money</strong> - they treat it as a marketing expense, hoping to convert customers to dine in. The platform that was supposed to be a growth channel has become a necessary evil.</div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🚗</div>
+    <div class="feature-content">
+      <div class="feature-title">Ride Hailing - The Driver's Disappearing Income</div>
+      <div class="feature-desc">A 2023 survey by the Indian Federation of App based Transport Workers (IFAT) found that driver incomes have dropped 30 to 40% since 2019, while platform commissions have risen. Drivers report working 12 to 14 hours a day to earn ₹15,000 to 20,000 a month - net of fuel, EMI, and maintenance. The platform sets surge pricing unilaterally (taking the upside), reduces incentives arbitrarily, and can deactivate drivers after a few customer complaints with no hearing. The driver bears all the risk - vehicle loan, accident, health - and the platform bears none. It is a classic principal agent problem where all power sits with the principal.</div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">📦</div>
+    <div class="feature-content">
+      <div class="feature-title">E Commerce - The Seller's Margins Evaporate</div>
+      <div class="feature-desc">Small sellers on Amazon.in and Flipkart face a cascade of fees: referral fee (2 to 20% depending on category), closing fee, shipping fee, storage fee (if using FBA), and advertising fee to get visibility. A seller of a ₹500 product can easily pay ₹150 to 200 in total platform charges. Worse, Amazon has been accused of using seller data to launch its own private label products that compete directly with the sellers whose data it mined - a practice that is the subject of a CCI investigation. The seller builds the product, manages inventory, and handles returns; the platform controls discovery, sets the rules, and captures the margin.</div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🎥</div>
+    <div class="feature-content">
+      <div class="feature-title">Content Creation - The Audience Is Never Yours</div>
+      <div class="feature-desc">Indian YouTubers, Instagram influencers, and even journalists on X (Twitter) have built massive audiences - only to discover they do not own those audiences. YouTube's algorithm can reduce a channel's views by 80% with a single update. Monetisation policies change retroactively - a video that earned ₹50,000 last year can be demonetised this year under new guidelines. Instagram's feed algorithm buries posts from creators unless they pay for “boosting.” The creator invests years building a brand, but the platform owns the distribution. As one creator put it: “I have 2 million followers, but if Instagram bans me tomorrow, I have zero.”</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ The Pattern Across All Industries</div>
+  <p>Food, transport, retail, media - four completely different sectors, one identical structure. A central company owns the <strong>discovery</strong>, the <strong>transaction</strong>, and the <strong>relationship</strong>. The people who actually create the value - cooking, driving, making, filming - are reduced to interchangeable, replaceable providers. <strong>This is not a bug in Web2. It is the natural equilibrium of a system where one party controls the infrastructure.</strong></p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">The Web2 Trap Definition</div>
+      <div class="feature-desc">A centralised platform inserts itself between providers and consumers, extracts a rising commission, and locks both sides in through data hoarding, algorithmic control, and network effects. The value creators (providers) earn shrinking margins, while the platform captures the majority of the value without bearing the operational risk.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">The Four Rent Seeking Levers</div>
+      <div class="feature-desc">(1) <strong>Commission extraction</strong> - a rising percentage tax on every transaction. (2) <strong>Data moat</strong> - hoarding all customer data so providers cannot build independent businesses. (3) <strong>Algorithmic control</strong> - opaque ranking and visibility rules that optimise for platform profit. (4) <strong>Deplatforming power</strong> - the ability to erase a provider's entire business with a single click.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">The Platform Lifecycle</div>
+      <div class="feature-desc">Subsidise growth → achieve market dominance → lock in both sides → raise commissions → extract maximum value. This cycle is observed across every major Web2 platform, from Uber to YouTube.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Web2 vs Web3 - The Architectural Difference</div>
+      <div class="feature-desc">Web2 runs on a <strong>centralised database</strong> owned by a single company. Web3 runs on a <strong>distributed ledger</strong> governed by a community. The former enables rent seeking; the latter makes it structurally impossible because no single party controls the data, the logic, or the payment rails.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Why Regulation Alone Cannot Fix It</div>
+      <div class="feature-desc">Regulation can temporarily cap commissions, but the underlying centralised architecture remains. The platform will always find new ways to monetise its god view of the data. The only lasting fix is to <strong>change the architecture</strong> - from a rent seeking middleman to an open, community owned protocol. That is the entire purpose of blockchain.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 6.1 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · Marks vary by difficulty (1, 2, 2, 2, 3) · 10 marks total</div>
+    </div>
+
+    <!-- Q1 – 1 mark, Easy -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">Which statement BEST captures the Web2 trap?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          A website that crashes when too many users visit at the same time.
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          A centralised platform that locks in providers and consumers, then extracts an ever increasing commission while denying them ownership of their data, reputation, and customer relationships. ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          A government regulation that forces apps to pay higher taxes.
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          A marketing trick where ads are disguised as genuine recommendations.
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>The Web2 trap is an <strong>economic structure</strong>, not a technical failure (A), a regulatory issue (C), or a marketing tactic (D). Option B captures the full lifecycle: platform inserts itself as intermediary, locks in both sides, and raises the rent. This is a definition question worth 1 mark.</p>
+        <div class="marks-bd"><span>Exam tip:</span> When a question asks for “best description”, look for the option that covers cause, mechanism, and consequence.</div>
+      </div>
+    </div>
+
+    <!-- Q2 – 2 marks, Easy (calculation) -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">2 marks</span>
+        </div>
+      </div>
+      <div class="q-text">A cloud kitchen sells a dish for ₹280 on Swiggy. Swiggy's commission is 25% + GST (18% on commission), and the packaging costs ₹20. What is the kitchen's net revenue from this order (before ingredient costs)?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          ₹210.00
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          ₹182.60
+        </li>
+        <li class="correct">
+          <span class="opt-key">C</span>
+          ₹177.40 ✅
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          ₹165.20
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Calculation</div>
+        <p>Commission = 25% of ₹280 = ₹70. GST on commission = 18% of ₹70 = ₹12.60. Packaging = ₹20. Total deductions = ₹70 + ₹12.60 + ₹20 = ₹102.60. Net revenue = ₹280 - ₹102.60 = ₹177.40. This is a straightforward calculation with a clear step by step - 2 marks for correct application.</p>
+        <div class="marks-bd"><span>Common mistake:</span> Applying GST on the total order value instead of only the commission.</div>
+      </div>
+    </div>
+
+    <!-- Q3 – 2 marks, Medium -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">2 marks</span>
+        </div>
+      </div>
+      <div class="q-text">An Amazon seller complains: “I have sold 5,000 units, but I cannot contact a single buyer to inform them about my new product line.” Which lever of the Web2 trap does this illustrate?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Commission extraction
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Data moat ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Algorithmic control
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Deplatforming power
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+        <p>The platform's refusal to share customer contact information is a <strong>data moat</strong>. The seller generated value but cannot build an independent business because the platform withholds the customer relationship. This is not about fees (A), visibility (C), or account deletion (D).</p>
+        <div class="marks-bd"><span>Real world link:</span> The CCI's investigation into Amazon and Flipkart specifically cites data hoarding as anti competitive.</div>
+      </div>
+    </div>
+
+    <!-- Q4 – 2 marks, Medium -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">2 marks</span>
+        </div>
+      </div>
+      <div class="q-text">A ride hailing platform sets “surge pricing” automatically during peak hours. Drivers have no visibility into how the surge multiplier is calculated, and the platform takes the majority of the surge revenue. Which two levers are at play here?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Commission extraction and deplatforming power
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          Data moat and deplatforming power
+        </li>
+        <li class="correct">
+          <span class="opt-key">C</span>
+          Algorithmic control and commission extraction ✅
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Deplatforming power and data moat
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p><strong>Algorithmic control</strong> - the surge formula is a black box controlled entirely by the platform. <strong>Commission extraction</strong> - the platform takes a percentage of the inflated surge fare, so its absolute commission rises. The two levers work together to maximise platform revenue at the driver's expense.</p>
+        <div class="marks-bd"><span>Key insight:</span> The levers often reinforce each other. Understanding their interplay is critical for both the assessment and for designing Web3 alternatives.</div>
+      </div>
+    </div>
+
+    <!-- Q5 – 3 marks, Medium-Hard -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium-Hard</span>
+          <span class="q-marks">3 marks</span>
+        </div>
+      </div>
+      <div class="q-text">In a Web3 food delivery protocol on MST, how would the relationship between a restaurant and a customer fundamentally differ from the Web2 model?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          The app would have a nicer UI with better animations and a dark mode.
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          The protocol would charge exactly the same commission but donate it to a charity chosen by the customer.
+        </li>
+        <li class="correct">
+          <span class="opt-key">C</span>
+          The customer would own their identity and data, the restaurant could interact with them directly (with consent), and both would have governance rights in the protocol through token ownership. ✅
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          There would be no fees whatsoever - blockchain makes everything free.
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>The Web3 difference is <strong>architectural</strong>, not cosmetic (A) or philanthropic (B). Option C captures the three core shifts: (1) <strong>Self sovereign identity</strong> - customers control their data. (2) <strong>Direct relationship</strong> - no gatekeeper between restaurant and customer. (3) <strong>Token based governance</strong> - users and providers vote on protocol rules. Option D is false - blockchain has gas fees, but they are orders of magnitude smaller than platform commissions. This synthesis question tests whether you understand that Web3 is about ownership and governance, not just lower cost. Worth 3 marks.</p>
+        <div class="marks-bd"><span>Developer's lens:</span> When designing a Web3 dApp, your job is not to remove all costs - it is to ensure that costs are transparent, minimal, and governed by the community.</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 6.1 Assessment Summary</div>
+      <div class="score-row">Q1 (Easy, definition) <span> -  1 mark</span></div>
+      <div class="score-row">Q2 (Easy, calculation) <span> -  2 marks</span></div>
+      <div class="score-row">Q3 (Medium, identify lever) <span> -  2 marks</span></div>
+      <div class="score-row">Q4 (Medium, two levers) <span> -  2 marks</span></div>
+      <div class="score-row">Q5 (Medium-Hard, architectural shift) <span> -  3 marks</span></div>
+      <div class="score-row" style="margin-top:8px;">All questions are drawn <span>directly from the content taught in this sub-module</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SUB-MODULE SUMMARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Summary</div>
+<h2 class="section-title">Sub-Module 6.1 - Complete!</h2>
+
+<div class="callout key">
+  <div class="callout-label">✅ Key Takeaways from The Web2 Trap Revisited</div>
+  <p>You have covered the entire economic foundation of why blockchain exists. You started with four real people - Meera, Vikram, Priya, and Arjun - and saw how their livelihoods are systematically squeezed by centralised platforms. You learned the four levers that make this extraction possible: commission, data moats, algorithmic control, and deplatforming power.</p>
+  <br>
+  <p>You then traced the history of how the open internet became a collection of walled gardens, and you saw the inevitable lifecycle of a Web2 platform: subsidise, dominate, lock, and extract. You now understand that this is not a moral failing of a few companies - it is the natural equilibrium of a system where one party controls the database, the matching logic, and the payment rails.</p>
+  <br>
+  <p>Finally, you compared the Web2 model head to head with a Web3 protocol running on MST. You saw that the difference is not “lower fees” - it is a complete shift in ownership. In Web2, the platform owns the marketplace. In Web3, the marketplace owns itself. The community governs the rules. The providers and users share in the upside.</p>
+  <br>
+  <p>Every sub module in Modules 6 through 21 builds on this foundation. When you read about Trika POSA, SARAL, WASMify, or the MST grant program, you now know exactly what problem they are solving - and who they are solving it for. You are not just learning technology. You are learning to build the exit from the Web2 trap.</p>
+  <br>
+  <p><strong>You are ready for Sub Module 6.2 - Other Chains' Shortcomings.</strong></p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 6.1</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Web2 Trap</div>
+    <div class="glossary-def">The economic structure where a centralised platform inserts itself as a mandatory intermediary, locks in providers and consumers, and extracts an ever increasing rent (commission, data, visibility) without bearing the operational risk.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Platform Rent Seeking</div>
+    <div class="glossary-def">The practice of capturing a large share of the value created by others simply by controlling the marketplace infrastructure - analogous to a landlord collecting rent without maintaining the building.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Data Moat</div>
+    <div class="glossary-def">A competitive barrier created by hoarding all user interaction data, so that providers cannot independently reach or understand their own customers - locking them into the platform forever.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Algorithmic Control</div>
+    <div class="glossary-def">The use of opaque, unauditable algorithms to determine visibility, pricing, and promotions. The platform can boost or bury any provider silently, with no accountability.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Deplatforming</div>
+    <div class="glossary-def">The ability of a platform to delete a provider's account instantly, erasing years of reputation, customer relationships, and transaction history - the ultimate power in a centralised system.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Network Effect Moat</div>
+    <div class="glossary-def">The lock in that occurs when a platform has most of the providers and most of the consumers - making it nearly impossible for either side to leave, because all the value is on the platform.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Take Rate</div>
+    <div class="glossary-def">The percentage of each transaction that the platform keeps. In food delivery, 23 to 28%; in ride hailing, 20 to 25%; in app stores, 15 to 30%.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Self Sovereign Identity</div>
+    <div class="glossary-def">A Web3 model where individuals own and control their digital identity and personal data, choosing when and with whom to share it - the opposite of a platform owning your data.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Token Governed Protocol</div>
+    <div class="glossary-def">A system where the rules (fees, ranking, upgrades) are decided by token holders through transparent, on chain voting - rather than by a central CEO.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Gas Fee</div>
+    <div class="glossary-def">A tiny fee paid to the blockchain network for processing a transaction. On MST, this is fractions of a paisa - compared to platform commissions that can be hundreds of rupees.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 6 · Sub-Module <strong>6.1</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 6.2 - Other Chains' Shortcomings →</p>
+</div>
+
+</body>
+</html>

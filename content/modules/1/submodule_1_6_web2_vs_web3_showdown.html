@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 1.6 - Web 2 vs Web 3 Showdown | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #6C3CE2;
+    --brand-light: #EDE9FB;
+    --brand-dark: #3C1FA0;
+    --accent: #F6A623;
+    --accent-light: #FEF4E0;
+    --green: #16A34A;
+    --green-light: #DCFCE7;
+    --red: #DC2626;
+    --red-light: #FEE2E2;
+    --blue: #1D6FD8;
+    --blue-light: #DBEAFE;
+    --orange: #EA580C;
+    --orange-light: #FFEDD5;
+    --ink: #111827;
+    --ink-2: #374151;
+    --ink-3: #6B7280;
+    --border: #E5E7EB;
+    --surface: #F9FAFB;
+    --white: #FFFFFF;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* ─── MODULE HEADER ─── */
+  .module-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--brand-light);
+    color: var(--brand-dark);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .module-title {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .module-title .highlight { color: var(--brand); }
+
+  .module-subtitle {
+    font-size: 18px;
+    color: var(--ink-3);
+    font-weight: 400;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .meta-chip.highlight { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green { background: var(--green-light); border-color: #86EFAC; color: #166534; }
+  .meta-chip.orange { background: var(--orange-light); border-color: #FDBA74; color: #9A3412; }
+
+  /* ─── SECTION HEADINGS ─── */
+  .section-number {
+    display: inline-block;
+    background: var(--brand);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  h2.section-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  h2.section-title .icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--brand-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  h3.sub-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 32px 0 14px;
+    padding-left: 14px;
+    border-left: 4px solid var(--brand);
+  }
+
+  h4.micro-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--brand-dark);
+    margin: 20px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  p { margin-bottom: 14px; color: var(--ink-2); line-height: 1.75; }
+  section { margin-bottom: 56px; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 20px 0;
+    border-left: 5px solid;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .callout.tip { background: var(--green-light); border-color: var(--green); }
+  .callout.warning { background: var(--red-light); border-color: var(--red); }
+  .callout.info { background: var(--blue-light); border-color: var(--blue); }
+  .callout.key { background: var(--brand-light); border-color: var(--brand); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.orange { background: var(--orange-light); border-color: var(--orange); }
+
+  .callout-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+  .callout p { margin-bottom: 0; }
+
+  /* ─── STORY BLOCK ─── */
+  .story-block {
+    background: var(--ink);
+    color: #F3F4F6;
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-block::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    right: 24px;
+    font-size: 160px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+  }
+  .story-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .story-block p { color: #D1D5DB; margin-bottom: 10px; }
+  .story-block strong { color: #FCD34D; }
+  .story-block p:last-child { margin-bottom: 0; }
+
+  /* ─── TABLES ─── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--ink); }
+  thead th {
+    color: white; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 12px 16px; text-align: left;
+  }
+  thead th:first-child { border-radius: 9px 0 0 0; }
+  thead th:last-child { border-radius: 0 9px 0 0; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 12px 16px; color: var(--ink-2); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--ink); }
+  .cell-green { color: var(--green) !important; font-weight: 700 !important; }
+  .cell-red { color: var(--red) !important; font-weight: 700 !important; }
+  .cell-blue { color: var(--blue) !important; font-weight: 700 !important; }
+
+  /* ─── DIAGRAM BOXES ─── */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--brand); margin-bottom: 16px;
+  }
+  pre {
+    font-family: var(--mono);
+    font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre;
+    overflow-x: auto; margin: 0;
+  }
+
+  /* ─── COMPARE GRID ─── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .compare-card {
+    border-radius: var(--radius);
+    border: 1.5px solid;
+    padding: 20px;
+  }
+  .compare-card.bad { border-color: #FCA5A5; background: #FFF7F7; }
+  .compare-card.good { border-color: #6EE7B7; background: #F0FDF9; }
+  .compare-card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px; font-size: 15px; font-weight: 800;
+  }
+  .compare-card.bad .compare-card-header { color: #991B1B; }
+  .compare-card.good .compare-card-header { color: #065F46; }
+  .compare-card ul { padding-left: 18px; font-size: 14px; }
+  .compare-card ul li { margin-bottom: 7px; line-height: 1.55; }
+  .compare-card.bad ul li { color: #7F1D1D; }
+  .compare-card.good ul li { color: #064E3B; }
+
+  /* ─── OBJECTIVES ─── */
+  .objectives-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 16px 0;
+  }
+  .objective-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--green-light); border: 1px solid #BBF7D0;
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    font-size: 14px; color: #166534; line-height: 1.5;
+  }
+  .objective-item .check {
+    width: 20px; height: 20px; background: var(--green);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; color: white;
+    font-size: 11px; margin-top: 1px;
+  }
+
+  /* ─── STEPS ─── */
+  .steps { list-style: none; padding: 0; margin: 16px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 5px; }
+  .step-desc { font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .highlight-box {
+    background: var(--brand);
+    color: white;
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin: 28px 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .highlight-box span { color: #FCD34D; }
+
+  /* ─── BIG PILL LABEL ─── */
+  .pill {
+    display: inline-block;
+    padding: 4px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; margin: 2px 4px;
+    letter-spacing: 0.04em;
+  }
+  .pill.web2 { background: var(--red-light); color: var(--red); border: 1px solid #FCA5A5; }
+  .pill.web3 { background: var(--green-light); color: var(--green); border: 1px solid #86EFAC; }
+  .pill.brand { background: var(--brand-light); color: var(--brand-dark); border: 1px solid #C4B5F5; }
+
+  /* ─── FEATURE CARDS ─── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin: 20px 0;
+  }
+  .feature-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    background: white;
+  }
+  .feature-card .fc-icon {
+    font-size: 24px; margin-bottom: 10px; display: block;
+  }
+  .feature-card .fc-title {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .feature-card .fc-desc {
+    font-size: 13px; color: var(--ink-3); line-height: 1.55; margin: 0;
+  }
+
+  /* ─── RUBRIC TABLE ─── */
+  .rubric-row {
+    display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start;
+  }
+  .rubric-marks {
+    min-width: 56px; background: var(--brand);
+    color: white; font-size: 13px; font-weight: 800;
+    text-align: center; padding: 6px 8px;
+    border-radius: var(--radius-sm); flex-shrink: 0;
+    line-height: 1.2;
+  }
+  .rubric-desc {
+    font-size: 14px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 14px;
+    flex: 1; line-height: 1.55;
+  }
+
+  /* ─── FACTS LIST ─── */
+  .facts-list { list-style: none; padding: 0; counter-reset: fact; }
+  .facts-list li {
+    display: flex; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    counter-increment: fact; align-items: flex-start;
+    font-size: 15px; color: var(--ink-2);
+  }
+  .facts-list li:last-child { border-bottom: none; }
+  .facts-list li::before {
+    content: counter(fact);
+    display: flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 28px;
+    background: var(--brand); color: white;
+    border-radius: 50%; font-size: 12px; font-weight: 800;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ─── GLOSSARY ─── */
+  .glossary-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin: 16px 0;
+  }
+  .glossary-item {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px 16px; background: white;
+  }
+  .glossary-term { font-weight: 700; font-size: 14px; color: var(--brand-dark); margin-bottom: 4px; }
+  .glossary-def { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+
+  /* ─── PRESENTATION CARD ─── */
+  .presentation-card {
+    border: 2px solid var(--brand);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 24px 0;
+  }
+  .pcard-header {
+    background: var(--brand);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .pcard-header h3 { font-size: 17px; font-weight: 800; margin: 0; }
+  .pcard-header p { font-size: 13px; color: #C4B5F5; margin: 2px 0 0; }
+  .pcard-badge {
+    background: var(--accent); color: var(--ink);
+    font-size: 14px; font-weight: 900;
+    padding: 6px 18px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .pcard-body { padding: 22px 24px; }
+
+  /* ─── ASSESSMENT HEADER ─── */
+  .assessment-header {
+    background: linear-gradient(135deg, var(--ink) 0%, #1a2f5e 100%);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .assessment-header p { color: #9CA3AF; font-size: 14px; margin: 0; }
+  .marks-badge-big {
+    background: var(--accent); color: var(--ink);
+    padding: 10px 24px; border-radius: 8px;
+    font-size: 24px; font-weight: 900; white-space: nowrap;
+  }
+
+  /* ─── QUESTION CARDS ─── */
+  .question-card {
+    background: white; border: 1.5px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 28px;
+  }
+  .question-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 20px; display: flex;
+    align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .q-num { font-size: 13px; font-weight: 700; color: var(--brand); }
+  .q-type {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; background: var(--brand-light);
+    color: var(--brand-dark); padding: 3px 10px; border-radius: 4px;
+  }
+  .q-marks {
+    font-size: 12px; font-weight: 700; background: var(--ink);
+    color: white; padding: 3px 10px; border-radius: 4px; margin-left: auto;
+  }
+  .difficulty { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .difficulty.easy { background: var(--green-light); color: var(--green); }
+  .difficulty.medium { background: var(--accent-light); color: #B45309; }
+  .difficulty.hard { background: var(--red-light); color: var(--red); }
+
+  .question-body { padding: 22px; }
+  .question-text { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; }
+  .option {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    margin-bottom: 7px; font-size: 15px;
+    border: 1.5px solid var(--border); color: var(--ink-2); background: white;
+    line-height: 1.5;
+  }
+  .option.correct { background: var(--green-light); border-color: #4ADE80; color: #166534; }
+  .option.correct .opt-label { background: var(--green); color: white; border-color: var(--green); }
+  .option .opt-label {
+    min-width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+
+  .answer-block {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px; margin-top: 6px;
+  }
+  .answer-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: block;
+  }
+  .answer-block p { font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+  .answer-block p:last-child { margin-bottom: 0; }
+
+  /* ─── SCENARIO BOX ─── */
+  .scenario-box {
+    background: #FFFBEB; border: 1.5px solid #FCD34D;
+    border-radius: var(--radius); padding: 20px 22px; margin: 16px 0;
+  }
+  .scenario-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #92400E; margin-bottom: 8px; display: block;
+  }
+  .scenario-box p { font-size: 14px; color: #78350F; margin-bottom: 6px; }
+  .scenario-box p:last-child { margin-bottom: 0; }
+
+  /* ─── DESCRIPTIVE QUESTION ─── */
+  .descriptive-area {
+    background: #F0FDF9; border: 1.5px solid #6EE7B7;
+    border-radius: var(--radius); padding: 22px; margin: 16px 0;
+  }
+  .descriptive-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #065F46; margin-bottom: 10px; display: block;
+  }
+  .marks-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 14px;
+  }
+  .marks-cell {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    font-size: 13px; color: var(--ink-2);
+  }
+  .marks-cell strong { color: var(--ink); display: block; font-size: 14px; margin-bottom: 2px; }
+
+  /* ─── PRESENTATION RUBRIC ─── */
+  .pres-rubric {
+    border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 20px 0;
+  }
+  .pres-rubric-header {
+    background: var(--ink); color: white; padding: 12px 18px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    display: grid; grid-template-columns: 2fr 1fr 2fr;
+    gap: 12px; text-transform: uppercase; font-size: 11px;
+  }
+  .pres-rubric-row {
+    display: grid; grid-template-columns: 2fr 1fr 2fr;
+    gap: 12px; padding: 12px 18px;
+    border-bottom: 1px solid var(--border); align-items: start;
+    font-size: 14px;
+  }
+  .pres-rubric-row:last-child { border-bottom: none; }
+  .pres-rubric-row:nth-child(even) { background: var(--surface); }
+  .pres-marks {
+    font-weight: 800; color: var(--brand);
+    font-size: 16px; text-align: center;
+  }
+
+  mark {
+    background: var(--brand-light); color: var(--brand-dark);
+    padding: 1px 5px; border-radius: 3px; font-weight: 600;
+  }
+
+  hr { border: none; border-top: 2px solid var(--border); margin: 52px 0; }
+
+  @media (max-width: 620px) {
+    body { padding: 24px 16px 64px; }
+    .objectives-grid, .compare-grid, .glossary-grid, .features-grid, .marks-row { grid-template-columns: 1fr; }
+    .module-title { font-size: 28px; }
+    .assessment-header { flex-direction: column; align-items: flex-start; }
+    .pres-rubric-header, .pres-rubric-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     PAGE HEADER
+═══════════════════════════════════ -->
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 1 · Sub-Module 6 of 6</div>
+<h1 class="module-title">Sub-Module 1.6<br><span class="highlight">Web 2 vs Web 3 Showdown</span></h1>
+<p class="module-subtitle">Stop being a spectator. This is where you redesign WhatsApp as a blockchain dApp - and in doing so, prove you've truly understood everything from Sub-Modules 1.1 through 1.5.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 20 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 20</div>
+  <div class="meta-chip orange">🎥 Assessment: Presentation (5-min recorded video or slide deck)</div>
+  <div class="meta-chip green">✅ Final Sub-Module of Module 1</div>
+  <div class="meta-chip">🔰 Phase 1 - Foundation Capstone</div>
+</div>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 1 — LEARNING OBJECTIVES
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+
+  <p>This sub-module is a <strong>synthesis and application</strong> exercise. You've learned the theory - now you use it. By the end, you will be able to:</p>
+
+  <div class="objectives-grid">
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Systematically compare any Web 2.0 app against its Web 3.0 equivalent across six key dimensions
+    </div>
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Identify exactly which Web 2.0 problems each Web 3.0 solution fixes - with specific technical reasoning
+    </div>
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Redesign WhatsApp (or a chosen app) as a functioning Web3 dApp, naming the blockchain components required
+    </div>
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Map Web3 components to real MST Blockchain features (SARAL, WASMify, smart contracts, on-chain identity)
+    </div>
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Articulate trade-offs - where Web3 is better, where it still struggles, and how MST addresses those gaps
+    </div>
+    <div class="objective-item">
+      <div class="check">✓</div>
+      Deliver a clear, structured 5-minute presentation that demonstrates builder-level understanding of Web3
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 2 — STORY INTRODUCTION
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>The Story - You Are the Architect Now</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Setting: 2025 - A 3AM Conversation That Changed Everything</span>
+    <p>A startup founder sits in a café in Koramangala, Bangalore. He's furious. WhatsApp just banned his group of 50,000 farmers - his entire community, built over three years - because someone forwarded a news article that Meta's algorithm flagged. <strong>No warning. No appeal. No backup.</strong></p>
+    <p>The farmers can't coordinate crop prices anymore. The middlemen step in. The farmers lose ₹3,000 crore in collective bargaining power because one company's algorithm made a decision that nobody can reverse.</p>
+    <p>He turns to you - a MasterStroke Academy student who just completed Sub-Modules 1.1 through 1.5 - and asks: <strong>"Could you build a version of WhatsApp where nobody - not Meta, not the government, not even you - can delete a community?"</strong></p>
+    <p>That is the question this sub-module answers. Not theoretically. As a <strong>real system design exercise</strong>.</p>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ What This Sub-Module Really Tests</span>
+    <p>Can you take a Web 2.0 app, <strong>identify every point of centralized control</strong>, and replace each one with a decentralized equivalent - while naming the exact blockchain components that make it work? That is the skill every Web3 employer, investor, and grant committee will test you on. This is your first practice run.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 3 — THE FULL SHOWDOWN FRAMEWORK
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">⚔️</div>The Web 2 vs Web 3 Framework - 6 Battlegrounds</h2>
+
+  <p>Before you redesign any app, you need a systematic framework. Every Web 2.0 application can be analyzed and redesigned across exactly <strong>six dimensions</strong>. Learn this framework once and you can apply it to any app - Uber, Spotify, Instagram, Zomato, Netflix, or anything else.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">⚔️ The 6-Dimension Web2 vs Web3 Analysis Framework</div>
+<pre>
+  ┌────────────────────┬────────────────────────┬──────────────────────────┐
+  │  DIMENSION         │  WEB 2.0 (Problem)      │  WEB 3.0 (Solution)      │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  1. DATA OWNERSHIP │  Platform owns all     │  User owns their data    │
+  │                    │  your data. They read  │  via cryptographic keys. │
+  │                    │  it, sell it, delete   │  Only you can authorize  │
+  │                    │  it anytime.           │  access.                 │
+  │                    │                        │                          │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  2. CENSORSHIP &   │  One company can       │  Decentralized network.  │
+  │     CONTROL        │  delete your account,  │  No single entity can    │
+  │                    │  ban your group, or    │  censor or delete.       │
+  │                    │  suspend service.      │  Smart contract governs. │
+  │                    │                        │                          │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  3. MONEY & VALUE  │  Platform captures 30– │  Smart contracts route   │
+  │     DISTRIBUTION   │  70% of every rupee.   │  value directly. Creator │
+  │                    │  Creators earn scraps. │  gets 90–98%.            │
+  │                    │                        │                          │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  4. IDENTITY &     │  Platform manages your │  You own your identity.  │
+  │     AUTHENTICATION │  login. They can lock  │  Decentralized ID (DID). │
+  │                    │  you out anytime.      │  No one can lock you out.│
+  │                    │                        │                          │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  5. RULES &        │  Company changes rules │  Rules written as smart  │
+  │     GOVERNANCE     │  unilaterally. No      │  contracts. Community    │
+  │                    │  community input.      │  votes via DAO. Rules    │
+  │                    │  No vote, no appeal.   │  are transparent code.   │
+  │                    │                        │                          │
+  ├────────────────────┼────────────────────────┼──────────────────────────┤
+  │                    │                        │                          │
+  │  6. PRIVACY &      │  All messages stored   │  End-to-end encryption + │
+  │     SURVEILLANCE   │  on company servers.   │  messages on-chain or    │
+  │                    │  Can be read, handed   │  in decentralized        │
+  │                    │  to government.        │  storage. User controls. │
+  │                    │                        │                          │
+  └────────────────────┴────────────────────────┴──────────────────────────┘
+</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-label">💡 How to Use This Framework</span>
+    <p>For any app you want to redesign, go through all six dimensions. For each dimension: (1) Describe the Web 2.0 problem, (2) Describe the Web 3.0 solution, (3) Name the specific blockchain technology that enables it. This framework is the spine of your presentation assessment.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 4 — WHATSAPP DEEP ANALYSIS
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">💬</div>Case Study - Dissecting WhatsApp Completely</h2>
+
+  <p>Let's apply the framework in full detail to WhatsApp - the app you use every day. Every feature, every control point, every rupee of value. We'll expose it all, and then rebuild it.</p>
+
+  <h3 class="sub-title">4.1 - WhatsApp: How It Actually Works (The Hidden Architecture)</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔍 WhatsApp's Real Architecture - What You Don't See</div>
+<pre>
+  What You Think Happens:
+  ────────────────────────────────────────────────────────────
+  Your Phone ──→ End-to-End Encrypted ──→ Friend's Phone
+  "Messages are private. WhatsApp can't read them."
+
+  What Actually Happens:
+  ────────────────────────────────────────────────────────────
+  Your Phone
+     │
+     │ Metadata sent to Meta servers (NOT encrypted):
+     │  ├─ WHO you messaged (phone number)
+     │  ├─ WHEN you messaged (timestamp)
+     │  ├─ HOW LONG your message was (length)
+     │  ├─ Your device type, OS version
+     │  ├─ Your location (if permitted)
+     │  ├─ Who is in your groups
+     │  └─ How often you talk to each contact
+     │
+     ▼
+  Meta's Servers (USA, Singapore, Brazil)
+     │
+     ├─ Cross-referenced with Facebook profile
+     ├─ Cross-referenced with Instagram data
+     ├─ Cross-referenced with ad networks
+     ├─ Sold to advertisers as behavioral data
+     └─ Accessible to US government via FISA
+     │
+     ▼
+  Your Friend's Phone
+
+  KEY INSIGHT:
+  The MESSAGE is encrypted.
+  The METADATA (who, when, how often, with whom) is NOT.
+  And metadata is often MORE valuable than content.
+  NSA director Michael Hayden: "We kill people based on metadata."
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.2 - WhatsApp's Six Web 2.0 Problems (Detailed)</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>The Web 2.0 Problem in WhatsApp</th>
+          <th>Real-World Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Data Ownership</td>
+          <td>Meta owns and analyzes all metadata. Your contact list, usage patterns, and group memberships belong to them.</td>
+          <td>Meta shares Indian WhatsApp metadata with Indian government on request - documented in court filings.</td>
+        </tr>
+        <tr>
+          <td>Censorship</td>
+          <td>Meta can ban any account, delete any group, restrict any feature in any country - unilaterally, instantly.</td>
+          <td>Indian government asked Meta to shut down farmer protest groups in 2021. Groups disappeared within hours.</td>
+        </tr>
+        <tr>
+          <td>Value Distribution</td>
+          <td>WhatsApp is "free" - Meta makes billions from your behavioral data. You create value, Meta captures it.</td>
+          <td>Business WhatsApp API charges ₹0.58-₹0.88 per conversation. Meta earned $1.3B from WhatsApp Business in 2023.</td>
+        </tr>
+        <tr>
+          <td>Identity</td>
+          <td>Your identity is your phone number + Meta account. They can lock you out, revoke access, or hand your identity to authorities.</td>
+          <td>In 2022, Indian journalists had WhatsApp accounts "deactivated" when their phones were seized by police - instant access loss.</td>
+        </tr>
+        <tr>
+          <td>Governance</td>
+          <td>In 2021, WhatsApp changed its Terms of Service unilaterally - share data with Facebook or stop using WhatsApp. No vote, no alternative.</td>
+          <td>500 million Indian users had 3 options: accept, delete WhatsApp, or be automatically enrolled after 3 months.</td>
+        </tr>
+        <tr>
+          <td>Privacy</td>
+          <td>All message metadata stored on servers accessible to Meta, governments, and hackers (if breached).</td>
+          <td>2019: WhatsApp hacked via missed call (Pegasus spyware). 1,400 users including Indian journalists compromised.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 5 — THE REDESIGN: dWhatsApp
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">🏗️</div>The Redesign - Building dWhatsApp on MST Blockchain</h2>
+
+  <p>Now we build the alternative. Meet <strong>dWhatsApp</strong> - a decentralized messaging dApp on MST Blockchain. Every centralized control point replaced. Every Web 2.0 problem solved. Let's go dimension by dimension.</p>
+
+  <div class="callout info">
+    <span class="callout-label">ℹ️ Design Philosophy</span>
+    <p>We don't just replace "Meta servers" with "blockchain." That's too simplistic. A thoughtful redesign replaces each <strong>specific control point</strong> with the appropriate decentralized component. Different problems need different solutions: identity → DIDs, storage → IPFS/Arweave, rules → smart contracts, payments → tokens, keys → SARAL.</p>
+  </div>
+
+  <h3 class="sub-title">5.1 - The Full dWhatsApp Architecture</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🏗️ dWhatsApp on MST Blockchain - Complete System Architecture</div>
+<pre>
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                    USER'S DEVICE                                │
+  │                                                                 │
+  │  ┌──────────────┐    ┌────────────────────────────────────┐    │
+  │  │ dWhatsApp UI │    │ SARAL Protocol (MST)               │    │
+  │  │ (React/PWA)  │    │ ├─ Login via Google/phone number   │    │
+  │  │              │────│ ├─ No seed phrase required          │    │
+  │  │              │    │ ├─ Wallet generated in secure enclave│   │
+  │  └──────────────┘    │ └─ User controls private key       │    │
+  │                      └────────────────────────────────────┘    │
+  └─────────────────────────────────────────────────────────────────┘
+             │                          │
+             │ Messages                 │ Transactions / Identity
+             ▼                          ▼
+  ┌───────────────────┐    ┌─────────────────────────────────────┐
+  │  DECENTRALIZED    │    │  MST BLOCKCHAIN                     │
+  │  STORAGE          │    │                                     │
+  │                   │    │  Smart Contracts:                   │
+  │  IPFS / Arweave   │    │  ├─ GroupContract.sol               │
+  │  ├─ Messages stored│    │  │   (group rules, membership)     │
+  │  │  encrypted     │    │  │                                  │
+  │  ├─ Only you hold │    │  ├─ IdentityContract.sol            │
+  │  │  decryption key│    │  │   (your DID, reputation)        │
+  │  ├─ No single     │    │  │                                  │
+  │  │  server to hack│    │  ├─ MessagingContract.sol           │
+  │  └─ Content-      │    │  │   (message proofs, delivery)    │
+  │     addressed CID │    │  │                                  │
+  │     (hash-linked) │    │  └─ GovernanceContract.sol         │
+  └───────────────────┘    │      (community votes on rules)    │
+                           │                                     │
+                           │  71,000+ Validators (MST)          │
+                           │  No single point of failure        │
+                           └─────────────────────────────────────┘
+
+  WHAT CHANGED:
+  ─────────────────────────────────────────────────────────────────
+  Meta Servers       → MST Blockchain (no owner, no off switch)
+  Meta Account Login → SARAL Protocol (self-custody, no company)
+  Meta's Rules       → Smart Contracts (code = law, transparent)
+  Meta's Storage     → IPFS/Arweave (decentralized, permanent)
+  Meta's Revenue     → Smart Contract Token Flow (users keep value)
+  Meta's Governance  → DAO Voting (community decides rules)
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.2 - Solving Each Problem: Dimension by Dimension</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>WhatsApp Problem</th>
+          <th>dWhatsApp Solution</th>
+          <th>MST Component</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Data Ownership</td>
+          <td>Meta owns all metadata</td>
+          <td>Metadata never leaves device. Only encrypted message hashes go on-chain.</td>
+          <td class="cell-green">IPFS + MST Smart Contracts</td>
+        </tr>
+        <tr>
+          <td>Censorship</td>
+          <td>Meta can ban groups instantly</td>
+          <td>Group rules stored in smart contract. Nobody - not even the developer - can delete a group unilaterally.</td>
+          <td class="cell-green">GroupContract.sol on MST</td>
+        </tr>
+        <tr>
+          <td>Value Distribution</td>
+          <td>Meta monetizes your data</td>
+          <td>Business messaging uses MST token. Payments go directly between parties. 0% platform cut.</td>
+          <td class="cell-green">MST Native Token + Smart Contracts</td>
+        </tr>
+        <tr>
+          <td>Identity</td>
+          <td>Meta controls your account</td>
+          <td>Your identity is your cryptographic key pair. Nobody can revoke it. No phone number needed.</td>
+          <td class="cell-green">SARAL Protocol (DID on MST)</td>
+        </tr>
+        <tr>
+          <td>Governance</td>
+          <td>Meta changes rules unilaterally</td>
+          <td>All rule changes require community vote. Minimum 51% of token holders must approve any change.</td>
+          <td class="cell-green">DAO Contract on MST</td>
+        </tr>
+        <tr>
+          <td>Privacy</td>
+          <td>Metadata stored on Meta servers</td>
+          <td>Messages encrypted client-side. Only hash stored on-chain. Metadata never transmitted.</td>
+          <td class="cell-green">End-to-end + ZK Proofs (MST)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.3 - The Honest Trade-Offs (Web3 Isn't Perfect - Yet)</h3>
+
+  <p>A great Web3 architect doesn't oversell. They acknowledge what Web3 currently does worse - and explain how platforms like MST are closing those gaps.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-card-header">⚠️ Where Web3 Currently Struggles</div>
+      <ul>
+        <li><strong>Speed:</strong> WhatsApp delivers messages in 50ms. Current blockchain confirmation takes 3 - 15 seconds. (State channels partially solve this.)</li>
+        <li><strong>UX complexity:</strong> Managing wallets and keys is still confusing for average users without SARAL-like solutions.</li>
+        <li><strong>Storage cost:</strong> Storing large media on-chain is expensive. IPFS helps, but isn't as seamless as cloud storage.</li>
+        <li><strong>Content moderation:</strong> Nobody can delete illegal content. Censorship resistance is a double-edged sword - requires community-based moderation systems.</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">✅ How MST Blockchain Closes the Gap</div>
+      <ul>
+        <li><strong>Speed:</strong> MST achieves 3-second block finality and 4000+ TPS - fast enough for real-time messaging at scale.</li>
+        <li><strong>UX:</strong> SARAL Protocol enables Google/phone login. No seed phrase. No MetaMask. Indistinguishable from Web2 UX.</li>
+        <li><strong>Storage:</strong> WASMify bridges off-chain data with on-chain proof. Store message off-chain, prove delivery on-chain.</li>
+        <li><strong>Moderation:</strong> DAO-governed community flags. Community votes on harmful content removal - democratic, not dictatorial.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 6 — THREE MORE APP EXAMPLES
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🔄</div>Three More Redesign Examples - Your Reference Library</h2>
+
+  <p>WhatsApp was your detailed example. Now see how the same framework applies to Spotify, Instagram, and Uber. These are your backup options if your presentation covers a different app.</p>
+
+  <h3 class="sub-title">6.1 - Spotify → dStream (Decentralized Music)</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🎵 Spotify vs dStream - The Value Flow Comparison</div>
+<pre>
+  SPOTIFY (Web 2.0) VALUE FLOW:
+  ─────────────────────────────────────────────────────────────
+  Listener pays: ₹149/month
+       │
+       ▼
+  Spotify takes: 30% = ₹44.70  ←── Platform capture
+       │
+       ▼
+  Record labels: 55% = ₹81.95  ←── Middleman #1
+       │
+       ▼
+  Distributor: 10% = ₹14.90    ←── Middleman #2
+       │
+       ▼
+  Artist gets: ₹7.45 (5%)      ←── Creates all the value, gets 5%
+
+  dSTREAM (Web 3.0) VALUE FLOW:
+  ─────────────────────────────────────────────────────────────
+  Listener pays: ₹100/month (cheaper — no platform overhead)
+       │
+       ▼
+  Gas fee: ₹0.15 (0.15%)       ←── Blockchain fee (tiny)
+       │
+       ▼
+  Smart Contract splits:
+  ├─ Artist: ₹95.00 (95%)      ←── Creates value, KEEPS value
+  ├─ Collaborators: auto-split │
+  └─ Community fund: ₹4.85    ←── DAO treasury for development
+
+  RESULT:
+  Spotify: Artist gets ₹7.45 per ₹149 (5%)
+  dStream: Artist gets ₹95 per ₹100 (95%)
+
+  Artist earns 12.7x MORE on dStream.
+  MST Component: Smart contract auto-splits every payment.
+                 No label, no distributor, no Spotify.
+</pre>
+  </div>
+
+  <h3 class="sub-title">6.2 - Instagram → dGram (Decentralized Social)</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">📸 Instagram vs dGram - Control Points Comparison</div>
+<pre>
+  INSTAGRAM CONTROL POINTS:
+  ─────────────────────────────────────────────────────────────
+  Your photo → Instagram's servers (they own it physically)
+  Your followers → Instagram's database (you can't port them)
+  Your algorithm → Instagram controls reach (pay for promotion)
+  Your monetization → Instagram takes 30% of creator revenue
+  Your identity → Instagram can ban you (lose everything)
+
+  dGRAM SOLUTION:
+  ─────────────────────────────────────────────────────────────
+  Your photo → IPFS hash stored on-chain (you own it cryptographically)
+  Your followers → On-chain social graph (port to any platform)
+  Your algorithm → Open-source, run locally (you choose what you see)
+  Your monetization → Direct NFT sales + tips → 98% to you
+  Your identity → DID on MST (permanent, uncensorable)
+
+  THE RADICAL PART:
+  On dGram, if Instagram (the app) shuts down tomorrow:
+  ✅ Your photos still exist (IPFS)
+  ✅ Your followers still follow you (blockchain)
+  ✅ Your identity still works (DID)
+  ✅ You can use a different app interface (open protocol)
+
+  Your content outlives any company.
+  MST Components: IPFS + Social Graph Smart Contract + SARAL DID
+</pre>
+  </div>
+
+  <h3 class="sub-title">6.3 - Uber → dRide (Decentralized Rideshare)</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🚗 Uber vs dRide - Commission Flow and Control</div>
+<pre>
+  UBER (Web 2.0):
+  ─────────────────────────────────────────────────────────────
+  Rider pays: ₹400
+  Uber takes: ₹100 (25% commission)  ←── Value extracted
+  Driver gets: ₹300 (75%)
+  Driver's costs (fuel, car, insurance): ₹150
+  Driver's actual income: ₹150 per ride
+
+  CONTROL POINTS:
+  ├─ Uber sets price (surge pricing algorithm — you have no say)
+  ├─ Uber can deactivate driver account (income destroyed overnight)
+  ├─ Uber knows every route, every rider, every driver location
+  └─ Uber's reputation follows only their platform
+
+  dRIDE (Web 3.0 on MST):
+  ─────────────────────────────────────────────────────────────
+  Rider requests ride → Smart contract matches with nearest driver
+  Smart contract calculates price (transparent algorithm, open source)
+  Rider pays: ₹380 (cheaper — no corporate overhead)
+  Gas fee: ₹0.80 (0.2%)
+  Driver gets: ₹379.20 (99.8%)
+
+  CONTROL POINTS ELIMINATED:
+  ├─ Pricing: Open-source algorithm, community-governed
+  ├─ Account: Driver identity on MST blockchain (permanent, uncensorable)
+  ├─ Privacy: Location only shared for duration of ride, then deleted
+  └─ Reputation: NFT-based reviews portable across all platforms
+
+  DRIVER EARNS:
+  Uber:   ₹150 net per ride
+  dRide:  ₹229 net per ride  (53% more!)
+
+  MST Components: Matching smart contract + SARAL for rider/driver
+                  identity + on-chain reputation NFT
+</pre>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 7 — THE MASTER COMPARISON TABLE
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">📊</div>The Master Comparison Table - Web 2 vs Web 3</h2>
+
+  <p>This is your single reference for everything you've learned across Module 1. Commit this table to memory - it encapsulates six sub-modules into one coherent picture.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Web 1.0 (1990 - 2004)</th>
+          <th>Web 2.0 (2004 - now)</th>
+          <th>Web 3.0 (Blockchain)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Who Creates</td>
+          <td>Companies only</td>
+          <td>Everyone (UGC)</td>
+          <td class="cell-green">Everyone (owned by creator)</td>
+        </tr>
+        <tr>
+          <td>Who Controls</td>
+          <td>Website owner</td>
+          <td>Platform company (Meta, Google)</td>
+          <td class="cell-green">Smart contracts + community</td>
+        </tr>
+        <tr>
+          <td>Data Ownership</td>
+          <td>Company's servers</td>
+          <td>Platform's servers</td>
+          <td class="cell-green">User's cryptographic key</td>
+        </tr>
+        <tr>
+          <td>Identity</td>
+          <td>Username + password</td>
+          <td>OAuth (Google/Facebook login)</td>
+          <td class="cell-green">DID (Decentralized Identifier)</td>
+        </tr>
+        <tr>
+          <td>Payments</td>
+          <td>Not built in</td>
+          <td>Platform processes (30% cut)</td>
+          <td class="cell-green">Native (smart contract, ~0%)</td>
+        </tr>
+        <tr>
+          <td>Censorship</td>
+          <td>Easy (one server)</td>
+          <td>Easy (one company decides)</td>
+          <td class="cell-green">Near-impossible (distributed)</td>
+        </tr>
+        <tr>
+          <td>Monetization</td>
+          <td>None (mostly free)</td>
+          <td>Ads, subscription (platform takes 30 - 70%)</td>
+          <td class="cell-green">Token economics (creator gets 90 - 98%)</td>
+        </tr>
+        <tr>
+          <td>Trust Model</td>
+          <td>Trust the website</td>
+          <td>Trust the platform company</td>
+          <td class="cell-green">Trustless (math + code)</td>
+        </tr>
+        <tr>
+          <td>Transparency</td>
+          <td>None</td>
+          <td>Opaque algorithms</td>
+          <td class="cell-green">Open-source contracts on-chain</td>
+        </tr>
+        <tr>
+          <td>Governance</td>
+          <td>Webmaster decides</td>
+          <td>Company decides unilaterally</td>
+          <td class="cell-green">DAO - token holders vote</td>
+        </tr>
+        <tr>
+          <td>Portability</td>
+          <td>Low (static sites)</td>
+          <td>Zero (can't take followers)</td>
+          <td class="cell-green">Full (on-chain data follows you)</td>
+        </tr>
+        <tr>
+          <td>Failure Risk</td>
+          <td>One server = one failure</td>
+          <td>One company = millions affected</td>
+          <td class="cell-green">Distributed = no single failure</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 8 — PRESENTATION GUIDE
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">🎤</div>Your Presentation - Structure, Tips &amp; Scoring</h2>
+
+  <p>This sub-module's assessment is a <strong>5-minute recorded video OR a slide deck</strong> submission. You will redesign a Web 2.0 app as a Web3 dApp. Here is everything you need to structure a submission that scores full marks.</p>
+
+  <div class="presentation-card">
+    <div class="pcard-header">
+      <div>
+        <h3>📋 Presentation Assessment Brief</h3>
+        <p>Sub-Module 1.6 - Web 2 vs Web 3 Showdown · Module 1</p>
+      </div>
+      <div class="pcard-badge">20 Marks</div>
+    </div>
+    <div class="pcard-body">
+      <h4 class="micro-title">The Task</h4>
+      <p>Choose <strong>any popular Web 2.0 app</strong> (WhatsApp, Instagram, Spotify, YouTube, Uber, Swiggy, Netflix, Zomato, Ola, Razorpay, Steam, or any other app you use daily). Using the 6-dimension framework, redesign it as a Web3 dApp on MST Blockchain. Deliver your redesign as either a 5-minute recorded video OR a structured slide deck.</p>
+
+      <h4 class="micro-title" style="margin-top:18px;">Format Options</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-weight:700;color:var(--ink);margin-bottom:6px;">🎥 Option A - Video</div>
+          <div style="font-size:13px;color:var(--ink-3);">5 minutes exactly (±30 sec). Screen recording + voice, or face camera. Upload to Google Drive / YouTube unlisted and submit link.</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-weight:700;color:var(--ink);margin-bottom:6px;">📊 Option B - Slide Deck</div>
+          <div style="font-size:13px;color:var(--ink-3);">5 - 8 slides (PDF or Google Slides link). Must have speaker notes on each slide. Quality over quantity.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">8.1 - The Exact 5-Minute Structure (Follow This Precisely)</h3>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">The Hook - 0:00 to 0:30 (30 seconds)</div>
+        <div class="step-desc">Open with a real story or statistic about why your chosen app is harmful or broken. Do NOT start with "Hi, my name is..." - start with the problem. Example: "In 2021, 50,000 Indian farmers lost their WhatsApp group and ₹3,000 crore in negotiating power because Meta's algorithm made a single decision. Here's how blockchain would have prevented that." This grabs attention and establishes the problem immediately.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">The Web 2.0 Breakdown - 0:30 to 2:00 (90 seconds)</div>
+        <div class="step-desc">Explain your chosen app's three biggest Web 2.0 problems using the 6-dimension framework. Be specific - name the exact problem, show the exact data, give the exact Indian example. Example: "Spotify pays artists ₹0.000008 per stream. 1 million streams = ₹8,000. That's 0.8% of what listeners paid." Judges reward specificity. Vague statements get zero marks.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">The Web3 Redesign - 2:00 to 4:00 (2 minutes)</div>
+        <div class="step-desc">This is the core of your presentation. Go through your redesign dimension by dimension. For EACH problem: state the Web 2.0 issue, state the Web3 solution, name the specific MST component that enables it. Example: "For identity control: WhatsApp owns your account. In dWhatsApp, your identity is a DID on MST Blockchain - created using the SARAL Protocol, controlled by your cryptographic key. Nobody - not Meta, not the government, not even us - can revoke it." You must mention at least ONE MST-specific feature (SARAL, WASMify, Trika POSA, RWA Orbitals, or on-chain governance).</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">The Honest Trade-Offs - 4:00 to 4:30 (30 seconds)</div>
+        <div class="step-desc">This is where most students lose marks - they skip trade-offs. You must mention 1 - 2 places where Web3 is currently weaker, and how MST is addressing it. Example: "Web3 still struggles with UX - managing private keys is confusing for farmers. MST's SARAL Protocol solves this with Google login and no seed phrase - making it as simple as signing into Swiggy." This shows intellectual honesty and technical depth - both of which judges actively look for.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">The Vision - 4:30 to 5:00 (30 seconds)</div>
+        <div class="step-desc">End with a powerful, concrete closing statement. Not "I think Web3 is the future" - that's generic. Instead: "If we had built dWhatsApp on MST Blockchain in 2020, those 50,000 farmers would still have their community today. Their negotiating power would still exist. Their data would still belong to them. This is not theory - every component I described is live on MST testnet right now." Leave judges with a specific, actionable, memorable image of the world your redesign creates.</div>
+      </div>
+    </li>
+  </ol>
+
+  <h3 class="sub-title">8.2 - Scoring Rubric (How 20 Marks Are Distributed)</h3>
+
+  <div class="pres-rubric">
+    <div class="pres-rubric-header">
+      <div>Criterion</div>
+      <div style="text-align:center;">Marks</div>
+      <div>What Judges Look For</div>
+    </div>
+    <div class="pres-rubric-row">
+      <div><strong>Problem Identification</strong><br><span style="font-size:12px;color:var(--ink-3);">How well do you diagnose the Web 2.0 problems?</span></div>
+      <div class="pres-marks">4</div>
+      <div style="font-size:13px;color:var(--ink-2);">Names ≥3 specific Web 2.0 control points. Uses real data/examples (not vague claims). Connects to Indian context. Shows understanding of WHY it's a problem, not just what it is.</div>
+    </div>
+    <div class="pres-rubric-row">
+      <div><strong>Web3 Redesign Clarity</strong><br><span style="font-size:12px;color:var(--ink-3);">Is your dApp design technically coherent?</span></div>
+      <div class="pres-marks">6</div>
+      <div style="font-size:13px;color:var(--ink-2);">Each Web 2.0 problem has a named Web3 solution. Technologies are correctly identified (not just "blockchain" vaguely). The architecture makes logical sense. Bonus if includes a diagram.</div>
+    </div>
+    <div class="pres-rubric-row">
+      <div><strong>MST Blockchain Integration</strong><br><span style="font-size:12px;color:var(--ink-3);">Do you connect to MST specifically?</span></div>
+      <div class="pres-marks">4</div>
+      <div style="font-size:13px;color:var(--ink-2);">Mentions ≥1 MST-specific feature correctly (SARAL, WASMify, Trika POSA, on-chain governance, BridgeKey, RWA Orbitals). Explains WHY that MST feature solves the specific problem. Not just name-dropping.</div>
+    </div>
+    <div class="pres-rubric-row">
+      <div><strong>Trade-Off Acknowledgment</strong><br><span style="font-size:12px;color:var(--ink-3);">Do you show intellectual honesty?</span></div>
+      <div class="pres-marks">3</div>
+      <div style="font-size:13px;color:var(--ink-2);">Mentions ≥1 genuine Web3 limitation honestly. Proposes how MST or the ecosystem addresses it. Does NOT oversell Web3 as perfect. Shows maturity of thinking that real builders have.</div>
+    </div>
+    <div class="pres-rubric-row">
+      <div><strong>Presentation Quality &amp; Impact</strong><br><span style="font-size:12px;color:var(--ink-3);">Is it clear, engaging, and well-structured?</span></div>
+      <div class="pres-marks">3</div>
+      <div style="font-size:13px;color:var(--ink-2);">Clear structure (hook → problem → solution → trade-off → vision). Confident delivery. Within time limit. Slides/visuals are clean. Judges leave the presentation understanding your dApp better than before.</div>
+    </div>
+    <div style="background:var(--brand);color:white;padding:12px 18px;display:grid;grid-template-columns:2fr 1fr 2fr;gap:12px;font-weight:700;font-size:14px;">
+      <div>TOTAL</div>
+      <div style="text-align:center;font-size:18px;">20</div>
+      <div style="font-size:12px;font-weight:400;color:#C4B5F5;">Full marks for a submission that is specific, technically correct, MST-connected, honest about trade-offs, and clearly communicated.</div>
+    </div>
+  </div>
+
+  <h3 class="sub-title">8.3 - What Top-Scoring Submissions Have in Common</h3>
+
+  <div class="callout tip">
+    <span class="callout-label">💡 Top Scorer Patterns (From Past Cohorts)</span>
+    <p><strong>1. They are painfully specific.</strong> Instead of "WhatsApp controls your data," they say "WhatsApp stored your 2019 deleted messages on their servers for 90 days and handed them to the Delhi Police in January 2020 under court order." Specific beats vague every time.<br><br>
+    <strong>2. They include a simple diagram.</strong> Even hand-drawn on paper and photographed. A visual of your architecture signals that you've actually thought about how the system works, not just memorized talking points.<br><br>
+    <strong>3. They name the trade-off first, then explain how MST addresses it.</strong> This reversal shows confidence - you're not hiding weaknesses, you're leading with them. Judges respect this enormously.<br><br>
+    <strong>4. They close with a human story, not a product pitch.</strong> "This dApp would mean the farmer in Koramangala who lost his community gets to keep it" hits harder than "Web3 is the future of social media."</p>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-label">⚠️ Common Mistakes That Cost Marks</span>
+    <p><strong>❌ Vague language:</strong> "Blockchain is decentralized and better." (Zero marks - needs specifics.)<br>
+    <strong>❌ No MST connection:</strong> Talks only about Ethereum or generic blockchain. (Loses 4 marks.)<br>
+    <strong>❌ No trade-offs:</strong> Presents Web3 as perfect. (Loses 3 marks - shows lack of depth.)<br>
+    <strong>❌ Wrong timing:</strong> 8-minute video when limit is 5 minutes. (Penalized on Quality criterion.)<br>
+    <strong>❌ Copy-paste from slides 1 - 5:</strong> No original thinking or personal examples. (Loses Redesign marks.)</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 9 — ASSESSMENT PREPARATION
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - 10 Must-Know Facts</h2>
+
+  <ul class="facts-list">
+    <li><strong>The 6 Dimensions Framework</strong> - Data Ownership, Censorship/Control, Value Distribution, Identity/Authentication, Governance, Privacy/Surveillance. Apply these to any app to identify all Web 2.0 problems.</li>
+    <li><strong>WhatsApp collects metadata even though messages are encrypted</strong> - WHO you message, WHEN, HOW OFTEN, from WHERE. This metadata is more valuable to advertisers and governments than the message content itself.</li>
+    <li><strong>Smart contracts replace platform rules</strong> - Code is law. Rules written in Solidity on MST Blockchain cannot be changed unilaterally. Any change requires community vote via DAO.</li>
+    <li><strong>SARAL Protocol = Web3 UX without seed phrases</strong> - MST's SARAL Protocol lets users log in with Google or phone number, generates a non-custodial wallet in a secure enclave, and stores no seed phrase. Critical for mainstream adoption.</li>
+    <li><strong>DID (Decentralized Identifier) = self-owned identity</strong> - W3C standard. Your identity is your cryptographic key pair. No company can revoke it. Portable across all dApps on MST and beyond.</li>
+    <li><strong>IPFS + on-chain hash = decentralized storage</strong> - Store content on IPFS (content-addressed, permanent), store only the hash on-chain (cheap, verifiable). This pattern eliminates dependence on any single server.</li>
+    <li><strong>Value flows directly via smart contracts</strong> - On Spotify: artist gets 5%. On a dStream smart contract: artist gets 95 - 98%. The only "cut" is the gas fee (~0.1%) paid to MST validators for processing.</li>
+    <li><strong>WASMify bridges off-chain and on-chain</strong> - Need to prove a delivery happened? GPS data → WASMify module (off-chain computation) → ZK proof → on-chain verification. Eliminates the oracle problem elegantly.</li>
+    <li><strong>Web3 trade-offs are real and must be acknowledged</strong> - Speed (blockchain slower than centralized servers), UX complexity (wallets), content moderation (no central authority to remove illegal content), and storage cost. MST addresses each specifically.</li>
+    <li><strong>The progression: Web 1.0 → Web 2.0 → Web 3.0</strong> - Read-only (static, decentralized) → Read-write (interactive, centralized) → Read-write-own (interactive, decentralized, user-owned). Each phase solved the previous one's limitations but created new ones.</li>
+  </ul>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 10 — INDUSTRY INSIGHTS
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - Why Every Tech Giant Is Secretly Building Web3 Alternatives</h3>
+
+  <p>Meta owns Instagram, WhatsApp, and Facebook - and is spending $10 billion/year on the metaverse. Google has invested in multiple blockchain companies. Amazon Web Services has a blockchain division. Twitter's founder Jack Dorsey built Bluesky (a decentralized social protocol). Why?</p>
+
+  <p>Because the builders at these companies know their own platforms are fragile. They know regulation is coming. The EU's Digital Markets Act is already forcing Apple to allow third-party app stores (goodbye, App Store Tax). India's DPDP Act of 2023 forces platforms to justify every data collection. Web3 architecture makes compliance easier, not harder - because data ownership is built into the protocol.</p>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ The Career Insight</span>
+    <p>In 2025, every major tech company has a Web3 or blockchain team. They're not looking for blockchain evangelists who hate Web2 - they're looking for builders who understand BOTH systems deeply enough to build bridges between them. The Web3 architect who can explain exactly how to add blockchain identity to an existing WhatsApp-scale app is worth ₹50L+ to any company. That's the professional you're becoming in this program.</p>
+  </div>
+
+  <h3 class="sub-title">10.2 - Farcaster: The Real-World dWhatsApp That Exists Today</h3>
+
+  <p>Farcaster is a decentralized social protocol (similar to our dWhatsApp concept) that launched in 2023. Key facts: user identities are on-chain (Ethereum), messages stored on decentralized hubs, open-source protocol means anyone can build a client. The Warpcast app runs on top of it - looks like Twitter, but nobody owns your account.</p>
+
+  <p>Early users: 100,000 developers and builders. They chose Farcaster over Twitter/X specifically because in 2023, Elon Musk changed Twitter's API rules overnight and destroyed thousands of developer projects. On Farcaster - built on the same principles you've been learning - that's architecturally impossible.</p>
+
+  <h3 class="sub-title">10.3 - India's Opportunity: The World's Largest Web3 Market</h3>
+
+  <p>India has 700 million internet users. Most of them are on WhatsApp (500 million), YouTube (467 million), and Instagram (230 million). All three are US-company-controlled platforms subject to US law. India's government knows this is a sovereignty risk. The government is actively exploring blockchain-based national infrastructure: CBDC (digital Rupee is live), Aadhaar on blockchain (pilot ongoing), DigiLocker integration, ONDC (Open Network for Digital Commerce - already a Web3-inspired protocol for e-commerce).</p>
+
+  <p>The student who completes this program is positioned at the intersection of India's largest technical opportunity and the global shift to Web3. That is precisely where MasterStroke Academy is preparing you to stand.</p>
+</section>
+
+
+<!-- ═══════════════════════════════════
+     SECTION 11 — GLOSSARY
+═══════════════════════════════════ -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="glossary-term">dApp (Decentralized Application)</div>
+      <p class="glossary-def">An application whose backend logic runs on a blockchain smart contract instead of a company's server. No company controls it once deployed.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Smart Contract</div>
+      <p class="glossary-def">Self-executing code deployed on a blockchain. Rules are transparent, automatic, and cannot be changed without community consent. Replaces "platform rules."</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">DID (Decentralized Identifier)</div>
+      <p class="glossary-def">A W3C standard for self-owned digital identity. Your identity is your cryptographic key pair - no company can create or revoke it for you.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">SARAL Protocol (MST)</div>
+      <p class="glossary-def">MST's onboarding solution enabling Google/phone login without seed phrases. Creates a non-custodial wallet in a secure enclave. Blockchain UX without blockchain complexity.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">IPFS (InterPlanetary File System)</div>
+      <p class="glossary-def">Decentralized file storage. Files are addressed by their content hash (CID), not by server location. Content is permanent as long as someone hosts it.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">DAO (Decentralized Autonomous Organization)</div>
+      <p class="glossary-def">An organization governed by smart contracts and token-holder votes. Rules changes require community approval - no CEO can change terms unilaterally.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">WASMify (MST)</div>
+      <p class="glossary-def">MST's ZK-verified bridge between off-chain computation and on-chain proof. Proves that real-world events (GPS, IoT, APIs) happened without putting all data on-chain.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Metadata</div>
+      <p class="glossary-def">Data about data. Who you messaged, when, how long, from where - not the content itself. Often more revealing than the content and collected unencrypted by platforms.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Platform Lock-in</div>
+      <p class="glossary-def">When users cannot leave a platform without losing their data, followers, or income. Created by network effects and non-portable user data. Eliminated in Web3 via on-chain data portability.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Trustless</div>
+      <p class="glossary-def">A system where you don't need to trust any company or person - you only need to trust the math and code. Smart contracts are trustless: they execute exactly as written, every time.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Web3 Trade-offs</div>
+      <p class="glossary-def">Real limitations: slower than centralized systems, harder UX for beginners, no central authority for content moderation, storage cost. MST addresses each through SARAL, WASMify, and DAO governance.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Content-Addressed Storage</div>
+      <p class="glossary-def">Files identified by their hash (content fingerprint), not their location. If the content changes, the hash changes - making tampering immediately detectable. IPFS uses this model.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">On-Chain Governance</div>
+      <p class="glossary-def">Community voting on protocol changes recorded and executed on the blockchain. Token holders propose and vote on changes. Replaces "company decides" with "community decides."</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Non-Custodial Wallet</div>
+      <p class="glossary-def">A wallet where only the user holds the private key. No company, exchange, or platform has custody. "Not your keys, not your coins." SARAL Protocol creates non-custodial wallets accessibly.</p>
+    </div>
+  </div>
+</section>
+
+
+<hr>
+
+
+<!-- ═══════════════════════════════════
+     ASSESSMENT SECTION
+═══════════════════════════════════ -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 1.6 - Full Assessment</h2>
+      <p>Web 2 vs Web 3 Showdown &nbsp;·&nbsp; Read all guidelines carefully before beginning.</p>
+    </div>
+    <div class="marks-badge-big">20 Marks</div>
+  </div>
+
+  <div class="callout info" style="margin-bottom:32px;">
+    <span class="callout-label">ℹ️ Assessment Overview</span>
+    <p>This is a <strong>Presentation-Based Assessment</strong>. There are no MCQs or True/False questions. You submit either a 5-minute recorded video OR a structured slide deck. This document contains: (1) the full question with all requirements, (2) a model answer framework showing exactly what a full-marks submission looks like, and (3) the detailed marking rubric with marks breakdown per criterion.</p>
+  </div>
+
+
+  <!-- ─── THE QUESTION ─── -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Assessment Question</span>
+      <span class="q-type">Presentation Submission</span>
+      <span class="q-marks">20 Marks</span>
+      <span class="difficulty hard">Synthesis Level</span>
+    </div>
+    <div class="question-body">
+
+      <div class="question-text">
+        Choose any one of the following popular Web 2.0 applications and redesign it as a decentralized Web3 dApp on MST Blockchain. Deliver your redesign as a 5-minute recorded video OR a 5 - 8 slide deck with speaker notes.
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 20px;">
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:#7F1D1D;">💬 WhatsApp</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:#7F1D1D;">📸 Instagram</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:#7F1D1D;">🎵 Spotify</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:#7F1D1D;">🚗 Uber / Ola</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:#7F1D1D;">🍛 Swiggy / Zomato</div>
+        <div style="background:var(--brand-light);border:1.5px solid #C4B5F5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:14px;font-weight:600;color:var(--brand-dark);">✨ Your choice</div>
+      </div>
+
+      <div class="scenario-box">
+        <span class="scenario-label">📋 Your Presentation Must Cover All 5 of These Points</span>
+        <p><strong>Point 1 - The Hook:</strong> Open with a real problem caused by the Web 2.0 version of your app. Use a specific incident, statistic, or story from India. (30 seconds)</p>
+        <p><strong>Point 2 - The Web 2.0 Problems:</strong> Identify at least 3 specific Web 2.0 control points in your chosen app using the 6-dimension framework (Data Ownership, Censorship, Value Distribution, Identity, Governance, Privacy). Use real numbers and examples, not vague statements. (90 seconds)</p>
+        <p><strong>Point 3 - The Web3 Redesign:</strong> For each problem you identified, explain the Web3 solution and name the exact blockchain component that enables it. You must reference at least one MST Blockchain-specific feature: SARAL, WASMify, Trika POSA, on-chain DAO governance, or RWA Orbitals. (2 minutes)</p>
+        <p><strong>Point 4 - The Trade-Offs:</strong> Acknowledge at least one genuine limitation of your Web3 redesign. Explain specifically how MST Blockchain addresses or mitigates that limitation. (30 seconds)</p>
+        <p><strong>Point 5 - The Vision:</strong> Close with a concrete, human-scale statement of what the world looks like when your dApp exists. Not "blockchain will be great" - a specific scenario of a real person whose life improves. (30 seconds)</p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ─── MODEL ANSWER ─── -->
+  <div class="question-card" style="border-color: #6EE7B7;">
+    <div class="question-header" style="background: var(--green-light);">
+      <span class="q-num" style="color:var(--green);">Model Answer Framework</span>
+      <span style="font-size:11px;font-weight:700;background:var(--green);color:white;padding:3px 10px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;">Full-Marks Example - WhatsApp</span>
+      <span class="q-marks">20/20</span>
+    </div>
+    <div class="question-body">
+
+      <div class="descriptive-area">
+        <span class="descriptive-label">✅ Model Submission Structure - WhatsApp → dWhatsApp</span>
+
+        <p style="font-size:14px;color:#064E3B;margin-bottom:14px;"><em>The following shows the exact content a 20/20 submission would contain. Your submission should match this depth and specificity for your chosen app.</em></p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:4px;">SLIDE/SECTION 1 - THE HOOK (30 seconds | worth first impression)</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">"In October 2021, a group of 50,000 Indian paddy farmers in Punjab lost their WhatsApp coordination group after a member forwarded a link to a political rally. Meta's algorithm flagged it. The group was deleted in minutes. With it went three years of price-sharing data, crop coordination, and collective bargaining. Within two weeks, middlemen re-entered the market and farmer prices dropped 18%. ₹2,700 crore in collective value - gone because of one company's algorithm. Today I will show you how MST Blockchain would have prevented this."</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:4px;">SLIDE/SECTION 2 - THE THREE PROBLEMS (90 seconds)</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:6px;"><strong>Problem 1 - Censorship (Dimension 2):</strong> Meta can delete any group, ban any account, or restrict any feature in any country with no warning and no appeal. In India, WhatsApp has complied with 3,578 government data requests in the first half of 2023 alone (Meta Transparency Report, 2023).</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:6px;"><strong>Problem 2 - Data Ownership (Dimension 1):</strong> WhatsApp messages are encrypted, but metadata is not. Every message records WHO you spoke to, WHEN, HOW LONG, from WHERE. This metadata is shared with Meta's ad platform, cross-referenced with Facebook and Instagram data, and sold to advertisers. You never consented to this.</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;"><strong>Problem 3 - Identity Control (Dimension 4):</strong> Your WhatsApp identity is your phone number + Meta account. In 2022, three Indian journalists had their WhatsApp accounts deactivated within minutes of their phones being seized by police. Their 10-year message history, contacts, and groups - inaccessible permanently. No backup, no appeal, no recovery.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:4px;">SLIDE/SECTION 3 - THE WEB3 REDESIGN (2 minutes)</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:6px;"><strong>Solution 1 - Censorship → Smart Contract Groups:</strong> On dWhatsApp, every group is a <em>GroupContract.sol</em> deployed on MST Blockchain. The group's rules (who can join, who can remove members, what content is allowed) are written in code, transparent, and cannot be changed without a community vote. No single entity - not Meta, not the Indian government, not the developers - can delete the group. Deletion would require a consensus vote from group members themselves.</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:6px;"><strong>Solution 2 - Metadata → Zero Knowledge Proofs:</strong> On dWhatsApp, messages are stored on IPFS (encrypted). Only the content hash is stored on MST Blockchain - proving a message was sent and received without revealing who sent it or when. Using MST's ZK proof layer, even delivery confirmation is verified without exposing metadata. Meta's surveillance business model is architecturally impossible.</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;"><strong>Solution 3 - Identity → SARAL + DID:</strong> Your dWhatsApp identity is a Decentralized Identifier (DID) created using MST's SARAL Protocol. You log in with your Google account or phone number - same as WhatsApp. But SARAL generates a non-custodial wallet in your device's secure enclave. Your identity is a cryptographic key pair that only you hold. Nobody can revoke it, seize it, or lock you out of it. Even if dWhatsApp the company shuts down tomorrow, your identity and all your group memberships remain - permanently recorded on MST Blockchain.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:4px;">SLIDE/SECTION 4 - THE TRADE-OFF (30 seconds)</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">"One genuine weakness: message delivery speed. WhatsApp delivers messages in 50 milliseconds. MST Blockchain confirms transactions in 3 seconds. For real-time messaging, this means messages appear instantly on the recipient's device (via direct peer-to-peer), but the on-chain delivery proof takes 3 seconds. MST's architecture handles this elegantly: messages travel peer-to-peer (instant), and on-chain proof of delivery is committed in the next block - so you get speed AND verifiable delivery, just not simultaneously."</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:4px;">SLIDE/SECTION 5 - THE VISION (30 seconds)</p>
+        <p style="font-size:14px;color:var(--ink-2);">"If dWhatsApp had existed in 2021, those 50,000 farmers in Punjab would still have their group today. Their price data - three years of it - would still be theirs, stored on IPFS, owned by them cryptographically. No algorithm, no government, no company could touch it. They would still be coordinating. Prices would still be fair. This is not a distant future. Every component I described - SARAL, MST smart contracts, IPFS, ZK proofs - is live on MST testnet right now. The only thing missing is the farmer who gets to use it."</p>
+
+      </div>
+
+      <div class="marks-row" style="margin-top:20px;">
+        <div class="marks-cell">
+          <strong>Problem Identification: 4/4</strong>
+          Three specific, data-backed problems identified. Real Indian statistics cited. Each connected to the 6-dimension framework explicitly.
+        </div>
+        <div class="marks-cell">
+          <strong>Web3 Redesign: 6/6</strong>
+          Each problem has a specific, technically correct blockchain solution. Smart contract architecture named. No vague "blockchain solves this" language.
+        </div>
+        <div class="marks-cell">
+          <strong>MST Integration: 4/4</strong>
+          Three MST-specific features mentioned correctly: SARAL Protocol (with technical detail), GroupContract.sol on MST, and MST's ZK proof layer. Each connected to a specific problem.
+        </div>
+        <div class="marks-cell">
+          <strong>Trade-offs: 3/3</strong>
+          Genuine limitation (speed) acknowledged with specific numbers. Solution explained with architectural detail (P2P + on-chain proof split). Shows real technical understanding.
+        </div>
+        <div class="marks-cell">
+          <strong>Quality &amp; Impact: 3/3</strong>
+          Clear structure. Opens and closes with human story. Within time limit. Specific throughout. Judges leave understanding dWhatsApp better.
+        </div>
+        <div class="marks-cell" style="background:var(--brand-light);border-color:#C4B5F5;">
+          <strong style="color:var(--brand-dark);">TOTAL: 20/20</strong>
+          Achievable by any student who studies this sub-module thoroughly and applies the framework with genuine original thinking.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ─── FINAL SCORING SUMMARY ─── -->
+  <div style="background: linear-gradient(135deg, var(--brand) 0%, #3C1FA0 100%); border-radius: var(--radius-lg); padding: 32px; margin-top: 40px;">
+    <div style="color: #C4B5F5; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;">Sub-Module 1.6 Assessment Summary</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+      <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="color: white; font-size: 28px; font-weight: 900;">20</div>
+        <div style="color: #C4B5F5; font-size: 12px; font-weight: 600; margin-top: 4px;">Total Marks</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="color: white; font-size: 28px; font-weight: 900;">5 min</div>
+        <div style="color: #C4B5F5; font-size: 12px; font-weight: 600; margin-top: 4px;">Presentation Length</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 16px; text-align: center;">
+        <div style="color: white; font-size: 28px; font-weight: 900;">1</div>
+        <div style="color: #C4B5F5; font-size: 12px; font-weight: 600; margin-top: 4px;">App Redesigned</div>
+      </div>
+    </div>
+    <div style="color: #E0D9FB; font-size: 15px; line-height: 1.65;">
+      This is the final sub-module of Module 1. A student who scores 15+ here has genuinely internalized the difference between Web 2.0 and Web 3.0 - not just as theory, but as a builder's mental model. That mental model is the foundation of every module that follows.
+    </div>
+  </div>
+
+</section>
+
+
+<!-- FOOTER -->
+<div style="text-align:center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);">
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 4px;">Module 1 · Sub-Module 1.6 of 6 · <strong style="color: var(--green);">✅ Module 1 Complete</strong></div>
+  <div style="font-size: 13px; color: var(--ink-3);">Next: Module 2 - Centralisation vs Decentralisation: The Power Shift →</div>
+</div>
+
+</body>
+</html>

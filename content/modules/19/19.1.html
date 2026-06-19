@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 19.1 - Web3 Startup Building Blocks | MasterStroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand:        #6C3CE2;
+            --brand-light:  #EDE9FB;
+            --brand-dark:   #3C1FA0;
+            --brand-mid:    #8B5CF6;
+            --accent:       #F6A623;
+            --accent-light: #FEF4E0;
+            --green:        #16A34A;
+            --green-light:  #DCFCE7;
+            --red:          #DC2626;
+            --red-light:    #FEE2E2;
+            --blue:         #1D6FD8;
+            --blue-light:   #DBEAFE;
+            --orange:       #EA580C;
+            --orange-light: #FFEDD5;
+            --teal:         #0D9488;
+            --teal-light:   #CCFBF1;
+            --ink:          #111827;
+            --ink-2:        #374151;
+            --ink-3:        #6B7280;
+            --ink-4:        #9CA3AF;
+            --border:       #E5E7EB;
+            --border-2:     #D1D5DB;
+            --surface:      #F9FAFB;
+            --surface-2:    #F3F4F6;
+            --white:        #FFFFFF;
+            --mono:         'JetBrains Mono', monospace;
+            --sans:         'Inter', sans-serif;
+            --radius:       10px;
+            --radius-sm:    6px;
+            --radius-lg:    16px;
+            --radius-xl:    22px;
+            --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+
+        /* ─── HEADER ─── */
+        .module-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--brand-light); color: var(--brand-dark);
+            font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+            text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+            line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight { color: var(--brand); }
+        .module-subtitle {
+            font-size: 17px; color: var(--ink-3); font-weight: 400;
+            margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+        }
+        .meta-bar {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 52px; padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 14px;
+            font-size: 13px; font-weight: 500; color: var(--ink-2);
+        }
+        .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+        .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+        .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+        .meta-chip.blue   { background: var(--blue-light); border-color: #93C5FD; color: #1E3A8A; }
+
+        /* ─── SECTION TITLES ─── */
+        .section-label {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--brand);
+            margin-bottom: 10px; margin-top: 52px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .section-title {
+            font-size: 24px; font-weight: 800; color: var(--ink);
+            margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+        }
+
+        /* ─── PROSE ─── */
+        p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+        p strong { color: var(--ink); font-weight: 700; }
+        p:last-child { margin-bottom: 0; }
+
+        /* ─── CALLOUT BOXES ─── */
+        .callout {
+            border-radius: var(--radius-lg); padding: 20px 24px;
+            margin: 24px 0; border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; margin-bottom: 8px; display: flex;
+            align-items: center; gap: 6px;
+        }
+        .callout p { font-size: 15px; margin: 0; }
+        .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+        .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+        .callout.key .callout-label     { color: var(--brand-dark); }
+        .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+        .callout.warning .callout-label { color: var(--red); }
+        .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+        .callout.insight .callout-label { color: var(--teal); }
+        .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+        .callout.analogy .callout-label { color: #92400E; }
+        .callout.story .callout-label   { color: #92400E; }
+
+        /* ─── OBJECTIVE GRID ─── */
+        .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .obj-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+        .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+        .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+        /* ─── W5 GRID ─── */
+        .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+        .w5-row {
+            display: grid; grid-template-columns: 110px 1fr;
+            border-bottom: 1px solid var(--border);
+        }
+        .w5-row:last-child { border-bottom: none; }
+        .w5-label-cell {
+            background: var(--brand-light); padding: 18px 16px;
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            border-right: 1px solid #C4B5F5;
+        }
+        .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+        .w5-content { padding: 16px 20px; }
+        .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+        .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+        /* ─── COMPARISON TABLE ─── */
+        .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        .compare-table thead th {
+            padding: 12px 16px; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            text-align: left; border-bottom: 2px solid var(--border);
+        }
+        .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+        .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+        .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+        .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+        .compare-table tbody tr:hover td { background: var(--surface); }
+        .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+        .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+        .compare-table .good { color: var(--green); font-weight: 600; }
+        .compare-table .bad  { color: var(--red);   font-weight: 600; }
+        .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+        /* ─── VISUAL DIAGRAM ─── */
+        .diagram-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono); font-size: 13px; line-height: 1.65;
+            color: var(--ink-2); white-space: pre; margin: 0;
+        }
+        .diagram-caption {
+            font-size: 12px; color: var(--ink-4); text-align: center;
+            margin-top: 16px; font-style: italic;
+        }
+
+        /* ─── TIMELINE ─── */
+        .timeline { margin: 24px 0; }
+        .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+        .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+        .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+        .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+        .tl-item:last-child .tl-line { display: none; }
+        .tl-right { padding: 0 0 28px 4px; }
+        .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+        .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+        .tl-body strong { color: var(--ink); }
+
+        /* ─── FEATURE PILLS ─── */
+        .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .feature-item {
+            display: flex; gap: 14px; align-items: flex-start;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--brand); color: white;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .feature-content { flex: 1; }
+        .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+        .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+        /* ─── TWO COLUMN ─── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .col-card {
+            border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+        }
+        .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+        .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+        .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+        .col-card.green .col-card-title { color: #14532D; }
+        .col-card.red   .col-card-title { color: #7F1D1D; }
+        .col-card ul    { padding-left: 0; list-style: none; }
+        .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+        .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+        .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+        /* ─── STAT CARDS ─── */
+        .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+        .stat-card {
+            background: var(--brand-light); border: 1px solid #C4B5F5;
+            border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+        /* ─── ASSESSMENT ─── */
+        .assessment-section { margin-top: 64px; }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+        .marks-total-badge {
+            background: white; border-radius: 10px; padding: 10px 20px;
+            text-align: center; flex-shrink: 0;
+        }
+        .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+        .assessment-body {
+            border: 2px solid var(--border); border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .q-section-header {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+        .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+        .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+        .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+        .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+        .q-badge {
+            background: var(--brand); color: white;
+            font-size: 11px; font-weight: 700; padding: 4px 10px;
+            border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+        .q-diff {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+        }
+        .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+        .q-diff.medium { background: var(--accent-light); color: #92400E; }
+        .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+        .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+        .q-text {
+            font-size: 15.5px; font-weight: 600; color: var(--ink);
+            margin-bottom: 18px; line-height: 1.6;
+        }
+
+        .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+        .options li {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+            line-height: 1.5; cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green); background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono); font-size: 12px; font-weight: 700;
+            color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+        }
+        .options li.correct .opt-key { color: var(--green); }
+
+        .answer-box {
+            background: var(--green-light); border: 1.5px solid #86EFAC;
+            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+        .answer-box p strong { color: var(--ink); }
+        .answer-box .marks-bd {
+            margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+            font-size: 13px; color: #14532D;
+        }
+        .answer-box .marks-bd span { font-weight: 700; }
+
+        /* TF justification */
+        .tf-box {
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block; font-size: 13px; font-weight: 800;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+        }
+        .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+        .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+        .tf-must-write {
+            font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+            text-transform: uppercase; letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+            border-left: 3px solid var(--brand); padding-left: 12px;
+        }
+
+        /* ─── SCORE SUMMARY ─── */
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+        }
+        .score-left { }
+        .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+        .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .score-row span { color: #C4B5F5; font-weight: 400; }
+        .score-badge {
+            background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+        }
+        .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+        /* ─── FOOTER ─── */
+        .page-footer {
+            text-align: center; margin-top: 64px; padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+        /* ─── GLOSSARY ─── */
+        .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .glossary-item {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 16px;
+        }
+        .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+        .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+        /* ─── HIGHLIGHT STRIP ─── */
+        .highlight-strip {
+            background: var(--brand); color: white;
+            border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+            font-size: 15px; font-weight: 600; line-height: 1.6;
+        }
+        .highlight-strip strong { font-weight: 800; }
+
+        /* ─── TOKENOMICS PIE CHART STYLES ─── */
+        .pie-chart-container {
+            display: flex; align-items: center; justify-content: center; gap: 32px;
+            flex-wrap: wrap; margin: 24px 0;
+        }
+        .pie-chart {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: conic-gradient(
+                    #6C3CE2 0deg 72deg,       /* 20% Team & Advisors */
+                    #F6A623 72deg 108deg,       /* 10% Public Sale */
+                    #16A34A 108deg 162deg,       /* 15% Ecosystem Fund */
+                    #1D6FD8 162deg 216deg,       /* 15% Liquidity */
+                    #EA580C 216deg 252deg,       /* 10% Reserve */
+                    #0D9488 252deg 360deg        /* 30% Community & Rewards */
+            );
+            border: 6px solid var(--white);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .pie-legend {
+            display: flex; flex-direction: column; gap: 8px;
+            font-size: 13px; color: var(--ink-2);
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-color { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+
+        /* ─── CHECKLIST SUBMISSION STYLES ─── */
+        .checklist-container {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px; margin: 24px 0;
+        }
+        .checklist-container h3 { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+        .checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+        .checklist li {
+            display: flex; gap: 10px; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--border);
+        }
+        .checklist li:last-child { border-bottom: none; }
+        .checklist input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); }
+        .checklist label { font-size: 14.5px; color: var(--ink-2); line-height: 1.5; cursor: pointer; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 640px) {
+            body { padding: 28px 18px 72px; }
+            .obj-grid       { grid-template-columns: 1fr; }
+            .two-col        { grid-template-columns: 1fr; }
+            .stat-row       { grid-template-columns: 1fr 1fr; }
+            .glossary-grid  { grid-template-columns: 1fr; }
+            .module-title   { font-size: 26px; }
+            .pie-chart-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🚀 Module 19 · Sub-Module 19.1 of 4</div>
+<h1 class="module-title">Web3 Startup <span class="highlight">Building Blocks</span></h1>
+<p class="module-subtitle">Legal wrappers, tokenomics design, and team assembly - the three pillars that turn a hackathon prototype into a fundable venture.</p>
+
+<div class="meta-bar">
+    <div class="meta-chip">⏱ 40 Minutes</div>
+    <div class="meta-chip purple">🎯 15 Marks</div>
+    <div class="meta-chip">📋 6 MCQ + 1 True/False + 1 Descriptive</div>
+    <div class="meta-chip blue">Phase 4 · From Developer to Funded Founder</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+    <div class="obj-card">
+        <div class="obj-icon">⚖️</div>
+        <div class="obj-text">
+            <strong>Choose the correct legal entity</strong>
+            Evaluate sole proprietorship, LLC, DAO wrapper, and foundation - and pick the right one for your Web3 venture.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🪙</div>
+        <div class="obj-text">
+            <strong>Design a minimal tokenomics model</strong>
+            Define total supply, allocation buckets, vesting schedules, and utility - the economic engine of any crypto startup.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">👥</div>
+        <div class="obj-text">
+            <strong>Assemble a balanced founding team</strong>
+            Identify the three must-have roles (product, tech, business) and avoid the classic solo-founder trap.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">📋</div>
+        <div class="obj-text">
+            <strong>Complete a startup readiness checklist</strong>
+            Use a structured 20-point checklist to assess your own venture’s foundation before seeking funding.
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL-WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 · Real-World Introduction Story</div>
+<h2 class="section-title">The ₹2 Crore Mistake - How a Great dApp Died Before It Launched</h2>
+
+<div class="callout story">
+    <div class="callout-label">📖 Story</div>
+    <p>In December 2023, a group of four talented developers from Bengaluru built an incredible dApp on MST - a decentralised freelance marketplace where Indian gig workers could receive payments in stablecoins with zero platform fees. They called it <strong>KaamFi</strong>. The smart contracts were audited, the frontend was polished, and they had 2,000 beta testers on the MST testnet. They were ready to launch on mainnet and raise a seed round.</p>
+    <br>
+    <p>Then the first investor meeting happened. The VC asked: <strong>"What is your legal entity? Who owns the IP? What is the token utility - is it a security? How is the team equity split?"</strong> Silence. The four developers had never incorporated. They had no operating agreement. They had minted a governance token without any legal memo on its classification. The code was flawless. The business was nonexistent.</p>
+    <br>
+    <p>Six months later, the team disbanded. Two developers joined a US-based protocol. One took a job at a Web2 fintech. The fourth - the smart contract lead - is still sitting on unaudited contracts, waiting for the "right time" to relaunch. <strong>KaamFi never launched.</strong> Not because the product failed - it never got a chance. The foundation was missing.</p>
+    <br>
+    <p>This sub-module exists so that you - the MasterStroke graduate - never become the KaamFi story. Code is only 30% of a Web3 startup. The other 70% is legal structuring, token economics, and team alignment - the building blocks we will unpack right now.</p>
+</div>
+
+<p>Every hour spent on these blocks before writing a single line of Solidity is worth 100 hours saved later. The MST Grant Committee does not fund "great ideas." They fund <strong>great teams with sound legal and economic foundations</strong>. This sub-module teaches you how to build that foundation.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: THE THREE BUILDING BLOCKS — OVERVIEW
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 · The Three Building Blocks</div>
+<h2 class="section-title">Legal, Tokenomics & Team - The Startup Trinity</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">⚖️</div>
+        <div class="feature-content">
+            <div class="feature-title">Block #1: Legal Structure</div>
+            <div class="feature-desc">Defines ownership, liability, IP protection, and compliance - the invisible shield around your code. Without it, you are personally liable for every smart contract bug.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">🪙</div>
+        <div class="feature-content">
+            <div class="feature-title">Block #2: Tokenomics</div>
+            <div class="feature-desc">The economic model that aligns incentives between users, developers, investors, and the protocol. A well-designed token economy creates network effects; a poorly designed one creates a speculative bubble.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">👥</div>
+        <div class="feature-content">
+            <div class="feature-title">Block #3: Team Formation</div>
+            <div class="feature-desc">The human layer. VCs invest in teams, not ideas. A balanced founding group with complementary skills, clear equity splits, and a vesting schedule is non-negotiable.</div>
+        </div>
+    </div>
+</div>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ The Golden Rule of Web3 Startups</div>
+    <p>You cannot fix a broken foundation after launch. Legal mistakes are permanent. Token mistakes are expensive (re-deployment, governance chaos). Team disputes kill startups faster than any competitor. <strong>Get all three right before you deploy to mainnet.</strong></p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BUILDING BLOCK 1 — LEGAL STRUCTURE
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 · Building Block 1</div>
+<h2 class="section-title">Legal Wrappers - Which Entity Should Your dApp Wear?</h2>
+
+<p>In Web3, the phrase "code is law" is often cited. But the real world has real laws, and ignoring them does not make them disappear. The legal entity you choose determines <strong>who can be sued, how you pay taxes, who owns the IP, and whether your token is a security</strong>.</p>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 19.1-A · The Legal Entity Decision Tree for Web3 Startups</div>
+    <pre>
+    ┌─────────────────────────────────────────────────┐
+    │  START HERE: Are you building alone or as a     │
+    │  team?                                          │
+    └────────────┬──────────────────────────┬─────────┘
+                 │                          │
+           Solo Founder                Team of 2+
+                 │                          │
+                 ▼                          ▼
+    ┌─────────────────────┐      ┌─────────────────────┐
+    │ Sole Proprietorship │      │ Is your protocol    │
+    │ (India) / LLC (US)  │      │ fully on‑chain      │
+    │                     │      │ (smart contracts      │
+    │ Personal liability  │      │ control everything)? │
+    │ All IP under your   │      └───────┬───────┬─────┘
+    │ name               │              │       │
+    └─────────────────────┘        YES          NO
+                                       │           │
+                                       ▼           ▼
+                            ┌──────────────┐ ┌──────────────┐
+                            │ DAO Wrapper  │ │ Traditional  │
+                            │ (e.g.,        │ │ LLC / Private│
+                            │  Wyoming DAO  │ │ Limited Co.  │
+                            │  LLC,         │ │ (India: Pvt  │
+                            │  Cayman       │ │ Ltd)         │
+                            │  Foundation)  │ │              │
+                            │               │ │ Clear equity │
+                            │ Token‑holder  │ │ splits, IP   │
+                            │ governance    │ │ assignment   │
+                            └──────────────┘ └──────────────┘
+    </pre>
+    <div class="diagram-caption">Most early-stage MST projects should start as a Private Limited Company (India) or LLC (US) - you can transition to a DAO wrapper later as governance matures.</div>
+</div>
+
+<div class="callout insight">
+    <div class="callout-label">💡 Indian Founder Note</div>
+    <p>If you are based in India, the most common path is a <strong>Private Limited Company</strong> registered under the Companies Act, 2013. It offers limited liability, clear equity division, and the ability to accept foreign investment (including MST grants). A sole proprietorship is simpler but exposes your personal assets. Many Indian Web3 startups incorporate in <strong>Singapore</strong> or <strong>Delaware (US)</strong> for better crypto regulatory clarity - but the cost is higher. For the MST initGrant, an Indian Pvt Ltd is fully acceptable.</p>
+</div>
+
+<h3 style="font-size:20px; font-weight:700; color:var(--ink); margin: 24px 0 14px;">Key Legal Considerations for Your Entity</h3>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background:var(--green);">1</div>
+        <div class="feature-content">
+            <div class="feature-title">IP Assignment</div>
+            <div class="feature-desc">Every line of code, every design asset, and the project name must be legally assigned to the company - not to individual founders. Without an IP assignment agreement, a departing founder can take the entire codebase with them. This is the #1 startup killer. Use a standard <strong>Founder IP Assignment Agreement</strong> signed by all co-founders at incorporation.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background:var(--orange);">2</div>
+        <div class="feature-content">
+            <div class="feature-title">Token Legal Opinion</div>
+            <div class="feature-desc">Before launching a token, you must determine whether it is a <strong>utility token</strong> or a <strong>security</strong> under the laws of your jurisdiction and the jurisdictions of your users. In India, there is no clear legislation yet, but the law is evolving. In the US, the Howey Test applies. A legal opinion from a Web3-focused law firm costs ₹50,000-₹2,00,000 but can save you from a ₹2 crore penalty later. MST grants include mentorship that can guide you through this.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background:var(--blue);">3</div>
+        <div class="feature-content">
+            <div class="feature-title">Terms of Service & Privacy Policy</div>
+            <div class="feature-desc">Even a fully decentralised dApp needs a frontend. That frontend collects data (wallet addresses, IPs). A privacy policy is legally required under GDPR (if you have EU users) and India's DPDP Act 2023. Draft one before launch. Do not copy-paste a template without understanding it. A wrong clause can expose you to liability.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background:var(--brand);">4</div>
+        <div class="feature-content">
+            <div class="feature-title">Banking & Fiat On/Off Ramp</div>
+            <div class="feature-desc">Your company needs a bank account to receive fiat investments, pay salaries, and pay for infrastructure. Many Indian banks are cautious about crypto businesses. Open a current account with a crypto-friendly bank (like ICICI, HDFC in some cases) or a neo-bank. Clearly document all crypto-to-fiat conversions for tax compliance.</div>
+        </div>
+    </div>
+</div>
+
+<table class="compare-table">
+    <thead>
+        <tr>
+            <th>Entity Type</th>
+            <th>❌ Sole Proprietorship</th>
+            <th>✅ Private Limited (India)</th>
+            <th>✅ DAO Wrapper (Wyoming DAO LLC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Liability</td>
+            <td class="bad">Unlimited personal liability</td>
+            <td class="good">Limited to share capital</td>
+            <td class="good">Limited to DAO treasury</td>
+        </tr>
+        <tr>
+            <td>Taxation</td>
+            <td class="bad">Individual slab rates</td>
+            <td class="good">Corporate tax (25% approx)</td>
+            <td class="mid">Pass-through or corporate</td>
+        </tr>
+        <tr>
+            <td>Investment Ready</td>
+            <td class="bad">Almost impossible to raise</td>
+            <td class="good">Yes - ESOPs, equity structure</td>
+            <td class="good">Yes - token-based governance</td>
+        </tr>
+        <tr>
+            <td>Setup Complexity</td>
+            <td class="good">Very easy</td>
+            <td class="mid">Moderate (CA + ROC)</td>
+            <td class="bad">High (US legal + registered agent)</td>
+        </tr>
+        <tr>
+            <td>Recommended For</td>
+            <td class="bad">Not recommended for any serious dApp</td>
+            <td class="good">Most Indian Web3 startups</td>
+            <td class="good">Fully on-chain protocols</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: BUILDING BLOCK 2 — TOKENOMICS
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 · Building Block 2</div>
+<h2 class="section-title">Tokenomics - The Economic Engine of Your dApp</h2>
+
+<p>A token is not just a fundraising tool. It is the <strong>incentive mechanism</strong> that aligns every participant - users, developers, validators, and investors - towards a common goal. Poor tokenomics can destroy a perfectly engineered protocol. Good tokenomics can turn a modest product into an ecosystem.</p>
+
+<div class="callout analogy">
+    <div class="callout-label">🏪 Analogy: The Village Fair Economy</div>
+    <p>Imagine a village fair. The organisers print "Fair Tokens" - the only currency accepted at stalls. Stalls accept only these tokens. Visitors buy tokens at the gate. The organisers use the fiat collected to pay stall owners, maintain the fair, and invest in next year's event. If they print too many tokens, stalls lose value. If they print too few, visitors can't spend. If the token has no use beyond the fair, nobody wants it. <strong>Tokenomics is designing the rules of this fair economy - supply, distribution, utility, and sinks.</strong></p>
+</div>
+
+<h3 style="font-size:20px; font-weight:700; color:var(--ink); margin: 24px 0 14px;">The 5 Pillars of Tokenomics Design</h3>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">S</div>
+        <div class="feature-content">
+            <div class="feature-title">Supply - Total, Circulating, Max</div>
+            <div class="feature-desc"><strong>Total Supply:</strong> all tokens ever created. <strong>Max Supply:</strong> hard cap (like Bitcoin's 21M). <strong>Circulating Supply:</strong> tokens currently in the market. Inflationary tokens (like ETH before EIP-1559) have no max supply. Deflationary tokens burn a portion of fees. Decide your model early - it is nearly impossible to change later without community backlash.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">A</div>
+        <div class="feature-content">
+            <div class="feature-title">Allocation - Who Gets What?</div>
+            <div class="feature-desc">The most scrutinised slide in any pitch deck. Typical buckets: Team & Advisors (15-20%, 4-year vesting with 1-year cliff), Investors (10-20%), Community & Ecosystem (30-50%), Treasury/Foundation (10-20%), Public Sale (5-10%). The exact numbers depend on your product. <strong>Rule: never give the team more than 25%.</strong> Investors want to see aligned incentives, not a founder's get-rich-quick scheme.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">U</div>
+        <div class="feature-content">
+            <div class="feature-title">Utility - What Does the Token Actually Do?</div>
+            <div class="feature-desc">A token with no utility is a meme coin - and meme coins rarely last. Utility must be <strong>intrinsic</strong> to the product: governance voting, staking for protocol fees, paying gas (like MSTC for gas on MST), accessing premium features, or serving as collateral. The more concrete the utility, the stronger the token's value proposition. If you can't explain the utility in one sentence, you have a problem.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">V</div>
+        <div class="feature-content">
+            <div class="feature-title">Vesting & Lock-Ups - Aligning Long-Term Incentives</div>
+            <div class="feature-desc">Team and investor tokens must <strong>vest over time</strong> - typically 4 years with a 1-year cliff (nothing unlocks for the first 12 months, then monthly linearly). This prevents founders from dumping tokens on day one. Smart contracts must enforce vesting - not just a promise. OpenZeppelin's <code>VestingWallet</code> contract is your friend. For MST projects, the grant program may require specific vesting terms to protect the community.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">S</div>
+        <div class="feature-content">
+            <div class="feature-title">Sinks & Burns - Where Does Value Accrue?</div>
+            <div class="feature-desc">A token must have <strong>deflationary pressure</strong> or value accrual mechanisms. Examples: a percentage of protocol fees used to buy back and burn tokens (like Binance's BNB burn). Staking locks up supply, reducing circulating supply. Protocol fees distributed to token stakers (like ve-tokenomics). Without sinks, the token is just a speculative instrument with no natural demand beyond "number go up."</div>
+        </div>
+    </div>
+</div>
+
+<!-- Pie Chart for Token Allocation example -->
+<div class="pie-chart-container">
+    <div class="pie-chart" aria-label="Token Allocation Pie Chart: 20% Team, 10% Public Sale, 15% Ecosystem, 15% Liquidity, 10% Reserve, 30% Community Rewards"></div>
+    <div class="pie-legend">
+        <div class="legend-item"><span class="legend-color" style="background:#6C3CE2;"></span> Team & Advisors - 20%</div>
+        <div class="legend-item"><span class="legend-color" style="background:#F6A623;"></span> Public Sale - 10%</div>
+        <div class="legend-item"><span class="legend-color" style="background:#16A34A;"></span> Ecosystem Fund - 15%</div>
+        <div class="legend-item"><span class="legend-color" style="background:#1D6FD8;"></span> Liquidity Provision - 15%</div>
+        <div class="legend-item"><span class="legend-color" style="background:#EA580C;"></span> Treasury Reserve - 10%</div>
+        <div class="legend-item"><span class="legend-color" style="background:#0D9488;"></span> Community Rewards - 30%</div>
+    </div>
+</div>
+<p style="text-align:center; font-size:13px; color:var(--ink-4); margin-top:8px;">FIGURE 19.1-B · A sample token allocation for a hypothetical MST-based DeFi protocol. Note the large community bucket - Web3 investors expect this.</p>
+
+<div class="callout warning">
+    <div class="callout-label">⚠️ Security Token Warning</div>
+    <p>If your token represents a share of revenue, profit, or equity, it is likely a <strong>security token</strong> and must comply with securities laws. Do not guess. Get a legal opinion. The MST ecosystem encourages utility tokens with clear, non-security use cases. For RWA tokenization (Module 11), securities law compliance is mandatory - never skip this step.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: BUILDING BLOCK 3 — TEAM FORMATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 · Building Block 3</div>
+<h2 class="section-title">Team Formation - The Only Thing VCs Really Care About</h2>
+
+<p>Ideas are abundant; execution is scarce. Every investor - from the MST Grant Committee to Sequoia - will tell you they invest in <strong>teams, not ideas</strong>. A stellar team can pivot a weak idea into a unicorn. A dysfunctional team will fail even with a perfect product. The founding team is the single most important building block.</p>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 19.1-C · The Minimum Viable Founding Team</div>
+    <pre>
+                   ┌─────────────────────────┐
+                   │      🧠 VISIONARY       │
+                   │   (CEO / Product Lead)  │
+                   │  "Why are we building   │
+                   │   this? For whom?"      │
+                   │  Skills: storytelling,  │
+                   │  user research, pitch   │
+                   │  deck, hiring           │
+                   └───────────┬─────────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          │                                         │
+          ▼                                         ▼
+ ┌──────────────────┐                     ┌──────────────────┐
+ │    💻 BUILDER    │                     │   📈 MARKETER    │
+ │ (CTO / Lead Dev) │                     │ (Business Dev)   │
+ │  "How will we    │                     │  "Who will use   │
+ │   build it?"     │                     │   it and why?"   │
+ │  Smart contracts,│                     │  Community,      │
+ │  architecture,   │                     │  partnerships,   │
+ │  security, infra │                     │  token launch,   │
+ └──────────────────┘                     │  growth hacking  │
+                                           └──────────────────┘
+
+    ❌ Solo Founder: one person tries to do all three — burnout guaranteed.
+    ❌ Three CTOs and no marketer: beautiful code, zero users.
+    ✅ Minimum 2 co‑founders, ideally 3: Visionary, Builder, Marketer.
+    </pre>
+    <div class="diagram-caption">The Golden Triangle: Product, Tech, Business. If you are missing any corner, find a co-founder who fills it.</div>
+</div>
+
+<h3 style="font-size:20px; font-weight:700; color:var(--ink); margin: 24px 0 14px;">Equity Split & Vesting - The Hardest Conversation You Must Have</h3>
+
+<p>Many startups die not because of market failure, but because of co-founder disputes. The equity split discussion must happen <strong>before a single line of code is written</strong>. No "we will figure it out later." Later never works.</p>
+
+<div class="two-col">
+    <div class="col-card green">
+        <div class="col-card-title">✅ Do This</div>
+        <ul>
+            <li>Have the equity discussion on day one, in writing.</li>
+            <li>Use a dynamic equity split if contributions are unequal (Slicing Pie model).</li>
+            <li>Implement a <strong>4-year vesting with 1-year cliff</strong> for all founders.</li>
+            <li>Sign a <strong>Founder Agreement</strong> covering IP, roles, and departure terms.</li>
+            <li>Leave 10-15% unallocated for future key hires (ESOP pool).</li>
+        </ul>
+    </div>
+    <div class="col-card red">
+        <div class="col-card-title">❌ Don't Do This</div>
+        <ul>
+            <li>Equal split "because we are friends" without considering contribution.</li>
+            <li>No vesting - a co-founder leaves after 3 months, keeps 33%.</li>
+            <li>Verbal agreements - "I trust you bro" is not a legal contract.</li>
+            <li>One founder owns 90% - no co-founder will be motivated.</li>
+            <li>Bringing in a "business guy" with 50% equity and zero crypto knowledge.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ The MST Grant Requirement</div>
+    <p>The MST Grant Committee explicitly asks about the founding team in the application. They want to see <strong>clear roles, vesting schedules, and proof that the team has been working together for at least 3-6 months</strong>. A solo founder with no collaborators is a red flag. If you are solo, find a co-founder during Phase 3 (Capstone) before applying for the grant.</p>
+</div>
+
+<!-- Timeline of a startup journey -->
+<div class="timeline">
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">Month 0</div>
+            <div class="tl-body"><strong>Idea + Co-founder Search.</strong> Validate the problem. Find a co-founder who complements your skills. Sign a mutual NDA if needed.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">Month 1-2</div>
+            <div class="tl-body"><strong>Incorporation.</strong> Register the legal entity. Sign the Founder Agreement with IP assignment and vesting. Open a bank account.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">Month 2-4</div>
+            <div class="tl-body"><strong>Prototype + Tokenomics Draft.</strong> Build the MVP on MST testnet. Draft the tokenomics. Get a legal opinion on token classification.</div>
+        </div>
+    </div>
+    <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-right">
+            <div class="tl-year">Month 4-6</div>
+            <div class="tl-body"><strong>Apply for MST initGrant.</strong> Submit the proposal with capstone as proof of concept. Show legal entity, tokenomics, and team vesting.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: THE STARTUP READINESS CHECKLIST
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 · Startup Readiness</div>
+<h2 class="section-title">The 20-Point Pre-Funding Checklist</h2>
+
+<p>Before you approach any investor, grant program, or even a hackathon judge, run through this checklist. Every unchecked box is a potential reason for rejection.</p>
+
+<div class="checklist-container">
+    <h3>📋 Legal Foundation</h3>
+    <ul class="checklist">
+        <li><input type="checkbox" id="c1"><label for="c1">1. Is a legal entity registered (Pvt Ltd, LLC, or DAO wrapper)?</label></li>
+        <li><input type="checkbox" id="c2"><label for="c2">2. Is there a signed Founder Agreement with IP assignment?</label></li>
+        <li><input type="checkbox" id="c3"><label for="c3">3. Are all co-founder equity splits documented with vesting schedules?</label></li>
+        <li><input type="checkbox" id="c4"><label for="c4">4. Is there a Token Legal Opinion (or at least a preliminary memo)?</label></li>
+        <li><input type="checkbox" id="c5"><label for="c5">5. Does the company have a bank account and fiat on-ramp?</label></li>
+        <li><input type="checkbox" id="c6"><label for="c6">6. Are Terms of Service and Privacy Policy drafted for the dApp?</label></li>
+    </ul>
+    <h3 style="margin-top: 20px;">🪙 Tokenomics Foundation</h3>
+    <ul class="checklist">
+        <li><input type="checkbox" id="c7"><label for="c7">7. Is the total supply and allocation model defined in a clear one-pager?</label></li>
+        <li><input type="checkbox" id="c8"><label for="c8">8. Is the token utility specific, intrinsic, and explainable in one sentence?</label></li>
+        <li><input type="checkbox" id="c9"><label for="c9">9. Are team & investor tokens locked with on-chain vesting contracts?</label></li>
+        <li><input type="checkbox" id="c10"><label for="c10">10. Are there deflationary or value-accrual mechanisms (sinks, burns, staking)?</label></li>
+        <li><input type="checkbox" id="c11"><label for="c11">11. Is the token standard chosen (ERC-20 / ERC-721 / ERC-1155 on MST)?</label></li>
+    </ul>
+    <h3 style="margin-top: 20px;">👥 Team Foundation</h3>
+    <ul class="checklist">
+        <li><input type="checkbox" id="c12"><label for="c12">12. Does the founding team cover Product, Tech, and Business roles?</label></li>
+        <li><input type="checkbox" id="c13"><label for="c13">13. Has the team been working together for at least 3 months?</label></li>
+        <li><input type="checkbox" id="c14"><label for="c14">14. Are there LinkedIn profiles and clear role titles for all founders?</label></li>
+        <li><input type="checkbox" id="c15"><label for="c15">15. Is there a plan for hiring the next 3 key roles post-funding?</label></li>
+    </ul>
+    <h3 style="margin-top: 20px;">📊 General</h3>
+    <ul class="checklist">
+        <li><input type="checkbox" id="c16"><label for="c16">16. Is a one-page pitch deck ready (problem, solution, market, token, ask)?</label></li>
+        <li><input type="checkbox" id="c17"><label for="c17">17. Is the capstone project deployed on MST testnet with a working demo?</label></li>
+        <li><input type="checkbox" id="c18"><label for="c18">18. Is a basic financial projection (12-month runway) estimated?</label></li>
+        <li><input type="checkbox" id="c19"><label for="c19">19. Are there any regulatory red flags (sanctioned countries, unregistered securities)?</label></li>
+        <li><input type="checkbox" id="c20"><label for="c20">20. Is the entire checklist reviewed by a mentor or advisor?</label></li>
+    </ul>
+</div>
+<p style="font-size:14px; color:var(--ink-3); text-align:center;">This checklist is your assignment submission for the descriptive section of the assessment. Submit a completed, signed checklist (PDF) alongside your answers.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: TOP FACTS — KNOW THESE COLD
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 · Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+        <div class="feature-content">
+            <div class="feature-title">Legal Entity First</div>
+            <div class="feature-desc">Never deploy a mainnet dApp without a registered legal entity. In India, a Private Limited Company is the most common structure. Without it, founders are personally liable for all actions of the protocol.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+        <div class="feature-content">
+            <div class="feature-title">IP Assignment is Non-Negotiable</div>
+            <div class="feature-desc">All code, designs, and project names must be legally assigned to the company. A departing founder without an IP assignment can take the entire codebase - this has happened repeatedly in Web3.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+        <div class="feature-content">
+            <div class="feature-title">Tokenomics Must Be Defined Before Deployment</div>
+            <div class="feature-desc">Changing a token's supply model after launch is nearly impossible without a hard fork. Allocations, vesting, utility, and sinks must be designed and documented before the first mint.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+        <div class="feature-content">
+            <div class="feature-title">The Minimum Viable Team is Three Roles</div>
+            <div class="feature-desc">Visionary (CEO), Builder (CTO), and Marketer (Biz Dev). Solo founders almost never succeed in Web3. VCs and grant committees look for this triad.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+        <div class="feature-content">
+            <div class="feature-title">Vesting Protects Everyone</div>
+            <div class="feature-desc">Standard vesting: 4-year with 1-year cliff. No tokens for the first year, then monthly unlock. This prevents team members from leaving early with a large allocation.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+    <div class="assessment-header">
+        <h2>📝 Sub-Module 19.1 Assessment</h2>
+        <div class="marks-total-badge">
+            <div class="num">15</div>
+            <div class="label">Total Marks</div>
+        </div>
+    </div>
+
+    <div class="assessment-body">
+
+        <!-- SECTION A -->
+        <div class="q-section-header">
+            <div class="q-section-title">Section A - Multiple Choice Questions</div>
+            <div class="q-section-meta">6 Questions · 1 mark each · 6 marks total</div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q1</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">Which of the following is the most recommended legal entity for an Indian Web3 startup aiming to raise funds and limit personal liability?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Sole Proprietorship</li>
+                <li class="correct"><span class="opt-key">B</span> Private Limited Company ✅</li>
+                <li><span class="opt-key">C</span> Unregistered Partnership</li>
+                <li><span class="opt-key">D</span> Personal bank account</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>A Private Limited Company offers limited liability, allows equity structuring (ESOPs, investment rounds), and is acceptable for MST grants. Sole proprietorships expose personal assets. Unregistered partnerships lack legal clarity.</p>
+            </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q2</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">What is the primary purpose of a Founder IP Assignment Agreement?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> To register the company with the ROC</li>
+                <li class="correct"><span class="opt-key">B</span> To legally transfer all code and design assets from individual founders to the company ✅</li>
+                <li><span class="opt-key">C</span> To define the token utility</li>
+                <li><span class="opt-key">D</span> To open a bank account for the startup</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>Without an IP assignment, the code remains the personal property of the founder who wrote it. If that founder leaves, the company loses the right to use the code - a fatal blow.</p>
+            </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q3</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">In tokenomics, what is a "vesting cliff"?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> The total maximum supply of a token</li>
+                <li class="correct"><span class="opt-key">B</span> A period (usually 1 year) before any team tokens begin to unlock ✅</li>
+                <li><span class="opt-key">C</span> The moment a token is listed on a DEX</li>
+                <li><span class="opt-key">D</span> A mechanism to burn tokens</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>A vesting cliff means no tokens are released until a specified time (commonly 12 months). After the cliff, tokens unlock gradually (monthly) over the remaining vesting period.</p>
+            </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q4</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">Which of the following is considered a "sink" mechanism in tokenomics?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Minting new tokens for liquidity providers</li>
+                <li class="correct"><span class="opt-key">B</span> Using a portion of protocol fees to buy back and burn tokens ✅</li>
+                <li><span class="opt-key">C</span> Airdropping tokens to early users</li>
+                <li><span class="opt-key">D</span> Increasing the total supply through inflation</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>A sink removes tokens from circulation, creating deflationary pressure. Buy-back-and-burn is a classic sink. Minting and airdrops increase supply - they are sources, not sinks.</p>
+            </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q5</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">According to the "Golden Triangle" for Web3 founding teams, which three roles are considered essential?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> 3 Solidity developers, 1 designer, 1 community manager</li>
+                <li class="correct"><span class="opt-key">B</span> Visionary (Product), Builder (Tech), Marketer (Business) ✅</li>
+                <li><span class="opt-key">C</span> CEO, CFO, COO</li>
+                <li><span class="opt-key">D</span> Smart contract auditor, frontend dev, token economist</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>While deep technical skills are crucial, without someone to define the product vision and someone to drive user adoption, a startup cannot succeed. The three roles must be complementary.</p>
+            </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q6</div>
+                <div class="q-meta">
+                    <span class="q-type">MCQ</span>
+                    <span class="q-diff medium">Medium</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">Why do Web3 investors and grant programs (like MST) specifically look for a "vesting schedule" in the team allocation?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> To ensure the token price pumps on day one</li>
+                <li class="correct"><span class="opt-key">B</span> To align long-term incentives and prevent immediate dumping by founders ✅</li>
+                <li><span class="opt-key">C</span> To increase the total supply slowly</li>
+                <li><span class="opt-key">D</span> To comply with Indian labor laws</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B - Explanation</div>
+                <p>Vesting ensures founders stay committed to the project for years, not days. Without it, a founder could sell all their tokens immediately after launch and abandon the protocol.</p>
+            </div>
+        </div>
+
+        <!-- SECTION B -->
+        <div class="q-section-header" style="margin-top: 8px;">
+            <div class="q-section-title">Section B - True / False</div>
+            <div class="q-section-meta">1 Question · 1 mark · Just state TRUE or FALSE</div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q7</div>
+                <div class="q-meta">
+                    <span class="q-type">True / False</span>
+                    <span class="q-diff easy">Easy</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+            </div>
+            <div class="q-text">"A solo founder with no co-founders is generally viewed as a strong indicator of success by Web3 venture capitalists."</div>
+            <div class="tf-box">
+                <div class="tf-verdict false">FALSE</div>
+                <div class="tf-must-write">📝 Correct Statement:</div>
+                <div class="tf-sample">
+                    <strong>FALSE.</strong> Web3 VCs and grant programs strongly prefer teams with at least two co-founders. Solo founders are viewed as a risk because one person cannot simultaneously build the product, manage the business, and grow the community. The MST Grant Committee explicitly looks for multi-founder teams with complementary skills.
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION C -->
+        <div class="q-section-header" style="margin-top: 8px;">
+            <div class="q-section-title">Section C - Descriptive / Checklist Submission</div>
+            <div class="q-section-meta">1 Question · 8 marks · 800-word minimum + completed checklist PDF</div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q8</div>
+                <div class="q-meta">
+                    <span class="q-type">Descriptive Design + Submission</span>
+                    <span class="q-diff hard">Hard</span>
+                    <span class="q-marks">8 marks</span>
+                </div>
+            </div>
+            <div class="q-text">Using your own capstone project (or a hypothetical MST-based dApp), complete the following:</div>
+            <div style="font-size:15px; color:var(--ink-2); line-height:1.7; margin: 12px 0 20px;">
+                <p><strong>(a) Legal Structure (2 marks):</strong> Explain which legal entity you would choose (Sole Proprietorship, Indian Pvt Ltd, or DAO Wrapper) and justify why. Mention the key registration steps and the IP assignment process.</p>
+                <p><strong>(b) Tokenomics One-Pager (3 marks):</strong> Design a token model for your dApp. Include: total supply, allocation percentages (with a pie chart or table), utility of the token, and vesting schedule for team tokens. Explain the value accrual mechanism (sink/burn/staking).</p>
+                <p><strong>(c) Founding Team (2 marks):</strong> Identify the three roles you need. Who (real or hypothetical) fills each role, and what specific skills do they bring? Propose an equity split with justification.</p>
+                <p><strong>(d) Checklist (1 mark):</strong> Fill out the 20-point startup readiness checklist (provided in the sub-module) for your project. Submit it as a signed PDF.</p>
+            </div>
+            <div class="answer-box">
+                <div class="answer-box-label">📊 Marks Breakdown</div>
+                <p><strong>2 marks - Legal:</strong> Correct entity choice (Pvt Ltd / DAO) with sound justification. Mention of IP assignment.<br>
+                <strong>3 marks - Tokenomics:</strong> Clear supply, allocation percentages, defined utility, vesting schedule, and at least one sink mechanism.<br>
+                <strong>2 marks - Team:</strong> Identification of the three roles with names/skills and a justified equity split (with vesting).<br>
+                <strong>1 mark - Checklist:</strong> Completed 20-point checklist submitted as PDF.</p>
+                <div class="marks-bd"><span>Note:</span> The total answer should be approximately 800-1000 words. Use bullet points for allocation breakdown.</div>
+            </div>
+        </div>
+
+    </div><!-- end assessment-body -->
+
+    <!-- SCORE SUMMARY -->
+    <div class="score-summary">
+        <div class="score-left">
+            <div class="score-label">Sub-Module 19.1 Assessment Summary</div>
+            <div class="score-row">Section A: 6 × MCQ <span>(1 mark each) = 6 marks</span></div>
+            <div class="score-row">Section B: 1 × True/False <span>(1 mark) = 1 mark</span></div>
+            <div class="score-row">Section C: 1 × Descriptive + Checklist <span>(8 marks) = 8 marks</span></div>
+        </div>
+        <div class="score-badge">
+            <div class="score-num">15</div>
+            <div class="score-text">Total Marks</div>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">09 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 19.1</h2>
+
+<div class="glossary-grid">
+    <div class="glossary-item">
+        <div class="glossary-term">Private Limited Company</div>
+        <div class="glossary-def">A legal entity registered under the Indian Companies Act, 2013. Offers limited liability, separate legal identity, and the ability to raise equity funding.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">IP Assignment Agreement</div>
+        <div class="glossary-def">A legal contract signed by all founders that transfers ownership of all intellectual property (code, designs, brand) from the individual to the company.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Vesting</div>
+        <div class="glossary-def">The process by which tokens or equity allocated to founders and employees unlock gradually over time, typically over 4 years with a 1-year cliff.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Cliff</div>
+        <div class="glossary-def">An initial period (usually 12 months) during which no tokens or equity are released. If a founder leaves before the cliff, they receive nothing.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Token Utility</div>
+        <div class="glossary-def">The specific function a token performs within a protocol - governance, staking, gas payment, access gating, or collateral.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Sink (Tokenomics)</div>
+        <div class="glossary-def">A mechanism that removes tokens from circulation, creating deflationary pressure. Examples: buy-back-and-burn, staking lock, or fee burning.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Golden Triangle (Team)</div>
+        <div class="glossary-def">The three essential co-founder roles in a Web3 startup: Visionary (Product/CEO), Builder (CTO/Lead Dev), and Marketer (Biz Dev/Growth).</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Token Legal Opinion</div>
+        <div class="glossary-def">A written analysis by a qualified attorney stating whether a token is likely a security under relevant laws, and recommending a regulatory path.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">MST Grant Program</div>
+        <div class="glossary-def">A funding track (initGrant up to $1,000, buildGrant up to $10,000, scaleGrant up to $50,000) for projects building on MST blockchain, requiring a solid team, tokenomics, and legal foundation.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">ESOP Pool</div>
+        <div class="glossary-def">A reserved percentage of company equity (usually 10-15%) set aside for future key employees as stock options - essential for hiring talent after funding.</div>
+    </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+    <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+    <p>Module 19 · Sub-Module <strong>19.1</strong> of 4 · Next: Sub-Module 19.2 - Building an Investor Pitch Deck →</p>
+</div>
+
+</body>
+</html>

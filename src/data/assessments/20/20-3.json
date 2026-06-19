@@ -1,0 +1,59 @@
+{
+  "submoduleId": "20.3",
+  "totalMarks": 50,
+  "questions": [
+    {
+      "id": "q0",
+      "number": 0,
+      "type": "live_coding",
+      "difficulty": "Hard",
+      "marks": 10,
+      "text": "Implement a basic multi-signature wallet in Solidity with the following requirements:<br>\n        • The constructor receives an array of owner addresses and a required number of confirmations (M out of N).<br>\n        • Any owner can submit a transaction (to, value, data).<br>\n        • Other owners can confirm; once M confirmations are reached, anyone can execute the transaction.<br>\n        • A transaction cannot be executed more than once.<br>\n        • Include appropriate access control and event emissions.",
+      "explanation": "3 marks - Correct state variables (owners mapping, transaction struct, confirmations mapping, transactionCount).\n          2 marks - `submitTransaction` with event, `confirmTransaction` with proper confirmation logic.\n          3 marks - `executeTransaction` with require checks (confirmCount >= required, not executed, valid to address). Reset confirmations or mark executed.\n          2 marks - Security: onlyOwner modifier for submitting? (any owner can submit), require checks, prevent re-execution. Emit events.\n          Note: Partial code with clear communication of missing parts can still earn up to 7 marks if logic is sound.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Scheme (10 marks)</div>\n        <p>\n          <strong>3 marks</strong> - Correct state variables (owners mapping, transaction struct, confirmations mapping, transactionCount).<br>\n          <strong>2 marks</strong> - `submitTransaction` with event, `confirmTransaction` with proper confirmation logic.<br>\n          <strong>3 marks</strong> - `executeTransaction` with require checks (confirmCount &gt;= required, not executed, valid to address). Reset confirmations or mark executed.<br>\n          <strong>2 marks</strong> - Security: onlyOwner modifier for submitting? (any owner can submit), require checks, prevent re-execution. Emit events.<br>\n          <em>Note: Partial code with clear communication of missing parts can still earn up to 7 marks if logic is sound.</em>\n        </p>",
+      "language": "solidity"
+    },
+    {
+      "id": "q0",
+      "number": 0,
+      "type": "live_coding",
+      "difficulty": "Hard",
+      "marks": 10,
+      "text": "Build a staking contract where users stake an ERC-20 token and earn reward tokens at a fixed rate of 10 tokens per second, distributed proportionally among all stakers. Functions: `stake(uint256 amount)`, `withdraw(uint256 amount)`, `getReward()`. Use the “reward per token” accumulator pattern to avoid looping over stakers.",
+      "explanation": "2 marks - State variables: `rewardPerTokenStored`, `userRewardPerTokenPaid`, `rewards`, `totalSupply` of staked tokens.\n          2 marks - `updateReward` modifier / internal function that updates global and user reward accumulators before any stake/unstake/getReward.\n          2 marks - `stake` and `withdraw` correctly update user balance and totalSupply, invoke `updateReward`.\n          2 marks - `getReward` transfers accumulated reward to user, resets rewards mapping.\n          2 marks - Security: nonReentrant on withdraw/getReward, use SafeERC20 for token transfers, proper visibility.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Scheme (10 marks)</div>\n        <p>\n          <strong>2 marks</strong> - State variables: `rewardPerTokenStored`, `userRewardPerTokenPaid`, `rewards`, `totalSupply` of staked tokens.<br>\n          <strong>2 marks</strong> - `updateReward` modifier / internal function that updates global and user reward accumulators before any stake/unstake/getReward.<br>\n          <strong>2 marks</strong> - `stake` and `withdraw` correctly update user balance and totalSupply, invoke `updateReward`.<br>\n          <strong>2 marks</strong> - `getReward` transfers accumulated reward to user, resets rewards mapping.<br>\n          <strong>2 marks</strong> - Security: nonReentrant on withdraw/getReward, use SafeERC20 for token transfers, proper visibility.\n        </p>",
+      "language": "solidity"
+    },
+    {
+      "id": "q0",
+      "number": 0,
+      "type": "live_coding",
+      "difficulty": "Medium",
+      "marks": 10,
+      "text": "Create a vault where an owner can deposit Ether, and a beneficiary can withdraw the entire balance only after a specific unlock timestamp. The owner can also perform an emergency withdrawal of all funds at any time. Include events for deposits and withdrawals.",
+      "explanation": "2 marks - Constructor sets owner, beneficiary, unlockTime.\n          2 marks - `deposit() payable` onlyOwner, emits event.\n          3 marks - `withdraw()` only beneficiary, `require(block.timestamp >= unlockTime, \"too early\")`, transfers entire balance.\n          2 marks - `emergencyWithdraw()` onlyOwner, transfers balance regardless of time.\n          1 mark - Events: Deposited, Withdrawn.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Scheme (10 marks)</div>\n        <p>\n          <strong>2 marks</strong> - Constructor sets owner, beneficiary, unlockTime.<br>\n          <strong>2 marks</strong> - `deposit() payable` onlyOwner, emits event.<br>\n          <strong>3 marks</strong> - `withdraw()` only beneficiary, `require(block.timestamp &gt;= unlockTime, \"too early\")`, transfers entire balance.<br>\n          <strong>2 marks</strong> - `emergencyWithdraw()` onlyOwner, transfers balance regardless of time.<br>\n          <strong>1 mark</strong> - Events: Deposited, Withdrawn.\n        </p>",
+      "language": "solidity"
+    },
+    {
+      "id": "q0",
+      "number": 0,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 10,
+      "text": "Design a decentralised token exchange (like Uniswap) that runs on MST blockchain. Discuss the smart contract architecture, the user flow for a swap, how you'd handle liquidity provision, and how you'd integrate MST-specific features (SARAL, WASMify, low fees). Draw a rough architecture diagram (describe it textually).",
+      "explanation": "3 marks - Clear contract separation: Factory, Pair (or Pool), Router. Explain constant product AMM.\n          2 marks - User flow: Wallet connection (BridgeKey) → Router swap call → Pair executes transfer → events for indexing.\n          2 marks - Liquidity: LP tokens, fee accrual, impermanent loss mention.\n          2 marks - MST specifics: Use SARAL for mobile wallet login; WASMify for complex price computation off-chain; low fees enable micro-swaps.\n          1 mark - Security: reentrancy guards, slippage protection (`minAmountOut`), Oracle usage for safety.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Scheme (10 marks)</div>\n        <p>\n          <strong>3 marks</strong> - Clear contract separation: Factory, Pair (or Pool), Router. Explain constant product AMM.<br>\n          <strong>2 marks</strong> - User flow: Wallet connection (BridgeKey) → Router swap call → Pair executes transfer → events for indexing.<br>\n          <strong>2 marks</strong> - Liquidity: LP tokens, fee accrual, impermanent loss mention.<br>\n          <strong>2 marks</strong> - MST specifics: Use SARAL for mobile wallet login; WASMify for complex price computation off-chain; low fees enable micro-swaps.<br>\n          <strong>1 mark</strong> - Security: reentrancy guards, slippage protection (`minAmountOut`), Oracle usage for safety.\n        </p>"
+    },
+    {
+      "id": "q0",
+      "number": 0,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 10,
+      "text": "Design an NFT marketplace on MST where creators can mint NFTs (ERC-721) and list them for sale. Implement royalties: every secondary sale sends a percentage to the original creator. Discuss how you'd store metadata (IPFS), handle offers, and ensure the marketplace fee is configurable. Mention how you'd use MST's low fees for a better creator experience.",
+      "explanation": "3 marks - Contract design: NFT contract (ERC-721) + Marketplace contract (listing, buying, bidding). Royalty using EIP-2981.\n          2 marks - Metadata: IPFS link stored in `tokenURI`. Frontend fetches JSON.\n          2 marks - Listing flow: seller approves marketplace, lists with price. Buyer pays, marketplace transfers NFT, distributes fee and royalty.\n          2 marks - MST: low gas enables cheap listing/cancel; SARAL for creator onboarding without seed phrase; WASMify for off-chain auction logic.\n          1 mark - Security: reentrancy guard on purchase; ensure royalty payment cannot be bypassed.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Scheme (10 marks)</div>\n        <p>\n          <strong>3 marks</strong> - Contract design: NFT contract (ERC-721) + Marketplace contract (listing, buying, bidding). Royalty using EIP-2981.<br>\n          <strong>2 marks</strong> - Metadata: IPFS link stored in `tokenURI`. Frontend fetches JSON.<br>\n          <strong>2 marks</strong> - Listing flow: seller approves marketplace, lists with price. Buyer pays, marketplace transfers NFT, distributes fee and royalty.<br>\n          <strong>2 marks</strong> - MST: low gas enables cheap listing/cancel; SARAL for creator onboarding without seed phrase; WASMify for off-chain auction logic.<br>\n          <strong>1 mark</strong> - Security: reentrancy guard on purchase; ensure royalty payment cannot be bypassed.\n        </p>"
+    }
+  ]
+}

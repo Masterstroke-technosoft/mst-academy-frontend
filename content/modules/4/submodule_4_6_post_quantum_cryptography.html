@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 4.6 - Post-Quantum Cryptography | MasterStroke Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #E8B84B;
+    --gold-light: #FFF3CC;
+    --gold-dark: #8A6A00;
+    --navy: #0D1B3E;
+    --navy-mid: #1A2D5A;
+    --navy-soft: #243A73;
+    --sky: #4A9EE8;
+    --sky-light: #D6EDFF;
+    --teal: #2EC4B6;
+    --teal-light: #D0F5F2;
+    --coral: #E8604A;
+    --coral-light: #FFE8E4;
+    --purple: #7B5EA7;
+    --purple-light: #EDE5FF;
+    --green: #3DB87A;
+    --green-light: #D5F4E6;
+    --red: #D63B3B;
+    --red-light: #FFEBEB;
+    --indigo: #3730A3;
+    --indigo-light: #E0E7FF;
+    --bg: #F5F3EE;
+    --bg-white: #FFFFFF;
+    --text-main: #1A1A2E;
+    --text-muted: #5A5A7A;
+    --text-light: #9090AA;
+    --border: #E0DDD4;
+    --shadow: 0 4px 24px rgba(13,27,62,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #050E22 0%, #0D1B3E 40%, #1A0F3E 100%);
+    color: #fff;
+    padding: 56px 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '⚛';
+    position: absolute;
+    right: 10px;
+    top: -20px;
+    font-size: 220px;
+    opacity: 0.05;
+    transform: rotate(10deg);
+    line-height: 1;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--indigo), var(--purple), var(--gold), var(--coral));
+  }
+  .breadcrumb {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .breadcrumb span { color: var(--gold); }
+  .hero h1 {
+    font-size: clamp(26px, 4vw, 46px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.72);
+    font-weight: 300;
+    max-width: 680px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .meta-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.88);
+  }
+  .pill.gold { background: rgba(232,184,75,0.15); border-color: var(--gold); color: var(--gold); }
+  .pill.indigo { background: rgba(55,48,163,0.3); border-color: #818CF8; color: #C7D2FE; }
+
+  /* ── LAYOUT ── */
+  .page-body { max-width: 920px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.3;
+  }
+  .section > h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+  h3 { font-size: 19px; font-weight: 600; color: var(--navy-mid); margin: 28px 0 12px; }
+  h4 { font-size: 16px; font-weight: 600; color: var(--navy); margin: 20px 0 8px; }
+  p { margin-bottom: 14px; color: var(--text-main); }
+  ul, ol { margin: 10px 0 16px 20px; }
+  li { margin-bottom: 7px; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 22px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .callout-body p { margin: 0; font-size: 15px; }
+  .callout.tip   { background: var(--sky-light);    border-left: 4px solid var(--sky);    }
+  .callout.tip    .callout-icon { color: var(--sky); }
+  .callout.key   { background: var(--gold-light);   border-left: 4px solid var(--gold);   }
+  .callout.key    .callout-icon { color: var(--gold-dark); }
+  .callout.warn  { background: var(--coral-light);  border-left: 4px solid var(--coral);  }
+  .callout.warn   .callout-icon { color: var(--coral); }
+  .callout.green { background: var(--green-light);  border-left: 4px solid var(--green);  }
+  .callout.green  .callout-icon { color: var(--green); }
+  .callout.purple{ background: var(--purple-light); border-left: 4px solid var(--purple); }
+  .callout.purple .callout-icon { color: var(--purple); }
+  .callout.indigo{ background: var(--indigo-light); border-left: 4px solid var(--indigo); }
+  .callout.indigo .callout-icon { color: var(--indigo); }
+
+  /* ── STORY CARD ── */
+  .story-card {
+    background: linear-gradient(135deg, #050E22 0%, #1A0F3E 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px; left: 20px;
+    font-family: 'Lora', serif;
+    font-size: 140px;
+    color: rgba(255,255,255,0.05);
+    line-height: 1;
+  }
+  .story-card p { color: rgba(255,255,255,0.88); font-size: 17px; line-height: 1.8; margin-bottom: 14px; }
+  .story-card p:last-child { margin: 0; }
+  .story-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+
+  /* ── DIAGRAMS ── */
+  .diagram-wrap {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 24px 0;
+    box-shadow: var(--shadow);
+  }
+  .diagram-title {
+    background: var(--navy);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-title span { color: var(--gold); }
+  .diagram-body {
+    padding: 26px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    white-space: pre;
+    overflow-x: auto;
+    background: #F9F8F6;
+    color: var(--text-main);
+  }
+
+  /* ── GRIDS ── */
+  .two-col   { display: grid; grid-template-columns: 1fr 1fr;         gap: 16px; margin: 20px 0; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr;     gap: 16px; margin: 20px 0; }
+  .four-col  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; margin: 20px 0; }
+  @media (max-width: 700px) {
+    .two-col, .three-col, .four-col { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 480px) and (max-width: 700px) {
+    .two-col, .four-col { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── CARDS ── */
+  .fact-card {
+    background: var(--bg-white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 18px;
+  }
+  .fact-card .fact-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+  .fact-card .fact-value { font-size: 20px; font-weight: 700; color: var(--navy); font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+  .fact-card .fact-note  { font-size: 13px; color: var(--text-muted); }
+
+  .property-card { background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border); padding: 20px; border-top: 4px solid; }
+  .property-card.p1 { border-top-color: var(--coral); }
+  .property-card.p2 { border-top-color: var(--indigo); }
+  .property-card.p3 { border-top-color: var(--green); }
+  .property-card.p4 { border-top-color: var(--gold); }
+  .property-card .prop-icon { font-size: 28px; margin-bottom: 10px; }
+  .property-card h4 { margin: 0 0 8px; font-size: 15px; color: var(--navy); }
+  .property-card p  { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+  .algo-card {
+    background: var(--bg-white);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 22px;
+    border-left: 5px solid;
+  }
+  .algo-card.ml   { border-left-color: var(--indigo); }
+  .algo-card.hash { border-left-color: var(--green); }
+  .algo-card.code { border-left-color: var(--purple); }
+  .algo-card.isog { border-left-color: var(--coral); }
+  .algo-card .ac-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 100px;
+    padding: 3px 10px;
+    margin-bottom: 10px;
+  }
+  .algo-card.ml   .ac-badge { background: var(--indigo-light); color: var(--indigo); }
+  .algo-card.hash .ac-badge { background: var(--green-light);  color: #1A6B40; }
+  .algo-card.code .ac-badge { background: var(--purple-light); color: var(--purple); }
+  .algo-card.isog .ac-badge { background: var(--coral-light);  color: var(--coral); }
+  .algo-card h4 { margin: 0 0 8px; font-size: 16px; color: var(--navy); }
+  .algo-card p  { margin: 0 0 10px; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  .algo-card p:last-child { margin: 0; }
+  .algo-card .algo-specs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .algo-card .spec-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    background: #F2F0EB;
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  /* ── TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 13.5px;
+  }
+  .compare-table thead th {
+    background: var(--navy);
+    color: #fff;
+    padding: 13px 14px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .compare-table thead th:first-child { color: var(--gold); }
+  .compare-table tbody tr:nth-child(odd)  { background: var(--bg-white); }
+  .compare-table tbody tr:nth-child(even) { background: #F2F0EB; }
+  .compare-table td { padding: 11px 14px; color: var(--text-main); vertical-align: top; }
+  .compare-table td:first-child { font-weight: 600; color: var(--navy); }
+  .badge { display: inline-block; border-radius: 100px; padding: 2px 9px; font-size: 11px; font-weight: 600; }
+  .badge.good   { background: var(--green-light);  color: #1A6B40; }
+  .badge.bad    { background: var(--red-light);    color: var(--red); }
+  .badge.mid    { background: var(--sky-light);    color: #0C447C; }
+  .badge.warn   { background: var(--gold-light);   color: var(--gold-dark); }
+  .badge.indigo { background: var(--indigo-light); color: var(--indigo); }
+
+  /* ── STEPS ── */
+  .steps { margin: 20px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-num.ind { background: var(--indigo); }
+  .step-body h4 { margin: 0 0 4px; }
+  .step-body p  { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box { background: var(--navy); color: #fff; border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+  .highlight-box p { color: rgba(255,255,255,0.85); margin: 0 0 8px; }
+  .highlight-box p:last-child { margin: 0; }
+  .highlight-box strong { color: var(--gold); }
+
+  .quantum-box {
+    background: linear-gradient(135deg, #050E22, #1A0F3E);
+    color: #fff;
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 20px 0;
+  }
+  .quantum-box p { color: rgba(255,255,255,0.85); margin: 0 0 10px; line-height: 1.7; }
+  .quantum-box p:last-child { margin: 0; }
+  .quantum-box strong { color: #C7D2FE; }
+
+  /* ── TIMELINE ── */
+  .timeline { margin: 24px 0; position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--indigo), var(--gold)); }
+  .tl-item { position: relative; margin-bottom: 28px; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 8px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--indigo);
+    border: 2px solid var(--bg-white);
+    box-shadow: 0 0 0 2px var(--indigo);
+  }
+  .tl-item.future::before { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+  .tl-year { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--indigo); margin-bottom: 4px; }
+  .tl-item.future .tl-year { color: var(--gold-dark); }
+  .tl-title { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .tl-desc  { font-size: 14px; color: var(--text-muted); }
+
+  /* ── ASSESSMENT ── */
+  .assessment-header {
+    background: linear-gradient(135deg, #050E22 0%, #1A0F3E 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 28px 32px 22px;
+    color: #fff;
+  }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .assessment-header p  { color: rgba(255,255,255,0.7); margin: 0; font-size: 15px; }
+  .assessment-body {
+    background: var(--bg-white);
+    border-radius: 0 0 16px 16px;
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .q-block { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--border); }
+  .q-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .q-num  { background: var(--navy); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .q-type { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; }
+  .q-type.mcq  { background: var(--sky-light);    color: #0C447C; }
+  .q-type.tf   { background: var(--purple-light); color: var(--purple); }
+  .q-difficulty       { font-size: 12px; font-weight: 600; }
+  .q-difficulty.easy  { color: var(--green); }
+  .q-difficulty.medium{ color: var(--gold-dark); }
+  .q-difficulty.hard  { color: var(--coral); }
+  .q-marks { font-size: 12px; color: var(--text-light); margin-left: auto; font-weight: 600; }
+  .q-text  { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 16px; line-height: 1.55; }
+
+  .options { list-style: none; margin: 0 0 16px; padding: 0; }
+  .options li { padding: 11px 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; font-size: 15px; }
+  .options li.correct { background: var(--green-light); border-color: var(--green); color: #1A6B40; font-weight: 600; }
+  .options li.correct::before { content: '✅ '; }
+
+  .answer-box { background: #F0FAF5; border: 1px solid var(--green); border-radius: 10px; padding: 16px 20px; margin-top: 12px; }
+  .answer-box strong { color: var(--green); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+  .answer-box p { margin: 0 0 8px; font-size: 14px; color: var(--text-main); line-height: 1.65; }
+  .answer-box p:last-child { margin: 0; }
+
+  .tf-options { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tf-btn { padding: 10px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; border: 1px solid; cursor: default; }
+  .tf-btn.correct-tf { background: var(--green-light); border-color: var(--green); color: #1A6B40; }
+  .tf-btn.wrong-tf   { background: var(--red-light);   border-color: var(--red);   color: var(--red); }
+
+  /* ── GLOSSARY ── */
+  .glossary-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .glossary-item:last-child { border-bottom: none; }
+  .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; background: var(--indigo-light); color: var(--indigo); border-radius: 6px; padding: 4px 10px; min-width: 165px; text-align: center; flex-shrink: 0; }
+  .glossary-def  { font-size: 15px; color: var(--text-muted); }
+
+  /* ── MUST KNOW ── */
+  .must-know { counter-reset: mk; margin: 0; padding: 0; list-style: none; }
+  .must-know li { counter-increment: mk; display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; font-size: 15px; }
+  .must-know li:last-child { border-bottom: none; }
+  .must-know li::before { content: counter(mk, decimal-leading-zero); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--gold-dark); background: var(--gold-light); border-radius: 6px; padding: 3px 8px; min-width: 36px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 40px 0; }
+
+  .module-footer { background: var(--navy); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 13px; }
+  .module-footer strong { color: var(--gold); }
+
+  code { font-family: 'JetBrains Mono', monospace; background: rgba(55,48,163,0.10); color: var(--indigo); padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+
+  blockquote { border-left: 4px solid var(--indigo); margin: 20px 0; padding: 12px 20px; background: var(--indigo-light); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-muted); font-family: 'Lora', serif; font-size: 16px; }
+
+  @media (max-width: 700px) {
+    .hero { padding: 36px 20px 36px; }
+    .page-body { padding: 28px 16px 60px; }
+    .diagram-body { font-size: 11px; }
+    .assessment-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HERO ════════════════════════ -->
+<div class="hero">
+  <div class="breadcrumb">MasterStroke Academy › Module 4: Cryptography › <span>Sub-Module 4.6</span></div>
+  <h1>Post-Quantum Cryptography<br><em>Preparing for the Lock That Breaks Every Lock</em></h1>
+  <p class="hero-sub">
+    A sufficiently powerful quantum computer could break RSA, ECC, and ECDSA in hours - threatening every wallet, every signature, every TLS connection on the internet. This sub-module explains why, what NIST is doing about it, and how MST's quantum-ready layer protects your blockchain assets today and forever.
+  </p>
+  <div class="meta-pills">
+    <div class="pill">⏱ 40 Minutes</div>
+    <div class="pill">📊 Module 4 - Cryptography</div>
+    <div class="pill gold">🎯 10 Marks</div>
+    <div class="pill indigo">⚛️ Sub-Module 4.6</div>
+  </div>
+</div>
+
+<!-- ════════════════════════ PAGE BODY ════════════════════════ -->
+<div class="page-body">
+
+  <!-- ── 1. LEARNING OBJECTIVES ── -->
+  <div class="section">
+    <div class="section-label">01 - Learning Objectives</div>
+    <h2>What You Will Know By The End</h2>
+    <ul>
+      <li>✅ Explain what a quantum computer is and how it fundamentally differs from a classical computer - using everyday analogies.</li>
+      <li>✅ Understand <strong>Shor's Algorithm</strong> and precisely which cryptographic systems it breaks - RSA, ECC, ECDSA, Diffie-Hellman.</li>
+      <li>✅ Understand <strong>Grover's Algorithm</strong> and how it affects symmetric encryption and hash functions - and why they survive (with larger key sizes).</li>
+      <li>✅ Describe the four families of <strong>NIST Post-Quantum Cryptography</strong> standards: Lattice-based, Hash-based, Code-based, and Isogeny-based.</li>
+      <li>✅ Name and describe the <strong>NIST-finalised PQC algorithms</strong>: ML-KEM (CRYSTALS-Kyber), ML-DSA (CRYSTALS-Dilithium), SLH-DSA (SPHINCS+), and FN-DSA (FALCON).</li>
+      <li>✅ Explain MST Blockchain's <strong>Quantum-Ready Pillar</strong> - what it protects, how it migrates, and what it means for developers building on MST today.</li>
+      <li>✅ Understand the <strong>"Harvest Now, Decrypt Later"</strong> threat model - why quantum safety is already urgent even though large quantum computers don't yet exist.</li>
+    </ul>
+  </div>
+
+  <!-- ── 2. REAL WORLD STORY ── -->
+  <div class="section">
+    <div class="section-label">02 - Real World Introduction Story</div>
+    <h2>The Safe That Cracks Itself Open</h2>
+
+    <div class="story-card">
+      <div class="story-tag">📖 Story Time</div>
+      <p>Imagine the world's most advanced safe. Every bank vault, every government classified file cabinet, every personal diary - all locked with the same mathematical lock. This lock has never been broken. For 50 years, the best mathematicians on the planet have tried and failed. The world's entire digital economy - ₹9,000 trillion in transactions per year - depends on this lock holding.</p>
+      <p>Now imagine a new kind of machine is being built. Not a faster version of the computers we have today. Something fundamentally different - a machine that exploits the physics of subatomic particles to process not one calculation at a time, but millions of simultaneous parallel possibilities. A machine that, when complete, could crack that same mathematical lock in <strong>hours</strong>.</p>
+      <p>This machine is a <strong>quantum computer</strong>. And it is not science fiction. IBM, Google, China's national labs, and dozens of companies worldwide are racing to build it. The lock it breaks is <strong>RSA and ECC</strong> - the cryptography that secures every bank, every blockchain wallet, every HTTPS connection, every WhatsApp message, and every Aadhaar authentication you have ever made.</p>
+      <p>The cryptographic community has known about this threat for over two decades. They have been preparing. In 2024, the U.S. National Institute of Standards and Technology (NIST) published the world's first <strong>Post-Quantum Cryptography standards</strong> - a new generation of mathematical locks that even a quantum computer cannot break. MST Blockchain's Quantum-Ready Pillar is built on these standards.</p>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>"Harvest Now, Decrypt Later" - The Threat Is Already Real</strong>
+        <p>Nation-state adversaries are recording encrypted internet traffic <em>today</em> - terabytes of it - storing it for decryption once a quantum computer is available. Any secret transmitted over RSA or ECC encryption right now could be decrypted in 10 - 15 years. For blockchain: transactions are public and permanent. Every ECDSA signature you ever made is stored on-chain forever. If a quantum computer arrives, those signatures could reveal private keys.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. BACKGROUND / HISTORY ── -->
+  <div class="section">
+    <div class="section-label">03 - Background &amp; History</div>
+    <h2>The Quantum Threat - A Timeline</h2>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">1994</div>
+        <div class="tl-title">Peter Shor Publishes Shor's Algorithm</div>
+        <div class="tl-desc">Proves that a quantum computer can factor large integers in polynomial time - breaking RSA. Also breaks discrete logarithm problems, threatening ECC and Diffie-Hellman. The cryptographic world quietly panics.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">1996</div>
+        <div class="tl-title">Grover's Algorithm Published</div>
+        <div class="tl-desc">Proves quantum speedup for unstructured search - halving the effective security of symmetric encryption and hash functions. AES-128 becomes effectively AES-64 against a quantum adversary.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2016</div>
+        <div class="tl-title">NIST Opens PQC Standardisation Competition</div>
+        <div class="tl-desc">NIST invites cryptographers worldwide to submit quantum-resistant algorithm proposals. 82 submissions received. A decade-long evaluation process begins.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2019</div>
+        <div class="tl-title">Google Achieves "Quantum Supremacy"</div>
+        <div class="tl-desc">Google's 53-qubit Sycamore processor performs a specific computation in 200 seconds that would take the best classical supercomputer 10,000 years. Not useful for cryptography yet - but proof of concept.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2022</div>
+        <div class="tl-title">NIST Announces Final PQC Candidates</div>
+        <div class="tl-desc">CRYSTALS-Kyber, CRYSTALS-Dilithium, FALCON, and SPHINCS+ selected as finalists for standardisation. Based on hard mathematical problems that quantum computers cannot efficiently solve.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2024</div>
+        <div class="tl-title">NIST Publishes Final PQC Standards</div>
+        <div class="tl-desc">ML-KEM (FIPS 203), ML-DSA (FIPS 204), and SLH-DSA (FIPS 205) are officially published as the world's first post-quantum cryptography standards. The migration era begins.</div>
+      </div>
+      <div class="tl-item future">
+        <div class="tl-year">2030 - 35?</div>
+        <div class="tl-title">Cryptographically Relevant Quantum Computer (CRQC) - Estimated</div>
+        <div class="tl-desc">Most experts estimate a CRQC capable of breaking 2048-bit RSA will exist by 2030 - 2035. Some estimates are earlier. The migration to PQC must be complete before this date.</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="fact-card">
+        <div class="fact-label">Current largest quantum computers</div>
+        <div class="fact-value">1,000+ qubits</div>
+        <div class="fact-note">IBM Condor (2023): 1,121 qubits. But noisy - error rates too high for cryptographic attacks.</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-label">Qubits needed to break RSA-2048</div>
+        <div class="fact-value">~4,000 logical</div>
+        <div class="fact-note">Requiring millions of physical qubits (error correction). Current machines are far from this - but the trajectory is clear.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. BEGINNER EXPLANATION ── -->
+  <div class="section">
+    <div class="section-label">04 - Beginner-Friendly Deep Explanation</div>
+    <h2>Quantum Computers - What They Actually Are</h2>
+
+    <h3>Classical vs Quantum - The Library Analogy</h3>
+    <p>A <strong>classical computer</strong> is like a single person searching a library for a specific book. They go shelf by shelf, checking one book at a time. Fast? Yes - billions of "checks" per second on modern hardware. But fundamentally <em>sequential</em>.</p>
+    <p>A <strong>quantum computer</strong> exploits a quantum mechanical property called <strong>superposition</strong>: a quantum bit (qubit) can be 0 AND 1 simultaneously - until it is measured. This is not the same as being "50% of the time 0, 50% of the time 1." It is genuinely both at the same time. With n qubits in superposition, the quantum computer is in 2ⁿ states simultaneously - processing all of them in parallel.</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚛️ <span>Classical vs Quantum</span> - The Maze Solving Analogy</div>
+      <div class="diagram-body">
+ CLASSICAL COMPUTER:                    QUANTUM COMPUTER:
+ ════════════════════                   ════════════════
+ Solving a maze:                        Solving a maze:
+
+ ┌─────────────────────┐                ┌─────────────────────┐
+ │  START              │                │  START              │
+ │   │                 │                │   │                 │
+ │   ├──> dead end     │                │   ├──> path A ──┐  │
+ │   │   (backtrack)   │                │   ├──> path B ──┤  │ All paths
+ │   ├──> dead end     │                │   ├──> path C ──┤  │ explored
+ │   │   (backtrack)   │                │   ├──> path D ──┤  │ SIMULTANEOUSLY
+ │   └──> SOLUTION ✅  │                │   └──> path E ──┘  │
+ └─────────────────────┘                │         │           │
+                                        │       SOLUTION ✅   │
+ Tries 1 path at a time.               └─────────────────────┘
+ Time: linear in number of paths.
+                                        Explores ALL paths at once.
+                                        Time: logarithmic (square root
+                                         for unstructured search).
+
+ ════════════════════════════════════════════════════════════════════
+ FOR CRYPTOGRAPHY:
+ Classical: must try 2^256 possible private keys to crack ECDSA.
+            Time: longer than the age of the universe.
+
+ Quantum (Shor's): exploits mathematical STRUCTURE in RSA/ECC to
+                   solve the factoring/discrete-log problem directly.
+                   Time: hours on a sufficiently powerful machine.
+
+ Quantum (Grover): searches 2^256 space in √(2^256) = 2^128 steps.
+                   Time: still enormous - but halves effective security.
+ ════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Two Quantum Algorithms - Shor's and Grover's</h3>
+
+    <div class="four-col">
+      <div class="property-card p1" style="grid-column: span 2;">
+        <div class="prop-icon">💥</div>
+        <h4>Shor's Algorithm - The Cryptography Killer</h4>
+        <p>Runs on a quantum computer. Solves the Integer Factorisation Problem (breaks RSA) and the Discrete Logarithm Problem (breaks ECC, ECDSA, Diffie-Hellman) in <strong>polynomial time</strong>. Renders all current blockchain wallet cryptography obsolete. A direct existential threat.</p>
+      </div>
+      <div class="property-card p2" style="grid-column: span 2;">
+        <div class="prop-icon">🔍</div>
+        <h4>Grover's Algorithm - The Search Speedup</h4>
+        <p>Provides a quadratic speedup for searching unstructured databases. Reduces effective security of a 256-bit hash function to 128-bit equivalent. AES-128 → effectively 64-bit. AES-256 → effectively 128-bit. <strong>Fix: double all key sizes.</strong> SHA-256 hashes survive; AES-128 does not.</p>
+      </div>
+    </div>
+
+    <h3>What Breaks and What Survives</h3>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Algorithm / System</th>
+          <th>Classical Security</th>
+          <th>Quantum Threat</th>
+          <th>Post-Quantum Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>RSA-2048</td>
+          <td>~112-bit</td>
+          <td><span class="badge bad">Broken by Shor's ❌</span></td>
+          <td>Replace with ML-KEM / ML-DSA</td>
+        </tr>
+        <tr>
+          <td>ECDSA secp256k1 (blockchain wallets)</td>
+          <td>~128-bit</td>
+          <td><span class="badge bad">Broken by Shor's ❌</span></td>
+          <td>Replace with ML-DSA or FN-DSA</td>
+        </tr>
+        <tr>
+          <td>Diffie-Hellman (TLS key exchange)</td>
+          <td>~128-bit</td>
+          <td><span class="badge bad">Broken by Shor's ❌</span></td>
+          <td>Replace with ML-KEM</td>
+        </tr>
+        <tr>
+          <td>AES-128 (symmetric)</td>
+          <td>128-bit</td>
+          <td><span class="badge warn">Weakened to 64-bit ⚠️</span></td>
+          <td>Upgrade to AES-256</td>
+        </tr>
+        <tr>
+          <td>AES-256 (symmetric)</td>
+          <td>256-bit</td>
+          <td><span class="badge mid">Weakened to 128-bit</span></td>
+          <td><span class="badge good">Remains secure ✅</span></td>
+        </tr>
+        <tr>
+          <td>SHA-256 (hash function)</td>
+          <td>256-bit</td>
+          <td><span class="badge mid">Weakened to 128-bit</span></td>
+          <td><span class="badge good">Remains secure ✅</span></td>
+        </tr>
+        <tr>
+          <td>Keccak-256 (Ethereum/MST)</td>
+          <td>256-bit</td>
+          <td><span class="badge mid">Weakened to 128-bit</span></td>
+          <td><span class="badge good">Remains secure ✅</span></td>
+        </tr>
+        <tr>
+          <td>zk-STARKs (hash-based)</td>
+          <td>128-bit</td>
+          <td><span class="badge good">Quantum-safe ✅</span></td>
+          <td><span class="badge good">No migration needed ✅</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout key">
+      <div class="callout-icon">🗝️</div>
+      <div class="callout-body">
+        <strong>The Critical Insight for Blockchain</strong>
+        <p>Hash functions (SHA-256, Keccak-256) and symmetric encryption (AES-256) survive the quantum era with a key-size upgrade. But <strong>all asymmetric cryptography based on factoring or discrete logs - RSA, ECC, ECDSA, EdDSA - is completely broken by Shor's Algorithm.</strong> This includes every blockchain wallet's key pair. Post-quantum cryptography replaces asymmetric crypto with new hard problems that quantum computers cannot efficiently solve.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. TECHNICAL DEEP DIVE ── -->
+  <div class="section">
+    <div class="section-label">05 - Technical Deep Dive</div>
+    <h2>NIST PQC Standards - The Four Families</h2>
+
+    <p>NIST's post-quantum standards are based on mathematical problems believed to be hard for <em>both</em> classical and quantum computers. Four families of algorithms emerged from the competition:</p>
+
+    <h3>The Four Algorithm Families</h3>
+
+    <div class="two-col">
+      <div class="algo-card ml">
+        <div class="ac-badge">Lattice-Based - PRIMARY</div>
+        <h4>Learning With Errors (LWE) &amp; Module LWE</h4>
+        <p>Based on the hardness of finding a short vector in a high-dimensional lattice - a geometric structure. Equivalent to solving a system of equations with intentional noise added. Both classical and quantum computers struggle.</p>
+        <p><strong>NIST Standard algorithms:</strong> ML-KEM (key encapsulation), ML-DSA (signatures), FN-DSA (FALCON - compact signatures)</p>
+        <div class="algo-specs">
+          <span class="spec-chip">ML-KEM: FIPS 203</span>
+          <span class="spec-chip">ML-DSA: FIPS 204</span>
+          <span class="spec-chip">FN-DSA: FIPS 206</span>
+        </div>
+      </div>
+      <div class="algo-card hash">
+        <div class="ac-badge">Hash-Based - CONSERVATIVE</div>
+        <h4>Stateless Hash-Based Signatures (SPHINCS+)</h4>
+        <p>Security relies only on the collision resistance of hash functions - the most well-understood and oldest security assumption in cryptography. Even if lattice assumptions are broken someday, hash-based signatures remain secure as long as SHA-256 is secure.</p>
+        <p><strong>NIST Standard algorithm:</strong> SLH-DSA (SPHINCS+). Larger signatures (~8 KB) but the most conservative, trusted choice.</p>
+        <div class="algo-specs">
+          <span class="spec-chip">SLH-DSA: FIPS 205</span>
+          <span class="spec-chip">Sig size: 8 - 50 KB</span>
+          <span class="spec-chip">No trusted setup</span>
+        </div>
+      </div>
+      <div class="algo-card code">
+        <div class="ac-badge">Code-Based - LEGACY BACKUP</div>
+        <h4>Error-Correcting Code Problems (Classic McEliece)</h4>
+        <p>Based on the hardness of decoding a random linear error-correcting code - a problem studied since 1978. Very well understood mathematically. The trade-off: enormous public key sizes (hundreds of KB), making it impractical for most applications.</p>
+        <p><strong>NIST alternate:</strong> Classic McEliece (KEM only, selected as backup). Not the primary recommendation due to key size.</p>
+        <div class="algo-specs">
+          <span class="spec-chip">Public key: ~260 KB</span>
+          <span class="spec-chip">50 year history</span>
+        </div>
+      </div>
+      <div class="algo-card isog">
+        <div class="ac-badge">Isogeny-Based - BROKEN</div>
+        <h4>Supersingular Isogeny Diffie-Hellman (SIDH)</h4>
+        <p>Based on the hardness of finding isogenies between elliptic curves. The most compact keys of any PQC candidate. However - <strong>SIDH was broken by a classical attack in 2022</strong> by Wouter Castryck and Thomas Decru. It is no longer considered secure.</p>
+        <p>This is a reminder: PQC candidates must be conservatively evaluated. Even post-quantum algorithms can be broken by unexpected classical attacks.</p>
+        <div class="algo-specs">
+          <span class="spec-chip">BROKEN in 2022 ❌</span>
+          <span class="spec-chip">No longer secure</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>The Final NIST Standards - What You Must Know</h3>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>FIPS Standard</th>
+          <th>Type</th>
+          <th>Purpose</th>
+          <th>Key/Sig Size</th>
+          <th>Replaces</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ML-KEM<br><small>(CRYSTALS-Kyber)</small></td>
+          <td>FIPS 203</td>
+          <td><span class="badge indigo">Lattice</span></td>
+          <td>Key Encapsulation (encryption key exchange)</td>
+          <td>PK: ~1.2 KB<br>CT: ~1.1 KB</td>
+          <td>RSA, Diffie-Hellman, ECDH</td>
+        </tr>
+        <tr>
+          <td>ML-DSA<br><small>(CRYSTALS-Dilithium)</small></td>
+          <td>FIPS 204</td>
+          <td><span class="badge indigo">Lattice</span></td>
+          <td>Digital Signatures</td>
+          <td>PK: 1.3 KB<br>Sig: 2.4 KB</td>
+          <td>ECDSA, RSA signatures, EdDSA</td>
+        </tr>
+        <tr>
+          <td>SLH-DSA<br><small>(SPHINCS+)</small></td>
+          <td>FIPS 205</td>
+          <td><span class="badge good">Hash-based</span></td>
+          <td>Digital Signatures (conservative backup)</td>
+          <td>PK: 32 bytes<br>Sig: 7 - 50 KB</td>
+          <td>ECDSA (conservative fallback)</td>
+        </tr>
+        <tr>
+          <td>FN-DSA<br><small>(FALCON)</small></td>
+          <td>FIPS 206</td>
+          <td><span class="badge indigo">Lattice (NTRU)</span></td>
+          <td>Compact Digital Signatures</td>
+          <td>PK: 897 bytes<br>Sig: 666 bytes</td>
+          <td>ECDSA (when compact sig needed)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout indigo">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>Why ML-KEM and ML-DSA Are the Primary Choices</strong>
+        <p>Lattice-based algorithms (ML-KEM, ML-DSA) offer the best balance of security, performance, and key/signature sizes. ML-KEM is extremely fast - faster than RSA for key encapsulation. ML-DSA signatures (~2.4 KB) are larger than ECDSA (64 bytes) but acceptable for most applications. The "ML" prefix stands for "Module Lattice" - a structured variant of lattice problems that provides both security and efficiency. SLH-DSA (SPHINCS+) is the backup: slower and larger but relies only on hash security - the most conservative and long-trusted assumption.</p>
+      </div>
+    </div>
+
+    <h3>The Hard Problems - Why Quantum Computers Can't Solve Them</h3>
+
+    <div class="quantum-box">
+      <p><strong>Learning With Errors (LWE) - The Lattice Problem</strong></p>
+      <p>Imagine you are given a set of equations: <code>a₁·s + e₁ ≈ b₁, a₂·s + e₂ ≈ b₂, ...</code> where <code>s</code> is a secret vector, <code>aᵢ</code> are known random values, and <code>eᵢ</code> are small random "errors." Find <code>s</code>.</p>
+      <p>Without the errors, this is trivial (Gaussian elimination). With the errors, it becomes computationally infeasible - even for quantum computers. Shor's Algorithm exploits algebraic structure in RSA/ECC. LWE has no such structure - it is a high-dimensional noisy problem that defies both classical and quantum attacks.</p>
+      <p><strong>SLH-DSA (SPHINCS+):</strong> Even simpler - security rests entirely on finding SHA-256 hash collisions. Quantum computers can search 2¹²⁸ possibilities using Grover's - but 2¹²⁸ is still infeasible. As long as SHA-256 is secure, SLH-DSA is secure. No new mathematical assumptions needed.</p>
+    </div>
+  </div>
+
+  <!-- ── 6. DIAGRAMS ── -->
+  <div class="section">
+    <div class="section-label">06 - Architecture &amp; Diagrams</div>
+    <h2>Visual Walkthroughs</h2>
+
+    <h3>Diagram 1: Shor's Algorithm - Why ECDSA Wallets Are Vulnerable</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">💥 <span>Shor's Algorithm</span> - Breaking a Blockchain Wallet Step by Step</div>
+      <div class="diagram-body">
+ ═══════════════════════════════════════════════════════════════════════════
+ ECDSA WALLET SECURITY - Classical Computer:
+ ═══════════════════════════════════════════════════════════════════════════
+ Private Key (privKey) → × Generator Point G → Public Key (pubKey)
+                         ↑
+              This is scalar multiplication on secp256k1.
+              Reversing it (finding privKey from pubKey) requires
+              solving ECDLP: 2^128 operations on a classical computer.
+              Time: billions of years. ✅ SAFE
+
+ From each ECDSA signature (r, s) and the signed message hash:
+   You can compute the public key (pubKey).
+   From pubKey, you need ECDLP to find privKey. → Infeasible classically.
+
+ ═══════════════════════════════════════════════════════════════════════════
+ ECDSA WALLET SECURITY - Quantum Computer with Shor's Algorithm:
+ ═══════════════════════════════════════════════════════════════════════════
+ Step 1: Observe the blockchain.
+         Every transaction Alice ever sent is PUBLIC.
+         Each transaction contains her ECDSA signature (r, s, v).
+         From (r, s, v) + message, recover pubKey. (Standard ecrecover.)
+
+ Step 2: Run Shor's Algorithm on the quantum computer.
+         Input:  pubKey (a point on secp256k1 curve)
+         Target: find privKey such that privKey × G = pubKey
+
+         ECDLP → Quantum Period-Finding → Polynomial time solution.
+         Time: hours (on a sufficiently large quantum computer).
+
+ Step 3: Attacker now has Alice's privKey. ❌
+         → Can sign any transaction as Alice.
+         → Can drain every coin from her wallet.
+         → Can impersonate Alice in any on-chain action.
+         → This cannot be detected or reversed.
+
+ ═══════════════════════════════════════════════════════════════════════════
+ CRITICAL DETAIL - Even Unused Addresses Are Vulnerable:
+ ═══════════════════════════════════════════════════════════════════════════
+ An address that has NEVER sent a transaction:
+   → Only the address (keccak256 of pubKey) is public.
+   → PubKey is NOT exposed. Shor's needs the pubKey.
+   → Relatively safer - but once you send a tx, pubKey is revealed.
+
+ AN ADDRESS THAT HAS SENT ≥ 1 TRANSACTION:
+   → pubKey is permanently on-chain (in the transaction signature).
+   → A quantum attacker can recover privKey from pubKey via Shor's.
+   → ALL previously used blockchain addresses are quantum-vulnerable.
+
+ SOLUTION: Migrate to a post-quantum address scheme before CRQC arrives.
+ ═══════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 2: MST's Quantum-Ready Migration Plan</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🛡️ <span>MST Quantum-Ready Pillar</span> - Migration Architecture</div>
+      <div class="diagram-body">
+ ═══════════════════════════════════════════════════════════════════════════
+ MST BLOCKCHAIN - DUAL SIGNATURE LAYER (Transitional Architecture)
+ ═══════════════════════════════════════════════════════════════════════════
+
+ TODAY (Classical Era):
+ ┌─────────────────────────────────────────────────────────────────┐
+ │  Transaction Signature                                          │
+ │                                                                 │
+ │  ECDSA (secp256k1):  (v, r, s)    ← 65 bytes                  │
+ │  Secures: wallet authentication, transaction signing            │
+ │  Hard problem: ECDLP (broken by Shor's)                        │
+ └─────────────────────────────────────────────────────────────────┘
+
+ TRANSITIONAL PHASE (Hybrid Mode - implemented in MST now):
+ ┌─────────────────────────────────────────────────────────────────┐
+ │  Transaction Signature = ECDSA sig  +  ML-DSA sig              │
+ │                                                                 │
+ │  ECDSA (secp256k1):  (v, r, s)    ← classical security         │
+ │  ML-DSA (Dilithium): σ_pq          ← post-quantum security     │
+ │                                                                 │
+ │  Validators REQUIRE BOTH signatures to accept transactions.    │
+ │  If quantum computers arrive: ECDSA is broken but ML-DSA       │
+ │  still holds → funds remain secure.                            │
+ │  If ML-DSA has an unforeseen flaw: ECDSA still holds.          │
+ │                                                                 │
+ │  DUAL PROTECTION: safe against classical AND quantum attacks.  │
+ └─────────────────────────────────────────────────────────────────┘
+
+ POST-QUANTUM ERA (Full Migration):
+ ┌─────────────────────────────────────────────────────────────────┐
+ │  Transaction Signature                                          │
+ │                                                                 │
+ │  ML-DSA (Dilithium): σ_pq only    ← 2.4 KB signature           │
+ │  or FN-DSA (FALCON): σ_pq         ← 666 byte signature         │
+ │                                                                 │
+ │  ECDSA fully deprecated.                                        │
+ │  All wallet addresses are post-quantum native.                  │
+ └─────────────────────────────────────────────────────────────────┘
+
+ ═══════════════════════════════════════════════════════════════════════════
+ ADDITIONAL LAYERS IN MST'S QUANTUM-READY PILLAR:
+ ═══════════════════════════════════════════════════════════════════════════
+
+ 1. KEY DERIVATION:
+    Current: secp256k1 scalar multiplication
+    PQ:      ML-KEM key encapsulation + lattice-based key derivation
+
+ 2. CONSENSUS LAYER:
+    Current: BLS signatures (based on ECC pairings)
+    PQ:      ML-DSA or threshold Falcon signatures for validator set
+
+ 3. ZK PROOF LAYER:
+    Current: PLONK SNARKs (ECC pairing-based - vulnerable to Shor's)
+    PQ:      STARK-based proofs (hash-based - quantum-safe already) ✅
+
+ 4. SARAL PROTOCOL:
+    Current: ECDSA signing inside Secure Enclave
+    PQ:      ML-DSA signing inside next-gen secure enclave firmware
+
+ 5. RWA ORBITALS:
+    Document hashes: SHA-256 → SHA-3-256 (both quantum-safe for hashing)
+    Document signatures: ECDSA → ML-DSA
+ ═══════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 3: Classical vs Post-Quantum Algorithm Key Sizes</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">📏 <span>Key &amp; Signature Sizes</span> - Classical vs Post-Quantum at 128-bit Security</div>
+      <div class="diagram-body">
+ ALGORITHM          TYPE            PUB KEY     PRIVATE KEY   SIG / CIPHERTEXT
+ ─────────────────────────────────────────────────────────────────────────────
+ ECDSA secp256k1    Classical Sig   33 bytes    32 bytes       64 bytes
+ Ed25519            Classical Sig   32 bytes    32 bytes       64 bytes
+ RSA-3072           Classical Sig   384 bytes   1,700 bytes   384 bytes
+ ECDH               Classical KEM   33 bytes    32 bytes       33 bytes
+
+ ─────────────────────────────────────────────────────────────────────────────
+ ML-KEM-768         PQ KEM       1,184 bytes  2,400 bytes   1,088 bytes
+ ML-DSA-65          PQ Sig       1,952 bytes  4,000 bytes   3,309 bytes
+ FN-DSA-512 (FALCON)PQ Sig         897 bytes  1,281 bytes     666 bytes
+ SLH-DSA-128s       PQ Sig          32 bytes     64 bytes   7,856 bytes
+ ─────────────────────────────────────────────────────────────────────────────
+
+ VISUAL COMPARISON (each █ = 64 bytes):
+
+ ECDSA sig:     █                                    (64 bytes)
+ ML-DSA sig:    ██████████████████████████████████████████████████  (3,309 bytes)
+ FALCON sig:    ██████████                           (666 bytes)
+ SPHINCS+ sig:  ████████████████████████████████████████████████████████████████
+                ██████████████████████████████████████████████████   (7,856 bytes)
+
+ KEY INSIGHT:
+ The trade-off is SIZE - post-quantum signatures are 10-50× larger than ECDSA.
+ This means higher gas costs for PQ transactions on-chain.
+ FALCON (FN-DSA) at 666 bytes is the most blockchain-practical PQ signature.
+ MST's architecture pre-allocates extra transaction data space for PQ migration.
+ ─────────────────────────────────────────────────────────────────────────────</div>
+    </div>
+  </div>
+
+  <!-- ── 7. STEP-BY-STEP ── -->
+  <div class="section">
+    <div class="section-label">07 - Step-by-Step Workflow</div>
+    <h2>The Five "W" Questions Answered</h2>
+
+    <h3>❓ WHY Is Post-Quantum Cryptography Urgent - If Quantum Computers Don't Exist Yet?</h3>
+    <p>Three reasons make this urgent <em>right now</em>:</p>
+    <ul>
+      <li><strong>Harvest Now, Decrypt Later:</strong> Adversaries are recording encrypted communications today to decrypt when quantum computers are available. Any secret with a 10+ year sensitivity window is already at risk.</li>
+      <li><strong>Migration takes decades:</strong> The internet has billions of devices, libraries, protocols, and systems that use RSA and ECC. Updating all of them takes 10 - 20 years. NIST's process started in 2016. The standards were finalised in 2024. Full migration will take until 2035 or later.</li>
+      <li><strong>Blockchain is permanent:</strong> Every ECDSA signature ever made on Bitcoin, Ethereum, or MST is stored on-chain permanently. Even for non-sensitive data, the public keys exposed in those signatures remain quantum-vulnerable forever.</li>
+    </ul>
+
+    <h3>❓ WHAT Does "Quantum-Safe" Mean for a Hash Function?</h3>
+    <p>SHA-256 and Keccak-256 are NOT broken by Shor's Algorithm - because hash functions don't rely on algebraic structure (factoring or discrete logs). They are affected only by Grover's Algorithm, which reduces their effective security from 256 bits to 128 bits. 128-bit security is considered more than sufficient for the foreseeable future. For comparison, breaking 128-bit security with Grover's still requires more computation than the entire global internet has performed in its history.</p>
+
+    <h3>❓ HOW Does MST's SARAL Protocol Protect Users During Migration?</h3>
+    <p>SARAL's key management runs inside a Secure Enclave (hardware chip). The key migration process for users is designed to be invisible:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num ind">1</div>
+        <div class="step-body">
+          <h4>User logs into BridgeKey Wallet as normal</h4>
+          <p>Google/mobile SSO triggers enclave key derivation - unchanged from the user's perspective.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num ind">2</div>
+        <div class="step-body">
+          <h4>Enclave generates a new ML-DSA key pair alongside existing ECDSA key</h4>
+          <p>The new post-quantum key pair is derived from the same secure enclave seed, ensuring the same access controls apply.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num ind">3</div>
+        <div class="step-body">
+          <h4>Hybrid transactions signed with both ECDSA and ML-DSA</h4>
+          <p>During the transitional period, every transaction carries both signatures. The MST network accepts either for backward compatibility.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num ind">4</div>
+        <div class="step-body">
+          <h4>Full cutover when CRQC threat becomes real</h4>
+          <p>A governance vote triggers the cutover: from block N, only ML-DSA signatures are accepted. ECDSA is deprecated. All funds previously secured by ECDSA are now on new PQ addresses - users don't notice any change in UX.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>❓ WHERE Are Post-Quantum Algorithms Already Deployed?</h3>
+    <ul>
+      <li><strong>Apple iMessage:</strong> PQ3 protocol (2024) - uses ML-KEM for post-quantum key exchange alongside classical ECDH. The first major consumer app to deploy PQC.</li>
+      <li><strong>Signal Messenger:</strong> PQXDH - X25519 ECDH combined with ML-KEM for hybrid post-quantum key agreement (deployed 2023).</li>
+      <li><strong>Cloudflare:</strong> X25519Kyber768 hybrid TLS - post-quantum key exchange on all Cloudflare connections since 2023.</li>
+      <li><strong>Google Chrome:</strong> ML-KEM hybrid TLS key exchange enabled by default since Chrome 131 (2024).</li>
+      <li><strong>U.S. Federal Government:</strong> NIST mandates all federal agencies migrate to PQC standards by 2030.</li>
+    </ul>
+
+    <h3>❓ WHAT Are the Limitations of Current PQC Algorithms?</h3>
+    <ul>
+      <li>⚠️ <strong>Larger keys and signatures:</strong> ML-DSA signatures (~3.3 KB) are 50× larger than ECDSA (64 bytes). This increases transaction sizes and gas costs on-chain. FALCON (666 bytes) is a better blockchain choice.</li>
+      <li>⚠️ <strong>Slower computation:</strong> Lattice operations are slower than ECC. Key generation is faster, but signing and verification take more CPU time - measurable on low-power devices.</li>
+      <li>⚠️ <strong>Less mature security analysis:</strong> RSA and ECC have been analysed for 40+ years. LWE-based algorithms have 20 years of analysis - still catching up. The SIDH break in 2022 shows that PQC candidates can be surprised by classical attacks.</li>
+      <li>⚠️ <strong>Stateful hash-based schemes:</strong> Some hash-based signature schemes (XMSS, LMS) are stateful - the signer must maintain and update a state counter. Losing or reusing the state breaks security. SLH-DSA (SPHINCS+) is stateless and avoids this.</li>
+    </ul>
+  </div>
+
+  <!-- ── 10. CASE STUDIES ── -->
+  <div class="section">
+    <div class="section-label">10 - Real World Case Studies</div>
+    <h2>PQC in Action - Three Scenarios</h2>
+
+    <h3>Case Study 1: The Bitcoin Quantum Vulnerability</h3>
+    <p>Bitcoin has approximately 4 million BTC in addresses that have exposed their public keys through at least one transaction (including the legendary "Patoshi" early mined coins and Satoshi's genesis block coins). These addresses are directly vulnerable to Shor's Algorithm once a CRQC exists. The Bitcoin community is aware - but migrating Bitcoin is a governance challenge: it requires a hard fork with broad consensus, which Bitcoin famously resists.</p>
+    <p>For MST, the governance structure (on-chain DAO voting with timelocked execution) allows a coordinated, community-approved migration to PQC signatures - a significant architectural advantage over Bitcoin's informal consensus process.</p>
+
+    <h3>Case Study 2: India's UIDAI Aadhaar - PQC Migration Mandate</h3>
+    <p>Aadhaar uses ECDSA for e-Sign and RSA for certain authentication flows. UIDAI has begun evaluating NIST PQC standards for future Aadhaar infrastructure. The stakes are enormous: 1.4 billion Aadhaar records with biometric data and identity linkages. A quantum attacker who breaks Aadhaar's ECDSA keys could forge digital signatures on any document on behalf of any citizen.</p>
+    <p>DEIT (the Indian IT ministry) has begun a PQC readiness assessment for all critical national infrastructure. MST's integration with Aadhaar-based identity (via SARAL) positions it to be a reference implementation for quantum-safe digital identity in India.</p>
+
+    <h3>Case Study 3: The 2022 SIDH Break - A Lesson in Humility</h3>
+    <p>SIDH (Supersingular Isogeny Diffie-Hellman) was considered one of the most promising PQC candidates - compact keys, novel mathematics. In July 2022, just weeks before NIST was about to standardise it, two Belgian researchers (Castryck and Decru) published a classical attack that broke SIDH completely in under an hour on a laptop.</p>
+    <p>The lesson: <strong>post-quantum does not mean unbreakable.</strong> It means "we believe it is hard for quantum computers." Mathematical breakthroughs can always change that picture. This is why MST's quantum-ready pillar uses a hybrid approach (ECDSA + ML-DSA together), and why SLH-DSA (SPHINCS+) - based only on hash functions, the most conservative and best-understood assumption - is the ultimate fallback.</p>
+  </div>
+
+  <!-- ── 11. ASSESSMENT PREP ── -->
+  <div class="section">
+    <div class="section-label">11 - Assessment Preparation</div>
+    <h2>Top Must-Know Facts Before the Test</h2>
+
+    <ul class="must-know">
+      <li><strong>Shor's Algorithm</strong> (quantum) breaks RSA, ECC, ECDSA, EdDSA, and Diffie-Hellman - all asymmetric cryptography based on integer factorisation or discrete logarithm problems.</li>
+      <li><strong>Grover's Algorithm</strong> (quantum) provides a quadratic speedup for searching - halving the effective security of hash functions and symmetric encryption. Fix: double the key size (AES-128 → AES-256).</li>
+      <li>SHA-256, Keccak-256, and AES-256 <strong>remain secure</strong> against quantum computers (with Grover's weakening, 128-bit security survives). zk-STARKs are quantum-safe because they rely on hash functions.</li>
+      <li>ECDSA (secp256k1) - used in all blockchain wallets including MST - is <strong>completely broken</strong> by Shor's Algorithm. Every address that has sent a transaction has exposed its public key on-chain and is quantum-vulnerable.</li>
+      <li><strong>NIST published final PQC standards in 2024:</strong> ML-KEM (FIPS 203, Kyber - key encapsulation), ML-DSA (FIPS 204, Dilithium - signatures), SLH-DSA (FIPS 205, SPHINCS+ - hash-based signatures), FN-DSA (FIPS 206, FALCON - compact signatures).</li>
+      <li><strong>Lattice-based algorithms</strong> (ML-KEM, ML-DSA, FN-DSA/FALCON) are the primary PQC standard - based on the hardness of Learning With Errors (LWE), which quantum computers cannot efficiently solve.</li>
+      <li><strong>Hash-based signatures</strong> (SLH-DSA / SPHINCS+) are the most conservative: security relies only on hash function collision resistance - the oldest and most trusted cryptographic assumption.</li>
+      <li><strong>SIDH was broken in 2022</strong> by a classical attack - a reminder that PQC candidates can be surprised. Conservative, multi-layered approaches are preferred.</li>
+      <li><strong>"Harvest Now, Decrypt Later":</strong> Adversaries are recording encrypted traffic today for future quantum decryption. Data with long-term sensitivity is already at risk.</li>
+      <li>MST's <strong>Quantum-Ready Pillar</strong> uses a hybrid transitional approach: ECDSA + ML-DSA dual signatures. During transition, both are required. Post-migration: ML-DSA only.</li>
+      <li><strong>Key size trade-off:</strong> ML-DSA signatures are ~3.3 KB vs ECDSA's 64 bytes. FALCON (FN-DSA) at 666 bytes is the most blockchain-practical PQC signature. SLH-DSA is largest (~8 KB) but most conservative.</li>
+      <li>Apple iMessage PQ3, Signal PQXDH, Cloudflare, and Google Chrome have already deployed hybrid classical + PQC systems in production (as of 2023 - 2024).</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Common Exam Trap - Grover's vs Shor's</strong>
+        <p>Students often confuse which algorithm does what. Simple rule: <strong>Shor's breaks asymmetric crypto</strong> (RSA, ECC) - the hard problems these rely on become easy. <strong>Grover's weakens symmetric crypto and hashes</strong> - halves effective security but doesn't break them outright (just double the key size). If an exam question says "a quantum computer can break SHA-256" - that is wrong. If it says "a quantum computer can break ECDSA" - that is correct (Shor's).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 12. SECURITY NOTES ── -->
+  <div class="section">
+    <div class="section-label">12 - Security Notes</div>
+    <h2>Critical Security Principles</h2>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Never Reuse Post-Quantum Addresses After Migration</strong>
+        <p>Once MST migrates to post-quantum signatures, creating a new ML-DSA address and migrating funds to it is safe. However, if you then send a transaction from that new address, the ML-DSA public key is exposed on-chain. ML-DSA is quantum-safe - but this exposure is unnecessary. Best practice: use fresh addresses for high-value holdings and avoid reusing the same quantum-safe address across contexts. Defence in depth.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Hybrid Mode Is Not Weaker Than Either Algorithm Alone</strong>
+        <p>A common misconception: "If ECDSA is broken by quantum computers, the hybrid (ECDSA + ML-DSA) scheme is also broken." This is wrong. In a hybrid scheme, both signatures must be valid for a transaction to be accepted. Breaking ECDSA alone is insufficient - the attacker still needs to forge the ML-DSA signature, which is quantum-safe. The hybrid is as strong as the stronger of the two algorithms.</p>
+      </div>
+    </div>
+
+    <div class="callout indigo">
+      <div class="callout-icon">🔬</div>
+      <div class="callout-body">
+        <strong>Crypto-Agility - The Most Important PQC Design Principle</strong>
+        <p>The SIDH break in 2022 proves that even NIST-evaluated PQC candidates can be broken. The most important principle for long-lived systems is <strong>crypto-agility</strong> - designing systems so that the cryptographic algorithm can be swapped out without rebuilding the entire system. MST's modular cryptographic architecture allows algorithm upgrades via governance votes and on-chain parameter changes, rather than requiring a complete protocol rewrite. This is why crypto-agility is a core design requirement for enterprise blockchain systems.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 13. INDUSTRY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-label">13 - Industry Insights</div>
+    <h2>How the Industry Uses This Knowledge</h2>
+
+    <h3>The $50 Billion PQC Migration Market</h3>
+    <p>IBM, Google, Microsoft, Amazon AWS, and every major cloud provider are actively selling post-quantum migration services. The U.S. government has mandated PQC adoption for all federal agencies by 2030 - a multi-billion dollar project. In India, SEBI, RBI, and UIDAI are all evaluating PQC timelines. Blockchain developers who understand PQC at the protocol level will be in extraordinary demand for the next decade.</p>
+
+    <h3>Career Paths in Post-Quantum Cryptography</h3>
+    <ul>
+      <li><strong>Protocol Engineers:</strong> Integrating ML-KEM, ML-DSA into blockchain clients (wallets, validators, RPC nodes). Requires deep cryptographic library knowledge (liboqs, CIRCL, BouncyCastle PQC).</li>
+      <li><strong>Security Architects:</strong> Designing hybrid classical + PQC systems for enterprises, ensuring crypto-agility, assessing migration risks.</li>
+      <li><strong>Smart Contract Auditors:</strong> Post-quantum transition will create new vulnerability classes - contracts that assumed ECDSA-only signing will need auditing for PQ compatibility.</li>
+      <li><strong>ZK Circuit Engineers:</strong> Designing ZK circuits that work with lattice-based signatures instead of ECC - a completely new challenge that barely any engineers in the world currently understand.</li>
+    </ul>
+
+    <h3>MST's Competitive Advantage</h3>
+    <p>Most Layer 1 blockchains have not yet begun formal PQC migration planning. Bitcoin's governance makes migration nearly impossible without a contentious hard fork. Ethereum has a long-term plan but no deployed hybrid layer. MST's proactive Quantum-Ready Pillar - with hybrid signing, governance-driven migration, and SARAL's secure-enclave key management - positions it as the preferred enterprise blockchain for organisations with 10+ year data security requirements. This includes healthcare, legal, real estate title records, and government document management - all sectors where MST's curriculum is aimed.</p>
+  </div>
+
+  <!-- ── 14. GLOSSARY ── -->
+  <div class="section">
+    <div class="section-label">14 - Glossary</div>
+    <h2>Key Terms You Must Know</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">Quantum Computer</div>
+      <div class="glossary-def">A computer that exploits quantum mechanical phenomena (superposition, entanglement) to process information in fundamentally new ways. Not simply a faster classical computer - it solves specific problems with radically different complexity.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Qubit</div>
+      <div class="glossary-def">Quantum bit. Unlike a classical bit (0 or 1), a qubit can be in superposition - simultaneously 0 and 1 until measured. n qubits in superposition represent 2ⁿ states simultaneously.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Shor's Algorithm</div>
+      <div class="glossary-def">A quantum algorithm (1994, Peter Shor) that factors large integers and solves discrete logarithm problems in polynomial time - breaking RSA, ECC, ECDSA, EdDSA, and Diffie-Hellman.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Grover's Algorithm</div>
+      <div class="glossary-def">A quantum algorithm (1996, Lov Grover) that searches unstructured databases with quadratic speedup. Reduces the effective security of symmetric encryption and hash functions by half. Does not break them outright.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">CRQC</div>
+      <div class="glossary-def">Cryptographically Relevant Quantum Computer. A quantum computer powerful and reliable enough to run Shor's Algorithm and break RSA-2048 or ECC-256. Does not yet exist - estimated 2030 - 2035.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Harvest Now, Decrypt Later</div>
+      <div class="glossary-def">A threat model where adversaries record encrypted communications today and store them for decryption once a CRQC is available. Makes PQC migration urgent even before CRQCs exist.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Post-Quantum Cryptography</div>
+      <div class="glossary-def">Cryptographic algorithms designed to be secure against both classical and quantum computers. Based on hard mathematical problems that quantum algorithms (including Shor's and Grover's) cannot efficiently solve.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Learning With Errors (LWE)</div>
+      <div class="glossary-def">The hard mathematical problem underlying ML-KEM and ML-DSA. Given noisy linear equations, find the hidden secret vector. Believed computationally infeasible for both classical and quantum computers.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ML-KEM (FIPS 203)</div>
+      <div class="glossary-def">Module Lattice Key Encapsulation Mechanism. The NIST-standard post-quantum replacement for RSA and ECDH key exchange. Based on Module-LWE. Fast, efficient, practical key sizes.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ML-DSA (FIPS 204)</div>
+      <div class="glossary-def">Module Lattice Digital Signature Algorithm (CRYSTALS-Dilithium). The primary NIST-standard post-quantum replacement for ECDSA and RSA signatures. ~2.4 KB signatures. Replaces blockchain wallet signing.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">SLH-DSA (FIPS 205)</div>
+      <div class="glossary-def">Stateless Hash-based Digital Signature Algorithm (SPHINCS+). Security relies only on hash function collision resistance. Conservative, well-trusted, but large signatures (~8 KB). Quantum-safe backup.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">FN-DSA / FALCON (FIPS 206)</div>
+      <div class="glossary-def">Fast-Fourier Lattice-based Compact Signatures. Lattice-based signatures with compact output (~666 bytes) - most blockchain-practical PQC signature scheme.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Crypto-Agility</div>
+      <div class="glossary-def">The design principle of building systems so that cryptographic algorithms can be swapped out without rebuilding the entire protocol - essential for long-lived systems navigating the PQC transition.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Hybrid Signature</div>
+      <div class="glossary-def">A dual-signing approach that combines a classical algorithm (ECDSA) and a post-quantum algorithm (ML-DSA). Both signatures must be valid. Provides security against both classical and quantum adversaries during the transition period.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ════════════════════════ ASSESSMENT ════════════════════════ -->
+  <div class="assessment-header">
+    <h2>📝 Assessment - Sub-Module 4.6</h2>
+    <p>Post-Quantum Cryptography &nbsp;|&nbsp; Total: <strong>10 Marks</strong> &nbsp;|&nbsp; 8 Questions</p>
+  </div>
+  <div class="assessment-body">
+
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">
+      Marks breakdown: 6 × MCQ (1 mark each) = 6 marks &nbsp;|&nbsp; 2 × True/False with justification (2 marks each) = 4 marks &nbsp;|&nbsp; <strong>Total = 10 marks ✅</strong>
+    </p>
+
+    <!-- Q1 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">1</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Which quantum algorithm specifically breaks RSA and ECDSA - and what mathematical problem does it solve?</div>
+      <ul class="options">
+        <li>A) Grover's Algorithm - it searches the key space to find private keys by brute force</li>
+        <li>B) Grover's Algorithm - it exploits the factoring structure of RSA directly</li>
+        <li class="correct">C) Shor's Algorithm - it solves the Integer Factorisation Problem (breaks RSA) and the Discrete Logarithm Problem (breaks ECC / ECDSA) in polynomial time</li>
+        <li>D) Shor's Algorithm - it reverses SHA-256 hashing to find private keys from wallet addresses</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p><strong>Shor's Algorithm</strong> (1994) is the quantum algorithm that makes all current asymmetric cryptography obsolete. It solves two specific hard problems in polynomial time on a quantum computer: (1) <strong>Integer Factorisation</strong> - which breaks RSA (the security of RSA relies on the difficulty of factoring <code>n = p × q</code>); (2) <strong>Discrete Logarithm Problem</strong> - which breaks ECC, ECDSA, EdDSA, and Diffie-Hellman (the security of these relies on the hardness of finding the scalar multiplier given two curve points). Option A describes Grover's Algorithm, which provides quadratic speedup for unstructured search but does NOT directly break asymmetric crypto. Option D is wrong - SHA-256 is not broken by Shor's (it has no algebraic structure for Shor's to exploit).</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">2</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Grover's Algorithm reduces the effective security of SHA-256 from 256 bits to approximately 128 bits. What is the correct response for a system using SHA-256 that wants to maintain 256-bit post-quantum security?</div>
+      <ul class="options">
+        <li>A) Replace SHA-256 with ECDSA - which is not affected by Grover's Algorithm</li>
+        <li>B) Use SHA-256 twice (double-hashing) to restore the full 256-bit security level</li>
+        <li class="correct">C) Upgrade to SHA-512 or use SHA-256 in applications requiring only 128-bit security - 128-bit post-quantum security from SHA-256 remains adequate for most uses</li>
+        <li>D) Immediately switch to ML-DSA (CRYSTALS-Dilithium), as hash functions are fully broken by quantum computers</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>Grover's Algorithm halves the effective security of hash functions - SHA-256 provides approximately 128-bit post-quantum security. For applications that need only 128-bit security (the current standard for most uses), SHA-256 remains perfectly adequate - <strong>128-bit security is considered sufficient for the foreseeable future.</strong> For applications requiring full 256-bit security (e.g., certain long-term archival applications), the solution is to upgrade to SHA-512 (256-bit post-quantum security with Grover's). Double-hashing (SHA-256 twice, as Bitcoin does) does NOT restore security - Grover's operates on the final hash, not the computation steps. ML-DSA is for digital signatures, not hash functions - Option D confuses the two.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">3</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">A blockchain developer needs to choose a post-quantum digital signature algorithm for MST smart contracts. They need the smallest possible on-chain signature size to minimise gas costs, and are willing to accept lattice-based security assumptions. Which NIST PQC algorithm should they choose?</div>
+      <ul class="options">
+        <li>A) SLH-DSA (SPHINCS+, FIPS 205) - hash-based, most conservative, smallest signatures</li>
+        <li>B) ML-KEM (CRYSTALS-Kyber, FIPS 203) - smallest lattice-based key size</li>
+        <li class="correct">C) FN-DSA (FALCON, FIPS 206) - lattice-based (NTRU), compact ~666-byte signatures</li>
+        <li>D) ML-DSA (CRYSTALS-Dilithium, FIPS 204) - primary lattice signature, largest adoption</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p><strong>FN-DSA (FALCON, FIPS 206)</strong> is the most blockchain-practical PQC signature algorithm due to its compact ~666-byte signature size. Compare: ML-DSA signatures are ~2.4 - 3.3 KB; SLH-DSA signatures are ~7 - 50 KB (much larger); ECDSA is 64 bytes (for reference). Option A (SLH-DSA/SPHINCS+) is wrong - while the public key is tiny (32 bytes), the signature is enormous (~8 KB), making it the worst choice for gas-sensitive applications. Option B (ML-KEM/Kyber) is wrong - it is a Key Encapsulation Mechanism for key exchange, not a digital signature scheme. Option D (ML-DSA/Dilithium) is correct for most uses but has larger signatures (~2.4 KB) than FALCON (~666 bytes). The developer specified smallest signature size and lattice-based - FALCON is the answer.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">4</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">The zk-STARK proof system used by StarkNet is considered post-quantum secure, while zk-SNARKs (PLONK, Groth16) are NOT. What is the fundamental cryptographic reason for this difference?</div>
+      <ul class="options">
+        <li>A) STARKs use more rounds of interaction, making them harder to attack quantumly</li>
+        <li>B) STARKs are based on elliptic curve cryptography which is stronger than the curves used by SNARKs</li>
+        <li class="correct">C) STARKs rely exclusively on hash function security (collision resistance), which is only weakened by Grover's - while SNARKs rely on elliptic curve pairings, which are broken by Shor's Algorithm</li>
+        <li>D) STARKs use a trusted setup, which provides additional security against quantum adversaries</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This is a direct application of the quantum security analysis from this sub-module. <strong>zk-STARKs</strong> use FRI polynomial commitments, which are based entirely on hash function security. Specifically, the security reduces to finding SHA-256 collisions - which Grover's Algorithm reduces from 2²⁵⁶ to 2¹²⁸ operations, but 2¹²⁸ is still infeasible. Therefore STARKs retain adequate quantum security. <strong>zk-SNARKs</strong> (PLONK, Groth16) use KZG polynomial commitments, which rely on elliptic curve pairings - specifically the hardness of the bilinear Diffie-Hellman problem on pairing-friendly curves (BN254, BLS12-381). Shor's Algorithm solves the discrete logarithm problem on elliptic curves, breaking these pairings. A quantum computer running Shor's could forge SNARK proofs. Option D is wrong - STARKs have NO trusted setup (that's their advantage, not a quantum security mechanism).</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">5</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">A blockchain address has sent exactly one transaction in its history. The address holder now wants to know if their funds are at risk from a future quantum computer. Which analysis is correct?</div>
+      <ul class="options">
+        <li>A) The address is completely safe - the wallet address is a hash of the public key, so the public key is never revealed</li>
+        <li class="correct">C) The address is quantum-vulnerable - when any transaction is sent, the ECDSA signature (v, r, s) is broadcast publicly, and the public key can be recovered via ecrecover from the signature. Shor's Algorithm can then compute the private key from the public key</li>
+        <li>B) The address is quantum-safe because AES-256 is used to encrypt the private key in the wallet</li>
+        <li>D) The address is safe as long as the signature used a fresh k-value, preventing private key recovery</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This question tests a crucial and often-overlooked detail. When ANY transaction is sent from a blockchain address, the ECDSA signature <code>(v, r, s)</code> is included in the transaction and broadcast publicly. The Ethereum/MST Virtual Machine includes an <code>ecrecover</code> precompile that can reconstruct the signer's <strong>public key</strong> from <code>(hash, v, r, s)</code>. This public key is then permanently and immutably recorded on-chain in the transaction data. A quantum attacker with Shor's Algorithm can compute: <code>privKey</code> from <code>pubKey</code> (by solving ECDLP on secp256k1) - giving them full control of the wallet. Option A is correct for addresses that have <em>never</em> sent a transaction - the address is a hash of the public key, and the public key is not revealed. But once even one transaction is sent, the public key is permanently exposed. Option D is wrong - k-value freshness prevents private key recovery from two signatures with the same k, but does not hide the public key from Shor's.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">6</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">SIDH (Supersingular Isogeny Diffie-Hellman) was a leading post-quantum candidate until 2022, when it was completely broken by a classical attack. What critical lesson does this carry for blockchain systems implementing post-quantum cryptography?</div>
+      <ul class="options">
+        <li>A) All PQC algorithms should be avoided until they have been deployed for at least 50 years</li>
+        <li>B) Only NIST-approved algorithms should ever be used - no other algorithms can be broken</li>
+        <li class="correct">C) Systems must be designed with crypto-agility - the ability to swap cryptographic algorithms without rebuilding the entire protocol - and conservative backup algorithms (like SLH-DSA) should be part of any robust PQC design</li>
+        <li>D) The isogeny break proves that all lattice-based algorithms (ML-KEM, ML-DSA) are also likely to be broken by classical attacks</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>The SIDH break in 2022 by Castryck and Decru (a classical attack, not even quantum) demolished a leading PQC candidate just weeks before standardisation. This is the field's most important recent lesson: <strong>even extensively reviewed PQC candidates can be broken by unexpected mathematical insights.</strong> The correct response is two-fold: (1) <strong>Crypto-agility:</strong> design systems so cryptographic algorithms can be upgraded without full protocol rewrites. MST's governance-driven modular architecture implements this. (2) <strong>Conservative backup:</strong> include SLH-DSA (SPHINCS+) as a fallback - its security rests only on SHA-256 collision resistance, the oldest and most studied cryptographic assumption. If ML-DSA is ever broken, SPHINCS+ remains. Option D is wrong - the SIDH break exploited a specific structure unique to isogenies (auxiliary torsion point information) and has no implications for lattice-based algorithms, which are completely different mathematical structures. Option B is wrong - the NIST process evaluates but cannot guarantee; SIDH itself was a NIST finalist before being broken.</p>
+      </div>
+    </div>
+
+    <!-- Q7 — TRUE/FALSE 2 marks -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">7</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">2 marks</div>
+      </div>
+      <div class="q-text">Statement: "MST Blockchain's hybrid signing approach - requiring both an ECDSA signature and an ML-DSA signature on each transaction - is weaker than using ECDSA alone, because breaking either of the two algorithms would compromise the entire transaction."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Full Justification Required (2 marks)</strong>
+        <p><strong>This statement is FALSE.</strong> The statement contains a fundamental logical error about how hybrid signing works.</p>
+        <p>In MST's hybrid scheme, the network requires <strong>BOTH</strong> signatures to be valid for a transaction to be accepted. This means an attacker must break <strong>BOTH</strong> ECDSA and ML-DSA to forge a transaction - not just one. This is strictly stronger than using either algorithm alone:</p>
+        <p>• If only ECDSA: a quantum attacker running Shor's can forge - one signature to break. ❌<br>
+        • If only ML-DSA: a classical attacker who finds a lattice vulnerability can forge - one signature to break. ❌<br>
+        • If ECDSA + ML-DSA hybrid: an attacker must simultaneously break a classical algorithm AND a post-quantum algorithm. The difficulty is multiplicative. ✅</p>
+        <p>The statement confuses "AND" logic with "OR" logic. If the network required EITHER signature to be valid (OR), then breaking one would be sufficient. But requiring BOTH (AND) means security is as strong as the <em>stronger</em> of the two algorithms. During the transitional period, if quantum computers arrive and break ECDSA, the ML-DSA signature still holds - funds remain secure. If ML-DSA has an unforeseen classical break, ECDSA still holds. The hybrid approach is the gold standard for cryptographic transitions. (1 mark for correct False; 1 mark for explanation of AND logic / stronger of two algorithms.)</p>
+      </div>
+    </div>
+
+    <!-- Q8 — TRUE/FALSE 2 marks -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">8</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">2 marks</div>
+      </div>
+      <div class="q-text">Statement: "The 'Harvest Now, Decrypt Later' threat only affects government and military communications - it has no practical relevance for blockchain users or MST transactions, because blockchain data is already public."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Full Justification Required (2 marks)</strong>
+        <p><strong>This statement is FALSE - and the reasoning reveals a critical misunderstanding.</strong></p>
+        <p>The statement correctly notes that blockchain data is public - but draws the wrong conclusion. "Harvest Now, Decrypt Later" is highly relevant to blockchain precisely <em>because</em> blockchain data is public and permanent.</p>
+        <p><strong>What is being "harvested"?</strong> Not the transaction content (already public) - but the <strong>ECDSA signatures</strong> <code>(v, r, s)</code> embedded in every transaction. From these signatures, a future quantum attacker can recover the public key via <code>ecrecover</code>, and then use Shor's Algorithm to compute the private key.</p>
+        <p><strong>Consequences for blockchain users:</strong> Every address that has ever sent a transaction has permanently exposed its public key on the immutable public ledger. A quantum attacker in 2030 can download the entire MST or Ethereum blockchain history, extract all public keys from all historical signatures, and use Shor's to recover private keys for every address. If any of those addresses still hold funds, those funds are stolen - including funds that the current owner considers safely secured with their seed phrase in cold storage.</p>
+        <p><strong>Government communications</strong> have "Harvest Now, Decrypt Later" risk for the <em>content</em> of communications. Blockchain users have the risk for their <em>private keys</em>. Both are serious - they are different attack surfaces, not a hierarchy where one matters more. This is precisely why MST's migration plan focuses on moving all active addresses to post-quantum key pairs before CRQCs arrive. (1 mark for correct False; 1 mark for correct explanation: signatures are harvested → public keys exposed → Shor's recovers private keys.)</p>
+      </div>
+    </div>
+
+    <!-- MARKS SUMMARY -->
+    <div style="background: linear-gradient(135deg, #050E22, #1A0F3E); border-radius: 10px; padding: 20px 24px; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Total Marks</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace;">10 / 10</div>
+      </div>
+      <div style="flex: 1; min-width: 220px;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7); line-height: 2.1;">
+          Q1: MCQ - Shor's Algorithm = 1 mark<br>
+          Q2: MCQ - Grover's and hash functions = 1 mark<br>
+          Q3: MCQ - FN-DSA / FALCON for gas efficiency = 1 mark<br>
+          Q4: MCQ - STARKs vs SNARKs quantum safety = 1 mark<br>
+          Q5: MCQ - Public key exposure via transaction = 1 mark<br>
+          Q6: MCQ - SIDH break lesson / crypto-agility = 1 mark<br>
+          Q7: True/False + justification = 2 marks<br>
+          Q8: True/False + justification = 2 marks<br>
+          <strong>Total = 10 marks ✅</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment body -->
+
+</div><!-- end page body -->
+
+<!-- ════════════════════════ FOOTER ════════════════════════ -->
+<div class="module-footer">
+  <strong>MasterStroke Academy</strong> - Certified MST Blockchain Developer Program &nbsp;|&nbsp;
+  Module 4: Cryptography &nbsp;|&nbsp; Sub-Module 4.6: Post-Quantum Cryptography &nbsp;|&nbsp;
+  <strong>Module 4 Complete ✅</strong> &nbsp;|&nbsp; Next: <strong>Module 5 - Cryptocurrency &amp; Tokenomics</strong>
+</div>
+
+</body>
+</html>

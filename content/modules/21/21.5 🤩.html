@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Sub-Module 21.5 - Credentialing (On-Chain Certificate) | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --gold:         #D97706;
+      --gold-light:   #FEF3C7;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold-light); color: #92400E;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--gold); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.gold   { background: var(--gold-light);   border-color: #FCD34D; color: #92400E; }
+
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.gold    { background: var(--gold-light);  border-color: var(--gold);   }
+    .callout.gold .callout-label    { color: #92400E; }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--gold-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #FCD34D;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--gold); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #92400E; margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card { border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid; }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card.gold  { background: var(--gold-light);  border-color: #FCD34D; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card.gold  .col-card-title { color: #92400E; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+    .col-card.gold ul li::before { content: '🏅'; flex-shrink: 0; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--gold-light); border: 1px solid #FCD34D;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: #92400E; line-height: 1.4; }
+
+    .code-block {
+      background: #1e1e2f; color: #e2e2f0; border-radius: var(--radius);
+      padding: 20px; margin: 18px 0; overflow-x: auto;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+      white-space: pre; border: 1px solid #2a2a40;
+    }
+    .code-inline {
+      font-family: var(--mono); background: var(--surface-2); padding: 2px 8px;
+      border-radius: 4px; font-size: 13.5px; color: var(--brand-dark);
+    }
+
+    .certificate-visual {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #FEF3C7 100%);
+      border: 3px solid var(--gold);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      margin: 28px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .certificate-visual::before {
+      content: '';
+      position: absolute;
+      top: -30px; left: -30px; right: -30px; bottom: -30px;
+      border: 2px dashed #D97706;
+      border-radius: 28px;
+      opacity: 0.3;
+    }
+    .cert-icon { font-size: 56px; margin-bottom: 12px; }
+    .cert-name { font-size: 22px; font-weight: 900; color: #92400E; letter-spacing: -0.01em; margin-bottom: 4px; }
+    .cert-title { font-size: 15px; font-weight: 700; color: #B45309; margin-bottom: 16px; }
+    .cert-detail { font-size: 13px; color: #78350F; line-height: 1.6; }
+    .cert-chain { font-family: var(--mono); font-size: 12px; color: #92400E; background: rgba(255,255,255,0.5); display: inline-block; padding: 4px 12px; border-radius: 20px; margin-top: 12px; }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--gold) 0%, #92400E 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--gold); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body { border: 2px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+    .q-badge {
+      background: var(--gold); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text { font-size: 15.5px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct { border-color: var(--green); background: var(--green-light); color: var(--ink); }
+    .opt-key { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px; }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd { margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC; font-size: 13px; color: #14532D; }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write { font-size: 11.5px; font-weight: 700; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+    .tf-sample { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; border-left: 3px solid var(--brand); padding-left: 12px; }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--gold) 0%, #92400E 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #FDE68A; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #FDE68A; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--gold); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .confetti-bar {
+      background: linear-gradient(90deg, #FCD34D, #F6A623, #D97706, #F6A623, #FCD34D);
+      height: 6px; border-radius: 3px; margin: 32px 0;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid, .two-col, .glossary-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      .module-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════ -->
+<div class="module-badge">🏅 Module 21 · Sub-Module 21.5 of 5 - FINAL</div>
+<h1 class="module-title">Credentialing - Your <span class="highlight">On-Chain Certificate</span></h1>
+<p class="module-subtitle">
+  You've built, audited, deployed, and presented. Now the final step: claiming your MST Certified Blockchain Developer credential - a soul-bound NFT minted permanently on MST mainnet. This is your proof, forever.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip gold">🏅 10 Marks</div>
+  <div class="meta-chip">📋 3 MCQ · 2 T/F · 1 T/F+Just · 1 Desc</div>
+  <div class="meta-chip green">Chain ID 4646 · SBT</div>
+</div>
+
+<div class="confetti-bar"></div>
+
+<!-- ═══════════════════════════════ OBJECTIVES ═══════════════ -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text"><strong>Understand soul-bound tokens (SBTs)</strong> and why they are the gold standard for verifiable credentials on blockchain.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🪪</div>
+    <div class="obj-text"><strong>Claim your MST Developer Certificate</strong> by connecting BridgeKey and signing the claim transaction on MST mainnet.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔍</div>
+    <div class="obj-text"><strong>Verify any MST certificate</strong> on MST Explorer - and teach employers how to verify yours.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌐</div>
+    <div class="obj-text"><strong>Showcase your credential</strong> on LinkedIn, GitHub, and your portfolio to unlock job opportunities and grant eligibility.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ STORY ═══════════════ -->
+<div class="section-label">02 · Real-World Story</div>
+<h2 class="section-title">The Engineer Who Lost His Job Offer - And The One Who Didn't</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>
+    Rahul and Anjali both graduated from a Web3 bootcamp in Bangalore in 2024. Both applied for the same smart-contract engineer role at a leading DeFi protocol. The recruiter asked both for proof of their blockchain certification.
+  </p>
+  <br/>
+  <p>
+    Rahul sent a PDF certificate. The recruiter had no way to verify it - anyone can forge a PDF. The hiring manager spent three days emailing the bootcamp to confirm Rahul's credentials. By the time verification came through, the role was filled.
+  </p>
+  <br/>
+  <p>
+    Anjali sent a link to MST Explorer showing her soul-bound NFT - <strong>MST Certified Blockchain Developer, Cohort 1, minted on Chain ID 4646</strong>. The recruiter clicked the link, saw the verified badge on-chain in seconds, and moved Anjali to the final interview. She got the job.
+  </p>
+  <br/>
+  <p>
+    In Web3, <strong>on-chain credentials are the only credentials that matter</strong>. A soul-bound NFT cannot be forged, transferred, or faked. When you claim your MST certificate, you join a global, verifiable registry of proven blockchain developers. This sub-module shows you how.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ WHAT IS SBT ═══════════════ -->
+<div class="section-label">03 · What Is a Soul-Bound Token (SBT)?</div>
+<h2 class="section-title">The Technology Behind Your Permanent Credential</h2>
+<p>
+  A <strong>Soul-Bound Token (SBT)</strong> is a special type of NFT that cannot be transferred to another wallet once minted. It is permanently bound to the wallet address that receives it - your "soul." The concept was proposed in 2022 by Vitalik Buterin, Puja Ohlhaver, and E. Glen Weyl in their paper <em>"Decentralized Society: Finding Web3's Soul."</em>
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.5-A · SBT vs Regular NFT - The Key Difference</div>
+  <pre>
+  ┌─────────────────────────────────────────────────────────────┐
+  │                    REGULAR NFT (ERC‑721)                     │
+  │  ┌──────────┐     transfer()     ┌──────────┐              │
+  │  │  Wallet A │ ────────────────▶ │  Wallet B │              │
+  │  │  owns NFT │                   │  owns NFT │              │
+  │  └──────────┘                   └──────────┘              │
+  │  ✅ Transferable — can be sold, gifted, or stolen            │
+  └─────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                 SOUL‑BOUND TOKEN (SBT)                       │
+  │  ┌──────────┐     transfer()     ┌──────────┐              │
+  │  │  Wallet A │ ──────── ✗ ─────▶ │  Wallet B │              │
+  │  │  owns SBT │   REVERTED!       │  cannot   │              │
+  │  └──────────┘                   └──────────┘              │
+  │  ❌ Non‑transferable — permanently linked to the original    │
+  │     recipient. Represents identity, achievements, membership.│
+  └─────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">An SBT is like a degree certificate that is stapled to your identity forever. You cannot sell your B.Tech degree to someone else - and you cannot transfer your MST Developer Certificate either.</div>
+</div>
+
+<div class="callout gold">
+  <div class="callout-label">🏅 Why MST Uses SBTs for Certificates</div>
+  <p>
+    MST chose SBTs because a credential must be <strong>non-transferable</strong> to have value. If certificates were regular NFTs, people could buy and sell them, destroying trust. An SBT proves that <em>you specifically</em> - the wallet holder - completed the program. Employers can verify this on-chain without contacting any central authority.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ THE CERTIFICATE ═══════════════ -->
+<div class="section-label">04 · The MST Certified Blockchain Developer Certificate</div>
+<h2 class="section-title">What Your On-Chain Badge Contains</h2>
+
+<div class="certificate-visual">
+  <div class="cert-icon">🏅</div>
+  <div class="cert-name">[Your Name]</div>
+  <div class="cert-title">MST Certified Blockchain Developer</div>
+  <div class="cert-detail">
+    This certifies that the holder has successfully completed the<br/>
+    <strong>22-Module Professional Blockchain Developer Program</strong><br/>
+    including a mainnet-deployed capstone project, security audit,<br/>
+    and live Demo Day presentation.
+  </div>
+  <div class="cert-chain">
+    🔗 MST Mainnet · Chain ID 4646 · Soul-Bound Token
+  </div>
+</div>
+
+<p>
+  The certificate NFT contains rich metadata stored on IPFS, including:
+</p>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Your Name & Cohort</div>
+      <div class="feature-desc">As registered during enrolment. Immutably linked to your wallet address.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Capstone Project Reference</div>
+      <div class="feature-desc">A link to your deployed contract address on MST mainnet - proving you built a real dApp.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Completion Date & Program Hash</div>
+      <div class="feature-desc">Timestamped on-chain. The program curriculum hash ensures the certificate corresponds to a specific, audited version of the course.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Issuer Signature</div>
+      <div class="feature-desc">Cryptographically signed by the MST Academy's authorised issuer wallet - verifiable via <code>ecrecover</code>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ HOW TO CLAIM ═══════════════ -->
+<div class="section-label">05 · How to Claim Your Certificate</div>
+<h2 class="section-title">Step-by-Step Claim Process on MST Mainnet</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Receive the Claim Email</div>
+      <div class="feature-desc">After Demo Day, you'll receive an email from <strong>academy@mstblockchain.com</strong> with a unique, one-time claim link. This link is tied to your registered wallet address.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--teal);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Connect BridgeKey Wallet</div>
+      <div class="feature-desc">Open the claim page in a browser with BridgeKey installed. Ensure you're on <strong>MST Mainnet (Chain ID 4646)</strong>. The page will prompt you to connect.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Sign the Claim Transaction</div>
+      <div class="feature-desc">A small gas fee (approximately 0.0001 MST) is required to mint the SBT. Confirm the transaction in BridgeKey. The certificate is minted directly to your connected wallet.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--green);">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Verify on MST Explorer</div>
+      <div class="feature-desc">Immediately after minting, you'll receive a link to view your certificate on <strong>mstscan.com</strong>. The SBT will appear under your address's token holdings with a special "SBT" badge.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Important Notes</div>
+  <p>
+    • The claim link is <strong>one-time use only</strong>. If you lose it, contact support immediately.<br/>
+    • The SBT is minted to the wallet you connect - make sure it's the wallet you want associated with your professional identity.<br/>
+    • You need a small amount of MST for gas. If your balance is zero, use the MST Bridge or contact the academy for a gas stipend.<br/>
+    • Once minted, the SBT <strong>cannot be transferred</strong> to another wallet. Choose your wallet wisely.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ VERIFICATION ═══════════════ -->
+<div class="section-label">06 · How Employers Verify Your Certificate</div>
+<h2 class="section-title">One Click - Instant Trust</h2>
+<p>
+  When you share your certificate with an employer, you don't send a PDF. You send a link to MST Explorer - or better, you embed it in your portfolio. Here's what the verification flow looks like from the employer's perspective:
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.5-B · Certificate Verification Flow (Employer Side)</div>
+  <pre>
+  Employer clicks your badge link
+           │
+           ▼
+  ┌─────────────────────────────────────────┐
+  │  MST Explorer — Token Details Page      │
+  │  ┌───────────────────────────────────┐  │
+  │  │ 🏅 MST Certified Blockchain Dev   │  │
+  │  │ Token ID: 1234                    │  │
+  │  │ Type: Soul‑Bound Token (SBT)      │  │
+  │  │ Holder: 0xYourAddress...          │  │
+  │  │ Issuer: 0xMSTAcademy...           │  │
+  │  │ Issued: 15 June 2026              │  │
+  │  │ IPFS Metadata: ipfs://Qm...       │  │
+  │  │ ✅ Verified — Non‑transferable    │  │
+  │  └───────────────────────────────────┘  │
+  └─────────────────────────────────────────┘
+           │
+           ▼
+  Employer confirms:
+  ✅ Token exists on MST Mainnet (Chain ID 4646)
+  ✅ Issuer address matches MST Academy's official wallet
+  ✅ SBT — cannot be transferred (not bought/sold)
+  ✅ Matches candidate's claimed wallet address
+
+  Result: INSTANT VERIFICATION — no email, no phone call, no delay.
+  </pre>
+  <div class="diagram-caption">The entire verification process takes under 10 seconds. Compare this to traditional credential verification, which can take days or weeks.</div>
+</div>
+
+<!-- ═══════════════════════════════ SHOWCASING ═══════════════ -->
+<div class="section-label">07 · Showcasing Your Credential</div>
+<h2 class="section-title">Making Your Certificate Work for Your Career</h2>
+<p>
+  Your SBT is more than a trophy - it's a career asset. Here's how to use it effectively across platforms.
+</p>
+
+<div class="two-col">
+  <div class="col-card gold">
+    <div class="col-card-title">🏅 Where to Showcase</div>
+    <ul>
+      <li><strong>LinkedIn:</strong> Add to "Licenses & Certifications" with the MST Explorer link</li>
+      <li><strong>GitHub:</strong> Pin the verification link in your profile README</li>
+      <li><strong>Portfolio:</strong> Embed the MST Explorer badge on your personal website</li>
+      <li><strong>Twitter/X Bio:</strong> "🏅 MST Certified Blockchain Dev | Chain ID 4646"</li>
+      <li><strong>Resume/CV:</strong> Include the certificate ID and verification link</li>
+      <li><strong>MST Dev Forum:</strong> Your badge appears automatically under your username</li>
+    </ul>
+  </div>
+  <div class="col-card red">
+    <div class="col-card-title">❌ Don't Do This</div>
+    <ul>
+      <li>Screenshot the certificate and share as an image - it's unverifiable</li>
+      <li>Claim the SBT to a temporary or exchange wallet - you'll lose access</li>
+      <li>Forget to back up your wallet's seed phrase - the SBT is permanently linked to it</li>
+      <li>Share your private key to "prove" ownership - never share private keys</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Pro Tip - MST Alumni Network</div>
+  <p>
+    Once you hold the SBT, you gain access to the <strong>MST Alumni Network</strong> - a gated Discord channel and job board visible only to verified certificate holders. Connect your wallet to the alumni portal; the portal checks your SBT on-chain and grants access automatically. No passwords. No applications. Just proof.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ THE BIGGER PICTURE ═══════════════ -->
+<div class="section-label">08 · The Bigger Picture - Decentralised Identity</div>
+<h2 class="section-title">Your SBT Is the Beginning, Not the End</h2>
+<p>
+  The MST Developer Certificate is your first soul-bound token - but it won't be your last. The Web3 industry is rapidly moving toward <strong>Decentralised Identity (DID)</strong> systems where your education, work history, skills, and memberships are all represented as SBTs in your wallet.
+</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does decentralised identity matter?</div>
+      <div class="w5-a">Today, your credentials are scattered across universities, employers, and platforms - each with their own verification process. SBTs unify them in one place: your wallet. You control access. Employers verify instantly. No middleman.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does MST enable this?</div>
+      <div class="w5-a">MST's low fees make SBT minting affordable at scale. SARAL enables non-custodial key management so users don't lose their identity. ZK-proofs allow selective disclosure - prove you're certified without revealing your entire wallet history.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FUTURE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What's next after this certificate?</div>
+      <div class="w5-a">MST is building a full DID ecosystem. Future SBTs may include: MST BuildGrant recipient badge, hackathon winner credentials, contributor recognition, and even KYC-verified identity attestations - all linked to your MST wallet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ COURSE COMPLETION ═══════════════ -->
+<div class="section-label">09 · The Journey Ends - And Begins</div>
+<h2 class="section-title">What You've Achieved in 21 Modules</h2>
+<p>
+  Take a moment to reflect on what you've built. You started with the history of the internet and the problem of centralisation. You learned cryptographic hashing, consensus mechanisms, and Solidity. You deployed to testnet, then mainnet. You built a React dApp. You wrote an audit report and a README. You pitched on Demo Day. And now - you're claiming an on-chain credential that proves all of it.
+</p>
+
+<div class="stat-row">
+  <div class="stat-card"><div class="stat-value">21</div><div class="stat-label">Modules Completed</div></div>
+  <div class="stat-card"><div class="stat-value">140+</div><div class="stat-label">Sub-Modules Mastered</div></div>
+  <div class="stat-card"><div class="stat-value">2100</div><div class="stat-label">Total Marks Possible</div></div>
+</div>
+
+<div class="callout gold">
+  <div class="callout-label">🏅 Congratulations - You Are Now an MST Certified Blockchain Developer</div>
+  <p>
+    From everyone at MasterStroke Academy and the MST Foundation: <strong>welcome to the ecosystem.</strong> You are now part of a global community of builders who are shaping the future of decentralised technology. Go build something that matters. And when you do - come back and tell us about it. Your SBT will always be here, verifiable forever on Chain ID 4646.
+  </p>
+</div>
+
+<div class="confetti-bar"></div>
+
+<!-- ═══════════════════════════════ ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">10 · Assessment Preparation</div>
+<h2 class="section-title">Key Facts - Know These Before the Test</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">A</div><div class="feature-content"><div class="feature-title">SBT Definition</div><div class="feature-desc">A Soul-Bound Token is a non-transferable NFT permanently linked to the wallet that receives it. Used for credentials, identity, and achievements.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">B</div><div class="feature-content"><div class="feature-title">MST Certificate Chain</div><div class="feature-desc">Minted on MST Mainnet - <strong>Chain ID 4646</strong>. Viewable on <code>mstscan.com</code> under the holder's address.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">C</div><div class="feature-content"><div class="feature-title">Verification Method</div><div class="feature-desc">Employers verify by checking the token on MST Explorer - confirming the issuer address, SBT status, and holder address match.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">D</div><div class="feature-content"><div class="feature-title">Gas Requirement</div><div class="feature-desc">Claiming the SBT requires a small amount of MST for gas (~0.0001 MST). The claim link is one-time use only.</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 21.5 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A – MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">3 Questions · 1 mark each · 3 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What makes a Soul-Bound Token (SBT) different from a regular NFT?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> SBTs are more expensive to mint</li>
+        <li class="correct"><span class="opt-key">B</span> SBTs cannot be transferred to another wallet after minting ✅</li>
+        <li><span class="opt-key">C</span> SBTs can only be minted on Ethereum</li>
+        <li><span class="opt-key">D</span> SBTs expire after one year</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ B - Non-Transferable</div><p>The defining feature of an SBT is that it is permanently bound to the original recipient's wallet. It cannot be sold, gifted, or moved.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">On which network is the MST Certified Blockchain Developer certificate minted?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Ethereum Mainnet (Chain ID 1)</li>
+        <li><span class="opt-key">B</span> MST Testnet</li>
+        <li class="correct"><span class="opt-key">C</span> MST Mainnet (Chain ID 4646) ✅</li>
+        <li><span class="opt-key">D</span> Polygon Mainnet</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ C - MST Mainnet, Chain ID 4646</div><p>The certificate is minted directly on MST mainnet, ensuring it is permanently verifiable on the live network.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">An employer wants to verify your MST certificate. What should you send them?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> A screenshot of the certificate from your wallet</li>
+        <li><span class="opt-key">B</span> A PDF downloaded from the academy portal</li>
+        <li class="correct"><span class="opt-key">C</span> A link to your SBT on MST Explorer (mstscan.com) ✅</li>
+        <li><span class="opt-key">D</span> Your wallet's private key so they can log in and check</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ C - MST Explorer Link</div><p>The MST Explorer link allows instant, trustless verification. Screenshots and PDFs can be forged. Private keys must never be shared.</p></div>
+    </div>
+
+    <!-- SECTION B – TRUE/FALSE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False</div>
+      <div class="q-section-meta">2 Questions · 1 mark each · 2 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Once minted, you can transfer your MST certificate SBT to another wallet if you upgrade your hardware wallet.</div>
+      <div class="tf-box"><div class="tf-verdict false">FALSE</div><p>SBTs are non-transferable by design. Choose your receiving wallet carefully before claiming.</p></div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">The claim link for your certificate can be used multiple times to mint additional copies.</div>
+      <div class="tf-box"><div class="tf-verdict false">FALSE</div><p>The claim link is one-time use only. Once the SBT is minted, the link expires.</p></div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <!-- SECTION C – TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">1 Question · 2 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">T/F + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"A PDF certificate is just as valid as an on-chain SBT because both contain the same information."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">
+          A PDF can be easily forged - anyone with basic design tools can create a fake certificate. An SBT on MST mainnet is cryptographically issued by the academy's authorised wallet and permanently recorded on a public blockchain. Employers can independently verify an SBT in seconds without contacting any central authority. The information may be similar, but the <strong>trust model</strong> is fundamentally different - one relies on faith in a document, the other on mathematical proof.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 2 marks: FALSE + justification covering forgery risk and on-chain verification.</div></div>
+    </div>
+
+    <!-- SECTION D – DESCRIPTIVE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section D - Descriptive Question</div>
+      <div class="q-section-meta">1 Question · 3 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">3 marks</span></div></div>
+      <div class="q-text">Explain three advantages of an on-chain SBT certificate over a traditional paper or PDF certificate. Use specific MST features in your answer.</div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer (three required)</div>
+        <p>
+          <strong>1. Instant Verification:</strong> Employers can verify the SBT on MST Explorer (mstscan.com) in seconds by checking the issuer address and token details - no need to contact the academy. Traditional certificates require emailing the institution and waiting days.<br/><br/>
+          <strong>2. Forgery-Proof:</strong> An SBT is cryptographically signed by the issuer and recorded immutably on MST mainnet (Chain ID 4646). A PDF can be easily forged with design tools. The blockchain's immutability guarantees authenticity.<br/><br/>
+          <strong>3. Permanent & User-Controlled:</strong> The SBT lives in the holder's wallet forever - no institution can revoke or delete it. With MST's SARAL protocol, even non-technical users can safely manage their credentials without seed phrase complexity.
+        </p>
+        <div class="marks-bd"><span>3 marks:</span> 1 per valid advantage with clear explanation. Must mention at least one MST-specific element (Chain ID, Explorer, SARAL, etc.).</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 21.5 Assessment Summary</div>
+      <div class="score-row">Section A: 3 × MCQ <span>(1 mark each) = 3 marks</span></div>
+      <div class="score-row">Section B: 2 × True/False <span>(1 mark each) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section D: 1 × Descriptive <span>(3 marks) = 3 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">11 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 21.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Soul-Bound Token (SBT)</div><div class="glossary-def">A non-transferable NFT that represents identity, credentials, or achievements - permanently linked to a specific wallet address.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chain ID 4646</div><div class="glossary-def">The unique identifier for MST mainnet, where all MST certificates are minted and permanently stored.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MST Explorer</div><div class="glossary-def">The block explorer at mstscan.com where SBTs can be viewed, verified, and shared with employers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Issuer Address</div><div class="glossary-def">The authorised MST Academy wallet that cryptographically signs and mints the certificate SBT.</div></div>
+  <div class="glossary-item"><div class="glossary-term">IPFS Metadata</div><div class="glossary-def">Decentralised storage containing your certificate details (name, cohort, capstone link) referenced by the SBT.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MST Alumni Network</div><div class="glossary-def">A gated community accessible only to SBT holders, providing job boards, mentorship, and exclusive events.</div></div>
+</div>
+
+<div class="confetti-bar"></div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 21 · Sub-Module <strong>21.5</strong> of 5 · 🎓 <strong>END OF COURSE</strong> - Congratulations, MST Certified Blockchain Developer!</p>
+  <p style="margin-top:8px;">🔗 Verify your certificate: <strong>mstscan.com</strong> · Chain ID <strong>4646</strong></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.8 - Merkle Trees & State Management | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --brand:#6C3CE2;--brand-light:#EDE9FB;--brand-dark:#3C1FA0;
+    --accent:#F6A623;--accent-light:#FEF4E0;
+    --green:#16A34A;--green-light:#DCFCE7;
+    --red:#DC2626;--red-light:#FEE2E2;
+    --blue:#1D6FD8;--blue-light:#DBEAFE;
+    --orange:#EA580C;--orange-light:#FFEDD5;
+    --teal:#0D9488;--teal-light:#CCFBF1;
+    --ink:#111827;--ink-2:#374151;--ink-3:#6B7280;--ink-4:#9CA3AF;
+    --border:#E5E7EB;--surface:#F9FAFB;--surface-2:#F3F4F6;
+    --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+    --radius:10px;--radius-lg:16px;
+  }
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.75;font-size:16px;max-width:880px;margin:0 auto;padding:48px 32px 100px}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:var(--brand-light);color:var(--brand-dark);font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px}
+  h1{font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1.15;color:var(--ink);margin-bottom:12px;letter-spacing:-.02em}
+  h1 .hl{color:var(--brand)}
+  .subtitle{font-size:17px;color:var(--ink-3);margin-bottom:28px;line-height:1.65;max-width:680px}
+  .meta-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:52px;padding-bottom:32px;border-bottom:2px solid var(--border)}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:500;color:var(--ink-2)}
+  .chip.purple{background:var(--brand-light);border-color:#C4B5F5;color:var(--brand-dark)}
+  .chip.green{background:var(--green-light);border-color:#86EFAC;color:#14532D}
+  .sec-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:10px;margin-top:52px}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .sec-title{font-size:24px;font-weight:800;color:var(--ink);margin-bottom:18px;letter-spacing:-.01em;line-height:1.3}
+  p{color:var(--ink-2);margin-bottom:16px;font-size:15.5px;line-height:1.8}
+  p strong{color:var(--ink);font-weight:700}
+  p:last-child{margin-bottom:0}
+  code{font-family:var(--mono);font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--brand-dark)}
+  .callout{border-radius:var(--radius-lg);padding:20px 24px;margin:24px 0;border-left:4px solid}
+  .callout .cl{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .callout p{font-size:15px;margin:0}
+  .callout.story{background:#FAFAF5;border-color:var(--accent)}.callout.story .cl{color:#92400E}
+  .callout.key{background:var(--brand-light);border-color:var(--brand)}.callout.key .cl{color:var(--brand-dark)}
+  .callout.warn{background:var(--red-light);border-color:var(--red)}.callout.warn .cl{color:var(--red)}
+  .callout.insight{background:var(--teal-light);border-color:var(--teal)}.callout.insight .cl{color:var(--teal)}
+  .callout.analogy{background:var(--accent-light);border-color:var(--accent)}.callout.analogy .cl{color:#92400E}
+  .obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+  .obj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+  .obj-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+  .obj-text{font-size:14px;color:var(--ink-2);line-height:1.55}
+  .obj-text strong{display:block;color:var(--ink);font-weight:700;font-size:13.5px;margin-bottom:2px}
+  .dbox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 24px;margin:24px 0;overflow-x:auto}
+  .dbox-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:20px;text-align:center}
+  .dbox pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--ink-2);white-space:pre;margin:0}
+  .dbox-caption{font-size:12px;color:var(--ink-4);text-align:center;margin-top:16px;font-style:italic}
+  .flist{display:flex;flex-direction:column;gap:12px;margin:20px 0}
+  .fitem{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+  .fnum{width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .ftitle{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+  .fdesc{font-size:14px;color:var(--ink-2);line-height:1.6}
+  .steps-list{list-style:none;padding:0;margin:20px 0;counter-reset:steps}
+  .steps-list li{counter-increment:steps;display:flex;gap:14px;margin-bottom:16px}
+  .steps-list li::before{content:counter(steps);font-family:var(--mono);font-size:12px;font-weight:800;color:#fff;background:var(--brand);min-width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px}
+  .steps-list li .sb{font-size:14.5px;color:var(--ink-2);line-height:1.65}
+  .steps-list li .sb strong{color:var(--ink)}
+  .compare-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
+  .compare-table thead th{padding:12px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:left;border-bottom:2px solid var(--border);background:var(--surface);color:var(--ink-3)}
+  .compare-table tbody tr{border-bottom:1px solid var(--border)}
+  .compare-table tbody td{padding:13px 14px;color:var(--ink-2);vertical-align:top;line-height:1.55}
+  .compare-table tbody td:first-child{font-weight:600;color:var(--ink)}
+  .compare-table .good{color:var(--green);font-weight:600}
+  .compare-table .bad{color:var(--red);font-weight:600}
+  .ggrind{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+  .gitem{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  .gterm{font-size:13px;font-weight:700;color:var(--brand);margin-bottom:4px}
+  .gdef{font-size:13.5px;color:var(--ink-2);line-height:1.55}
+  /* Assessment */
+  .asec{margin-top:64px}
+  .ahdr{background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
+  .ahdr h2{font-size:20px;font-weight:800;color:#fff}
+  .mbadge{background:#fff;border-radius:10px;padding:10px 20px;text-align:center;flex-shrink:0}
+  .mbadge .mn{font-size:32px;font-weight:900;color:var(--brand);line-height:1}
+  .mbadge .ml{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+  .abody{border:2px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);overflow:hidden}
+  .qsec-hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;justify-content:space-between;align-items:center}
+  .qsec-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .qsec-meta{font-size:12px;color:var(--ink-3)}
+  .qblock{padding:28px 28px 0;border-bottom:1px solid var(--border)}
+  .qblock:last-child{border-bottom:none;padding-bottom:28px}
+  .qhdr{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+  .qbadge{background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;white-space:nowrap;letter-spacing:.04em;flex-shrink:0;margin-top:1px}
+  .qmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .qtype{font-size:11.5px;font-weight:600;color:var(--ink-3)}
+  .qdiff{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px}
+  .qdiff.easy{background:var(--green-light);color:#14532D}
+  .qdiff.medium{background:var(--accent-light);color:#92400E}
+  .qdiff.hard{background:var(--red-light);color:#7F1D1D}
+  .qmarks{font-size:12px;color:var(--ink-3);margin-left:auto;font-weight:500;flex-shrink:0}
+  .qtext{font-size:15.5px;font-weight:600;color:var(--ink);margin-bottom:18px;line-height:1.6}
+  .opts{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:8px}
+  .opts li{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14.5px;color:var(--ink-2);line-height:1.5}
+  .opts li.correct{border-color:var(--green);background:var(--green-light);color:var(--ink)}
+  .okey{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-3);flex-shrink:0;margin-top:1px;min-width:18px}
+  .opts li.correct .okey{color:var(--green)}
+  .abox{background:var(--green-light);border:1.5px solid #86EFAC;border-radius:var(--radius);padding:18px 20px;margin-bottom:28px}
+  .abox-lbl{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+  .abox p{font-size:14.5px;color:var(--ink-2);line-height:1.7;margin:0}
+  .abox p strong{color:var(--ink)}
+  .abox .mbd{margin-top:12px;padding-top:10px;border-top:1px solid #86EFAC;font-size:13px;color:#14532D}
+  .abox .mbd span{font-weight:700}
+  .score-sum{background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-radius:var(--radius-lg);padding:28px 32px;margin-top:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+  .sl{color:#C4B5F5;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .sr{color:#fff;font-size:15px;font-weight:600;margin-bottom:4px}
+  .sr span{color:#C4B5F5;font-weight:400}
+  .sbadge{background:#fff;border-radius:12px;padding:16px 28px;text-align:center;flex-shrink:0}
+  .sbadge .sn{font-size:44px;font-weight:900;color:var(--brand);line-height:1}
+  .sbadge .st{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .pfooter{text-align:center;margin-top:64px;padding-top:32px;border-top:2px solid var(--border)}
+  .pfooter p{font-size:13px;color:var(--ink-3);margin-bottom:4px}
+  @media(max-width:640px){body{padding:28px 18px 72px}.obj-grid,.ggrind{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="badge">🎓 Module 3 · Sub-Module 3.8 of 9</div>
+<h1>Merkle Trees &amp; <span class="hl">State Management</span></h1>
+<p class="subtitle">The elegant data structure that lets your mobile phone verify a Bitcoin transaction in milliseconds without downloading the entire 500 GB blockchain. Then: how Ethereum stores the world's entire state in a single hash.</p>
+
+<div class="meta-bar">
+  <div class="chip">⏱ 30 Minutes</div>
+  <div class="chip purple">🎯 10 Marks</div>
+  <div class="chip">📋 5 MCQ + 1 Identify-Output Merkle Calculation (5 marks)</div>
+  <div class="chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="sec-label">01 · Learning Objectives</div>
+<h2 class="sec-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card"><div class="obj-icon">🌲</div><div class="obj-text"><strong>Build a Merkle tree from scratch</strong>Given 4 or 8 transactions, compute the correct Merkle Root step by step.</div></div>
+  <div class="obj-card"><div class="obj-icon">🔍</div><div class="obj-text"><strong>Explain Merkle proofs</strong>Show how a single transaction can be verified with only O(log n) hashes - not the entire block.</div></div>
+  <div class="obj-card"><div class="obj-icon">📱</div><div class="obj-text"><strong>Explain SPV / light clients</strong>Describe how mobile wallets verify transactions without downloading the full blockchain.</div></div>
+  <div class="obj-card"><div class="obj-icon">🗄️</div><div class="obj-text"><strong>Explain the Patricia Merkle Trie</strong>Understand how Ethereum and MST store the entire world state - all accounts and balances - in one root hash.</div></div>
+</div>
+
+
+<!-- 02 STORY -->
+<div class="sec-label">02 · Real-World Introduction Story</div>
+<h2 class="sec-title">The PAN Card Verification That Shouldn't Require the Entire CBDT Database</h2>
+
+<div class="callout story">
+  <div class="cl">📖 Story</div>
+  <p>When a bank verifies your PAN card, it doesn't download the entire CBDT (Central Board of Direct Taxes) database of 700 million PAN holders and check your record locally. That would be insane - terabytes of data transferred for every verification. Instead, the bank queries a central API: "Is PAN ABCDE1234F valid?" The API returns yes or no. This works, but it requires trusting the central CBDT server.</p>
+  <br>
+  <p>Now imagine a blockchain version: your PAN is one of 3,500 transactions in Bitcoin Block #847,293. You want to prove to your bank that your transaction is in that block - <strong>without the bank downloading all 3,500 transactions</strong>. How?</p>
+  <br>
+  <p>The answer is the <strong>Merkle tree</strong>. A mathematical structure that lets you prove a specific leaf (your transaction) is part of a tree (the block) using only <strong>log₂(3500) ≈ 12 hashes</strong> instead of all 3,500 transactions. The bank only needs to know the Merkle Root (already in the block header) and your proof path - 12 hashes is a few hundred bytes, not megabytes. No central server. No trust. Just math.</p>
+  <br>
+  <p>This is the Merkle tree - one of the most elegant data structures in computer science, and the reason your Paytm-sized device can be a Bitcoin node.</p>
+</div>
+
+
+<!-- 03 WHAT IS A MERKLE TREE -->
+<div class="sec-label">03 · What Is a Merkle Tree?</div>
+<h2 class="sec-title">Building from the Ground Up</h2>
+
+<p>A Merkle tree (named after Ralph Merkle, who described it in his 1979 PhD thesis) is a <strong>binary tree of hashes</strong>. The leaves are hashes of individual data items (transactions). Each parent node is the hash of its two children. The root - the single top hash - summarises every piece of data in the tree.</p>
+
+<div class="callout analogy">
+  <div class="cl">🔑 The Tournament Bracket Analogy</div>
+  <p>Imagine a cricket tournament. 8 teams play. Round 1: 4 matches. Round 2: 2 matches. Final: 1 match. The champion "represents" the entire tournament. If any match result was faked - the bracket is broken. A Merkle tree works exactly this way: transactions are teams, hashes are match results, and the Merkle Root is the champion. Change any transaction → its hash changes → its parent changes → all the way up to the Root. One wrong Root = entire block rejected.</p>
+</div>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.8-A · Building a Merkle Tree - Step by Step with 4 Transactions</div>
+  <pre>
+  STEP 1: Start with 4 transactions (leaves)
+  ────────────────────────────────────────────────────────────────────
+  TX_A: "Ravi → Priya: 0.5 BTC"     TX_B: "Ali → Zara: 0.2 BTC"
+  TX_C: "Anita → Bank: 1.0 BTC"     TX_D: "MST → Rahul: 0.1 BTC"
+
+  STEP 2: Hash each transaction (leaf hashes)
+  ────────────────────────────────────────────────────────────────────
+  H_A = SHA-256(TX_A) = "a1b2c3d4..."
+  H_B = SHA-256(TX_B) = "e5f6g7h8..."
+  H_C = SHA-256(TX_C) = "i9j0k1l2..."
+  H_D = SHA-256(TX_D) = "m3n4o5p6..."
+
+  STEP 3: Hash pairs of leaf hashes (parent nodes)
+  ────────────────────────────────────────────────────────────────────
+  H_AB = SHA-256(H_A + H_B) = "q7r8s9t0..."  (concatenate then hash)
+  H_CD = SHA-256(H_C + H_D) = "u1v2w3x4..."
+
+  STEP 4: Hash the parent nodes to get the Merkle Root
+  ────────────────────────────────────────────────────────────────────
+  Merkle Root = SHA-256(H_AB + H_CD) = "ROOT_HASH_FINAL"
+
+  TREE STRUCTURE:
+  ────────────────────────────────────────────────────────────────────
+                     [  MERKLE ROOT  ]
+                    /                 \
+              [H_AB]                   [H_CD]
+             /      \                 /      \
+          [H_A]   [H_B]           [H_C]   [H_D]
+            |       |               |       |
+          TX_A    TX_B            TX_C    TX_D
+
+  This Merkle Root is stored in the Block Header.
+  It permanently and cryptographically summarises all 4 transactions.
+  Alter TX_B → H_B changes → H_AB changes → Root changes → Block rejected.
+  </pre>
+  <div class="dbox-caption">Each level of the tree reduces the data by half through hashing. The Merkle Root - stored in the block header - summarises every transaction in that block with a single 32-byte hash.</div>
+</div>
+
+<p>For a block with 3,500 transactions, the Merkle tree has approximately 12 levels (log₂(3500) ≈ 11.8). The Root is computed from 3,500 leaf hashes through 11 rounds of pairwise hashing. The entire computational process takes milliseconds on any modern machine.</p>
+
+
+<!-- 04 ODD NUMBER OF TRANSACTIONS -->
+<div class="sec-label">04 · Handling Odd Numbers of Transactions</div>
+
+<div class="callout key">
+  <div class="cl">🗝️ What If There's an Odd Number of Transactions?</div>
+  <p>Bitcoin's Merkle tree implementation duplicates the last transaction hash if there is an odd number at any level. If a block has 5 transactions (TX_A through TX_E), TX_E is hashed with itself: H_EE = SHA-256(H_E + H_E). This "duplication" rule is specified in the Bitcoin protocol. Ethereum handles odd numbers slightly differently - it also duplicates the last node. The key point: the algorithm always produces a valid binary tree regardless of input count.</p>
+</div>
+
+
+<!-- 05 MERKLE PROOF -->
+<div class="sec-label">05 · Merkle Proof - The Killer Feature</div>
+<h2 class="sec-title">Proving TX_B Is in the Block Without Sharing All Transactions</h2>
+
+<p>This is where the Merkle tree's power becomes apparent. Suppose you want to prove to a light client (a mobile wallet) that TX_B is included in Block #847,293. The block has 3,500 transactions. The light client only has the block header (which includes the Merkle Root). How do you prove TX_B is included without sending all 3,500 transactions?</p>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.8-B · Merkle Proof - Proving TX_B Without Sending Everything</div>
+  <pre>
+  FULL TREE (only the prover has this):
+                     [  MERKLE ROOT  ]
+                    /                 \
+              [H_AB]                   [H_CD]  ← Prover sends this
+             /      \                 /      \
+          [H_A]   [H_B]           [H_C]   [H_D]
+            |       |               |       |
+          TX_A    TX_B            TX_C    TX_D
+                   ↑
+           This is what we're proving is included
+
+  MERKLE PROOF for TX_B consists of just 2 hashes:
+  ─────────────────────────────────────────────────────────────────
+  Proof = [ H_A,   H_CD ]
+           (sibling of TX_B's hash)   (sibling of H_AB)
+
+  VERIFICATION by the light client (who only knows the Merkle Root):
+  ─────────────────────────────────────────────────────────────────
+  Step 1: Compute H_B = SHA-256(TX_B)                    ← light client does this
+  Step 2: Compute H_AB = SHA-256(H_A + H_B)             ← using H_A from proof
+  Step 3: Compute candidate_root = SHA-256(H_AB + H_CD) ← using H_CD from proof
+  Step 4: Check: candidate_root == known Merkle Root?
+
+  If YES → TX_B is provably in the block ✅
+  If NO  → TX_B is NOT in the block (or proof is fraudulent) ❌
+
+  EFFICIENCY:
+  ─────────────────────────────────────────────────────────────────
+  Full verification (naive): All 3,500 transactions = several MB
+  Merkle proof:              Only 12 hashes = ~384 bytes (32 bytes × 12)
+
+  The proof is O(log n) in size — dramatically more efficient.
+  </pre>
+  <div class="dbox-caption">A Merkle proof lets anyone verify a transaction is in a block using only O(log n) hashes. This is what makes lightweight clients (SPV nodes) possible - they can verify transactions without downloading the full blockchain.</div>
+</div>
+
+
+<!-- 06 SPV / LIGHT CLIENTS -->
+<div class="sec-label">06 · SPV / Light Clients - How Mobile Wallets Work</div>
+<h2 class="sec-title">Simplified Payment Verification - Satoshi's Original Design</h2>
+
+<p>Satoshi described SPV (Simplified Payment Verification) in Section 8 of the Bitcoin whitepaper. The idea: a mobile device cannot store the full 500+ GB Bitcoin blockchain - but it can store just the block headers (each only 80 bytes). With the block headers, it has all the Merkle Roots. Using Merkle proofs, it can verify any transaction without downloading any full block.</p>
+
+<div class="flist">
+  <div class="fitem">
+    <div class="fnum">1</div>
+    <div>
+      <div class="ftitle">Download Only Block Headers</div>
+      <div class="fdesc">Bitcoin's full blockchain (including all transactions): ~500 GB and growing. Bitcoin's block headers only: ~60 MB (80 bytes × ~850,000 blocks). An SPV client downloads only headers - a 99.99% data reduction. It connects to full nodes to request specific Merkle proofs when needed.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum">2</div>
+    <div>
+      <div class="ftitle">Verify Transactions via Merkle Proof</div>
+      <div class="fdesc">When you receive a payment, the SPV client asks a full node: "Give me a Merkle proof that TX 0xabc... is in Block #847,293." The full node returns the proof path (12 hashes). The SPV client verifies the proof against the known Merkle Root in the block header. No trust in the full node required - the math is verifiable independently.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum">3</div>
+    <div>
+      <div class="ftitle">Confirm the Block is Part of the Longest Chain</div>
+      <div class="fdesc">The SPV client also verifies that the block containing the transaction has sufficient Proof-of-Work (or PoS attestations) and is part of the main chain. This confirms the transaction hasn't been reversed. On Bitcoin, 6 block headers after the TX provide strong confirmation. On MST, BFT finality means 2 headers is equivalent security.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="cl">💡 SPV Security Trade-off</div>
+  <p>SPV nodes trust that the longest chain they can see is the honest chain - but they don't fully verify all transaction validity rules. A majority-hashrate attacker could theoretically create a valid-looking proof for a fraudulent transaction. This is the trade-off: SPV is 99.99% efficient but slightly less secure than running a full node. For everyday retail payments, SPV security is entirely sufficient. For high-value institutional transactions, running a full archival node is recommended.</p>
+</div>
+
+
+<!-- 07 PATRICIA MERKLE TRIE -->
+<div class="sec-label">07 · Patricia Merkle Trie - How Ethereum Stores the World State</div>
+<h2 class="sec-title">From Transaction Trees to the Global State Machine</h2>
+
+<p>Bitcoin's Merkle tree solves one problem: summarising transactions in a block. Ethereum has a larger challenge: storing the <strong>entire global state</strong> - every account's balance, nonce, code, and storage - in a way that can be cryptographically verified, efficiently updated, and quickly queried.</p>
+
+<p>Ethereum's answer is the <strong>Patricia Merkle Trie (PMT)</strong> - a combination of a Patricia trie (efficient key-value prefix tree) and a Merkle tree (cryptographic hashing). Every piece of state is indexed by a key (account address or storage slot), arranged in a prefix tree structure, and hashed bottom-up to produce a single root hash.</p>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.8-C · Ethereum's Three State Trees - Each Block Contains All Three Roots</div>
+  <pre>
+  ETHEREUM BLOCK HEADER CONTAINS 3 TRIE ROOTS:
+  ──────────────────────────────────────────────────────────────────
+
+  1. TRANSACTIONS ROOT (transactionsRoot)
+     ───────────────────────────────────
+     Merkle Root of all transactions IN this block.
+     Same concept as Bitcoin's Merkle Root.
+     Proves: "Transaction X is in this block."
+
+  2. RECEIPTS ROOT (receiptsRoot)
+     ────────────────────────────
+     Merkle Root of all transaction receipts (outcomes).
+     Each receipt contains: gas used, logs/events emitted, status (success/fail).
+     Proves: "Transaction X succeeded/failed and emitted these events."
+
+  3. STATE ROOT (stateRoot) ← THE MOST IMPORTANT
+     ──────────────────────────────────────────────
+     Root of the Patricia Merkle Trie of the ENTIRE WORLD STATE after this block.
+     World state = every account on Ethereum:
+       - EOA (Externally Owned Account): balance, nonce
+       - Contract account: balance, nonce, codeHash, storageRoot
+
+     Example state trie (simplified):
+     ┌──────────────────────────────────────────────────────────┐
+     │            STATE ROOT HASH                               │
+     │           /              \                               │
+     │    [branch]              [branch]                        │
+     │    /      \              /      \                        │
+     │ [0xRavi]  [0xPriya]   [0xAnita] [0xContract]            │
+     │  bal:5ETH  bal:3ETH    bal:1ETH  bal:100ETH             │
+     │  nonce:12  nonce:7     nonce:2   code:0xabcd...         │
+     │                                  storage: [...]          │
+     └──────────────────────────────────────────────────────────┘
+
+     After every transaction modifies any balance:
+     → Affected leaf nodes update
+     → Their parent hashes update
+     → State Root changes
+     → New State Root recorded in next block header
+
+  KEY PROPERTY: Two different nodes that compute the same STATE ROOT
+  are guaranteed to have identical copies of the complete world state.
+  The State Root is a cryptographic commitment to the entire Ethereum state.
+  </pre>
+  <div class="dbox-caption">Ethereum maintains three separate trie roots per block - each cryptographically summarising a different aspect of the chain's state. The State Root is the most critical: it commits to every account's balance and contract state simultaneously.</div>
+</div>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>Bitcoin Merkle Tree</th>
+      <th>Ethereum Patricia Merkle Trie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>What it stores</td>
+      <td>Transactions within a block</td>
+      <td>Entire account state (balances, contracts, storage)</td>
+    </tr>
+    <tr>
+      <td>Structure</td>
+      <td>Simple binary tree</td>
+      <td>Radix/prefix tree + Merkle hashing (more complex)</td>
+    </tr>
+    <tr>
+      <td>Supports efficient updates?</td>
+      <td class="bad">No - must rebuild for changes</td>
+      <td class="good">Yes - only update changed branches</td>
+    </tr>
+    <tr>
+      <td>Supports efficient lookups?</td>
+      <td class="bad">No - must scan linearly</td>
+      <td class="good">Yes - O(log n) key lookup</td>
+    </tr>
+    <tr>
+      <td>Cryptographic summary</td>
+      <td class="good">Merkle Root (32 bytes)</td>
+      <td class="good">State Root (32 bytes)</td>
+    </tr>
+    <tr>
+      <td>Used in MST?</td>
+      <td>Merkle Root for transaction summary</td>
+      <td class="good">Yes - EVM-compatible state management</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- 08 REAL WORLD APPLICATIONS -->
+<div class="sec-label">08 · Real-World Applications</div>
+<h2 class="sec-title">Where Merkle Trees Appear in Practice</h2>
+
+<div class="flist">
+  <div class="fitem">
+    <div class="fnum" style="background:var(--orange)">₿</div>
+    <div>
+      <div class="ftitle">Bitcoin SPV - Paytm-Sized Wallets on a Feature Phone</div>
+      <div class="fdesc">Every Bitcoin mobile wallet (BlueWallet, Muun, Phoenix) uses SPV under the hood. Your phone doesn't store the 500 GB Bitcoin blockchain - it stores 60 MB of headers and requests Merkle proofs on demand. This is why your Paytm-sized app can verify Bitcoin payments - Satoshi's Merkle tree design made it possible. Without SPV, every Bitcoin user would need a server with 500+ GB of disk space.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum" style="background:var(--blue)">🌐</div>
+    <div>
+      <div class="ftitle">Git - Your Code Version Control Uses Merkle Trees</div>
+      <div class="fdesc">Git (the version control system used by every software project) uses a Merkle DAG (Directed Acyclic Graph) - essentially a Merkle tree - to track file history. Each commit is a hash of the repository state at that moment. If any file changes, the commit hash changes. This makes Git tamper-evident - you can verify that your codebase hasn't been silently modified between commits. GitHub, GitLab, Bitbucket all build on this structure. You use a Merkle tree every time you run <code>git commit</code>.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum" style="background:var(--green)">📜</div>
+    <div>
+      <div class="ftitle">IPFS - Decentralised File Storage</div>
+      <div class="fdesc">IPFS (InterPlanetary File System - used for storing NFT metadata, MST's off-chain data) uses a Merkle DAG to address files. Every file is content-addressed: the file's hash is its address. If the content changes, the address changes - making tampering detectable. When MST stores NFT metadata or game assets on IPFS, the IPFS content hash (CID) is recorded on-chain - creating an immutable on-chain reference to off-chain data verified by its Merkle structure.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum" style="background:var(--brand)">🎮</div>
+    <div>
+      <div class="ftitle">MST - Merkle Proofs for Game State Disputes</div>
+      <div class="fdesc">In MST's gaming applications, the complete game state (all player positions, inventories, scores) is summarised as a Merkle Root at each game epoch. If a player disputes a game outcome - claiming "my score was X not Y" - they submit a Merkle proof showing their score in the game state trie. The smart contract verifies the proof against the published Root. No need to re-simulate the entire game - just verify the relevant leaf using O(log n) hashes. Disputes resolved in milliseconds, not minutes.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 09 ASSESSMENT PREP -->
+<div class="sec-label">09 · Assessment Preparation</div>
+<h2 class="sec-title">Top Facts - Know These Cold</h2>
+
+<div class="flist">
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">01</div><div><div class="ftitle">Merkle Tree = Binary Tree of Hashes</div><div class="fdesc">Leaves = hash(transaction). Parents = hash(left_child + right_child). Root = single hash summarising all leaves. Stored in block header. Change any TX → root changes → block rejected.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">02</div><div><div class="ftitle">Merkle Proof = O(log n) Hashes</div><div class="fdesc">To prove TX_B (one of N transactions) is in a block: provide the sibling hashes along the path from TX_B to the Root. Verifier recomputes up the tree and checks against known Root. For 3,500 TXs: ~12 hashes instead of 3,500.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">03</div><div><div class="ftitle">SPV (Simplified Payment Verification)</div><div class="fdesc">Light clients store only block headers (~80 bytes each = ~60 MB total for all Bitcoin). Request Merkle proofs for specific transactions. Verify proofs against the Merkle Root in the header. No trust in the queried full node - the math is self-verifying.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">04</div><div><div class="ftitle">Patricia Merkle Trie = Ethereum's State Storage</div><div class="fdesc">Three roots per block header: transactionsRoot, receiptsRoot, stateRoot. stateRoot commits to the entire world state - every account's balance and contract storage. EVM-compatible chains (including MST) use this architecture.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">05</div><div><div class="ftitle">Odd-Number Duplication Rule</div><div class="fdesc">If any level of the Merkle tree has an odd number of nodes, the last node is duplicated and hashed with itself. This ensures the tree is always binary at every level. Bitcoin protocol specifies this behaviour explicitly.</div></div></div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="asec">
+  <div class="ahdr">
+    <h2>📝 Sub-Module 3.8 Assessment</h2>
+    <div class="mbadge"><div class="mn">10</div><div class="ml">Total Marks</div></div>
+  </div>
+  <div class="abody">
+
+    <div class="qsec-hdr">
+      <div class="qsec-title">Section A - Multiple Choice Questions</div>
+      <div class="qsec-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q1</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">What is the Merkle Root in a blockchain block?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> The hash of the first transaction in the block</li>
+        <li><span class="okey">B</span> The hash of the block header including PrevHash and Nonce</li>
+        <li class="correct"><span class="okey">C</span> A single cryptographic hash that summarises all transactions in the block through a binary tree of hashes ✅</li>
+        <li><span class="okey">D</span> The address of the miner or validator who produced the block</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>The <strong>Merkle Root</strong> is computed by hashing each transaction, then hashing pairs of hashes, repeatedly, until a single root hash remains. It is stored in the block header. This 32-byte value summarises ALL transactions in the block - altering any single transaction changes the Merkle Root, which is immediately detectable by any node that recomputes it.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q2</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">A block contains 1,024 transactions. How many hashes does a Merkle proof need to verify that one specific transaction is in the block?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> 1,024 hashes (all transactions)</li>
+        <li><span class="okey">B</span> 512 hashes (half the transactions)</li>
+        <li class="correct"><span class="okey">C</span> 10 hashes (log₂(1,024) = 10) ✅</li>
+        <li><span class="okey">D</span> 1 hash (just the Merkle Root)</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>A Merkle proof requires exactly <strong>log₂(N)</strong> hashes where N is the number of transactions. For 1,024 transactions: log₂(1,024) = 10. These 10 hashes are the "sibling" nodes along the path from the target transaction to the Merkle Root. The verifier uses these 10 hashes to recompute the path upward and confirm the computed Root matches the known Root. This O(log n) efficiency is the Merkle tree's central advantage.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q3</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">SPV (Simplified Payment Verification) allows a mobile Bitcoin wallet to verify transactions without downloading the full blockchain. Which data structure makes this possible?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> The UTXO set - a database of all unspent transaction outputs</li>
+        <li class="correct"><span class="okey">B</span> Merkle trees - enabling transaction verification using only block headers and a short proof path ✅</li>
+        <li><span class="okey">C</span> The mempool - a list of unconfirmed transactions on each node</li>
+        <li><span class="okey">D</span> The Patricia Merkle Trie - Ethereum's account state storage</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p><strong>Merkle trees</strong> are the direct enabler of SPV. An SPV client only downloads block headers (~80 bytes each). When it needs to verify a transaction, it requests a Merkle proof from a full node - the sibling hashes along the path from that transaction to the Root. Using the known Merkle Root (already in the header) and the proof path, the SPV client verifies the transaction without any other data. No full blocks, no full node, no trust required.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q4</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">In Ethereum's block header, the "stateRoot" field represents:</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> The hash of the first smart contract deployed on Ethereum</li>
+        <li><span class="okey">B</span> The Merkle Root of all transactions in the current block</li>
+        <li class="correct"><span class="okey">C</span> The root hash of the Patricia Merkle Trie that encodes the entire world state - every account's balance, nonce, code, and storage - after executing all transactions in this block ✅</li>
+        <li><span class="okey">D</span> The hash of the previous block's state, used for chain linking</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>The <strong>stateRoot</strong> is one of three trie roots in an Ethereum block header (along with transactionsRoot and receiptsRoot). It is the root of the full Patricia Merkle Trie of the global world state after all transactions in this block have executed. This 32-byte hash is a cryptographic commitment to every Ethereum account - two nodes with the same stateRoot have guaranteed identical world states. MST uses the same EVM-compatible architecture.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q5</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Which of the following is a key advantage of the Patricia Merkle Trie over Bitcoin's simple Merkle tree for storing account state?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> The Patricia Merkle Trie uses less memory because it stores only recent transactions</li>
+        <li class="correct"><span class="okey">B</span> It supports efficient key-value lookups AND efficient updates - only changed branches need to be recomputed after a state change ✅</li>
+        <li><span class="okey">C</span> It does not use hashing - making it faster than Bitcoin's Merkle tree</li>
+        <li><span class="okey">D</span> It stores all account data in a single flat array for simple indexing</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p>Bitcoin's simple Merkle tree is optimal for a fixed set of transactions (read once, never updated). Ethereum's Patricia Merkle Trie is designed for a <strong>mutable state</strong> that changes with every transaction. Its prefix-tree structure allows: (1) efficient O(log n) lookups by address, (2) efficient updates - when Ravi's balance changes, only the nodes from his leaf to the root need recomputation, not the entire tree. This efficiency is critical - Ethereum's state has millions of accounts, and thousands of them change per block.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: Identify-Output -->
+    <div class="qsec-hdr" style="margin-top:8px">
+      <div class="qsec-title">Section B - Identify-Output: Merkle Tree Computation</div>
+      <div class="qsec-meta">1 Question · 5 marks</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q6</div><div class="qmeta"><span class="qtype">Identify-Output</span><span class="qdiff medium">Medium</span><span class="qmarks">5 marks</span></div></div>
+      <div class="qtext">
+        A block contains exactly 4 transactions. Their SHA-256 hash values (simplified for this exercise) are:<br><br>
+        &nbsp;&nbsp;• H(TX_A) = <code>AA</code><br>
+        &nbsp;&nbsp;• H(TX_B) = <code>BB</code><br>
+        &nbsp;&nbsp;• H(TX_C) = <code>CC</code><br>
+        &nbsp;&nbsp;• H(TX_D) = <code>DD</code><br><br>
+        For hashing pairs, use the notation: <code>H(XY)</code> means <em>hash(X concatenated with Y)</em>.<br><br>
+        (a) Compute H(TX_A, TX_B) - the parent of TX_A and TX_B. <em>(1 mark)</em><br>
+        (b) Compute H(TX_C, TX_D) - the parent of TX_C and TX_D. <em>(1 mark)</em><br>
+        (c) Compute the Merkle Root. <em>(1 mark)</em><br>
+        (d) TX_B's data is altered (its hash is now <code>BB_MODIFIED</code>). Which nodes in the tree must be recomputed? List them in order from leaf to root. <em>(1 mark)</em><br>
+        (e) A verifier has only the Merkle Root and wants to verify TX_C is in the block. What is the minimum set of hashes the prover must provide (the Merkle proof for TX_C)? <em>(1 mark)</em>
+      </div>
+      <div class="abox">
+        <div class="abox-lbl">✅ Model Answer - 5 Marks</div>
+        <p><strong>(a)</strong> H(TX_A, TX_B) = <code>H(AA + BB)</code> = <strong>H_AB</strong> [1 mark]<br>
+        The parent node is computed by concatenating the two children's hashes and hashing the result. Using simplified notation: hash("AA" + "BB") = H_AB.</p>
+        <br>
+        <p><strong>(b)</strong> H(TX_C, TX_D) = <code>H(CC + DD)</code> = <strong>H_CD</strong> [1 mark]<br>
+        Same process: hash("CC" + "DD") = H_CD.</p>
+        <br>
+        <p><strong>(c)</strong> Merkle Root = <code>H(H_AB + H_CD)</code> = <strong>H(H(AA+BB) + H(CC+DD))</strong> [1 mark]<br>
+        The root is computed by hashing the two parent nodes together. In full form: SHA-256(SHA-256("AA"+"BB") concatenated with SHA-256("CC"+"DD")).</p>
+        <br>
+        <p><strong>(d)</strong> Nodes that must be recomputed when TX_B changes to BB_MODIFIED: [1 mark]<br>
+        1. <strong>H(TX_A, TX_B)</strong> - recompute as H(AA + BB_MODIFIED) = H_AB_NEW<br>
+        2. <strong>Merkle Root</strong> - recompute as H(H_AB_NEW + H_CD) = NEW_ROOT<br>
+        Only the path from the changed leaf to the root is affected. H_CD is unchanged (TX_C and TX_D were not modified).</p>
+        <br>
+        <p><strong>(e)</strong> Merkle proof for TX_C - minimum hashes prover must send: [1 mark]<br>
+        The proof path for TX_C requires its sibling at each level:<br>
+        • <strong>H(TX_D)</strong> = <code>DD</code> - sibling of TX_C at leaf level<br>
+        • <strong>H_AB</strong> = <code>H(AA+BB)</code> - sibling of H_CD at parent level<br><br>
+        Verification: Verifier computes H(CC+DD) = H_CD, then H(H_AB + H_CD) = Root. If this equals the known Root → TX_C is verified. Just 2 hashes to verify 1 of 4 transactions.</p>
+        <div class="mbd"><span>1 mark each</span> for parts (a) through (e). For (d), accept answers that list both nodes - order from leaf to root preferred but not strictly required for full marks. For (e), must correctly identify both sibling hashes (DD and H_AB) - a single hash alone earns 0.5 marks.</div>
+      </div>
+    </div>
+
+  </div><!-- end abody -->
+
+  <div class="score-sum">
+    <div>
+      <div class="sl">Sub-Module 3.8 Assessment Summary</div>
+      <div class="sr">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="sr">Section B: 1 × Merkle Tree Computation (5 parts) <span>= 5 marks</span></div>
+    </div>
+    <div class="sbadge"><div class="sn">10</div><div class="st">Total Marks</div></div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="sec-label" style="margin-top:52px">10 · Glossary</div>
+<h2 class="sec-title">Key Terms - Sub-Module 3.8</h2>
+<div class="ggrind">
+  <div class="gitem"><div class="gterm">Merkle Tree</div><div class="gdef">A binary tree of cryptographic hashes where each parent node is the hash of its two children. The root summarises all leaf data. Change any leaf → root changes.</div></div>
+  <div class="gitem"><div class="gterm">Merkle Root</div><div class="gdef">The single top hash of a Merkle tree. Stored in each block header. Cryptographically summarises all transactions in that block in exactly 32 bytes.</div></div>
+  <div class="gitem"><div class="gterm">Merkle Proof</div><div class="gdef">A set of O(log n) sibling hashes that allows verification that a specific leaf is in a Merkle tree - without providing all leaves. Used by SPV light clients.</div></div>
+  <div class="gitem"><div class="gterm">SPV (Simplified Payment Verification)</div><div class="gdef">Satoshi's design for lightweight clients - store only block headers, verify transactions using Merkle proofs. Enables mobile Bitcoin wallets storing 60 MB vs 500 GB for full nodes.</div></div>
+  <div class="gitem"><div class="gterm">Light Client</div><div class="gdef">A blockchain node that downloads only headers (not full blocks) and verifies transactions via Merkle proofs. Lower storage and bandwidth requirements - suitable for mobile devices.</div></div>
+  <div class="gitem"><div class="gterm">Patricia Merkle Trie (PMT)</div><div class="gdef">Ethereum's data structure combining a prefix trie (for efficient key lookups) with Merkle hashing (for cryptographic summarisation). Used for stateRoot, transactionsRoot, receiptsRoot.</div></div>
+  <div class="gitem"><div class="gterm">stateRoot</div><div class="gdef">One of three trie roots in an Ethereum block header. Root hash of the Patricia Merkle Trie encoding the complete world state (all account balances, nonces, contract code, storage) after executing all block transactions.</div></div>
+  <div class="gitem"><div class="gterm">transactionsRoot</div><div class="gdef">Root hash of the Merkle tree of all transactions included in a block. Equivalent to Bitcoin's Merkle Root.</div></div>
+  <div class="gitem"><div class="gterm">receiptsRoot</div><div class="gdef">Root hash of the Merkle tree of all transaction receipts (outcomes, gas used, logs emitted) from a block's transactions.</div></div>
+  <div class="gitem"><div class="gterm">O(log n)</div><div class="gdef">Logarithmic complexity - the size/time required grows with the log of input size. A Merkle proof for 1 of 1,024 transactions requires log₂(1,024) = 10 hashes. For 1,048,576 TXs: only 20 hashes.</div></div>
+</div>
+
+<div class="pfooter">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.8</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.9 - Hands-On: Build a Paper Blockchain →</p>
+</div>
+
+</body>
+</html>

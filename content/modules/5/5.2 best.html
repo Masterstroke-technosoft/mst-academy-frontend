@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 5.2 - Bitcoin & The Genesis | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #F7931A;
+            --brand-light: #FFF2E5;
+            --brand-dark: #B85C00;
+            --brand-mid: #FFB84D;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --blue: #1D6FD8;
+            --blue-light: #DBEAFE;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 28px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #FFD6A5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 10px;
+            margin-top: 52px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.analogy {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .callout.analogy .callout-label {
+            color: #92400E;
+        }
+        .callout.insight {
+            background: #F0FDF4;
+            border-color: var(--green);
+        }
+        .callout.insight .callout-label {
+            color: var(--green);
+        }
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .feature-content {
+            flex: 1;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .timeline {
+            margin: 24px 0;
+        }
+        .tl-item {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+        }
+        .tl-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 52px;
+            flex-shrink: 0;
+        }
+        .tl-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--brand);
+            border: 3px solid var(--brand-light);
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        .tl-line {
+            width: 2px;
+            background: var(--border);
+            flex: 1;
+            min-height: 20px;
+        }
+        .tl-item:last-child .tl-line {
+            display: none;
+        }
+        .tl-right {
+            padding: 0 0 28px 4px;
+        }
+        .tl-year {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 4px;
+        }
+        .tl-body {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.65;
+        }
+        .tl-body strong {
+            color: var(--ink);
+        }
+        details {
+            margin: 16px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        details summary {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--brand-dark);
+            cursor: pointer;
+            background: var(--brand-light);
+            list-style: none;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '▶ ';
+            font-size: 12px;
+        }
+        details[open] summary::before {
+            content: '▼ ';
+        }
+        details .details-content {
+            padding: 0 18px 16px;
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+        .q-section-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .q-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .q-section-meta {
+            font-size: 12px;
+            color: var(--ink-3);
+        }
+        .question-block {
+            padding: 28px 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            padding-bottom: 28px;
+        }
+        .q-header {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .q-badge {
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .q-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .q-type {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--ink-3);
+        }
+        .q-diff {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .q-diff.easy {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .q-diff.medium {
+            background: var(--accent-light);
+            color: #92400E;
+        }
+        .q-diff.hard {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .q-marks {
+            font-size: 12px;
+            color: var(--ink-3);
+            margin-left: auto;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .q-text {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .options li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.5;
+            cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-3);
+            flex-shrink: 0;
+            margin-top: 1px;
+            min-width: 18px;
+        }
+        .options li.correct .opt-key {
+            color: var(--green);
+        }
+        .answer-box {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .answer-box p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .answer-box .marks-bd {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #86EFAC;
+            font-size: 13px;
+            color: #14532D;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .score-label {
+            color: #FFD6A5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .glossary-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .glossary-term {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🪙 Module 5 &nbsp;·&nbsp; Sub-Module 5.2 of 6</div>
+    <h1 class="module-title">Bitcoin & <span class="highlight">The Genesis</span></h1>
+    <p class="module-subtitle">How a nine-page whitepaper, a mysterious creator, and a broken financial system gave birth to digital gold. The complete story of Bitcoin's origin, its revolutionary scarcity, and the mining mechanism that secures it.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks</div>
+        <div class="meta-chip">📋 6 MCQ + 2 True/False with Justification</div>
+        <div class="meta-chip green">Phase 2 · Cryptocurrency & Tokenomics</div>
+    </div>
+
+    <!-- 1. LEARNING OBJECTIVES -->
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+        <div class="feature-item"><div class="feature-num">📖</div><div class="feature-content"><strong>Explain why Bitcoin was created</strong>Connect the 2008 financial crisis to the motivation behind Satoshi Nakamoto's peer-to-peer electronic cash system and the political statement in the Genesis Block.</div></div>
+        <div class="feature-item"><div class="feature-num">⛏️</div><div class="feature-content"><strong>Describe how Bitcoin mining works</strong>Understand Proof-of-Work as a global lottery that creates new bitcoins, secures the network, and adjusts its difficulty automatically.</div></div>
+        <div class="feature-item"><div class="feature-num">📉</div><div class="feature-content"><strong>Master the concept of the Halving</strong>Know the exact schedule and economic logic behind the 4-year block reward reduction that enforces Bitcoin's 21 million hard cap.</div></div>
+        <div class="feature-item"><div class="feature-num">🏦</div><div class="feature-content"><strong>Compare Bitcoin to traditional money</strong>Explain why Bitcoin is called digital gold, how it differs from fiat currency, and why its fixed supply makes it a deflationary asset.</div></div>
+    </div>
+
+    <!-- 2. REAL-WORLD STORY -->
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Day the Banks Broke - And a New Money Was Born</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>September 2008. The global financial system, built on mountains of bad mortgage debt and complex derivatives that nobody fully understood, began to unravel. On September 15, the 158-year-old investment bank Lehman Brothers filed for bankruptcy - the largest in US history. Panic spread through the markets. Banks stopped lending to each other. The credit system that powers the global economy seized up.</p>
+        <br>
+        <p>Governments responded by printing money on an unprecedented scale. The US Federal Reserve, the European Central Bank, and other central banks pumped trillions of dollars, euros, and pounds into the banking system - bailing out the very institutions whose reckless behavior had caused the crisis. The architects of the disaster kept their bonuses. Ordinary people lost their homes, their jobs, and their savings.</p>
+        <br>
+        <p>On October 31, 2008 - just six weeks after the Lehman collapse - a message appeared on an obscure cryptography mailing list. The sender was a name nobody had heard before: <strong>Satoshi Nakamoto</strong>. The message contained a link to a nine-page PDF titled <strong>"Bitcoin: A Peer-to-Peer Electronic Cash System."</strong> The opening sentence was a quiet revolution: <strong>"A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution."</strong></p>
+        <br>
+        <p>Two months later, on January 3, 2009, Satoshi mined the very first block - Block #0, the <strong>Genesis Block</strong> - and launched the Bitcoin network. Embedded in the block's code was a message that could never be altered: <strong>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks."</strong> It was the front-page headline of that day's London Times. It was simultaneously a timestamp proving the block could not have been created earlier, and a political statement - an indictment of the financial system that Bitcoin was designed to replace. Satoshi had not just invented a new technology. He had declared independence from the banks.</p>
+        <br>
+        <p>In the years that followed, Bitcoin grew from a cryptographic curiosity worth fractions of a cent to a global asset worth trillions of dollars. It survived exchange collapses, government bans, intense criticism, and fierce internal debates. It inspired an entire industry of cryptocurrencies, decentralized applications, and blockchain innovation. But at its core, Bitcoin remains exactly what Satoshi designed it to be: <strong>a peer-to-peer electronic cash system with no central authority, a fixed supply, and mathematical security.</strong></p>
+    </div>
+
+    <!-- 3. WHAT IS BITCOIN? -->
+    <div class="section-label">03 &nbsp; Beginner-Friendly Explanation</div>
+    <h2 class="section-title">So What Exactly Is Bitcoin?</h2>
+    <p>Bitcoin is <strong>digital money</strong> that exists only on the internet. But unlike the rupees in your Paytm wallet or the dollars in your bank account - which are digital representations of government-issued fiat currency - Bitcoin has no central issuer. No government, no central bank, no corporation controls it. It runs on a decentralized network of thousands of computers worldwide, all following the same set of rules encoded in the Bitcoin software.</p>
+
+    <div class="callout analogy">
+        <div class="callout-label">🪙 The Digital Gold Analogy</div>
+        <p>Think of Bitcoin as <strong>digital gold</strong>. Gold is valuable because it is scarce - there is only a finite amount in the Earth's crust, and mining new gold requires hard work, expensive equipment, and energy. Nobody can print gold in a basement. Similarly, Bitcoin is scarce - only <strong>21 million bitcoins</strong> will ever exist. New bitcoins are created through <strong>mining</strong>: computers around the world solving cryptographic puzzles to earn rewards. And just like gold mining becomes harder as easily accessible deposits are exhausted, Bitcoin mining automatically adjusts so that new bitcoins are released at a predictable, slowing rate. This is why Bitcoin is often called <strong>"digital gold"</strong> - it combines the scarcity of precious metals with the portability and divisibility of digital information.</p>
+    </div>
+
+    <p>The three most important properties of Bitcoin are <strong>scarcity</strong> (the mathematically enforced 21 million cap), <strong>mining</strong> (the only way new coins are created, through Proof-of-Work), and the <strong>halving</strong> (every four years, the mining reward is cut in half, making new bitcoins progressively rarer).</p>
+
+    <!-- 4. THE WHITEPAPER AND THE GENESIS BLOCK -->
+    <div class="section-label">04 &nbsp; The Birth of Bitcoin</div>
+    <h2 class="section-title">The Whitepaper, the Genesis Block, and Satoshi Nakamoto</h2>
+    <p><strong>The Bitcoin Whitepaper.</strong> Satoshi Nakamoto's nine-page paper "Bitcoin: A Peer-to-Peer Electronic Cash System" is one of the most consequential documents of the 21st century. It proposed a system for electronic transactions without relying on trust - no trusted third party, no central server, no financial institution. Instead, transactions would be verified by a network of nodes through cryptographic proof, recorded in a chain of blocks, and secured by computational work. The whitepaper described the double-spend problem (how to prevent the same digital coin from being spent twice) and proposed a solution: a peer-to-peer network that timestamps transactions by hashing them into an ongoing chain of proof-of-work.</p>
+
+    <p><strong>Satoshi Nakamoto.</strong> Who is Satoshi? We still don't know. The name could represent one person, a group, or even an organization. Satoshi communicated only through email and forum posts, never revealing personal details. On April 23, 2011, Satoshi sent a final email to a fellow developer: <strong>"I've moved on to other things."</strong> Then silence. Satoshi's estimated 1 million bitcoins (mined in the early days) have never moved. The mystery is part of Bitcoin's mythology, but it also serves a purpose: Bitcoin has no leader, no CEO, no figurehead. It is bigger than any one person.</p>
+
+    <p><strong>The Genesis Block - Block #0.</strong> Mined on January 3, 2009 at 18:15:05 UTC, the Genesis Block is special. Unlike every other block, its coinbase transaction (the reward to the miner) is not spendable - a deliberate design choice by Satoshi, perhaps as a tribute. The embedded message "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" is permanently etched into Bitcoin's history. The block reward was 50 BTC - at the time, worth nothing. Today, it's worth millions, though it can never be spent.</p>
+
+    <!-- 5. MINING EXPLAINED -->
+    <div class="section-label">05 &nbsp; Mining - The Engine of Bitcoin</div>
+    <h2 class="section-title">How Bitcoin Mining Works - A Global Lottery</h2>
+    <p>Imagine a global lottery that runs every 10 minutes. Anyone can participate. The prize is brand-new bitcoins, created out of thin air, plus all the transaction fees from people who want to send money. To win, you need to guess a specific number - a number between 0 and an astronomically large value (roughly 2²⁵⁶). You make guesses using a specialized computer that can try trillions of combinations per second. Whoever guesses the correct number first wins the lottery, gets to add a new block of transactions to the blockchain, and receives the reward. This process is called <strong>Proof-of-Work</strong> - miners prove they did the computational work by finding the winning number.</p>
+
+    <p><strong>The Cryptographic Puzzle.</strong> The puzzle is to find a number (called a <strong>nonce</strong>) such that when the block header (containing the previous block's hash, the Merkle root of transactions, a timestamp, and the difficulty target) is hashed with SHA-256, the resulting hash is less than a target number. Because hash functions are unpredictable, the only way to find such a nonce is to try many random values. The lower the target, the harder the puzzle. This target is adjusted every 2,016 blocks (roughly every two weeks) to keep the average time between blocks at exactly 10 minutes.</p>
+
+    <p><strong>Why Proof-of-Work Secures Bitcoin.</strong> To rewrite history - to change a transaction from three blocks ago - an attacker would need to redo all the work from that block onward, plus catch up with the honest miners who have been adding new blocks. The cost of this attack, in electricity and hardware, is astronomically high. For a network as large as Bitcoin's, it is economically irrational. The security comes from the accumulated work, not from any central authority.</p>
+
+    <details>
+        <summary>🔬 Click to expand: The Mathematics of the Difficulty Adjustment</summary>
+        <div class="details-content">
+            <p>The difficulty is adjusted based on the time it took to mine the previous 2,016 blocks. The expected time is 20,160 minutes (10 minutes × 2,016). If the actual time was less, the difficulty increases to slow down block production. If more, it decreases. The formula: <strong>New Difficulty = Old Difficulty × (Actual Time / 20,160 minutes)</strong>. This self-balancing mechanism ensures Bitcoin's monetary policy is predictable - a new block roughly every 10 minutes, regardless of how many miners join or leave.</p>
+        </div>
+    </details>
+
+    <!-- 6. THE 21 MILLION CAP & HALVING -->
+    <div class="section-label">06 &nbsp; The 21 Million Cap & The Halving</div>
+    <h2 class="section-title">Digital Scarcity - Why There Will Only Ever Be 21 Million Bitcoin</h2>
+    <p>Bitcoin's most revolutionary feature is its <strong>mathematically enforced scarcity</strong>. There will never be more than 21 million bitcoins. This is not a promise by a CEO or a policy by a central bank - it is <strong>hard-coded into the Bitcoin protocol</strong>. Changing it would require convincing the majority of the network's thousands of independent nodes to adopt new software, a feat that has never been achieved for any significant protocol change that violated Bitcoin's core monetary policy.</p>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">1</div>
+            <div class="feature-content">
+                <div class="feature-title">The Block Reward - Where New Bitcoins Come From</div>
+                <div class="feature-desc">Every time a miner successfully mines a new block, they earn a <strong>block reward</strong> - freshly minted bitcoins that did not exist before. When Bitcoin launched in 2009, the block reward was <strong>50 BTC per block</strong>. This is the <strong>only</strong> way new bitcoins enter circulation. There is no central mint, no CEO printing coins.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">2</div>
+            <div class="feature-content">
+                <div class="feature-title">The Halving - Every 210,000 Blocks, the Reward Is Cut in Half</div>
+                <div class="feature-desc">Bitcoin's code contains a simple but profound rule: after every <strong>210,000 blocks</strong> (roughly every 4 years), the block reward is cut in half. This event is called the <strong>Halving</strong>.<br>
+                • <strong>2009 - 2012:</strong> 50 BTC per block<br>
+                • <strong>2012 - 2016:</strong> 25 BTC per block<br>
+                • <strong>2016 - 2020:</strong> 12.5 BTC per block<br>
+                • <strong>2020 - 2024:</strong> 6.25 BTC per block<br>
+                • <strong>2024 - 2028:</strong> 3.125 BTC per block<br>
+                … and so on. This continues until the block reward becomes effectively zero around the year 2140, at which point all 21 million bitcoins will have been mined.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">3</div>
+            <div class="feature-content">
+                <div class="feature-title">Why Scarcity Matters - Digital Gold vs. Printed Money</div>
+                <div class="feature-desc">Governments can print unlimited rupees or dollars whenever they choose. This creates inflation - your money buys less over time. ₹100 in 2000 could buy a full restaurant thali; today it buys a single dish. Bitcoin is <strong>deflationary</strong>: the supply is fixed, and the issuance rate decreases over time. If demand increases while supply remains limited, the value rises. This is why Bitcoin is called "digital gold" - it is a <strong>store of value</strong> that cannot be debased by printing more.</div>
+            </div>
+        </div>
+    </div>
+
+    <details>
+        <summary>📊 Click to expand: The Math Behind the 21 Million Cap</summary>
+        <div class="details-content">
+            <p>Why exactly 21 million? It is a consequence of the halving schedule and the number of blocks per halving period. The total sum of all block rewards is a geometric series:</p>
+            <pre style="font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7;">Total BTC = Σ (210,000 × reward per era)
+= 210,000 × 50 + 210,000 × 25 + 210,000 × 12.5 + ...
+= 210,000 × 50 × (1 + 1/2 + 1/4 + 1/8 + ...)
+= 210,000 × 50 × 2
+= 21,000,000 BTC</pre>
+            <p>The infinite geometric series sums to exactly 2, so the total supply converges precisely to 21 million. This is not an approximation - it is a mathematical certainty.</p>
+        </div>
+    </details>
+
+    <!-- 7. BITCOIN VS TRADITIONAL MONEY -->
+    <div class="section-label">07 &nbsp; Comparison</div>
+    <h2 class="section-title">Bitcoin vs. Government Money (Fiat) - Head to Head</h2>
+    <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;">
+        <thead>
+            <tr><th style="padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;border-bottom:2px solid #E5E7EB;color:#6B7280;background:#F9FAFB;">Property</th><th style="padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;border-bottom:2px solid #E5E7EB;color:#DC2626;background:#FFF5F5;">❌ Fiat Currency (Rupee, Dollar)</th><th style="padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-align:left;border-bottom:2px solid #E5E7EB;color:#16A34A;background:#F0FFF4;">✅ Bitcoin</th></tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Who controls it?</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">Central bank (RBI, Fed) - can print at will</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">No one - governed by code and network consensus</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Supply limit</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">Unlimited - can be expanded by policy</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">Fixed - 21 million maximum, enforced by math</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Creation rate</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">Changes based on government decisions</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">Predictable - halving every 4 years, coded in protocol</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Inflation</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">High - purchasing power decreases over time</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">Deflationary - purchasing power grows with demand</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Trust model</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">Must trust government and banks</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">Trust the math - verify everything yourself</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Censorship resistance</td><td style="padding:13px 16px;vertical-align:top;color:#DC2626;">Government can freeze your account</td><td style="padding:13px 16px;vertical-align:top;color:#16A34A;">No one can freeze or seize your Bitcoin</td></tr>
+            <tr><td style="padding:13px 16px;vertical-align:top;font-weight:600;background:#F9FAFB;">Divisibility</td><td style="padding:13px 16px;vertical-align:top;">Divisible to paise (1/100)</td><td style="padding:13px 16px;vertical-align:top;">Divisible to 1 satoshi (1/100,000,000 BTC)</td></tr>
+        </tbody>
+    </table>
+
+    <!-- 8. REAL-WORLD CASE STUDIES -->
+    <div class="section-label">08 &nbsp; Real-World Case Studies</div>
+    <h2 class="section-title">Bitcoin in the Real World - From Venezuela to El Salvador</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num" style="background:var(--blue);">💸</div>
+            <div class="feature-content">
+                <div class="feature-title">Remittances - Sending Money Home Without Western Union</div>
+                <div class="feature-desc">A construction worker in Dubai wants to send ₹50,000 to his family in Bihar. Western Union charges 5-10% in fees and takes 2-3 days. With Bitcoin, he can buy BTC in Dubai, send it to his family's wallet in India in 10-30 minutes, and they can sell it for rupees. The fee? A fraction of a percent. Over a year, this saves enough to feed a family for a month. This is life-changing for millions of migrant workers.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num" style="background:var(--red);">📉</div>
+            <div class="feature-content">
+                <div class="feature-title">Venezuela - When Your National Currency Evaporates</div>
+                <div class="feature-desc">During Venezuela's hyperinflation, the bolivar lost over 1,000,000% of its value. People's life savings were destroyed. Many Venezuelans turned to Bitcoin not as an investment, but as a <strong>survival tool</strong>. They mined Bitcoin using subsidized electricity, bought groceries with it, and preserved what little wealth they had. Bitcoin became the de facto store of value in a country where the national currency had become worthless.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num" style="background:var(--green);">🇸🇻</div>
+            <div class="feature-content">
+                <div class="feature-title">El Salvador - Bitcoin as Legal Tender (2021)</div>
+                <div class="feature-desc">In September 2021, El Salvador became the first country in the world to make Bitcoin <strong>legal tender</strong>. Every business must accept Bitcoin for payments. The government airdropped $30 worth of Bitcoin to every citizen who downloaded the national wallet. The experiment has been controversial, but it demonstrated that a sovereign nation can adopt a decentralized currency as official money - something that was unimaginable a decade ago.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. ASSESSMENT PREP -->
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Satoshi Nakamoto published the Bitcoin whitepaper on October 31, 2008, and mined the Genesis Block on January 3, 2009.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">The Genesis Block contained the message "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks."</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Maximum supply: 21 million BTC, enforced by the halving schedule. Current block reward: 3.125 BTC (after the 2024 halving).</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Mining uses Proof-of-Work: miners compete to find a nonce that produces a valid hash, earning the block reward + fees.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">Difficulty adjusts every 2,016 blocks (~2 weeks) to maintain a 10-minute block time, regardless of total miner power.</div></div></div>
+    </div>
+
+    <!-- 10. ASSESSMENT -->
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 5.2 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+            <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">6 Questions · 1 mark each · 6 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What is the MAXIMUM total supply of Bitcoin that will ever exist?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>100 million</li>
+                    <li class="correct"><span class="opt-key">B</span>21 million ✅</li>
+                    <li><span class="opt-key">C</span>Unlimited - new bitcoins can be created by miners forever</li>
+                    <li><span class="opt-key">D</span>42 million</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B - 21 million</div><p>Bitcoin's code hard-codes the maximum supply at exactly 21 million coins. This is a mathematical guarantee from the halving schedule, not a policy that can be changed.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What is the "Halving" in Bitcoin?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>An event where the total supply of Bitcoin is cut in half</li>
+                    <li class="correct"><span class="opt-key">B</span>An event that occurs every 210,000 blocks (~4 years) where the block reward miners receive is reduced by 50% ✅</li>
+                    <li><span class="opt-key">C</span>A process where old bitcoins are destroyed to reduce the circulating supply</li>
+                    <li><span class="opt-key">D</span>A software update that makes transactions twice as fast</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B - Block reward cut in half every 210,000 blocks</div><p>The Halving reduces the number of new bitcoins created per block. It happens automatically every 210,000 blocks (~4 years). The total supply does not get cut - only the rate of new issuance slows.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What was the block reward when Bitcoin launched in 2009?</div>
+                <ul class="options">
+                    <li class="correct"><span class="opt-key">A</span>50 BTC ✅</li>
+                    <li><span class="opt-key">B</span>100 BTC</li>
+                    <li><span class="opt-key">C</span>25 BTC</li>
+                    <li><span class="opt-key">D</span>10 BTC</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A - 50 BTC</div><p>When Satoshi mined the Genesis Block, miners earned 50 BTC per block. After three halvings (2012, 2016, 2020), the reward has declined to 3.125 BTC (as of 2024).</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What hidden message did Satoshi Nakamoto embed in the Genesis Block?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>"Bitcoin will change the world"</li>
+                    <li class="correct"><span class="opt-key">B</span>"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" ✅</li>
+                    <li><span class="opt-key">C</span>"A purely peer-to-peer electronic cash system"</li>
+                    <li><span class="opt-key">D</span>"In cryptography we trust"</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B - The Times headline</div><p>Satoshi embedded the front-page headline from The Times (London) as a timestamp and a political statement about the banking system Bitcoin was designed to circumvent.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">Why is Bitcoin often called "digital gold"?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>Because it is yellow in color when displayed on charts</li>
+                    <li class="correct"><span class="opt-key">B</span>Because it shares key properties with gold: scarcity (fixed supply), durability, and the need to "mine" it through hard work ✅</li>
+                    <li><span class="opt-key">C</span>Because it is backed by physical gold stored in vaults</li>
+                    <li><span class="opt-key">D</span>Because its creator, Satoshi, was a gold miner</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B - Shares properties with gold</div><p>Bitcoin's fixed supply (21M), mining process (Proof-of-Work), and role as a store of value mirror gold's monetary properties. It cannot be printed at will.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">Approximately what year will the LAST bitcoin be mined, when the block reward becomes zero?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>2032</li>
+                    <li><span class="opt-key">B</span>2100</li>
+                    <li class="correct"><span class="opt-key">C</span>Around 2140 ✅</li>
+                    <li><span class="opt-key">D</span>Never - mining rewards continue forever</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C - Around 2140</div><p>Because the block reward halves every 4 years, it will eventually drop below 1 satoshi and become zero. By that time, all 21 million BTC will have been mined. Miners will then rely solely on transaction fees.</p></div>
+            </div>
+
+            <div class="q-section-header" style="margin-top:8px;"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+                <div class="q-text">"Bitcoin's supply is controlled by the Bitcoin Foundation, which can increase the 21 million cap if needed to prevent deflation."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. Bitcoin has <strong>no central authority</strong> - not the Bitcoin Foundation, not Satoshi, not any government. The 21 million supply cap is hard-coded into the Bitcoin protocol. Changing it would require a <strong>hard fork</strong> - convincing the majority of the network's thousands of independent nodes to adopt new software. This has never happened and is practically impossible because the fixed supply is Bitcoin's core value proposition. Any attempt to inflate the supply would be rejected by the community.</div>
+                </div>
+                <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE and mentions that no central authority controls Bitcoin.<br><strong>+1 mark:</strong> Explains that the 21M cap is hard-coded and changing it requires a hard fork that the community would reject.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+                <div class="q-text">"If fewer miners participate in the Bitcoin network, the block time will become longer than 10 minutes until more miners join."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. Bitcoin has a <strong>difficulty adjustment</strong> mechanism. Every 2,016 blocks (roughly every 2 weeks), the network measures how long it took to mine those blocks. If fewer miners participated, blocks would initially take longer - but then the difficulty <strong>automatically adjusts downward</strong> to make the puzzle easier. This brings the average block time back to ~10 minutes, regardless of how many miners are online. The system self-regulates without any human intervention.</div>
+                </div>
+                <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE and mentions the difficulty adjustment.<br><strong>+1 mark:</strong> Explains that difficulty adjusts every 2,016 blocks to maintain 10-minute block times, so fewer miners do NOT permanently increase block time.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-left">
+                <div class="score-label">Sub-Module 5.2 Assessment Summary</div>
+                <div class="score-row">Section A: 6 × MCQ (1 mark each) = 6 marks</div>
+                <div class="score-row">Section B: 2 × True/False with Justification (2 marks each) = 4 marks</div>
+            </div>
+            <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 5.2</h2>
+    <div class="glossary-grid">
+        <div class="glossary-item"><div class="glossary-term">Satoshi Nakamoto</div><div class="glossary-def">The pseudonymous creator of Bitcoin. Published the whitepaper in 2008, mined the Genesis Block in 2009, and disappeared in 2011. True identity unknown.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Genesis Block</div><div class="glossary-def">Block #0 of the Bitcoin blockchain, mined by Satoshi on January 3, 2009. Contains the embedded Times headline and a 50 BTC reward that cannot be spent.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Proof-of-Work</div><div class="glossary-def">The consensus mechanism where miners solve cryptographic puzzles to add new blocks. Proves they expended computational energy. Used by Bitcoin.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Block Reward</div><div class="glossary-def">New bitcoins created and awarded to the miner who successfully mines a block. Started at 50 BTC, halved every ~4 years.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Halving</div><div class="glossary-def">The event occurring every 210,000 blocks (~4 years) that cuts the block reward in half. Creates Bitcoin's digital scarcity by reducing the rate of new supply.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Difficulty Adjustment</div><div class="glossary-def">Bitcoin's self-regulating mechanism that changes the mining puzzle difficulty every 2,016 blocks to keep the average block time at ~10 minutes.</div></div>
+        <div class="glossary-item"><div class="glossary-term">21 Million Cap</div><div class="glossary-def">The absolute maximum number of bitcoins that will ever exist, hard-coded into Bitcoin's protocol. Reached through the geometric sum of all halving rewards.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Satoshi (unit)</div><div class="glossary-def">The smallest unit of Bitcoin - 1 satoshi = 0.00000001 BTC (one hundred millionth of a bitcoin). Named after Bitcoin's creator.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Digital Gold</div><div class="glossary-def">A term describing Bitcoin's role as a scarce, durable store of value - like physical gold, but digital and easily transferable.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Nonce</div><div class="glossary-def">A number that miners change repeatedly to find a valid block hash. The key variable in the Proof-of-Work puzzle.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 5 · Sub-Module <strong>5.2</strong> of 6 · Next: Sub-Module 5.3 - Wallets & Key Management →</p>
+    </div>
+
+</body>
+</html>

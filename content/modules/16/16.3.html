@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 16.3 - Privacy with ZK-Proofs | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #6C3CE2;
+      --brand-light: #EDE9FB;
+      --brand-dark: #3C1FA0;
+      --brand-mid: #8B5CF6;
+      --accent: #F6A623;
+      --accent-light: #FEF4E0;
+      --green: #16A34A;
+      --green-light: #DCFCE7;
+      --red: #DC2626;
+      --red-light: #FEE2E2;
+      --blue: #1D6FD8;
+      --blue-light: #DBEAFE;
+      --orange: #EA580C;
+      --orange-light: #FFEDD5;
+      --teal: #0D9488;
+      --teal-light: #CCFBF1;
+      --ink: #111827;
+      --ink-2: #374151;
+      --ink-3: #6B7280;
+      --ink-4: #9CA3AF;
+      --border: #E5E7EB;
+      --border-2: #D1D5DB;
+      --surface: #F9FAFB;
+      --surface-2: #F3F4F6;
+      --white: #FFFFFF;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    .code-snippet {
+      background: #1e1e2e; color: #cdd6f4; font-family: var(--mono);
+      border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+      overflow-x: auto; font-size: 13px; line-height: 1.5;
+    }
+    .code-snippet pre { margin: 0; white-space: pre; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="module-badge">🔏 Module 16 &nbsp;·&nbsp; Sub-Module 16.3</div>
+<h1 class="module-title">Privacy with <span class="highlight">Zero-Knowledge Proofs</span></h1>
+<p class="module-subtitle">Proving you know a secret without revealing it - from private payments on Tornado Cash to confidential DeFi on Aztec, and how MST brings ZK privacy to India's digital stack.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 25 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design + 1 Coding Challenge</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity & Privacy</div>
+</div>
+
+<!-- SECTION 1 -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Explain how Zero-Knowledge Proofs work</strong>
+      Describe the core properties - completeness, soundness, zero-knowledge - and differentiate between ZK-SNARKs and ZK-STARKs.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌪️</div>
+    <div class="obj-text">
+      <strong>Deconstruct Tornado Cash's privacy model</strong>
+      Understand how commitments, nullifiers, and Merkle trees enable anonymous transfers without revealing sender-receiver links.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Analyse Aztec's confidential DeFi</strong>
+      Explain how ZK-rollups enable private smart contract execution, and compare with public L1s.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text">
+      <strong>Write a simple ZK circuit for private payments</strong>
+      Implement a Circom circuit that verifies knowledge of a preimage and nullifier for a private transaction, as used in Tornado-like systems.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The RTI Applicant Who Couldn't Be Seen</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, an activist in Maharashtra filed an RTI query about illegal sand mining. Within a week, she received a threatening phone call: "We know who you are. Withdraw the query or face consequences." Her name was on the public RTI portal. She had done nothing wrong - but the simple act of asking a question had exposed her identity, putting her at risk.</p>
+  <br>
+  <p>Now imagine a different world. The same activist submits her RTI query through a <strong>zero-knowledge portal</strong>. She proves to the government server that she is an Indian citizen with a valid Aadhaar - without revealing her name, her Aadhaar number, or even her pincode. The server only learns that the query is from a valid citizen. The activist remains anonymous, yet the query is legitimate. The government cannot trace it back to her, and the sand mafia cannot find her.</p>
+  <br>
+  <p>This is the power of Zero-Knowledge Proofs - the ability to prove a statement is true without revealing any information beyond the truth of the statement itself. For blockchain, this means transactions where you can prove you have enough balance to pay, without showing your balance; private voting where your vote is counted but not linked to your identity; and confidential DeFi where your trades are invisible to front-runners.</p>
+</div>
+
+<p>Zero-Knowledge cryptography is not a distant concept. It powers <strong>Tornado Cash</strong>, which has processed over $10 billion in private Ethereum transactions; <strong>Aztec</strong>, a ZK-rollup enabling confidential smart contracts; and <strong>MST's privacy layer</strong>, which uses ZK-proofs to shield user data in identity verification, AI agent delegation, and WASMify data feeds.</p>
+
+<!-- SECTION 3 -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Cave Analogies to zk-SNARKs</h2>
+
+<p>Zero-Knowledge Proofs were first conceived in 1985 by Shafi Goldwasser, Silvio Micali, and Charles Rackoff. The classic "Ali Baba cave" analogy (by Jean-Jacques Quisquater) is still the best way to understand the idea:</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🕳️ The Cave Analogy</div>
+  <p>Imagine a ring-shaped cave with a secret door at the far end. Peggy claims she knows the magic word that opens the door. Victor, standing at the entrance, doesn't want to learn the word - he just wants to be convinced Peggy knows it. Peggy enters the cave through one entrance (A or B) while Victor waits outside. Victor then shouts from outside which entrance (A or B) Peggy must exit from. If Peggy knows the magic word, she can open the door and exit from whichever side Victor demands. If she doesn't, she can only exit from the side she entered. After 20 successful rounds, Victor is statistically convinced Peggy knows the word - yet he learned nothing about the word itself.</p>
+</div>
+
+<div class="timeline">
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-year">1985</div><div class="tl-body"><strong>GMR Paper.</strong> Goldwasser, Micali, and Rackoff publish "The Knowledge Complexity of Interactive Proof-Systems," defining ZK proofs formally.</div></div></div>
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-year">2012</div><div class="tl-body"><strong>zk-SNARKs emerge.</strong> Ben-Sasson, Chiesa, et al. introduce Succinct Non-Interactive ARguments of Knowledge (SNARKs) - ZK proofs that are small and fast to verify.</div></div></div>
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-year">2016</div><div class="tl-body"><strong>Zcash launches.</strong> The first major blockchain to use zk-SNARKs for shielded transactions, proving amounts and addresses are valid without revealing them.</div></div></div>
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-year">2019</div><div class="tl-body"><strong>Tornado Cash.</strong> A fully decentralised, non-custodial privacy solution on Ethereum using zk-SNARKs and Merkle trees to break on-chain linkability.</div></div></div>
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-right"><div class="tl-year">2022</div><div class="tl-body"><strong>Aztec Network.</strong> A ZK-rollup with privacy-first smart contracts, enabling confidential DeFi - trades invisible to MEV bots.</div></div></div>
+  <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-right"><div class="tl-year">2025</div><div class="tl-body"><strong>MST Privacy Layer.</strong> MST integrates ZK-proofs natively for SARAL identity verification, private AI agent delegation, and confidential WASMify computations.</div></div></div>
+</div>
+
+<style>
+  .timeline { margin: 24px 0; }
+  .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+  .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+  .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+  .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-right { padding: 0 0 28px 4px; }
+  .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+  .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+  .tl-body strong { color: var(--ink); }
+</style>
+
+<!-- SECTION 4 -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Three Magic Properties of ZK Proofs</h2>
+
+<p>Every zero-knowledge proof must satisfy three properties. Let's use a simple Indian example - proving your age for a driving licence - to understand them.</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">COMPLETE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">If the statement is true, an honest prover can convince the verifier.</div>
+      <div class="w5-a">If you are really 18, and you generate a valid ZK proof of age from your Aadhaar-linked VC, the verifier will always accept it. The proof generation is deterministic given the correct inputs.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">SOUND</div></div>
+    <div class="w5-content">
+      <div class="w5-q">If the statement is false, no cheating prover can convince the verifier.</div>
+      <div class="w5-a">If you are 16 and try to fake a proof, the cryptographic construction makes it computationally impossible to forge a valid proof. The verifier will reject it with overwhelming probability.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">Z</div><div class="w5-word">ZERO-KNOWLEDGE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">The verifier learns nothing beyond the truth of the statement.</div>
+      <div class="w5-a">The proof only reveals that you are ≥ 18. It does not reveal your exact birthdate, your Aadhaar number, or even which year you were born. This is the property that makes ZK proofs a privacy superpower.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ ZK-SNARK vs ZK-STARK</div>
+  <p><strong>SNARKs</strong> (Succinct Non-interactive ARguments of Knowledge) require a <strong>trusted setup</strong> - a one-time ceremony where a "toxic waste" is generated and then destroyed. If the ceremony is compromised, fake proofs can be created. SNARKs are extremely fast to verify and small in size (e.g., Groth16). <strong>STARKs</strong> (Scalable Transparent ARguments of Knowledge) remove the trusted setup, are post-quantum secure, but produce larger proofs. MST's privacy layer uses a hybrid: Groth16 SNARKs for speed, with a transparent fallback for long-term security.</p>
+</div>
+
+<!-- SECTION 5: TORNADO CASH DEEP DIVE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Anatomy of a Private Transaction - Tornado Cash</h2>
+
+<p>Tornado Cash is the most widely understood on-chain privacy protocol. It uses <strong>Merkle trees</strong>, <strong>commitments</strong>, and <strong>zk-SNARKs</strong> to break the on-chain link between sender and receiver. Let's walk through the exact flow.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.1 Deposit: Creating a Commitment</h3>
+<p>When you want to deposit 1 ETH privately, you generate two random numbers: a <strong>secret</strong> (call it <em>s</em>) and a <strong>nullifier</strong> (call it <em>n</em>). You then compute a commitment:</p>
+<div class="code-snippet"><pre>commitment = PoseidonHash(nullifier, secret)</pre></div>
+<p>You send 1 ETH to the Tornado Cash contract along with the commitment. The contract inserts the commitment into a Merkle tree. The key insight: <strong>the on-chain record shows only that some commitment was deposited. It doesn't reveal who deposited it, how much, or the secret/nullifier.</strong> In fact, the depositor can be any address; the funds are mixed.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.2 Withdrawal: Proving Ownership Without Revealing Which Deposit</h3>
+<p>To withdraw, you must prove that you know the <em>nullifier</em> and <em>secret</em> for <em>some</em> deposit in the Merkle tree - without revealing <strong>which</strong> deposit. This is done via a ZK-SNARK proof. The circuit takes as private input: the nullifier, secret, and the Merkle path to the commitment. It outputs the nullifier hash (to prevent double-spending) and the recipient address. The contract verifies the proof and releases the funds to the recipient.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.3-A · Tornado Cash Deposit & Withdrawal Flow</div>
+  <pre>
+  DEPOSIT                                        WITHDRAW (after some time)
+
+  User generates (nullifier, secret)             User generates ZK proof:
+  Commitment = H(nullifier, secret)                - Private inputs: nullifier, secret,
+  Sends ETH + commitment to contract               Merkle path to commitment
+  Contract adds commitment to Merkle tree          - Public output: nullifierHash,
+                                                    recipient address
+                                                 Contract verifies proof:
+                                                   - Commitment exists in Merkle root
+                                                   - nullifierHash not previously seen
+                                                   → transfer ETH to recipient
+  </pre>
+  <div class="diagram-caption">The Merkle tree breaks the link. The proof shows the deposit exists without specifying which leaf, and the nullifier hash prevents double withdrawal.</div>
+</div>
+
+<p><strong>Why is this private?</strong> An external observer sees Deposit<sub>1</sub>, Deposit<sub>2</sub>, ... Deposit<sub>N</sub> and Withdrawal<sub>A</sub>, Withdrawal<sub>B</sub>, ... Withdrawal<sub>M</sub>. They cannot determine which deposit corresponds to which withdrawal because the proof does not reveal the leaf index. The anonymity set size is the number of deposits. The larger the anonymity set, the stronger the privacy.</p>
+
+<h3 style="font-size:18px; margin-top:28px;">5.3 The ZK Circuit in Circom (Simplified)</h3>
+<p>Below is a simplified version of the Tornado Cash circuit, written in Circom (a domain-specific language for ZK circuits).</p>
+<div class="code-snippet"><pre>pragma circom 2.0.0;
+
+include "merkleTree.circom";
+
+template Withdraw(levels) {
+    signal input nullifier;
+    signal input secret;
+    signal input pathElements[levels];
+    signal input pathIndices[levels];
+
+    signal output nullifierHash;
+    signal output root;
+
+    // Compute commitment
+    component hasher = Poseidon(2);
+    hasher.inputs[0] <== nullifier;
+    hasher.inputs[1] <== secret;
+    signal commitment;
+    commitment <== hasher.out;
+
+    // Verify Merkle proof
+    component merkle = MerkleProof(levels);
+    merkle.leaf <== commitment;
+    for (var i = 0; i < levels; i++) {
+        merkle.pathElements[i] <== pathElements[i];
+        merkle.pathIndices[i] <== pathIndices[i];
+    }
+    root <== merkle.root;
+
+    // Compute nullifier hash
+    component nullifierHasher = Poseidon(1);
+    nullifierHasher.inputs[0] <== nullifier;
+    nullifierHash <== nullifierHasher.out;
+}
+
+component main {public [root, nullifierHash]} = Withdraw(20);</pre></div>
+<p>The public signals are <code>root</code> (the Merkle root) and <code>nullifierHash</code>. The verifier contract checks that root matches the current Merkle root, and that nullifierHash has not been used before. The private inputs (nullifier, secret, path) remain hidden from the verifier.</p>
+
+<!-- SECTION 6: AZTEC & CONFIDENTIAL DEFI -->
+<div class="section-label">06 &nbsp; Aztec & Confidential DeFi</div>
+<h2 class="section-title">Private Smart Contracts on a ZK-Rollup</h2>
+
+<p>While Tornado Cash provides transactional privacy, <strong>Aztec Network</strong> goes further: it enables <strong>entire smart contracts to execute privately</strong>. On Aztec, the state of a contract (e.g., your lending position) is encrypted, and the execution of functions is done via ZK proofs. The sequencer sees only encrypted data and proofs; it cannot learn the amounts, the identities, or the logic. This prevents MEV (Miner Extractable Value) front-running, which plagues public DeFi.</p>
+
+<p><strong>How Aztec works:</strong> Each user has a set of <strong>notes</strong> (encrypted UTXOs) that represent their assets. When Alice sends 100 DAI to Bob, she nullifies one of her notes (by revealing its nullifier) and creates a new note for Bob. The transaction includes a ZK proof that the sum of inputs equals the sum of outputs, and that the nullified note existed. The contract's state is a UTXO tree, updated entirely off-chain by the rollup, with only a proof posted on-chain.</p>
+
+<div class="compare-table">
+  <thead><tr><th>Property</th><th>Public L1 (Ethereum)</th><th>Aztec (ZK-Rollup)</th></tr></thead>
+  <tbody>
+    <tr><td>Transaction visibility</td><td class="bad">Fully visible (addresses, amounts)</td><td class="good">Encrypted; only ZK proof visible</td></tr>
+    <tr><td>MEV resistance</td><td class="bad">Front-running possible</td><td class="good">Encrypted mempool prevents front-running</td></tr>
+    <tr><td>Scalability</td><td class="mid">~15 TPS</td><td class="good">~1000+ TPS (rollup)</td></tr>
+    <tr><td>Composability</td><td class="good">Synchronous</td><td class="mid">Asynchronous (cross-contract calls via notes)</td></tr>
+    <tr><td>Privacy</td><td class="bad">None</td><td class="good">Full payload encryption + ZK proofs</td></tr>
+  </tbody>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 MST's Privacy Approach</div>
+  <p>MST leverages ZK proofs in three layers: (1) <strong>SARAL Identity:</strong> prove age, citizenship, or credential validity without revealing raw data. (2) <strong>WASMify ZK Bridge:</strong> off-chain computations verified on-chain with ZK proofs, preserving data confidentiality. (3) <strong>Private Token Transfers:</strong> an optional shielded pool (similar to Tornado Cash) natively integrated into the MST protocol, using Groth16 SNARKs. Developers can deploy private ERC-20 tokens on MST by inheriting from a shielded token standard.</p>
+</div>
+
+<!-- SECTION 7: CASE STUDIES -->
+<div class="section-label">07 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">ZK Proofs in Indian & Global Context</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">Aadhaar-Based ZK Age Verification</div>
+      <div class="feature-desc">A fintech app wants to verify a user is ≥ 18 for a loan product, without accessing the full Aadhaar XML. The user generates a ZK proof from their Aadhaar XML that proves the birthdate meets the threshold, and shares only the proof. The fintech verifies the proof against UIDAI's public key. MST's SARAL wallet can produce such proofs directly from DigiLocker-issued VCs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏛️</div>
+    <div class="feature-content">
+      <div class="feature-title">Private DAO Voting</div>
+      <div class="feature-desc">A DAO on MST wants members to vote on a sensitive proposal without exposing individual votes. Using a ZK voting circuit, each member proves they hold a governance token and their vote choice, without revealing which token or the choice. The tally is public, but individual votes are private - preventing voter intimidation and vote buying.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🚛</div>
+    <div class="feature-content">
+      <div class="feature-title">Confidential Supply Chain with WASMify</div>
+      <div class="feature-desc">A pharmaceutical company ships vaccines across India, recording temperature logs on MST via WASMify. The logs are sensitive - competitors shouldn't know volumes. The company submits ZK proofs that all temperature readings were within range, without revealing the raw data. Regulators verify the proofs; the company keeps its logistics private.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 8: ASSESSMENT PREP -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">ZK Proof Properties:</div><div class="feature-desc">Completeness (true → accepted), Soundness (false → rejected), Zero-Knowledge (verifier learns nothing else).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">zk-SNARK vs zk-STARK:</div><div class="feature-desc">SNARKs require trusted setup, are fast, small proofs. STARKs are transparent (no trusted setup), post-quantum secure, larger proofs.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Tornado Cash core components:</div><div class="feature-desc">Commitment = H(nullifier, secret); Merkle tree for anonymity set; ZK proof of membership and knowledge of preimage; nullifier hash to prevent double-spend.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Aztec's privacy model:</div><div class="feature-desc">Encrypted UTXO notes, ZK proofs for state transitions, encrypted mempool. Contract state is private; only proofs and nullifiers are on-chain.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">MST Privacy Stack:</div><div class="feature-desc">SARAL ZK-identity proofs, WASMify ZK computation verification, shielded token pools with Groth16 SNARKs.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 16.3 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">25</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+    <!-- A: MCQ 8x1 -->
+    <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">8 Questions · 1 mark each · 8 marks total</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which property ensures a ZK proof cannot be forged by a dishonest prover?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>Completeness</li>
+        <li class="correct"><span class="opt-key">B</span>Soundness ✅</li>
+        <li><span class="opt-key">C</span>Zero-Knowledge</li>
+        <li><span class="opt-key">D</span>Succinctness</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Soundness guarantees that a false statement cannot be proven. Completeness ensures true statements can be proven. Zero-knowledge ensures privacy.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In Tornado Cash, what prevents the same deposit from being withdrawn twice?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The Merkle tree root is changed after withdrawal</li>
+        <li class="correct"><span class="opt-key">B</span>The nullifier hash is recorded and checked on-chain ✅</li>
+        <li><span class="opt-key">C</span>The secret is published after withdrawal</li>
+        <li><span class="opt-key">D</span>The recipient address is burned</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Each withdrawal reveals a nullifierHash. The contract stores used hashes and rejects any withdrawal with a previously seen hash.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary difference between zk-SNARKs and zk-STARKs?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>STARKs are slower to verify</li>
+        <li class="correct"><span class="opt-key">B</span>SNARKs require a trusted setup; STARKs are transparent ✅</li>
+        <li><span class="opt-key">C</span>STARKs cannot be used on Ethereum</li>
+        <li><span class="opt-key">D</span>SNARKs are post-quantum secure</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The trusted setup in SNARKs is a potential security risk. STARKs eliminate it, but produce larger proofs. SNARKs are not post-quantum; STARKs are.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In Aztec Network, what is a 'note'?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>A public transaction record visible to everyone</li>
+        <li class="correct"><span class="opt-key">B</span>An encrypted UTXO representing a user's asset ✅</li>
+        <li><span class="opt-key">C</span>A signature from the sequencer</li>
+        <li><span class="opt-key">D</span>A ZK proof of the rollup state</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Notes are encrypted data blobs that represent value. They are nullified (destroyed) and created in each transaction, preserving privacy.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does Tornado Cash break the on-chain link between deposit and withdrawal?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>By using multiple smart contracts</li>
+        <li class="correct"><span class="opt-key">B</span>By proving membership in a Merkle tree without revealing the leaf index ✅</li>
+        <li><span class="opt-key">C</span>By encrypting the transaction hash</li>
+        <li><span class="opt-key">D</span>By requiring a centralised mixer</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The ZK proof demonstrates that a leaf exists in the Merkle tree without specifying which leaf. This provides the anonymity set.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the Circom circuit for Tornado Cash, which signal is marked as <code>public</code> to allow the verifier to check the Merkle root?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span><code>nullifier</code></li>
+        <li><span class="opt-key">B</span><code>secret</code></li>
+        <li class="correct"><span class="opt-key">C</span><code>root</code> ✅</li>
+        <li><span class="opt-key">D</span><code>commitment</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C</div><p>The <code>root</code> is the public output that the contract matches against the stored Merkle root. <code>nullifier</code> and <code>secret</code> are private inputs.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why does Aztec's encrypted mempool prevent MEV front-running?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>Transaction details are encrypted until after execution, so bots cannot see profitable trades to front-run ✅</li>
+        <li><span class="opt-key">B</span>Transactions are processed in random order</li>
+        <li><span class="opt-key">C</span>The sequencer charges a fee to prevent bots</li>
+        <li><span class="opt-key">D</span>Aztec uses a private blockchain</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The mempool is encrypted; the sequencer cannot see transaction details to reorder them for profit. Front-running relies on seeing pending trades, which Aztec hides.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">MST's privacy layer uses Groth16 SNARKs for shielded token transfers. Which property makes Groth16 especially suited for on-chain verification?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>Extremely fast verification time and small proof size ✅</li>
+        <li><span class="opt-key">B</span>No trusted setup required</li>
+        <li><span class="opt-key">C</span>Post-quantum security</li>
+        <li><span class="opt-key">D</span>It supports recursive proofs</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>Groth16 proofs are small (~200 bytes) and verify in ~1ms, making them ideal for on-chain use. They do require a trusted setup, which MST conducts via a multi-party ceremony.</p></div>
+    </div>
+
+    <!-- B: T/F with justification -->
+    <div class="q-section-header"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question · 2 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"A zero-knowledge proof reveals absolutely no information to the verifier, not even the fact that the statement is true."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample"><strong>FALSE.</strong> A zero-knowledge proof reveals that the statement is true, but nothing else. The verifier learns exactly one bit of information: "the statement is true". The zero-knowledge property means the verifier cannot extract any additional information - such as the witness or the inputs used to construct the proof. If the verifier already knew the statement was true, they learn nothing new. This is a crucial nuance: ZK proofs are not "zero information", they are "zero additional knowledge beyond the truth of the statement".</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that the truth of the statement is revealed, but no other information (witness, inputs) is leaked.</p></div>
+    </div>
+
+    <!-- C: Descriptive Design -->
+    <div class="q-section-header"><div class="q-section-title">Section C - Descriptive Design Question</div><div class="q-section-meta">1 Question · 5 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">Design a privacy-preserving payroll system for an Indian company using MST's shielded token pools and ZK proofs. The company pays 100 employees monthly. Requirements:<br>
+        (a) Employees receive their salary in MST tokens, but their salaries must remain hidden from other employees and the public. (2 marks)<br>
+        (b) The total salary paid must be provably equal to the sum of individual salaries (to prevent embezzlement), without revealing individual amounts. (2 marks)<br>
+        (c) An auditor must be able to verify that each employee's salary exceeds the minimum wage, without learning exact amounts. (1 mark)</div>
+      <div class="answer-box">
+        <div class="answer-box-label">📝 Model Answer Outline</div>
+        <p><strong>(a)</strong> The company deploys a shielded ERC-20 token (e.g., MSTShieldedToken) using MST's shielded pool contract, inheriting from a Tornado-like mixer with built-in ZK circuits. Each month, the company deposits total payroll into the shielded pool as a single commitment. Employees withdraw using their own (nullifier, secret) pairs. The on-chain record shows one large deposit and many withdrawals, but linkability is broken by the Merkle tree anonymity set. Salary amounts are never stored in plaintext on-chain. (2 marks)</p>
+        <p><strong>(b)</strong> The company generates a ZK proof that the sum of all withdrawal amounts equals the total deposit. The proof takes as private input the list of individual salary amounts (one per employee) and outputs a public signal that the sum matches the deposit amount. The auditor verifies this proof without seeing individual salaries. This is analogous to a "range proof" combined with a sum check. (2 marks)</p>
+        <p><strong>(c)</strong> For minimum wage compliance, the company generates an additional ZK proof per employee: a range proof that the employee's salary is ≥ ₹18,000 (minimum wage). The proof reveals only a binary outcome per employee: "salary ≥ minimum wage". The auditor can verify all 100 proofs and be assured of compliance, without learning actual salaries. This uses a ZK inequality circuit (e.g., <code>LessThan</code> in Circom). (1 mark)</p>
+        <div class="marks-bd"><span>Total 5 marks.</span></div>
+      </div>
+    </div>
+
+    <!-- D: Coding Challenge -->
+    <div class="q-section-header"><div class="q-section-title">Section D - Coding Challenge</div><div class="q-section-meta">1 Question · 10 marks</div></div>
+    <div class="question-block" style="padding-bottom:28px;">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">Code Completion (Circom)</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div></div>
+      <div class="q-text">
+        Complete the following Circom circuit for a simple private payment. The circuit must:
+        <br> -  Accept private inputs: <code>senderSecret</code>, <code>senderNullifier</code>, <code>amount</code>, and the Merkle path to the sender's commitment.
+        <br> -  Public input: <code>root</code> (Merkle root of all commitments).
+        <br> -  Compute the sender's commitment as <code>Poseidon(senderNullifier, senderSecret)</code>.
+        <br> -  Verify the Merkle proof of the commitment against the provided root.
+        <br> -  Output <code>nullifierHash</code> = Poseidon(senderNullifier) and <code>amount</code> as public signals.
+        <br><br>
+        Fill in the missing parts (marked with <code>// TODO</code>). You may assume the existence of a <code>MerkleProof(levels)</code> template and a <code>Poseidon</code> hash function.
+      </div>
+      <div class="code-snippet"><pre>pragma circom 2.0.0;
+include "merkle.circom";
+
+template PrivatePayment(levels) {
+    // Private inputs
+    signal input senderNullifier;
+    signal input senderSecret;
+    signal input amount;
+    signal input pathElements[levels];
+    signal input pathIndices[levels];
+    
+    // Public inputs
+    signal input root;
+    
+    // Public outputs
+    signal output nullifierHash;
+    signal output publicAmount;
+
+    // TODO: Compute commitment = Poseidon(senderNullifier, senderSecret)
+    // Write the two lines below:
+    // component commitmentHasher = ...
+    // commitmentHasher.inputs[0] <== ...
+    // commitmentHasher.inputs[1] <== ...
+    // signal commitment <== commitmentHasher.out;
+
+    // TODO: Verify Merkle proof
+    // Instantiate MerkleProof component and connect leaf, path, and root.
+    // component merkle = ...
+    // merkle.leaf <== ...
+    // for (var i = 0; i < levels; i++) { ... }
+
+    // TODO: Compute nullifierHash = Poseidon(senderNullifier)
+    // component nullHasher = ...
+    // nullHasher.inputs[0] <== ...
+    // nullifierHash <== nullHasher.out;
+
+    // TODO: Expose amount as public output
+    // publicAmount <== amount;
+}
+
+component main {public [root, nullifierHash, publicAmount]} = PrivatePayment(20);</pre></div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Rubric (10 marks)</div>
+        <p><strong>Commitment hashing (3 marks):</strong> Correctly creates Poseidon component with two inputs, assigns signals, and computes commitment.<br>
+        <strong>Merkle proof verification (4 marks):</strong> Instantiates MerkleProof, assigns leaf to commitment, assigns path arrays correctly, and checks that the resulting root equals the public root (implicitly, since root is input; the circuit will fail if the proof is invalid).<br>
+        <strong>Nullifier hash (2 marks):</strong> Correctly hashes senderNullifier and outputs.<br>
+        <strong>Amount exposure (1 mark):</strong> Assigns amount to publicAmount.<br>
+        All signals must be correctly assigned; no syntax errors. The circuit must compile under Circom 2.0.</p>
+        <div class="marks-bd"><span>Total 10 marks.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 16.3 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × Descriptive Design <span>(5 marks) = 5 marks</span></div>
+      <div class="score-row">Section D: 1 × Code Completion <span>(10 marks) = 10 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">25</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Zero-Knowledge Proof</div><div class="glossary-def">A cryptographic method to prove knowledge of a secret without revealing the secret itself.</div></div>
+  <div class="glossary-item"><div class="glossary-term">zk-SNARK</div><div class="glossary-def">Succinct Non-interactive ARgument of Knowledge - fast, small proofs requiring a trusted setup.</div></div>
+  <div class="glossary-item"><div class="glossary-term">zk-STARK</div><div class="glossary-def">Scalable Transparent ARgument of Knowledge - transparent, post-quantum secure, larger proofs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Commitment</div><div class="glossary-def">A cryptographic hash of secret data, stored publicly, that hides the preimage.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Nullifier</div><div class="glossary-def">A random number used to prevent double-spending; its hash is revealed during withdrawal.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Merkle Tree</div><div class="glossary-def">A binary tree of hashes enabling efficient membership proofs without revealing the data set.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Aztec Network</div><div class="glossary-def">A ZK-rollup enabling private smart contracts with encrypted state and UTXO notes.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Groth16</div><div class="glossary-def">A popular zk-SNARK proving system with very fast verification, used by Tornado Cash and MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Circom</div><div class="glossary-def">A domain-specific language for writing arithmetic circuits that can be compiled into ZK proofs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Shielded Pool</div><div class="glossary-def">A smart contract that holds mixed funds, where withdrawals are proven via ZK proofs to preserve privacy.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.3</strong> &nbsp;·&nbsp; Next: Sub-Module 16.4 - Confidential Smart Contracts →</p>
+</div>
+</body>
+</html>

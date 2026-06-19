@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sub-Module 7.3 - Trika POSA in Action | Masterstroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row {
+      display: grid; grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { margin: 24px 0; }
+    .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+    .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+    .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+    .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-right { padding: 0 0 28px 4px; }
+    .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+    .tl-body strong { color: var(--ink); }
+
+    /* ─── FEATURE PILLS ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── STAT CARDS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    /* ─── HIGHLIGHT STRIP ─── */
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .stat-row       { grid-template-columns: 1fr 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚙️ Module 7 &nbsp;·&nbsp; Sub-Module 7.3 of 8</div>
+<h1 class="module-title"><span class="highlight">Trika POSA</span> in Action</h1>
+<p class="module-subtitle">How MST's Proof of Stake Authority consensus engine elects validators, secures the network, and delivers 3-second finality - the beating heart of the hybrid Layer-1.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 7 MCQ + 1 Activity + 1 T/F</div>
+  <div class="meta-chip green">Phase 2 · MST Architecture & Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Explain the Trika POSA consensus mechanism</strong>
+      Describe how Proof of Stake Authority combines staking and reputation to elect a high-performance validator set.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗳️</div>
+    <div class="obj-text">
+      <strong>Trace the validator election process</strong>
+      Map the lifecycle from staking MSTC to active block production, including the role of authority nodes and slashing.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Understand finality and performance</strong>
+      Compare Trika POSA's 3-second finality and 4000+ TPS with PoW, PoS, and other consensus models.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Evaluate security guarantees</strong>
+      Analyse slashing conditions, stake-weighted voting, and Sybil resistance in the Trika POSA design.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Tale of Two Validators - Why Consensus Design Decides Everything</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a popular DeFi game on a major L1 experienced a catastrophic outage. The chain's validators - elected purely by token stake - became dominated by a handful of wealthy whales who controlled over 60% of the staked supply. When a contentious proposal split the community, those validators colluded to censor transactions, extract MEV, and eventually halt the network for 17 hours. Users lost millions in liquidated positions because the chain couldn't finalise blocks.</p>
+  <br>
+  <p>Meanwhile, a centralised exchange ran its internal matching engine on a private, permissioned chain. It was fast and reliable, but completely opaque - users had no way to verify that trades were fair. Audits were impossible without trusting the exchange's internal team.</p>
+  <br>
+  <p>The Trika POSA design was born from observing these two failure modes. <strong>Pure Proof-of-Stake</strong> (like early Ethereum 2.0 or Solana) is susceptible to plutocracy - the richest validators dominate. <strong>Pure Proof-of-Authority</strong> (like Hyperledger or private chains) is fast but centralised and opaque - a few permissioned nodes control everything.</p>
+  <br>
+  <p><strong>Trika POSA</strong> (Proof of Stake Authority) merges the best of both. Validators must stake MSTC tokens (economic skin in the game), but they must also earn <strong>authority status</strong> through a reputation and identity verification process. Authority nodes are known, reputable entities (like registered businesses or bonded individuals). They propose blocks. Stakers delegate their MSTC to these authority nodes, who earn block rewards and share them with delegators. If an authority node misbehaves - produces invalid blocks, censors transactions, goes offline - its stake is <strong>slashed</strong>. Its authority status can be revoked. This hybrid model ensures that validators are both economically incentivised and reputationally accountable, preventing the anonymous whale domination of pure PoS while remaining far more decentralised than pure PoA.</p>
+</div>
+
+<p>This story defines Trika POSA: a consensus mechanism that marries the security of stake with the accountability of authority, tuned for high throughput and enterprise-grade reliability, without sacrificing decentralisation.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Consensus - From Mining Rigs to Reputation</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2014</div>
+      <div class="tl-body"><strong>Proof-of-Work (Bitcoin).</strong> Miners compete to solve cryptographic puzzles. The winner proposes the next block and earns a reward. Perfectly decentralised in theory, but mining centralisation emerged (pools, ASICs). Enormous energy consumption. Throughput limited to ~7 transactions per second. Finality is probabilistic - a block is never truly "final," only buried under more blocks.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015 - 2020</div>
+      <div class="tl-body"><strong>Pure Proof-of-Stake (Ethereum 2.0, Cardano, Algorand).</strong> Validators lock tokens as collateral. A random selection (often via VRF) picks the next block proposer. Energy-efficient and fast. However, "rich get richer" dynamics can centralise validator sets. Long withdrawal periods for staked tokens create lock-up friction. Slashing penalties deter misbehaviour, but anonymous validators have less reputational risk.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018 - 2022</div>
+      <div class="tl-body"><strong>Delegated Proof-of-Stake (EOS, Tron).</strong> Token holders vote for a small set of block producers (21 - 100). Extremely fast, but often criticised as centralised - the same few validators win every election, and vote-buying is common. Low Nakamoto coefficient.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2019 - 2023</div>
+      <div class="tl-body"><strong>Proof-of-Authority (POA Network, private chains).</strong> Validators are pre-approved by a central authority. Fast, predictable, no token needed for security. But completely centralised - the authority can censor or change rules. Not suitable for public trustless systems.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2024 - Today</div>
+      <div class="tl-body"><strong>MST's Trika POSA - The Hybrid Consensus.</strong> Combines economic stake (MSTC) with identity-based authority. Validators must stake AND be recognised as reliable entities. Delegators stake to authority nodes. Slashing applies to both stake and reputation. Result: high throughput, fast finality, Sybil-resistant, and accountable. Designed specifically for the hybrid Layer-1 with multiple zones.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Trika Principle</div>
+  <p>"Trika" means "triple" in Sanskrit - representing the three pillars: <strong>Stake</strong> (economic security), <strong>Authority</strong> (identity & reputation), and <strong>Delegation</strong> (broad participation). Together, they create a validator set that is both decentralised and reliable.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Parliament Analogy - How Trika POSA Works</h2>
+
+<div class="callout analogy">
+  <div class="callout-label">🏛️ The Parliament of Validators</div>
+  <p>Imagine a parliament where laws (blocks) are passed. You can't just walk in and start voting - you need two things: <strong>a deposit (stake)</strong> and <strong>a verified identity (authority)</strong>. Citizens (token holders) can't all attend parliament directly, so they <strong>delegate their voting power (stake) to MPs (authority nodes)</strong> they trust. MPs earn a salary (block rewards) and share a portion with their delegators. If an MP breaks the rules - tries to pass a fraudulent law or skips sessions - they lose their deposit and are expelled. This keeps the parliament honest, efficient, and representative.</p>
+</div>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does Trika POSA exist?</div>
+      <div class="w5-a">To solve the "validator quality vs quantity" problem. Pure PoS allows anyone with capital to validate - but capital doesn't guarantee reliability. Pure PoA ensures reliability but at the cost of centralisation. Trika POSA requires both capital (stake) and reputation (authority), ensuring validators are both invested and accountable.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What problem does it solve?</div>
+      <div class="w5-a">It delivers <strong>fast finality (~3 sec), high throughput (4000+ TPS), and Sybil resistance</strong> while keeping the validator set decentralised enough for public trust. It also enables the permissioned zones - authority nodes can be KYC'd and approved for sensitive enterprise zones, while public zone validators remain open to any qualifying staker.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the election and block production work?</div>
+      <div class="w5-a">Token holders stake MSTC to become candidates. Candidates with sufficient self-stake AND a verified authority identity become <strong>authority nodes</strong>. Delegators can stake their MSTC to any authority node, increasing its voting weight. In each epoch, a weighted-random selection (using a VRF based on stake weight) picks a <strong>block proposer</strong> for each block slot. The proposer creates a block, and a committee of other authority nodes attests to it. Once ⅔ of stake weight attests, the block is final.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where is Trika POSA used across MST's zones?</div>
+      <div class="w5-a">The public zone uses Trika POSA with open authority candidacy - anyone can apply to become an authority node by staking and passing identity verification. Permissioned zones use a subset of authority nodes that have additional enterprise-grade KYC and compliance certifications. The consensus engine is the same; only the validator eligibility criteria differ per zone.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are the limitations of Trika POSA?</div>
+      <div class="w5-a">The authority requirement introduces a permissioned element - not every token holder can become a validator directly; they must earn authority status. This is a trade-off between decentralisation and reliability. The system relies on a robust identity verification process; if that process is gamed, a malicious actor could obtain authority status. However, stake slashing and reputation revocation provide a strong deterrent.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Lifecycle of a Trika POSA Validator</h2>
+
+<p>Becoming an active validator in Trika POSA involves distinct phases: <strong>Staking, Authority Application, Delegation, Epoch Election, Block Production, and Slashing.</strong> Understanding each phase reveals how MST maintains its balance of speed, security, and accountability.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Staking & Candidate Registration</div>
+      <div class="feature-desc">
+        Any MSTC holder can register as a <strong>validator candidate</strong> by locking a minimum self-stake (currently 100,000 MSTC) in a special staking contract. This stake is locked for a minimum period (21 days unbonding). The candidate provides a node public key and network endpoint. At this stage, they are a <strong>candidate</strong>, not yet an authority node - they can only become an authority after identity verification. The stake is held in a non-custodial contract; the candidate retains ownership but cannot transfer it while active.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Authority Verification - Reputation as Security</div>
+      <div class="feature-desc">
+        To graduate from candidate to <strong>authority node</strong>, the candidate undergoes a verification process. This includes identity proofing (KYC), a signed attestation of infrastructure reliability (SLA), and a security questionnaire. Verified candidates are granted an on-chain <strong>Authority Certificate NFT</strong>, which is required to participate in block production. The certificate can be revoked by a governance vote if the node violates network rules. This identity layer is what makes Trika POSA different from pure PoS - it adds <strong>reputational accountability</strong> to economic stake. Authority nodes must also maintain a minimum uptime (99.9%) and participate in governance votes.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Delegation - Broadening Participation</div>
+      <div class="feature-desc">
+        Token holders who don't want to run a node can <strong>delegate</strong> their MSTC to any authority node. Delegation increases the node's <strong>voting weight</strong> (total stake behind it). In return, the authority node shares block rewards with delegators, minus a commission (set by the node, typically 5-15%). Delegators can redelegate or unbond their stake with a 7-day cooldown. This system allows thousands of token holders to participate in consensus without running infrastructure, while ensuring that only reputable, high-performance nodes actually produce blocks. The total stake (self-stake + delegated stake) determines a node's weight in the VRF selection.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Epoch Election & VRF-Weighted Selection</div>
+      <div class="feature-desc">
+        Consensus operates in <strong>epochs</strong> (approximately 1 hour each). At the beginning of each epoch, the active authority set is determined: a maximum of 100 authority nodes with the highest total stake. Within the epoch, block proposers are selected using a <strong>Verifiable Random Function (VRF)</strong> - a cryptographic lottery weighted by each node's total stake. The VRF ensures the selection is unpredictable (preventing targeted attacks), verifiable (anyone can check the selection was fair), and weighted (nodes with more stake get proportionally more slots). For each 3-second block slot, one proposer is chosen, and a committee of 20 other authority nodes is randomly selected to attest.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Production & Immediate Finality</div>
+      <div class="feature-desc">
+        The proposer assembles valid transactions into a block, executes them, and broadcasts the block to the committee. Committee members verify the block and sign an <strong>attestation</strong>. Once the proposer collects attestations from ⅔ of the committee (by stake weight), the block is <strong>finalised</strong> - it cannot be reverted. This process takes approximately 3 seconds. Finality in Trika POSA is <strong>absolute</strong>, not probabilistic: once a block is finalised, no fork can overwrite it without slashing ⅔ of the stake. This is a huge advantage over PoW (where finality is probabilistic) and even some PoS chains (where two competing blocks can coexist briefly).
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">6</div>
+    <div class="feature-content">
+      <div class="feature-title">Slashing & Reputation Revocation</div>
+      <div class="feature-desc">
+        Misbehaviour is penalised through <strong>slashing</strong> of stake. Three slashable offences exist: (1) <strong>Double-signing</strong> - proposing or attesting to two conflicting blocks at the same height. Slashing burns 100% of self-stake and revokes the Authority Certificate. (2) <strong>Downtime</strong> - missing more than 5% of assigned block slots in an epoch. Penalty: 0.1% of total stake per missed slot. (3) <strong>Censorship</strong> - repeatedly refusing to include valid transactions. Penalty: escalating slashing, up to authority revocation after governance review. Delegated stake is also slashed proportionally, incentivising delegators to choose reliable nodes. Slashed MSTC is burned, reducing total supply.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Finality Advantage</div>
+  <p>In Trika POSA, finality is <strong>deterministic and rapid</strong>. Once a block collects ⅔ attestations, it is irreversible. This allows exchanges to accept deposits after a single confirmation (3 seconds) rather than waiting 6 - 12 confirmations (minutes) as in PoW chains. For DeFi liquidations, this speed is critical - no more waiting for "safe" block depth.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising Trika POSA Consensus Flow</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.3-A · The Trika POSA Validator Lifecycle</div>
+  <pre>
+  ┌─────────────┐     ┌──────────────┐     ┌───────────────┐     ┌───────────────┐
+  │ 1. STAKE    │     │ 2. AUTHORITY │     │ 3. DELEGATION│     │ 4. ELECTION  │
+  │ MSTC Locked │────▶│ KYC & Cert   │────▶│ Stakers       │────▶│ Top 100 by    │
+  │ Candidate   │     │ NFT Granted  │     │ increase wt  │     │ total stake   │
+  └─────────────┘     └──────────────┘     └───────────────┘     └───────┬───────┘
+                                                                        │
+                                                                        ▼
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌───────────────┐
+  │ 8. REWARDS  │     │ 7. FINALITY  │     │ 6. ATTESTATION│    │ 5. PROPOSAL   │
+  │ Distributed  │◄────│ ⅔ weight ⇒   │◄────│ Committee     │◄────│ VRF selects    │
+  │ to Node+Del  │     │ block sealed │     │ signs block   │     │ proposer       │
+  └──────────────┘     └──────────────┘     └──────────────┘     └───────────────┘
+  </pre>
+  <div class="diagram-caption">From staking to rewards: each step ensures economic security, reputation accountability, and fair block production.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.3-B · Block Production with Immediate Finality</div>
+  <pre>
+  TIME: 0 sec                  1.5 sec                    3 sec
+  ─────────────────────────────────────────────────────────────────
+  Proposer            Proposer broadcasts        Block reaches
+  selected via        block + state root         ⅔ attestations
+  VRF at slot start   to committee               → FINAL
+       │                    │                        │
+       ▼                    ▼                        ▼
+  ┌─────────┐      ┌──────────────┐         ┌──────────────┐
+  │ VRF Pick│─────▶│ 20 committee │────────▶│ Attestations │
+  │ Block N │      │ verify & sign│         │ collected    │
+  └─────────┘      └──────────────┘         └──────────────┘
+                                                │
+                                                ▼
+                                         No fork possible
+                                         without slashing ⅔
+  </pre>
+  <div class="diagram-caption">The 3-second finality window: proposer selection, committee attestation, and irreversible sealing - all within one slot.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Consensus Mechanisms Head-to-Head - Trika POSA vs The World</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>PoW (Bitcoin)</th>
+      <th>Pure PoS (Ethereum)</th>
+      <th>DPoS (EOS)</th>
+      <th>Trika POSA (MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validator entry</td>
+      <td class="bad">Open but hardware arms race</td>
+      <td class="good">Open to any staker</td>
+      <td class="mid">Vote-based, top N win</td>
+      <td class="good">Stake + KYC'd authority</td>
+    </tr>
+    <tr>
+      <td>Sybil resistance</td>
+      <td class="good">Energy cost</td>
+      <td class="good">Stake cost</td>
+      <td class="mid">Vote buying possible</td>
+      <td class="good">Stake + identity verification</td>
+    </tr>
+    <tr>
+      <td>Throughput</td>
+      <td class="bad">~7 TPS</td>
+      <td class="mid">~30 TPS (L1)</td>
+      <td class="good">~1000 TPS</td>
+      <td class="good">4000+ TPS</td>
+    </tr>
+    <tr>
+      <td>Finality</td>
+      <td class="bad">Probabilistic (~60 min)</td>
+      <td class="good">~13 min (2 epochs)</td>
+      <td class="good">~3 sec</td>
+      <td class="good">~3 sec absolute</td>
+    </tr>
+    <tr>
+      <td>Energy</td>
+      <td class="bad">Extremely high</td>
+      <td class="good">Very low</td>
+      <td class="good">Low</td>
+      <td class="good">Very low</td>
+    </tr>
+    <tr>
+      <td>Centralisation risk</td>
+      <td class="bad">Mining pools</td>
+      <td class="mid">Large stakers dominate</td>
+      <td class="bad">Small active set</td>
+      <td class="good">100 authority nodes, delegation spreads power</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Enterprise Angle</div>
+  <p>For permissioned zones, Trika POSA allows enterprises to require additional compliance for authority nodes (e.g., SOC2 certification). The consensus engine is identical, but the validator set is filtered. This is impossible in pure PoS where any anonymous staker can participate.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Trika POSA in Production - Performance & Resilience</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">CBDC Settlement - Sub-3-Second Finality for Inter-Bank Transfers</div>
+      <div class="feature-desc">
+        A consortium of 15 Indian banks runs a permissioned zone on MST for CBDC inter-bank settlement. Using Trika POSA with a vetted set of bank-operated authority nodes, settlement finality is achieved in under 3 seconds - faster than RTGS (which takes hours). The ⅔ attestation guarantee ensures no double-spend risk. The banks earn MSTC rewards for operating nodes, offsetting infrastructure costs.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Live Gaming Platform - 4000 TPS with Provably Fair Shuffles</div>
+      <div class="feature-desc">
+        An online gaming platform uses the public zone for card shuffle verification (SatvaShuffle). During peak hours, the network handles 3200 TPS - all finalised within one block slot. Trika POSA's VRF ensures no validator can predict or manipulate the proposer schedule to front-run game transactions. The slashing mechanism deters any collusion among validators.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🔗</div>
+    <div class="feature-content">
+      <div class="feature-title">DeFi Flash Loan Arbitrage - Zero MEV Leakage</div>
+      <div class="feature-desc">
+        A DeFi arbitrage bot executes a flash loan across three DEXs on MST. Trika POSA's immediate finality means the bot doesn't need to worry about block reorganisation. Additionally, the random proposer selection via VRF prevents the "MEV auction" problem where validators can predict their slot and sell front-running rights. The bot's transaction is included fairly in the next block.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🏭</div>
+    <div class="feature-content">
+      <div class="feature-title">Supply Chain IoT - Reliable Up-time for Mission-Critical Events</div>
+      <div class="feature-desc">
+        A pharmaceutical supply chain uses WASMify to post IoT temperature data on-chain every 30 seconds. Trika POSA's 99.9% uptime guarantee (enforced by slashing authority nodes for downtime) ensures the data feed never misses a batch. The authority verification process screened out nodes with poor infrastructure, resulting in a robust validator set.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 15-Mark Assessment</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Trika = Triple: Stake, Authority, Delegation</div>
+      <div class="feature-desc">The consensus relies on three pillars: economic stake (MSTC), identity-verified authority (KYC + certificate), and broad delegation (non-node stakers).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Validator Lifecycle: Candidate → Authority → Active</div>
+      <div class="feature-desc">Stake → KYC → Authority Certificate → delegation → election into top 100 → block production. Slashing removes stake and revokes certificate.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">VRF-Weighted Proposer Selection</div>
+      <div class="feature-desc">A verifiable random function weighted by total stake picks the block proposer and attestation committee. Unpredictable, fair, and verifiable.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">3-Second Absolute Finality</div>
+      <div class="feature-desc">⅔ stake attestation seals a block. No forks possible without slashing ⅔ of the stake - deterministic finality, not probabilistic.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Slashing Conditions: Double-sign, Downtime, Censorship</div>
+      <div class="feature-desc">Three offences. Double-signing burns 100% self-stake and revokes authority. Downtime penalises proportionally. Censorship can lead to governance revocation.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (Blueprint: 7 MCQ + 1 Activity + 1 T/F = 15 marks)
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 7.3 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">15</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <!-- SECTION A -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">7 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 7 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What are the three pillars of Trika POSA?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Stake, Work, and Reputation
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Stake, Authority, and Delegation ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Speed, Security, and Scalability
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Public, Private, and Hybrid
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Trika (triple) POSA stands for Proof of Stake Authority, combining economic <strong>Stake</strong>, identity-verified <strong>Authority</strong>, and <strong>Delegation</strong> by non-node token holders.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What must a validator candidate do to become an authority node in Trika POSA?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Win a majority vote from other validators
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Pass identity verification (KYC) and receive an on-chain Authority Certificate NFT ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Hold at least 1% of total MSTC supply
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Propose a block that gets attested
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>After staking, a candidate must undergo <strong>KYC verification</strong> and be granted an Authority Certificate (on-chain NFT). This adds reputational accountability beyond economic stake.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">How is the block proposer selected in each slot?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Round-robin among all authority nodes
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          A Verifiable Random Function (VRF) weighted by total stake ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          The node with the most delegators always proposes
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          A central coordinator assigns slots
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>To prevent predictability and manipulation, a <strong>VRF</strong> selects the proposer randomly but weighted by stake. Nodes with more stake get proportionally more slots, but no one can predict when they'll be chosen.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What makes a block final in Trika POSA?</div>
+      <ul class="options">
+        <li class="correct">
+          <span class="opt-key">A</span>
+          When attestations from ⅔ of the committee's stake weight are collected ✅
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          After 6 subsequent blocks are built on top
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          When the proposer signs the block
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          After 1 hour without a fork
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: A</div>
+        <p>Finality is <strong>deterministic and immediate</strong>: once ⅔ of the attestation committee's stake weight signs off, the block is sealed. It cannot be reverted without slashing those validators. This is not probabilistic (like Bitcoin's 6-confirm rule).</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">What happens if an authority node double-signs (proposes two conflicting blocks)?</div>
+      <ul class="options">
+        <li class="correct">
+          <span class="opt-key">A</span>
+          100% of its self-stake is slashed (burned), and its Authority Certificate is revoked ✅
+        </li>
+        <li>
+          <span class="opt-key">B</span>
+          It receives a warning and a small fine
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Only its delegated stake is affected; self-stake is safe
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          The conflicting blocks are resolved by a community vote
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: A</div>
+        <p>Double-signing is the most severe offence. It results in <strong>100% self-stake slashing</strong> (burned) and <strong>permanent authority revocation</strong>. Delegated stake is also slashed proportionally. This provides a massive economic deterrent.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q6</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff medium">Medium</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">How does delegation work in Trika POSA?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          Delegators run full nodes but don't produce blocks
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          Token holders stake their MSTC to an authority node, increasing its voting weight and sharing rewards ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          Delegators vote for which transactions are included
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Delegation is only for governance, not consensus
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Delegation allows non-validating token holders to <strong>stake their MSTC to an authority node</strong>. The node's total stake (self + delegated) determines its weight in block proposer selection and rewards. Delegators earn a share of block rewards, minus the node's commission.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q7</div>
+        <div class="q-meta">
+          <span class="q-type">MCQ</span>
+          <span class="q-diff hard">Hard</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">Why does Trika POSA require both stake and authority, instead of just stake like Ethereum?</div>
+      <ul class="options">
+        <li>
+          <span class="opt-key">A</span>
+          To increase the token price
+        </li>
+        <li class="correct">
+          <span class="opt-key">B</span>
+          To add reputational accountability and ensure validators are reliable, not just wealthy ✅
+        </li>
+        <li>
+          <span class="opt-key">C</span>
+          To prevent anyone with less than 100,000 MSTC from participating
+        </li>
+        <li>
+          <span class="opt-key">D</span>
+          Because the EVM requires identity verification
+        </li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: B</div>
+        <p>Pure PoS (like Ethereum) can lead to anonymous validators with no reputation at stake. Trika POSA's authority layer ensures validators are <strong>known, identifiable entities</strong> who can be held accountable off-chain as well as on-chain, making the network safer for enterprise adoption while still requiring economic stake.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B -->
+    <div class="q-section-header" style="margin-top: 8px;">
+      <div class="q-section-title">Section B - Activity (Ordering & Explanation)</div>
+      <div class="q-section-meta">1 Activity &nbsp;·&nbsp; 6 marks &nbsp;·&nbsp; Arrange and explain the validator election steps</div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q8</div>
+        <div class="q-meta">
+          <span class="q-type">Activity (Drag-Drop Equivalent)</span>
+          <span class="q-diff hard">Hard</span>
+          <span class="q-marks">6 marks</span>
+        </div>
+      </div>
+      <div class="q-text">Below are six steps in the Trika POSA validator election and block production process. <strong>Arrange them in the correct chronological order</strong> (from first to last) and provide a one-line explanation for each step's role.</div>
+      
+      <div class="diagram-wrap" style="margin: 16px 0;">
+        <p><strong>Steps (unordered):</strong></p>
+        <p>A. Delegators stake MSTC to an authority node, increasing its total weight.<br>
+        B. An authority node receives an Authority Certificate NFT after passing KYC.<br>
+        C. The block proposer broadcasts the block, and ⅔ committee attestations seal it as final.<br>
+        D. A VRF weighted by total stake selects a proposer and attestation committee for a block slot.<br>
+        E. A candidate locks MSTC as self-stake and registers a node public key.<br>
+        F. At epoch start, the top 100 authority nodes by total stake become the active validator set.</p>
+      </div>
+
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Order & Marks Breakdown (6 marks)</div>
+        <p><strong>Correct order: E → B → A → F → D → C</strong></p>
+        <p><strong>Step E (1 mark):</strong> Staking and registration - candidate locks MSTC and provides node details.<br>
+        <strong>Step B (1 mark):</strong> Authority verification - candidate passes KYC and receives Authority Certificate NFT.<br>
+        <strong>Step A (1 mark):</strong> Delegation - other token holders stake to the authority node, boosting its voting weight.<br>
+        <strong>Step F (1 mark):</strong> Epoch election - the top 100 nodes by total stake (self + delegated) become the active set for the epoch.<br>
+        <strong>Step D (1 mark):</strong> VRF selection - for each block slot, a VRF weighted by total stake picks the proposer and committee.<br>
+        <strong>Step C (1 mark):</strong> Block production and finality - proposer creates block, committee attests, ⅔ stake seals it as final.</p>
+        <div class="marks-bd"><span>Scoring:</span> 1 mark for each step placed in the correct position AND accompanied by a correct one-line explanation. Partial marks may be awarded for correct order without explanation (0.5 per step).</div>
+      </div>
+    </div>
+
+    <!-- SECTION C -->
+    <div class="q-section-header" style="margin-top: 8px;">
+      <div class="q-section-title">Section C - True / False</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 1 mark &nbsp;·&nbsp; 1 mark total</div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q9</div>
+        <div class="q-meta">
+          <span class="q-type">True / False</span>
+          <span class="q-diff easy">Easy</span>
+          <span class="q-marks">1 mark</span>
+        </div>
+      </div>
+      <div class="q-text">"In Trika POSA, finality is probabilistic - a block is considered final after 6 additional blocks are built on top of it, similar to Bitcoin."</div>
+
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Correct Statement:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. Trika POSA provides <strong>deterministic, absolute finality</strong>. A block is final once it receives attestations from ⅔ of the committee's stake weight (approximately 3 seconds). There is no need to wait for subsequent blocks, and no fork can overwrite a finalised block without slashing ⅔ of the stake. Bitcoin's probabilistic finality (6 confirmations) is a feature of Nakamoto consensus (PoW), not Trika POSA.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> Correctly states FALSE and explains that Trika POSA uses ⅔ attestation for immediate, deterministic finality, not probabilistic confirmations.</p>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 7.3 Assessment Summary</div>
+      <div class="score-row">Section A: 7 × MCQ <span>(1 mark each) = 7 marks</span></div>
+      <div class="score-row">Section B: 1 × Activity (ordering + explanation) <span>(6 marks) = 6 marks</span></div>
+      <div class="score-row">Section C: 1 × True/False <span>(1 mark) = 1 mark</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">15</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.3</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Trika POSA</div>
+    <div class="glossary-def">Proof of Stake Authority - MST's hybrid consensus combining economic stake, identity-verified authority, and delegation to achieve fast, secure finality.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Authority Node</div>
+    <div class="glossary-def">A validator that has passed KYC verification and holds an on-chain Authority Certificate NFT. Only authority nodes can propose and attest to blocks.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Delegation</div>
+    <div class="glossary-def">Token holders staking MSTC to an authority node to increase its voting weight and earn a share of block rewards, without running a node themselves.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">VRF (Verifiable Random Function)</div>
+    <div class="glossary-def">A cryptographic function that produces a random output and a proof that the output was correctly generated. Used to select block proposers fairly and unpredictably.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Epoch</div>
+    <div class="glossary-def">A fixed period (approximately 1 hour) during which the active validator set remains constant. At epoch boundaries, the top 100 authority nodes are re-calculated.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Attestation</div>
+    <div class="glossary-def">A cryptographic signature by a committee member confirming that a proposed block is valid. Collected attestations from ⅔ stake weight finalise the block.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Slashing</div>
+    <div class="glossary-def">The penalty for validator misbehaviour - a portion or all of the staked MSTC is burned (removed from supply). Slashing enforces honest behaviour.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Deterministic Finality</div>
+    <div class="glossary-def">A finality guarantee where a block becomes irreversible at a specific event (⅔ attestations), not over time. Opposed to probabilistic finality (Bitcoin).</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Authority Certificate NFT</div>
+    <div class="glossary-def">An on-chain non-transferable NFT granted to a validator after KYC verification, required to participate in block production. Can be revoked for misconduct.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Committee</div>
+    <div class="glossary-def">A randomly selected subset of authority nodes (typically 20) chosen to attest to a block. The committee's aggregate stake must meet the ⅔ threshold for finality.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 7 · Sub-Module <strong>7.3</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.4 - SARAL Protocol →</p>
+</div>
+
+</body>
+</html>

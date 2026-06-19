@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 8.5 - Data Types & Storage | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.5 of 8</div>
+<h1 class="module-title">Data Types &amp; <span class="highlight">Storage</span></h1>
+<p class="module-subtitle">From uint256 to bytes, from memory to calldata - mastering the building blocks of Solidity and learning how the EVM stores your data, with cost implications that directly impact your users' gas bills.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 1 Code-Completion (10 marks)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment & Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text">
+      <strong>Choose the correct Solidity data type for any variable</strong>
+      Use uint, int, bool, address, string, bytes, mapping, and struct - understanding the size variants, default values, and gas trade-offs.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗄️</div>
+    <div class="obj-text">
+      <strong>Master storage, memory, and calldata</strong>
+      Explain exactly where each variable lives, who pays for it, and why using <code>calldata</code> instead of <code>memory</code> can save thousands of gas.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📦</div>
+    <div class="obj-text">
+      <strong>Pack variables into storage slots for gas savings</strong>
+      Understand how the EVM packs multiple small variables into one 32-byte slot, and write contracts that minimize storage costs on MST.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Write a complete contract using the right storage layout</strong>
+      Code a practical example with mappings, structs, and proper storage declarations, then deploy it on Hardhat with confidence.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Staking Contract That Cost Users ₹500 per Claim</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a DeFi protocol on Ethereum launched a staking pool. Users could deposit tokens and claim rewards daily. The contract stored every user's reward history in a <code>mapping(address => uint256[])</code> - a dynamic array per user, stored in <strong>storage</strong>. The claim function looped over the entire history array each time, reading from storage repeatedly. Storage reads (SLOAD) cost 2,100 gas each (cold). For a user with 100 entries, a single claim cost over 500,000 gas - about ₹1,000 at the time. Users were furious.</p>
+  <br>
+  <p>The developers had not understood Solidity's storage model. They could have stored only the last claim timestamp and a running total, both in storage, and computed rewards mathematically without any loop. Or they could have used a <strong>mapping</strong> directly for each day's reward, eliminating the array. A simple data structure change reduced the claim cost from 500,000 gas to 65,000 gas - an 87% savings. On MST, the same mistake would have cost only ₹0.03 instead of ₹0.004, but the lesson is the same: <strong>storage is expensive, and choosing the right data type and location is the most impactful gas optimization you can make.</strong></p>
+</div>
+<p>This sub-module equips you with a deep understanding of every Solidity data type and the three storage locations - storage, memory, and calldata. You'll learn when to use each, what gas they consume, and how to design contracts that are both functional and cost-efficient on MST.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Why the EVM Has Three Data Locations</h2>
+<p>When the Ethereum Virtual Machine (EVM) was designed, its creators faced a fundamental challenge: a blockchain is a permanent, replicated database. Every byte stored on-chain must be stored by every full node forever. This makes storage <strong>extremely expensive</strong> - it's the scarcest resource on the network. In contrast, computations are relatively cheap because they are ephemeral: they run once and disappear. The EVM's gas model reflects this reality.</p>
+<p>To balance permanence with cost, the EVM introduced three distinct data locations:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Storage:</strong> Persistent key-value store, written to the blockchain's state trie. Data survives forever. Costs 20,000 gas for a new write (SSTORE), 5,000 gas for an update, and 2,100 gas for a cold read (SLOAD). This is where your contract's state lives.</li>
+  <li><strong>Memory:</strong> Temporary workspace, cleared after external function execution. Much cheaper than storage, but costs scale quadratically with size. Used for complex data manipulation within a function.</li>
+  <li><strong>Calldata:</strong> Read-only input data attached to a transaction. The cheapest location - you pay only for the bytes you include. Perfect for function parameters that don't need to be modified.</li>
+</ul>
+<p>Solidity, as a high-level language, abstracts these locations but requires the developer to explicitly specify them for reference types (arrays, structs, mappings). This is one of the most important skills in smart contract development: knowing where your data lives.</p>
+<p>MST, as an EVM-compatible chain, inherits the exact same storage model. The gas costs are identical per opcode, but because MST's gas price is ~12 Gwei (vs Ethereum's 30-500 Gwei), the rupee cost is orders of magnitude lower. However, <strong>the architectural principles remain unchanged</strong>: you should still write efficient Solidity to keep your contracts scalable and your users happy.</p>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Stone Tablet, Whiteboard, and Sticky Note - The Storage Analogy</h2>
+<div class="callout analogy">
+  <div class="callout-label">🪨 The Analogy</div>
+  <p>Think of <strong>storage</strong> as carving words into a stone tablet - it's permanent, visible to everyone forever, and extremely laborious. <strong>Memory</strong> is like writing on a whiteboard in your office - you can scribble calculations, but it gets erased when you leave the room (end of function). <strong>Calldata</strong> is a sticky note someone handed you - you can read it, but you can't write on it, and it's cheap because it's just paper. Smart contract developers spend most of their optimization time moving data from the stone tablet to the whiteboard or sticky note.</p>
+</div>
+<p>Let's explore each data type and its typical location, starting with the simplest value types.</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">V</div><div class="w5-word">VALUE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are value types?</div>
+      <div class="w5-a"><strong>Value types</strong> are simple data that fit into 32 bytes. They are always passed by value (copied). This includes <code>uint256</code>, <code>int256</code>, <code>bool</code>, <code>address</code>, <code>bytes32</code>, and <code>enum</code>. When you assign a value type, the EVM copies the data. They can be stored in storage (state variables), memory, or calldata, but since they are small, the location matters less for gas - though using <code>calldata</code> for function parameters still saves a few hundred gas.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">R</div><div class="w5-word">REF</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are reference types?</div>
+      <div class="w5-a"><strong>Reference types</strong> can be larger than 32 bytes and include <code>array</code>, <code>struct</code>, <code>mapping</code>, and <code>bytes</code> (dynamic). They are stored as pointers to a memory or storage location. When you assign a reference type, you copy the pointer, not the data - unless you explicitly create a copy. <strong>You must specify the data location</strong> (<code>memory</code>, <code>storage</code>, or <code>calldata</code>) for reference types in function parameters and local variables. Getting this wrong is the #1 compiler error for new Solidity developers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Every Data Type, Every Size, Every Default - Complete Reference</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Integer Types: uint and int</h3>
+<p>Solidity provides unsigned (<code>uint</code>) and signed (<code>int</code>) integers, from 8 bits to 256 bits in steps of 8. <code>uint</code> is an alias for <code>uint256</code>. The default value is <code>0</code>. Arithmetic overflow/underflow was historically a major vulnerability, but since Solidity 0.8.0, the compiler automatically inserts checks and reverts on overflow - unless you use an <code>unchecked { ... }</code> block, which saves gas but must be used with extreme caution.</p>
+<p>Why choose smaller sizes like <code>uint8</code>? The EVM operates on 256-bit words. A <code>uint8</code> still takes up a full 32-byte storage slot, but multiple <code>uint8</code> variables can be <strong>packed</strong> into a single slot by the compiler if they are declared consecutively. This is a crucial gas optimization: reading one slot costs 2,100 gas (cold) or 100 gas (warm). Reading two packed variables from the same slot costs the same as reading one. Declare small variables together to maximize packing.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Bool and Address</h3>
+<p><code>bool</code> is either <code>true</code> or <code>false</code>, default <code>false</code>. It occupies 1 byte but, like other small types, can be packed into a slot. <code>address</code> is a 20-byte (160-bit) Ethereum address, default <code>0x0000...0000</code>. Addresses have special members like <code>.balance</code> (returns the native coin balance in wei) and <code>.transfer(uint256 amount)</code> (sends native coin). <code>address payable</code> is a subtype that allows <code>.send()</code> and <code>.transfer()</code>.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Bytes and Strings</h3>
+<p>Fixed-size byte arrays (<code>bytes1</code> to <code>bytes32</code>) hold exactly that many bytes. They are value types and are cheap because they fit in a single EVM word. <code>bytes32</code> is often used for hashes and identifiers. Dynamic <code>bytes</code> and <code>string</code> are reference types. They are stored in storage as a length prefix and data. <code>string</code> is essentially <code>bytes</code> with UTF-8 encoding but with no length operator (you can't do <code>myString.length</code> without converting to bytes). Use <code>bytes</code> for raw data, <code>string</code> for human-readable text.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Mapping: The Workhorse of Solidity</h3>
+<p>A <code>mapping(KeyType => ValueType)</code> is a hash table that maps keys to values. All possible keys exist and return the default value of the ValueType (0, false, zero address) - there is no "does this key exist" check. Mappings are stored in storage only; you cannot have a memory mapping. They are ideal for keeping track of balances (<code>mapping(address => uint256)</code>), allowances, or any associative data.</p>
+<p>Mappings cannot be iterated over. To track which keys have been set, use a separate array of keys or an enumerable mapping pattern (using OpenZeppelin's EnumerableMap). On MST, where gas is cheap, even storage-heavy patterns like enumerable mappings are practical.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Structs: Custom Data Bundles</h3>
+<p>A <code>struct</code> groups multiple variables under one name. Structs can be stored in storage or memory. When stored in storage, they are written to consecutive storage slots, with potential packing. You can create arrays of structs and mappings to structs. Example:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+struct User {
+    address addr;
+    uint256 balance;
+    bool isActive;
+}
+mapping(address => User) public users;
+</pre>
+<p>This mapping stores a <code>User</code> struct per address. Accessing <code>users[addr].balance</code> reads from a storage slot determined by keccak256(key, slot).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Enums: Finite State Machines</h3>
+<p><code>enum Status { Pending, Shipped, Delivered }</code> creates a custom type with named constants. Internally, they are stored as <code>uint8</code> starting from 0. Use them to make contract states explicit and readable.</p>
+
+<!-- ═══════════════ 06 STORAGE DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Storage, Memory, and Calldata</div>
+<h2 class="section-title">Where Your Data Lives - The Gas Cost of Every Decision</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Property</th><th>💾 Storage</th><th>🧠 Memory</th><th>📋 Calldata</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Persistence</td><td>Permanent (until explicitly deleted)</td><td>Temporary (function execution)</td><td>Temporary (read-only input)</td></tr>
+    <tr><td>Cost to write</td><td>20,000 gas (new), 5,000 gas (update)</td><td>Scales quadratically with size (3 gas per byte + expansion)</td><td>Not writable</td></tr>
+    <tr><td>Cost to read</td><td>2,100 gas (cold), 100 gas (warm)</td><td>Cheap (MLOAD: 3 gas)</td><td>Read via CALLDATALOAD (3 gas)</td></tr>
+    <tr><td>Default for state variables</td><td>Yes - all state variables are in storage</td><td>No</td><td>No</td></tr>
+    <tr><td>Best use</td><td>Contract state (balances, config)</td><td>Temporary arrays, strings during computation</td><td>Function parameters that don't change</td></tr>
+    <tr><td>Must be specified?</td><td>Implicit for state variables</td><td>Required for local reference types</td><td>Required for external function parameters</td></tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Gas Cost of Ignoring Calldata</h3>
+<p>When you write an external function like <code>function setData(string memory _data)</code>, the EVM first copies the entire string from calldata into memory - every character. For a 1 KB string, that's an extra ~3,000 gas, plus memory expansion costs. Change <code>memory</code> to <code>calldata</code> and the data stays in the read-only input area, with no copy. The function can read it directly. Rule of thumb: <strong>if a parameter is not being modified, declare it as <code>calldata</code></strong>. This applies to <code>string</code>, <code>bytes</code>, and <code>uint256[]</code> arrays.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Storage Packing - Fit More in Less Gas</h3>
+<p>The EVM stores data in 32-byte slots. If you declare a <code>uint128 a; uint128 b;</code> consecutively, the compiler packs them into a single slot. If you interleave them with a <code>uint256</code>, they each take their own slot. Packing reduces the number of SSTORE/SLOAD operations, directly lowering gas costs. On MST, a packed storage layout might save only ₹0.001 per read, but for a contract called thousands of times, those savings add up - and it's excellent practice for any EVM chain.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.5-A · Storage Slot Packing</div>
+  <pre>
+  Unpacked (3 slots):                     Packed (1 slot):
+  ┌───────────────────────┐               ┌───────────────────────┐
+  │ uint256 a  (32 bytes)  │               │ uint128 a (16 bytes)   │
+  └───────────────────────┘               │ uint128 b (16 bytes)   │
+  ┌───────────────────────┐               └───────────────────────┘
+  │ uint128 b (16 bytes)   │
+  │ (padded to 32 bytes)   │
+  └───────────────────────┘               Saving 2 storage slots
+  ┌───────────────────────┐               means 40,000 gas saved
+  │ uint128 c (16 bytes)   │               on deployment and cheaper
+  │ (padded to 32 bytes)   │               reads (fewer SLOADs).
+  └───────────────────────┘
+  </pre>
+  <div class="diagram-caption">The Solidity compiler automatically packs small variables that are adjacent in the contract declaration. Struct fields are also packed. Check your storage layout with <code>solc --storage-layout</code>.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Golden Rule of Solidity Data</div>
+  <p><strong>Use storage for state that must persist. Use memory for temporary computations. Use calldata for read-only external function parameters.</strong> Always ask: "Does this variable need to survive after this function call?" If no, keep it in memory or calldata. This mindset alone will make you a better smart contract developer.</p>
+</div>
+
+<!-- ═══════════════ 07 INTERACTIVE EXAMPLES ═══════════════ -->
+<div class="section-label">07 &nbsp; Interactive Code Examples</div>
+<h2 class="section-title">Common Patterns - Click to Reveal</h2>
+<details>
+  <summary>📋 Using mapping for balances (storage)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+contract Token {
+    mapping(address => uint256) public balanceOf;
+
+    function transfer(address to, uint256 amount) external {
+        require(balanceOf[msg.sender] >= amount, "insufficient");
+        balanceOf[msg.sender] -= amount;  // SSTORE (5,000 gas)
+        balanceOf[to] += amount;           // SSTORE (5,000 or 20,000)
+        emit Transfer(msg.sender, to, amount);
+    }
+}
+    </pre>
+    <p>The mapping is stored in storage. Each write costs 5,000-20,000 gas. MST makes this affordable at ~₹0.006 per update.</p>
+  </div>
+</details>
+<details>
+  <summary>🧠 Building a struct in memory</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+function createUser(address addr, uint256 bal) external pure returns (User memory) {
+    User memory newUser;
+    newUser.addr = addr;
+    newUser.balance = bal;
+    newUser.isActive = true;
+    return newUser;  // copies memory to calldata (return data)
+}
+    </pre>
+    <p>All struct fields are in memory, so no permanent storage cost. The returned struct is copied to calldata automatically.</p>
+  </div>
+</details>
+<details>
+  <summary>📨 Using calldata for read-only array</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+function sumArray(uint256[] calldata arr) external pure returns (uint256) {
+    uint256 total = 0;
+    for (uint256 i = 0; i < arr.length; i++) {
+        total += arr[i];  // reads directly from calldata, no copy
+    }
+    return total;
+}
+    </pre>
+    <p>If <code>arr</code> were declared <code>memory</code>, the EVM would first copy the entire array from calldata to memory, costing ~3 gas per byte plus memory expansion. Calldata avoids that overhead entirely.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 08 CASE STUDIES ═══════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Storage Choices That Saved (and Cost) Millions</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💰</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v2 - Mapping Over Array for Pair Tracking</div>
+      <div class="feature-desc">Uniswap v2 tracks every trading pair in a <code>mapping(address => mapping(address => address))</code> - a nested mapping from token0 to token1 to the pair contract address. This O(1) lookup costs one SLOAD (100-2,100 gas) per query. If they had used an array and looped through it for every swap, the cost would have scaled linearly with the number of pairs, eventually making swaps prohibitively expensive. The choice of mapping over array was a deliberate storage optimization that keeps the protocol scalable.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">🔴</div>
+    <div class="feature-content">
+      <div class="feature-title">The "String in Storage" Anti-Pattern</div>
+      <div class="feature-desc">A common beginner mistake is storing user names or descriptions as <code>string</code> state variables. A <code>string</code> in storage is a dynamic array of bytes - it occupies at least one slot for the length, plus slots for the data. For a 50-character name, that's 3+ slots (over 60,000 gas to write). The better pattern is to store an IPFS hash (<code>bytes32</code>) that points to the actual data off-chain. This reduces the storage cost to a single 32-byte slot (20,000 gas). On MST, the gas savings are modest, but the principle of storing only essential on-chain data remains critical for scalability.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 09 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Storage is persistent and expensive; memory is temporary and cheap</div>
+      <div class="feature-desc">SSTORE costs 20,000 gas for a new write. MLOAD costs 3 gas. Choose memory over storage whenever possible. For read-only external parameters, use calldata.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Mapping cannot be iterated; use an array of keys if you need enumeration</div>
+      <div class="feature-desc"><code>mapping(address => uint)</code> gives O(1) lookup but no way to list all keys. Pair it with an <code>address[]</code> if you need to iterate.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Use calldata for external function parameters that are not modified</div>
+      <div class="feature-desc">It avoids an expensive memory copy. Example: <code>function foo(uint[] calldata arr) external { ... }</code></div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Pack consecutive small variables into storage slots</div>
+      <div class="feature-desc">Declare <code>uint128</code>, <code>uint64</code>, <code>bool</code> together. The compiler packs them. Verify with <code>solc --storage-layout</code>. On MST, gas savings are smaller but still best practice.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">All value types have a default zero value (0, false, 0x0)</div>
+      <div class="feature-desc">Mappings return the default for nonexistent keys. No "key exists" check. Use an <code>isActive</code> boolean or a separate Set contract if needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 8.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which Solidity data type is best suited for tracking how many tokens each address holds?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> <code>address[]</code> dynamic array of addresses</li>
+        <li class="correct"><span class="opt-key">B</span> <code>mapping(address => uint256)</code> ✅</li>
+        <li><span class="opt-key">C</span> <code>string</code></li>
+        <li><span class="opt-key">D</span> <code>bytes32</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>A mapping provides O(1) constant-time lookup and is the standard for balance tracking. Arrays would require loops and gas-heavy searches.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the default value of a <code>uint256</code> state variable that has never been written to?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> undefined (reading it causes a revert)</li>
+        <li class="correct"><span class="opt-key">B</span> 0 ✅</li>
+        <li><span class="opt-key">C</span> 1</li>
+        <li><span class="opt-key">D</span> The contract's address</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>All value types in Solidity have a zero-value default: <code>uint</code> is 0, <code>bool</code> is false, <code>address</code> is 0x0. Mappings return the default for any unset key.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is it recommended to use <code>calldata</code> instead of <code>memory</code> for read-only array parameters in external functions?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It avoids copying the entire array from calldata to memory, saving gas. ✅</li>
+        <li><span class="opt-key">B</span> It allows the array to be modified within the function.</li>
+        <li><span class="opt-key">C</span> It makes the array persistent across transactions.</li>
+        <li><span class="opt-key">D</span> It automatically validates the array contents.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p><code>memory</code> triggers a copy from calldata; <code>calldata</code> reads directly from the transaction input. The gas savings are significant for large arrays.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which statement about Solidity mappings is TRUE?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Mappings are stored in storage and cannot be iterated over. ✅</li>
+        <li><span class="opt-key">B</span> Mappings can be stored in memory for temporary calculations.</li>
+        <li><span class="opt-key">C</span> Mappings automatically track which keys have been set.</li>
+        <li><span class="opt-key">D</span> Mappings can be iterated using a <code>for</code> loop.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Mappings are storage-only and have no length or iteration capability. Use an auxiliary array if you need to enumerate keys.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does the EVM store multiple <code>uint128</code> variables declared consecutively in a contract?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It packs them into a single 32-byte storage slot. ✅</li>
+        <li><span class="opt-key">B</span> Each <code>uint128</code> occupies its own 32-byte slot.</li>
+        <li><span class="opt-key">C</span> They are stored in memory, not storage.</li>
+        <li><span class="opt-key">D</span> Only one <code>uint128</code> can exist per contract.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The Solidity compiler packs consecutive small value types into single storage slots. Two <code>uint128</code> values fit perfectly into one 32-byte slot, reducing storage costs.</p></div>
+    </div>
+
+    <!-- SECTION B: CODE-COMPLETION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Code-Completion (Write a Contract with Correct Storage)</div>
+      <div class="q-section-meta">1 Question · 10 marks</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">Code-Completion</span><span class="q-diff medium">Medium</span><span class="q-marks">10 marks</span></div></div>
+      <div class="q-text">Write a complete Solidity contract for a simple "User Registry" that stores user profiles. Follow the specifications below, using appropriate data types and storage locations to minimize gas costs.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">💻 SPECIFICATION</div></div>
+        <div class="cc-scenario">Create a contract named <code>UserRegistry</code> with the following features:
+          <ul style="margin:10px 0 0 20px; color:var(--ink-2); font-size:14px;">
+            <li>A struct <code>Profile</code> containing: user address (<code>addr</code>), a <code>uint256</code> balance, and a <code>bool</code> flag <code>isActive</code>.</li>
+            <li>A public mapping from <code>address</code> to <code>Profile</code> named <code>profiles</code>.</li>
+            <li>An external function <code>registerUser(address user, uint256 initialBalance)</code> that creates a new profile in storage with <code>isActive = true</code>, and emits an event <code>UserRegistered(address indexed user, uint256 initialBalance)</code>. Ensure no duplicate registrations (use <code>require</code> that the profile is not already active).</li>
+            <li>The function parameter <code>initialBalance</code> should be a <code>uint256</code> (value type, no location needed). The <code>user</code> address is a value type.</li>
+            <li>All other variables must use correct data locations.</li>
+          </ul>
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">✅ Model Answer (Expected Code)</div>
+          <pre style="background:white; padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract UserRegistry {
+    struct Profile {
+        address addr;
+        uint256 balance;
+        bool isActive;
+    }
+
+    mapping(address => Profile) public profiles;
+
+    event UserRegistered(address indexed user, uint256 initialBalance);
+
+    function registerUser(address user, uint256 initialBalance) external {
+        require(!profiles[user].isActive, "Already registered");
+        profiles[user] = Profile({
+            addr: user,
+            balance: initialBalance,
+            isActive: true
+        });
+        emit UserRegistered(user, initialBalance);
+    }
+}
+          </pre>
+          <div class="marks-bd"><span>10 marks:</span> (a) Correct struct definition with proper types (2 marks). (b) Public mapping from address to Profile (1 mark). (c) Event with indexed address parameter (1 mark). (d) registerUser function signature: external, address + uint256 parameters (1 mark). (e) require check using mapping lookup (1 mark). (f) Storage assignment to mapping with correct struct initialization (2 marks). (g) Event emission (1 mark). (h) General code compiles (1 mark). Deductions for missing <code>external</code> or incorrect data location specifiers (e.g., memory for mapping). No loops or calldata arrays required here.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 8.5 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 1 × Code-Completion <span>(10 marks) = 10 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Value Type</div><div class="glossary-def">A Solidity type that fits in 32 bytes and is always copied when assigned. Includes uint, int, bool, address, bytes32, enum.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Reference Type</div><div class="glossary-def">A type that can be larger than 32 bytes, stored as a reference to a location. Includes arrays, structs, mappings, strings, dynamic bytes. Must specify data location.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Storage</div><div class="glossary-def">Persistent key-value store on the blockchain. Costs 20,000 gas for a new write (SSTORE). Used for contract state variables. Survives forever.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Memory</div><div class="glossary-def">Temporary data area cleared after each external function call. Cheaper than storage (MLOAD = 3 gas). Used for local variables and computations.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Calldata</div><div class="glossary-def">Read-only input data attached to a transaction. The cheapest data location; use for external function parameters that aren't modified.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Mapping</div><div class="glossary-def">A hash table <code>mapping(Key => Value)</code> stored in storage. O(1) lookup. Cannot be iterated; all keys return the default value if unset.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Struct</div><div class="glossary-def">A custom type that groups multiple variables. Can be stored in storage or memory. Use for complex data like user profiles or order details.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Storage Slot Packing</div><div class="glossary-def">Compiler optimization that places multiple small variables into a single 32-byte storage slot. Reduces gas costs by lowering SSTORE/SLOAD count.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SLOAD / SSTORE</div><div class="glossary-def">EVM opcodes for reading and writing storage. SLOAD: 100-2,100 gas. SSTORE: 5,000-20,000 gas. Most expensive operations; minimize them.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Optimization</div><div class="glossary-def">The practice of reducing computational cost by choosing efficient data types, minimizing storage access, and using calldata over memory. Even on low-fee chains like MST, good practice is essential.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.5</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.6 - Functions, Modifiers & Events →</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,325 @@
+
+
+<!-- ═══════════════════════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎨 Module 21 · Sub-Module 21.3 of 5</div>
+<h1 class="module-title">Production Frontend &amp; <span class="highlight">Documentation</span></h1>
+<p class="module-subtitle">
+  Your smart contracts are live on MST mainnet. Now you must wrap them in a beautiful, intuitive interface and document every detail - because a dApp without a frontend is just a backend, and a project without a README is invisible.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 90 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 3 MCQ · 2 T/F · 2 T/F+Just · 2 Desc · 1 Mini Project</div>
+  <div class="meta-chip green">Phase 4 · Portfolio Ready</div>
+</div>
+
+<!-- ═══════════════════════════════ OBJECTIVES ═══════════════ -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚛️</div>
+    <div class="obj-text"><strong>Build a production-grade React dApp</strong> connected to MST mainnet via BridgeKey wallet and the MST SDK.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text"><strong>Deploy the frontend to a live URL</strong> using Vercel, Netlify, or IPFS - and configure environment variables securely.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📝</div>
+    <div class="obj-text"><strong>Write a professional README</strong> that includes architecture, setup, contract addresses, and a demo video link.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🎥</div>
+    <div class="obj-text"><strong>Record a compelling 5-minute demo</strong> that showcases your capstone’s core flow for investors and grant reviewers.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ STORY ═══════════════ -->
+<div class="section-label">02 · Real-World Story</div>
+<h2 class="section-title">The dApp That Nobody Could Use</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>
+    In 2023, a team of three developers won a hackathon with a brilliant DeFi protocol on an EVM testnet. Their smart contracts were flawless - audited, gas-optimised, and ready for mainnet. They rushed to deploy the contracts and submitted their grant application. But the grant committee asked a simple question: <em>"Can you share a link where we can try it?"</em>
+  </p>
+  <br>
+  <p>
+    The team had no frontend. They scrambled, hacked together a React app in two days, hardcoded the contract address, and deployed it to a random Vercel link. The interface crashed on mobile, the wallet connection button didn't work on Brave browser, and there was no error handling. The grant was rejected - not because the idea was bad, but because the reviewers couldn't evaluate it.
+  </p>
+  <br>
+  <p>
+    Your capstone is your ticket to an MST grant, a job, or your own startup. A polished frontend and crystal-clear documentation are what separate a hobby project from a professional product. In this sub-module, you’ll build both.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ ARCHITECTURE ═══════════════ -->
+<div class="section-label">03 · Frontend Architecture for MST dApps</div>
+<h2 class="section-title">React + MST SDK + BridgeKey = The Golden Stack</h2>
+<p>
+  The frontend of a Web3 application follows a clean separation: React for UI, <code>ethers.js</code> (or MST’s own SDK) for blockchain communication, and the BridgeKey wallet for user authentication. Because MST is EVM-compatible, you can use the exact same libraries and patterns you would for Ethereum - but with lower fees and faster confirmations.
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.3-A · Production Frontend Architecture</div>
+  <pre>  ┌──────────────────────────────────────────────────────┐
+  │                    User's Browser                     │
+  │  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐ │
+  │  │  React App  │  │ BridgeKey   │  │  ethers.js   │ │
+  │  │  (Vite)     │  │ Extension   │  │  / MST SDK   │ │
+  │  └──────┬──────┘  └──────┬──────┘  └──────┬───────┘ │
+  └─────────┼────────────────┼────────────────┼─────────┘
+            │                │                │
+            ▼                ▼                ▼
+  ┌─────────────────────────────────────────────────────┐
+  │              MST Mainnet (Chain ID 4646)             │
+  │  ┌──────────┐  ┌──────────┐  ┌────────────────────┐ │
+  │  │  Your    │  │  MST     │  │  Public RPC        │ │
+  │  │  Smart   │  │  Bridge  │  │  (mariorpc.mst-    │ │
+  │  │  Contracts│  │  Contracts│  │   blockchain.com) │ │
+  │  └──────────┘  └──────────┘  └────────────────────┘ │
+  └─────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The React app communicates with MST via the RPC endpoint <code>https://mariorpc.mstblockchain.com</code>. The wallet signs transactions, and the frontend is deployed on a CDN (Vercel / IPFS).</div>
+</div>
+
+<!-- ═══════════════════════════════ SETTING UP REACT ═══════════════ -->
+<div class="section-label">04 · Setting Up the React Project</div>
+<h2 class="section-title">From Zero to a Working Wallet Connection in 15 Minutes</h2>
+<p>
+  We use <strong>Vite</strong> for fast builds and a clean developer experience. The following steps create a TypeScript React app, install dependencies, and connect to the BridgeKey wallet on MST mainnet.
+</p>
+
+<div class="code-block"><code>npm create vite@latest my-dapp -- --template react-ts
+cd my-dapp
+npm install ethers@5.7.2   # or the MST SDK if available
+npm install react-toastify  # for transaction notifications
+npm run dev</code></div>
+
+<p>Now, inside <code>src/App.tsx</code>, we build the wallet connection logic. MST’s BridgeKey injects <code>window.ethereum</code> just like MetaMask, so the code is identical to standard Ethereum dApps.</p>
+
+<div class="code-block"><code>import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+
+function App() {
+  const [account, setAccount] = useState<string |="" null="">(null);
+
+  const connectWallet = async () =&gt; {
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      setAccount(address);
+    } else {
+      alert("Please install BridgeKey wallet!");
+    }
+  };
+
+  return (
+    <div>
+      {account ? (
+        <p>Connected: {account}</p>
+      ) : (
+        <button onclick="{connectWallet}">Connect BridgeKey</button>
+      )}
+    </div>
+  );
+}</string></code></div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Network Check</div>
+  <p>
+    Always verify the user is on MST mainnet (chain ID <strong>4646</strong>). If not, prompt them to switch. Use <code>provider.getNetwork()</code> to check <code>chainId</code>.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ CONTRACT INTERACTION ═══════════════ -->
+<div class="section-label">05 · Reading &amp; Writing to Your Deployed Contracts</div>
+<h2 class="section-title">Bringing Your Mainnet Contracts to the UI</h2>
+<p>
+  After connecting the wallet, the user can call view functions (free) and send state-changing transactions (costing gas). You need the contract ABI and the address you deployed in 21.2.
+</p>
+<p>
+  Create a custom hook <code>useContract</code> that returns a contract instance with the signer attached.
+</p>
+
+<div class="code-block"><code>import { ethers } from 'ethers';
+import { useMemo } from 'react';
+import ABI from './MyToken.json';
+
+export function useContract(address: string, signer: ethers.Signer | null) {
+  return useMemo(() =&gt; {
+    if (!signer) return null;
+    return new ethers.Contract(address, ABI, signer);
+  }, [signer, address]);
+}</code></div>
+
+<p>
+  Then, in a component, you can read a balance or call <code>transfer</code>. Always handle loading and error states. Use <code>toast</code> notifications for pending and confirmed transactions.
+</p>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Pro UX Patterns</div>
+  <p>
+    Show a spinner while the transaction is pending. Disable the button during the transaction. Display a success message with a link to the transaction on MST Explorer (<code>https://mstscan.com/tx/{hash}</code>). These small touches make your dApp feel professional.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ DEPLOYING THE FRONTEND ═══════════════ -->
+<div class="section-label">06 · Deploying to Production - Vercel, Netlify &amp; IPFS</div>
+<h2 class="section-title">From localhost to a Public URL</h2>
+<p>
+  Your frontend needs to be accessible to users, judges, and grant reviewers. Here are three battle-tested options.
+</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Vercel (Recommended)</div>
+      <div class="feature-desc">
+        Connect your GitHub repo, set the build command to <code>npm run build</code> and output directory to <code>dist</code>. Add environment variables (e.g., <code>VITE_CONTRACT_ADDRESS</code>) in the Vercel dashboard. Deploys in seconds with automatic SSL.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--teal);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Netlify</div>
+      <div class="feature-desc">
+        Similar to Vercel. Drag-and-drop your <code>dist</code> folder or connect a Git repo. Netlify also supports environment variables and preview deployments for each pull request.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">IPFS via Fleek</div>
+      <div class="feature-desc">
+        For maximum decentralisation, deploy your static site to IPFS. Fleek provides a gateway and automatic pinning. However, updates are slower. Use this if your dApp is fully on-chain and you want to avoid centralised hosting.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Environment Variables in Vite</div>
+  <p>
+    In Vite, environment variables must be prefixed with <code>VITE_</code> to be exposed to the client. Store your contract address in <code>VITE_CONTRACT_ADDRESS</code> and access it via <code>import.meta.env.VITE_CONTRACT_ADDRESS</code>.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ DOCUMENTATION ═══════════════ -->
+<div class="section-label">07 · Crafting the Perfect Documentation</div>
+<h2 class="section-title">README, Technical Specs &amp; Demo Video - The Holy Trinity</h2>
+<p>
+  Documentation is not an afterthought. It’s the first thing a grant committee, potential employer, or open-source contributor sees. Your capstone repository must include a <strong>README.md</strong> that answers every question before it’s asked.
+</p>
+
+<div class="two-col">
+  <div class="col-card green">
+    <div class="col-card-title">✅ What a Great README Contains</div>
+    <ul>
+      <li>Project name, tagline, and a live demo link</li>
+      <li>Architecture diagram (can be a Mermaid diagram)</li>
+      <li>List of smart contracts with mainnet addresses</li>
+      <li>Step-by-step local setup instructions</li>
+      <li>How to deploy to testnet/mainnet</li>
+      <li>Security audit summary (from 21.1)</li>
+      <li>Demo video embed or link</li>
+      <li>License &amp; team information</li>
+    </ul>
+  </div>
+  <div class="col-card red">
+    <div class="col-card-title">❌ Common Mistakes</div>
+    <ul>
+      <li>Missing live demo link - reviewers can’t test</li>
+      <li>Hardcoded private keys (even in examples)</li>
+      <li>No mention of which network the contracts are on</li>
+      <li>README copied from a template with placeholder text</li>
+      <li>No demo video - text alone rarely convinces</li>
+    </ul>
+  </div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.3-B · Anatomy of a Professional README</div>
+  <pre>  # 🚀 MyCapstone dApp
+  [Live Demo](https://my-dapp.vercel.app)
+
+  ## 📜 Smart Contracts (MST Mainnet)
+  | Contract   | Address                                      |
+  |------------|----------------------------------------------|
+  | Token      | 0x1234...abcd (verified on MST Explorer)     |
+  | Marketplace| 0x5678...ef01 (verified)                     |
+
+  ## 🏗️ Architecture
+  ![architecture](./docs/architecture.png)
+
+  ## 🛠️ Local Setup
+  ```bash
+  git clone ...
+  npm install
+  cp .env.example .env
+  npm run dev
+  ```
+
+  ## 🔒 Security Audit
+  Full audit report available [here](./audit/REPORT.md).
+  No critical issues. Slither / Mythril output: clean.
+
+  ## 🎥 Demo Video
+  [Watch on YouTube](https://youtu.be/example)
+  </pre>
+
+  <div class="diagram-caption">This structure immediately tells the reviewer what the project does, how to run it, and where to find the contracts - without any friction.</div>
+</div>
+
+<!-- ═══════════════════════════════ DEMO VIDEO ═══════════════ -->
+<div class="section-label">08 · Recording a Killer Demo Video</div>
+<h2 class="section-title">5 Minutes That Can Change Your Career</h2>
+<p>
+  A well-produced demo video is the most persuasive asset in your portfolio. It shows your dApp working end-to-end and lets your personality shine. Follow this script:
+</p>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num">1</div><div class="feature-content"><div class="feature-title">Hook (0-30 sec)</div><div class="feature-desc">State the problem you’re solving and show the dApp’s home screen.</div></div></div>
+  <div class="feature-item"><div class="feature-num">2</div><div class="feature-content"><div class="feature-title">Walkthrough (30 sec - 3 min)</div><div class="feature-desc">Connect wallet, perform the core action (mint, swap, stake), show the transaction on MST Explorer.</div></div></div>
+  <div class="feature-item"><div class="feature-num">3</div><div class="feature-content"><div class="feature-title">Technical Highlights (3-4 min)</div><div class="feature-desc">Mention MST protocols used (SARAL, WASMify, FortunaX), show gas costs, explain your smart contract design.</div></div></div>
+  <div class="feature-item"><div class="feature-num">4</div><div class="feature-content"><div class="feature-title">Call to Action (4-5 min)</div><div class="feature-desc">Share your GitHub, ask for feedback, mention you’re open to grants or collaboration.</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 · Assessment Preparation</div>
+<h2 class="section-title">Quick Facts to Remember</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">A</div><div class="feature-content"><div class="feature-title">BridgeKey Wallet</div><div class="feature-desc">MST’s native browser extension; injects <code>window.ethereum</code> and supports Chain ID 4646. Works with ethers.js seamlessly.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">B</div><div class="feature-content"><div class="feature-title">Vite Environment Variables</div><div class="feature-desc">Must be prefixed with <code>VITE_</code>. Access via <code>import.meta.env.VITE_...</code>. Never expose private keys in client-side code.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">C</div><div class="feature-content"><div class="feature-title">MST Explorer URL</div><div class="feature-desc">Live mainnet explorer: <code>https://mstscan.com</code>. Link to transactions with <code>/tx/{hash}</code> and to contracts with <code>/address/{address}</code>.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">D</div><div class="feature-content"><div class="feature-title">Documentation Must-Haves</div><div class="feature-desc">Live URL, contract addresses, local setup instructions, architecture diagram, audit report, demo video.</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT ═══════════════ -->
+
+
+<!-- ═══════════════════════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 21.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">BridgeKey</div><div class="glossary-def">MST’s native browser extension wallet that injects the Ethereum provider API for dApps.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Vite</div><div class="glossary-def">A fast frontend build tool that supports React, TypeScript, and environment variable handling with <code>VITE_</code> prefix.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MST Explorer</div><div class="glossary-def">The block explorer for MST mainnet (mstscan.com) where contracts are verified and transactions viewed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">IPFS</div><div class="glossary-def">InterPlanetary File System - a decentralised storage network for hosting static frontends without a single server.</div></div>
+  <div class="glossary-item"><div class="glossary-term">README</div><div class="glossary-def">The documentation file in a repository that explains what the project does, how to run it, and where the contracts are.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Demo Video</div><div class="glossary-def">A short screen recording that walks through the dApp’s core features, intended for investors and grant reviewers.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 21 · Sub-Module <strong>21.3</strong> of 5 · Next: 21.4 - Final Demo Day &amp; Graduation →</p>
+</div>
+
+
+

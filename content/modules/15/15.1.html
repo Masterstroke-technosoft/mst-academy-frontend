@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 15.1 - What is a DAO? | MasterStroke Academy</title>
+<meta name="description" content="Discover Decentralized Autonomous Organizations (DAOs) — community‑owned, code‑driven entities that replace CEOs with smart contracts. Learn how a Swiggy co‑op could be a DAO, why MakerDAO governs billions, and how MST's low fees make DAOs accessible to everyone.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 15 &nbsp;·&nbsp; Sub-Module 15.1 of 5</div>
+<h1 class="module-title">What is a <span class="highlight">DAO?</span></h1>
+<p class="module-subtitle">A company without a CEO. A bank without a board. A country without a president. This is the radical promise of the Decentralized Autonomous Organization - an entity run entirely by code and community, where every decision is a vote and every rule is transparent. Discover how DAOs are reshaping governance, from MakerDAO's billion-dollar stablecoin to a neighborhood Swiggy co-op.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 20 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1 mark each)</div>
+  <div class="meta-chip green">Phase 4 · DAOs & Governance</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏛️</div>
+    <div class="obj-text">
+      <strong>Define a DAO and contrast it with traditional organizations</strong>
+      Explain how code replaces hierarchy, tokens replace shares, and voting replaces executive decisions.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Identify the core components of any DAO</strong>
+      Governance token, voting mechanism, treasury, proposal system, and execution module - and how they work together.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗳️</div>
+    <div class="obj-text">
+      <strong>Trace a proposal from idea to on-chain execution</strong>
+      Understand the full lifecycle: temperature check, formal proposal, voting, timelock, and automated execution.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌐</div>
+    <div class="obj-text">
+      <strong>Evaluate real-world DAOs and their impact</strong>
+      Analyze MakerDAO, Uniswap, and ConstitutionDAO to see what works, what failed, and how DAOs evolve.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Swiggy Co-op That Could Have Been a DAO</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, the delivery partners of a popular food delivery app in India were unhappy. The platform took a 25% commission from restaurants, paid delivery riders a fixed wage with no say in policy, and could deactivate accounts overnight. The riders had no voice. A community organiser proposed a radical idea: what if the riders, restaurants, and customers <strong>collectively owned the platform</strong>? Instead of a CEO setting fees, they would vote on commission rates. Instead of a central team deciding who gets promoted, reputation tokens earned through reliable deliveries would grant voting power. The platform's code would enforce the rules - not a manager.</p>
+  <br>
+  <p>This is the vision of a Decentralized Autonomous Organization. While the Swiggy co-op hasn't been built yet, similar DAOs already govern billions of dollars. MakerDAO, a DAO of MKR token holders, controls the DAI stablecoin - deciding interest rates, collateral types, and risk parameters. Uniswap's DAO manages a multi-billion dollar treasury. ConstitutionDAO, a short-lived experiment, raised $47 million in a week to bid on a rare copy of the U.S. Constitution. DAOs are not theoretical; they are live, functioning, and growing.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From "The DAO" to MakerDAO - The Rise of Code-Governed Organizations</h2>
+<p>The concept of a decentralized autonomous organization predates the term itself. In 2013, Daniel Larimer, creator of BitShares, coined the phrase "Decentralized Autonomous Company" to describe an entity where shareholders vote on decisions using tokens. But the world took notice in 2016 with the launch of <strong>"The DAO"</strong> on Ethereum - a venture capital fund where anyone could pitch a project and token holders would vote on investments. It raised $150 million in Ether, the largest crowdfunding in history at the time. Within weeks, a hacker exploited a reentrancy vulnerability and drained $60 million. The Ethereum community hard-forked to recover the funds, splitting the chain into Ethereum and Ethereum Classic. "The DAO" was a spectacular failure, but it proved one thing: code could govern money at scale. It also taught the world that code must be bulletproof.</p>
+<p>From those ashes rose a more cautious, better-engineered generation. <strong>MakerDAO</strong>, launched in 2017, created a DAO to govern the DAI stablecoin. MKR token holders vote on risk parameters, stability fees, and new collateral types. MakerDAO has survived market crashes, regulatory scrutiny, and internal disputes - proving that a well-designed DAO can manage real financial risk.</p>
+<p>The <strong>DeFi summer of 2020</strong> supercharged DAO adoption. Compound, Uniswap, Aave, and dozens of other protocols distributed governance tokens to users, transforming them from passive consumers into active governors. Today, DAOs manage over $25 billion in treasuries, fund public goods (Gitcoin), buy rare collectibles (ConstitutionDAO), and even attempt to buy sports teams (Krause House). On MST, with its sub-paisa fees and hybrid architecture, a new generation of DAOs can emerge - ones where every small vote is recorded on-chain without economic friction.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> A DAO is not just a "company on the blockchain." It's a new organizational primitive - global, permissionless, transparent, and unstoppable by any single party. The code is the CEO.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Vending Machine Democracy - How a DAO Works in Plain English</h2>
+<div class="callout analogy">
+  <div class="callout-label">🤖 The Analogy</div>
+  <p>Imagine a vending machine that the whole neighborhood owns. Every resident has a few tokens. Want to change the price of cola? Anyone can propose it. The proposal goes to a vote. If a majority of token holders vote yes, the vending machine's internal computer automatically adjusts the price - no manager needed. The machine's earnings are deposited into a shared bank account (the treasury), and token holders vote on what to do with the profits: reinvest in more snacks, donate to the local school, or distribute to token holders. The machine runs 24/7, transparently, and no single person can override the rules. That's a DAO - but instead of cola, it might be managing a $5 billion stablecoin.</p>
+</div>
+
+<p>Every DAO has five core components. Let's understand each in simple terms:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">T</div><div class="w5-word">TOKEN</div></div>
+    <div class="w5-content">
+      <div class="w5-q">The Governance Token - Your Voice in the DAO</div>
+      <div class="w5-a">A <strong>governance token</strong> is a special ERC-20 token that represents voting power. Holding 1% of the token supply means you have 1% of the votes. Tokens can be earned by contributing to the DAO (working, providing liquidity) or purchased on the open market. Owning tokens aligns your interests with the DAO's success - if the DAO thrives, the token value increases. This is the "share" of the DAO world, but with governance rights explicitly programmed in.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">V</div><div class="w5-word">VOTE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Voting Mechanism - How Decisions Are Made</div>
+      <div class="w5-a">DAOs use various voting systems: <strong>simple token voting</strong> (1 token = 1 vote), <strong>quadratic voting</strong> (the cost of additional votes increases quadratically, reducing whale influence), <strong>delegation</strong> (token holders assign their votes to trusted experts), and <strong>conviction voting</strong> (votes accumulate over time, favoring long-term commitment). The most common today is token-weighted voting with delegation - like a representative democracy where your representative's power depends on how many tokens are delegated to them.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">P</div><div class="w5-word">PROPOSAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Proposal System - How Ideas Become Actions</div>
+      <div class="w5-a">Anyone can submit a proposal to the DAO, though typically a minimum token holding or sponsorship is required to prevent spam. A proposal might be: "Invest 1,000 USDC from the treasury into Protocol X" or "Change the interest rate on DAI from 3% to 5%." The proposal includes a <strong>description</strong>, a <strong>voting period</strong>, and the <strong>executable code</strong> (the smart contract function call that will be executed if the proposal passes). Once submitted, the voting period begins.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">E</div><div class="w5-word">EXECUTE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Execution - When Code Takes Action</div>
+      <div class="w5-a">If a proposal reaches quorum (minimum votes) and a majority votes in favor, it passes. But it doesn't execute immediately - a <strong>timelock</strong> (e.g., 48 hours) gives token holders time to exit if they disagree. After the timelock, anyone can call the <code>execute()</code> function, which runs the pre-approved code. This might transfer funds from the treasury, call another smart contract, or update a protocol parameter. The execution is <strong>atomic and unstoppable</strong> - the code runs exactly as specified.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">💰</div><div class="w5-word">TREASURY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">The Treasury - The DAO's Shared Bank Account</div>
+      <div class="w5-a">A DAO's treasury is a <strong>multisig wallet</strong> or a smart contract that holds the DAO's assets - tokens, stablecoins, NFTs. The treasury is controlled by the governance process: no single person can move funds; only a passed proposal can trigger a transfer. This prevents rug pulls by founders. The treasury is funded by protocol fees, token sales, or donations. Transparent on-chain treasuries allow anyone to audit the DAO's finances in real time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: A MINIMAL DAO IN SOLIDITY -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - A Minimal DAO Contract</div>
+<h2 class="section-title">Build a Simple DAO in 50 Lines of Solidity</h2>
+<p>Let's implement a bare-bones DAO to see how these components translate into code. This contract uses OpenZeppelin's <code>Governor</code> and <code>TimelockController</code> - the industry standard.</p>
+
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+contract MyDAO is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyDAO")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4) // 4% quorum
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure override returns (uint256) { return 1 days; }
+    function votingPeriod() public pure override returns (uint256) { return 3 days; }
+
+    // The following functions are overrides required by Solidity.
+    function proposalThreshold() public pure override returns (uint256) { return 10_000e18; } // 10,000 tokens to propose
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+        return super.quorum(blockNumber);
+    }
+}
+</pre>
+
+<p>This single contract includes: voting with a governance token, a 4% quorum, a 1-day voting delay, a 3-day voting period, and a timelock for execution. All of this is inherited from OpenZeppelin - battle-tested and audited. To deploy, you also need a governance token (an ERC-20 with ERC-20Votes extension) and a TimelockController.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Proposal Lifecycle in Diagrams</h3>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 15.1-A · Proposal Lifecycle in a DAO</div>
+  <pre>
+  ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+  │ 1. Proposal  │────▶│ 2. Voting    │────▶│ 3. Timelock  │────▶│ 4. Execution │
+  │   Submitted  │     │   Period     │     │   (Queue)    │     │   (Execute)  │
+  │  (threshold  │     │  (e.g., 3    │     │  (e.g., 2    │     │  (anyone     │
+  │   met)       │     │   days)      │     │   days)      │     │   calls)     │
+  └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+    • Proposer stakes     • Token holders       • Proposal is        • Target contract
+      enough tokens         cast votes            queued              is called
+    • Description +       • For / Against /     • Grace period       • If fails, proposal
+      executable code      Abstain               for exit            can be re‑tried
+    • Voting starts       • Quorum must be
+      after delay           reached
+  </pre>
+  <div class="diagram-caption">The four phases ensure deliberation, community input, a safety window, and finally unstoppable execution.</div>
+</div>
+
+<!-- 06 INTERACTIVE EXAMPLES -->
+<div class="section-label">06 &nbsp; Interactive Examples</div>
+<h2 class="section-title">DAO Governance in Action - Click to Explore</h2>
+
+<details>
+  <summary>🗳️ Example 1: Token-Weighted Voting with Delegation</summary>
+  <div class="content">
+    <p>Alice holds 1,000 DAO tokens. Bob holds 500. Alice is an expert in DeFi, Bob is new. Bob delegates his 500 tokens to Alice. Now Alice has 1,500 voting power. When a proposal comes up about a complex DeFi strategy, Bob trusts Alice to vote wisely. This is called <strong>liquid democracy</strong> - you can vote directly or delegate to a representative. The OpenZeppelin Governor contract supports delegation out of the box via the <code>IVotes</code> interface.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+// Delegating voting power (using ERC20Votes)
+governanceToken.delegate(aliceAddress);
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🏦 Example 2: Funding a Public Good from the Treasury</summary>
+  <div class="content">
+    <p>The DAO's treasury holds 100,000 USDC. A member proposes to donate 5,000 USDC to an open-source Solidity course that benefits the ecosystem. The proposal passes with 80% approval and meets quorum. After the timelock, anyone calls <code>execute()</code>. The treasury contract transfers 5,000 USDC to the course creator's address - all on-chain, transparent, and irreversible. This is how Gitcoin DAO funds public goods.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⚖️ Example 3: Upgrading a Protocol Parameter</summary>
+  <div class="content">
+    <p>MakerDAO's stability fee for ETH vaults is 3%. A proposal suggests raising it to 5% to reduce DAI supply. MKR holders vote. If passed, the MakerDAO governor contract calls the <code>setStabilityFee</code> function on the Maker protocol - no multisig, no team intervention. The parameter changes automatically. This shows how a DAO can manage a live financial protocol.</p>
+  </div>
+</details>
+
+<!-- 07 COMPARISON TABLE -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">DAO vs Traditional Company - Head-to-Head</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Feature</th><th>🏢 Traditional Company</th><th>🏛️ DAO</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Leadership</td><td>CEO, board, executives</td><td>Code + community voting</td></tr>
+    <tr><td>Ownership</td><td>Shares (often private)</td><td>Governance tokens (transparent)</td></tr>
+    <tr><td>Decision making</td><td>Top-down, fast, opaque</td><td>Bottom-up, slow, transparent</td></tr>
+    <tr><td>Financials</td><td>Audited quarterly, private</td><td>On-chain, real-time, public</td></tr>
+    <tr><td>Hiring</td><td>HR department, interviews</td><td>Proposals, grants, reputation</td></tr>
+    <tr><td>Global access</td><td>Jurisdiction-dependent</td><td>Permissionless, global</td></tr>
+    <tr><td>Regulation</td><td>Clear legal entity</td><td>Evolving legal wrappers (e.g., DAO LLC)</td></tr>
+  </tbody>
+</table>
+
+<!-- 08 MST‑SPECIFIC ADVANTAGES FOR DAOs -->
+<div class="section-label">08 &nbsp; MST-Specific Advantages</div>
+<h2 class="section-title">Why Build Your DAO on MST?</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Sub-paisa voting</div>
+      <div class="feature-desc">Casting a vote on Ethereum costs ₹500-₹2,000 in gas - only whales can afford to participate regularly. On MST, a vote costs ~₹0.006. This enables high-frequency voting, quadratic voting, and truly democratic participation where every token holder's voice can be heard.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Permissioned zones for legal wrappers</div>
+      <div class="feature-desc">A DAO can be legally structured as a DAO LLC in Wyoming or a foundation in Cayman. MST's hybrid zones allow the DAO's legal entity to interact with the on-chain governance in a permissioned environment, while the token and voting remain open and transparent. This bridges regulatory compliance with decentralization.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Tiny treasury management fees</div>
+      <div class="feature-desc">Moving funds from a DAO treasury - swapping tokens, diversifying, paying contributors - incurs transaction fees. On MST, these are negligible, allowing the DAO to manage its treasury actively without wasting member funds.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Don't Let Your DAO Become a Tyranny</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Plutocracy - rule by the rich</div>
+      <div class="feature-desc">1 token = 1 vote can lead to a few whales controlling all decisions. Mitigation: quadratic voting, delegation, reputation-based voting, or capped voting power.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Voter apathy</div>
+      <div class="feature-desc">Most token holders don't vote. Typical participation is 5 - 15%. This can lead to a small group capturing the DAO. Incentives (like staking rewards for voting) and delegation are crucial.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Slow decision-making</div>
+      <div class="feature-desc">A proposal can take a week from submission to execution. In a fast-moving market, this can be fatal. Some DAOs have "emergency multisig" for urgent actions, but that centralizes power.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 REAL‑WORLD CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">DAOs That Changed the Game</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">MakerDAO - The Central Bank of DeFi</div>
+      <div class="feature-desc">MakerDAO governs DAI, a decentralized stablecoin with a market cap of over $5 billion. MKR token holders vote on risk parameters (collateral ratios, stability fees) and approve new collateral types. During the March 2020 crash, MakerDAO's governance voted to auction off new MKR tokens to cover a deficit caused by failed liquidations - a controversial but necessary decision. MakerDAO proved that a DAO can manage a systemic financial protocol.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap DAO - A $2.5 Billion Treasury</div>
+      <div class="feature-desc">Uniswap's governance token UNI was airdropped to early users in 2020, instantly creating one of the largest DAOs. The Uniswap treasury holds billions in UNI tokens. The community votes on fee switches, grants, and protocol upgrades. The DAO has funded developer grants, liquidity mining programs, and even a political advocacy arm (DeFi Education Fund).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">📜</div>
+    <div class="feature-content">
+      <div class="feature-title">ConstitutionDAO - The $47 Million Experiment</div>
+      <div class="feature-desc">In November 2021, a group of strangers pooled $47 million in ETH in a DAO to bid on a rare copy of the U.S. Constitution at Sotheby's. They lost the auction, but the experiment demonstrated the speed and passion DAOs can mobilize. Participants received refunds (minus gas fees - a painful lesson). ConstitutionDAO showed that DAOs can coordinate capital for a single purpose faster than any traditional organization.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">A DAO is an organization run by smart contracts and token-holder voting, with no central authority.</div>
+      <div class="feature-desc">Code enforces rules; tokens represent membership; proposals and voting decide actions.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">The core components: governance token, voting mechanism, proposal system, treasury, execution with timelock.</div>
+      <div class="feature-desc">OpenZeppelin's Governor and TimelockController are the industry standard for building DAOs on EVM chains.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's low fees make frequent voting and small treasury actions practical.</div>
+      <div class="feature-desc">On Ethereum, gas costs can paralyze a DAO. On MST, governance is affordable for every participant.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT: 10 MCQs -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 15.1 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">10 Questions · 1 mark each · 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary enforcement mechanism of rules in a DAO?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Smart contracts that execute automatically based on code and voting outcomes. ✅</li>
+        <li><span class="opt-key">B</span> A board of directors.</li>
+        <li><span class="opt-key">C</span> A government regulator.</li>
+        <li><span class="opt-key">D</span> Manual approval by the founder.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>DAOs use smart contracts to enforce rules. No single person can override a vote that has passed and been executed.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a governance token in a DAO?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> A token that gives the holder voting rights on proposals. ✅</li>
+        <li><span class="opt-key">B</span> A token used only for paying gas fees.</li>
+        <li><span class="opt-key">C</span> A stablecoin used in the treasury.</li>
+        <li><span class="opt-key">D</span> A token that automatically grants ownership of the DAO's assets.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Governance tokens represent membership and voting power. They are typically ERC-20 tokens with delegation capabilities.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the purpose of a timelock in a DAO?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> To delay execution after a vote passes, giving members time to exit if they disagree. ✅</li>
+        <li><span class="opt-key">B</span> To speed up proposal execution.</li>
+        <li><span class="opt-key">C</span> To count votes more accurately.</li>
+        <li><span class="opt-key">D</span> To prevent anyone from viewing the proposal.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A timelock provides a safety buffer. After a proposal passes, it is queued in the timelock and can only be executed after a set period (e.g., 48 hours).</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which OpenZeppelin contract is the industry standard for building a DAO on EVM chains?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Governor (with TimelockController). ✅</li>
+        <li><span class="opt-key">B</span> ERC20.</li>
+        <li><span class="opt-key">C</span> Ownable.</li>
+        <li><span class="opt-key">D</span> ReentrancyGuard.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>OpenZeppelin's Governor contract provides a full DAO framework including proposal lifecycle, voting, and execution. Combined with TimelockController, it's the standard for on-chain governance.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is "quorum" in DAO voting?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> The minimum number of votes required for a proposal to be valid. ✅</li>
+        <li><span class="opt-key">B</span> The maximum number of proposals per day.</li>
+        <li><span class="opt-key">C</span> The percentage of tokens that must be staked to create a proposal.</li>
+        <li><span class="opt-key">D</span> The number of times a proposal can be re-submitted.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Quorum ensures that a minimum number of tokens participate in a vote, preventing a small group from passing a proposal with low turnout.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why are MST's low fees important for DAOs?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> They make it affordable for all token holders to vote and participate, not just whales. ✅</li>
+        <li><span class="opt-key">B</span> They allow DAOs to avoid using smart contracts.</li>
+        <li><span class="opt-key">C</span> They increase the value of governance tokens.</li>
+        <li><span class="opt-key">D</span> They make DAOs legally compliant.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>On expensive chains, voting costs can discourage participation. MST's sub-paisa fees democratize access to governance.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is "liquid democracy" in the context of DAOs?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Token holders can either vote directly or delegate their voting power to a trusted representative. ✅</li>
+        <li><span class="opt-key">B</span> All decisions are made by a single AI.</li>
+        <li><span class="opt-key">C</span> Voting is done entirely off-chain.</li>
+        <li><span class="opt-key">D</span> Only token holders with a minimum balance can vote.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Liquid democracy combines direct and representative democracy. You vote on issues you understand, and delegate on issues you don't.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is a common criticism of simple token-weighted voting (1 token = 1 vote)?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It can lead to plutocracy, where wealthy token holders dominate decisions. ✅</li>
+        <li><span class="opt-key">B</span> It makes voting too fast.</li>
+        <li><span class="opt-key">C</span> It requires too much gas.</li>
+        <li><span class="opt-key">D</span> It allows anyone to create proposals for free.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Simple token voting gives disproportionate power to large holders. Alternative mechanisms like quadratic voting aim to mitigate this.</p></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What was the DAO hack of 2016?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> An attacker exploited a reentrancy vulnerability in "The DAO" smart contract and drained $60 million worth of ETH. ✅</li>
+        <li><span class="opt-key">B</span> A government seized the DAO's assets.</li>
+        <li><span class="opt-key">C</span> The founder stole all the tokens.</li>
+        <li><span class="opt-key">D</span> A bug caused all proposals to be deleted.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The DAO hack was a pivotal moment that led to the Ethereum hard fork and highlighted the need for rigorous smart contract security.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is NOT a component of a typical DAO?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> A centralized board of directors with veto power. ✅</li>
+        <li><span class="opt-key">B</span> A governance token.</li>
+        <li><span class="opt-key">C</span> A treasury controlled by voting.</li>
+        <li><span class="opt-key">D</span> A proposal system.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A DAO, by definition, has no central board. Governance is distributed among token holders.</p></div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 15.1 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ <span>(1 mark each) = 10 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 15.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">DAO</div><div class="glossary-def">Decentralized Autonomous Organization - an entity governed by smart contracts and token-holder voting, with no central authority.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Governance Token</div><div class="glossary-def">An ERC-20 token that grants voting rights in a DAO, often also representing economic ownership or utility.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Quorum</div><div class="glossary-def">The minimum number of votes (or percentage of total supply) required for a proposal to be valid and pass.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Timelock</div><div class="glossary-def">A smart contract that delays the execution of a passed proposal, giving stakeholders time to react or exit before changes take effect.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquid Democracy</div><div class="glossary-def">A governance model where token holders can either vote directly on issues or delegate their voting power to representatives.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Plutocracy</div><div class="glossary-def">Rule by the wealthy - a risk in token-voting systems where large holders can dominate decisions.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 15 · Sub-Module <strong>15.1</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 15.2 - Governance Models →</p>
+</div>
+
+</body>
+</html>

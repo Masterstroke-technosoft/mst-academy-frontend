@@ -1,0 +1,303 @@
+{
+  "submoduleId": "16.5",
+  "totalMarks": 25,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What does a ZK age verification circuit prove without revealing the birthdate?",
+      "options": [
+        {
+          "key": "A",
+          "text": "That the person's age is at least a specified threshold (e.g., 18)",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "The exact age of the person in years",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "The person's Aadhaar number",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "That the person is a citizen of India",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "The circuit outputs a single bit: 1 if age ≥ threshold, else 0. No other information is revealed.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>The circuit outputs a single bit: 1 if age ≥ threshold, else 0. No other information is revealed.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "In the Circom circuit, which template is used to compare two numbers?",
+      "options": [
+        {
+          "key": "A",
+          "text": "LessThan from circomlib",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "GreaterThan",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Poseidon",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "MerkleProof",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "circomlib provides LessThan for inequality checks. There's no native GreaterThan; we can build one using LessThan with swapped inputs.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>circomlib provides <code>LessThan</code> for inequality checks. There's no native <code>GreaterThan</code>; we can build one using LessThan with swapped inputs.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Why must the circuit include a check that <code>today &gt;= birthDay</code>?",
+      "options": [
+        {
+          "key": "A",
+          "text": "To prevent a user from using a future birthdate to appear older",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "To satisfy the Groth16 trusted setup",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "To reduce gas costs",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "To align with India's DPDPA",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "If a user provides a birthdate in the future, the subtraction today - birthDay would underflow (in a normal system) or produce a negative number. In the field, underflow wraps around, so the result could be a huge positive number, falsely proving age. The check prevents this.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>If a user provides a birthdate in the future, the subtraction <code>today - birthDay</code> would underflow (in a normal system) or produce a negative number. In the field, underflow wraps around, so the result could be a huge positive number, falsely proving age. The check prevents this.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "In the circuit, to prove <code>diff &gt;= threshold</code>, we check that <code>threshold - 1 &lt; diff</code>. What happens if <code>threshold</code> is 0?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The circuit fails to compile",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "It underflows: 0 - 1 wraps around to the field's maximum value, potentially causing false proofs",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "It works correctly, proving age >= 0",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The LessThan template automatically handles it",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "In a finite field, threshold - 1 when threshold=0 becomes p - 1, a huge number. The check would incorrectly pass. Always ensure threshold > 0, or handle the edge case separately.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>In a finite field, <code>threshold - 1</code> when threshold=0 becomes <code>p - 1</code>, a huge number. The check would incorrectly pass. Always ensure threshold &gt; 0, or handle the edge case separately.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Which tool is used to generate a Groth16 proof from a compiled Circom circuit?",
+      "options": [
+        {
+          "key": "A",
+          "text": "snarkjs",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Hardhat",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Remix",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "MetaMask",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "snarkjs handles trusted setup, proof generation, and verification for Groth16. Hardhat is for Solidity; Remix is an IDE; MetaMask is a wallet.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>snarkjs handles trusted setup, proof generation, and verification for Groth16. Hardhat is for Solidity; Remix is an IDE; MetaMask is a wallet.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "How does the verifier (bar tablet) ensure the proof was generated with the correct current date?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It provides today as a public input and checks it against a trusted source",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "The proof includes a timestamp from the user's wallet",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "The circuit hardcodes the date",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The verifier trusts the user's input",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "today is a public input that the verifier must set and validate. If the verifier accepts any today from the prover, the prover can cheat.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p><code>today</code> is a public input that the verifier must set and validate. If the verifier accepts any today from the prover, the prover can cheat.</p>"
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "In the circuit, why do we use both <code>LessThan</code> and <code>IsEqual</code> to check <code>birthDay &lt;= today</code>?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Because LessThan alone returns false if the numbers are equal, which would incorrectly reject a user born exactly at midnight",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "To improve gas efficiency",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "To satisfy the R1CS constraint system's requirements",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "To allow the proof to be verified on older versions of Solidity",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "LessThan strictly checks a < b. To allow equality, we need to also check a == b and accept either condition.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p><code>LessThan</code> strictly checks <code>a &lt; b</code>. To allow equality, we need to also check <code>a == b</code> and accept either condition.</p>"
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "If the user's birthdate is 20 years ago, and today is the current date, what is the approximate number of constraints in the LessThan(32) component?",
+      "options": [
+        {
+          "key": "A",
+          "text": "About 2500 constraints",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "Exactly 32 constraints",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "Zero constraints (it's a built-in)",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Depends on the value of the inputs",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "The LessThan template internally decomposes the numbers into bits and uses a series of comparisons, resulting in approximately O(n) constraints where n is the bit length. For n=32, it's roughly 2500 constraints.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>The LessThan template internally decomposes the numbers into bits and uses a series of comparisons, resulting in approximately O(n) constraints where n is the bit length. For n=32, it's roughly 2500 constraints.</p>"
+    },
+    {
+      "id": "q9",
+      "number": 9,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"In the ZK age verification circuit, the user's birthdate is a public input so that the verifier can confirm it matches the Aadhaar record.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: Correctly states FALSE.+1 mark: Explains that birthdate is private to preserve confidentiality, and that the verifier relies on the proof, not direct inspection.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that birthdate is private to preserve confidentiality, and that the verifier relies on the proof, not direct inspection.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q10",
+      "number": 10,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "Design a complete privacy-preserving age verification system for Indian liquor shops using MST, SARAL, and ZK proofs. Your answer must include:<br>\n        (a) How the user's age is proved without revealing their Aadhaar or birthdate. (2 marks)<br>\n        (b) How the system prevents a minor from using a fake proof or a stolen Aadhaar XML. (2 marks)<br>\n        (c) How the shop's compliance with excise laws can be audited without exposing customer identities. (1 mark)",
+      "explanation": "(a) Proof Generation (2 marks): The user's SARAL wallet holds a Verifiable Credential (VC) from UIDAI/DigiLocker containing their birthdate. At the shop, the wallet generates a ZK proof using the AgeVerification circuit. The private input is the birthdate (extracted from the VC). The public inputs are today's date (provided by the shop's tablet) and the threshold (18 years). The proof is sent to the shop. The shop's tablet verifies it using an MST on-chain verifier contract or a local Groth16 verifier. The shop sees only the boolean result; no birthdate or Aadhaar number is transmitted.\n(b) Anti-Fraud Measures (2 marks): 1. The ZK proof is bound to the user's DID - the circuit also proves that the user knows the private key corresponding to the DID that the VC was issued to. This prevents a stolen Aadhaar XML from being used by a different person, because the prover must sign the proof with their DID's private key. 2. The wallet checks the VC's digital signature (UIDAI's) before feeding the birthdate into the circuit; this happens inside the SARAL secure enclave, preventing tampering. 3. The shop's tablet queries an on-chain revocation registry to ensure the VC hasn't been revoked by UIDAI.\n(c) Audit Trail (1 mark): The shop's tablet records an encrypted log entry on MST: {timestamp, proofHash, isAdult, shopDID}. The log entry is encrypted under a threshold key shared among the Excise Department and the Data Protection Authority. The department can run a ZK compliance proof that \"all sales had valid age proofs\" without decrypting individual logs. Only in a specific investigation would a log be decrypted, preserving privacy while meeting regulatory requirements.",
+      "modelAnswer": "<div class=\"answer-box-label\">📝 Model Answer Outline</div>\n        <p><strong>(a) Proof Generation (2 marks):</strong> The user's SARAL wallet holds a Verifiable Credential (VC) from UIDAI/DigiLocker containing their birthdate. At the shop, the wallet generates a ZK proof using the AgeVerification circuit. The private input is the birthdate (extracted from the VC). The public inputs are today's date (provided by the shop's tablet) and the threshold (18 years). The proof is sent to the shop. The shop's tablet verifies it using an MST on-chain verifier contract or a local Groth16 verifier. The shop sees only the boolean result; no birthdate or Aadhaar number is transmitted.</p>\n        <p><strong>(b) Anti-Fraud Measures (2 marks):</strong> 1. The ZK proof is bound to the user's DID - the circuit also proves that the user knows the private key corresponding to the DID that the VC was issued to. This prevents a stolen Aadhaar XML from being used by a different person, because the prover must sign the proof with their DID's private key. 2. The wallet checks the VC's digital signature (UIDAI's) before feeding the birthdate into the circuit; this happens inside the SARAL secure enclave, preventing tampering. 3. The shop's tablet queries an on-chain revocation registry to ensure the VC hasn't been revoked by UIDAI.</p>\n        <p><strong>(c) Audit Trail (1 mark):</strong> The shop's tablet records an encrypted log entry on MST: {timestamp, proofHash, isAdult, shopDID}. The log entry is encrypted under a threshold key shared among the Excise Department and the Data Protection Authority. The department can run a ZK compliance proof that \"all sales had valid age proofs\" without decrypting individual logs. Only in a specific investigation would a log be decrypted, preserving privacy while meeting regulatory requirements.</p>\n        <div class=\"marks-bd\"><span>Total 5 marks.</span></div>"
+    },
+    {
+      "id": "q11",
+      "number": 11,
+      "type": "other",
+      "difficulty": "Hard",
+      "marks": 10,
+      "text": "Complete the following Circom circuit for age verification. The circuit must:\n        <br> -  Accept private input: <code>birthDay</code> (days since epoch).\n        <br> -  Accept public inputs: <code>today</code>, <code>threshold</code>.\n        <br> -  Output <code>isAdult</code> = 1 if <code>today - birthDay &gt;= threshold</code>, else 0.\n        <br> -  Ensure <code>birthDay &lt;= today</code> (no future birthdates).\n        <br>Fill in the missing parts marked with <code>// TODO</code>. Then, in a separate written answer (max 200 words), explain how you would modify the circuit to also prove that the <code>birthDay</code> was extracted from a valid Aadhaar-issued VC (i.e., link the birthdate to a signed credential).",
+      "explanation": "Circuit Completion (7 marks):\nCorrectly instantiates LessThan and IsEqual for birthdate check (2 marks).\nComputes validBirth as sum and constrains to 1 (1 mark).\nComputes diff = today - birthDay (1 mark).\nInstantiates LessThan for threshold-1 < diff (1 mark).\nSets isAdult to output of that LessThan (1 mark).\nAll signal assignments use <== or === correctly (1 mark).\n          Written Explanation (3 marks):\nMentions including the VC's signature verification inside the circuit: e.g., taking the VC as an additional private input, hashing it, and checking the signature against the issuer's public key (retrieved from DID Document). (1 mark)\nExplains that the birthdate is extracted from the VC's claims and that the circuit constrains that the birthDay used in the age proof equals the birthdate in the verified VC. (1 mark)\nOptionally mentions using a nullifier to prevent reuse of the same VC. (1 mark)",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marking Rubric (10 marks)</div>\n        <p><strong>Circuit Completion (7 marks):</strong><br>\nCorrectly instantiates LessThan and IsEqual for birthdate check (2 marks).<br>\nComputes <code>validBirth</code> as sum and constrains to 1 (1 mark).<br>\nComputes <code>diff = today - birthDay</code> (1 mark).<br>\nInstantiates LessThan for threshold-1 &lt; diff (1 mark).<br>\nSets <code>isAdult</code> to output of that LessThan (1 mark).<br>\nAll signal assignments use <code>&lt;==</code> or <code>===</code> correctly (1 mark).<br><br>\n          <strong>Written Explanation (3 marks):</strong><br>\nMentions including the VC's signature verification inside the circuit: e.g., taking the VC as an additional private input, hashing it, and checking the signature against the issuer's public key (retrieved from DID Document). (1 mark)<br>\nExplains that the birthdate is extracted from the VC's claims and that the circuit constrains that the <code>birthDay</code> used in the age proof equals the birthdate in the verified VC. (1 mark)<br>\nOptionally mentions using a nullifier to prevent reuse of the same VC. (1 mark)</p>\n        <div class=\"marks-bd\"><span>Total 10 marks.</span></div>",
+      "starterCode": "pragma circom 2.0.0;\ninclude \"circomlib/circuits/comparators.circom\";\n\ntemplate AgeVerification() {\n    signal input birthDay;\n    signal input today;\n    signal input threshold;\n    signal output isAdult;\n\n    // TODO: Check that birthDay <= today\n    // Use LessThan and IsEqual as described\n    // component birthCheck = LessThan(32);\n    // ...\n    // signal validBirth <== ...;\n    // validBirth === 1;\n\n    // TODO: Compute difference\n    // signal diff <== ...;\n\n    // TODO: Check diff >= threshold\n    // Use LessThan on threshold-1 and diff\n    // isAdult <== ...;\n}\n\ncomponent main {public [today, threshold]} = AgeVerification();"
+    }
+  ]
+}

@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 10.3 - Security Patterns | Masterstroke Academy</title>
+    <meta name="description" content="Master Solidity security patterns: reentrancy, integer overflow, checks‑effects‑interactions, access control, and more. Learn how the largest hacks in blockchain history could have been prevented.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #DC2626;
+            --brand-light: #FEE2E2;
+            --brand-dark: #7F1D1D;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #FCA5A5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #FCA5A5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #FCA5A5;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🛡️ Module 10 · Sub-Module 10.3 of 6</div>
+    <h1 class="module-title">Smart Contract <span class="highlight">Security Patterns</span></h1>
+    <p class="module-subtitle">The patterns that protect billions of dollars. Reentrancy guards, integer overflow protection, the Checks-Effects-Interactions pattern, and the access control rules that separate a secure contract from a honeypot waiting to be drained.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 60 Minutes</div>
+        <div class="meta-chip purple">🎯 20 Marks (Vulnerability Detection)</div>
+        <div class="meta-chip">📋 Find and fix security bugs in real contracts</div>
+        <div class="meta-chip green">Phase 3 · Advanced Solidity & Security</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🔄</div>
+            <div class="feature-title">Detect and prevent reentrancy attacks</div>
+            <div class="feature-desc">Understand exactly how the DAO was hacked for $60M, how reentrancy works step-by-step, and how to apply the Checks-Effects-Interactions pattern and ReentrancyGuard to protect your contracts.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔢</div>
+            <div class="feature-title">Protect against integer overflow and underflow</div>
+            <div class="feature-desc">Know when Solidity 0.8+ protects you automatically and when it doesn't. Understand why SafeMath was necessary before 0.8 and how the BeautyChain bug created infinite tokens.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔐</div>
+            <div class="feature-title">Implement bulletproof access control</div>
+            <div class="feature-desc">Avoid the tx.origin trap. Write proper onlyOwner and role-based modifiers. Understand why missing access control is the most common vulnerability in real-world audits.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🐛</div>
+            <div class="feature-title">Identify and fix vulnerabilities in existing code</div>
+            <div class="feature-desc">Read a contract, spot the security flaw, explain how an attacker would exploit it, and write the fix. This is exactly what a smart contract auditor does every day.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The DAO Hack - How a Single Missing Line Cost $60 Million</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>June 17, 2016. The DAO (Decentralized Autonomous Organization) had raised $150 million in ETH - the largest crowdfunding in history. It was meant to be a revolutionary venture fund where token holders voted on investments. Then, around 3:30 AM UTC, an attacker began siphoning ETH from the DAO's smart contract. By the time the community could react, over 3.6 million ETH (worth approximately $60 million at the time) had been drained into a child DAO controlled by the attacker.</p>
+        <br>
+        <p>The vulnerability was a <strong>reentrancy attack</strong>. The DAO's withdraw function sent ETH to the user before updating the user's balance. The attacker deployed a malicious contract with a fallback function that, upon receiving ETH, called the withdraw function again - before the first withdrawal had updated the balance. This recursive loop repeated until the DAO was drained. A single missing line of code - updating the balance before sending - had allowed the largest hack in blockchain history at that time.</p>
+        <br>
+        <p>The fallout was seismic. The Ethereum community was so divided on how to respond that it led to a hard fork, splitting Ethereum into two chains: Ethereum (ETH) and Ethereum Classic (ETC). The incident changed how smart contracts were written forever. It gave birth to the Checks-Effects-Interactions pattern and the ReentrancyGuard modifier that are now standard in every project. Every line of security advice in this sub-module was written in blood - or more precisely, in stolen ether.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; Reentrancy Attacks - The Most Famous Vulnerability in Blockchain</div>
+    <h2 class="section-title">How They Work, How to Prevent Them, and Why They Still Happen</h2>
+    <p>A <strong>reentrancy attack</strong> occurs when a contract calls an external contract, and that external contract calls back into the original contract before the original contract has finished updating its state. It's like someone withdrawing money from a bank, but before the teller updates your balance, you walk back to the counter and withdraw again - and again, and again - because the system still thinks you have the full amount.</p>
+
+    <p><strong>The vulnerable pattern:</strong></p>
+    <div class="code-block-wrap"><pre>
+// VULNERABLE CONTRACT – DO NOT USE
+contract VulnerableVault {
+    mapping(address => uint256) public balances;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "No balance");
+
+        // ❌ BUG: ETH sent BEFORE state update
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        // ❌ Balance updated AFTER external call – too late!
+        balances[msg.sender] = 0;
+    }
+}</pre></div>
+
+    <p><strong>How the attacker exploits it:</strong> The attacker deploys a malicious contract with a fallback function. When the Vault sends ETH to the attacker's contract, the fallback fires - and calls <code>withdraw()</code> again. Since <code>balances[msg.sender]</code> hasn't been set to 0 yet, the require check passes again, and more ETH is sent. This loop continues until the Vault is empty or gas runs out.</p>
+
+    <div class="code-block-wrap"><pre>
+contract Attacker {
+    VulnerableVault public vault;
+
+    constructor(address _vault) {
+        vault = VulnerableVault(_vault);
+    }
+
+    function attack() public payable {
+        vault.deposit{value: msg.value}();
+        vault.withdraw();
+    }
+
+    // Fallback – called when ETH is received
+    receive() external payable {
+        if (address(vault).balance > 0) {
+            vault.withdraw(); // Re‑enter before state updated!
+        }
+    }
+}</pre></div>
+
+    <p><strong>The fix - Checks-Effects-Interactions pattern:</strong> Always update your contract's state <strong>before</strong> making external calls. This ensures that if the external call re-enters your contract, the state has already been updated, so the re-entrant call cannot exploit stale data.</p>
+
+    <div class="code-block-wrap"><pre>
+// SECURE CONTRACT
+contract SecureVault {
+    mapping(address => uint256) public balances;
+
+    function deposit() public payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw() public {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "No balance");
+
+        // ✅ Step 1: CHECKS – validate conditions (done above)
+        // ✅ Step 2: EFFECTS – update state FIRST
+        balances[msg.sender] = 0;
+
+        // ✅ Step 3: INTERACTIONS – make external call LAST
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}</pre></div>
+
+    <p><strong>Alternative fix - ReentrancyGuard:</strong> OpenZeppelin provides a <code>ReentrancyGuard</code> modifier that uses a state variable to lock the contract during execution. If a function with this modifier is re-entered, it will revert immediately.</p>
+
+    <div class="code-block-wrap"><pre>
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract GuardedVault is ReentrancyGuard {
+    mapping(address => uint256) public balances;
+
+    function withdraw() public nonReentrant {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "No balance");
+        balances[msg.sender] = 0;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}</pre></div>
+
+    <p><strong>Types of reentrancy:</strong> There are three main types. <strong>Single-function reentrancy</strong> (the classic DAO attack, where the same function is re-entered). <strong>Cross-function reentrancy</strong> (where one function makes an external call, and the callee calls a different function that reads the same state). <strong>Cross-contract reentrancy</strong> (where multiple contracts share state, and an external call to one contract triggers a call to another). The Checks-Effects-Interactions pattern protects against all three.</p>
+
+    <div class="section-label">04 &nbsp; Integer Overflow and Underflow</div>
+    <h2 class="section-title">When Numbers Break - The BeautyChain Hack</h2>
+    <p><strong>Integer overflow</strong> occurs when an arithmetic operation produces a value that exceeds the maximum representable value for the type. Before Solidity 0.8.0, <code>uint256</code> values would wrap around: 2²⁵⁶−1 + 1 would become 0. This silent wrapping was the root cause of countless bugs and several major hacks.</p>
+
+    <p><strong>The BeautyChain (BEC) Hack - 2018:</strong> The BeautyChain token contract had a <code>batchTransfer</code> function that multiplied <code>amount × recipients</code> without checking for overflow. An attacker crafted a call where the multiplication overflowed: a tiny amount multiplied by a huge number of recipients wrapped around to a very small number, but the individual transfer amounts were large. The attacker effectively created tokens from nothing, printing billions of dollars worth of BEC tokens in a single transaction.</p>
+
+    <div class="code-block-wrap"><pre>
+// VULNERABLE (Solidity <0.8.0 without SafeMath)
+function batchTransfer(address[] memory recipients, uint256 amount) public {
+    uint256 total = amount * recipients.length; // ⚠️ OVERFLOW if too large!
+    require(balances[msg.sender] >= total, "Insufficient balance");
+    balances[msg.sender] -= total;
+    for (uint256 i = 0; i < recipients.length; i++) {
+        balances[recipients[i]] += amount;
+    }
+}</pre></div>
+
+    <p><strong>The solution - Solidity 0.8+ built-in checks:</strong> Since Solidity 0.8.0, the compiler automatically inserts overflow and underflow checks. If an operation overflows, the transaction reverts. This makes SafeMath unnecessary for most codebases. However, there are still cases where you might want <strong>unchecked</strong> arithmetic for gas optimization, but you must be absolutely certain no overflow can occur.</p>
+
+    <div class="code-block-wrap"><pre>
+// Solidity 0.8+ – automatically safe
+uint256 a = type(uint256).max;
+uint256 b = a + 1; // ❌ REVERTS – overflow protection
+
+// If you are CERTAIN no overflow is possible, use unchecked for gas savings
+uint256 c;
+unchecked {
+    c = a + 1; // ⚠️ Wraps around – only use when safe!
+}</pre></div>
+
+    <p><strong>Where overflow still matters in 0.8+:</strong> While simple arithmetic is protected, <strong>typecasting</strong> is not automatically checked. Downcasting from <code>uint256</code> to <code>uint128</code> can silently truncate values without reverting. Always check that the value fits in the smaller type before casting.</p>
+
+    <div class="code-block-wrap"><pre>
+uint256 largeValue = 2**200;
+uint128 smallValue = uint128(largeValue); // ⚠️ SILENT TRUNCATION – data loss!
+// Always check: require(largeValue <= type(uint128).max, "Value too large");</pre></div>
+
+    <div class="section-label">05 &nbsp; Access Control - The Most Common Vulnerability in Audits</div>
+    <h2 class="section-title">tx.origin, msg.sender, and the Functions You Forgot to Protect</h2>
+    <p>Access control vulnerabilities are the <strong>single most common finding</strong> in smart contract audits. They range from completely missing access controls (anyone can call a critical function) to subtle misuses of <code>tx.origin</code> instead of <code>msg.sender</code>.</p>
+
+    <p><strong>msg.sender vs tx.origin - the critical difference:</strong> <code>msg.sender</code> is the <strong>immediate</strong> caller of the current function. If Contract A calls Contract B, then inside Contract B, <code>msg.sender</code> is Contract A's address. <code>tx.origin</code> is the <strong>original</strong> EOA (externally owned account) that signed the transaction - it never changes, no matter how many contracts are in the call chain.</p>
+
+    <div class="code-block-wrap"><pre>
+// VULNERABLE – Do not use tx.origin for access control!
+contract VulnerableWallet {
+    address public owner;
+
+    constructor() { owner = tx.origin; }
+
+    function withdraw() public {
+        require(tx.origin == owner, "Not owner"); // ⚠️ tx.origin is DANGEROUS
+        payable(msg.sender).transfer(address(this).balance);
+    }
+}
+
+// Attacker's phishing contract:
+contract PhishingAttack {
+    VulnerableWallet wallet;
+    constructor(address _wallet) { wallet = VulnerableWallet(_wallet); }
+    function trick() public {
+        // User calls this function, which calls withdraw
+        // Inside withdraw, tx.origin is the USER (not the attacker!)
+        // So the require passes, and funds go to the attacker!
+        wallet.withdraw();
+    }
+}</pre></div>
+
+    <p><strong>The fix - always use msg.sender:</strong> The correct access control pattern uses <code>msg.sender</code>, which correctly identifies the immediate caller.</p>
+
+    <div class="code-block-wrap"><pre>
+// SECURE
+contract SecureWallet {
+    address public owner;
+    constructor() { owner = msg.sender; }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <p><strong>Missing access control:</strong> The most basic and most devastating vulnerability. A function that should be restricted - like <code>mint()</code>, <code>burn()</code>, <code>setFees()</code>, or <code>destroy()</code> - is left with <code>public</code> visibility and no <code>require</code> check. In 2023 alone, missing access control accounted for over $100 million in losses across DeFi protocols. Always add a clear access modifier to every state-changing function that should not be callable by anyone.</p>
+
+    <div class="section-label">06 &nbsp; Front-Running and MEV (Miner Extractable Value)</div>
+    <h2 class="section-title">When Attackers See Your Transaction Before It Executes</h2>
+    <p>Blockchain transactions are broadcast to a public mempool before they are included in a block. Anyone watching the mempool can see pending transactions and act on them first by submitting their own transaction with a higher gas price. This is <strong>front-running</strong>.</p>
+
+    <p><strong>Example - DEX sandwich attack:</strong> You submit a transaction to buy a token on a decentralized exchange. An attacker sees your transaction, submits a buy order with higher gas to execute before you (driving the price up), then submits a sell order with slightly lower gas to execute after you (selling at the inflated price). You bought at a worse price, and the attacker profited from the spread.</p>
+
+    <p><strong>Mitigations:</strong></p>
+    <p><strong>1. Commit-Reveal:</strong> Users first commit a hash of their action, and only reveal it in a second transaction after it's included in a block. This prevents front-runners from knowing what the action is until it's too late to front-run.</p>
+    <p><strong>2. Flashbots:</strong> Send transactions directly to miners/validators through private relays, bypassing the public mempool entirely. This is now the dominant approach for MEV-sensitive transactions.</p>
+    <p><strong>3. Fair ordering protocols:</strong> Some chains are experimenting with consensus-level fair ordering, where transactions are ordered by their arrival time rather than gas price. MST's Trika POSA consensus can explore these patterns.</p>
+
+    <div class="section-label">07 &nbsp; Denial of Service (DoS) Attacks</div>
+    <h2 class="section-title">Making Your Contract Unusable</h2>
+    <p><strong>1. Gas griefing:</strong> An attacker can force your transaction to fail by manipulating gas. For example, if your contract refunds gas to users, an attacker can consume all the gas in a loop, causing the refund to fail.</p>
+    <p><strong>2. Block stuffing:</strong> An attacker fills blocks with their own high-gas transactions, preventing other transactions from being included. This is expensive but effective for short-term attacks on time-sensitive protocols like auctions.</p>
+    <p><strong>3. Unbounded loops:</strong> If your contract has a for loop that iterates over a growing array (e.g., all users, all tokens), eventually the loop will consume more gas than the block gas limit, and the function will become permanently unusable. Always use mappings with separate counters instead of arrays for data structures that can grow indefinitely.</p>
+    <p><strong>4. Owner-based DoS:</strong> If a critical function is <code>onlyOwner</code> and the owner loses their private key, the function is permanently frozen. Use multi-sig wallets and timelocks to reduce single-point-of-failure risks.</p>
+
+    <div class="section-label">08 &nbsp; The Complete Security Checklist</div>
+    <h2 class="section-title">Every Line You Should Check Before Deploying</h2>
+    <table>
+        <thead><tr><th>Vulnerability</th><th>What to Check</th><th>Fix</th></tr></thead>
+        <tbody>
+            <tr><td>Reentrancy</td><td>Any external call before state updates</td><td>Checks-Effects-Interactions or ReentrancyGuard</td></tr>
+            <tr><td>Integer Overflow</td><td>Arithmetic on large numbers, downcasting</td><td>Solidity 0.8+ built-in checks, SafeMath for older versions</td></tr>
+            <tr><td>Access Control</td><td>Every state-changing function has a modifier</td><td>onlyOwner, RBAC (role-based access control)</td></tr>
+            <tr><td>tx.origin</td><td>Any use of tx.origin for authorization</td><td>Replace with msg.sender</td></tr>
+            <tr><td>Front-running</td><td>Profitable transactions visible in mempool</td><td>Commit-reveal, Flashbots, fair ordering</td></tr>
+            <tr><td>DoS</td><td>Unbounded loops, single owner dependency</td><td>Mappings over arrays, multi-sig ownership</td></tr>
+            <tr><td>Unchecked returns</td><td>Low-level calls without checking success</td><td>Always check bool return of .call(), .send()</td></tr>
+            <tr><td>Timestamp dependence</td><td>Using block.timestamp for randomness or critical logic</td><td>Never use timestamp for randomness; accept ±15 second variance</td></tr>
+            <tr><td>Signature replay</td><td>Signed messages without nonce or expiry</td><td>Add nonce and deadline to all signed messages</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-label">09 &nbsp; Putting It All Together - A Before-And-After Example</div>
+    <h2 class="section-title">Fixing a Vulnerable Contract Step by Step</h2>
+    <p>Below is a contract that contains multiple vulnerabilities. Study it carefully, then see the secure version with all fixes applied.</p>
+
+    <div class="code-block-wrap"><pre>
+// VULNERABLE CONTRACT – Contains 5 security issues
+contract BrokenAuction {
+    address public owner;
+    mapping(address => uint256) public bids;
+
+    constructor() { owner = tx.origin; }
+
+    function bid() public payable { bids[msg.sender] += msg.value; }
+
+    function withdraw() public {
+        uint256 amount = bids[msg.sender];
+        require(amount > 0);
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success);
+        bids[msg.sender] = 0;
+    }
+
+    function endAuction() public {
+        require(tx.origin == owner);
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <p><strong>Issues found:</strong> (1) Reentrancy in <code>withdraw()</code> - ETH sent before state update. (2) <code>tx.origin</code> used for ownership in both constructor and <code>endAuction()</code>. (3) <code>endAuction()</code> accessible by anyone because the <code>require</code> uses <code>tx.origin</code> which can be phished. (4) No event emissions, making frontend updates difficult. (5) No withdrawal limit or emergency pause mechanism.</p>
+
+    <div class="code-block-wrap"><pre>
+// SECURE CONTRACT – All issues fixed
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract FixedAuction is ReentrancyGuard {
+    address public owner;
+    mapping(address => uint256) public bids;
+    bool public auctionEnded;
+    event BidPlaced(address indexed bidder, uint256 amount);
+    event Withdrawal(address indexed bidder, uint256 amount);
+
+    constructor() { owner = msg.sender; }
+
+    modifier onlyOwner() { require(msg.sender == owner, "Not owner"); _; }
+
+    function bid() public payable {
+        require(!auctionEnded, "Auction ended");
+        bids[msg.sender] += msg.value;
+        emit BidPlaced(msg.sender, msg.value);
+    }
+
+    function withdraw() public nonReentrant {
+        uint256 amount = bids[msg.sender];
+        require(amount > 0, "No bids");
+        bids[msg.sender] = 0; // EFFECTS first
+        (bool success, ) = msg.sender.call{value: amount}(""); // INTERACTIONS last
+        require(success, "Transfer failed");
+        emit Withdrawal(msg.sender, amount);
+    }
+
+    function endAuction() public onlyOwner {
+        auctionEnded = true;
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre></div>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Reentrancy attacks exploit external calls made before state updates.</strong> The DAO hack ($60M) was a reentrancy attack. Fix with Checks-Effects-Interactions or ReentrancyGuard. Always update state before making external calls.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Integer overflow/underflow is protected in Solidity 0.8+ for arithmetic, but NOT for downcasting.</strong> Always validate values before casting to smaller types. Use SafeMath if supporting older Solidity versions.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Never use tx.origin for access control.</strong> tx.origin is the original EOA and can be phished through a malicious contract. Always use msg.sender, which correctly identifies the immediate caller.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Missing access control is the #1 finding in smart contract audits.</strong> Every state-changing function that should be restricted must have an explicit modifier or require check. Public by default is dangerous.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Front-running is possible because transactions are visible in the mempool before execution.</strong> Use Flashbots, commit-reveal schemes, or fair ordering protocols to mitigate MEV attacks on your users.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 10.3 Assessment - Vulnerability Detection</h2>
+            <div class="marks-total-badge"><div class="num">20</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div><div class="a-type">Multiple Choice</div><div class="a-diff">Medium</div><div class="a-marks">1 mark</div>
+                <div class="a-question">What is the root cause of a reentrancy attack?</div>
+                <ul class="options">
+                    <li>A. Using delegatecall instead of call.</li>
+                    <li class="correct">B. Making an external call before updating the contract's internal state.</li>
+                    <li>C. Using tx.origin instead of msg.sender.</li>
+                    <li>D. Not using SafeMath for arithmetic operations.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: B</div><p>Reentrancy occurs when an external call is made before state updates, allowing the callee to re-enter the function while the contract still has stale state.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div><div class="a-marks">1 mark</div>
+                <div class="a-question">In Solidity 0.8.20, what happens when you add 1 to the maximum value of uint256?</div>
+                <ul class="options">
+                    <li class="correct">A. The transaction reverts with a panic error.</li>
+                    <li>B. The value wraps around to 0 silently.</li>
+                    <li>C. The value stays at the maximum.</li>
+                    <li>D. The compiler refuses to compile the code.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Solidity 0.8+ has built-in overflow/underflow checks that cause a revert. Wrapping behaviour requires an explicit <code>unchecked</code> block.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Why is using <code>tx.origin</code> for access control dangerous?</div>
+                <ul class="options">
+                    <li>A. tx.origin is more expensive in gas than msg.sender.</li>
+                    <li class="correct">B. A malicious contract can trick a user into calling it, and that call will pass the tx.origin check because tx.origin remains the user's EOA.</li>
+                    <li>C. tx.origin changes with every nested contract call.</li>
+                    <li>D. tx.origin is deprecated in Solidity 0.8+.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: B</div><p>A phishing contract can make the user call it, and when it forwards the call to the victim contract, tx.origin is still the user, bypassing the access check.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Vulnerability Detection & Fix</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">7 marks</div>
+                <div class="a-question">The following contract contains a critical security vulnerability. Identify the vulnerability, explain how an attacker would exploit it step by step, and write the corrected code.</div>
+                <div class="code-block-wrap"><pre>
+contract PrizePool {
+    mapping(address => uint256) public deposits;
+    bool public locked;
+
+    function deposit() public payable {
+        deposits[msg.sender] += msg.value;
+    }
+
+    function claimPrize() public {
+        require(!locked, "Locked");
+        uint256 amount = deposits[msg.sender];
+        require(amount >= 1 ether, "Not enough");
+
+        locked = true;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success);
+        locked = false;
+        deposits[msg.sender] = 0;
+    }
+}</pre></div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">✅ Model Answer & Marks Breakdown</div>
+                    <p><strong>Vulnerability (2 marks):</strong> The <code>locked</code> variable is set AFTER the require check but BEFORE the external call. However, it is set back to false AFTER the external call as well, making the lock ineffective during reentrancy because the attacker can re-enter and the lock is still true... actually, this is a cross-function reentrancy issue combined with a broken lock pattern. The real issue is that <code>deposits[msg.sender] = 0</code> happens AFTER the external call, making this a classic reentrancy vulnerability despite the attempt at a lock.</p>
+                    <p><strong>Exploit (2 marks):</strong> Attacker deposits 1 ETH, calls claimPrize. When the external call sends ETH to the attacker's fallback, the fallback calls claimPrize again. The <code>locked</code> check is now true, so the reentrancy would fail - BUT the lock is set to false AFTER the call, so if the attacker calls a different function (like deposit), the lock pattern breaks. The primary vulnerability remains the state update after the external call.</p>
+                    <p><strong>Fix (3 marks):</strong> Move <code>deposits[msg.sender] = 0</code> before the external call. Use OpenZeppelin's ReentrancyGuard or a proper Checks-Effects-Interactions pattern. Remove the broken custom lock and use the standard nonReentrant modifier.</p>
+                </div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Vulnerability Detection & Fix</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">10 marks</div>
+                <div class="a-question">Analyse the following contract thoroughly. List every vulnerability you can find, explain the impact of each, and rewrite the entire contract with all vulnerabilities fixed.</div>
+                <div class="code-block-wrap"><pre>
+contract TokenSale {
+    address public owner;
+    uint256 public tokenPrice = 0.01 ether;
+    mapping(address => uint256) public balances;
+
+    constructor() { owner = tx.origin; }
+
+    function buyTokens() public payable {
+        uint256 tokens = msg.value / tokenPrice;
+        balances[msg.sender] += tokens;
+    }
+
+    function withdrawFunds() public {
+        require(tx.origin == owner, "Not owner");
+        uint256 amount = address(this).balance;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success);
+    }
+
+    function sellTokens(uint256 tokenAmount) public {
+        require(balances[msg.sender] >= tokenAmount, "Not enough tokens");
+        uint256 ethAmount = tokenAmount * tokenPrice;
+        balances[msg.sender] -= tokenAmount;
+        (bool success, ) = msg.sender.call{value: ethAmount}("");
+        require(success);
+    }
+}</pre></div>
+                <div class="a-rubric">
+                    <div class="a-rubric-label">✅ Vulnerabilities Found (6 marks) & Fixed Contract (4 marks)</div>
+                    <p><strong>V1 - tx.origin for ownership (2 marks):</strong> Both constructor and withdrawFunds use tx.origin. Attacker can phish the owner. Fix: Use msg.sender.</p>
+                    <p><strong>V2 - Reentrancy in sellTokens (2 marks):</strong> ETH sent before token balance updated. Attacker can drain the contract. Fix: Checks-Effects-Interactions - update balances before external call.</p>
+                    <p><strong>V3 - Reentrancy in withdrawFunds (1 mark):</strong> No state to update, but if combined with other functions, could be exploited. Fix: Add ReentrancyGuard.</p>
+                    <p><strong>V4 - No event emissions (1 mark):</strong> Frontend has no way to track state changes efficiently. Fix: Add events for BuyTokens, SellTokens, Withdrawal.</p>
+                    <p><strong>Fixed contract (4 marks):</strong> Complete rewrite with all fixes applied, including proper access control, Checks-Effects-Interactions, ReentrancyGuard, and events.</p>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 10.3 Assessment Summary</div>
+            <div class="score-row">Q1-Q3: 3 × MCQ (1 mark each) = 3 marks</div>
+            <div class="score-row">Q4: Vulnerability Detection & Fix = 7 marks</div>
+            <div class="score-row">Q5: Multi-Vulnerability Analysis & Rewrite = 10 marks</div>
+            <div class="score-badge"><div class="score-num">20</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 10.3</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Reentrancy Attack</div><div class="g-def">An exploit where an attacker recursively calls a function before the contract has updated its state, draining funds or corrupting data. The DAO hack was the most famous example.</div></div>
+        <div class="glossary-card"><div class="g-term">Checks-Effects-Interactions</div><div class="g-def">A design pattern that structures functions in three steps: validate conditions (Checks), update contract state (Effects), then make external calls (Interactions). Prevents reentrancy.</div></div>
+        <div class="glossary-card"><div class="g-term">Integer Overflow</div><div class="g-def">When an arithmetic result exceeds the maximum value representable by the type. Solidity 0.8+ automatically reverts on overflow; older versions wrapped silently.</div></div>
+        <div class="glossary-card"><div class="g-term">tx.origin</div><div class="g-def">A global Solidity variable that returns the original EOA that started the transaction. Never use it for access control - it can be phished through malicious contracts.</div></div>
+        <div class="glossary-card"><div class="g-term">ReentrancyGuard</div><div class="g-def">An OpenZeppelin modifier that uses a mutex (mutual exclusion lock) to prevent a function from being re-entered during execution.</div></div>
+        <div class="glossary-card"><div class="g-term">Front-running</div><div class="g-def">An attack where someone observes a pending transaction in the mempool and submits their own transaction first with a higher gas price to profit from the information.</div></div>
+        <div class="glossary-card"><div class="g-term">Denial of Service (DoS)</div><div class="g-def">Any attack that makes a contract unusable - gas exhaustion from unbounded loops, block stuffing, or owner-key loss that freezes critical functions.</div></div>
+        <div class="glossary-card"><div class="g-term">MEV</div><div class="g-def">Miner/Maximal Extractable Value - the profit that can be extracted by reordering, including, or censoring transactions within a block.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 10 · Sub-Module <strong>10.3</strong> of 6 · Next: Sub-Module 10.4 - Testing & Fuzzing →</p>
+    </div>
+
+</body>
+</html>

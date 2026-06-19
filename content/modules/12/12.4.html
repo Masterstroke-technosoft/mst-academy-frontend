@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 12.4 - Metaverse Interoperability | Masterstroke Academy</title>
+    <meta name="description" content="Learn how blockchain enables true metaverse interoperability – carry your avatar, items, and land across virtual worlds using MST's cross‑game NFT standards and low‑fee infrastructure.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #06B6D4;
+            --brand-light: #ECFEFF;
+            --brand-dark: #0E7490;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #A5F3FC;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .multi-select {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .multi-select .opt-chip {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            background: var(--white);
+        }
+        .multi-select .opt-chip.selected {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #A5F3FC;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #A5F3FC;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🌐 Module 12 · Sub-Module 12.4 of 5</div>
+    <h1 class="module-title">Metaverse <span class="highlight">Interoperability</span></h1>
+    <p class="module-subtitle">The dream of a connected metaverse - where your avatar, your sword, and your virtual land travel with you across games, worlds, and platforms. How blockchain is breaking down the walled gardens of gaming.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks (MCQ + Multi-Select)</div>
+        <div class="meta-chip">📋 Cross-game avatars, digital land, NFT standards</div>
+        <div class="meta-chip green">Phase 4 · NFTs, Gaming & Fairness</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🕹️</div>
+            <div class="feature-title">Explain why the current metaverse is fragmented and how blockchain solves this</div>
+            <div class="feature-desc">Understand the walled-garden problem in gaming, and how NFTs enable true ownership that spans multiple virtual worlds.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🧑‍🚀</div>
+            <div class="feature-title">Design cross-game avatars using interoperable NFT standards</div>
+            <div class="feature-desc">Build smart contracts that let a single avatar NFT be recognised and rendered across multiple games, with shared traits and history.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🏞️</div>
+            <div class="feature-title">Implement portable digital land ownership on the blockchain</div>
+            <div class="feature-desc">Create virtual land parcels as NFTs that can be used, built upon, or sold across different metaverse platforms.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔗</div>
+            <div class="feature-title">Leverage MST for low-cost, cross-metaverse transactions</div>
+            <div class="feature-desc">Use MST's low gas fees and fast finality to make frequent cross-game asset transfers economically feasible.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Gamer Who Lost Everything When the Server Shut Down</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2018, a massively multiplayer online game called "WildStar" shut down its servers. Players who had spent thousands of hours - and in some cases, thousands of dollars - collecting rare mounts, crafting legendary weapons, and building elaborate in-game homes lost everything overnight. Their digital possessions, which they had come to think of as "theirs," were never really theirs at all. They were entries in a centralised database that Carbine Studios, the game's developer, could delete with the flick of a switch.</p>
+        <br>
+        <p>The WildStar shutdown was not an isolated incident. Dozens of online games shut down every year, taking player assets with them. Fortnite skins, World of Warcraft mounts, Call of Duty weapon camos - none of these are owned by the players. They are licensed, revocable at any time, and trapped inside the walled gardens of their respective games. This is the <strong>ownership illusion</strong> that has defined digital gaming for decades.</p>
+        <br>
+        <p>Now imagine a different world. A player named Meena buys a legendary sword in a fantasy RPG called "DragonQuest." The sword is an <strong>NFT</strong> stored in her MST BridgeKey wallet. When DragonQuest eventually shuts down, Meena still owns the sword. She can take it to a new game called "DungeonWorld" that honours the same interoperable NFT standard. The sword appears in DungeonWorld with its original stats, its history of battles, and its legendary status intact. Meena didn't lose her investment. She carried it with her. This is the promise of metaverse interoperability - and it's built on the same blockchain standards you've already learned.</p>
+    </div>
+    <p>The WildStar story is not just a cautionary tale - it's the entire reason metaverse interoperability matters. Blockchain solves the ownership illusion by making digital assets truly portable, truly owned, and truly independent of any single platform. In this sub-module, you'll learn exactly how to build those portable assets.</p>
+
+    <div class="section-label">03 &nbsp; The Fragmented Metaverse - Understanding the Problem</div>
+    <h2 class="section-title">Walled Gardens and the Ownership Illusion</h2>
+    <p>Today's metaverse is not a single connected universe. It is a collection of <strong>walled gardens</strong> - isolated platforms owned by different companies, each with its own economy, its own asset formats, and its own rules about what players can and cannot do with their digital possessions.</p>
+    <p>In Fortnite, you can buy a skin for 1,500 V-Bucks (roughly ₹1,000). You can use that skin in Fortnite. You cannot use it in Call of Duty. You cannot sell it to another player. You cannot even transfer it to a different Epic Games account. If Epic bans your account, you lose every skin you ever purchased. This is not ownership - it's a rental agreement disguised as a purchase.</p>
+    <p>In Roblox, players create entire worlds and economies. But all transactions happen in Robux, a currency controlled by Roblox Corporation. Creators earn a fraction of what they generate, and their creations exist only within the Roblox ecosystem. They cannot export their worlds, port their assets, or truly own what they build.</p>
+    <p>The root cause is the same in every walled garden: <strong>the assets are stored on a centralised database controlled by the platform</strong>. The platform can change the rules, delete the assets, or shut down entirely - and the players have no recourse. Blockchain solves this by storing ownership on a public, decentralised ledger that no single company controls.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 12.4-A · Walled Gardens vs. Interoperable Metaverse</div>
+        <pre>
+WALLED GARDENS (Today):                    INTEROPERABLE METAVERSE (Blockchain):
+
+┌─────────┐  ┌─────────┐  ┌─────────┐     ┌─────────────────────────────────┐
+│Fortnite │  │ Roblox  │  │ Decentra│     │        BLOCKCHAIN (MST)          │
+│ Skins   │  │ Worlds  │  │ -land   │     │                                 │
+│ (Epic)  │  │(Roblox) │  │(Decentr)│     │  ┌──────┐ ┌──────┐ ┌──────┐    │
+└────┬────┘  └────┬────┘  └────┬────┘     │  │Avatar│ │Sword │ │ Land │    │
+     │            │            │           │  │ NFT  │ │ NFT  │ │ NFT  │    │
+     ✗ No         ✗ No         ✗ No        │  └──┬───┘ └──┬───┘ └──┬───┘    │
+    sharing      sharing      sharing      │     │        │        │        │
+    between      between      between      │     └────────┼────────┘        │
+    platforms    platforms    platforms     │              │                 │
+                                            │     All assets in user's       │
+Each platform:                              │     MST BridgeKey wallet       │
+• Controls all assets                      └─────────────────────────────────┘
+• Can delete at any time                               │
+• Assets trapped forever              ┌────────────────┼────────────────┐
+                                      │                │                │
+                                 ┌────┴────┐     ┌────┴────┐     ┌────┴────┐
+                                 │Game A   │     │Game B   │     │Game C   │
+                                 │(Renders │     │(Renders │     │(Uses    │
+                                 │ avatar) │     │ sword)  │     │ land)   │
+                                 └─────────┘     └─────────┘     └─────────┘
+        </pre>
+        <div class="diagram-caption">Walled gardens trap assets within individual platforms. A blockchain-based metaverse allows any game to render any asset from the user's wallet.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; The Blockchain Solution - True Digital Ownership</div>
+    <h2 class="section-title">How NFTs Make Digital Assets Portable and Permanent</h2>
+    <p>The blockchain solves the walled-garden problem through three fundamental properties that you've already studied throughout this course:</p>
+    <p><strong>1. True Ownership (Self-Custody):</strong> When an asset is an NFT, it exists in the user's wallet - not on a game company's server. The user controls the private key. The user can transfer the asset, sell it, or hold it forever. No platform can delete it or revoke access, because the platform doesn't own it.</p>
+    <p><strong>2. Public Ledger (Transparency):</strong> Every NFT has a complete, public ownership history. Any game can verify who owns a specific asset by querying the blockchain. There is no need for a central registry or a trusted intermediary - the blockchain is the single source of truth.</p>
+    <p><strong>3. Open Standards (Interoperability):</strong> Because NFTs follow standards like ERC-721 and ERC-1155, any game that supports the standard can interact with any NFT. A game developer doesn't need to negotiate with another studio or build a custom integration. They simply query the blockchain and render the asset according to the metadata.</p>
+    <p>This is a paradigm shift. In the traditional model, the game owns the assets and the player is a temporary user. In the blockchain model, <strong>the player owns the assets and the game is a temporary host</strong>. The game renders the player's property for the duration of a session. When the session ends, the assets stay with the player.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Key Insight - Games as Renderers, Not Owners</div>
+        <p>Think of a blockchain game not as a store that sells you items, but as a <strong>viewer</strong> that displays items you already own. When you open a PDF file, Adobe Reader doesn't own the document - it just renders it. When you open a JPEG, your photo app doesn't own the image - it just displays it. Blockchain games work the same way: they are renderers for assets that exist independently in your wallet. The asset is the content. The game is the viewer.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; Cross-Game Avatars - Your Digital Identity Across Worlds</div>
+    <h2 class="section-title">Building an Avatar That Works in Multiple Games</h2>
+    <p>A <strong>cross-game avatar</strong> is an NFT that represents a player's digital identity and can be loaded into any compatible game. The avatar carries its visual appearance, its attributes (strength, agility, items), and its history (battles won, quests completed) across different virtual worlds. This is the holy grail of metaverse interoperability.</p>
+    <p>Technically, a cross-game avatar is an ERC-721 or ERC-1155 token with <strong>extended metadata</strong> that multiple games agree to interpret. The metadata includes not just the static image (as in art NFTs), but a structured description of the avatar's 3D model, textures, animations, and attributes that each game can render in its own style.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 12.4-B · Cross-Game Avatar Architecture</div>
+        <pre>
+AVATAR NFT (stored on MST Blockchain):
+┌─────────────────────────────────────────────────────────────────┐
+│ tokenId: 42                                                     │
+│ owner: 0xMeena...                                               │
+│ tokenURI: ipfs://QmAvatarMetadata/42.json                       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+METADATA JSON (stored on IPFS):
+┌─────────────────────────────────────────────────────────────────┐
+│ {                                                               │
+│   "name": "Meena the Explorer",                                 │
+│   "description": "A legendary adventurer from DragonQuest",     │
+│   "model": {                                                    │
+│     "format": "glTF",              ← 3D model format            │
+│     "uri": "ipfs://QmModel/avatar42.glb",                       │
+│     "textures": "ipfs://QmTextures/leather_armor.png"           │
+│   },                                                            │
+│   "animations": {                                               │
+│     "walk": "ipfs://QmAnims/walk.fbx",                          │
+│     "attack": "ipfs://QmAnims/attack.fbx",                      │
+│     "idle": "ipfs://QmAnims/idle.fbx"                           │
+│   },                                                            │
+│   "attributes": [                                               │
+│     { "trait_type": "Strength",  "value": 85 },                 │
+│     { "trait_type": "Agility",   "value": 72 },                 │
+│     { "trait_type": "Level",     "value": 47 },                 │
+│     { "trait_type": "Guild",     "value": "ShadowBlades" }      │
+│   ],                                                            │
+│   "history": [                                                  │
+│     { "event": "Defeated Dragon King", "game": "DragonQuest" }, │
+│     { "event": "Won Arena Championship", "game": "DungeonWorld"}│
+│   ]                                                             │
+│ }                                                               │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+    ┌──────────┐       ┌──────────┐       ┌──────────┐
+    │Game A    │       │Game B    │       │Game C    │
+    │Renders   │       │Renders   │       │Renders   │
+    │Realistic │       │Cartoon   │       │Pixel Art │
+    │Style     │       │Style     │       │Style     │
+    └──────────┘       └──────────┘       └──────────┘
+    Each game interprets the same metadata in its own art style.
+    The attributes remain consistent across all games.
+        </pre>
+        <div class="diagram-caption">The avatar NFT stores a reference to rich metadata on IPFS. Each game reads the same metadata but renders it in its own unique art style.</div>
+    </div>
+
+    <p><strong>The art style challenge:</strong> A key question is: how can the same avatar look good in a realistic game, a cartoon game, and a pixel-art game? The answer is that the metadata describes the avatar's <strong>semantic properties</strong> - not its exact appearance. The metadata says: "this avatar has leather armour, a sword, brown hair, and is tall." Each game interprets these properties in its own art style. A realistic game renders a photorealistic leather texture. A cartoon game renders a stylised leather vest. A pixel-art game renders a brown rectangle. The player's identity is preserved, but the visual representation is adapted to each world.</p>
+
+    <p>Below is a complete cross-game avatar contract that implements this architecture.</p>
+    <div class="code-block-wrap"><pre>
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CrossGameAvatar is ERC721, Ownable {
+    uint256 private _nextTokenId;
+
+    // Mapping from token ID to the IPFS URI of its extended metadata
+    mapping(uint256 => string) private _avatarURIs;
+
+    // Mapping from token ID to its current level (updated by games)
+    mapping(uint256 => uint256) public avatarLevel;
+
+    // Mapping from token ID to its experience points (updated by games)
+    mapping(uint256 => uint256) public avatarXP;
+
+    // Mapping from token ID to its equipped item IDs (ERC‑1155 tokens)
+    mapping(uint256 => mapping(uint256 => bool)) public equippedItems;
+
+    event AvatarCreated(uint256 indexed tokenId, address indexed owner, string metadataURI);
+    event AvatarLevelUp(uint256 indexed tokenId, uint256 newLevel);
+    event ItemEquipped(uint256 indexed tokenId, uint256 itemId);
+    event ItemUnequipped(uint256 indexed tokenId, uint256 itemId);
+    event XPAdded(uint256 indexed tokenId, uint256 amount, string game);
+
+    constructor() ERC721("CrossGameAvatar", "AVATAR") Ownable(msg.sender) {}
+
+    /**
+     * @notice Creates a new avatar with the given metadata URI.
+     * @param to The address that will own the avatar.
+     * @param metadataURI The IPFS URI of the avatar's extended metadata JSON.
+     */
+    function createAvatar(address to, string memory metadataURI) public onlyOwner returns (uint256) {
+        uint256 tokenId = _nextTokenId;
+        _nextTokenId++;
+        _safeMint(to, tokenId);
+        _avatarURIs[tokenId] = metadataURI;
+        avatarLevel[tokenId] = 1;
+        emit AvatarCreated(tokenId, to, metadataURI);
+        return tokenId;
+    }
+
+    /**
+     * @notice Returns the extended metadata URI for a given avatar.
+     * @param tokenId The ID of the avatar.
+     * @return The IPFS URI of the avatar's metadata JSON.
+     */
+    function avatarURI(uint256 tokenId) public view returns (string memory) {
+        _requireOwned(tokenId);
+        return _avatarURIs[tokenId];
+    }
+
+    /**
+     * @notice Called by a game to add XP to an avatar and potentially level it up.
+     * @param tokenId The avatar that earned XP.
+     * @param xpAmount The amount of XP to add.
+     * @param gameName The name of the game awarding the XP.
+     */
+    function addXP(uint256 tokenId, uint256 xpAmount, string memory gameName) public {
+        // In a real implementation, this would be restricted to authorised game contracts
+        require(xpAmount > 0, "XP must be positive");
+        avatarXP[tokenId] += xpAmount;
+        uint256 newLevel = _calculateLevel(avatarXP[tokenId]);
+        if (newLevel > avatarLevel[tokenId]) {
+            avatarLevel[tokenId] = newLevel;
+            emit AvatarLevelUp(tokenId, newLevel);
+        }
+        emit XPAdded(tokenId, xpAmount, gameName);
+    }
+
+    /**
+     * @notice Equips an item (ERC‑1155 token) to this avatar.
+     * @dev The caller must own both the avatar and the item.
+     * @param tokenId The avatar ID.
+     * @param itemId The ID of the ERC‑1155 item to equip.
+     * @param itemContract The ERC‑1155 contract address.
+     */
+    function equipItem(uint256 tokenId, uint256 itemId, address itemContract) public {
+        require(ownerOf(tokenId) == msg.sender, "Not avatar owner");
+        require(IERC1155(itemContract).balanceOf(msg.sender, itemId) > 0, "Don't own item");
+        equippedItems[tokenId][itemId] = true;
+        emit ItemEquipped(tokenId, itemId);
+    }
+
+    /**
+     * @notice Unequips an item from this avatar.
+     * @param tokenId The avatar ID.
+     * @param itemId The ID of the item to unequip.
+     */
+    function unequipItem(uint256 tokenId, uint256 itemId) public {
+        require(ownerOf(tokenId) == msg.sender, "Not avatar owner");
+        equippedItems[tokenId][itemId] = false;
+        emit ItemUnequipped(tokenId, itemId);
+    }
+
+    /**
+     * @dev Calculates the avatar's level from its total XP.
+     *      Simple formula: level = floor(sqrt(XP / 100)) + 1
+     */
+    function _calculateLevel(uint256 xp) private pure returns (uint256) {
+        if (xp < 100) return 1;
+        // Simplified: level increases every 100 XP
+        return (xp / 100) + 1;
+    }
+
+    /**
+     * @notice Returns the full state of an avatar for a game to load.
+     */
+    function getAvatarState(uint256 tokenId) public view returns (
+        string memory metadataURI,
+        uint256 level,
+        uint256 xp,
+        uint256[] memory items
+    ) {
+        _requireOwned(tokenId);
+        // Gather equipped items
+        uint256 itemCount;
+        for (uint256 i = 1; i <= 100; i++) {
+            if (equippedItems[tokenId][i]) itemCount++;
+        }
+        items = new uint256[](itemCount);
+        uint256 index;
+        for (uint256 i = 1; i <= 100; i++) {
+            if (equippedItems[tokenId][i]) {
+                items[index] = i;
+                index++;
+            }
+        }
+        return (_avatarURIs[tokenId], avatarLevel[tokenId], avatarXP[tokenId], items);
+    }
+}</pre></div>
+
+    <p>This contract provides everything a game needs to load and interact with a player's avatar. The <code>avatarURI</code> function returns the extended metadata, which contains the 3D model reference and attributes. The <code>getAvatarState</code> function returns the current level, XP, and equipped items. The <code>addXP</code> function allows games to reward the avatar with experience that persists across all games. The <code>equipItem</code> function lets the player customise their avatar with items they own.</p>
+
+    <div class="section-label">06 &nbsp; Interoperable In-Game Items - Your Sword in Every Game</div>
+    <h2 class="section-title">ERC-1155 Items That Follow Your Avatar</h2>
+    <p>An avatar is not complete without items. A sword, a shield, a helmet, a mount - these are the things that make a character unique. For true interoperability, items must also be NFTs that can travel across games. ERC-1155 is the ideal standard here because a single game might have thousands of identical swords (fungible) and a handful of unique legendary items (non-fungible), all managed by one contract.</p>
+
+    <p><strong>The item metadata challenge:</strong> A sword's appearance, damage, and special effects need to be described in a way that any game can interpret. The metadata JSON for an item includes both visual information (3D model, textures) and gameplay information (damage, durability, special abilities). Each game reads the gameplay attributes and applies them according to its own rules.</p>
+    <div class="code-block-wrap"><pre>
+// Example item metadata JSON for an interoperable sword
+{
+    "name": "Dragon Slayer Blade",
+    "description": "Forged in the breath of the Dragon King. +15 damage against dragons.",
+    "model": {
+        "format": "glTF",
+        "uri": "ipfs://QmModels/sword_legendary.glb",
+        "textures": "ipfs://QmTextures/sword_legendary.png"
+    },
+    "gameplay": {
+        "damage": 85,
+        "damageType": "slashing",
+        "durability": 1000,
+        "specialAbility": "dragonSlayer",
+        "specialBonus": 15,
+        "levelRequirement": 40,
+        "rarity": "legendary"
+    },
+    "history": {
+        "craftedBy": "0xBlacksmith...",
+        "battlesWon": 342,
+        "dragonsSlain": 7
+    }
+}</pre></div>
+
+    <p>When Game A (a fantasy RPG) loads this sword, it sees <code>damage: 85</code> and applies it directly. When Game B (a strategy card game) loads the same sword, it might convert the damage to a card attack value of 8. When Game C (a virtual museum) loads it, it doesn't use the gameplay stats at all - it just displays the 3D model. The metadata serves all three use cases because it describes what the item <strong>is</strong>, not how it should be <strong>used</strong>. Each game decides how to interpret the attributes.</p>
+
+    <div class="section-label">07 &nbsp; Digital Land - Owning a Piece of the Metaverse</div>
+    <h2 class="section-title">Virtual Real Estate That Spans Multiple Worlds</h2>
+    <p><strong>Digital land</strong> is a non-fungible token that represents ownership of a parcel of virtual space. Platforms like Decentraland, The Sandbox, and Somnium Space sell land parcels as NFTs. Owners can build on their land, host events, display art, and sell or rent their property. But currently, land purchased in Decentraland cannot be used in The Sandbox, and vice versa. Interoperable land standards aim to change that.</p>
+    <p>An interoperable land NFT describes the parcel's <strong>coordinates, dimensions, and zoning</strong> in a universal format. Any platform that supports the standard can render the land at the appropriate location and scale. The owner can build on the land in any compatible platform, and their buildings (also stored as NFTs or metadata) appear across all worlds.</p>
+
+    <div class="code-block-wrap"><pre>
+// Interoperable land parcel contract
+contract DigitalLand is ERC721, Ownable {
+    struct Parcel {
+        int256 coordX;       // Universal X coordinate
+        int256 coordY;       // Universal Y coordinate
+        uint256 sizeX;       // Width in universal units
+        uint256 sizeY;       // Height in universal units
+        string zone;         // "residential", "commercial", "public", "gaming"
+        string metadataURI;  // IPFS URI with building data, 3D models, etc.
+    }
+
+    mapping(uint256 => Parcel) public parcels;
+
+    function mintParcel(address to, int256 x, int256 y, uint256 sx, uint256 sy, string memory zone, string memory uri) public onlyOwner returns (uint256) {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        parcels[tokenId] = Parcel(x, y, sx, sy, zone, uri);
+        return tokenId;
+    }
+
+    function getParcel(uint256 tokenId) public view returns (Parcel memory) {
+        _requireOwned(tokenId);
+        return parcels[tokenId];
+    }
+}</pre></div>
+
+    <p><strong>Use cases for interoperable land:</strong></p>
+    <p><strong>1. Cross-platform galleries:</strong> An artist buys land, builds a gallery on Platform A, and the same gallery appears on Platform B because the building data is stored in the land's metadata.</p>
+    <p><strong>2. Persistent game worlds:</strong> A game studio builds a dungeon on their land. Players from any compatible game can enter the dungeon, fight the monsters, and earn rewards.</p>
+    <p><strong>3. Advertising and commerce:</strong> A brand buys land and places a virtual billboard. The billboard appears across all platforms that render the interoperable land standard.</p>
+    <p><strong>4. Social hubs:</strong> A community buys adjacent parcels and builds a shared village. The village is accessible from any metaverse platform, growing the community beyond any single walled garden.</p>
+
+    <div class="section-label">08 &nbsp; MST's Role in Metaverse Interoperability</div>
+    <h2 class="section-title">The Infrastructure That Makes It All Possible</h2>
+    <p>Metaverse interoperability requires <strong>frequent, small transactions</strong>. Every time a player enters a game, the game needs to verify ownership of their avatar, items, and land. Every time a player earns XP, the game needs to update the avatar's state on-chain. Every time a player trades an item, the blockchain records the transfer. On a high-fee chain, these constant interactions would be prohibitively expensive. MST's architecture is purpose-built for this use case.</p>
+
+    <p><strong>MST advantages for metaverse applications:</strong></p>
+    <p><strong>Ultra-low gas fees:</strong> Verifying avatar ownership, updating XP, and equipping items each cost a fraction of a paisa. A player can perform 1,000 metaverse actions for less than ₹1 in total gas. This makes real-time, on-chain gaming economically viable.</p>
+    <p><strong>Fast finality (~3 seconds):</strong> When a player enters a new game, the game needs to confirm that the player's avatar and items are genuine within seconds - not minutes. MST's rapid block time ensures a seamless onboarding experience.</p>
+    <p><strong>EVM compatibility:</strong> Every interoperable NFT standard (ERC-721, ERC-1155, ERC-6551 token-bound accounts) works on MST without modification. Existing metaverse projects can migrate their contracts and immediately benefit from lower fees.</p>
+    <p><strong>SARAL Protocol:</strong> The biggest barrier to metaverse adoption is wallet complexity. SARAL's biometric, seedless wallet creation means a gamer can enter the metaverse without ever seeing a seed phrase - just log in with a fingerprint and start playing.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The MST Metaverse Stack</div>
+        <p><strong>NFT Standards (ERC-721, ERC-1155):</strong> Portable avatars, items, and land.<br>
+        <strong>SARAL Protocol:</strong> Frictionless onboarding for millions of gamers.<br>
+        <strong>FortunaX (RNG):</strong> Fair loot drops and random encounters.<br>
+        <strong>Klethesia (RTP):</strong> Verifiable reward distributions.<br>
+        <strong>Low Gas + Fast Finality:</strong> Real-time, on-chain interactions.</p>
+    </div>
+
+    <div class="section-label">09 &nbsp; The Future of Interoperability - Token-Bound Accounts and Beyond</div>
+    <h2 class="section-title">Where the Metaverse Is Heading</h2>
+    <p><strong>ERC-6551 (Token-Bound Accounts):</strong> This new standard allows an NFT to <strong>own other assets</strong>. Instead of a wallet owning an avatar, the avatar itself becomes a wallet that can hold tokens, items, and even other NFTs. When the avatar is transferred, all its possessions travel with it automatically. This is the ultimate expression of metaverse interoperability - a self-contained digital identity that carries everything it owns.</p>
+    <p><strong>Cross-chain bridges:</strong> Future metaverse platforms will use blockchain bridges to move avatars and assets between different chains. An avatar minted on MST could be bridged to Ethereum, Polygon, or Solana, appearing in games on any of those networks. MST's low fees make it an ideal home chain - mint and upgrade assets cheaply on MST, then bridge them to other chains as needed.</p>
+    <p><strong>Decentralised identity (DID):</strong> Avatars will eventually link to real-world identity systems, allowing players to prove they own a specific avatar without revealing their personal information. Zero-knowledge proofs will enable age verification, geographic restrictions, and reputation systems that span the entire metaverse.</p>
+    <p><strong>AI-powered NPCs:</strong> NFTs will represent AI agents that can act on behalf of their owners - trading items, exploring worlds, and completing quests autonomously. These agent NFTs will carry their memories and personalities across platforms, creating persistent digital companions.</p>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>The walled-garden problem means digital assets in traditional games are controlled by the platform, not the player.</strong> When the server shuts down, all "owned" items are lost forever. Blockchain solves this with true ownership via NFTs.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Cross-game avatars use extended metadata (3D models, attributes, history) stored on IPFS.</strong> Each game interprets the same metadata in its own art style, preserving the avatar's identity and stats across worlds.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Interoperable items use ERC-1155 to represent both fungible and non-fungible in-game objects.</strong> Metadata includes gameplay attributes (damage, durability) that each game can interpret according to its own rules.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Digital land as NFTs enables portable virtual real estate.</strong> Parcel coordinates, dimensions, and building data are stored on-chain, allowing the same land to appear across multiple metaverse platforms.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>MST's low fees and fast finality are the infrastructure layer for the interoperable metaverse.</strong> Frequent ownership checks, XP updates, and item trades are only viable on a chain with negligible transaction costs.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 12.4 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the "walled-garden" problem in traditional online gaming?</div>
+                <ul class="options">
+                    <li class="correct">A. Digital assets are controlled by the platform and cannot be transferred to other games or platforms.</li>
+                    <li>B. Games are physically surrounded by walls that limit player movement.</li>
+                    <li>C. Players must pay to enter each game world.</li>
+                    <li>D. Games cannot connect to the internet.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Walled gardens trap player assets within a single platform's ecosystem, preventing true ownership and portability.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">How does a cross-game avatar appear in different art styles across multiple games?</div>
+                <ul class="options">
+                    <li class="correct">A. The metadata describes semantic properties (armour type, hair colour); each game interprets these in its own art style.</li>
+                    <li>B. The avatar's 3D model is automatically converted to each game's art style by AI.</li>
+                    <li>C. Players must upload a separate 3D model for each game.</li>
+                    <li>D. All metaverse games use the same art style by design.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>The metadata describes what the avatar IS (leather armour, tall, brown hair), not exactly how it looks. Each game renders those properties in its own style.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Which token standard is best suited for interoperable in-game items that include both unique items and items with multiple copies?</div>
+                <ul class="options">
+                    <li class="correct">A. ERC-1155 - it supports both fungible and non-fungible tokens in a single contract.</li>
+                    <li>B. ERC-20 - it is the only standard for game items.</li>
+                    <li>C. ERC-721 - it is the only standard for NFTs.</li>
+                    <li>D. ERC-6551 - it is the only standard for interoperable items.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>ERC-1155 allows a single contract to manage thousands of identical swords and a few unique legendary items simultaneously.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What makes MST Blockchain particularly well-suited for metaverse interoperability?</div>
+                <ul class="options">
+                    <li class="correct">A. Ultra-low gas fees and fast finality make frequent on-chain actions (ownership checks, XP updates) economically viable.</li>
+                    <li>B. MST has a built-in metaverse world called "MST Land."</li>
+                    <li>C. MST automatically converts all NFTs into 3D models.</li>
+                    <li>D. MST requires all games to use the same art style.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>MST's low transaction costs enable the thousands of small on-chain interactions that a truly interoperable metaverse requires.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is ERC-6551 (Token-Bound Accounts) and how does it advance metaverse interoperability?</div>
+                <ul class="options">
+                    <li class="correct">A. It allows an NFT to act as a wallet that owns other assets, so transferring the NFT automatically transfers all its possessions.</li>
+                    <li>B. It is a standard for rendering 3D models on the blockchain.</li>
+                    <li>C. It defines how games should calculate damage from NFT swords.</li>
+                    <li>D. It is a standard for metaverse land coordinates.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>ERC-6551 makes an NFT its own smart contract wallet, capable of holding tokens and other NFTs. When the avatar is transferred, everything it owns travels with it.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q6</div>
+                <div class="a-type">Multi-Select</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">5 marks</div>
+                <div class="a-question">Which of the following are key components of a cross-game interoperable avatar system? (Select all that apply)</div>
+                <div class="multi-select">
+                    <div class="opt-chip selected">A. An ERC-721 or ERC-1155 token representing the avatar on-chain.</div>
+                    <div class="opt-chip selected">B. Extended metadata on IPFS describing the avatar's 3D model, attributes, and history.</div>
+                    <div class="opt-chip selected">C. A standardised way for games to read avatar attributes and render them in their own art style.</div>
+                    <div class="opt-chip">D. A centralised server that all games must connect to for avatar data.</div>
+                    <div class="opt-chip selected">E. On-chain functions to update avatar state (XP, level, equipped items) from authorised game contracts.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answers: A, B, C, E</div><p>A cross-game avatar system uses NFTs for ownership, IPFS for metadata, open interpretation for rendering, and on-chain state updates. A centralised server (D) would defeat the purpose of decentralised interoperability.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 12.4 Assessment Summary</div>
+            <div class="score-row">Q1-Q5: 5 × MCQ (1 mark each) = 5 marks</div>
+            <div class="score-row">Q6: Multi-Select = 5 marks</div>
+            <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 12.4</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Walled Garden</div><div class="g-def">A digital ecosystem where assets are controlled by a single platform and cannot be transferred or used outside that platform.</div></div>
+        <div class="glossary-card"><div class="g-term">Metaverse Interoperability</div><div class="g-def">The ability for digital assets (avatars, items, land) to function across multiple virtual worlds and platforms, enabled by blockchain ownership.</div></div>
+        <div class="glossary-card"><div class="g-term">Cross-Game Avatar</div><div class="g-def">An NFT representing a player's identity that can be loaded into any compatible game, carrying its appearance, attributes, and history.</div></div>
+        <div class="glossary-card"><div class="g-term">Semantic Properties</div><div class="g-def">Descriptions of what an asset IS (leather armour, tall, sword) rather than exactly how it looks, allowing each game to render it in its own art style.</div></div>
+        <div class="glossary-card"><div class="g-term">Digital Land</div><div class="g-def">An NFT representing ownership of a virtual parcel of space, with coordinates, dimensions, and building data stored on-chain or in metadata.</div></div>
+        <div class="glossary-card"><div class="g-term">ERC-6551 (Token-Bound Account)</div><div class="g-def">A standard that allows an NFT to act as a smart contract wallet, owning other tokens and NFTs. Transfers all possessions with the parent NFT.</div></div>
+        <div class="glossary-card"><div class="g-term">Extended Metadata</div><div class="g-def">NFT metadata that goes beyond a simple image to include 3D models, animations, gameplay attributes, and ownership history.</div></div>
+        <div class="glossary-card"><div class="g-term">Renderer Model</div><div class="g-def">The concept that games are viewers that display assets the player already owns, rather than stores that sell items they control.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 12 · Sub-Module <strong>12.4</strong> of 5 · Next: Sub-Module 12.5 - Hands-On: Mint an NFT Collection →</p>
+    </div>
+
+</body>
+</html>

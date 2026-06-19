@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 17.2 - MST’s Quantum-Ready Pillar in Action | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* HEADER */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+    .meta-chip.blue { background: var(--blue-light); border-color: #BFDBFE; color: #1E3A8A; }
+
+    /* SECTION TITLES */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story    { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key      { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning  { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight  { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy  { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+    .callout.code { background: #1F2937; border-color: #4B5563; color: #F3F4F6; }
+    .callout.code .callout-label { color: #FBBF24; }
+    .callout.code pre { font-family: var(--mono); font-size: 13px; white-space: pre-wrap; margin:0; color: #F3F4F6; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row {
+      display: grid; grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    .timeline { margin: 24px 0; }
+    .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+    .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+    .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+    .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-right { padding: 0 0 28px 4px; }
+    .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+    .tl-body strong { color: var(--ink); }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    .descriptive-hint {
+      background: var(--blue-light); border: 1.5px solid #BFDBFE;
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .descriptive-hint-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #1E3A8A; margin-bottom: 8px;
+    }
+    .descriptive-hint p { font-size: 14px; color: #1E3A8A; line-height: 1.6; }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .stat-row       { grid-template-columns: 1fr 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="module-badge">⚛️ Module 17 &nbsp;·&nbsp; Sub-Module 17.2 of 3</div>
+<h1 class="module-title">MST’s Quantum-Ready Pillar <span class="highlight">in Action</span></h1>
+<p class="module-subtitle">
+  How MST turns quantum-resistant theory into live protocol code - hybrid signatures, seamless wallet migration,
+  and a validator transition plan that keeps the network running through the Y2Q moment.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 30 Marks</div>
+  <div class="meta-chip blue">📋 8 MCQ + 6 T/F (Justification) + 2 Descriptive</div>
+  <div class="meta-chip orange">Hybrid Signatures · SARAL Migration · Validator Upgrade</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔀</div>
+    <div class="obj-text"><strong>Explain MST’s hybrid signature mechanism</strong>Describe how transactions carry both ECDSA and Dilithium signatures during the transition window, and why a soft fork suffices.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📱</div>
+    <div class="obj-text"><strong>Trace a user’s migration journey via SARAL</strong>Understand how a non-custodial wallet switches from ECDSA to post-quantum keys without the user ever seeing a seed phrase.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⛓️</div>
+    <div class="obj-text"><strong>Diagram the validator consensus upgrade</strong>Map the steps by which Trika POSA validators replace ECDSA block signatures with Falcon/Dilithium.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text"><strong>Critically evaluate the migration timeline</strong>Analyse why a 6-month dual-signature period is optimal, and identify the risks of a premature or delayed transition.</div>
+  </div>
+</div>
+
+<!-- 02 REAL WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">A Mumbai Fintech Startup’s Quantum-Safe DeFi Launch</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>BharatFi, a Mumbai-based DeFi protocol, is planning to launch an on-chain lending platform on MST in late 2028. They expect to manage over ₹500 crore in total value locked within the first year - institutional deposits, SME loans, and stablecoin vaults. Their CTO, Ananya, has read every NIST report and knows that the window for ECDSA’s security is closing.</p>
+  <br>
+  <p>She approaches MST’s developer relations team with a single demand: “We will not launch if our users’ funds can be quantum-stolen three years from now. Show us exactly how MST protects a 30-year loan contract.”</p>
+  <br>
+  <p>The MST team walks her through the live quantum-ready pillar - not a whitepaper roadmap, but <strong>code already merged into the client</strong>. By block 18,500,000 (projected activation: Q2 2028), every transaction must carry a hybrid signature. SARAL wallets already generate Dilithium keypairs. The migration smart contract has been audited by two firms. Validators on testnet are already finalising blocks with Falcon signatures in shadow mode.</p>
+  <br>
+  <p>Ananya integrates the hybrid transaction builder into BharatFi’s SDK, tests on testnet, and launches on mainnet on the exact day the transition block activates. When quantum computers eventually mature, her users’ assets will already be sitting inside lattice-secured vaults - zero migration panic, zero fork drama, and a board that sleeps soundly.</p>
+</div>
+<p>This story is not aspirational - it’s the exact workflow MST enables for any developer building long-lived financial infrastructure. The rest of this sub-module teaches you how to build it yourself.</p>
+
+<!-- 03 BACKGROUND & ARCHITECTURE -->
+<div class="section-label">03 &nbsp; Background &amp; Design Rationale</div>
+<h2 class="section-title">Why “Just Add a New Signature” Doesn’t Work - and How MST Solved It</h2>
+<p>Most blockchain quantum-resistance proposals fall into one of two traps: either they require a disruptive hard fork that splits the community, or they ask every user to manually migrate funds to a new address type - a UX catastrophe that would lock millions of non-technical users out of their assets. MST’s engineering team studied these failures and designed a <strong>backward-compatible, soft-fork-based migration</strong> that works with the existing consensus, wallet, and smart-contract infrastructure.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">The Dual-Stack Transaction Format</div>
+      <div class="feature-desc">MST’s transaction structure was extended with an optional <code>pq_signature</code> field. Before the transition height, this field is ignored. After the transition height, validators <strong>require</strong> it and verify it against a registered post-quantum public key. This means old wallets continue to work until the transition, and new wallets can add the extra signature immediately.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">No New Address Format - Just New Keys</div>
+      <div class="feature-desc">Instead of creating a separate “pq1…” address type, MST binds a user’s post-quantum public key to their existing ECDSA address through an on-chain <strong>key registry contract</strong>. When you deploy a SARAL wallet, a small identity contract is created that maps your address to both keys. Validators look up the pq key during signature verification - no address change, no UX disruption.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Governance-Scheduled Transition</div>
+      <div class="feature-desc">The transition block height is set by MST’s on-chain governance. This allows the community to react to real-world quantum developments - if a breakthrough is announced, the height can be accelerated. The default schedule assumes a conservative 18-month lead time from governance proposal to activation, with a 6-month hybrid window after activation.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Soft-Fork Principle</div>
+  <p>A soft fork means that the new rules are a <strong>subset</strong> of the old rules. Before the transition, hybrid transactions are valid under both old and new rules. After the transition, only hybrid (or fully pq) transactions are accepted by upgraded nodes. Non-upgraded nodes see blocks as valid because they still observe the old consensus rules, but they can’t produce blocks without the pq signature. This prevents a chain split - a crucial requirement for financial networks.</p>
+</div>
+
+<!-- 04 TECHNICAL DEEP DIVE: HYBRID TRANSACTION MECHANICS -->
+<div class="section-label">04 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Hybrid Signatures: From Wallet to Block Finality</h2>
+<p>Let’s walk through the life of a hybrid transaction, from the moment a user taps “Send” to the moment it’s sealed in a block.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 17.2-A · Hybrid Transaction Lifecycle</div>
+  <pre>
+  USER WALLET                          VALIDATOR NODE                       BLOCK
+  ────────────                         ────────────────                     ─────
+  1. User taps Send
+  2. SARAL retrieves:
+       - ecdsa_private_key (from enclave)
+       - dilithium_private_key (from enclave)
+  3. Wallet constructs tx:
+       tx.body = {to, amount, nonce, ...}
+       tx.sig_ecdsa = sign_ecdsa(tx.body, ecdsa_key)
+       tx.sig_dilithium = sign_dilithium(tx.body, dilithium_key)
+  4. Tx broadcast to mempool
+                                          5. Node receives tx.
+                                             If block.height >= TRANSITION_HEIGHT:
+                                                 - Fetch user's pq_public_key from registry contract
+                                                 - Verify ecdsa_sig against user's ecdsa_address
+                                                 - Verify dilithium_sig against user's pq_public_key
+                                                 - Both must be valid → tx enters candidate block
+                                             Else:
+                                                 - Only ecdsa_sig required.
+                                          6. Validator proposes block containing tx.
+                                          7. Block is signed by validator with
+                                             its own hybrid signature (ECDSA + Falcon).
+                                          8. Block finalized and added to chain.
+  </pre>
+  <div class="diagram-caption">All legacy transactions (no pq_sig) are rejected after the transition height. This enforces quantum-safe transaction submission for every user who has registered a pq key.</div>
+</div>
+
+<div class="callout code">
+  <div class="callout-label">💻 Key Registry Contract Interface (Solidity)</div>
+  <pre>// Minimal identity contract that binds a user's post‑quantum key
+interface IPQKeyRegistry {
+    function register(bytes calldata pqPublicKey) external;
+    function getPQKey(address user) external view returns (bytes memory);
+    event PQKeyRegistered(address indexed user, bytes pqPublicKey);
+}
+
+// Validator logic (simplified):
+function verifyHybridSignature(address user, bytes32 txHash, bytes memory ecdsaSig, bytes memory pqSig) internal view {
+    require(verifyECDSA(user, txHash, ecdsaSig), "ECDSA invalid");
+    bytes memory pqKey = pqRegistry.getPQKey(user);
+    require(pqKey.length > 0, "No PQ key registered");
+    require(verifyDilithium(pqKey, txHash, pqSig), "Dilithium invalid");
+}</pre>
+</div>
+
+<p><strong>What if a user hasn’t registered a PQ key?</strong> After the transition height, unregistered addresses cannot initiate transactions. However, a <strong>“force-migrate” relay contract</strong> allows anyone to call a function that uses the user’s pre-authorised migration allowance (set during SARAL wallet creation) to move assets to a fresh post-quantum address. This ensures no funds are permanently locked, even if the original owner lost access.</p>
+
+<!-- 05 SARAL WALLET MIGRATION -->
+<div class="section-label">05 &nbsp; SARAL Wallet Quantum Migration</div>
+<h2 class="section-title">How Your Wallet Silently Becomes Quantum-Safe</h2>
+<p>From the user’s perspective, nothing changes. But under the hood, the wallet performs a choreographed key rotation that would take a manual user hours of terrifying copy-pasting.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Onboarding (already quantum-ready)</div>
+      <div class="feature-desc">When a new user creates a SARAL wallet via Google/Facebook login, the secure enclave generates two keypairs: an <code>ECDSA</code> pair for immediate use, and a <code>CRYSTALS‑Dilithium</code> pair for future use. The Dilithium public key is immediately registered on-chain via a meta-transaction (gas sponsored by MST’s onboarding fund). The user never sees either private key.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Receiving the “Transition Notice”</div>
+      <div class="feature-desc">Six months before the transition height, SARAL displays a non-intrusive banner: “MST is upgrading to quantum-safe signatures. Your wallet is already ready.” No action required. In the background, the wallet begins signing transactions with both keys immediately, even before the transition height, to test hybrid propagation on mainnet.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">At Transition Height</div>
+      <div class="feature-desc">The network begins enforcing hybrid signatures. SARAL wallets automatically append the Dilithium signature to every transaction. Legacy wallets that haven’t been upgraded stop working - but users can recover their funds through the force-migrate relay using their original SARAL biometric authentication. The migration is complete without a single seed phrase written down.</div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 17.2-B · SARAL Dual-Key Lifecycle</div>
+  <pre>
+  DAY 0 (User creates wallet)
+  ───────────────────────────
+    Enclave generates:
+      ecdsa_priv, ecdsa_pub
+      dilithium_priv, dilithium_pub
+    Dilithium pub → registered on‑chain via KeyRegistry contract.
+    ECDSA pub → standard MST address.
+
+  MONTHS 1–12 (Normal usage)
+  ───────────────────────────
+    Transactions signed with ECDSA only.
+    Dilithium key stored but unused.
+
+  TRANSITION HEIGHT (Governance‑activated)
+  ────────────────────────────────────────
+    Wallet starts appending dilithium_sig to every tx.
+    Validators enforce hybrid verification.
+    User experience: identical. No pop‑ups, no re‑authentication.
+
+  POST‑TRANSITION (ECDSA no longer accepted)
+  ─────────────────────────────────────────
+    Wallet can optionally stop sending ECDSA sig (reducing tx size).
+    All funds now guarded by lattice‑based signatures.
+  </pre>
+  <div class="diagram-caption">The entire process is invisible to the end user, yet mathematically guarantees that a quantum adversary cannot forge a transaction from this wallet after the transition.</div>
+</div>
+
+<!-- 06 VALIDATOR CONSENSUS UPGRADE -->
+<div class="section-label">06 &nbsp; Validator Consensus Upgrade</div>
+<h2 class="section-title">Trika POSA Validators: From ECDSA to Falcon</h2>
+<p>Securing user transactions is only half the battle. The consensus layer - where validators propose and finalise blocks - must also become quantum-resistant. If a quantum adversary can forge a validator’s block signature, they can finalise malicious blocks, double-spend, or halt the chain.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Validator Key Registration (Pre-Transition)</div>
+      <div class="feature-desc">Six months before the transition height, validators must submit a <strong>Falcon public key</strong> (or Dilithium, depending on governance) to a dedicated validator registry contract. They continue signing blocks with ECDSA. The network enters a <strong>“shadow-signing” phase</strong>: validators optionally append a Falcon signature to block proposals, and other validators verify it in addition to ECDSA. This tests the new signature scheme under live load without enforcement.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Dual-Signature Consensus (Transition Height)</div>
+      <div class="feature-desc">At the transition height, the consensus rules change: every block proposal must carry a valid Falcon signature from the proposer, in addition to the ECDSA signature. Validators that have not registered a pq key are excluded from the active set. The fork-choice rule remains unchanged - the chain with the most stake-weighted votes wins - but votes themselves are now hybrid-signed.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Post-Transition (ECDSA Dropped)</div>
+      <div class="feature-desc">After a second governance-defined height (typically 6 months after the first), validators stop requiring ECDSA signatures on blocks. The block size shrinks, throughput increases slightly, and the consensus layer is fully post-quantum. Any validator still relying on ECDSA is slashed for failing to produce valid blocks.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Why Falcon for Validators?</div>
+  <p>Falcon signatures are ~700 bytes vs Dilithium’s ~2.5 KB. Validators sign hundreds of blocks per epoch, so bandwidth and verification speed matter. Falcon’s smaller signatures reduce block propagation time, keeping MST’s 3-second block time intact. Dilithium is used for user transactions because its simpler signing algorithm is more suitable for mobile wallets and secure enclaves with limited computational power.</p>
+</div>
+
+<!-- 07 MIGRATION TIMELINE -->
+<div class="section-label">07 &nbsp; Migration Timeline &amp; Governance</div>
+<h2 class="section-title">The Quantum Readiness Clock - Phase by Phase</h2>
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Now - Pre-Activation</div>
+      <div class="tl-body"><strong>Dual-key generation active in SARAL.</strong> Users create wallets with both ECDSA and Dilithium. Key registry contracts deployed. Validators run shadow-signing testnet.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">T-6 Months</div>
+      <div class="tl-body"><strong>Governance proposal passes.</strong> Transition height is set. Validator pq-key registration opens. Ecosystem tooling (Hardhat plugins, SDKs) updated to build hybrid transactions.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Transition Height (Hₜ)</div>
+      <div class="tl-body"><strong>Network enforces hybrid signatures for all transactions and blocks.</strong> Non-upgraded wallets stop transacting. Force-migrate relay becomes active. Chain continues without interruption.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Hₜ + 6 Months</div>
+      <div class="tl-body"><strong>ECDSA requirement dropped.</strong> Transactions and blocks require only post-quantum signatures. Wallet size optimised. Full quantum resistance achieved.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Ongoing</div>
+      <div class="tl-body"><strong>Continuous PQC algorithm rotation.</strong> Governance can introduce new NIST algorithms (e.g., future lattice schemes, code-based backups) using the same registry-and-transition pattern.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 COMPARISON: MST vs OTHER CHAINS -->
+<div class="section-label">08 &nbsp; Comparison</div>
+<h2 class="section-title">How MST’s Quantum Migration Compares to Other Approaches</h2>
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Attribute</th>
+      <th>❌ Ethereum (Proposed)</th>
+      <th>❌ Bitcoin (Hypothetical)</th>
+      <th>✅ MST (Live Design)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Migration mechanism</td>
+      <td class="bad">New address type (0x…pq), requires users to move funds manually</td>
+      <td class="bad">Hard fork + new signature opcode, likely chain split</td>
+      <td class="good">Soft fork + key registry; no address change, no user action</td>
+    </tr>
+    <tr>
+      <td>Backward compatibility</td>
+      <td class="mid">Partial; old wallets can receive but not send</td>
+      <td class="bad">None; legacy nodes reject new signatures</td>
+      <td class="good">Full; old transactions valid until Hₜ, then hybrid enforced</td>
+    </tr>
+    <tr>
+      <td>Wallet UX impact</td>
+      <td class="bad">Users must manually create new account, transfer tokens</td>
+      <td class="bad">Users must upgrade wallet software immediately</td>
+      <td class="good">Invisible; dual-key generation at onboarding, auto-hybrid signing</td>
+    </tr>
+    <tr>
+      <td>Validator coordination</td>
+      <td class="mid">Requires all validators to upgrade client</td>
+      <td class="bad">Miners must signal support; risk of chain split</td>
+      <td class="good">Validator registry + shadow-signing phase ensures readiness</td>
+    </tr>
+    <tr>
+      <td>Force-migrate fallback</td>
+      <td class="bad">None; lost keys = lost funds</td>
+      <td class="bad">None</td>
+      <td class="good">Relay contract migrates funds of non-upgraded users, preserving recovery</td>
+    </tr>
+    <tr>
+      <td>Algorithm agility</td>
+      <td class="mid">Hard-coded; new algorithm requires another fork</td>
+      <td class="bad">Extremely rigid</td>
+      <td class="good">Governance can rotate PQC algorithms using same registry pattern</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 09 REAL-WORLD CONNECTION -->
+<div class="section-label">09 &nbsp; Real-World Connection</div>
+<h2 class="section-title">What This Means for Developers Like You</h2>
+<p>As a developer building on MST, the quantum-ready pillar gives you a superpower: you can deploy a smart contract today, add a simple <code>postQuantumSigner</code> modifier, and know that your contract will still be secure decades from now. Let’s make it concrete.</p>
+
+<div class="callout code">
+  <div class="callout-label">🛠️ Smart Contract with Quantum-Enforced Access</div>
+  <pre>contract TimeLockedVault {
+    IPQKeyRegistry public pqRegistry;
+    address public owner;
+    uint256 public unlockTime;
+
+    modifier onlyOwnerQuantumSafe() {
+        require(msg.sender == owner, "Not owner");
+        require(pqRegistry.getPQKey(msg.sender).length > 0, "Owner must register PQ key");
+        _;
+    }
+
+    function withdraw() external onlyOwnerQuantumSafe {
+        require(block.timestamp >= unlockTime, "Too early");
+        payable(owner).transfer(address(this).balance);
+    }
+}</pre>
+</div>
+
+<p>The <code>onlyOwnerQuantumSafe</code> modifier ensures that even if the owner’s ECDSA key is compromised (quantum attack), an attacker cannot call <code>withdraw</code> because they would also need to forge a valid Dilithium signature - which remains quantum-hard. By deploying with this pattern, BharatFi’s vaults are immune to the Y2Q break.</p>
+
+<div class="highlight-strip">
+  <strong>Action item:</strong> In your capstone project, add a quantum-safe modifier to any contract that holds long-term assets. Use MST’s <code>IPQKeyRegistry</code> interface to check that the caller has registered a post-quantum key.
+</div>
+
+<!-- 10 ASSESSMENT PREPARATION -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Key Concepts - Know These Cold</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div><div class="feature-content"><div class="feature-title">Hybrid transactions carry both ECDSA and PQC sigs</div><div class="feature-desc">After transition height, validators require both. Before that, the PQC sig is optional. This enables backward compatibility.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div><div class="feature-content"><div class="feature-title">Key Registry Contract binds PQ key to address</div><div class="feature-desc">No new address format. Validators look up the PQ key on-chain during verification. Users never change addresses.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div><div class="feature-content"><div class="feature-title">SARAL generates Dilithium keypair at onboarding</div><div class="feature-desc">The post-quantum key is created silently and registered via meta-transaction, making the wallet quantum-ready from day one.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div><div class="feature-content"><div class="feature-title">Validator upgrade uses Falcon for smaller signatures</div><div class="feature-desc">Validators register Falcon keys, shadow-sign before transition, and are slashed if they don’t comply after transition height.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div><div class="feature-content"><div class="feature-title">Force-migrate relay protects stranded assets</div><div class="feature-desc">Users who haven’t registered a PQ key can have their assets moved to a secure post-quantum address by a permissionless relay contract.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3); font-size:11px;">06</div><div class="feature-content"><div class="feature-title">Governance controls transition timing</div><div class="feature-desc">The height is set by on-chain vote, allowing the community to react to quantum breakthroughs without protocol hard forks.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 17.2 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">30</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQs -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">8 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 8 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">At the transition height, what signature combination is required for a user transaction to be valid?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Only an ECDSA signature</li>
+        <li class="correct"><span class="opt-key">B</span> Both an ECDSA signature and a post-quantum signature ✅</li>
+        <li><span class="opt-key">C</span> Only a post-quantum signature (ECDSA is immediately dropped)</li>
+        <li><span class="opt-key">D</span> A one-time migration proof instead of any signature</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>MST’s hybrid transition requires both signatures to maintain backward compatibility. Option C is incorrect because ECDSA is dropped only later (Hₜ + 6 months). Option A describes pre-transition behavior.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does a validator node know which post-quantum key is associated with a user’s address?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> It is embedded in the transaction itself</li>
+        <li class="correct"><span class="opt-key">B</span> It queries an on-chain key registry contract ✅</li>
+        <li><span class="opt-key">C</span> It derives the PQ key from the ECDSA public key using a hash</li>
+        <li><span class="opt-key">D</span> The user sends a separate registration message before each transaction</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The <code>PQKeyRegistry</code> contract stores the mapping. Validators call <code>getPQKey(user)</code> during verification. This avoids embedding keys in every transaction (option A) and does not require repeated registration.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What happens to legacy wallets that do not produce a post-quantum signature after the transition height?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> They are automatically upgraded by the network</li>
+        <li class="correct"><span class="opt-key">B</span> Their transactions are rejected by validators ✅</li>
+        <li><span class="opt-key">C</span> They can still send transactions, but with a warning</li>
+        <li><span class="opt-key">D</span> The network forks to keep them operational</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>After Hₜ, validators enforce the hybrid requirement. Non-upgraded wallets cannot transact, but their funds can be recovered via the force-migrate relay.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why does MST use Falcon for validator block signatures instead of Dilithium?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Falcon is quantum-resistant while Dilithium is not</li>
+        <li class="correct"><span class="opt-key">B</span> Falcon produces smaller signatures, reducing block propagation time ✅</li>
+        <li><span class="opt-key">C</span> Dilithium is not suitable for consensus algorithms</li>
+        <li><span class="opt-key">D</span> Falcon is the only NIST-approved signature scheme</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Falcon signatures are ~700 bytes vs Dilithium’s ~2.5 KB, which is critical for high-frequency block signing. Both are quantum-resistant and NIST-approved.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the purpose of the “shadow-signing” phase for validators?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> To test the economic incentives of slashing</li>
+        <li class="correct"><span class="opt-key">B</span> To allow validators to practice signing blocks with Falcon without enforcement ✅</li>
+        <li><span class="opt-key">C</span> To mine extra blocks in parallel to the main chain</li>
+        <li><span class="opt-key">D</span> To generate secret keys that are later revealed</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>During shadow-signing, validators optionally append Falcon signatures. Other nodes verify them, allowing performance testing and bug detection under live conditions before enforcement.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does the force-migrate relay contract know which assets to move for an unregistered user?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> It scans the blockchain for the user’s balance</li>
+        <li class="correct"><span class="opt-key">B</span> The user’s SARAL wallet pre-authorises a migration allowance during onboarding ✅</li>
+        <li><span class="opt-key">C</span> The user must manually initiate migration from a backup device</li>
+        <li><span class="opt-key">D</span> Any third party can call it, but only for assets locked in DeFi</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>During wallet creation, a small proxy contract is deployed that pre-approves the relay contract to migrate assets to a quantum-safe address derived from the user’s Dilithium key. No user action is needed at migration time.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following best describes the governance role in MST’s quantum migration?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Governance has no role; the transition is hard-coded</li>
+        <li class="correct"><span class="opt-key">B</span> Governance votes to set the transition height and can accelerate it if needed ✅</li>
+        <li><span class="opt-key">C</span> Governance selects which users must migrate first</li>
+        <li><span class="opt-key">D</span> Governance manually verifies each quantum-safe key</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The on-chain DAO sets the block height for Hₜ. This allows the community to react to quantum breakthroughs by accelerating the timeline, while maintaining a predictable default.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">If a user loses access to their SARAL wallet after the transition height but before registering a PQ key, how can their funds be recovered?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Through the standard SARAL biometric recovery flow, which regenerates the Dilithium key from the enclave backup ✅</li>
+        <li><span class="opt-key">B</span> The funds are permanently lost</li>
+        <li><span class="opt-key">C</span> The user must contact MST support to manually override the registry</li>
+        <li><span class="opt-key">D</span> The force-migrate relay requires a court order to act</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>SARAL’s recovery uses Shamir secret sharing of the enclave seed. The Dilithium keypair is derived from the same seed as the ECDSA keypair. Thus, standard SARAL recovery restores both keys, and the user can immediately sign hybrid transactions. No external override is needed.</p></div>
+    </div>
+
+    <!-- SECTION B: True/False with Justification -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">6 Questions &nbsp;·&nbsp; 2 marks each &nbsp;·&nbsp; 12 marks total</div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"MST requires a hard fork to enforce post-quantum signatures on transactions."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">This statement is FALSE. MST uses a soft fork: hybrid transactions (ECDSA + PQ) are valid under both old and new consensus rules. Non-upgraded nodes still accept hybrid blocks because they only verify the ECDSA signature. After Hₜ, upgraded validators reject non-hybrid transactions, but the chain remains unified because all blocks are produced by upgraded validators. No chain split occurs.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains that hybrid transactions are a subset of old rules, avoiding a permanent fork.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Users must create a new MST address to use post-quantum signatures."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">FALSE. MST binds the post-quantum key to the existing address via the on-chain key registry contract. The user’s address does not change; they simply register their Dilithium public key once. Validators look up the PQ key from the registry when verifying hybrid transactions. No new address format is introduced.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Describes the key registry mechanism that avoids address changes.</p></div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"After the transition height, a validator that has registered a Falcon key can still choose to sign blocks with only an ECDSA signature."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">FALSE. After Hₜ, the consensus rules require every block proposal to carry a valid Falcon signature in addition to the ECDSA signature. Validators that fail to include it are ignored by the network and may be slashed. The hybrid requirement is mandatory for block production.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains that hybrid signatures are mandatory for validators after Hₜ, with slashing risk.</p></div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q12</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"If a SARAL user never opens their wallet after the transition height, their funds will eventually become inaccessible."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">FALSE. The force-migrate relay contract, pre-authorised during wallet creation, can move the user’s assets to a quantum-safe address derived from their Dilithium key without any action from the user. As long as the relay is called (by anyone), the funds are preserved in a post-quantum address.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> References the force-migrate relay mechanism and pre-authorisation.</p></div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q13</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"MST’s quantum-ready pillar uses Dilithium for both user transactions and validator block signatures."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">FALSE. User transactions use Dilithium (suitable for enclaves/mobiles), while validators use Falcon because its smaller signatures (~700 B vs ~2.5 KB) reduce block propagation overhead. Both are NIST-approved lattice-based schemes, but they are optimised for different roles.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Correctly distinguishes Dilithium (users) and Falcon (validators) with size justification.</p></div>
+    </div>
+
+    <!-- Q14 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q14</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"The hybrid signature phase permanently adds 2.5 KB to every MST transaction forever."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">FALSE. The hybrid phase is temporary. At Hₜ + 6 months, the ECDSA requirement is dropped, and transactions carry only the Dilithium signature (~2.5 KB) - actually slightly larger than original ECDSA (~64 B), but not doubled indefinitely. Over time, as Dilithium implementations improve or Falcon is adopted more broadly, this overhead will be minimised.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> States FALSE.<br><strong>+1 mark:</strong> Explains the temporary nature and eventual single-sig post-quantum format.</p></div>
+    </div>
+
+    <!-- SECTION C: Descriptive -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section C - Descriptive Questions</div>
+      <div class="q-section-meta">2 Questions &nbsp;·&nbsp; 5 marks each &nbsp;·&nbsp; 10 marks total</div>
+    </div>
+
+    <!-- Q15 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q15</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">Explain, in detail, how a quantum computer would attack an ECDSA-secured wallet, and describe the exact sequence of events that MST’s quantum-ready pillar uses to protect that wallet before, during, and after the quantum break. Include the roles of the key registry, the hybrid transaction, and the force-migrate relay.</div>
+      <div class="descriptive-hint">
+        <div class="descriptive-hint-label">📝 Write a structured answer covering:</div>
+        <p>• The mathematical attack (Shor’s algorithm on the public key) and why it’s catastrophic for unspent outputs.<br>• The user’s SARAL wallet dual-key setup at creation and how the Dilithium key is silently registered.<br>• The pre-transition period: dual keys exist but only ECDSA is used; no attack is possible yet.<br>• The transition height: hybrid signatures enforced; quantum attacker would need to forge a Dilithium signature as well, which Shor’s algorithm cannot do.<br>• Post-transition: ECDSA dropped; funds guarded by pure lattice-based signature.<br>• If the user never upgraded, the force-migrate relay moves assets to a quantum-safe address derived from the pre-registered Dilithium key.</p>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly describes the quantum attack (Shor’s algorithm recovers private key from public key).<br><strong>1 mark:</strong> Mentions SARAL dual-key generation and on-chain registration of Dilithium pubkey.<br><strong>1 mark:</strong> Explains hybrid signature enforcement at Hₜ and why it defeats the attack.<br><strong>1 mark:</strong> Describes post-transition single-sig safety.<br><strong>1 mark:</strong> Includes the force-migrate relay as a safety net for non-upgraded users.</p></div>
+    </div>
+
+    <!-- Q16 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q16</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">You are the CTO of a DeFi protocol deploying on MST. Design a smart-contract modifier that ensures only quantum-safe users can interact with your vault after the transition height. Describe the modifier’s logic, the on-chain call it must make, and explain why this pattern protects your protocol from both classical and quantum attackers.</div>
+      <div class="descriptive-hint">
+        <div class="descriptive-hint-label">💡 Your answer should include:</div>
+        <p>• The modifier name (e.g., <code>onlyQuantumSafe</code>) and its required checks.<br>• How it queries the <code>PQKeyRegistry</code> to verify the caller has registered a post-quantum key.<br>• Why an attacker who steals the ECDSA key (classical or quantum) cannot satisfy the modifier.<br>• Consideration of the block height (maybe the modifier only enforces after Hₜ).<br>• A brief gas-cost discussion or fallback for unregistered users.</p>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Modifier logic correct: checks <code>pqRegistry.getPQKey(msg.sender).length &gt; 0</code>.<br><strong>1 mark:</strong> Queries the correct registry contract (not a local mapping).<br><strong>1 mark:</strong> Explains that without the PQ key, the transaction cannot have a valid hybrid signature.<br><strong>1 mark:</strong> Optional block-height gating (check <code>block.number &gt;= transitionHeight</code>).<br><strong>1 mark:</strong> Addresses unregistered users (revert with helpful message or suggest force-migrate).</p></div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 17.2 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 6 × True/False with Justification <span>(2 marks each) = 12 marks</span></div>
+      <div class="score-row">Section C: 2 × Descriptive <span>(5 marks each) = 10 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">30</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 17.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Hybrid Transaction</div><div class="glossary-def">A transaction containing both an ECDSA signature and a post-quantum signature, enforced during MST’s quantum migration window.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Key Registry Contract</div><div class="glossary-def">An on-chain contract that stores the mapping from an MST address to its registered post-quantum public key.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Transition Height (Hₜ)</div><div class="glossary-def">The block number at which validators begin enforcing hybrid signatures. Set by on-chain governance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Shadow-Signing</div><div class="glossary-def">A pre-transition phase where validators optionally append post-quantum signatures to test infrastructure without enforcement.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Force-Migrate Relay</div><div class="glossary-def">A permissionless contract that moves assets from a non-upgraded user’s address to a quantum-safe address, using pre-authorised allowances.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Dilithium</div><div class="glossary-def">A NIST-standardised lattice-based digital signature scheme used for user transactions in MST’s post-quantum system.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Falcon</div><div class="glossary-def">A lattice-based signature scheme with compact signatures, used by MST validators for block signing due to its efficiency.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Soft Fork</div><div class="glossary-def">A protocol upgrade where new rules are a subset of old rules; non-upgraded nodes still accept the new blocks, avoiding a chain split.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 17 · Sub-Module <strong>17.2</strong> of 3 &nbsp;·&nbsp; Next: Sub-Module 17.3 - Security Audit of Your Capstone →</p>
+</div>
+
+</body>
+</html>

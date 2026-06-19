@@ -1,0 +1,94 @@
+{
+  "submoduleId": "3.4",
+  "totalMarks": 10,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "An attacker modifies a transaction in Block #500 of a 1,000-block chain. What is the MINIMUM additional work required to make their tampered chain \"valid\"?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Recompute only Block #500's hash",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Recompute the hashes of Block #500 through Block #1,000 - all 501 blocks",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Recompute only the blocks before Block #500",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "No additional work - just change the data and the network accepts it",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Changing any data in Block #500 changes Block #500's hash. Block #501's PrevHash now points to a hash that no longer exists - so Block #501 is invalid. To fix Block #501, the attacker must recompute its hash too (with the correct new PrevHash) - but now Block #502's PrevHash doesn't match Block #501's new hash. This cascade continues all the way to Block #1,000. Every block from the tampered one to the tip of the chain must be recomputed. AND this must be done faster than the honest network continues adding new honest blocks.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Explanation</div>\n        <p>Changing any data in Block #500 changes Block #500's hash. Block #501's PrevHash now points to a hash that no longer exists - so Block #501 is invalid. To fix Block #501, the attacker must recompute its hash too (with the correct new PrevHash) - but now Block #502's PrevHash doesn't match Block #501's new hash. This cascade continues all the way to Block #1,000. Every block from the tampered one to the tip of the chain must be recomputed. AND this must be done faster than the honest network continues adding new honest blocks.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Which of the following is a correct description of a \"51% attack\"?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Stealing the private keys of 51% of all wallet holders on the network",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Controlling more than half the network's consensus power to build an alternative chain faster than the honest network, enabling double-spending of recent transactions",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Creating 51% more coins than the block reward allows",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Causing 51% of all transactions to fail by sending invalid data to nodes",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "A 51% attack requires controlling >50% of the network's consensus power (hashrate in PoW, stake in PoS). With this majority, the attacker can build an alternative chain faster than the honest majority - and since blockchains follow the \"longest valid chain\" rule, the attacker's chain is accepted. This enables double-spending of recent transactions. It does NOT allow: stealing funds from other wallets (requires those wallets' private keys), creating coins beyond protocol rules, or reaching far back into history.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B - Explanation</div>\n        <p>A 51% attack requires controlling &gt;50% of the network's consensus power (hashrate in PoW, stake in PoS). With this majority, the attacker can build an alternative chain faster than the honest majority - and since blockchains follow the \"longest valid chain\" rule, the attacker's chain is accepted. This enables double-spending of recent transactions. It does NOT allow: stealing funds from other wallets (requires those wallets' private keys), creating coins beyond protocol rules, or reaching far back into history.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 3,
+      "text": "\"Blockchain immutability is enforced by legal frameworks and access control policies - similar to how a traditional database is made tamper-proof. Blockchain is simply a more legally protected database.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: Correctly states FALSE.\n        1 mark: Explains that traditional database immutability is policy-based (administrators can bypass it), while blockchain immutability is structural and cryptographic.\n        1 mark: Explains the specific mechanism - hash chaining creates a cascade of invalidation that requires recomputing all subsequent blocks, making alteration computationally infeasible at scale.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div>\n        <p><strong>1 mark:</strong> Correctly states FALSE.<br><br>\n        <strong>1 mark:</strong> Explains that traditional database immutability is policy-based (administrators can bypass it), while blockchain immutability is structural and cryptographic.<br><br>\n        <strong>1 mark:</strong> Explains the specific mechanism - hash chaining creates a cascade of invalidation that requires recomputing all subsequent blocks, making alteration computationally infeasible at scale.</p>\n        <div class=\"marks-bd\"><span>Zero marks</span> for stating FALSE without justification, or for justification that only mentions \"cryptography is strong\" without explaining the hash chain mechanism.</div>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "other",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "A blockchain inspector presents you with the following 5-block chain. Analyse the data carefully and answer the questions below.<br><br>\n        <strong>Block #1:</strong> Data = \"TX: A→B ₹100\" | Own Hash = \"aaa111\" | PrevHash = \"000000\"<br>\n        <strong>Block #2:</strong> Data = \"TX: C→D ₹200\" | Own Hash = \"bbb222\" | PrevHash = \"aaa111\"<br>\n        <strong>Block #3:</strong> Data = \"TX: E→F ₹300\" | Own Hash = \"xyz999\" | PrevHash = \"bbb222\"<br>\n        <strong>Block #4:</strong> Data = \"TX: G→H ₹400\" | Own Hash = \"ddd444\" | PrevHash = \"xyz999\"<br>\n        <strong>Block #5:</strong> Data = \"TX: I→J ₹500\" | Own Hash = \"eee555\" | PrevHash = \"ccc333\"<br><br>\n        <em>Note: In a valid chain, each block's PrevHash must equal the previous block's Own Hash.</em><br><br>\n        (a) Identify which block was tampered with. <em>(1 mark)</em><br>\n        (b) Explain exactly what evidence reveals the tampering. <em>(2 marks)</em><br>\n        (c) What should Block #5's PrevHash correctly be, for the B4→B5 link to be valid? <em>(1 mark)</em><br>\n        (d) How many blocks need to be recomputed by an attacker trying to \"fix\" this tampered chain from Block #3 onwards? <em>(1 mark)</em>",
+      "explanation": "(a) Block #3 was tampered with. [1 mark]\n(b) Evidence of tampering: [2 marks]\nFirst, check the B2→B3 link: Block #3's PrevHash = \"bbb222\" ✅ - this matches Block #2's Own Hash. So far so good.\nNext, check B3→B4: Block #4's PrevHash = \"xyz999\" ✅ - this matches Block #3's Own Hash. Also fine.\nNow check B4→B5: Block #5's PrevHash = \"ccc333\" ❌ - Block #4's Own Hash is \"ddd444\", NOT \"ccc333\". This is the mismatch.\nTracing back: Block #5's PrevHash says it expects Block #4 to have hash \"ccc333\". But Block #4's actual Own Hash is \"ddd444\". This means Block #4's data or PrevHash was altered after Block #5 was created - changing its Own Hash from what was originally \"ccc333\" to the current \"ddd444\". The original pre-tamper hash of Block #3's data would have produced an Own Hash of \"ccc333\" - meaning Block #3's data was altered, producing a new Own Hash of \"xyz999\" (instead of the original value that would have led to Block #4's hash being \"ccc333\" and Block #5's PrevHash matching).\n(c) Block #5's PrevHash should be \"ddd444\" [1 mark] - Block #4's actual Own Hash - for the B4→B5 link to be valid.\n(d) Blocks to recompute: [1 mark] Starting from Block #3 (tampered), the attacker must recompute: Block #3's hash, then Block #4's hash (which depends on Block #3's new PrevHash), then Block #5's hash. That is 3 blocks (Blocks #3, #4, and #5).",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Model Answer - 5 Marks</div>\n        <p><strong>(a) Block #3 was tampered with.</strong> [1 mark]</p>\n        <br>\n        <p><strong>(b) Evidence of tampering:</strong> [2 marks]</p>\n        <p>First, check the B2→B3 link: Block #3's PrevHash = \"bbb222\" ✅ - this matches Block #2's Own Hash. So far so good.</p>\n        <p>Next, check B3→B4: Block #4's PrevHash = \"xyz999\" ✅ - this matches Block #3's Own Hash. Also fine.</p>\n        <p>Now check B4→B5: Block #5's PrevHash = \"ccc333\" ❌ - Block #4's Own Hash is \"ddd444\", NOT \"ccc333\". <strong>This is the mismatch.</strong></p>\n        <p>Tracing back: Block #5's PrevHash says it expects Block #4 to have hash \"ccc333\". But Block #4's actual Own Hash is \"ddd444\". This means Block #4's data or PrevHash was altered after Block #5 was created - changing its Own Hash from what was originally \"ccc333\" to the current \"ddd444\". The original pre-tamper hash of Block #3's data would have produced an Own Hash of \"ccc333\" - meaning <strong>Block #3's data was altered</strong>, producing a new Own Hash of \"xyz999\" (instead of the original value that would have led to Block #4's hash being \"ccc333\" and Block #5's PrevHash matching).</p>\n        <br>\n        <p><strong>(c) Block #5's PrevHash should be \"ddd444\"</strong> [1 mark] - Block #4's actual Own Hash - for the B4→B5 link to be valid.</p>\n        <br>\n        <p><strong>(d) Blocks to recompute:</strong> [1 mark] Starting from Block #3 (tampered), the attacker must recompute: Block #3's hash, then Block #4's hash (which depends on Block #3's new PrevHash), then Block #5's hash. That is <strong>3 blocks</strong> (Blocks #3, #4, and #5).</p>\n        <div class=\"marks-bd\"><span>Marking note:</span> For (b), award 1 mark for identifying the B4→B5 PrevHash mismatch (\"ccc333\" ≠ \"ddd444\") and 1 mark for reasoning back to conclude Block #3 was the original tampered block. Accept well-reasoned alternative interpretations if they correctly identify the chain break.</div>"
+    }
+  ]
+}

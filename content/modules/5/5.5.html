@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 5.5 - Stablecoins & CBDCs | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  /* ─── PROSE ─── */
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  /* ─── OBJECTIVE GRID ─── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  /* ─── W5 GRID ─── */
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  /* ─── VISUAL DIAGRAM ─── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  /* ─── TIMELINE ─── */
+  .timeline { margin: 24px 0; }
+  .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+  .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+  .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+  .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-right { padding: 0 0 28px 4px; }
+  .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+  .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+  .tl-body strong { color: var(--ink); }
+
+  /* ─── FEATURE PILLS ─── */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── TWO COLUMN ─── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .col-card {
+    border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+  }
+  .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+  .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+  .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+  .col-card.green .col-card-title { color: #14532D; }
+  .col-card.red   .col-card-title { color: #7F1D1D; }
+  .col-card ul    { padding-left: 0; list-style: none; }
+  .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+  .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+  /* ─── ASSESSMENT ─── */
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  /* TF justification */
+  .tf-box {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  }
+  .tf-verdict {
+    display: inline-block; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+  .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+  .tf-must-write {
+    font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 8px;
+  }
+  .tf-sample {
+    font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+    border-left: 3px solid var(--brand); padding-left: 12px;
+  }
+
+  /* Identify Output box */
+  .identify-output {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .io-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .io-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .io-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .io-data { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+  .io-answer { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .io-answer-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .io-answer p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 5 &nbsp;·&nbsp; Sub-Module 5.5 of 6</div>
+<h1 class="module-title">Stablecoins &amp; <span class="highlight">CBDCs</span></h1>
+<p class="module-subtitle">From USDC to the Digital Rupee - how pegged tokens bring stability to crypto, how central banks are entering the blockchain era, and why the MST hybrid architecture is purpose-built for the regulated digital money of tomorrow.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 2 T/F with Justification (2 marks) + 1 Identify-Output (6 marks)</div>
+  <div class="meta-chip green">Phase 2 · Cryptocurrency & Tokenomics</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">💰</div>
+    <div class="obj-text">
+      <strong>Classify the three stablecoin archetypes</strong>
+      Fiat-collateralized, crypto-collateralized, and algorithmic - with deep dives into USDC, DAI, and the failed TerraUSD, including the specific mechanisms that maintain (or break) the peg.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏛️</div>
+    <div class="obj-text">
+      <strong>Distinguish CBDCs from private stablecoins</strong>
+      Understand why the Reserve Bank of India's Digital Rupee is legal tender while USDC is a private IOU, and how the two can coexist on a hybrid blockchain like MST.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Evaluate stablecoin risk and collateral health</strong>
+      Analyze de-pegging events (UST, USDC during SVB), compute collateralization ratios, and explain the role of liquidation Keepers in MakerDAO.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏗️</div>
+    <div class="obj-text">
+      <strong>Architect a compliant digital currency on MST</strong>
+      Design a bank-issued Digital Rupee token on MST's permissioned zone with mint/burn access control, while leveraging the public zone for DeFi composability.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD INTRODUCTION STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The ₹100 Note That Never Leaves the Bank</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2023, a small export business in Surat received a payment of 10,000 USDC from a buyer in Germany. The USDC arrived in minutes, with a transaction fee of only a few rupees. The business owner immediately converted the USDC to INR through a local exchange, locking in the rate and avoiding the 3 - 5% forex markup that a traditional bank wire would have imposed.</p>
+  <br>
+  <p>Around the same time, the Reserve Bank of India launched a pilot of the <strong>Digital Rupee (e₹)</strong>, a central bank digital currency. Unlike USDC - issued by a private company (Circle) - the e₹ is a direct liability of the RBI, just like the physical ₹100 note in your pocket. But it exists entirely as a token on a blockchain, enabling instant settlement between banks and eventually retail payments without the need for a UPI intermediary.</p>
+  <br>
+  <p>This sub-module explores both worlds: the private stablecoins that grease the wheels of the crypto economy, and the government-issued CBDCs that may redefine national currencies. By the end, you'll understand why a USDC transfer costs so little, why UST collapsed, and how MST's architecture could host a digital rupee that combines the trust of the RBI with the efficiency of blockchain - at a cost of ₹0.006 per transfer.</p>
+</div>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Tether to the Digital Rupee - The Evolution of Stable Digital Money</h2>
+
+<p>The idea of a stable-value digital asset predates blockchains. Early online payment systems like PayPal (1998) and e-gold (1996) attempted to digitize fiat currency, but they remained centralized databases operated by a single company. The blockchain era introduced a radical possibility: a token that could maintain a stable value <strong>without a central issuer</strong>, or with a transparent, algorithmic mechanism. The first blockchain stablecoin, <strong>Tether (USDT)</strong>, launched in 2014 on the Bitcoin blockchain via the Omni Layer protocol. Its promise was simple: each USDT would always be redeemable for $1, because Tether Ltd. held a corresponding US dollar in a bank account. This gave crypto traders something they desperately needed - a way to park value in a dollar-denominated asset without cashing out to fiat, avoiding the friction, delays, and fees of traditional banking rails.</p>
+
+<p>USDT's model - <strong>fiat-collateralized</strong> - remains the dominant stablecoin category today, with a market capitalization exceeding $90 billion. However, it introduced a critical trust problem: users must believe that the issuer actually holds the reserves. Tether's reserve attestations have been a source of controversy for years. The company settled with the New York Attorney General in 2021 over allegations that it had misrepresented the backing of USDT during 2017 - 2018, and its reserve composition has shifted from primarily cash to a mix of commercial paper, secured loans, and other assets. Circle's <strong>USDC</strong>, launched in 2018 by a consortium including Coinbase, attempted to address this trust gap by providing monthly attestations by Grant Thornton and holding reserves in cash and short-term US Treasury bonds - generally considered more transparent and conservative. However, even USDC experienced a brief de-peg in March 2023 when Silicon Valley Bank collapsed, exposing the concentration risk in traditional banking.</p>
+
+<p>In 2017, MakerDAO launched <strong>DAI</strong>, the first <strong>crypto-collateralized</strong> stablecoin. DAI is not backed by any bank account. Instead, users lock up crypto assets (primarily ETH) in smart contracts called <strong>Vaults</strong> and mint DAI against their collateral. The system requires <strong>over-collateralization</strong> - typically 150% or more - meaning you must deposit $150 worth of ETH to mint $100 of DAI. This cushion protects against the volatility of crypto markets. If the collateral value drops too far, automated <strong>Keepers</strong> (incentivized bots) liquidate the Vault, selling the collateral at a discount to keep the system solvent. DAI is fully on-chain and transparent - anyone can verify the total collateral backing every DAI in real time. It is decentralized in the sense that no single entity controls the issuance or redemption, although governance (via the MKR token) sets risk parameters like collateralization ratios and stability fees. Despite its elegance, DAI is capital-inefficient (locking up more value than you mint) and carries risks from smart-contract bugs, oracle manipulation, and extreme market crashes that could outpace liquidations.</p>
+
+<p>The third category, <strong>algorithmic stablecoins</strong>, attempted to do away with collateral entirely, using programmatic supply expansion and contraction to maintain a peg. The most infamous example is <strong>TerraUSD (UST)</strong>, which launched in 2020 and grew to over $18 billion in market cap before collapsing spectacularly in May 2022, wiping out over $40 billion in combined UST and LUNA value. UST relied on a twin-token system with LUNA, where arbitrageurs would mint or burn UST to bring the price back to $1. The mechanism worked while confidence held; when a large sell-off triggered a panic, the algorithm minted massive amounts of LUNA, hyperinflating it and destroying both tokens in an irreversible death spiral. The collapse sent shockwaves through the entire crypto industry, accelerated regulatory scrutiny of stablecoins worldwide, and served as a stark reminder that without real economic backing, algorithmic pegs are fragile at scale.</p>
+
+<p>Meanwhile, central banks around the world began exploring <strong>Central Bank Digital Currencies (CBDCs)</strong>. China's digital yuan (e-CNY) pilot began in 2020, and by 2023 had reached over 260 million wallets, with transactions totaling over $100 billion. The Bahamas launched the Sand Dollar, the first fully deployed CBDC. Nigeria introduced the eNaira. The Reserve Bank of India launched its Digital Rupee pilot in phases: the wholesale segment (e₹-W) in November 2022 for interbank settlement of government securities, and the retail segment (e₹-R) in December 2022 for consumer payments, initially in closed user groups. Unlike private stablecoins, a CBDC is legal tender - a direct claim on the central bank, just like physical cash. It does not fluctuate in value relative to the underlying fiat currency, and it carries the full faith and credit of the sovereign. However, CBDCs raise significant privacy and surveillance concerns, as central banks can theoretically track every transaction, and they may compete with commercial bank deposits for funding.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2014</div>
+      <div class="tl-body"><strong>Tether (USDT) launches.</strong> First widely adopted fiat-collateralized stablecoin. Pegged 1:1 to USD. Built on Bitcoin (Omni), later expands to Ethereum, Tron, and many other chains. Market cap eventually exceeds $90B.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2017</div>
+      <div class="tl-body"><strong>DAI launched by MakerDAO.</strong> First decentralized, crypto-collateralized stablecoin. Over-collateralized with ETH (minimum 150%). Fully on-chain, transparent. Governed by MKR token holders.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2020</div>
+      <div class="tl-body"><strong>China's Digital Yuan pilot begins.</strong> First major CBDC. Retail users can download a wallet and transact. Not blockchain-based but uses a centralized ledger with cryptographic protections. By 2025, used by over 260M wallets.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">May 2022</div>
+      <div class="tl-body"><strong>UST/LUNA collapse.</strong> Algorithmic stablecoin TerraUSD loses its peg, triggering a $40B+ wipeout. Exposes the extreme risks of uncollateralized peg mechanisms. Regulatory scrutiny intensifies worldwide.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Dec 2022</div>
+      <div class="tl-body"><strong>India launches Digital Rupee pilot.</strong> RBI issues e₹-W (wholesale) and e₹-R (retail). Runs on a permissioned blockchain. Banks are nodes; users access via mobile wallets. Interoperability with UPI explored.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST Blockchain.</strong> Ideal platform for stablecoins and CBDCs with hybrid architecture (public + permissioned zones). Low gas fees (~₹0.006 per transfer) enable mass-market stablecoin use, from micro-remittances to daily payments.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Three Ways to Build a Token That Always Equals ₹1</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏦 The Analogy</div>
+  <p>A stablecoin is like a <strong>prepaid wallet token</strong> that always keeps a fixed value. If you buy a ₹100 Amazon Pay gift card, that card is worth exactly ₹100 - because Amazon holds ₹100 of real rupees in its bank account backing that card. That's a <strong>fiat-collateralized stablecoin</strong>. A <strong>crypto-collateralized stablecoin</strong> is like pawning your gold necklace for a loan: you deposit gold worth ₹150 to borrow ₹100 of a stable token, and if the gold price drops too much, the pawnbroker (smart contract) sells your gold to repay the loan. An <strong>algorithmic stablecoin</strong> is like a coupon that a shop promises will always be redeemable for ₹100 - but there's no cash in the till, only a promise that the shop will print more coupons or buy them back to maintain the value. If people stop believing in the promise, the coupon becomes worthless.</p>
+</div>
+
+<p>Now let's break down the three types with concrete examples and detailed mechanics:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FIAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Fiat-Collateralized Stablecoins</div>
+      <div class="w5-a"><strong>USDC, USDT, BUSD, EUROC</strong> - Each token is backed 1:1 by a real fiat currency (or equivalent safe asset) held in a bank account by the issuer. The minting process is simple: a user sends $1 to the issuer (e.g., Circle for USDC), the issuer mints 1 USDC and sends it to the user's wallet. Redemption works in reverse: the user sends USDC back to the issuer, which burns the token and wires $1 to the user's bank account. The trust assumption is heavy: you must believe the issuer actually holds the reserves and will honor redemptions. Transparency mechanisms like reserve attestations (USDC) or proof-of-reserves can mitigate this, but the risk of fractional reserve or bank failure remains. During the March 2023 Silicon Valley Bank crisis, Circle had $3.3B of its reserves stuck at SVB, causing USDC to briefly trade as low as $0.87 before a government backstop restored confidence. This class is widely used in DeFi and centralized exchanges because it is simple, capital-efficient, and generally reliable - but it inherits the risk of the traditional banking system.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">C</div><div class="w5-word">CRYPTO</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Crypto-Collateralized Stablecoins</div>
+      <div class="w5-a"><strong>DAI (MakerDAO), sUSD (Synthetix), FRAX (partially)</strong> - Instead of a bank account, these stablecoins are backed by crypto assets locked in smart contracts. The most transparent example is DAI. To mint 100 DAI, you deposit at least $150 worth of ETH into a Vault. This over-collateralization (150% minimum) cushions against the volatility of ETH. The Vault is monitored by decentralized oracles that feed the current ETH/USD price. If the collateral value drops and the ratio falls below 150%, the Vault is liquidated: a Keeper bot repays the DAI debt and seizes the collateral at a discount (13% penalty). This incentivizes users to keep their Vaults safe and ensures the system always has more value locked than DAI outstanding. DAI's supply is elastic: when users repay debt and close Vaults, DAI is burned. The stability fee (interest rate) is set by MKR governance and influences demand. DAI is decentralized, transparent, and has survived multiple crypto market crashes. However, it is capital-inefficient (you must lock up more than you mint), and in the event of a flash crash, liquidations might not keep pace, leading to temporary system-wide under-collateralization. During the March 2020 "Black Thursday," some Vaults were liquidated at zero collateral due to extreme network congestion and oracle delays, resulting in a DAI surplus that required a governance bailout.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">A</div><div class="w5-word">ALGO</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Algorithmic Stablecoins</div>
+      <div class="w5-a"><strong>UST (Terra), USDN (Neutrino), BAC (Basis Cash)</strong> - These attempt to maintain a peg without any backing collateral (or with only partial backing). The algorithm expands or contracts the token supply based on market demand. UST used a mint-and-burn mechanism with LUNA: if UST > $1, arbitrageurs could mint new UST (requiring burning of $1 worth of LUNA) and sell it, increasing supply and lowering price. If UST < $1, users could burn UST for $1 worth of newly minted LUNA, reducing supply and raising price. In theory, arbitrage would keep the peg. In practice, during a panic sell‑off, the mechanism accelerated the collapse: as UST fell, the algorithm minted ever more LUNA to absorb sell pressure, hyperinflating LUNA and crushing its price. Both tokens entered a death spiral from which there was no recovery. Algorithmic stablecoins are now viewed with extreme skepticism by regulators and the market. The lesson: without a reliable collateral backstop, an algorithmic peg is only as strong as market confidence — and confidence can evaporate in hours. Today, most serious projects avoid purely algorithmic designs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">How a Crypto-Collateralized Stablecoin Works - DAI Under the Hood</h2>
+<p>Let's examine MakerDAO's DAI in exhaustive detail, as it is the most technically sophisticated stablecoin and a frequent reference design for blockchain developers building on EVM chains like MST.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Vault (CDP) Mechanism</h3>
+<p>To generate DAI, a user opens a <strong>Vault</strong> (formerly called a Collateralized Debt Position, or CDP). The user deposits a supported collateral asset - say, $2,000 worth of ETH (10 ETH at $200/ETH in this example). The smart contract locks the ETH and allows the user to mint (generate) DAI up to a certain percentage of the collateral value, defined by the <strong>Liquidation Ratio</strong>. For ETH, the minimum collateralization ratio is 150%, meaning you can mint up to 100 DAI for every $150 of ETH deposited. The user chooses how much DAI to mint, up to that limit. The DAI is newly minted by the Maker protocol and credited to the user's wallet.</p>
+
+<p>The Vault tracks three key numbers that are updated continuously:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Collateral Value</strong> = Amount of ETH × current ETH/USD price (fed by decentralized oracles - Maker uses a medianizer of multiple price feeds with a 1-hour delay via the Oracle Security Module, OSM, to mitigate flash loan oracle attacks).</li>
+  <li><strong>Debt</strong> = Amount of DAI generated plus accumulated <strong>Stability Fees</strong> (interest) over time.</li>
+  <li><strong>Collateralization Ratio</strong> = Collateral Value ÷ Debt. Must stay above the Liquidation Ratio (150% for ETH).</li>
+</ul>
+
+<p>If the ratio falls below the Liquidation Ratio (e.g., because ETH price drops), the Vault becomes under-collateralized and can be liquidated. A <strong>Keeper</strong> - an automated bot running off-chain - monitors Vaults and calls the <code>bite()</code> function (in older Maker terminology) to liquidate the Vault. The Keeper repays the outstanding DAI debt (or a portion of it) and receives the equivalent collateral at a 13% discount (the <strong>Liquidation Penalty</strong>). The remaining collateral (if the debt was partially covered) stays in the Vault or is returned to the user. The DAI repaid by the Keeper is burned, reducing the total supply. This mechanism ensures that the system always has more collateral value than DAI outstanding, maintaining DAI's $1 backing even during market crashes.</p>
+
+<p>The <strong>Stability Fee</strong> is an annual interest rate (denominated in DAI) that accrues on the outstanding debt. Users must pay this fee when they close their Vault (by repaying the DAI debt plus accrued fees). The fee is set by Maker governance (MKR holders) and serves as a monetary policy tool: raising the fee makes DAI more expensive to mint, reducing supply and strengthening the peg; lowering the fee encourages minting and increases supply. The fees collected are used to buy and burn MKR tokens, creating a deflationary pressure on the governance token.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 5.5-A · DAI Minting and Liquidation Flow</div>
+  <pre>
+┌──────────────────────────────────────────────────────────────────┐
+│                    DAI MINTING (Opening a Vault)                  │
+├──────────────────────────────────────────────────────────────────┤
+│ 1. User deposits $2,000 ETH into a Vault smart contract          │
+│ 2. Vault records collateral: $2,000 USD equivalent                │
+│ 3. User calls mint(DAI, 1000) → smart contract mints 1,000 DAI   │
+│ 4. User now holds 1,000 DAI; Vault holds $2,000 ETH as collateral │
+│ 5. Collateralization ratio = 2000/1000 = 200% (above 150% min)   │
+│ 6. User must monitor ETH price; if ETH drops, ratio falls        │
+│ 7. Stability fee accrues over time on the 1,000 DAI debt         │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    LIQUIDATION (If Ratio < 150%)                  │
+├──────────────────────────────────────────────────────────────────┤
+│ 1. ETH price drops → collateral value now $1,400                 │
+│ 2. Ratio = 1400/1000 = 140% → BELOW 150% → Vault is unsafe      │
+│ 3. Keeper bot detects unsafe Vault                                │
+│ 4. Keeper calls liquidate(VaultID)                                │
+│ 5. Keeper repays 1,000 DAI debt (using its own DAI)              │
+│ 6. Keeper receives $1,400 ETH × (1 + 0.13) = $1,582 ETH          │
+│    (Keeper profit = $1,582 - $1,400 = $182)                       │
+│ 7. 1,000 DAI burned; Vault closed; system remains solvent         │
+└──────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                    GLOBAL SETTLEMENT (Emergency Shutdown)         │
+├──────────────────────────────────────────────────────────────────┤
+│ If governance detects a critical vulnerability or systemic risk, │
+│ it can trigger Emergency Shutdown (ES). This freezes all Vaults,  │
+│ locks the ETH/USD price, and allows DAI holders to redeem DAI    │
+│ for a fixed amount of ETH at the frozen price, ensuring finality.│
+│ This has been triggered once in Maker's history (2020 Black      │
+│ Thursday aftermath).                                              │
+└──────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">MakerDAO's multi-layered stability mechanism: over-collateralization, automated liquidation by Keepers, governance-controlled risk parameters, and an emergency shutdown as the ultimate backstop. This design has enabled DAI to maintain its peg through multiple crypto bear markets and volatile events.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Critical Difference</div>
+  <p>A fiat-collateralized stablecoin (like USDC) depends on <strong>legal trust</strong> - you trust Circle to hold the dollars and allow redemptions. A crypto-collateralized stablecoin (like DAI) depends on <strong>economic incentives and smart contract logic</strong> - the code enforces over-collateralization and liquidation. Both have failure modes: USDC can be frozen or de-pegged if the bank holding reserves fails (as happened briefly when Silicon Valley Bank collapsed in March 2023), while DAI can suffer from oracle manipulation or liquidation cascades if the market crashes too fast for Keepers to act. There is no perfect stablecoin - only trade-offs between centralization risk, capital efficiency, and algorithmic fragility. The MST blockchain, with its high throughput and low gas fees, can make Keepers more efficient and reduce the cost of maintaining stablecoin systems, but it does not eliminate these fundamental design tensions.</p>
+</div>
+
+<!-- ═══════════════ 06 CBDCs ═══════════════ -->
+<div class="section-label">06 &nbsp; Central Bank Digital Currencies</div>
+<h2 class="section-title">CBDCs - When the Government Issues a Blockchain Token</h2>
+<p>A <strong>Central Bank Digital Currency (CBDC)</strong> is a digital form of a country's fiat currency, issued and backed by the central bank. Unlike private stablecoins like USDC, a CBDC is <strong>legal tender</strong> - a direct liability of the central bank, just like physical banknotes. The Reserve Bank of India's Digital Rupee (e₹) is a prime example that we will explore in depth.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How India's Digital Rupee Works</h3>
+<p>The RBI's CBDC pilot uses a <strong>two-tier model</strong>, mirroring the existing structure of the monetary system. The RBI mints and burns e₹ tokens on a permissioned blockchain that it controls. Commercial banks (like SBI, HDFC, ICICI) act as intermediaries: they receive e₹ from the RBI and distribute it to retail users via mobile wallets. Users can load e₹ into their wallet from their bank account (converting regular INR to digital rupee tokens) and spend it at merchants that accept e₹ via QR codes - similar to UPI, but settled instantly on the blockchain without requiring a settlement between banks.</p>
+
+<p>Key features of the Digital Rupee:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Token-based, not account-based.</strong> e₹ exists as a token on a blockchain. Your wallet holds the tokens, not just a balance in a bank's database. This enables offline payments and bearer-instrument properties like cash. Two users with e₹ wallets can potentially transact without an intermediary, though current pilot implementations require connectivity.</li>
+  <li><strong>Interoperable with UPI.</strong> Early pilots are exploring how e₹ wallets can coexist with UPI, allowing users to pay via either method and merchants to receive both. The QR codes are compatible, and the user experience is designed to be nearly identical to existing digital payments.</li>
+  <li><strong>Programmable.</strong> Because e₹ is a token with smart contract capabilities, it can support features like conditional payments, automated tax withholding, and direct benefit transfers that are impossible with physical cash. The government could program subsidies to be spent only on food or fuel, or expire if unused.</li>
+  <li><strong>No interest (initially).</strong> The retail e₹ does not pay interest, making it a direct substitute for physical cash - not a savings instrument. This prevents disintermediation of commercial banks, which might happen if CBDCs paid interest and attracted large deposits away from banks.</li>
+  <li><strong>Wholesale e₹-W.</strong> The wholesale version is used for interbank settlement of government securities and central bank operations. It enables real-time gross settlement (RTGS) on a blockchain, reducing counterparty risk and settlement time from T+1 to atomic.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Global CBDC Landscape</h3>
+<p>India is far from alone. As of 2025, over 130 countries are exploring CBDCs. China's <strong>e-CNY</strong> (digital yuan) is the most advanced, with over 260 million wallets and integration into daily life via WeChat and Alipay. The Bahamas' <strong>Sand Dollar</strong> was the first fully deployed retail CBDC (2020), designed for financial inclusion in a nation of islands where physical banking is sparse. Nigeria's <strong>eNaira</strong> (2021) faced adoption challenges but demonstrated the technical feasibility of a CBDC in a developing economy. The European Central Bank is developing the <strong>Digital Euro</strong>, with a potential launch in 2027 - 2028. The US Federal Reserve is more cautious, with FedNow (an instant payment system) serving as a stepping stone; a retail CBDC remains under research.</p>
+
+<p>Each of these CBDCs shares common design principles: they are legal tender, issued by the central bank, distributed via commercial banks (two-tier model), and designed for retail payments and financial inclusion rather than DeFi speculation. Privacy varies significantly: the e-CNY offers "controllable anonymity" where the central bank can see all transactions; the Digital Euro proposals emphasize strong privacy protections; India's e₹ pilot is currently fully traceable by the RBI for anti-money laundering compliance.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">CBDCs vs Private Stablecoins - A Detailed Comparison</h3>
+<table class="compare-table">
+  <thead>
+    <tr><th>Property</th><th>🏛️ CBDC (Digital Rupee)</th><th>💵 Private Stablecoin (USDC)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Issuer</strong></td><td>Central bank (RBI) - sovereign entity with monetary authority.</td><td>Private company (Circle) - regulated but not a central bank. Operates under state money transmitter licenses.</td></tr>
+    <tr><td><strong>Legal tender</strong></td><td class="good">Yes - you can settle any debt with e₹. It's as good as physical cash. Merchants must accept it if mandated.</td><td class="bad">No - USDC is a private liability, not legal tender. Merchants can refuse it. It's an IOU from Circle.</td></tr>
+    <tr><td><strong>Risk of default</strong></td><td class="good">Near-zero - backed by the full faith and credit of the sovereign. The RBI can print INR to back it.</td><td class="mid">Low but not zero - depends on issuer's reserves and regulatory compliance. USDC briefly de-pegged during SVB collapse. Subject to bank failure.</td></tr>
+    <tr><td><strong>Privacy</strong></td><td>Controlled by central bank; likely fully traceable for AML/KYC. RBI can see all transactions. Minimal financial privacy.</td><td>On-chain transactions are visible to everyone (pseudonymous). KYC is enforced at on/off-ramps (exchanges). Can be used anonymously between wallets.</td></tr>
+    <tr><td><strong>Programmability</strong></td><td>Can support smart contracts for targeted benefits, programmable money, DBT, and conditional payments.</td><td>Supports all DeFi protocols: lending, borrowing, AMMs, yield farming, derivatives.</td></tr>
+    <tr><td><strong>Blockchain</strong></td><td>Permissioned blockchain controlled by RBI and partner banks. Not publicly accessible.</td><td>Public blockchains (Ethereum, BSC, Polygon, MST). Permissionless, global access. Anyone can hold and transfer.</td></tr>
+    <tr><td><strong>Use in DeFi</strong></td><td>Not currently allowed - CBDCs are for retail payments and interbank settlement, not DeFi speculation.</td><td class="good">Widely used across DeFi as a stable unit of account, collateral, and medium of exchange. Integral to the crypto economy.</td></tr>
+    <tr><td><strong>Cross-border</strong></td><td>Currently domestic only. Cross-border CBDC interoperability is being researched (Project mBridge).</td><td>Global, permissionless. Send to anyone with a wallet in any country instantly, with near-zero fees on chains like MST.</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-strip">
+  <strong>MST's Role:</strong> MST's hybrid architecture - combining a high-throughput public zone with permissioned private zones - is purpose-built for CBDCs. The RBI could deploy the Digital Rupee token contract on an MST permissioned zone, with only authorized bank nodes validating transactions. The public zone remains open for DeFi and retail stablecoin use. This separation ensures regulatory compliance while preserving the low-fee benefits of the MST network (~₹0.006 per transaction). A retail user's e₹ wallet could even interact with MST's public infrastructure for instant, sub-paisa settlement without touching volatile crypto assets. This dual-zone model is unique among L1 blockchains and positions MST as an ideal infrastructure for both regulated digital fiat and open Web3 finance.
+</div>
+
+<!-- ═══════════════ 07 REAL‑WORLD CASE STUDIES ═══════════════ -->
+<div class="section-label">07 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">When Stablecoins Succeed and When They Fail</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">💥</div>
+    <div class="feature-content">
+      <div class="feature-title">The Collapse of TerraUSD (UST) - May 2022</div>
+      <div class="feature-desc">UST was an algorithmic stablecoin on the Terra blockchain that maintained its $1 peg through a mint-burn mechanism with LUNA. In early May 2022, a series of large UST sales on Curve Finance - reportedly $350 million worth - triggered a de-peg. As UST fell below $1, the algorithm began minting massive amounts of LUNA to absorb the supply, but this hyperinflated LUNA, crashing its price from over $80 to near $0. Within days, UST traded at $0.10, LUNA went to near zero, and $40B+ in market value was destroyed. The core failure: algorithmic stablecoins have no fundamental collateral backing; they rely entirely on market confidence. Once confidence evaporates, the death spiral is irreversible. This event accelerated global regulatory action on stablecoins, with the US, EU, and India all proposing strict oversight frameworks. The lesson for developers: never build a stablecoin without a reliable, transparent, and preferably over-collateralized backing mechanism. Algorithmic designs are no longer considered viable for serious applications.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">USDC's Brief De-Peg During the SVB Collapse - March 2023</div>
+      <div class="feature-desc">Silicon Valley Bank (SVB) failed on March 10, 2023. Circle, the issuer of USDC, disclosed that $3.3 billion of its reserves - about 8% of the total backing - were held at SVB. USDC de-pegged to as low as $0.87 on decentralized exchanges before recovering to $1 after the Federal Reserve and FDIC announced they would backstop all SVB depositors. This event revealed a key vulnerability of fiat-collateralized stablecoins: they depend on the traditional banking system. If the bank holding the reserves fails, the stablecoin can lose its backing - and there is no on-chain mechanism to prevent it. Circle quickly moved all remaining reserves to BNY Mellon and other "too-big-to-fail" institutions. The event underscored the importance of reserve diversification and the systemic link between crypto stablecoins and traditional finance. On MST, a fiat-backed INR stablecoin would need to be structured with similar safeguards, ideally with reserves held across multiple banks and with real-time reserve attestations verifiable on-chain (possibly via WASMify).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">India's Digital Rupee - A Gradual, Cautious Rollout</div>
+      <div class="feature-desc">The RBI launched the Digital Rupee pilot in phases: the wholesale segment (e₹-W) in November 2022 for interbank settlement of government securities, and the retail segment (e₹-R) in December 2022 for consumers. The pilot initially involved four banks (SBI, ICICI, YES Bank, IDFC First) in Mumbai, New Delhi, Bengaluru, and Bhubaneswar. By mid-2025, it had expanded to 15+ cities and over 5 million retail users, with daily transaction volumes crossing ₹100 crore. Key findings: e₹ reduces settlement times from T+1 to real-time, eliminates counterparty risk in government securities trading, and provides a resilient alternative to UPI - especially valuable for offline payments in areas with intermittent connectivity. The RBI's approach is cautious: it is not replacing UPI but complementing it, with a focus on offline payments and programmability for government Direct Benefit Transfers (DBT). MST's technology could accelerate this rollout by providing a scalable, low-cost blockchain infrastructure with the security guarantees the RBI requires - and the permissioned zone ensures that only authorized banks can validate, while the public zone remains quarantined from regulated fiat.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🌐</div>
+    <div class="feature-content">
+      <div class="feature-title">Stablecoins in Remittances - A Real-World Killer App</div>
+      <div class="feature-desc">Global remittance flows exceeded $860 billion in 2024, with India receiving over $125 billion - the largest recipient globally. Traditional remittance services charge 5 - 7% on average (Western Union, MoneyGram), and even digital services like Wise charge 0.5 - 1%. Stablecoins like USDC on low-fee chains can reduce this cost to under 0.01% for the transfer itself, plus a small forex spread at the on/off-ramp. A worker in Dubai sending ₹10,000 home via a USDC transfer on MST pays approximately ₹0.006 in gas - compared to ₹500-₹700 in traditional fees. This use case alone has driven massive stablecoin adoption in corridors like UAE-India, Singapore-Philippines, and US-Mexico. Circle and other stablecoin issuers are actively partnering with money transfer operators to integrate blockchain-based remittances. A CBDC could further streamline this: if India and the UAE both had interoperable CBDCs, cross-border transfers could settle instantly in digital rupees and digital dirhams, with near-zero fees, fully regulated and AML-compliant. MST's multi-zone architecture could host such a cross-border CBDC corridor.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--teal);">📊</div>
+    <div class="feature-content">
+      <div class="feature-title">DAI's Resilience During Black Thursday - March 2020</div>
+      <div class="feature-desc">On March 12, 2020, the crypto market crashed over 50% in a single day. ETH dropped from ~$190 to ~$90 in hours. MakerDAO's Vaults faced a systemic liquidation crisis. Network congestion on Ethereum caused gas prices to spike to 500+ Gwei, preventing many liquidators from executing transactions. Some Vaults were liquidated with zero collateral returned due to extreme gas wars and oracle delays. The system ended up with a DAI surplus - meaning DAI was backed by less than 100% collateral. Maker governance voted to mint new MKR tokens to recapitalize the system, effectively a bailout by MKR holders. This event led to significant improvements: the Oracle Security Module (OSM) with a 1-hour price delay to prevent flash loan attacks, auction mechanisms for liquidations instead of fixed-price sales, and the addition of multiple collateral types (USDC, WBTC) to reduce reliance on ETH. The lesson: decentralized stablecoins are robust but not infallible; they require active governance, responsive parameter adjustments, and a willingness to evolve. On MST, with its high throughput and low fees, the kind of gas congestion that exacerbated Black Thursday would be far less likely, making liquidations more reliable.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 08 ASSESSMENT PREPARATION ═══════════════ -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Three Stablecoin Types: Fiat-Collateralized, Crypto-Collateralized, Algorithmic</div>
+      <div class="feature-desc">USDC is backed 1:1 by dollars in a bank. DAI is over-collateralized with ETH (minimum 150% collateralization ratio). UST was algorithmic with no backing - and it failed catastrophically in a $40B death spiral.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">DAI Liquidation: Ratio < 150% → Keeper Liquidates at 13% Penalty</div>
+      <div class="feature-desc">If collateral value falls so that the ratio drops below the Liquidation Ratio (150% for ETH), a Keeper can liquidate, repaying the DAI debt and claiming the collateral at a 13% discount. This protects the system's solvency.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">CBDC = Legal Tender, Stablecoin = Private Liability</div>
+      <div class="feature-desc">India's Digital Rupee (e₹) is a direct RBI liability and legal tender - you can settle debts with it. USDC is a Circle IOU that can be refused. A CBDC cannot "de-peg" from its own currency; a private stablecoin can.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Algorithmic Stablecoins Are Extremely Risky - UST Proved It</div>
+      <div class="feature-desc">UST's collapse in May 2022 destroyed $40B and proved that algorithmic stablecoins without collateral backing are fragile. The death spiral is irreversible once confidence breaks. Regulators now treat such designs with extreme caution.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's Hybrid Architecture for CBDCs: Permissioned Zone + Public Zone</div>
+      <div class="feature-desc">MST allows a permissioned zone for regulated CBDC tokens with authorized bank validators, while the public zone hosts open DeFi. Both benefit from sub-paisa gas fees (~₹0.006 per transaction). This is a unique capability among L1 blockchains.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 5.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is a fiat-collateralized stablecoin?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> DAI - backed by over-collateralized ETH in MakerDAO Vaults.</li>
+        <li class="correct"><span class="opt-key">B</span> USDC - each token is backed 1:1 by US dollars held in regulated bank accounts. ✅</li>
+        <li><span class="opt-key">C</span> UST (TerraUSD) - relied on an algorithmic mint-burn mechanism with LUNA.</li>
+        <li><span class="opt-key">D</span> MSTC - the native volatile coin of MST Blockchain, not a stablecoin.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>USDC is the classic fiat-collateralized stablecoin. DAI is crypto-collateralized. UST was algorithmic. MSTC is not a stablecoin at all.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the minimum collateralization ratio for an ETH-backed DAI Vault in MakerDAO?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 100% - you can mint exactly as much DAI as the ETH value you deposit.</li>
+        <li class="correct"><span class="opt-key">B</span> 150% - you must deposit at least $150 worth of ETH to mint $100 DAI. ✅</li>
+        <li><span class="opt-key">C</span> 200% - a common misconception, but it's 150% for ETH.</li>
+        <li><span class="opt-key">D</span> 50% - this would be under-collateralized and immediately liquidated.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The MakerDAO protocol requires a minimum 150% collateralization ratio for ETH Vaults. This over-collateralization protects against ETH price volatility and ensures the system remains solvent.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does the Reserve Bank of India's Digital Rupee (e₹) fundamentally differ from a private stablecoin like USDC?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> The Digital Rupee runs on a public blockchain, while USDC runs on a private one.</li>
+        <li class="correct"><span class="opt-key">B</span> The Digital Rupee is legal tender - a direct liability of the RBI; USDC is a private IOU. ✅</li>
+        <li><span class="opt-key">C</span> The Digital Rupee can be traded on DEXs; USDC cannot.</li>
+        <li><span class="opt-key">D</span> There is no fundamental difference - both are digital representations of fiat currency.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>A CBDC is legal tender, meaning it must be accepted for the settlement of debts and is backed by the sovereign. USDC is a private company's IOU. The legal status and backing are fundamentally different, regardless of the underlying blockchain.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why did TerraUSD (UST) collapse in May 2022?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> The US government banned it and seized all reserves.</li>
+        <li class="correct"><span class="opt-key">B</span> It was an algorithmic stablecoin with no collateral; a large sell-off triggered a death spiral, hyperinflating LUNA and destroying the peg. ✅</li>
+        <li><span class="opt-key">C</span> The Ethereum network experienced a hard fork that made UST incompatible.</li>
+        <li><span class="opt-key">D</span> Circle (issuer of USDC) attacked UST to eliminate competition.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>UST had no real collateral. It relied on a mint-burn algorithm with LUNA. When confidence broke and large UST sell-offs occurred, the algorithm minted massive LUNA to absorb the pressure, crashing LUNA and destroying the peg in an irreversible death spiral.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which feature of MST Blockchain makes it particularly suitable for hosting a retail CBDC like the Digital Rupee?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Its native coin MSTC is pegged to the Indian Rupee.</li>
+        <li class="correct"><span class="opt-key">B</span> Its hybrid architecture allows a permissioned zone for regulated bank nodes and a public zone for open innovation, with ultra-low gas fees across both. ✅</li>
+        <li><span class="opt-key">C</span> It requires no validators, so transactions are free for CBDC users.</li>
+        <li><span class="opt-key">D</span> It is the only blockchain approved by the RBI for CBDC pilots.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>MST's hybrid L1 with separate permissioned and public zones is uniquely suited for CBDCs. The RBI can deploy the e₹ token in a permissioned zone with authorized bank validators, while the public zone hosts DeFi and private stablecoins - all sharing the same low-fee infrastructure.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <!-- T/F Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"A crypto-collateralized stablecoin like DAI is inherently safer than a fiat-collateralized stablecoin like USDC because DAI is fully decentralized and therefore cannot fail."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. While DAI is decentralized and transparent (collateral is visible on-chain), it is not immune to failure. DAI's stability depends on the value of its crypto collateral (primarily ETH). If ETH's price crashes too fast for Keepers to liquidate under-collateralized Vaults, the system could become under-collateralized globally, and DAI could de-peg. Additionally, DAI relies on decentralized oracles for price feeds - oracle manipulation or failure could trigger wrongful liquidations or prevent necessary ones. During the March 2020 Black Thursday event, network congestion prevented timely liquidations, resulting in under-collateralization that required a governance bailout (minting new MKR). USDC, while centralized, is backed 1:1 by actual dollars in regulated bank accounts. Its failure mode is different (bank failure, regulatory freeze), not necessarily more likely. Both stablecoin types have distinct risk profiles: DAI carries market, smart-contract, and oracle risk; USDC carries counterparty and regulatory risk. "Decentralized" does not mean "risk-free."
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Justification explains at least two failure modes for DAI (e.g., ETH crash outpacing liquidations, oracle failure, congestion preventing Keepers) and acknowledges that USDC has different risks (centralization, bank failure). Must not claim DAI is risk-free. Referencing a real event like Black Thursday earns full marks.</p></div>
+    </div>
+
+    <!-- T/F Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"India's Digital Rupee (e₹) can be freely traded on decentralized exchanges (DEXs) like any other ERC-20 token, because it is built on blockchain technology."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. The Digital Rupee operates on a <strong>permissioned blockchain</strong> controlled by the RBI and partner banks. Only authorized entities can validate transactions and hold nodes. Retail e₹ is distributed via regulated bank wallets with full KYC, and the RBI controls minting and burning centrally. DEXs operate on public, permissionless blockchains where anyone can deploy a contract and provide liquidity. The e₹ is not currently available on any public blockchain or DEX, and regulatory controls explicitly restrict its use to retail payments and interbank settlement - not speculative trading. Even if it were bridged to a public chain in the future, the RBI would need to authorize it, and significant AML/KYC controls would apply. CBDCs are designed for stability and regulation, not for permissionless DeFi speculation. The underlying technology (blockchain) does not automatically mean it behaves like a permissionless crypto token.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Justification explains that the Digital Rupee runs on a permissioned blockchain with RBI control, that DEXs are permissionless public platforms, and that regulatory restrictions prevent e₹ from being freely traded on DEXs. Must not assume future bridging possibilities or treat "blockchain" as automatically permissionless.</p></div>
+    </div>
+
+    <!-- SECTION C: IDENTIFY-OUTPUT -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - Identify-Output (Collateral Analysis)</div>
+      <div class="q-section-meta">1 Question · 6 marks</div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff medium">Medium</span><span class="q-marks">6 marks</span></div></div>
+      <div class="q-text">Analyze a MakerDAO Vault and determine whether it will be liquidated, and calculate the Keeper's profit if it is.</div>
+      <div class="identify-output">
+        <div class="io-header"><div class="io-badge">📋 SCENARIO</div></div>
+        <div class="io-scenario">Priya opens a Vault in MakerDAO. She deposits 15 ETH as collateral when 1 ETH = $2,500. She mints 15,000 DAI. The liquidation ratio for ETH is 150%, and the liquidation penalty is 13%. The stability fee is ignored for simplicity. The ETH price later drops to $1,600.</div>
+        <div class="io-data">
+          <strong>Given Data:</strong><br>
+          • Collateral deposited: 15 ETH<br>
+          • Initial ETH price: $2,500<br>
+          • DAI minted: 15,000 DAI<br>
+          • Liquidation ratio: 150%<br>
+          • Liquidation penalty: 13%<br>
+          • New ETH price: $1,600<br><br>
+          <strong>Task:</strong> (a) Calculate the initial collateralization ratio. (b) Calculate the new collateralization ratio after the price drop. (c) Determine whether the Vault is safe or will be liquidated. (d) If liquidated, calculate how much collateral (in ETH) the Keeper receives and the Keeper's profit in USD. If not liquidated, state what ETH price would trigger liquidation.
+        </div>
+        <div class="io-answer">
+          <div class="io-answer-label">✅ Correct Calculation (Expected Output)</div>
+          <p>
+            <strong>(a) Initial collateral value:</strong> 15 ETH × $2,500 = $37,500<br>
+            <strong>Initial ratio:</strong> $37,500 / $15,000 = 250% - well above the 150% minimum.<br><br>
+            <strong>(b) New collateral value:</strong> 15 ETH × $1,600 = $24,000<br>
+            <strong>New ratio:</strong> $24,000 / $15,000 = 160%<br><br>
+            <strong>(c) Is the Vault safe?</strong> Yes, the ratio (160%) is still above the 150% liquidation threshold. <strong>The Vault is safe and will NOT be liquidated at $1,600.</strong><br><br>
+            <strong>(d) Liquidation trigger price:</strong> The Vault would be liquidated when the collateral value falls to 150% of the debt, i.e., Collateral Value = 1.5 × $15,000 = $22,500. This corresponds to an ETH price of $22,500 / 15 ETH = $1,500. So if ETH drops to $1,500 or below, the Vault becomes unsafe.<br>
+            If ETH were exactly at $1,500 and a Keeper liquidated: Keeper repays 15,000 DAI and receives the entire 15 ETH collateral. With the 13% penalty, the Keeper receives collateral worth 15 ETH × $1,500 × 1.13 = $25,425. The Keeper's profit = $25,425 − $22,500 = $2,925.
+          </p>
+          <div class="marks-bd"><span>6 marks:</span> 1 mark for (a) correct initial ratio, 1 mark for (b) correct new ratio, 1 mark for (c) correct determination (safe), 1 mark for correctly calculating the liquidation trigger price (ETH = $1,500), 1 mark for correct collateral received at liquidation ($25,425), 1 mark for correct Keeper profit ($2,925). Partial credit for correct formulas. Must show Gwei/unit awareness even if not directly used in this scenario.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 5.5 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 2 × True/False with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section C: 1 × Identify-Output <span>(6 marks) = 6 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 5.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Stablecoin</div><div class="glossary-def">A cryptocurrency designed to maintain a stable value relative to a reference asset (e.g., $1). Three types: fiat-collateralized, crypto-collateralized, algorithmic.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Fiat-Collateralized</div><div class="glossary-def">A stablecoin backed 1:1 by fiat currency held in a bank account by the issuer. Example: USDC. Requires trust in the issuer's reserves.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Crypto-Collateralized</div><div class="glossary-def">A stablecoin backed by over-collateralized crypto assets locked in smart contracts. Example: DAI (backed by ETH). Transparent but capital-inefficient.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Algorithmic Stablecoin</div><div class="glossary-def">A stablecoin with no collateral backing; uses an algorithm to expand/contract supply to maintain a peg. Example: UST (collapsed). Extremely high risk.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Collateralization Ratio</div><div class="glossary-def">The ratio of collateral value to debt. In MakerDAO, must stay above 150% for ETH. If it falls below, the Vault is liquidated.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Liquidation</div><div class="glossary-def">The process of closing an under-collateralized Vault by selling its collateral to repay the debt. Keepers perform liquidations for a profit (13% penalty in MakerDAO).</div></div>
+  <div class="glossary-item"><div class="glossary-term">CBDC</div><div class="glossary-def">Central Bank Digital Currency - a digital form of a country's fiat currency, issued and backed by the central bank. Legal tender. Example: India's Digital Rupee (e₹).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Two-Tier CBDC Model</div><div class="glossary-def">Architecture where the central bank issues the CBDC, and commercial banks distribute it to retail users. Used by India's e₹ pilot. Preserves the existing banking hierarchy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Death Spiral</div><div class="glossary-def">The collapse mechanism of algorithmic stablecoins: falling price → algorithm mints more of the paired token → paired token crashes → confidence erodes further → irreversible collapse.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Keeper</div><div class="glossary-def">An automated bot that monitors Vaults for under-collateralization and executes liquidations to earn the liquidation penalty. Essential for DeFi system solvency.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MakerDAO</div><div class="glossary-def">The decentralized protocol behind DAI. Users lock ETH (and other assets) in Vaults to mint DAI. Governed by MKR token holders.</div></div>
+  <div class="glossary-item"><div class="glossary-term">e₹ (Digital Rupee)</div><div class="glossary-def">India's CBDC pilot. Operates on a permissioned blockchain. Retail version (e₹-R) for consumers; wholesale version (e₹-W) for interbank settlement. Legal tender.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Oracle Security Module (OSM)</div><div class="glossary-def">MakerDAO's price feed mechanism that delays price updates by 1 hour to prevent flash loan oracle manipulations and allow time for governance to react.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Stability Fee</div><div class="glossary-def">The annual interest rate (in DAI) charged on outstanding DAI debt in MakerDAO Vaults. Set by MKR governance; used to control DAI supply and peg.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 5 · Sub-Module <strong>5.5</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 5.6 - Token Standards & NFTs →</p>
+</div>
+
+</body>
+</html>

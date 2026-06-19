@@ -1,0 +1,915 @@
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="breadcrumb">MasterStroke Academy › Module 4: Cryptography › <span>Sub-Module 4.1</span></div>
+  <h1>Public-Key Cryptography<br><em>The Lock That Only You Can Open</em></h1>
+  <p class="hero-sub">How asymmetric keys power every blockchain wallet, digital signature, and Web3 identity - explained from the ground up, with Alice, Bob, and a padlock.</p>
+  <div class="meta-pills">
+    <div class="pill">⏱ 40 Minutes</div>
+    <div class="pill">📊 Module 4 - Cryptography</div>
+    <div class="pill gold">🎯 10 Marks</div>
+    <div class="pill">🔑 Sub-Module 4.1</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE BODY
+══════════════════════════════════════════════ -->
+<div class="page-body">
+
+  <!-- ── 1. LEARNING OBJECTIVES ── -->
+  <div class="section">
+    <div class="section-label">01 - Learning Objectives</div>
+    <h2>What You Will Know By The End</h2>
+    <p>By the time you finish this sub-module, you will be able to:</p>
+    <ul>
+      <li>✅ Explain <strong>why</strong> traditional (symmetric) encryption fails in the open internet - and <strong>why</strong> public-key cryptography was invented to fix it.</li>
+      <li>✅ Describe <strong>how</strong> a key-pair (public key + private key) works using the "magic padlock" analogy.</li>
+      <li>✅ Understand the core mathematical intuition behind <strong>RSA</strong> and <strong>ECC (Elliptic Curve Cryptography)</strong> - <em>without needing to be a mathematician</em>.</li>
+      <li>✅ Trace exactly <strong>how</strong> your Ethereum/MST wallet address is derived from your private key.</li>
+      <li>✅ Connect this concept to <strong>real Indian examples</strong>: Aadhaar e-Sign, UPI, DigiLocker.</li>
+      <li>✅ Identify the <strong>limitations</strong> of public-key cryptography and what comes next (post-quantum - covered in Sub-Module 4.6).</li>
+    </ul>
+  </div>
+
+  <!-- ── 2. REAL WORLD STORY ── -->
+  <div class="section">
+    <div class="section-label">02 - Real World Introduction Story</div>
+    <h2>The Postcard vs. The Locked Box</h2>
+
+    <div class="story-card">
+      <div class="story-tag">📖 Story Time</div>
+      <p>It's 2007. Riya, a software engineer in Bengaluru, wants to send her salary details securely to her Chartered Accountant in Mumbai over email.</p>
+      <p>She thinks: <em>"I'll encrypt the file with a password."</em> She picks the password <code>Riya@2007</code>, encrypts the Excel sheet, and emails it. But now she faces the nightmare question:</p>
+      <p><strong>How does she tell her CA the password?</strong></p>
+      <p>If she emails the password, anyone who intercepts the email gets both the encrypted file <em>and</em> the key to open it. If she calls him on the phone, the call might be recorded. If she WhatsApps it, the message might be seen on a shared screen. There is no safe channel - because she's trying to use an insecure channel to share the secret for an insecure channel. It's a chicken-and-egg problem.</p>
+      <p>This is exactly the problem that <strong>Public-Key Cryptography</strong> was invented to solve. And it was considered one of the greatest intellectual breakthroughs of the 20th century.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>The Real-World Impact</strong>
+        <p>Every time you see <code>https://</code> in your browser, every UPI transaction you approve, every Aadhaar e-Sign you use - all of it is powered by public-key cryptography. Without it, the internet as we know it could not exist.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. BACKGROUND / HISTORY ── -->
+  <div class="section">
+    <div class="section-label">03 - Background &amp; History</div>
+    <h2>The Problem With Sharing Secrets</h2>
+
+    <h3>Symmetric Encryption: The Old Way</h3>
+    <p>Before 1976, all encryption was <strong>symmetric</strong> - meaning the <em>same key</em> is used to lock (encrypt) and unlock (decrypt) the message. Think of it like a physical diary lock: the same key opens and closes it.</p>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="tag">🔒 Symmetric Encryption</div>
+        <h4>One Key Does Everything</h4>
+        <p>Like a house key. The same key locks and unlocks the door. Works great - as long as you never have to give a copy to someone without meeting them physically.</p>
+      </div>
+      <div class="analogy-card highlight">
+        <div class="tag">🔑 Asymmetric Encryption</div>
+        <h4>Two Different Keys</h4>
+        <p>One key LOCKS (public key). A different key UNLOCKS (private key). You can give the locking key to the entire world - because only you have the unlocking key.</p>
+      </div>
+    </div>
+
+    <h3>The 1976 Revolution</h3>
+    <p>In 1976, two mathematicians - <strong>Whitfield Diffie</strong> and <strong>Martin Hellman</strong> - published a paper that changed everything: <em>"New Directions in Cryptography."</em> They proposed that it's mathematically possible to have a pair of keys where:</p>
+
+    <blockquote>"What one key encrypts, only the other key can decrypt - and knowing one key does not help you figure out the other."</blockquote>
+
+    <p>This idea - called <strong>asymmetric cryptography</strong> - broke the chicken-and-egg problem completely. You no longer need to meet someone secretly to share a key. You can broadcast your <strong>public key</strong> to the entire world, and only your <strong>private key</strong> (which you <em>never share</em>) can decrypt what they send you.</p>
+
+    <div class="two-col">
+      <div class="fact-card">
+        <div class="fact-label">Year Invented</div>
+        <div class="fact-value">1976</div>
+        <div class="fact-note">Diffie-Hellman key exchange paper</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-label">RSA Patent Filed</div>
+        <div class="fact-value">1977</div>
+        <div class="fact-note">Rivest, Shamir, Adleman at MIT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. BEGINNER FRIENDLY EXPLANATION ── -->
+  <div class="section">
+    <div class="section-label">04 - Beginner-Friendly Deep Explanation</div>
+    <h2>The Magic Padlock - Explained With Alice and Bob</h2>
+
+    <p>Let's meet the three characters you'll see throughout all of cryptography:</p>
+
+    <div class="persona-row">
+      <div class="persona alice">
+        <div class="persona-avatar">A</div>
+        <h4>Alice</h4>
+        <p>Wants to send a secret message. She is the sender.</p>
+      </div>
+      <div class="persona bob">
+        <div class="persona-avatar">B</div>
+        <h4>Bob</h4>
+        <p>Wants to receive Alice's message. He is the receiver.</p>
+      </div>
+      <div class="persona eve">
+        <div class="persona-avatar">E</div>
+        <h4>Eve</h4>
+        <p>An eavesdropper trying to intercept and read the message.</p>
+      </div>
+    </div>
+
+    <h3>The Magic Padlock Analogy</h3>
+    <p>Here's how to understand public-key cryptography without any maths at all:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Bob builds a magic padlock</h4>
+          <p>Bob has a special padlock that only <em>he</em> can open. He makes <strong>10,000 copies of this padlock</strong> - all in the OPEN (unlocked) position - and sends them to everyone who might want to send him a message. This padlock is Bob's <strong>Public Key</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Alice puts her message in a box and clicks the padlock shut</h4>
+          <p>Alice writes her secret salary details, puts them in a box, and uses one of Bob's free padlocks to click it shut. The padlock is now LOCKED. <strong>Nobody - not even Alice - can open it.</strong> Eve can intercept the box all she wants, but she cannot open it. Only Bob can.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Bob uses his one secret key to open it</h4>
+          <p>Bob has exactly one special key that opens <em>all</em> of his padlocks. He kept it completely secret - never shared it with anyone. He uses this key to open the box and read Alice's message. This is Bob's <strong>Private Key</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">🗝️</div>
+      <div class="callout-body">
+        <strong>The Golden Rule</strong>
+        <p><strong>Public Key</strong> = you share it with the world. Anyone can use it to "lock" (encrypt) a message for you. <strong>Private Key</strong> = you NEVER share it. It's the only thing that can "unlock" (decrypt) those messages. Losing your private key means losing access to everything. There is no "forgot password" option in blockchain.</p>
+      </div>
+    </div>
+
+    <h3>The Indian Context: Aadhaar e-Sign</h3>
+    <p>You've probably signed documents online using your Aadhaar number and an OTP. Here's what's actually happening behind the scenes:</p>
+
+    <div class="callout tip">
+      <div class="callout-icon">📱</div>
+      <div class="callout-body">
+        <strong>Aadhaar e-Sign - What Really Happens</strong>
+        <p>UIDAI (the Aadhaar authority) holds your cryptographic public key in their secure servers, linked to your biometric data. When you sign a document, a private key is temporarily generated inside a Hardware Security Module (HSM) - a tamper-proof chip. Your fingerprint or OTP <em>authorises</em> the chip to use that private key to sign the document. <strong>The private key never leaves the HSM.</strong> This is exactly the same model as a blockchain wallet - your private key signs transactions, and the signature can be verified by anyone using your public key.</p>
+      </div>
+    </div>
+
+    <h3>The UPI Connection</h3>
+    <p>When you approve a UPI transaction on your phone, your bank app uses a private key stored in your phone's Trusted Execution Environment (TEE) - a secure chip - to sign the transaction. The bank's servers verify the signature using your public key. <strong>No password is transmitted</strong>. This is public-key cryptography in action, running billions of times a day across India.</p>
+  </div>
+
+  <!-- ── 5. TECHNICAL DEEP DIVE ── -->
+  <div class="section">
+    <div class="section-label">05 - Technical Deep Dive</div>
+    <h2>How It Actually Works: RSA and ECC</h2>
+
+    <p>There are two main systems used in practice. Let's understand both - intuitively, without heavy maths.</p>
+
+    <h3>System 1: RSA (Rivest - Shamir - Adleman)</h3>
+    <p>RSA, invented at MIT in 1977, is based on one beautifully simple mathematical fact:</p>
+
+    <div class="highlight-box">
+      <p><strong>Multiplying two large prime numbers is easy. Factoring the result back into those two primes is nearly impossible.</strong></p>
+      <p>It takes a modern computer billions of years to factor a 2048-bit RSA number. Yet generating the keys takes milliseconds.</p>
+    </div>
+
+    <h4>The Intuition:</h4>
+    <ul>
+      <li>Pick two massive prime numbers: <code>p</code> and <code>q</code> (each ~1024 bits long)</li>
+      <li>Multiply them: <code>n = p × q</code></li>
+      <li><code>n</code> is your <strong>Public Key</strong> (you share it with the world)</li>
+      <li><code>p</code> and <code>q</code> are your <strong>Private Key</strong> (you keep them secret forever)</li>
+      <li>Anyone can encrypt a message using <code>n</code>, but only you can decrypt it because only you know <code>p</code> and <code>q</code></li>
+    </ul>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="tag">Easy ✅</div>
+        <h4>13 × 17 = 221</h4>
+        <p>Multiplying primes: instant. Even with numbers millions of digits long, a computer does this in a millisecond.</p>
+      </div>
+      <div class="analogy-card">
+        <div class="tag">Impossibly Hard ❌</div>
+        <h4>221 = ? × ?</h4>
+        <p>Factoring a large number: with a 2048-bit RSA key, this would take more time than the age of the universe on a classical computer.</p>
+      </div>
+    </div>
+
+    <h3>System 2: ECC - Elliptic Curve Cryptography</h3>
+    <p>This is the one used in <strong>every blockchain</strong> - Bitcoin, Ethereum, and MST all use ECC. It's smaller, faster, and provides the same security as RSA with dramatically shorter keys.</p>
+
+    <div class="callout tip">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <strong>What is an Elliptic Curve?</strong>
+        <p>An elliptic curve is a smooth, symmetrical curve defined by the equation <code>y² = x³ + ax + b</code>. When you plot it, it looks like a smooth wave. The "magic" is that you can define a special operation of "adding" two points on this curve - and doing this addition billions of times is easy, but <strong>reversing it</strong> (figuring out how many times you added, knowing only the start and end point) is mathematically impossible. This is the Elliptic Curve Discrete Logarithm Problem (ECDLP).</p>
+      </div>
+    </div>
+
+    <h4>ECC in Simple Terms:</h4>
+    <ul>
+      <li>Think of a marble on a curved slope. You flick it, and it bounces around the curve in a very specific, rule-based pattern.</li>
+      <li>Your <strong>Private Key</strong> is the number of times you flick it: say, 3,498,721,943,827 times.</li>
+      <li>Your <strong>Public Key</strong> is where the marble ends up after all those flicks.</li>
+      <li>Someone who sees where the marble ended up <strong>cannot figure out how many times you flicked it</strong> - even with the world's fastest computer.</li>
+    </ul>
+
+    <h4>The Specific Curve Used in Blockchain: secp256k1</h4>
+    <p>Bitcoin, Ethereum, and MST all use the curve named <strong>secp256k1</strong>, defined by: <code>y² = x³ + 7</code> over a finite field of a prime number <code>p</code>. This specific curve was chosen because:</p>
+    <ul>
+      <li>It has excellent security properties</li>
+      <li>It allows very fast computation</li>
+      <li>It has not been backdoored (unlike some NSA-suggested curves)</li>
+    </ul>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>RSA 2048-bit</th>
+          <th>ECC 256-bit (secp256k1)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Key Size</td>
+          <td>2048 bits (~256 bytes)</td>
+          <td>256 bits (32 bytes)</td>
+        </tr>
+        <tr>
+          <td>Security Level</td>
+          <td><span class="badge good">~112-bit equivalent</span></td>
+          <td><span class="badge good">~128-bit equivalent</span></td>
+        </tr>
+        <tr>
+          <td>Speed</td>
+          <td><span class="badge mid">Slower</span></td>
+          <td><span class="badge good">Much faster</span></td>
+        </tr>
+        <tr>
+          <td>Storage Needed</td>
+          <td><span class="badge bad">Large</span></td>
+          <td><span class="badge good">Tiny</span></td>
+        </tr>
+        <tr>
+          <td>Used In</td>
+          <td>SSL/TLS, email, older systems</td>
+          <td>Bitcoin, Ethereum, MST, all blockchains</td>
+        </tr>
+        <tr>
+          <td>Hard Problem</td>
+          <td>Integer Factorization</td>
+          <td>Elliptic Curve Discrete Log</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 6. DIAGRAMS ── -->
+  <div class="section">
+    <div class="section-label">06 - Architecture &amp; Diagrams</div>
+    <h2>Visual Walkthroughs</h2>
+
+    <h3>Diagram 1: Alice Sends an Encrypted Message to Bob</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🔑 <span>Public-Key Encryption Flow</span> - Alice → Bob (Confidential Message)</div>
+      <div class="diagram-body">
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │                                                                             │
+ │   ALICE (Sender)                              BOB (Receiver)                │
+ │   ═══════════════                             ═════════════                 │
+ │                                                                             │
+ │   Step 1: Alice wants to                     Step 0: Bob publishes his     │
+ │   send "Send ₹50,000 to                      PUBLIC KEY to the world:      │
+ │   my lawyer"                                 🔓 Bob_PubKey = 0x04A3...     │
+ │                                                                             │
+ │                 Bob's Public Key                                            │
+ │   ────────────────────────────────────────────────────────►                │
+ │                                                                             │
+ │   Step 2: Alice uses Bob's                                                  │
+ │   Public Key to ENCRYPT her                                                 │
+ │   message:                                                                  │
+ │                                                                             │
+ │   ENCRYPT( "Send ₹50,000...", Bob_PubKey )                                 │
+ │          = 8f3a9d...2c71e  (ciphertext)                                     │
+ │                                                                             │
+ │                  Encrypted Message (Ciphertext)                             │
+ │   ─────────────────────────────────────────────────────────►               │
+ │                 🔒 8f3a9d2c71e...                                           │
+ │                        │                                                    │
+ │                        │         👁 EVE intercepts - sees only: 8f3a9d...   │
+ │                        │         She cannot decrypt it. She doesn't         │
+ │                        │         have Bob's PRIVATE key.                    │
+ │                        │                                                    │
+ │                        ▼                                                    │
+ │                                               Bob receives 8f3a9d...        │
+ │                                                                             │
+ │                                               Step 3: Bob uses his          │
+ │                                               SECRET PRIVATE KEY:           │
+ │                                               🔑 Bob_PrivKey = 0x9c2f...    │
+ │                                                                             │
+ │                                               DECRYPT( 8f3a9d...,           │
+ │                                                       Bob_PrivKey )         │
+ │                                                 = "Send ₹50,000 to         │
+ │                                                    my lawyer" ✅            │
+ │                                                                             │
+ │                                               ONLY BOB CAN READ THIS.      │
+ │                                               Eve sees only gibberish.      │
+ │                                                                             │
+ └─────────────────────────────────────────────────────────────────────────────┘
+
+  KEY INSIGHT:
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  Public Key  → Anyone can ENCRYPT with it. Freely share it.              │
+  │  Private Key → Only you can DECRYPT with it. Never share it.             │
+  └──────────────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <h3>Diagram 2: How Your Blockchain Wallet Address Is Derived</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🏦 <span>Wallet Address Derivation</span> - From Private Key to MST/Ethereum Address</div>
+      <div class="diagram-body">
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                                                                         │
+  │   STEP 1: Generate a Random Private Key (256-bit random number)        │
+  │   ─────────────────────────────────────────────────────────────        │
+  │   Private Key = e9873d79c6d87dc0fb6a5778633389f4453213303da61f20       │
+  │                 bd0ea2eefec (32 bytes, 64 hex characters)               │
+  │                                                                         │
+  │   ⚠️  THIS IS YOUR SECRET. NEVER SHARE. NEVER LOSE.                   │
+  │                                                                         │
+  │              │                                                          │
+  │              │  Apply secp256k1 Elliptic Curve Multiplication          │
+  │              │  (Private Key × Generator Point G)                       │
+  │              ▼                                                          │
+  │                                                                         │
+  │   STEP 2: Derive the Public Key                                         │
+  │   ─────────────────────────────────────────────────────────────        │
+  │   Public Key = 04 (uncompressed prefix)                                 │
+  │                + X coordinate (32 bytes)                                │
+  │                + Y coordinate (32 bytes)                                │
+  │              = 0x04a3478bc2... (65 bytes total)                        │
+  │                                                                         │
+  │   ✅ This is safe to share. You can derive PubKey from PrivKey,        │
+  │      but CANNOT reverse it (that's the ECDLP hardness).                │
+  │                                                                         │
+  │              │                                                          │
+  │              │  Apply Keccak-256 Hash Function                          │
+  │              │  (Hash of the public key bytes)                           │
+  │              ▼                                                          │
+  │                                                                         │
+  │   STEP 3: Your Wallet Address                                           │
+  │   ─────────────────────────────────────────────────────────────        │
+  │   keccak256( PublicKey ) = full 32-byte hash                            │
+  │   Take the LAST 20 bytes (40 hex chars):                                │
+  │                                                                         │
+  │   Address = 0x71C7656EC7ab88b098defB751B7401B5f6d8976F                 │
+  │                                                                         │
+  │   ✅ This is your PUBLIC identity on the blockchain.                   │
+  │      Anyone can send tokens to this address.                            │
+  │      Only you (with the private key) can SPEND from it.                 │
+  │                                                                         │
+  │   ┌──────────────────────────────────────────────────────┐             │
+  │   │ ONE-WAY CHAIN (CANNOT BE REVERSED):                  │             │
+  │   │ Private Key ──► Public Key ──► Address               │             │
+  │   │ Cannot go:  Address ──► Public Key ──► Private Key   │             │
+  │   └──────────────────────────────────────────────────────┘             │
+  │                                                                         │
+  └─────────────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <h3>Diagram 3: Symmetric vs Asymmetric - The Key Distribution Problem</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚖️ <span>Old vs New</span> - Symmetric vs Asymmetric Encryption</div>
+      <div class="diagram-body">
+  ══════════════════════════════════════════════════════════════════════════
+  SYMMETRIC ENCRYPTION (Old Way) - The Key Distribution Nightmare
+  ══════════════════════════════════════════════════════════════════════════
+
+  ALICE ──── [Secret Message + Same Key] ────────────────────► BOB
+                                                               uses Same Key
+                                               │
+                              ??? HOW DOES BOB GET THE KEY ???
+                                               │
+                              [Phone? Intercepted.]
+                              [Email? Intercepted.]
+                              [WhatsApp? Stored on Meta's servers.]
+                              [Meeting in person? Not always possible!]
+                                               │
+                              ❌ No safe channel exists to share the key.
+
+  ══════════════════════════════════════════════════════════════════════════
+  ASYMMETRIC ENCRYPTION (Modern Way) - Problem Solved
+  ══════════════════════════════════════════════════════════════════════════
+
+  BOB publishes: 🔓 Public Key  ──────────────────► WORLD (everyone can see)
+  BOB keeps:     🔑 Private Key ── stored ONLY with Bob
+
+                                   ALICE receives Bob's public key
+                                   (over any channel - even if Eve sees it,
+                                    Eve can't do anything useful with it!)
+
+  ALICE ──── [Message encrypted with Bob's 🔓 Public Key] ────► BOB
+                                                                 decrypts with
+                                                                 his 🔑 Private Key
+
+          EVE intercepts ───► gibberish. She has the public key too,
+                               but that doesn't help decrypt. ✅
+
+  ══════════════════════════════════════════════════════════════════════════</div>
+    </div>
+  </div>
+
+  <!-- ── 7. STEP-BY-STEP ── -->
+  <div class="section">
+    <div class="section-label">07 - Step-by-Step Workflow</div>
+    <h2>The Five "W" Questions Answered</h2>
+
+    <h3>❓ WHY Does Public-Key Cryptography Exist?</h3>
+    <p>Because <strong>sharing secrets over insecure channels</strong> is a fundamental unsolved problem of the internet age. When you want to buy something on Amazon, your browser and Amazon's server have never met before - they can't share a secret key by meeting in person. Public-key cryptography solves this from scratch.</p>
+
+    <h3>❓ WHAT Problem Does It Solve?</h3>
+    <p>The <strong>Key Distribution Problem</strong>: How do two strangers, communicating over a completely public channel (the internet), establish a shared secret without a third-party trust authority? The answer: they don't share a secret - they each keep their own private key, and only exchange public keys.</p>
+
+    <h3>❓ HOW Does It Work Internally?</h3>
+    <p>It relies on <strong>mathematical trap-door functions</strong> - operations that are easy to do in one direction but computationally impossible to reverse:</p>
+    <ul>
+      <li><strong>RSA:</strong> Easy to multiply primes → impossible to factor the result</li>
+      <li><strong>ECC:</strong> Easy to multiply a point on a curve → impossible to find the multiplier (ECDLP)</li>
+    </ul>
+
+    <h3>❓ WHERE Is It Used in Daily Life?</h3>
+    <ul>
+      <li>🌐 <strong>HTTPS:</strong> Every website you visit securely uses TLS, which is built on RSA or ECC</li>
+      <li>💳 <strong>UPI/PhonePe/Paytm:</strong> Transaction approvals use private key signatures</li>
+      <li>📋 <strong>Aadhaar e-Sign:</strong> HSM-stored private key signs your documents</li>
+      <li>📁 <strong>DigiLocker:</strong> Certificates are digitally signed using government private keys</li>
+      <li>🔗 <strong>Every Blockchain Transaction:</strong> Your transaction is signed by your private key; validators verify using your public key</li>
+    </ul>
+
+    <h3>❓ WHAT Are Its Limitations?</h3>
+    <ul>
+      <li>⚠️ <strong>Speed:</strong> RSA/ECC operations are slower than symmetric encryption. That's why in practice, TLS uses asymmetric encryption <em>only</em> to exchange a temporary symmetric key, then switches to faster symmetric encryption (AES) for the actual data.</li>
+      <li>⚠️ <strong>Key Management:</strong> If you lose your private key, you lose everything. No recovery. No "forgot password" button.</li>
+      <li>⚠️ <strong>Quantum Vulnerability:</strong> Shor's Algorithm, running on a sufficiently powerful quantum computer, could break both RSA and ECC. This is why MST is building a post-quantum layer (Sub-Module 4.6 and Module 17).</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>The Quantum Threat</strong>
+        <p>Quantum computers running Shor's Algorithm could theoretically break RSA-2048 in hours rather than billions of years. This is not science fiction - IBM, Google, and many national governments are actively building quantum computers. MST Blockchain's post-quantum security layer addresses this. It's covered fully in Sub-Module 4.6.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 10. CASE STUDIES ── -->
+  <div class="section">
+    <div class="section-label">10 - Real World Case Studies</div>
+    <h2>PKC in Action - Three Indian Examples</h2>
+
+    <h3>Case Study 1: The Aadhaar e-Sign Experience</h3>
+    <p>When you sign a PDF with Aadhaar, here is the exact cryptographic sequence:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>UIDAI creates a key pair for you</h4>
+          <p>During enrollment, UIDAI's HSM generates a private key linked to your biometrics. You never see or touch this key.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>You authenticate with fingerprint/OTP</h4>
+          <p>Your biometric match or OTP authorises the HSM to use your private key - but only for this one document, right now.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>HSM signs the document hash</h4>
+          <p>The HSM applies your private key to the SHA-256 hash of the document, producing a unique digital signature (72 bytes).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Anyone can verify with your public key</h4>
+          <p>A court, employer, or bank can use UIDAI's public key infrastructure to verify that the signature is genuinely yours - without needing to call UIDAI.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Case Study 2: Your MST / Ethereum Wallet</h3>
+    <p>Your blockchain wallet is nothing more than a private key and its derived public key. When you "send" 10 MST tokens to Alice:</p>
+    <ol>
+      <li>Your wallet software creates a transaction: <em>"Send 10 MST from 0xYou to 0xAlice"</em></li>
+      <li>Your private key signs this transaction using the ECDSA algorithm (using secp256k1 curve)</li>
+      <li>The signed transaction is broadcast to the MST network</li>
+      <li>Every validator node verifies your signature using your public key (derived from your address)</li>
+      <li>If valid, the transaction is included in the next block</li>
+    </ol>
+    <p>At no point did your private key leave your device. At no point did any server "approve" your transaction based on a username/password. The mathematics itself is the trust.</p>
+
+    <div class="callout green">
+      <div class="callout-icon">🔗</div>
+      <div class="callout-body">
+        <strong>This is Why Blockchain is "Trustless"</strong>
+        <p>You don't trust the validator - you trust the mathematics. A validator cannot forge your signature without your private key. A validator cannot modify your transaction without invalidating your signature. The cryptography enforces the rules, not the goodwill of any human or institution.</p>
+      </div>
+    </div>
+
+    <h3>Case Study 3: HTTPS - The TLS Handshake</h3>
+    <p>Every time you open <code>https://claude.ai</code> or <code>https://mstblockchain.com</code>, your browser and the server perform a <strong>TLS Handshake</strong> in milliseconds. It uses RSA or ECC to securely agree on a shared symmetric key (AES), then switches to AES for the rest of the session. This is called a <strong>Hybrid Encryption System</strong> - use asymmetric crypto to share a key, then use fast symmetric crypto for bulk data.</p>
+  </div>
+
+  <!-- ── 11. ASSESSMENT PREP ── -->
+  <div class="section">
+    <div class="section-label">11 - Assessment Preparation</div>
+    <h2>Top Must-Know Facts Before the Test</h2>
+
+    <ul class="must-know">
+      <li>Public-key cryptography uses two mathematically linked keys - a public key and a private key. One encrypts; the other decrypts.</li>
+      <li>Public keys are freely shared. Private keys are never shared - not even with the blockchain network.</li>
+      <li>RSA is based on the difficulty of factoring the product of two large prime numbers.</li>
+      <li>ECC (Elliptic Curve Cryptography) is based on the Elliptic Curve Discrete Logarithm Problem (ECDLP).</li>
+      <li>Bitcoin, Ethereum, and MST all use the <code>secp256k1</code> elliptic curve.</li>
+      <li>A 256-bit ECC key provides roughly equivalent security to a 3072-bit RSA key - making ECC far more efficient.</li>
+      <li>An Ethereum/MST wallet address is derived by: generating a private key → computing the public key (ECC multiplication) → hashing with Keccak-256 → taking the last 20 bytes.</li>
+      <li>This derivation is one-way: you CAN compute an address from a private key, but CANNOT reverse it.</li>
+      <li>The Key Distribution Problem (how to share secrets over insecure channels) is solved by asymmetric cryptography.</li>
+      <li>Aadhaar e-Sign uses an HSM (Hardware Security Module) - the private key never leaves the hardware chip.</li>
+      <li>TLS/HTTPS uses a Hybrid Encryption System: RSA/ECC for key exchange, then AES (symmetric) for bulk data.</li>
+      <li>Quantum computers running Shor's Algorithm could theoretically break RSA and ECC - but this requires a quantum computer far more powerful than what currently exists.</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Common Exam Trap</strong>
+        <p>Students often confuse <em>encryption</em> (making data unreadable) with <em>signing</em> (proving you authored something). Encryption uses the receiver's public key to lock the message. Signing uses the sender's private key to sign the message. They are opposite operations! Signing is covered in depth in Sub-Module 4.2.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 12. SECURITY NOTES ── -->
+  <div class="section">
+    <div class="section-label">12 - Security Notes</div>
+    <h2>Critical Security Principles</h2>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Never, Ever Share Your Private Key</strong>
+        <p>No legitimate blockchain application, wallet provider, exchange, or support team will ever ask for your private key. If anyone asks for it - it is a scam. Your private key is the only proof of ownership. Anyone who has it owns your wallet completely.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Randomness is Critical</strong>
+        <p>Your private key must be generated using a cryptographically secure random number generator (CSPRNG). A weak or predictable random number means a predictable private key - which means your wallet can be compromised. In 2012, Sony's PlayStation 3 was hacked because their ECDSA signature used the same random number twice. The math allows recovering the private key in this case.</p>
+      </div>
+    </div>
+
+    <div class="callout purple">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>MST Security Context</strong>
+        <p>MST Blockchain uses ECC with the <code>secp256k1</code> curve - the same as Ethereum - and is additionally building post-quantum key management (using NIST-approved lattice-based algorithms) as part of its Quantum-Ready Pillar. This is covered in Sub-Module 4.6 and Module 17.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 13. INDUSTRY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-label">13 - Industry Insights</div>
+    <h2>How the Industry Uses This Knowledge</h2>
+
+    <h3>Job Roles That Use This Daily</h3>
+    <ul>
+      <li><strong>Smart Contract Developer:</strong> Must understand how wallet key pairs work to write secure access-control logic (<code>msg.sender</code> in Solidity is derived from the signing key).</li>
+      <li><strong>Blockchain Security Auditor:</strong> Must identify vulnerabilities like weak randomness in key generation or improper key storage.</li>
+      <li><strong>Web3 Product Manager:</strong> Must understand key management UX - seed phrases, hardware wallets, MPC wallets - to design user-friendly but secure products.</li>
+      <li><strong>Protocol Researcher:</strong> Works on next-generation cryptographic schemes like threshold signatures, multi-party computation (MPC), and post-quantum algorithms.</li>
+    </ul>
+
+    <h3>What's Coming Next in the Industry</h3>
+    <ul>
+      <li><strong>MPC Wallets:</strong> Your private key is split into shares - no single server holds the whole key. Used by Coinbase, Fireblocks, and enterprise custody solutions.</li>
+      <li><strong>Account Abstraction (ERC-4337):</strong> Allows wallets to use any cryptographic scheme, not just ECDSA - enabling biometric-secured wallets without seed phrases.</li>
+      <li><strong>SARAL Protocol (MST):</strong> Enables key generation using Google/phone login via secure enclaves - removing the seed phrase UX nightmare for mainstream users.</li>
+    </ul>
+  </div>
+
+  <!-- ── 14. GLOSSARY ── -->
+  <div class="section">
+    <div class="section-label">14 - Glossary</div>
+    <h2>Key Terms You Must Know</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">Asymmetric Encryption</div>
+      <div class="glossary-def">A cryptographic system using two mathematically linked but different keys - one for encryption, one for decryption. Also called Public-Key Cryptography.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Public Key</div>
+      <div class="glossary-def">The key you share freely with the world. Anyone can use it to encrypt messages to you, or to verify your digital signatures.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Private Key</div>
+      <div class="glossary-def">The secret key you keep to yourself - always. Used to decrypt messages encrypted with your public key, or to sign transactions on the blockchain.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">RSA</div>
+      <div class="glossary-def">Rivest - Shamir - Adleman. A public-key algorithm based on the difficulty of factoring the product of two large prime numbers. Commonly used in TLS/HTTPS.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ECC</div>
+      <div class="glossary-def">Elliptic Curve Cryptography. A public-key algorithm based on the mathematics of elliptic curves. More efficient than RSA and used in all major blockchains.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">secp256k1</div>
+      <div class="glossary-def">The specific elliptic curve (y² = x³ + 7) used by Bitcoin, Ethereum, and MST Blockchain for key generation and signing.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ECDLP</div>
+      <div class="glossary-def">Elliptic Curve Discrete Logarithm Problem. The mathematical problem that makes ECC secure - given a public key (point on curve), it's computationally infeasible to find the private key (the scalar multiplier).</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Key Distribution Problem</div>
+      <div class="glossary-def">The challenge of securely sharing a cryptographic key over an insecure channel. Public-key cryptography solves this by eliminating the need to share a secret key at all.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">HSM</div>
+      <div class="glossary-def">Hardware Security Module. A tamper-proof physical device that stores private keys and performs cryptographic operations without ever exposing the key. Used in Aadhaar e-Sign, bank systems, and enterprise blockchain.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Keccak-256</div>
+      <div class="glossary-def">The hash function used by Ethereum (and MST) - a variant of SHA-3. Used in the final step of wallet address derivation.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Trap-door Function</div>
+      <div class="glossary-def">A mathematical function that is easy to compute in one direction but practically impossible to reverse. The foundation of all public-key cryptography.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Hybrid Encryption</div>
+      <div class="glossary-def">A system that combines asymmetric encryption (for key exchange) with symmetric encryption (for bulk data) - used in TLS/HTTPS and most real-world secure systems.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════
+       ASSESSMENT SECTION
+  ══════════════════════════════════════════════ -->
+
+  <div class="assessment-header">
+    <h2>📝 Assessment - Sub-Module 4.1</h2>
+    <p>Public-Key Cryptography &nbsp;|&nbsp; Total: <strong>10 Marks</strong> &nbsp;|&nbsp; 9 Questions</p>
+  </div>
+  <div class="assessment-body">
+
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">Answer all questions. Marks breakdown: 7 × MCQ (1 mark each) + 1 × True/False with justification (2 marks) + 1 × True/False with justification (1 mark) = 10 marks total.</p>
+
+    <!-- Q1 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">1</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Alice wants to send a confidential message to Bob using public-key cryptography. Which key should she use to encrypt the message?</div>
+      <ul class="options">
+        <li>A) Alice's private key</li>
+        <li>B) Alice's public key</li>
+        <li class="correct">C) Bob's public key</li>
+        <li>D) Bob's private key</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>In public-key cryptography, to send a confidential (encrypted) message to Bob, Alice uses <strong>Bob's public key</strong> to encrypt it. This means only Bob - who holds the corresponding private key - can decrypt it. Alice's own keys are irrelevant for encryption of a message going to Bob. Bob's private key must never be shared with Alice or anyone else.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">2</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">RSA encryption is based on which mathematical hard problem?</div>
+      <ul class="options">
+        <li>A) The Elliptic Curve Discrete Logarithm Problem</li>
+        <li class="correct">B) The Integer Factorization Problem (factoring the product of two large primes)</li>
+        <li>C) The Travelling Salesman Problem</li>
+        <li>D) The Discrete Logarithm Problem in a finite field</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: B</strong>
+        <p>RSA derives its security from the fact that it is computationally easy to multiply two large prime numbers (p × q = n), but extremely hard to factor the product <em>n</em> back into <em>p</em> and <em>q</em>. With current classical computers, factoring a 2048-bit RSA modulus would take longer than the age of the universe. Option A is the basis of ECC, not RSA.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">3</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Which specific elliptic curve is used by Bitcoin, Ethereum, and MST Blockchain for key generation?</div>
+      <ul class="options">
+        <li>A) P-256 (NIST curve)</li>
+        <li>B) Curve25519</li>
+        <li class="correct">C) secp256k1</li>
+        <li>D) Ed448-Goldilocks</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>The <strong>secp256k1</strong> curve - defined by the equation y² = x³ + 7 over a prime field - is the specific elliptic curve used by Bitcoin, Ethereum, and MST Blockchain. It was chosen for its excellent security properties, fast computation, and because it lacks the backdoor concerns associated with some NIST curves (like P-256). Curve25519 is used in other protocols (like Signal), but not in these blockchains.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">4</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In the process of generating an Ethereum/MST wallet address from a private key, what is the correct order of operations?</div>
+      <ul class="options">
+        <li>A) Private Key → Keccak-256 Hash → Public Key → Address</li>
+        <li>B) Private Key → SHA-256 Hash → Address</li>
+        <li class="correct">C) Private Key → ECC Multiplication (secp256k1) → Public Key → Keccak-256 Hash → Last 20 bytes = Address</li>
+        <li>D) Private Key → RSA Encryption → Public Key → Address</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>The correct derivation chain is: (1) Generate a 256-bit random Private Key. (2) Multiply it by the curve's Generator Point G using secp256k1 ECC multiplication to get the Public Key (a 65-byte uncompressed point). (3) Hash the Public Key with Keccak-256 to get a 32-byte hash. (4) Take the last 20 bytes (40 hex characters) of that hash - this is your wallet address. This chain is one-way and cannot be reversed.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">5</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">A 256-bit ECC key provides approximately equivalent security to which RSA key size?</div>
+      <ul class="options">
+        <li>A) 512-bit RSA</li>
+        <li>B) 1024-bit RSA</li>
+        <li class="correct">C) 3072-bit RSA</li>
+        <li>D) 256-bit RSA</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This is a key efficiency advantage of ECC over RSA. A 256-bit ECC key provides approximately 128-bit security (meaning an attacker would need 2<sup>128</sup> operations to break it) - which is equivalent to approximately a <strong>3072-bit RSA key</strong>. This means ECC keys are about 12× smaller for the same security level, which is why blockchains use ECC rather than RSA. Smaller keys mean faster operations and less storage.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">6</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Eve intercepts an encrypted message that Alice sent to Bob using Bob's public key. Eve also has a copy of Bob's public key. What can Eve do with the intercepted message?</div>
+      <ul class="options">
+        <li>A) Decrypt it using Bob's public key</li>
+        <li>B) Decrypt it by trying all possible keys (brute force) in reasonable time</li>
+        <li class="correct">C) Nothing useful - she cannot decrypt it without Bob's private key</li>
+        <li>D) Re-encrypt it with a different key and send it to Bob</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This is the fundamental security property of asymmetric cryptography: a message encrypted with Bob's public key can <em>only</em> be decrypted with Bob's private key. Eve having the public key gives her no advantage - the public key is used to encrypt, not decrypt. Brute-forcing a 256-bit ECC key would require more computation than the number of atoms in the observable universe. Option A is wrong because the public key encrypts, not decrypts.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">7</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In the context of Aadhaar e-Sign, why is a Hardware Security Module (HSM) used instead of a regular software-based private key stored on a server?</div>
+      <ul class="options">
+        <li>A) HSMs are cheaper than software solutions</li>
+        <li>B) HSMs can process more signatures per second than software</li>
+        <li class="correct">C) HSMs ensure the private key never exists in readable form outside the tamper-proof hardware, preventing key extraction even if the server is compromised</li>
+        <li>D) HSMs allow the private key to be backed up easily</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>An HSM (Hardware Security Module) is a physical, tamper-proof chip designed specifically so that the private key is generated inside the chip and <strong>never leaves it</strong> in readable form. All cryptographic operations happen inside the chip. Even if a server is hacked, a memory dump is taken, or the HSM is physically stolen and opened - the private key cannot be extracted because the chip is designed to destroy the key if tampered with. This is the gold standard for protecting high-value private keys - used by Aadhaar, banks, certificate authorities, and government systems.</p>
+      </div>
+    </div>
+
+    <!-- Q8 — TRUE/FALSE 2 marks -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">8</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">2 marks</div>
+      </div>
+      <div class="q-text">Statement: "If you know someone's blockchain wallet address (e.g., <code>0x71C765...976F</code>), you can compute their private key by reversing the hashing and elliptic curve operations."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Full Justification Required (2 marks)</strong>
+        <p><strong>This statement is FALSE.</strong></p>
+        <p>The derivation from private key to wallet address is a <strong>one-way chain</strong> involving two separate one-way operations:</p>
+        <p><strong>Step 1:</strong> Private Key → Public Key via ECC Multiplication. This relies on the <strong>Elliptic Curve Discrete Logarithm Problem (ECDLP)</strong>. Given a public key (point on the curve), there is no known polynomial-time algorithm to reverse the multiplication and find the private key (scalar). Even the world's fastest classical computer would take longer than the universe's lifetime.</p>
+        <p><strong>Step 2:</strong> Public Key → Address via Keccak-256 Hash. Cryptographic hash functions are <strong>one-way by design</strong>. Given the hash output (the address), there is no way to reconstruct the input (the public key). This is a fundamental property called <em>pre-image resistance</em>.</p>
+        <p>Therefore, knowing a wallet address gives an attacker <strong>absolutely zero information</strong> that helps them find the private key. The two-step irreversibility ensures complete security - this is why blockchain addresses can be publicly shared. (1 mark for correct False answer; 1 mark for correct justification mentioning ECDLP or one-way hash.)</p>
+      </div>
+    </div>
+
+    <!-- Q9 — TRUE/FALSE 1 mark -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">9</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Statement: "In symmetric encryption, the same key is used for both encryption and decryption, which makes key distribution over the internet a fundamental security challenge."</div>
+      <div class="tf-options">
+        <div class="tf-btn correct-tf">TRUE ✅</div>
+        <div class="tf-btn wrong-tf">FALSE ✗</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: TRUE - Justification Required (1 mark)</strong>
+        <p><strong>This statement is TRUE.</strong></p>
+        <p>Symmetric encryption uses a single shared key for both locking (encrypting) and unlocking (decrypting) data. This creates the <strong>Key Distribution Problem</strong>: if Alice wants to send Bob an encrypted message using symmetric encryption, she must first securely share the key with Bob. But if their communication channel is already insecure (as the internet is), sending the key over it risks the key being intercepted - which would allow an attacker to decrypt all future messages. This circular dependency - needing a secure channel to share the key, but not having one - is exactly the problem that public-key cryptography (invented in 1976) was designed to solve.</p>
+      </div>
+    </div>
+
+    <!-- MARKS SUMMARY -->
+    <div style="background: var(--navy); border-radius: 10px; padding: 20px 24px; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Total Marks</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace;">10 / 10</div>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.8;">
+          Q1 - Q7: 7 × MCQ = 7 marks<br>
+          Q8: True/False + justification = 2 marks<br>
+          Q9: True/False + justification = 1 mark
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<div class="module-footer">
+  <strong>MasterStroke Academy</strong> - Certified MST Blockchain Developer Program &nbsp;|&nbsp;
+  Module 4: Cryptography &nbsp;|&nbsp; Sub-Module 4.1: Public-Key Cryptography &nbsp;|&nbsp;
+  Next: <strong>Sub-Module 4.2 - Digital Signatures</strong>
+</div>
+
+
+

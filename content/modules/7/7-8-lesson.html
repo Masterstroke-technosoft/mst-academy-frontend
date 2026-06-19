@@ -1,0 +1,605 @@
+
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🖥️ Module 7 &nbsp;·&nbsp; Sub-Module 7.8 of 8</div>
+<h1 class="module-title"><span class="highlight">BridgeKey Wallet</span> &amp; MST Explorer</h1>
+<p class="module-subtitle">Your gateway to the MST ecosystem - how to install, configure, and use the BridgeKey wallet for non-custodial asset management, and the MST Explorer for real-time on-chain transparency.</p>
+
+<div class="meta-bar">
+    <div class="meta-chip">⏱ 30 Minutes</div>
+    <div class="meta-chip purple">🎯 10 Marks</div>
+    <div class="meta-chip">📋 1 Practical Log (10 marks)</div>
+    <div class="meta-chip green">Phase 2 · MST Architecture &amp; Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+    <div class="obj-card">
+        <div class="obj-icon">📱</div>
+        <div class="obj-text">
+            <strong>Install and configure BridgeKey wallet</strong>
+            Set up the browser extension or mobile app, create or import a wallet, and understand the non-custodial architecture.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">💸</div>
+        <div class="obj-text">
+            <strong>Send and receive MSTC and tokens</strong>
+            Execute transactions, switch networks, manage gas fees, and track transaction history with confidence.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🔍</div>
+        <div class="obj-text">
+            <strong>Navigate the MST Explorer</strong>
+            Search for blocks, transactions, addresses, and verified smart contracts - and interpret every field on screen.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🛡️</div>
+        <div class="obj-text">
+            <strong>Apply security best practices</strong>
+            Export and back up private keys, enable biometric security, and understand the zero-knowledge privacy model of BridgeKey.
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Developer Who Didn't Know Where His Tokens Went</h2>
+
+<div class="callout story">
+    <div class="callout-label">📖 Story</div>
+    <p>Arjun, a Solidity developer, deployed his first NFT minting contract on MST Testnet. He used Hardhat, wrote the deploy script, and saw the contract address in his terminal. Then he opened BridgeKey, switched to MST Testnet, and sent 0.5 MSTC to the contract to test the mint function. Nothing happened. He sent again. Still nothing. Frustrated, he assumed the contract was broken.</p>
+    <br>
+    <p>His mentor asked one question: "Did you check MST Explorer?" Arjun hadn't. He opened explorer.mstblockchain.com, pasted his wallet address, and immediately saw both transactions - each had successfully transferred 0.5 MSTC to the contract. The problem wasn't the transaction; it was the contract's fallback function, which wasn't emitting events. He fixed the event, redeployed, and the mint worked perfectly.</p>
+    <br>
+    <p>BridgeKey and MST Explorer are not separate tools - they are two halves of the same workflow. BridgeKey is for <strong>action</strong>: sending, receiving, signing. MST Explorer is for <strong>verification</strong>: confirming that what you think happened actually happened on-chain. Together, they give a developer or user complete visibility and control over their blockchain interactions.</p>
+</div>
+
+<p>This sub-module is your hands-on guide to both. By the end, you'll have BridgeKey installed, funded, and used - and you'll be able to trace any transaction end-to-end on the explorer.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BRIDGEKEY WALLET – OVERVIEW & PHILOSOPHY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; BridgeKey Wallet</div>
+<h2 class="section-title">Your Bridge to Secure Digital Assets</h2>
+
+<p>BridgeKey is MST's flagship non-custodial wallet, available as a <strong>browser extension</strong> (Chrome, Firefox, Edge) and a <strong>mobile app</strong> (iOS, Android). It is designed around three core principles: <strong>full ownership</strong> (you control the keys, no third party can access your funds), <strong>seamless cross-chain support</strong> (switch between MST mainnet, testnet, and other EVM-compatible networks with a single tap), and <strong>military-grade security</strong> (biometric authentication, zero-knowledge privacy, and secure enclave key storage on mobile).</p>
+
+<div class="stat-row">
+    <div class="stat-card">
+        <div class="stat-value">1000+</div>
+        <div class="stat-label">Tokens Supported Across All EVM Chains</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">Non-Custodial</div>
+        <div class="stat-label">You Hold the Keys - Always</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">ZK Privacy</div>
+        <div class="stat-label">Transactions &amp; Balances Never Exposed</div>
+    </div>
+</div>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ Non-Custodial Means YOU Control Everything</div>
+    <p>BridgeKey never holds your private keys on a server. Your keys are stored locally - encrypted in the browser's secure storage (extension) or in the device's Secure Enclave / StrongBox (mobile). When you sign a transaction, the signing happens on your device. BridgeKey's servers never see your private key, your seed phrase (if you exported it), or your transaction details. This is fundamentally different from centralised exchanges where the exchange holds your funds.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BRIDGEKEY FEATURES DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Features Deep Dive</div>
+<h2 class="section-title">Everything You Need in One Wallet</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">💎</div>
+        <div class="feature-content">
+            <div class="feature-title">Multi-Asset Support</div>
+            <div class="feature-desc">
+                BridgeKey supports <strong>MSTC</strong> (native gas token), all ERC-20 tokens deployed on MST, ERC-721 and ERC-1155 NFTs, and any token standard compatible with the EVM. You can view balances, transfer tokens, and interact with token contracts directly from the wallet interface. For custom tokens not automatically detected, you can <strong>import by contract address</strong> - BridgeKey will fetch the token's name, symbol, and decimals from the on-chain contract and display it in your asset list.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--green);">📤</div>
+        <div class="feature-content">
+            <div class="feature-title">Send &amp; Receive with Low Fees</div>
+            <div class="feature-desc">
+                Sending MSTC or tokens is a three-step process: enter the recipient address, enter the amount, and confirm. BridgeKey estimates the gas fee based on current network conditions and displays it in both MSTC and your preferred fiat currency. On MST, gas fees are typically <strong>sub-cent</strong> for simple transfers - a stark contrast to Ethereum mainnet. Receiving is even simpler: share your wallet address or QR code, and the sender can transfer assets directly to your wallet. BridgeKey monitors the mempool and shows incoming transactions as "pending" before they are confirmed.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--orange);">🏦</div>
+        <div class="feature-content">
+            <div class="feature-title">Easy Deposits from Exchanges &amp; Other Wallets</div>
+            <div class="feature-desc">
+                You can deposit MSTC into BridgeKey by copying your wallet address and using it as the withdrawal destination on any centralised exchange (once MSTC is listed) or by transferring from another wallet. BridgeKey also supports <strong>direct fiat on-ramp</strong> through integrated third-party providers (where available), allowing you to purchase MSTC with a credit card or bank transfer directly within the app.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--teal);">📋</div>
+        <div class="feature-content">
+            <div class="feature-title">Comprehensive Transaction History</div>
+            <div class="feature-desc">
+                Every transaction you send or receive is recorded in BridgeKey's local transaction history, with details including: transaction hash, sender/receiver addresses, amount, gas used, timestamp, and confirmation status. Tapping any transaction opens MST Explorer directly to that transaction's page, where you can see all on-chain details. The history is stored locally - BridgeKey's servers do not track your transaction history, preserving privacy.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--brand);">🔀</div>
+        <div class="feature-content">
+            <div class="feature-title">One-Tap Network Switching</div>
+            <div class="feature-desc">
+                BridgeKey comes pre-configured with MST Mainnet and MST Testnet. You can add any EVM-compatible network (Ethereum, Polygon, BSC, Avalanche, custom RPCs) by entering the network name, RPC URL, chain ID, and currency symbol. Switching networks takes a single tap - no need to disconnect and reconnect. This is essential for developers who deploy on testnet and then move to mainnet, and for users who hold assets across multiple chains.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">🔐</div>
+        <div class="feature-content">
+            <div class="feature-title">Full Ownership &amp; Private Key Control</div>
+            <div class="feature-desc">
+                You can <strong>export your private key</strong> or <strong>seed phrase</strong> at any time from BridgeKey's security settings. This allows you to import your wallet into any other EVM-compatible wallet (MetaMask, Trust Wallet, etc.) - your funds are never locked into BridgeKey. Conversely, you can import an existing wallet into BridgeKey using a seed phrase or private key. <strong>Important:</strong> Never share your private key or seed phrase with anyone. BridgeKey support will never ask for them.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: SECURITY ARCHITECTURE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Security</div>
+<h2 class="section-title">Security You Can Trust</h2>
+
+<p>BridgeKey's security model is built on four pillars, each addressing a different threat vector - from remote hackers to physical device theft.</p>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">1</div>
+        <div class="feature-content">
+            <div class="feature-title">Non-Custodial Architecture - You Hold the Keys</div>
+            <div class="feature-desc">
+                BridgeKey is <strong>fully non-custodial</strong>. When you create a new wallet, the private key is generated locally on your device using a cryptographically secure random number generator. It never leaves your device in unencrypted form. BridgeKey's servers never receive, store, or process your private key. All transaction signing happens locally - the server only relays the signed transaction to the MST network. This means that even if BridgeKey's infrastructure is compromised, your funds remain safe because the attacker never had access to your keys.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">2</div>
+        <div class="feature-content">
+            <div class="feature-title">Private Key Control - Export, Backup, and Restore</div>
+            <div class="feature-desc">
+                BridgeKey gives you complete control over your private keys. You can <strong>export your seed phrase</strong> (12 or 24 words, BIP39 standard) or <strong>export the raw private key</strong> from the security settings. Store these in a secure, offline location (hardware wallet, paper backup in a safe, or a password manager with strong encryption). You can restore your wallet on any device by importing the seed phrase. <strong>If you lose your seed phrase and your device, your funds are permanently inaccessible</strong> - a fundamental property of non-custodial wallets that places responsibility on the user.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">3</div>
+        <div class="feature-content">
+            <div class="feature-title">Zero-Knowledge Privacy Model</div>
+            <div class="feature-desc">
+                BridgeKey operates on a <strong>zero-knowledge privacy model</strong>: the wallet's backend servers never see your transaction details, your balance, or your personal information. When BridgeKey queries the blockchain for your balance or transaction history, it uses your <strong>public address</strong> - which is already publicly visible on-chain. BridgeKey does not associate your IP address, device fingerprint, or any personal identifier with your wallet address. For enhanced privacy, you can connect BridgeKey through a VPN or use a local RPC node. This model ensures that even under subpoena, BridgeKey has no private user data to surrender.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num">4</div>
+        <div class="feature-content">
+            <div class="feature-title">Biometric Security - Fingerprint &amp; Face Recognition</div>
+            <div class="feature-desc">
+                On mobile devices, BridgeKey supports <strong>biometric authentication</strong> (fingerprint and face recognition) as an additional security layer. Even if someone unlocks your phone, they cannot open BridgeKey or sign transactions without your biometric confirmation. The biometric data is processed entirely by your device's Secure Enclave (iOS) or StrongBox (Android) - BridgeKey never receives your fingerprint or face data. This is the same hardware-level security used by banking apps and password managers. You can also set a <strong>separate app PIN</strong> as a fallback authentication method.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="callout warning">
+    <div class="callout-label">⚠️ Critical Security Reminders</div>
+    <p>• <strong>Never share your seed phrase or private key</strong> with anyone - no legitimate support team will ever ask for them.<br>
+    • <strong>Verify the recipient address</strong> before every transaction - malware can replace copied addresses.<br>
+    • <strong>Back up your seed phrase immediately</strong> after creating a wallet - store it offline, in multiple secure locations.<br>
+    • <strong>Use biometric lock</strong> on mobile - it prevents unauthorised access even if your phone is unlocked.<br>
+    • <strong>Check network details</strong> when adding custom networks - a malicious RPC could lie about balances and transactions.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: INSTALLATION & SETUP – STEP‑BY‑STEP
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Hands-On Setup</div>
+<h2 class="section-title">Installing and Configuring BridgeKey - Step-by-Step</h2>
+
+<div class="callout practical">
+    <div class="callout-label">🖥️ Practical Exercise - Complete These Steps Now</div>
+    <p>Follow along on your own device. By the end of this section, you will have a working BridgeKey wallet on MST Testnet, funded with test tokens from the faucet.</p>
+</div>
+
+<div class="step-list">
+    <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <div class="step-title">Install BridgeKey Extension</div>
+            <div class="step-desc">
+                Visit <strong>bridgekey.io</strong> or search "BridgeKey" in the Chrome Web Store / Firefox Add-ons. Click <strong>"Add to Chrome"</strong> (or your browser). Verify the publisher is <strong>MST Blockchain</strong> and the extension has good ratings. Once installed, the BridgeKey icon appears in your browser toolbar. Pin it for quick access.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <div class="step-title">Create a New Wallet or Import Existing</div>
+            <div class="step-desc">
+                Click the BridgeKey icon → <strong>"Create New Wallet"</strong>. You will be prompted to set a password - this encrypts your wallet data locally in the browser. <strong>This password is NOT your seed phrase.</strong> After setting the password, BridgeKey displays your <strong>12-word seed phrase</strong>. Write these words down in exact order on paper. Store the paper securely. You will be asked to confirm the seed phrase by selecting the words in order. Never skip this backup step.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <div class="step-title">Switch to MST Testnet</div>
+            <div class="step-desc">
+                By default, BridgeKey may be on MST Mainnet. Click the network dropdown in the top bar → <strong>"MST Testnet"</strong>. If testnet is not listed, add it manually: Settings → Networks → Add Network. Enter: <strong>Network Name:</strong> MST Testnet, <strong>RPC URL:</strong> https://testnet.rpc.mstblockchain.com, <strong>Chain ID:</strong> 91562037, <strong>Currency Symbol:</strong> MSTC, <strong>Block Explorer URL:</strong> https://testnet.explorer.mstblockchain.com. Save.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+            <div class="step-title">Get Test Tokens from the MST Faucet</div>
+            <div class="step-desc">
+                Copy your wallet address (click the address at the top to copy). Visit <strong>faucet.mstblockchain.com</strong>. Paste your address, complete the CAPTCHA, and click "Request Tokens." Within 10 - 30 seconds, you should receive 1 - 10 test MSTC. Check your balance in BridgeKey - it should update automatically. If the faucet is rate-limited, try again after a few minutes or ask in the MST Discord for test tokens.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+            <div class="step-title">Send a Test Transaction</div>
+            <div class="step-desc">
+                Ask a classmate for their MST Testnet address (or use a second wallet you create). Click <strong>"Send"</strong> → paste the recipient address → enter a small amount (0.01 MSTC) → review the gas fee → click <strong>"Confirm"</strong>. The transaction will show as "Pending" for a few seconds, then "Confirmed." Note the <strong>transaction hash</strong> - you'll use it in the Explorer section below.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: MST EXPLORER – YOUR WINDOW TO THE CHAIN
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; MST Explorer</div>
+<h2 class="section-title">MST Explorer - Real-Time On-Chain Transparency</h2>
+
+<p>The MST Explorer (explorer.mstblockchain.com for mainnet, testnet.explorer.mstblockchain.com for testnet) is a web-based block explorer that provides a read-only window into everything happening on the MST blockchain. It is the equivalent of Etherscan for Ethereum - an indispensable tool for developers, auditors, and users who want to verify transactions, inspect smart contracts, and monitor network activity.</p>
+
+<div class="callout analogy">
+    <div class="callout-label">🔍 The Public Notice Board</div>
+    <p>Think of the MST Explorer as a <strong>public notice board</strong> where every transaction, every block, and every smart contract ever deployed is posted permanently. Anyone can walk up to the notice board and read everything - no login, no permission, no censorship. The blockchain is the ultimate source of truth; the explorer is simply the search engine that lets you query it.</p>
+</div>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">🧱</div>
+        <div class="feature-content">
+            <div class="feature-title">Block Exploration - From Genesis to Latest</div>
+            <div class="feature-desc">
+                The explorer's homepage displays the <strong>latest blocks</strong> being produced in real time, along with key network statistics: current block number, total transactions, average block time, active validators, and total address count. Clicking any block number opens the <strong>Block Details</strong> page, which shows: block height, timestamp, validator (proposer), number of transactions in the block, gas used vs gas limit, the block hash, the parent block hash, and the list of all transaction hashes included in that block. This page is essential for verifying that a transaction was actually included in a specific block.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--green);">💸</div>
+        <div class="feature-content">
+            <div class="feature-title">Transaction Details - Every Field Explained</div>
+            <div class="feature-desc">
+                Searching a <strong>transaction hash</strong> (TX hash) opens the most frequently used page on the explorer. It displays: <strong>Transaction Hash</strong> (unique identifier), <strong>Status</strong> (Success / Failed / Pending), <strong>Block Number</strong> (which block contains it), <strong>Timestamp</strong> (when it was confirmed), <strong>From</strong> (sender address), <strong>To</strong> (recipient address or contract), <strong>Value</strong> (amount of MSTC transferred), <strong>Transaction Fee</strong> (gas used × gas price), <strong>Gas Price</strong> (in Gwei), <strong>Gas Used</strong> (actual computation units consumed), <strong>Nonce</strong> (sender's transaction counter), and <strong>Input Data</strong> (the raw calldata - for contract interactions, this contains the function selector and encoded parameters). A <strong>"Logs"</strong> tab shows all events emitted by the transaction, with decoded topics and data where the contract ABI is verified.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--orange);">👛</div>
+        <div class="feature-content">
+            <div class="feature-title">Address Pages - Full Wallet Transparency</div>
+            <div class="feature-desc">
+                Searching an <strong>MST address</strong> opens the Address page, which displays: current MSTC balance, token balances (ERC-20, ERC-721, ERC-1155), and a complete, paginated list of all transactions involving that address - both sent and received. This page is public for any address. It also shows analytics: total transactions, first transaction date, and a balance chart over time. For <strong>contract addresses</strong>, additional tabs appear: <strong>Contract</strong> (bytecode and source code if verified), <strong>Read Contract</strong> (call view/pure functions directly from the explorer), and <strong>Write Contract</strong> (send transactions to state-changing functions, if connected via BridgeKey).
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--brand);">📜</div>
+        <div class="feature-content">
+            <div class="feature-title">Contract Verification - Publish and Audit Source Code</div>
+            <div class="feature-desc">
+                Contract verification is the process of uploading your Solidity source code to the explorer so it can be independently compiled and matched against the deployed bytecode. A <strong>verified contract</strong> displays a green checkmark and the full, readable Solidity source. Anyone can then use the "Read Contract" and "Write Contract" tabs to interact with it. Verification is done via the Hardhat verify plugin or manually through the explorer's verification page, where you provide the contract address, compiler version, optimization settings, and source code. MST Explorer uses the same verification API as Etherscan, so the <code>hardhat-verify</code> plugin works with minimal configuration changes.
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--teal);">📊</div>
+        <div class="feature-content">
+            <div class="feature-title">Network Analytics - Tokens, Validators, and Charts</div>
+            <div class="feature-desc">
+                The explorer includes dedicated pages for: <strong>Tokens</strong> (list of all tracked ERC-20 and ERC-721 tokens, with holders and transfer history), <strong>Validators</strong> (active Trika POSA validators with stake amounts, uptime, and block production statistics), <strong>Charts</strong> (historical data on transactions per day, active addresses, gas used, and network utilization), and <strong>API</strong> (documentation for programmatic access to explorer data via REST endpoints). The API is rate-limited but free for development use - useful for building dashboards or monitoring tools.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: EXPLORER WALKTHROUGH – SCREEN‑BY‑SCREEN
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Explorer Walkthrough</div>
+<h2 class="section-title">A Guided Tour of MST Explorer - Screen by Screen</h2>
+
+<div class="callout practical">
+    <div class="callout-label">🖥️ Hands-On Practice</div>
+    <p>Open <strong>testnet.explorer.mstblockchain.com</strong> in a new tab. Follow along with each step below, using your own transaction hash and wallet address from the BridgeKey exercise.</p>
+</div>
+
+<div class="step-list">
+    <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <div class="step-title">Find Your Transaction by Hash</div>
+            <div class="step-desc">
+                Copy the <strong>transaction hash</strong> from BridgeKey (the one you sent to your classmate). Paste it into the explorer's search bar and press Enter. The explorer takes you to the <strong>Transaction Details</strong> page. Verify that the Status shows <strong>"Success"</strong> (green checkmark). Check the "From" address matches your wallet. Check the "To" address matches your classmate's wallet. Note the "Value" - it should match the amount you sent. Scroll down to "Logs" - for a simple MSTC transfer, there are no logs (only contract calls emit events). Note the "Transaction Fee" - multiply gas used by gas price to understand how much you paid.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <div class="step-title">Explore the Block Containing Your Transaction</div>
+            <div class="step-desc">
+                On the Transaction Details page, click the <strong>Block Number</strong> (it's a hyperlink). This opens the <strong>Block Details</strong> page. Observe: the block height, the timestamp (when the block was produced), the validator address (which Trika POSA authority node proposed this block), the number of transactions in the block (yours and others that were confirmed together), and the gas used vs the gas limit. The block hash is displayed - this is the cryptographic fingerprint of the block. Notice the <strong>Parent Hash</strong> field - this links this block to the previous one, forming the chain.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <div class="step-title">Inspect Your Wallet Address</div>
+            <div class="step-desc">
+                Go back to the search bar and paste <strong>your wallet address</strong>. The explorer opens the <strong>Address</strong> page. You'll see your current MSTC balance (including the test tokens from the faucet, minus what you sent). Scroll down to the <strong>Transactions</strong> tab - you'll see all transactions involving your address: the incoming faucet transfer (from the faucet address to you) and the outgoing transfer (from you to your classmate). Each row shows: transaction hash, block number, age, from, to, value, and fee. Click on any row to go to that transaction's detail page.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+            <div class="step-title">View a Verified Smart Contract</div>
+            <div class="step-desc">
+                In the search bar, enter a known verified contract address on MST Testnet. If you deployed one in Module 8 or 9, use that. Otherwise, search for a commonly used contract. On the <strong>Contract</strong> tab, you'll see the verified Solidity source code with syntax highlighting. Switch to the <strong>"Read Contract"</strong> tab - you'll see all view/pure functions with their input fields. Try calling <code>totalSupply()</code> or <code>name()</code> - the result appears instantly (no gas, no transaction). Switch to <strong>"Write Contract"</strong> - you'll see state-changing functions. To use these, you must connect BridgeKey. Click "Connect to Web3," approve the connection in BridgeKey, and then you can call write functions directly from the explorer.
+            </div>
+        </div>
+    </div>
+
+    <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+            <div class="step-title">Check Network Statistics</div>
+            <div class="step-desc">
+                Click the <strong>"Charts"</strong> or <strong>"Analytics"</strong> link in the explorer's navigation. Explore the charts showing: daily transactions, active addresses, and gas utilization. These charts give you a macro view of network health and adoption. For developers, the gas utilization chart is particularly important - it shows whether the network is operating below or near capacity, which affects gas price dynamics.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: BRIDGEKEY + EXPLORER WORKFLOW
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Combined Workflow</div>
+<h2 class="section-title">The BridgeKey + Explorer Workflow - Action &amp; Verification</h2>
+
+<p>The true power of these tools emerges when you use them together. Here is the standard workflow for a developer or power user interacting with the MST blockchain.</p>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 7.8-A · The BridgeKey + Explorer Workflow Loop</div>
+    <pre>  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                     BRIDGEKEY (ACTION)                                    │
+  │                                                                          │
+  │  1. Create / fund wallet                                                 │
+  │  2. Deploy contract (via Hardhat + BridgeKey signer)                     │
+  │  3. Send transaction → TX hash generated                                 │
+  │  4. Monitor status: Pending → Confirmed                                  │
+  └───────────────────────────────┬─────────────────────────────────────────┘
+                                  │
+                                  │  Copy TX hash
+                                  ▼
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                     MST EXPLORER (VERIFICATION)                           │
+  │                                                                          │
+  │  5. Paste TX hash → view transaction details                             │
+  │  6. Verify: Status = Success, correct To/From, correct Value             │
+  │  7. Check Logs tab for emitted events                                    │
+  │  8. If contract: verify source code, test Read/Write functions           │
+  │  9. Monitor address balance and transaction history                      │
+  └─────────────────────────────────────────────────────────────────────────┘
+    </pre>
+    <div class="diagram-caption">BridgeKey executes; Explorer confirms. Never trust that a transaction succeeded - verify it on the explorer. This "don't trust, verify" workflow is the essence of blockchain development.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 10: TROUBLESHOOTING COMMON ISSUES
+════════════════════════════════════════════════════ -->
+<div class="section-label">10 &nbsp; Troubleshooting</div>
+<h2 class="section-title">Common BridgeKey &amp; Explorer Issues - and How to Fix Them</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">⚠️</div>
+        <div class="feature-content">
+            <div class="feature-title">"Transaction not found" on Explorer</div>
+            <div class="feature-desc">
+                <strong>Cause:</strong> The transaction hasn't been broadcast to the network, or you're on the wrong explorer (mainnet vs testnet). <strong>Fix:</strong> Verify the network in BridgeKey - if you sent on Testnet, use the Testnet explorer. If the TX is pending in BridgeKey but not on the explorer, wait 1 - 2 minutes and refresh. If it still doesn't appear, check that your RPC endpoint is responsive.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--orange);">⚠️</div>
+        <div class="feature-content">
+            <div class="feature-title">"Insufficient funds" when you have MSTC</div>
+            <div class="feature-desc">
+                <strong>Cause:</strong> You may have MSTC on a different network (e.g., Mainnet balance but trying to send on Testnet), or your balance is in tokens but you need MSTC for gas. <strong>Fix:</strong> Check the network in BridgeKey. Ensure you have MSTC on the correct network. For token transfers, you still need MSTC to pay gas.
+            </div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">⚠️</div>
+        <div class="feature-content">
+            <div class="feature-title">BridgeKey won't connect to a dApp</div>
+            <div class="feature-desc">
+                <strong>Cause:</strong> The dApp may be requesting a different network than what BridgeKey is on. <strong>Fix:</strong> Switch BridgeKey to the network the dApp expects. If the dApp requires Ethereum Mainnet but you're on MST, you'll need to switch networks or use a different dApp. Ensure BridgeKey is unlocked (enter password).
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 11: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Key Skills - What You Must Demonstrate for the 10-Mark Practical</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+        <div class="feature-content">
+            <div class="feature-title">Wallet Creation &amp; Network Configuration</div>
+            <div class="feature-desc">Create a wallet, back up the seed phrase, add MST Testnet with correct RPC URL and chain ID 91562037.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+        <div class="feature-content">
+            <div class="feature-title">Faucet Funding &amp; Transaction Execution</div>
+            <div class="feature-desc">Request test tokens from the MST faucet, send a test transaction to a classmate, capture the TX hash.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+        <div class="feature-content">
+            <div class="feature-title">Explorer Verification - Transactions, Blocks, Addresses</div>
+            <div class="feature-desc">Look up your TX hash, verify all fields, explore the containing block, and inspect your address page.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+        <div class="feature-content">
+            <div class="feature-title">Contract Interaction via Explorer</div>
+            <div class="feature-desc">Connect BridgeKey to the explorer, call Read functions, and verify contract source code on a deployed contract.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+        <div class="feature-content">
+            <div class="feature-title">Documentation &amp; Screenshots</div>
+            <div class="feature-desc">Take clear, labelled screenshots of each step and compile them into a practical log document (PDF or DOCX).</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (1 Practical Log = 10 marks)
+════════════════════════════════════════════════════ -->
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.8</h2>
+
+<div class="glossary-grid">
+    <div class="glossary-item">
+        <div class="glossary-term">BridgeKey</div>
+        <div class="glossary-def">MST's flagship non-custodial wallet, available as a browser extension and mobile app, supporting MSTC, tokens, and NFTs across multiple EVM networks.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Non-Custodial Wallet</div>
+        <div class="glossary-def">A wallet where the user holds the private keys locally; no third party (including the wallet provider) can access or control the funds.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">MST Explorer</div>
+        <div class="glossary-def">A web-based block explorer for the MST blockchain, providing read-only access to blocks, transactions, addresses, tokens, and verified contracts.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Transaction Hash (TX Hash)</div>
+        <div class="glossary-def">A unique 64-character hexadecimal identifier for a blockchain transaction, generated by hashing the transaction data with SHA-256.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Seed Phrase</div>
+        <div class="glossary-def">A sequence of 12 - 24 human-readable words (BIP39 standard) that encodes a wallet's private key. Must be stored securely offline - anyone with the seed phrase controls the wallet.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Chain ID</div>
+        <div class="glossary-def">A unique numeric identifier for a blockchain network (MST Mainnet = 4646, MST Testnet = 91562037). Prevents transaction replay across chains.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Faucet</div>
+        <div class="glossary-def">A service that distributes free test tokens on a testnet, allowing developers to experiment without risking real assets.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Contract Verification</div>
+        <div class="glossary-def">The process of publishing a smart contract's source code to a block explorer, enabling independent compilation verification and direct interaction.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Secure Enclave / StrongBox</div>
+        <div class="glossary-def">Hardware-isolated coprocessors on mobile devices that store cryptographic keys and perform operations only after biometric authentication.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">JSON-RPC</div>
+        <div class="glossary-def">The standard API protocol that wallets and dApps use to communicate with blockchain nodes. BridgeKey and MetaMask both implement EIP-1193 for compatibility.</div>
+    </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+    <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+    <p>Module 7 · Sub-Module <strong>7.8</strong> of 8 &nbsp;·&nbsp; End of Module 7 - MST Architecture &amp; Protocol Deep Dive ✅</p>
+</div>
+
+

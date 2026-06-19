@@ -1,0 +1,993 @@
+
+
+<!-- ════════════════════ HERO ════════════════════ -->
+<div class="hero">
+  <div class="breadcrumb">MasterStroke Academy › Module 4: Cryptography › <span>Sub-Module 4.7</span></div>
+  <h1>Practical: Build a<br><em>Wallet CLI</em></h1>
+  <p class="hero-sub">Stop reading about keys - generate them. This hands-on lab walks you through building a real command-line wallet: generate a private key, derive a public key, compute a wallet address, sign a message, and verify the signature - all from scratch in Node.js. Every concept from 4.1 - 4.6 snaps into place.</p>
+  <div class="meta-pills">
+    <div class="pill">⏱ 30 Minutes</div>
+    <div class="pill">📊 Module 4 - Cryptography</div>
+    <div class="pill gold">🎯 15 Marks</div>
+    <div class="pill green">💻 Sub-Module 4.7 - Hands-On Lab</div>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE BODY ════════════════════ -->
+<div class="page-body">
+
+  <!-- ── 1. LEARNING OBJECTIVES ── -->
+  <div class="section">
+    <div class="section-label">01 - Learning Objectives</div>
+    <h2>What You Will Do By The End</h2>
+    <p>This is a <strong>practical coding sub-module</strong>. There are no theory slides. By the end, you will have a working CLI wallet that can:</p>
+    <ul>
+      <li>✅ <strong>Generate</strong> a cryptographically secure private key (32 bytes of randomness)</li>
+      <li>✅ <strong>Derive</strong> the corresponding public key using secp256k1 elliptic curve multiplication</li>
+      <li>✅ <strong>Compute</strong> the Ethereum/MST wallet address (Keccak-256 hash → last 20 bytes)</li>
+      <li>✅ <strong>Sign</strong> a message using ECDSA with your private key</li>
+      <li>✅ <strong>Verify</strong> a signature using only the public key - and recover the signer's address</li>
+      <li>✅ Submit a terminal log + source code as the assessed deliverable</li>
+    </ul>
+
+    <div class="callout key">
+      <div class="callout-icon">🗝️</div>
+      <div class="callout-body">
+        <strong>Why This Lab Matters</strong>
+        <p>Every blockchain interaction - sending tokens, calling a smart contract, deploying code - starts with these exact steps. When you tap "Confirm" in BridgeKey Wallet, the wallet runs this pipeline in milliseconds. Today you build it manually and understand every byte.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. REAL WORLD STORY ── -->
+  <div class="section">
+    <div class="section-label">02 - Real World Introduction Story</div>
+    <h2>The Day Rohan Understood Everything</h2>
+
+    <div class="story-card">
+      <div class="story-tag">📖 Story Time</div>
+      <p>Rohan spent two weeks studying Modules 1 through 4. He understood public keys, private keys, ECDSA, hashes - conceptually. He could answer every MCQ. But when someone asked him "so what actually happens when you create a MetaMask wallet?", he froze.</p>
+      <p><em>"It generates... keys? And then there's a hash... and the address comes from..."</em> He knew the words. He did not know the thing.</p>
+      <p>On the third Saturday of the course, he sat down with the lab below. Forty minutes later, he had a terminal window showing a private key he had generated, a public key he had derived, a wallet address he had computed, a message he had signed, and a verification that confirmed his signature. He typed each step himself. He watched the bytes flow.</p>
+      <p>Later that day, he opened MetaMask. He imported his lab-generated private key. The address matched exactly what his terminal had printed. <strong>He understood everything.</strong></p>
+    </div>
+  </div>
+
+  <!-- ── 3. SETUP ── -->
+  <div class="section">
+    <div class="section-label">03 - Environment Setup</div>
+    <h2>Prerequisites - Install in 2 Minutes</h2>
+
+    <p>You need <strong>Node.js</strong> (v18+) and one npm package. Nothing else.</p>
+
+    <div class="code-label">
+      <span>Terminal - one-time setup</span>
+      <span class="file-lang">bash</span>
+    </div>
+    <div class="code-block">
+<span class="prompt">$</span><span class="cmd"> node --version</span>        <span class="c"># must be v18 or higher</span>
+<span class="out">v20.11.0</span>
+
+<span class="prompt">$</span><span class="cmd"> mkdir wallet-cli &amp;&amp; cd wallet-cli</span>
+<span class="prompt">$</span><span class="cmd"> npm init -y</span>
+<span class="prompt">$</span><span class="cmd"> npm install ethers</span>    <span class="c"># the only dependency - Ethers.js v6</span>
+
+<span class="out-green">added 27 packages in 3.4s</span>
+
+<span class="prompt">$</span><span class="cmd"> touch wallet.js</span>       <span class="c"># create our main file</span>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>Why Ethers.js?</strong>
+        <p>Ethers.js is the most widely used Ethereum/MST JavaScript library. It bundles secp256k1 elliptic curve operations, Keccak-256 hashing, ECDSA signing, and EIP-712 structured signing - all production-grade, battle-tested implementations. You will use Ethers.js in every Module 8 onwards lab. Learning it here builds direct continuity.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="fact-card">
+        <div class="fact-label">Primary Library</div>
+        <div class="fact-value">ethers@6</div>
+        <div class="fact-note">Ethers.js v6 - the standard MST/Ethereum JavaScript SDK</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-label">Node.js Minimum</div>
+        <div class="fact-value">v18+</div>
+        <div class="fact-note">Required for native crypto module and ESM support</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. CODE EXAMPLES ── (main lab) -->
+  <div class="section">
+    <div class="section-label">08 - Hands-On Lab Code</div>
+    <h2>Building the Wallet CLI - Step by Step</h2>
+
+    <p>We will build <code>wallet.js</code> in six progressive steps. Each step is self-contained - run it, observe the output, then add the next step. The final file will be your submission.</p>
+
+    <!-- STEP 1 -->
+    <div class="lab-steps">
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 1 - Generate a Private Key</div>
+        <h4>Cryptographically Secure Random Number Generation</h4>
+        <p>A private key is a 256-bit (32-byte) random number. It must come from a cryptographically secure pseudorandom number generator (CSPRNG) - not <code>Math.random()</code>. Node.js provides <code>crypto.randomBytes()</code> for this purpose.</p>
+
+        <div class="code-label">
+          <span>wallet.js - Step 1</span>
+          <span class="file-lang">JavaScript</span>
+        </div>
+        <div class="code-block">
+<span class="kw">import</span> { <span class="vr">ethers</span> } <span class="kw">from</span> <span class="st">'ethers'</span>;
+<span class="kw">import</span> { <span class="vr">randomBytes</span> } <span class="kw">from</span> <span class="st">'crypto'</span>;
+
+<span class="c">// ── STEP 1: Generate a private key ─────────────────────────────────</span>
+<span class="c">// A private key = 32 cryptographically random bytes = 64 hex chars</span>
+<span class="c">// NEVER use Math.random() for cryptographic keys - it is predictable!</span>
+
+<span class="kw">const</span> <span class="vr">privateKeyBytes</span> = <span class="fn">randomBytes</span>(<span class="nu">32</span>);          <span class="c">// 32 bytes from OS CSPRNG</span>
+<span class="kw">const</span> <span class="vr">privateKey</span> = <span class="st">'0x'</span> + <span class="vr">privateKeyBytes</span>.<span class="fn">toString</span>(<span class="st">'hex'</span>); <span class="c">// prefix with 0x</span>
+
+console.<span class="fn">log</span>(<span class="st">'\n════════════════════════════════════════════'</span>);
+console.<span class="fn">log</span>(<span class="st">'  MST WALLET CLI - STEP 1: Private Key'</span>);
+console.<span class="fn">log</span>(<span class="st">'════════════════════════════════════════════'</span>);
+console.<span class="fn">log</span>(<span class="st">'Private Key (32 bytes / 64 hex chars):'</span>);
+console.<span class="fn">log</span>(<span class="st">' '</span>, <span class="vr">privateKey</span>);
+console.<span class="fn">log</span>(<span class="st">'⚠️  NEVER share this with anyone!'</span>);
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot r"></div>
+            <div class="term-dot y"></div>
+            <div class="term-dot g"></div>
+            <span class="term-title">Terminal - node wallet.js</span>
+          </div>
+          <div class="term-body">
+<span class="prompt">$</span> <span class="cmd">node wallet.js</span>
+
+<span class="out-dim">════════════════════════════════════════════</span>
+<span class="out-dim">  MST WALLET CLI - STEP 1: Private Key</span>
+<span class="out-dim">════════════════════════════════════════════</span>
+<span class="out">Private Key (32 bytes / 64 hex chars):</span>
+<span class="out-gold">  0xe9873d79c6d87dc0fb6a5778633389f4453213303da61f20bd0ea2eefec5b2fa</span>
+<span class="out-red">⚠️  NEVER share this with anyone!</span>
+          </div>
+        </div>
+        <p><em>Your output will differ - every run generates a fresh random key. That is correct.</em></p>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 2 - Derive the Public Key</div>
+        <h4>secp256k1 Elliptic Curve Multiplication</h4>
+        <p>The public key is derived by multiplying the private key scalar by the generator point G on the secp256k1 curve: <code>pubKey = privKey × G</code>. This is a one-way operation - you cannot reverse it. Ethers.js handles the curve math internally.</p>
+
+        <div class="code-label">
+          <span>wallet.js - Step 2 (add after Step 1)</span>
+          <span class="file-lang">JavaScript</span>
+        </div>
+        <div class="code-block">
+<span class="c">// ── STEP 2: Derive the Public Key ──────────────────────────────────</span>
+<span class="c">// ethers.SigningKey wraps secp256k1 operations.</span>
+<span class="c">// It computes pubKey = privKey × G (generator point of secp256k1).</span>
+
+<span class="kw">const</span> <span class="vr">signingKey</span> = <span class="kw">new</span> ethers.<span class="fn">SigningKey</span>(<span class="vr">privateKey</span>);
+<span class="kw">const</span> <span class="vr">publicKey</span> = <span class="vr">signingKey</span>.<span class="vr">publicKey</span>;       <span class="c">// uncompressed: 65 bytes, "04" prefix</span>
+<span class="kw">const</span> <span class="vr">compressedPubKey</span> = <span class="vr">signingKey</span>.<span class="vr">compressedPublicKey</span>; <span class="c">// compressed: 33 bytes</span>
+
+console.<span class="fn">log</span>(<span class="st">'\n─── Public Key ───────────────────────────────'</span>);
+console.<span class="fn">log</span>(<span class="st">'Uncompressed (04 + x + y, 65 bytes = 130 hex):'</span>);
+console.<span class="fn">log</span>(<span class="st">' '</span>, <span class="vr">publicKey</span>);
+console.<span class="fn">log</span>(<span class="st">'Compressed  (02/03 + x, 33 bytes = 66 hex):'</span>);
+console.<span class="fn">log</span>(<span class="st">' '</span>, <span class="vr">compressedPubKey</span>);
+console.<span class="fn">log</span>(<span class="st">'✅ Public key is safe to share publicly.'</span>);
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+            <span class="term-title">Expected output</span>
+          </div>
+          <div class="term-body">
+<span class="out">─── Public Key ───────────────────────────────</span>
+<span class="out">Uncompressed (04 + x + y, 65 bytes = 130 hex):</span>
+<span class="out-gold">  0x04a478...8f3c2b (130 hex chars - 04 prefix + 64-byte X + 64-byte Y coordinate)</span>
+<span class="out">Compressed  (02/03 + x, 33 bytes = 66 hex):</span>
+<span class="out-gold">  0x02a478...8f3c2b (66 hex chars - parity prefix + 64-byte X coordinate)</span>
+<span class="out-green">✅ Public key is safe to share publicly.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 3 - Derive the Wallet Address</div>
+        <h4>Keccak-256 Hash → Last 20 Bytes</h4>
+        <p>The wallet address is derived by: (1) taking the uncompressed public key bytes (without the <code>04</code> prefix), (2) hashing them with Keccak-256, (3) taking the last 20 bytes (40 hex chars) of the hash, (4) applying EIP-55 checksum capitalisation.</p>
+
+        <div class="code-label">
+          <span>wallet.js - Step 3 (add after Step 2)</span>
+          <span class="file-lang">JavaScript</span>
+        </div>
+        <div class="code-block">
+<span class="c">// ── STEP 3: Derive the Wallet Address ─────────────────────────────</span>
+<span class="c">// Method 1 - Use ethers.js built-in (recommended for production):</span>
+<span class="kw">const</span> <span class="vr">wallet</span> = <span class="kw">new</span> ethers.<span class="fn">Wallet</span>(<span class="vr">privateKey</span>);
+<span class="kw">const</span> <span class="vr">address</span> = <span class="vr">wallet</span>.<span class="vr">address</span>; <span class="c">// EIP-55 checksummed address</span>
+
+<span class="c">// Method 2 - Manual derivation (shows every step explicitly):</span>
+<span class="kw">const</span> <span class="vr">pubKeyBytes</span>   = ethers.<span class="fn">getBytes</span>(<span class="vr">publicKey</span>);   <span class="c">// 65-byte array</span>
+<span class="kw">const</span> <span class="vr">pubKeyNoPrefix</span> = <span class="vr">pubKeyBytes</span>.<span class="fn">slice</span>(<span class="nu">1</span>);         <span class="c">// remove the 04 prefix byte</span>
+<span class="kw">const</span> <span class="vr">hash</span>          = ethers.<span class="fn">keccak256</span>(<span class="vr">pubKeyNoPrefix</span>); <span class="c">// 32-byte Keccak-256 hash</span>
+<span class="kw">const</span> <span class="vr">rawAddress</span>    = <span class="st">'0x'</span> + <span class="vr">hash</span>.<span class="fn">slice</span>(<span class="nu">-40</span>);          <span class="c">// last 20 bytes = 40 hex chars</span>
+<span class="kw">const</span> <span class="vr">checksumAddress</span> = ethers.<span class="fn">getAddress</span>(<span class="vr">rawAddress</span>); <span class="c">// apply EIP-55 checksum</span>
+
+console.<span class="fn">log</span>(<span class="st">'\n─── Wallet Address ───────────────────────────'</span>);
+console.<span class="fn">log</span>(<span class="st">'Keccak-256(pubKey) full hash:'</span>, <span class="vr">hash</span>);
+console.<span class="fn">log</span>(<span class="st">'Last 20 bytes (raw)         :'</span>, <span class="vr">rawAddress</span>);
+console.<span class="fn">log</span>(<span class="st">'EIP-55 Checksummed Address  :'</span>, <span class="vr">checksumAddress</span>);
+console.<span class="fn">log</span>(<span class="st">'Matches ethers.Wallet.address?'</span>, <span class="vr">checksumAddress</span> === <span class="vr">address</span>);
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+            <span class="term-title">Expected output</span>
+          </div>
+          <div class="term-body">
+<span class="out">─── Wallet Address ───────────────────────────</span>
+<span class="out">Keccak-256(pubKey) full hash: <span class="out-dim">0x2a9b5e...f3c1d8a2 (64 hex = 32 bytes)</span></span>
+<span class="out">Last 20 bytes (raw)         : <span class="out-dim">0x...f3c1d8a2 (40 hex = 20 bytes)</span></span>
+<span class="out">EIP-55 Checksummed Address  : <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></span>
+<span class="out-green">Matches ethers.Wallet.address? true</span>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>What Is EIP-55 Checksum?</strong>
+            <p>A raw Ethereum address is all lowercase hex. EIP-55 applies mixed capitalisation based on the Keccak hash of the lowercase address. This creates a built-in checksum - a typo in the address usually produces invalid capitalisation, preventing accidental token sends to wrong addresses. Ethers.js uses <code>getAddress()</code> to apply and validate EIP-55 checksum.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 4 - Sign a Message</div>
+        <h4>ECDSA Signing with Your Private Key</h4>
+        <p>Now for the core action: sign a message. Ethers.js automatically prepends the Ethereum personal sign prefix (<code>\x19Ethereum Signed Message:\n{length}</code>) before hashing, which prevents signed messages from being mistaken for valid transaction data.</p>
+
+        <div class="code-label">
+          <span>wallet.js - Step 4 (add after Step 3)</span>
+          <span class="file-lang">JavaScript</span>
+        </div>
+        <div class="code-block">
+<span class="c">// ── STEP 4: Sign a Message ─────────────────────────────────────────</span>
+<span class="c">// signMessage() uses EIP-191 personal sign:</span>
+<span class="c">// hash = keccak256("\x19Ethereum Signed Message:\n" + message.length + message)</span>
+<span class="c">// Then signs the hash using ECDSA with the private key.</span>
+
+<span class="kw">const</span> <span class="vr">message</span> = <span class="st">'Hello MST! I am signing this message to prove I own this wallet.'</span>;
+
+<span class="c">// signMessage is async - it returns a Promise</span>
+<span class="kw">const</span> <span class="vr">signature</span> = <span class="kw">await</span> <span class="vr">wallet</span>.<span class="fn">signMessage</span>(<span class="vr">message</span>);
+
+<span class="c">// The signature is 65 bytes = 130 hex chars</span>
+<span class="c">// Structure: r (32 bytes) + s (32 bytes) + v (1 byte)</span>
+<span class="kw">const</span> <span class="vr">sigParts</span> = ethers.<span class="fn">Signature</span>.<span class="fn">from</span>(<span class="vr">signature</span>);
+
+console.<span class="fn">log</span>(<span class="st">'\n─── Signing ──────────────────────────────────'</span>);
+console.<span class="fn">log</span>(<span class="st">'Message   :'</span>, <span class="vr">message</span>);
+console.<span class="fn">log</span>(<span class="st">'Signature :'</span>, <span class="vr">signature</span>);
+console.<span class="fn">log</span>(<span class="st">'  r (32 bytes):'</span>, <span class="vr">sigParts</span>.<span class="vr">r</span>);
+console.<span class="fn">log</span>(<span class="st">'  s (32 bytes):'</span>, <span class="vr">sigParts</span>.<span class="vr">s</span>);
+console.<span class="fn">log</span>(<span class="st">'  v (recovery):'</span>, <span class="vr">sigParts</span>.<span class="vr">v</span>);
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+            <span class="term-title">Expected output</span>
+          </div>
+          <div class="term-body">
+<span class="out">─── Signing ──────────────────────────────────</span>
+<span class="out">Message   : Hello MST! I am signing this message to prove I own this wallet.</span>
+<span class="out">Signature : <span class="out-gold">0x3d5a...c291b3f1...44ae1b (130 hex chars = 65 bytes)</span></span>
+<span class="out">  r (32 bytes): <span class="out-dim">0x3d5a...c291 (the x-coordinate of R = k×G)</span></span>
+<span class="out">  s (32 bytes): <span class="out-dim">0xb3f1...44ae (the proof value)</span></span>
+<span class="out">  v (recovery): <span class="out-dim">27 or 28 (recovery ID for ecrecover)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 5 - Verify the Signature</div>
+        <h4>Recover the Signer's Address From the Signature</h4>
+        <p>Verification uses Ethereum's <code>ecrecover</code>: given the original message and the signature, recover the signer's address. If the recovered address matches the expected address - the signature is valid. The private key is never needed for verification.</p>
+
+        <div class="code-label">
+          <span>wallet.js - Step 5 (add after Step 4)</span>
+          <span class="file-lang">JavaScript</span>
+        </div>
+        <div class="code-block">
+<span class="c">// ── STEP 5: Verify the Signature ──────────────────────────────────</span>
+<span class="c">// verifyMessage() recovers the signer's address from (message, signature).</span>
+<span class="c">// It does NOT need the private key or even the public key.</span>
+<span class="c">// This is the same ecrecover used by smart contracts on MST/Ethereum.</span>
+
+<span class="kw">const</span> <span class="vr">recoveredAddress</span> = ethers.<span class="fn">verifyMessage</span>(<span class="vr">message</span>, <span class="vr">signature</span>);
+
+<span class="kw">const</span> <span class="vr">isValid</span> = (<span class="vr">recoveredAddress</span>.<span class="fn">toLowerCase</span>() === <span class="vr">address</span>.<span class="fn">toLowerCase</span>());
+
+console.<span class="fn">log</span>(<span class="st">'\n─── Verification ─────────────────────────────'</span>);
+console.<span class="fn">log</span>(<span class="st">'Recovered address :'</span>, <span class="vr">recoveredAddress</span>);
+console.<span class="fn">log</span>(<span class="st">'Our wallet address:'</span>, <span class="vr">address</span>);
+console.<span class="fn">log</span>(<span class="st">'Signature valid?  :'</span>, <span class="vr">isValid</span> ? <span class="st">'✅ YES - addresses match!'</span> : <span class="st">'❌ NO'</span>);
+
+<span class="c">// ── Tamper Test: verify a MODIFIED message ──────────────────────</span>
+<span class="c">// What happens if someone alters the message after signing?</span>
+<span class="kw">const</span> <span class="vr">tamperedMessage</span> = <span class="st">'Hello MST! I am signing this message to prove I own this wallet!!!'</span>;
+<span class="kw">const</span> <span class="vr">tamperedRecovered</span> = ethers.<span class="fn">verifyMessage</span>(<span class="vr">tamperedMessage</span>, <span class="vr">signature</span>);
+
+console.<span class="fn">log</span>(<span class="st">'\n─── Tamper Test ───────────────────────────────'</span>);
+console.<span class="fn">log</span>(<span class="st">'Tampered message signed with same sig:'</span>);
+console.<span class="fn">log</span>(<span class="st">'Recovered address :'</span>, <span class="vr">tamperedRecovered</span>);
+console.<span class="fn">log</span>(<span class="st">'Is our address?   :'</span>, <span class="vr">tamperedRecovered</span>.<span class="fn">toLowerCase</span>() === <span class="vr">address</span>.<span class="fn">toLowerCase</span>()
+  ? <span class="st">'⚠️ MATCHES (impossible in practice)'</span>
+  : <span class="st">'✅ DIFFERENT - tampering detected! Signature is invalid for altered message.'</span>
+);
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+            <span class="term-title">Expected output</span>
+          </div>
+          <div class="term-body">
+<span class="out">─── Verification ─────────────────────────────</span>
+<span class="out">Recovered address : <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></span>
+<span class="out">Our wallet address: <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></span>
+<span class="out-green">Signature valid?  : ✅ YES - addresses match!</span>
+
+<span class="out">─── Tamper Test ───────────────────────────────</span>
+<span class="out">Tampered message signed with same sig:</span>
+<span class="out">Recovered address : <span class="out-dim">0x3A9f...8c2E (completely different - garbage address)</span></span>
+<span class="out-green">Is our address?   : ✅ DIFFERENT - tampering detected! Signature is invalid for altered message.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="lab-step">
+        <div class="lab-step-num">STEP 6 - Complete File &amp; Final Run</div>
+        <h4>Wrap Everything in an Async Main Function</h4>
+        <p>Since <code>signMessage</code> is async, we need a top-level async wrapper. Here is the complete, clean, submission-ready <code>wallet.js</code>:</p>
+
+        <div class="code-label">
+          <span>wallet.js - COMPLETE FINAL VERSION</span>
+          <span class="file-lang">JavaScript (ESM)</span>
+        </div>
+        <div class="code-block">
+<span class="kw">import</span> { <span class="vr">ethers</span> } <span class="kw">from</span> <span class="st">'ethers'</span>;
+<span class="kw">import</span> { <span class="vr">randomBytes</span> } <span class="kw">from</span> <span class="st">'crypto'</span>;
+
+<span class="kw">async function</span> <span class="fn">main</span>() {
+
+  <span class="fn">printSeparator</span>(<span class="st">'MST WALLET CLI - MODULE 4 PRACTICAL LAB'</span>);
+
+  <span class="c">// ── 1. GENERATE PRIVATE KEY ──────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">privateKey</span> = <span class="st">'0x'</span> + <span class="fn">randomBytes</span>(<span class="nu">32</span>).<span class="fn">toString</span>(<span class="st">'hex'</span>);
+  <span class="fn">printSeparator</span>(<span class="st">'STEP 1 - Private Key'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Private Key  :'</span>, <span class="vr">privateKey</span>);
+
+  <span class="c">// ── 2. DERIVE PUBLIC KEY ─────────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">signingKey</span> = <span class="kw">new</span> ethers.<span class="fn">SigningKey</span>(<span class="vr">privateKey</span>);
+  <span class="fn">printSeparator</span>(<span class="st">'STEP 2 - Public Key (secp256k1: privKey × G)'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Uncompressed :'</span>, <span class="vr">signingKey</span>.<span class="vr">publicKey</span>);
+  console.<span class="fn">log</span>(<span class="st">'Compressed   :'</span>, <span class="vr">signingKey</span>.<span class="vr">compressedPublicKey</span>);
+
+  <span class="c">// ── 3. DERIVE ADDRESS ────────────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">wallet</span>    = <span class="kw">new</span> ethers.<span class="fn">Wallet</span>(<span class="vr">privateKey</span>);
+  <span class="kw">const</span> <span class="vr">pubBytes</span>  = ethers.<span class="fn">getBytes</span>(<span class="vr">signingKey</span>.<span class="vr">publicKey</span>).<span class="fn">slice</span>(<span class="nu">1</span>); <span class="c">// strip 04 prefix</span>
+  <span class="kw">const</span> <span class="vr">fullHash</span>  = ethers.<span class="fn">keccak256</span>(<span class="vr">pubBytes</span>);
+  <span class="kw">const</span> <span class="vr">address</span>   = <span class="vr">wallet</span>.<span class="vr">address</span>;
+  <span class="fn">printSeparator</span>(<span class="st">'STEP 3 - Wallet Address (keccak256 → last 20 bytes)'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Full Hash    :'</span>, <span class="vr">fullHash</span>);
+  console.<span class="fn">log</span>(<span class="st">'Address      :'</span>, <span class="vr">address</span>, <span class="st">'← your MST/Ethereum wallet address'</span>);
+
+  <span class="c">// ── 4. SIGN A MESSAGE ────────────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">message</span>   = <span class="st">'Hello MST! I own this wallet.'</span>;
+  <span class="kw">const</span> <span class="vr">signature</span> = <span class="kw">await</span> <span class="vr">wallet</span>.<span class="fn">signMessage</span>(<span class="vr">message</span>);
+  <span class="kw">const</span> <span class="vr">sigObj</span>    = ethers.<span class="fn">Signature</span>.<span class="fn">from</span>(<span class="vr">signature</span>);
+  <span class="fn">printSeparator</span>(<span class="st">'STEP 4 - ECDSA Signature (EIP-191 personal sign)'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Message      :'</span>, <span class="vr">message</span>);
+  console.<span class="fn">log</span>(<span class="st">'Signature    :'</span>, <span class="vr">signature</span>);
+  console.<span class="fn">log</span>(<span class="st">'  r          :'</span>, <span class="vr">sigObj</span>.<span class="vr">r</span>);
+  console.<span class="fn">log</span>(<span class="st">'  s          :'</span>, <span class="vr">sigObj</span>.<span class="vr">s</span>);
+  console.<span class="fn">log</span>(<span class="st">'  v          :'</span>, <span class="vr">sigObj</span>.<span class="vr">v</span>);
+
+  <span class="c">// ── 5. VERIFY SIGNATURE ──────────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">recovered</span> = ethers.<span class="fn">verifyMessage</span>(<span class="vr">message</span>, <span class="vr">signature</span>);
+  <span class="kw">const</span> <span class="vr">isValid</span>   = <span class="vr">recovered</span>.<span class="fn">toLowerCase</span>() === <span class="vr">address</span>.<span class="fn">toLowerCase</span>();
+  <span class="fn">printSeparator</span>(<span class="st">'STEP 5 - Verification (ecrecover)'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Recovered    :'</span>, <span class="vr">recovered</span>);
+  console.<span class="fn">log</span>(<span class="st">'Expected     :'</span>, <span class="vr">address</span>);
+  console.<span class="fn">log</span>(<span class="st">'Valid?       :'</span>, <span class="vr">isValid</span> ? <span class="st">'✅ YES'</span> : <span class="st">'❌ NO'</span>);
+
+  <span class="c">// ── TAMPER TEST ──────────────────────────────────────────────────</span>
+  <span class="kw">const</span> <span class="vr">tamperedRecovered</span> = ethers.<span class="fn">verifyMessage</span>(<span class="vr">message</span> + <span class="st">'!!!'</span>, <span class="vr">signature</span>);
+  console.<span class="fn">log</span>(<span class="st">'\nTamper test  : Altered message + same signature'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Recovered    :'</span>, <span class="vr">tamperedRecovered</span>, <span class="st">'← garbage address'</span>);
+  console.<span class="fn">log</span>(<span class="st">'Tamper detected?'</span>, <span class="vr">tamperedRecovered</span> !== <span class="vr">recovered</span> ? <span class="st">'✅ YES'</span> : <span class="st">'❌ NO'</span>);
+
+  <span class="fn">printSeparator</span>(<span class="st">'LAB COMPLETE - Submit this terminal log + wallet.js'</span>);
+}
+
+<span class="kw">function</span> <span class="fn">printSeparator</span>(<span class="vr">title</span>) {
+  console.<span class="fn">log</span>(<span class="st">`\n${'═'.repeat(52)}`</span>);
+  console.<span class="fn">log</span>(<span class="st">`  ${<span class="vr">title</span>}`</span>);
+  console.<span class="fn">log</span>(<span class="st">'═'.repeat(52)</span>);
+}
+
+<span class="fn">main</span>().<span class="fn">catch</span>(console.<span class="vr">error</span>);
+        </div>
+
+        <div class="callout green">
+          <div class="callout-icon">📋</div>
+          <div class="callout-body">
+            <strong>How to Add ESM Support (package.json)</strong>
+            <p>Add <code>"type": "module"</code> to your <code>package.json</code> to use ES module <code>import</code> syntax. Open <code>package.json</code> and add: <code>"type": "module"</code> inside the JSON object. Then run with <code>node wallet.js</code>.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end lab-steps -->
+  </div>
+
+  <!-- ── 9. HANDS-ON LAB ── -->
+  <div class="section">
+    <div class="section-label">09 - Hands-On Lab</div>
+    <h2>Running, Verifying, and Extending</h2>
+
+    <h3>Run the Complete Lab</h3>
+
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+        <span class="term-title">Full expected output - node wallet.js</span>
+      </div>
+      <div class="term-body">
+<span class="prompt">$</span> <span class="cmd">node wallet.js</span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  MST WALLET CLI - MODULE 4 PRACTICAL LAB</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  STEP 1 - Private Key</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out">Private Key  : <span class="out-gold">0xe9873d79c6d87dc0fb6a5778633389f4453213303da61f20bd0ea2eefec5b2fa</span></span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  STEP 2 - Public Key (secp256k1: privKey × G)</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out">Uncompressed : <span class="out-gold">0x04a3478bc2f49ac0a03c84c3d9a7c47deef99e3fd9d2f8fa3b</span><span class="out-dim">...c1d8</span></span>
+<span class="out">Compressed   : <span class="out-gold">0x02a3478bc2f49ac0a03c84c3d9a7c47deef99e3fd</span><span class="out-dim">...c1d8</span></span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  STEP 3 - Wallet Address (keccak256 → last 20 bytes)</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out">Full Hash    : <span class="out-dim">0x2a9b5ef4d3c1...b8a7e91d4c2f (32 bytes)</span></span>
+<span class="out">Address      : <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span> ← your MST/Ethereum wallet address</span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  STEP 4 - ECDSA Signature (EIP-191 personal sign)</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out">Message      : Hello MST! I own this wallet.</span>
+<span class="out">Signature    : <span class="out-gold">0x3d5a...8a71b3f1...4e091b (130 hex chars)</span></span>
+<span class="out">  r          : <span class="out-dim">0x3d5a9c1b...8a71 (32 bytes)</span></span>
+<span class="out">  s          : <span class="out-dim">0xb3f14e09...7c2a (32 bytes)</span></span>
+<span class="out">  v          : <span class="out-dim">27</span></span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  STEP 5 - Verification (ecrecover)</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out">Recovered    : <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></span>
+<span class="out">Expected     : <span class="out-gold">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></span>
+<span class="out-green">Valid?       : ✅ YES</span>
+
+<span class="out">Tamper test  : Altered message + same signature</span>
+<span class="out">Recovered    : <span class="out-dim">0x3A9f2B...8c2E ← garbage address (completely different!)</span></span>
+<span class="out-green">Tamper detected? ✅ YES</span>
+
+<span class="out-dim">════════════════════════════════════════════════════</span>
+<span class="out-dim">  LAB COMPLETE - Submit this terminal log + wallet.js</span>
+<span class="out-dim">════════════════════════════════════════════════════</span>
+      </div>
+    </div>
+
+    <h3>Troubleshooting Tips</h3>
+    <ul>
+      <li>If you get <code>Cannot use import statement</code> - add <code>"type": "module"</code> to your <code>package.json</code>.</li>
+      <li>If you get <code>Cannot find package 'ethers'</code> - run <code>npm install ethers</code> in the project directory.</li>
+      <li>If your addresses don't match in Step 3 - verify you stripped the <code>04</code> prefix byte (index 0) from the public key before hashing. <code>pubKeyBytes.slice(1)</code> removes it.</li>
+      <li>If verification returns <code>false</code> - ensure you are verifying the exact same message string, with no trailing spaces or line breaks added.</li>
+    </ul>
+
+    <h3>Extension Challenges (Ungraded)</h3>
+    <ul>
+      <li>🔵 <strong>Import into MetaMask:</strong> Copy your private key and import it into MetaMask or BridgeKey Wallet. Does the address match your terminal output? It should be identical.</li>
+      <li>🔵 <strong>Sign structured data (EIP-712):</strong> Use <code>wallet.signTypedData(domain, types, value)</code> to sign a typed message. Note how the hash differs from <code>signMessage</code>.</li>
+      <li>🔵 <strong>Sign multiple messages:</strong> Sign 3 different messages with the same wallet. Observe that each signature is completely different (different <code>r</code>, <code>s</code>) even though the same private key is used - this is ECDSA's random nonce <code>k</code> at work.</li>
+    </ul>
+  </div>
+
+  <!-- ── 11. ASSESSMENT PREP ── -->
+  <div class="section">
+    <div class="section-label">11 - Assessment Preparation</div>
+    <h2>Top Must-Know Facts Before the Submission</h2>
+
+    <ul class="must-know">
+      <li>A private key is 32 bytes (256 bits) of cryptographically secure random data. Always use a CSPRNG - never <code>Math.random()</code>.</li>
+      <li>The public key is derived using secp256k1 elliptic curve multiplication: <code>pubKey = privKey × G</code>. This is one-way - cannot be reversed.</li>
+      <li>The uncompressed public key is 65 bytes: <code>04</code> prefix + 32-byte X + 32-byte Y coordinate.</li>
+      <li>The compressed public key is 33 bytes: <code>02</code> or <code>03</code> prefix (parity of Y) + 32-byte X coordinate.</li>
+      <li>The wallet address is: <code>keccak256(uncompressed_pubKey_without_04_prefix)</code> → last 20 bytes.</li>
+      <li>EIP-55 checksum applies mixed-case capitalisation to the hex address, providing a built-in typo-detection mechanism.</li>
+      <li>EIP-191 personal sign prefixes the message with <code>"\x19Ethereum Signed Message:\n{length}"</code> before hashing - preventing signed messages from being mistakenly submitted as transactions.</li>
+      <li>An ECDSA signature is 65 bytes: 32-byte <code>r</code> + 32-byte <code>s</code> + 1-byte <code>v</code> (recovery ID, typically 27 or 28).</li>
+      <li><code>ethers.verifyMessage(message, signature)</code> recovers the signer's address without needing the private key - this is the JavaScript equivalent of Solidity's <code>ecrecover</code>.</li>
+      <li>A tampered message produces a completely different recovered address - demonstrating the Integrity property of digital signatures (Sub-Module 4.2).</li>
+    </ul>
+  </div>
+
+  <!-- ── 13. INDUSTRY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-label">13 - Industry Insights</div>
+    <h2>What You Just Built - In Context</h2>
+    <p>The pipeline you built today - <em>generate → derive → sign → verify</em> - is the backbone of every Web3 application ever built. MetaMask, BridgeKey Wallet, Coinbase Wallet - they all run this exact pipeline. The only difference is they add a Secure Enclave to protect the private key from the device memory, a seed phrase (BIP39 mnemonic) to recover the key, and a UI to make it human-friendly. The cryptographic core is identical to what you just wrote.</p>
+    <p>Understanding this pipeline at the code level makes you a dramatically better smart contract developer, security auditor, and Web3 architect. When you write <code>require(msg.sender == owner)</code> in Solidity, you now understand <em>exactly</em> how the EVM knows who <code>msg.sender</code> is - it ran the same ecrecover on your signed transaction.</p>
+  </div>
+
+  <!-- ── 14. GLOSSARY ── -->
+  <div class="section">
+    <div class="section-label">14 - Glossary</div>
+    <h2>Key Terms You Must Know</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">ethers.SigningKey</div>
+      <div class="glossary-def">Ethers.js class that wraps secp256k1 operations. Accepts a private key and exposes publicKey, compressedPublicKey, and sign() methods.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ethers.Wallet</div>
+      <div class="glossary-def">Ethers.js class for a full wallet. Accepts a private key; exposes address, signMessage(), signTransaction(), and signTypedData().</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">EIP-191</div>
+      <div class="glossary-def">Ethereum Improvement Proposal 191 - defines the personal sign message format. Prefix: "\x19Ethereum Signed Message:\n{length}". Prevents message signatures being replayed as transactions.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">EIP-55</div>
+      <div class="glossary-def">Ethereum checksum address encoding. Applies mixed-case capitalisation to hex address based on its Keccak-256 hash. Invalid capitalisation indicates a transcription error.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">verifyMessage</div>
+      <div class="glossary-def">ethers.js function that recovers the Ethereum address of the signer from a message and its signature. JavaScript equivalent of Solidity's ecrecover precompile.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">CSPRNG</div>
+      <div class="glossary-def">Cryptographically Secure Pseudorandom Number Generator. Produces random numbers that are computationally indistinguishable from true randomness. Node.js: crypto.randomBytes(). Never use Math.random() for key generation.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">04 Prefix</div>
+      <div class="glossary-def">The leading byte (0x04) of an uncompressed secp256k1 public key, indicating it contains both X and Y coordinates (65 bytes total). Must be stripped before Keccak-256 hashing for address derivation.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ════════════════════════════════════════════
+       ASSESSMENT — SUB-MODULE 4.7
+  ════════════════════════════════════════════ -->
+  <div class="assessment-header">
+    <h2>📝 Assessment - Sub-Module 4.7</h2>
+    <p>Practical Wallet CLI &nbsp;|&nbsp; Total: <strong>15 Marks</strong> &nbsp;|&nbsp; Practical Coding Exercise</p>
+  </div>
+  <div class="assessment-body">
+
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">
+      <strong>Assessment Type: Practical Submission</strong> - Submit your <code>wallet.js</code> source file + terminal log screenshot as a GitHub repository or ZIP. Marks are awarded for correct output at each step. Plus 2 MCQs to confirm conceptual understanding.
+    </p>
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">
+      Marks breakdown: Practical submission (13 marks across 5 steps) + 2 × MCQ (1 mark each) = <strong>15 marks total ✅</strong>
+    </p>
+
+    <!-- PRACTICAL Q1 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">1</div>
+        <div class="q-type practical">Practical Submission</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">13 marks</div>
+      </div>
+      <div class="q-text">Complete the Wallet CLI lab and submit your <code>wallet.js</code> source code + terminal output log. Marks are allocated per step as follows:</div>
+
+      <div class="practical-answer">
+        <div class="pa-header">✅ MARKING RUBRIC - 13 marks total</div>
+        <div class="pa-body">
+          <p><strong>Step 1 - Private Key (2 marks):</strong><br>
+          • 1 mark: a 64-char hex string prefixed with <code>0x</code> is printed<br>
+          • 1 mark: code uses <code>crypto.randomBytes(32)</code> or equivalent CSPRNG - NOT <code>Math.random()</code></p>
+
+          <p><strong>Step 2 - Public Key (2 marks):</strong><br>
+          • 1 mark: uncompressed public key starts with <code>0x04</code> and is 130 hex chars (65 bytes)<br>
+          • 1 mark: compressed public key starts with <code>0x02</code> or <code>0x03</code> and is 66 hex chars (33 bytes)</p>
+
+          <p><strong>Step 3 - Address (3 marks):</strong><br>
+          • 1 mark: full Keccak-256 hash printed (64 hex = 32 bytes)<br>
+          • 1 mark: address is 42 chars (0x + 40 hex = 20 bytes), correctly derived from last 40 chars of hash<br>
+          • 1 mark: EIP-55 checksummed address matches <code>ethers.Wallet.address</code> - confirmed with a <code>true</code> print</p>
+
+          <p><strong>Step 4 - Signature (3 marks):</strong><br>
+          • 1 mark: full signature printed - 132 hex chars (0x + 130 = 65 bytes)<br>
+          • 1 mark: <code>r</code> and <code>s</code> components printed - each 66 hex chars (32 bytes each)<br>
+          • 1 mark: <code>v</code> is 27 or 28 (EIP-191 recovery ID)</p>
+
+          <p><strong>Step 5 - Verification (3 marks):</strong><br>
+          • 1 mark: <code>verifyMessage(message, signature)</code> returns the correct wallet address<br>
+          • 1 mark: address comparison prints <code>✅ YES</code> confirming signature validity<br>
+          • 1 mark: tamper test - verifying altered message returns a different (garbage) address, printed clearly</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCQ Q2 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">2</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In the wallet derivation pipeline, why must the <code>0x04</code> prefix byte be stripped from the public key before computing the Keccak-256 hash for address derivation?</div>
+      <ul class="options">
+        <li>A) The <code>0x04</code> prefix causes Keccak-256 to produce a different number of output bytes</li>
+        <li>B) Stripping the prefix is optional - it is done only for gas optimisation on-chain</li>
+        <li class="correct">C) By convention, Ethereum's address derivation hashes only the 64-byte (X, Y) coordinate data - not the prefix byte. Including it would produce a different hash and incorrect address</li>
+        <li>D) The compressed public key (without <code>04</code>) must be used instead of the uncompressed key for address derivation</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>Ethereum's address derivation specification (Ethereum Yellow Paper) defines the address as the last 20 bytes of <code>keccak256(pubKey[1:])</code> - explicitly slicing off the first byte (<code>0x04</code> prefix). This prefix is a <strong>serialisation marker</strong> from the SEC (Standards for Efficient Cryptography) specification indicating "uncompressed point follows." It is not part of the actual curve coordinates. Hashing the raw 64-byte (X, Y) coordinates (without the prefix) produces the canonical Ethereum address. Including the <code>0x04</code> byte would hash 65 bytes instead of 64, producing a completely different 32-byte Keccak output and therefore a completely different address. Option D is wrong - the <em>un</em>compressed public key is used (both X and Y), not the compressed form (X only).</p>
+      </div>
+    </div>
+
+    <!-- MCQ Q3 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">3</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In the lab, signing the same message twice with <code>wallet.signMessage(message)</code> would produce two different signatures each time. But <code>ethers.verifyMessage(message, sig1)</code> and <code>ethers.verifyMessage(message, sig2)</code> both return the same address. Why do the signatures differ even though the same key signs the same message?</div>
+      <ul class="options">
+        <li>A) ethers.js adds a random salt to the message before signing - making each hash different</li>
+        <li class="correct">B) ECDSA uses a random nonce <code>k</code> per signing operation. Different <code>k</code> values produce different <code>r</code> and <code>s</code> values, even for the same message and private key - yet all verify correctly</li>
+        <li>C) The Ethereum network assigns a unique transaction ID to each signing operation, which is embedded in the signature</li>
+        <li>D) The block timestamp is included in the message hash before signing, making each signature unique</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: B</strong>
+        <p>This directly applies the knowledge from Sub-Module 4.2. ECDSA's signing formula is <code>r = (k × G).x mod n</code> and <code>s = k⁻¹(hash + r × privKey) mod n</code> - where <code>k</code> is a fresh cryptographically random nonce per signature. Different <code>k</code> values produce different <code>r</code> values (the x-coordinate of the random curve point <code>k × G</code>), which in turn produce different <code>s</code> values. However, the ECDSA verification algorithm uses the public key and signature <code>(r, s)</code> to recover the same address regardless of which valid <code>k</code> was used - because the relationship between <code>r</code>, <code>s</code>, the message hash, and the private key is consistent. This is also why reusing <code>k</code> for two different messages is catastrophic (Sony PS3 attack) - it is the unique <code>k</code> per message that provides non-determinism. Ethers.js uses Node.js's CSPRNG for each <code>k</code> generation.</p>
+      </div>
+    </div>
+
+    <!-- MARKS SUMMARY -->
+    <div style="background: linear-gradient(135deg, #0D1117, #161B22); border-radius: 10px; padding: 20px 24px; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Total Marks</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace;">15 / 15</div>
+      </div>
+      <div style="flex: 1; min-width: 220px;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7); line-height: 2.1;">
+          Q1: Practical submission (5 steps × marks as per rubric) = 13 marks<br>
+          Q2: MCQ - 04 prefix stripping = 1 mark<br>
+          Q3: MCQ - ECDSA random nonce k = 1 mark<br>
+          <strong>Total = 15 marks ✅</strong>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment body -->
+
+  <!-- ════════════════════════════════════════════
+       MODULE 4 COMPLETE — SUMMARY SECTION
+  ════════════════════════════════════════════ -->
+  <div class="divider"></div>
+
+  <div class="summary-hero">
+    <h2>Module 4 Complete - <span>Cryptography</span></h2>
+    <p>You have studied all seven sub-modules of the most fundamental module in the entire program. Every concept you will encounter in Modules 5 - 21 builds on what you have learned here. Below is the complete marks distribution.</p>
+  </div>
+
+  <!-- ── SUB-MODULE CARDS ── -->
+  <div class="sm-grid">
+
+    <!-- 4.1 -->
+    <div class="sm-card sm41">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.1</div>
+      <h3>Public-Key Cryptography</h3>
+      <div class="sm-desc">RSA, ECC (secp256k1), key pairs, wallet address derivation, Aadhaar e-Sign, UPI. The Lock That Only You Can Open.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">10 <span>/ 100</span></div>
+          <div class="sm-qs">9 questions - MCQ + True/False with justification</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:10%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.2 -->
+    <div class="sm-card sm42">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.2</div>
+      <h3>Digital Signatures</h3>
+      <div class="sm-desc">ECDSA, Ed25519, Schnorr/MuSig, signing vs encryption, ecrecover, EIP-712, Sony PS3 k-reuse attack.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">15 <span>/ 100</span></div>
+          <div class="sm-qs">10 questions - MCQ + Identify-Output (5 sub-parts) + True/False</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:15%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.3 -->
+    <div class="sm-card sm43">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.3</div>
+      <h3>Hash Functions &amp; Merkle Proofs</h3>
+      <div class="sm-desc">SHA-256, Keccak-256 (≠SHA3), BLAKE3, four properties, Merkle Tree construction, Merkle Proof verification, light clients.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">10 <span>/ 100</span></div>
+          <div class="sm-qs">9 questions - MCQ + Merkle Proof Identify-Output (3 sub-parts) + True/False</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:10%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.4 -->
+    <div class="sm-card sm44">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.4</div>
+      <h3>Zero-Knowledge Proofs</h3>
+      <div class="sm-desc">ZKP concept, Ali Baba cave, 3 properties, zk-SNARKs vs zk-STARKs vs Bulletproofs, ZK-Rollups, Aadhaar age proof design, MST WASMify.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">25 <span>/ 100</span></div>
+          <div class="sm-qs">11 questions - MCQ + Multi-Select + <strong>Descriptive Design 8 marks</strong> + True/False</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:25%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.5 -->
+    <div class="sm-card sm45">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.5</div>
+      <h3>Commitments &amp; VRFs</h3>
+      <div class="sm-desc">Hiding + Binding, commit-reveal pattern, Pedersen Commitments, VRF (ECVRF), grinding attacks, FortunaX, SatvaShuffle, Klethesia.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">15 <span>/ 100</span></div>
+          <div class="sm-qs">5 questions - MCQ + <strong>Code-Completion Bug Hunt (7m)</strong> + Code-Completion Blanks (5m)</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:15%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.6 -->
+    <div class="sm-card sm46">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.6</div>
+      <h3>Post-Quantum Cryptography</h3>
+      <div class="sm-desc">Shor's &amp; Grover's, what breaks vs survives, NIST PQC standards (ML-KEM, ML-DSA, SLH-DSA, FN-DSA), MST Quantum-Ready Pillar, crypto-agility.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">10 <span>/ 100</span></div>
+          <div class="sm-qs">8 questions - MCQ + 2 × True/False with justification (2 marks each)</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:10%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.7 -->
+    <div class="sm-card sm47" style="grid-column: 1 / -1;">
+      <div class="sm-stripe"></div>
+      <div class="sm-num">Sub-Module 4.7</div>
+      <h3>Practical: Build a Wallet CLI</h3>
+      <div class="sm-desc">Hands-on Node.js lab - generate private key (CSPRNG), derive public key (secp256k1), compute wallet address (Keccak-256), sign a message (ECDSA EIP-191), verify signature (ecrecover). Submit terminal log + source code.</div>
+      <div class="sm-meta">
+        <div>
+          <div class="sm-marks-badge">15 <span>/ 100</span></div>
+          <div class="sm-qs">3 questions - <strong>Practical Submission (13 marks rubric)</strong> + 2 × MCQ</div>
+        </div>
+        <div class="sm-bar-wrap">
+          <div class="sm-bar"><div class="sm-bar-fill" style="width:15%"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOTAL ROW -->
+  <div class="total-row">
+    <div>
+      <div class="tr-label">Module 4 Total</div>
+      <div class="tr-val">100 <span>/ 100 marks</span></div>
+    </div>
+    <div class="tr-right">
+      <p>7 Sub-Modules &nbsp;|&nbsp; 5 Hours of Content</p>
+      <p>55 Questions &nbsp;|&nbsp; <strong>Assessment Types: MCQ, T/F, Identify-Output, Descriptive, Multi-Select, Code-Completion, Practical Submission</strong></p>
+    </div>
+  </div>
+
+  <!-- FULL BREAKDOWN TABLE -->
+  <h3 style="margin-bottom:16px;">Complete 100-Mark Breakdown</h3>
+  <table class="breakdown-table">
+    <thead>
+      <tr>
+        <th>Sub-Module</th>
+        <th>Title</th>
+        <th>Marks</th>
+        <th>Question Types</th>
+        <th>Key Highlights</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>4.1</td>
+        <td>Public-Key Cryptography</td>
+        <td><strong>10</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">7 × MCQ</span>
+          <span class="qt-chip qt-tf">2 × T/F+J</span>
+        </td>
+        <td>Encryption vs Signing, wallet address derivation chain, ECDLP hardness</td>
+      </tr>
+      <tr>
+        <td>4.2</td>
+        <td>Digital Signatures</td>
+        <td><strong>15</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">7 × MCQ</span>
+          <span class="qt-chip qt-identify">Identify-Output (5)</span>
+          <span class="qt-chip qt-tf">2 × T/F+J</span>
+        </td>
+        <td>ECDSA internals, ecrecover, signature malleability, k-reuse Sony attack</td>
+      </tr>
+      <tr>
+        <td>4.3</td>
+        <td>Hash Functions &amp; Merkle Proofs</td>
+        <td><strong>10</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">6 × MCQ</span>
+          <span class="qt-chip qt-identify">Merkle Proof (3)</span>
+          <span class="qt-chip qt-tf">2 × T/F+J</span>
+        </td>
+        <td>4 hash properties, Keccak≠SHA3, Merkle construction, log₂(N) proof size</td>
+      </tr>
+      <tr>
+        <td>4.4</td>
+        <td>Zero-Knowledge Proofs</td>
+        <td><strong>25</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">7 × MCQ</span>
+          <span class="qt-chip qt-ms">2 × Multi-Select</span>
+          <span class="qt-chip qt-desc">Descriptive Design (8m)</span>
+          <span class="qt-chip qt-tf">1 × T/F+J</span>
+        </td>
+        <td>Aadhaar ZK age proof full design, ZK-Rollup security, STARK vs SNARK</td>
+      </tr>
+      <tr>
+        <td>4.5</td>
+        <td>Commitments &amp; VRFs</td>
+        <td><strong>15</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">3 × MCQ</span>
+          <span class="qt-chip qt-code">Bug Hunt (7m)</span>
+          <span class="qt-chip qt-code">Fill Blanks (5m)</span>
+        </td>
+        <td>Fix 7 contract bugs, complete VRF loot box contract with 5 blanks</td>
+      </tr>
+      <tr>
+        <td>4.6</td>
+        <td>Post-Quantum Cryptography</td>
+        <td><strong>10</strong></td>
+        <td>
+          <span class="qt-chip qt-mcq">6 × MCQ</span>
+          <span class="qt-chip qt-tf">2 × T/F+J (2m each)</span>
+        </td>
+        <td>Shor's vs Grover's, NIST standards, hybrid signing logic, Harvest Now threat</td>
+      </tr>
+      <tr>
+        <td>4.7</td>
+        <td>Practical: Wallet CLI</td>
+        <td><strong>15</strong></td>
+        <td>
+          <span class="qt-chip qt-practical">Practical (13m)</span>
+          <span class="qt-chip qt-mcq">2 × MCQ</span>
+        </td>
+        <td>Generate → derive → address → sign → verify. Full Node.js lab submission.</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td>Module 4 - Cryptography</td>
+        <td>100</td>
+        <td colspan="2">7 sub-modules · 5 hours · 55 questions · All assessment types covered</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- PASS CRITERIA -->
+  <div style="background: var(--bg-white); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin: 24px 0;">
+    <h4 style="color: var(--navy); margin-bottom: 14px;">📊 Module 4 Passing Criteria</h4>
+    <div class="three-col">
+      <div style="text-align:center;">
+        <div style="font-size:28px; font-weight:800; color: var(--coral); font-family:'JetBrains Mono',monospace;">50 / 100</div>
+        <div style="font-size:13px; color: var(--text-muted);">Minimum to pass<br>the module</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px; font-weight:800; color: var(--gold-dark); font-family:'JetBrains Mono',monospace;">75 / 100</div>
+        <div style="font-size:13px; color: var(--text-muted);">Merit grade<br>(eligible for buildGrant)</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px; font-weight:800; color: var(--green); font-family:'JetBrains Mono',monospace;">90 / 100</div>
+        <div style="font-size:13px; color: var(--text-muted);">Distinction grade<br>(eligible for scaleGrant consideration)</div>
+      </div>
+    </div>
+    <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">Sub-Module 4.4 (ZKP - 25 marks) and Sub-Module 4.7 (Practical - 15 marks) together account for <strong>40% of Module 4</strong>. Students who master the ZKP design question and complete the practical submission have a clear path to a distinction grade.</p>
+  </div>
+
+  <!-- CONGRATULATIONS -->
+  <div class="congrats-box">
+    <div class="emoji">🎓</div>
+    <h2>Module 4 - <span>Complete!</span></h2>
+    <p>You have covered the entire cryptographic foundation of blockchain - from the public-key revolution of 1976, through hash functions and Merkle Trees, to Zero-Knowledge Proofs, Commitments, VRFs, and the post-quantum future. You have also built a working wallet from scratch in code.</p>
+    <p>Every sub-module in Modules 5 through 21 assumes this knowledge. When you write <code>msg.sender</code> in a Solidity contract, you now know why it is unforgeable. When you see "zk-Rollup" on a roadmap, you understand what it means mathematically. When you read "quantum-safe," you know which algorithms are safe and which are not.</p>
+    <p><strong>You are ready for Module 5.</strong></p>
+    <div class="next-module">Next: Module 5 - Cryptocurrency &amp; Tokenomics →</div>
+  </div>
+
+</div><!-- end page body -->
+
+<!-- ════════════════════════ FOOTER ════════════════════════ -->
+<div class="module-footer">
+  <strong>MasterStroke Academy</strong> - Certified MST Blockchain Developer Program &nbsp;|&nbsp;
+  <strong>Module 4: Cryptography - COMPLETE ✅</strong> &nbsp;|&nbsp;
+  7 Sub-Modules &nbsp;|&nbsp; 100 Marks &nbsp;|&nbsp; All assessments included &nbsp;|&nbsp;
+  Next: <strong>Module 5 - Cryptocurrency &amp; Tokenomics</strong>
+</div>
+
+
+

@@ -1,0 +1,1156 @@
+
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="breadcrumb">MasterStroke Academy › Module 4: Cryptography › <span>Sub-Module 4.4</span></div>
+  <h1>Zero-Knowledge Proofs<br><em>Prove You Know - Without Revealing What You Know</em></h1>
+  <p class="hero-sub">The most mind-bending idea in modern cryptography. Prove your age without revealing your birthdate. Prove your bank balance without revealing the number. Prove a transaction is valid without showing a single detail. This is the magic behind zkSync, StarkNet, Aztec - and MST's privacy layer.</p>
+  <div class="meta-pills">
+    <div class="pill">⏱ 70 Minutes</div>
+    <div class="pill">📊 Module 4 - Cryptography</div>
+    <div class="pill gold">🎯 25 Marks</div>
+    <div class="pill purple">🔮 Sub-Module 4.4 - ZKP</div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE BODY ══════════════ -->
+<div class="page-body">
+
+  <!-- ── 1. LEARNING OBJECTIVES ── -->
+  <div class="section">
+    <div class="section-label">01 - Learning Objectives</div>
+    <h2>What You Will Know By The End</h2>
+    <p>By the time you finish this sub-module, you will be able to:</p>
+    <ul>
+      <li>✅ Explain the core idea of a Zero-Knowledge Proof using everyday analogies - no mathematics required.</li>
+      <li>✅ State and explain the <strong>three formal properties</strong> of any ZKP: Completeness, Soundness, and Zero-Knowledge.</li>
+      <li>✅ Distinguish between <strong>Interactive ZKPs</strong> and <strong>Non-Interactive ZKPs (NIZKs)</strong>.</li>
+      <li>✅ Explain <strong>zk-SNARKs</strong>, <strong>zk-STARKs</strong>, and <strong>Bulletproofs</strong> - their differences, trade-offs, and real-world uses.</li>
+      <li>✅ Design a ZK use-case: specifically, how to prove age ≥ 18 for a Swiggy alcohol order without revealing your actual birthdate (the Aadhaar ZK design question).</li>
+      <li>✅ Understand how ZK-proofs power zkSync, StarkNet, Aztec, and MST's privacy and WASMify layers.</li>
+    </ul>
+  </div>
+
+  <!-- ── 2. REAL WORLD STORY ── -->
+  <div class="section">
+    <div class="section-label">02 - Real World Introduction Story</div>
+    <h2>The Bank That Knows Nothing But Trusts Everything</h2>
+
+    <div class="story-card">
+      <div class="story-tag">📖 Story Time</div>
+      <p>Kavya is a 28-year-old software engineer in Hyderabad. She applies for a home loan at a bank. The loan officer asks for her salary slip, bank statements, tax returns, and her exact current savings balance.</p>
+      <p>Kavya is uncomfortable. She earns well - but she doesn't want the bank officer to know her exact salary, which investments she holds, or how she spends her money. She just needs to prove: <em>"My monthly income is above ₹75,000 and my savings are above ₹5 lakh."</em> That's all the bank actually needs to know.</p>
+      <p>With traditional systems, she must hand over everything - all private financial data - just to prove two simple facts. <strong>She reveals 100% of her private information to prove 2% of what's actually needed.</strong></p>
+      <p>Now imagine a system where Kavya produces a cryptographic proof - a single 288-byte piece of data - that mathematically guarantees: <em>"Income &gt; ₹75,000 AND Savings &gt; ₹5 lakh."</em> The bank verifies this proof in milliseconds. <strong>They learn nothing else.</strong> Not her exact income. Not her exact savings. Not her employer. Not her spending patterns. Nothing.</p>
+      <p>This is not science fiction. It exists right now. It is called a <strong>Zero-Knowledge Proof</strong>. And it is the most important privacy technology of our generation.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>ZKPs Are Already Around You</strong>
+        <p>Every time you send a private transaction on Zcash, use a zkSync rollup, or interact with an Aztec protocol application, you are using zero-knowledge proofs. Ethereum's transition to ZK-Rollups is one of the biggest shifts in blockchain history - and it is powered entirely by this concept.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. BACKGROUND / HISTORY ── -->
+  <div class="section">
+    <div class="section-label">03 - Background &amp; History</div>
+    <h2>The 1985 Paper That Changed Privacy Forever</h2>
+
+    <p>Zero-Knowledge Proofs were formally introduced in 1985 by three MIT researchers: <strong>Shafi Goldwasser, Silvio Micali, and Charles Rackoff</strong> - in a landmark paper titled <em>"The Knowledge Complexity of Interactive Proof Systems."</em> Goldwasser and Micali later won the Turing Award (the Nobel Prize of computing) partly for this work.</p>
+
+    <p>Their insight was startlingly elegant: it is possible for one party (the <strong>Prover</strong>) to convince another party (the <strong>Verifier</strong>) that they know a secret - <em>without revealing the secret itself, or any information that could help deduce it</em>.</p>
+
+    <blockquote>"A zero-knowledge proof is a method by which one party can prove to another party that they know a value, without conveying any information apart from the fact that they know the value."</blockquote>
+
+    <div class="two-col">
+      <div class="fact-card">
+        <div class="fact-label">ZKP Concept Invented</div>
+        <div class="fact-value">1985</div>
+        <div class="fact-note">Goldwasser, Micali, Rackoff - MIT</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-label">First Practical ZK Blockchain</div>
+        <div class="fact-value">2016</div>
+        <div class="fact-note">Zcash - first blockchain with zk-SNARKs in production</div>
+      </div>
+    </div>
+
+    <p>For decades, ZKPs were a beautiful theoretical result with no practical application - the computations were far too slow. Then, between 2012 and 2020, a series of breakthroughs - Groth16, PLONK, STARKs, Bulletproofs - made ZKPs fast enough to run in real systems. The blockchain world immediately understood the implications and adopted them for two killer use-cases: <strong>privacy</strong> and <strong>scalability</strong>.</p>
+  </div>
+
+  <!-- ── 4. BEGINNER EXPLANATION ── -->
+  <div class="section">
+    <div class="section-label">04 - Beginner-Friendly Deep Explanation</div>
+    <h2>Understanding ZKPs - Four Analogies, Zero Maths</h2>
+
+    <h3>Analogy 1: The Ali Baba Cave - The Classic Explanation</h3>
+    <p>This is the most famous analogy in all of cryptography. Imagine a circular cave with one entrance and a magic door in the middle that can only be opened with a secret password.</p>
+
+    <div class="cave-diagram">
+                    ENTRANCE
+                       │
+                       ▼
+         ┌─────────────────────────────┐
+         │           CAVE              │
+         │                             │
+         │  ← PATH A     PATH B →     │
+         │                             │
+         │         ╔═══════╗           │
+         │         ║ MAGIC ║           │
+         │         ║ DOOR  ║           │
+         │         ╚═══════╝           │
+         │      (needs password)       │
+         │                             │
+         └─────────────────────────────┘
+
+ALICE claims she knows the password.
+BOB (the Verifier) stands at the entrance and cannot see the door.
+
+ROUND 1:
+  → Alice enters and randomly goes down Path A or B (Bob cannot see which)
+  → Bob shouts: "Come out from Path B!"
+  → Alice emerges from Path B ✅
+     (If she knew the password, she opened the door and crossed over.
+      If she didn't know it, she had a 50% chance of guessing right.)
+
+ROUND 2:
+  → Alice enters and randomly goes down a path
+  → Bob shouts: "Come out from Path A!"
+  → Alice emerges from Path A ✅
+
+ROUND 3, 4, 5... 30 ROUNDS:
+  → Alice emerges correctly every single time.
+
+After 30 rounds: probability of cheating = (1/2)^30 ≈ 1 in 1,000,000,000
+Bob is now CONVINCED Alice knows the password.
+But Bob learned NOTHING about the password itself. ✅
+
+THIS IS ZERO-KNOWLEDGE.</div>
+
+    <div class="callout key">
+      <div class="callout-icon">🗝️</div>
+      <div class="callout-body">
+        <strong>The Critical Insight</strong>
+        <p>Bob is convinced because the <em>only</em> explanation for Alice emerging from the correct path every single time is that she can open the magic door. But he never saw the password. He never saw her use it. He gained <strong>zero knowledge</strong> about the secret itself - only the fact that she knows it.</p>
+      </div>
+    </div>
+
+    <h3>Analogy 2: The Colourblind Friend - Proving Without Revealing</h3>
+    <p>You have two balls - one red, one blue. Your friend is colourblind and cannot tell them apart. You want to prove to them that the balls are indeed different colours - without revealing which one is red and which is blue.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num purple-bg">1</div>
+        <div class="step-body">
+          <h4>Your friend holds one ball in each hand behind their back</h4>
+          <p>They may or may not secretly swap the balls between hands.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num purple-bg">2</div>
+        <div class="step-body">
+          <h4>They bring their hands forward</h4>
+          <p>You (the Prover) state whether they swapped or not.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num purple-bg">3</div>
+        <div class="step-body">
+          <h4>Repeat many times</h4>
+          <p>If the balls were identical (same colour), you'd have a 50% chance of guessing whether they swapped. After 30 rounds of correct answers, the probability you're cheating is 1 in a billion. Your friend is convinced the balls are different colours - without knowing which is which.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Analogy 3: The Aadhaar Age Verification - A Real ZKP Design</h3>
+    <p>Swiggy wants to sell alcohol to users who are 18 or older. Currently, you have to upload your Aadhaar card - revealing your full name, date of birth, address, and photo - just to prove you're old enough.</p>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="tag">❌ Today's Approach (Privacy Nightmare)</div>
+        <h4>Upload Entire Aadhaar</h4>
+        <p>Swiggy sees: Full name, exact DOB, exact address, Aadhaar number, father's name, photo. You reveal 100% of your identity to prove ONE FACT: age ≥ 18.</p>
+      </div>
+      <div class="analogy-card highlight">
+        <div class="tag">✅ ZKP Approach (Privacy Preserved)</div>
+        <h4>Zero-Knowledge Age Proof</h4>
+        <p>A ZK circuit takes your DOB (from Aadhaar) and today's date as private inputs. It outputs a cryptographic proof that "DOB is at least 18 years before today." Swiggy verifies the proof. They learn: age ≥ 18. Nothing else. Not your name. Not your exact age. Not your address.</p>
+      </div>
+    </div>
+
+    <div class="callout purple">
+      <div class="callout-icon">🧠</div>
+      <div class="callout-body">
+        <strong>The ZKP Mindset Shift</strong>
+        <p>Traditional systems ask: "Share your data so I can verify it." ZKP systems ask: "Prove a specific fact about your data, share nothing else." The computation moves from the verifier (who would need all your data) to a ZK circuit (which processes your private data locally and produces only a proof). The verifier checks the proof - not the data.</p>
+      </div>
+    </div>
+
+    <h3>The Three Formal Properties of Any ZKP</h3>
+    <p>Formally, for a proof system to be called Zero-Knowledge, it must satisfy all three of these properties simultaneously:</p>
+
+    <div class="three-col">
+      <div class="property-card p1">
+        <div class="prop-icon">✅</div>
+        <h4>Completeness</h4>
+        <p>If the statement is true AND the prover is honest, the verifier will always accept the proof. An honest prover can always convince an honest verifier.</p>
+      </div>
+      <div class="property-card p2">
+        <div class="prop-icon">🔒</div>
+        <h4>Soundness</h4>
+        <p>If the statement is false, a cheating prover cannot convince the verifier to accept - except with negligible probability. A dishonest prover cannot fake a valid proof.</p>
+      </div>
+      <div class="property-card p3">
+        <div class="prop-icon">🫥</div>
+        <h4>Zero-Knowledge</h4>
+        <p>If the statement is true, the verifier learns absolutely nothing about the witness (the secret) beyond the single fact that the statement is true.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">📝</div>
+      <div class="callout-body">
+        <strong>The Witness</strong>
+        <p>In ZKP terminology, the <strong>witness</strong> is the secret information that the prover knows and uses to construct the proof. In our age example: the witness is your exact date of birth. The public statement is "age ≥ 18." The ZKP proves the statement is true while keeping the witness completely private.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. TECHNICAL DEEP DIVE ── -->
+  <div class="section">
+    <div class="section-label">05 - Technical Deep Dive</div>
+    <h2>zk-SNARKs, zk-STARKs, and Bulletproofs</h2>
+
+    <h3>From Interactive to Non-Interactive: Why It Matters for Blockchain</h3>
+    <p>The Ali Baba cave analogy is an <strong>Interactive ZKP</strong> - Alice and Bob must go back and forth many times. This works between two people in real time, but it is useless for a blockchain smart contract - there is no "Bob" to send challenges in real time.</p>
+    <p>The breakthrough that made ZKPs practical for blockchain was making them <strong>Non-Interactive (NIZKs)</strong> - the prover generates a single, self-contained proof that any verifier can check instantly, without any back-and-forth. The key technique is the <strong>Fiat-Shamir heuristic</strong> - replacing the verifier's random challenges with a cryptographic hash of the proof so far, making the proof its own challenge source.</p>
+
+    <h3>zk-SNARKs - Succinct Non-Interactive Arguments of Knowledge</h3>
+    <p>The most widely deployed ZKP system in blockchain today. Let's break the name down:</p>
+    <ul>
+      <li><strong>Succinct</strong> - The proof is tiny (typically 128 - 288 bytes) regardless of the complexity of the computation being proved. The verifier's work is minimal.</li>
+      <li><strong>Non-Interactive</strong> - The prover generates the proof once. No back-and-forth needed.</li>
+      <li><strong>Arguments</strong> - Computationally sound (secure against polynomial-time adversaries).</li>
+      <li><strong>of Knowledge</strong> - Not just "the statement is true" but "the prover actually knows the witness."</li>
+    </ul>
+
+    <h4>The Trusted Setup - zk-SNARKs' Critical Weakness</h4>
+    <p>Most zk-SNARK systems (like Groth16, used in Zcash and early Tornado Cash) require a <strong>Trusted Setup Ceremony</strong>: a one-time computation that generates public parameters for the proof system. If the randomness used in this ceremony is kept secret by anyone who participated, they could potentially forge proofs. This is called the "toxic waste" problem.</p>
+
+    <div class="callout warn">
+      <div class="callout-icon">☢️</div>
+      <div class="callout-body">
+        <strong>The Toxic Waste Problem</strong>
+        <p>In a trusted setup ceremony, participants generate random numbers and then <em>destroy them</em>. If even one participant destroys their secret, the system is secure - an attacker would need to obtain ALL participants' secrets. Zcash's trusted setup involved thousands of participants across multiple continents. The risk is real but manageable at scale. Newer SNARK systems like PLONK use a "universal" trusted setup - one ceremony covers all circuits. zk-STARKs and Bulletproofs require NO trusted setup.</p>
+      </div>
+    </div>
+
+    <h3>zk-STARKs - Scalable Transparent Arguments of Knowledge</h3>
+    <p>Invented by Eli Ben-Sasson (StarkWare) in 2018. STARKs solve SNARKs' two biggest weaknesses:</p>
+    <ul>
+      <li>🔑 <strong>Transparent (no trusted setup):</strong> STARKs use public randomness (hash functions) instead of a toxic-waste ceremony. Anyone can verify the setup parameters.</li>
+      <li>🔮 <strong>Quantum-resistant:</strong> STARKs rely on hash function security (collision resistance) - not elliptic curve discrete logs. Quantum computers (Shor's Algorithm) cannot break them.</li>
+      <li>📏 <strong>Larger proofs:</strong> The trade-off - STARK proofs are larger (40 - 200 KB) compared to SNARK proofs (~288 bytes). But verification is extremely fast and parallelisable.</li>
+      <li>⚡ <strong>Better scalability:</strong> Proving time scales quasi-linearly with computation, making STARKs better for very large computations.</li>
+    </ul>
+
+    <p><strong>Used in:</strong> StarkNet, StarkEx (dYdX, Immutable X), and the future Ethereum validity proofs.</p>
+
+    <h3>Bulletproofs - No Trusted Setup, Compact Range Proofs</h3>
+    <p>Bulletproofs (Bünz et al., 2018) are a ZKP system specifically optimised for <strong>range proofs</strong> - proving that a hidden value lies within a specific range (e.g., "my account balance is between 0 and 2⁶⁴ - meaning it is non-negative - without revealing the balance"). They require no trusted setup and produce compact proofs. Used by Monero for confidential transactions, and in Grin/MimbleWimble.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>zk-SNARKs (Groth16)</th>
+          <th>zk-SNARKs (PLONK)</th>
+          <th>zk-STARKs</th>
+          <th>Bulletproofs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Trusted Setup</td>
+          <td><span class="badge bad">Per-circuit ❌</span></td>
+          <td><span class="badge mid">Universal ⚠️</span></td>
+          <td><span class="badge good">None ✅</span></td>
+          <td><span class="badge good">None ✅</span></td>
+        </tr>
+        <tr>
+          <td>Proof Size</td>
+          <td><span class="badge good">~192 bytes</span></td>
+          <td><span class="badge good">~256 - 400 bytes</span></td>
+          <td><span class="badge bad">40 - 200 KB</span></td>
+          <td><span class="badge mid">~1 KB</span></td>
+        </tr>
+        <tr>
+          <td>Verify Time</td>
+          <td><span class="badge good">Very fast</span></td>
+          <td><span class="badge good">Very fast</span></td>
+          <td><span class="badge good">Fast</span></td>
+          <td><span class="badge mid">Slow (linear)</span></td>
+        </tr>
+        <tr>
+          <td>Prove Time</td>
+          <td><span class="badge mid">Moderate</span></td>
+          <td><span class="badge mid">Moderate</span></td>
+          <td><span class="badge mid">Slow (large)</span></td>
+          <td><span class="badge mid">Moderate</span></td>
+        </tr>
+        <tr>
+          <td>Quantum Safe</td>
+          <td><span class="badge bad">No ❌</span></td>
+          <td><span class="badge bad">No ❌</span></td>
+          <td><span class="badge good">Yes ✅</span></td>
+          <td><span class="badge bad">No ❌</span></td>
+        </tr>
+        <tr>
+          <td>Used In</td>
+          <td>Zcash, Tornado Cash</td>
+          <td>zkSync, Polygon zkEVM</td>
+          <td>StarkNet, StarkEx</td>
+          <td>Monero, Grin</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>How a ZK Circuit Works - The Computation Blueprint</h3>
+    <p>To create a ZKP for a computation, you must first convert that computation into an <strong>arithmetic circuit</strong> - a series of addition and multiplication gates over a finite field. This circuit is then compiled into a mathematical representation (R1CS - Rank 1 Constraint System, or AIR - Algebraic Intermediate Representation for STARKs). The prover evaluates the circuit with private inputs (the witness) and uses polynomial commitments to generate a proof that they know inputs satisfying all the constraints - without revealing the inputs.</p>
+
+    <div class="purple-box">
+      <p><strong>Age Verification Circuit (Simplified)</strong></p>
+      <p>Private input (witness): <code>birthdate</code> (e.g., 15 March 1999)</p>
+      <p>Public input: <code>current_date</code> (e.g., 1 January 2025)</p>
+      <p>Public output: <code>true</code> or <code>false</code></p>
+      <p>Circuit constraint: <code>(current_date - birthdate) ≥ 18 years</code></p>
+      <p>The circuit also verifies: <code>birthdate</code> is signed by UIDAI's key (proving it came from a genuine Aadhaar record)</p>
+      <p>Result: A 288-byte proof that Swiggy verifies in &lt;1 millisecond. They learn: age ≥ 18. Nothing else.</p>
+    </div>
+  </div>
+
+  <!-- ── 6. DIAGRAMS ── -->
+  <div class="section">
+    <div class="section-label">06 - Architecture &amp; Diagrams</div>
+    <h2>Visual Walkthroughs</h2>
+
+    <h3>Diagram 1: The ZKP System - Prover, Verifier, and the Proof</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🔮 <span>Zero-Knowledge Proof System</span> - Complete Architecture</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ PARTIES:
+   PROVER  (Alice) - knows the secret (witness). Wants to prove a fact.
+   VERIFIER (Bob)  - does NOT know the secret. Wants to verify the fact.
+ ════════════════════════════════════════════════════════════════════════════
+
+ INPUTS:
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PRIVATE (only Prover sees):    Witness = birthdate "15 Mar 1999"    │
+ │  PUBLIC  (both see):            Statement = "age ≥ 18 as of today"  │
+ │  PUBLIC  (both see):            Proving Key (from setup ceremony)    │
+ └──────────────────────────────────────────────────────────────────────┘
+
+ PROVER SIDE:
+ ─────────────────────────────────────────────────
+  [Witness: 15 Mar 1999]
+  [Public inputs: current date, UIDAI pubkey]
+           │
+           ▼
+  ┌─────────────────────────────┐
+  │   ZK CIRCUIT EVALUATION     │
+  │   (arithmetic circuit over  │
+  │    finite field)            │
+  │                             │
+  │   Constraint:               │
+  │   date_diff ≥ 18 years? ✅  │
+  │   UIDAI_sig valid? ✅        │
+  └─────────────────────────────┘
+           │
+           ▼
+  ┌─────────────────────────────┐
+  │   POLYNOMIAL COMMITMENT     │
+  │   &amp; PROOF GENERATION        │
+  │   (Groth16 / PLONK / STARK) │
+  └─────────────────────────────┘
+           │
+           ▼
+  π = [0x3f2a...c9b1]  ← PROOF (288 bytes for Groth16)
+  SENDS π to Verifier. SENDS NOTHING ELSE.
+
+ ─────────────────────────────────────────────────
+ VERIFIER SIDE (Swiggy's smart contract):
+ ─────────────────────────────────────────────────
+  Receives: π (proof) + public statement
+  Has:      Verification Key (from setup, publicly known)
+
+  ┌─────────────────────────────┐
+  │   VERIFICATION ALGORITHM    │
+  │   Check: is π a valid proof │
+  │   for "age ≥ 18 today"?     │
+  └─────────────────────────────┘
+           │
+      ┌────┴────┐
+      │         │
+    YES ✅     NO ❌
+      │
+  Allow alcohol   Reject
+  purchase. ✅    order. ❌
+
+ ════════════════════════════════════════════════════════════════════════════
+ WHAT VERIFIER LEARNS:     age ≥ 18  →  TRUE
+ WHAT VERIFIER DOES NOT LEARN:
+   ✗ Exact birthdate        ✗ Exact age        ✗ Full name
+   ✗ Aadhaar number         ✗ Address          ✗ Any other data
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 2: ZK-Rollups - How ZKPs Make Ethereum 100× Faster</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚡ <span>ZK-Rollup Architecture</span> - Scaling Ethereum with ZKPs</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ PROBLEM: Ethereum processes ~15 TPS. MST needs 4,000+ TPS.
+          Each transaction verified by every node = bottleneck.
+ ════════════════════════════════════════════════════════════════════════════
+
+ ZK-ROLLUP SOLUTION:
+ ────────────────────────────────────────────────────────────────────────
+
+ LAYER 2 (Off-Chain - the Rollup):
+ ┌────────────────────────────────────────────────────────────────────┐
+ │                                                                    │
+ │  Users submit 10,000 transactions to the Rollup Sequencer         │
+ │                                                                    │
+ │  Tx1: Alice → Bob  100 MST                                        │
+ │  Tx2: Carol → Dave  50 MST                                        │
+ │  Tx3: ...                                                          │
+ │  ... (up to 10,000 transactions per batch)                        │
+ │                                                                    │
+ │         ↓ Execute all 10,000 txs off-chain                        │
+ │         ↓ Compute new state root                                   │
+ │                                                                    │
+ │  ┌───────────────────────────────────────────┐                    │
+ │  │  ZK PROOF GENERATOR                       │                    │
+ │  │  "I correctly executed all 10,000 txs    │                    │
+ │  │   and the new state root is 0x9c2f..."   │                    │
+ │  │                                           │                    │
+ │  │  Proof: π = [288 bytes] ← ENTIRE PROOF   │                    │
+ │  └───────────────────────────────────────────┘                    │
+ │                                                                    │
+ └────────────────────────────────────────────────────────────────────┘
+                              │
+                              │ Post to Layer 1
+                              ▼
+ LAYER 1 (On-Chain - Ethereum or MST):
+ ┌────────────────────────────────────────────────────────────────────┐
+ │                                                                    │
+ │  Smart Contract receives:                                          │
+ │  • New state root: 0x9c2f...                                      │
+ │  • ZK Proof π: [288 bytes]                                        │
+ │  • Transaction data summary (compressed)                          │
+ │                                                                    │
+ │  ┌───────────────────────────────┐                                │
+ │  │  VERIFY PROOF (&lt; 1ms on-chain)│                                │
+ │  │  Valid? → Accept new root ✅  │                                │
+ │  └───────────────────────────────┘                                │
+ │                                                                    │
+ └────────────────────────────────────────────────────────────────────┘
+
+ ────────────────────────────────────────────────────────────────────────
+ RESULT:
+   10,000 transactions verified with ONE 288-byte proof.
+   Each transaction costs 1/10,000 of the on-chain verification gas.
+   Throughput: 100-1,000× higher than base layer.
+   Security: Inherited from Layer 1 (the ZK proof is mathematically
+             valid — there is no optimistic fraud window like ORUs).
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 3: zk-SNARKs vs zk-STARKs - Side-by-Side</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚖️ <span>SNARKs vs STARKs</span> - When to Use Which</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+
+  zk-SNARKs                          zk-STARKs
+  ─────────────────────────────      ─────────────────────────────
+  Proof size:  ~200 bytes            Proof size:  ~40-200 KB
+  Verify time: ~2ms                  Verify time: ~10ms
+  Prove time:  ~10s (large circuit)  Prove time:  ~60s (large circuit)
+
+  Trusted setup: REQUIRED            Trusted setup: NONE
+  (toxic waste - risky at small      (uses hash functions only - 
+  ceremony scale)                     mathematically transparent)
+
+  Post-quantum: NO                   Post-quantum: YES
+  (relies on ECC pairings -          (relies on hash collision
+   Shor's algo could break)           resistance - quantum safe)
+
+  Based on:    Elliptic curve        Based on:    Hash functions
+               pairings (KZG         (FRI polynomial
+               commitments)           commitment)
+
+  Best for:    Small proofs,         Best for:    Quantum safety,
+               low gas cost,         no-setup,
+               private tx            large computations
+
+  Used by:     Zcash, Tornado Cash   Used by:     StarkNet, StarkEx
+               zkSync Era            dYdX, Immutable X
+               Polygon zkEVM         Ethereum future validity proofs
+
+ ════════════════════════════════════════════════════════════════════════════
+ CHOOSE SNARK when: proof size on-chain matters (every byte costs gas)
+ CHOOSE STARK when: trust minimisation + quantum safety matter most
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+  </div>
+
+  <!-- ── 7. STEP BY STEP ── -->
+  <div class="section">
+    <div class="section-label">07 - Step-by-Step Workflow</div>
+    <h2>The Five "W" Questions Answered</h2>
+
+    <h3>❓ WHY Do ZKPs Exist - What Was Impossible Before Them?</h3>
+    <p>Before ZKPs, the only way to prove you knew something was to reveal it. If you wanted to prove you knew a password, you typed it. If you wanted to prove your income, you showed your salary slips. If you wanted to prove a computation was done correctly, you showed all the intermediate steps. ZKPs break this fundamental constraint - you can prove knowledge or computation without revealing the underlying data or steps.</p>
+
+    <h3>❓ WHAT Are the Two Main Blockchain Use-Cases?</h3>
+
+    <div class="analogy-grid">
+      <div class="analogy-card">
+        <div class="tag">Use-Case 1: Privacy</div>
+        <h4>Confidential Transactions</h4>
+        <p>Prove a transaction is valid (sender has enough balance, amounts are non-negative, signatures are correct) without revealing sender, receiver, or amount. Used in Zcash, Aztec, Tornado Cash, and MST's future privacy layer.</p>
+      </div>
+      <div class="analogy-card highlight">
+        <div class="tag">Use-Case 2: Scalability</div>
+        <h4>ZK-Rollups</h4>
+        <p>Prove that 10,000 transactions were executed correctly off-chain with a single 288-byte proof on-chain. The Layer 1 contract verifies the proof instead of re-executing every transaction. Used in zkSync, StarkNet, Polygon zkEVM.</p>
+      </div>
+    </div>
+
+    <h3>❓ HOW Is a ZK Circuit Actually Written?</h3>
+    <p>ZK circuits are written in domain-specific languages:</p>
+    <ul>
+      <li><strong>Circom:</strong> The most popular ZK circuit language. Used with SnarkJS. Circuit looks like a constrained program with inputs (private + public) and outputs. Used by Tornado Cash and many DeFi protocols.</li>
+      <li><strong>Noir (Aztec):</strong> A Rust-like ZK language that compiles to PLONK proofs. Aimed at developer usability.</li>
+      <li><strong>Cairo (StarkWare):</strong> A Turing-complete language that compiles to STARK-provable computations. Used for StarkNet smart contracts.</li>
+      <li><strong>Halo2 (Zcash, Scroll):</strong> A PLONK-based proving system with recursive proofs (proofs of proofs).</li>
+    </ul>
+
+    <h3>❓ WHERE Are ZKPs Used in the Real World Right Now?</h3>
+    <div class="use-case-grid">
+      <div class="use-case-card">
+        <div class="uc-icon">💰</div>
+        <h4>Zcash - Shielded Transactions</h4>
+        <p>Every "shielded" Zcash transaction uses a Groth16 zk-SNARK to prove the transaction is valid (no double-spend, amounts balance) without revealing sender, receiver, or amount.</p>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">⚡</div>
+        <h4>zkSync / StarkNet - ZK-Rollups</h4>
+        <p>Process thousands of transactions per second off-chain. A SNARK or STARK proof is posted to Ethereum proving correctness. Full Ethereum security at 100× the throughput.</p>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">🪪</div>
+        <h4>Polygon ID - ZK Identity</h4>
+        <p>Issue verifiable credentials (KYC status, age, accreditation) as ZK proofs. Prove you passed KYC without revealing which documents you submitted or to whom.</p>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">🏛️</div>
+        <h4>MACI - ZK Voting</h4>
+        <p>Minimum Anti-Collusion Infrastructure. Uses ZKPs to make voting anonymous while proving the tally is correct. Used in Gitcoin grants and Ethereum governance.</p>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">🔗</div>
+        <h4>MST WASMify - ZK Data Bridge</h4>
+        <p>Off-chain computation results (GPS data, IoT sensors, API responses) are proved correct using ZKPs before being used by on-chain smart contracts. Trustless data bridges.</p>
+      </div>
+      <div class="use-case-card">
+        <div class="uc-icon">🃏</div>
+        <h4>MST FortunaX / SatvaShuffle</h4>
+        <p>ZK proofs prove that random numbers (for lotteries) and card shuffles (for Poker/Rummy) were generated fairly - without revealing the shuffle algorithm's internal state.</p>
+      </div>
+    </div>
+
+    <h3>❓ WHAT Are the Limitations of ZKPs Right Now?</h3>
+    <ul>
+      <li>⚠️ <strong>Proving time is slow:</strong> Generating a ZK proof for a complex computation takes seconds to minutes - much slower than simply running the computation. This is improving rapidly with hardware acceleration (ZK-ASICs, GPUs).</li>
+      <li>⚠️ <strong>Trusted setup risk:</strong> zk-SNARKs with per-circuit trusted setups require ceremony integrity. PLONK and STARKs reduce this concern.</li>
+      <li>⚠️ <strong>Developer complexity:</strong> Writing ZK circuits is hard - it requires thinking in terms of arithmetic constraints, not regular programming. Newer languages (Noir, Cairo) are making this easier.</li>
+      <li>⚠️ <strong>Proof size vs verification trade-off:</strong> STARKs are quantum-safe but produce large proofs. SNARKs produce tiny proofs but need a trusted setup and are not quantum-safe.</li>
+    </ul>
+  </div>
+
+  <!-- ── 10. CASE STUDIES ── -->
+  <div class="section">
+    <div class="section-label">10 - Real World Case Studies</div>
+    <h2>ZKPs in Action - Three Detailed Scenarios</h2>
+
+    <h3>Case Study 1: Designing the Aadhaar ZK Age Proof (Your Exam Design Question)</h3>
+    <p>This is the exact design question that appears in the assessment. A complete, marks-worthy answer must include all of the following components:</p>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🪪 <span>ZK Aadhaar Age Proof Design</span> - Complete System Architecture</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ GOAL: Prove age ≥ 18 for Swiggy alcohol purchase.
+       Reveal NOTHING about the user beyond this single fact.
+ ════════════════════════════════════════════════════════════════════════════
+
+ ACTORS:
+   User (Kavya)          - has Aadhaar, wants to buy alcohol
+   UIDAI                 - issues signed Aadhaar credential
+   ZK Proof Generator    - runs on Kavya's phone (local computation)
+   Swiggy Smart Contract - verifier on MST blockchain
+
+ CREDENTIALS:
+   UIDAI issues a Verifiable Credential (VC) to Kavya's digital wallet:
+   {
+     subject: "Kavya",
+     claim: "birthdate: 15 Mar 1999",
+     signature: UIDAI_ECDSA_sig  ← signed with UIDAI's private key
+   }
+
+ ════════════════════════════════════════════════════════════════════════════
+ ZK CIRCUIT INPUTS:
+ ─────────────────────────────────────────────────────────────────────────
+ Private (witness - stays on Kavya's phone ONLY):
+   w1 = birthdate  →  "15 March 1999"
+   w2 = UIDAI_signature  →  proves birthdate is genuine Aadhaar data
+
+ Public (known to Swiggy's verifier contract):
+   p1 = today's date  →  "01 Jan 2025"
+   p2 = UIDAI's public key (known globally)
+   p3 = age_threshold  →  18
+
+ ZK CIRCUIT CONSTRAINTS (what the circuit checks):
+ ─────────────────────────────────────────────────────────────────────────
+ Constraint 1:  ECDSA_verify(w1 ++ w2, UIDAI_pubkey) == TRUE
+                (proves birthdate came from a genuine Aadhaar credential)
+
+ Constraint 2:  (p1 - w1) ≥ (p3 × 365 days)
+                (proves age ≥ 18 years)
+
+ ════════════════════════════════════════════════════════════════════════════
+ PROOF GENERATION (on Kavya's phone):
+   π = ZK_prove(circuit, witness=[w1,w2], public=[p1,p2,p3])
+   π = [0x3f2a...c9b1]  ← 288 bytes (Groth16 SNARK)
+
+ SWIGGY CONTRACT VERIFICATION:
+   ZK_verify(π, public=[today, UIDAI_pubkey, 18]) → TRUE ✅
+
+ ════════════════════════════════════════════════════════════════════════════
+ WHAT SWIGGY LEARNS:
+   ✅ Age ≥ 18: TRUE
+   ✅ Credential is genuine (from real Aadhaar): TRUE
+
+ WHAT SWIGGY DOES NOT LEARN:
+   ✗ Exact birthdate    ✗ Exact age    ✗ Name    ✗ Aadhaar number
+   ✗ Address            ✗ Gender       ✗ Photo   ✗ Any other data
+
+ ════════════════════════════════════════════════════════════════════════════
+ PRIVACY GUARANTEE:
+   If Swiggy's database is hacked, the attacker gets only:
+   a proof π (288 bytes) + knowledge that someone's age ≥ 18.
+   Useless. No identity data whatsoever. ✅
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Case Study 2: Tornado Cash - ZK Privacy on Ethereum</h3>
+    <p>Tornado Cash was a privacy protocol on Ethereum that used Groth16 zk-SNARKs to break the link between deposit and withdrawal addresses. Here's how it worked:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num purple-bg">1</div>
+        <div class="step-body">
+          <h4>Alice generates a random secret and deposits 1 ETH</h4>
+          <p>Alice generates a random 31-byte secret <code>r</code>, commits <code>keccak256(r)</code> to the smart contract, and deposits 1 ETH. The commitment is stored on-chain. Alice's address is publicly linked to this commitment.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num purple-bg">2</div>
+        <div class="step-body">
+          <h4>Later, Bob generates a ZK proof to withdraw</h4>
+          <p>Bob (who may be Alice using a fresh wallet) proves via a SNARK: "I know a secret <code>r</code> such that <code>keccak256(r)</code> is in the commitment set, and this specific nullifier has not been used before." The proof reveals the nullifier (preventing double-withdrawal) but NOT which commitment it corresponds to.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num purple-bg">3</div>
+        <div class="step-body">
+          <h4>Smart contract verifies and sends 1 ETH to Bob's address</h4>
+          <p>The contract verifies the SNARK proof, marks the nullifier as used, and sends 1 ETH to Bob's fresh address. No link between Alice's deposit address and Bob's withdrawal address exists on-chain.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Case Study 3: MST WASMify - ZK Proofs for Real-World Data</h3>
+    <p>MST's WASMify protocol allows off-chain computations to produce ZK-verifiable results. Example: a Swiggy delivery payment contract needs to verify a delivery was completed (GPS data shows rider reached destination) before releasing payment. Without ZKPs, the GPS data must be put on-chain - expensive and privacy-invasive. With WASMify:</p>
+    <ol>
+      <li>The delivery rider's GPS coordinates are processed off-chain in a WASMify module</li>
+      <li>The module computes: "Did GPS path reach within 100m of destination?" → TRUE</li>
+      <li>A ZK proof is generated proving this computation was done correctly on genuine GPS data</li>
+      <li>The MST smart contract verifies the 288-byte proof and releases payment to the rider</li>
+      <li>No GPS coordinates ever go on-chain. Privacy preserved. Computation verified. ✅</li>
+    </ol>
+  </div>
+
+  <!-- ── 11. ASSESSMENT PREP ── -->
+  <div class="section">
+    <div class="section-label">11 - Assessment Preparation</div>
+    <h2>Top Must-Know Facts Before the Test</h2>
+
+    <ul class="must-know">
+      <li>A Zero-Knowledge Proof lets a Prover convince a Verifier that a statement is true <strong>without revealing anything about the witness</strong> (the secret used to prove it).</li>
+      <li>Three formal properties: <strong>Completeness</strong> (honest prover always convinces), <strong>Soundness</strong> (dishonest prover cannot fake), <strong>Zero-Knowledge</strong> (verifier learns nothing extra).</li>
+      <li>The <strong>witness</strong> is the private secret input that the prover knows - e.g., the exact birthdate in an age proof, or the private key in a signature proof.</li>
+      <li><strong>Interactive ZKPs</strong> require back-and-forth communication (Ali Baba cave). <strong>Non-Interactive ZKPs (NIZKs)</strong> produce a single self-contained proof - required for blockchains.</li>
+      <li><strong>zk-SNARKs</strong>: Tiny proof (~200 bytes), very fast verification, requires trusted setup, NOT quantum-safe. Used by Zcash, zkSync, Polygon zkEVM.</li>
+      <li><strong>zk-STARKs</strong>: Large proof (~100 KB), no trusted setup, quantum-safe (hash-based). Used by StarkNet, StarkEx, dYdX.</li>
+      <li><strong>Bulletproofs</strong>: No trusted setup, compact (~1 KB), slow verification (linear). Best for range proofs. Used by Monero.</li>
+      <li>The <strong>Trusted Setup</strong> (toxic waste) in SNARKs: a one-time ceremony that must be done securely. If all participants destroy their secret, the system is safe. PLONK uses a universal setup. STARKs and Bulletproofs require none.</li>
+      <li><strong>ZK-Rollups</strong>: Execute thousands of transactions off-chain, post a single ZK proof on-chain. Ethereum verifies the proof, not each transaction. Instant finality (no fraud window unlike Optimistic Rollups).</li>
+      <li>The <strong>Fiat-Shamir heuristic</strong> transforms an interactive ZKP into a non-interactive one by replacing the verifier's random challenge with a hash of the prover's commitment - making the proof self-contained.</li>
+      <li><strong>ZK circuit languages</strong>: Circom (JavaScript-like, with SnarkJS), Noir (Rust-like, Aztec), Cairo (StarkWare), Halo2 (Zcash). Each compiles to a proof-system-specific format.</li>
+      <li>MST uses ZKPs in: <strong>WASMify</strong> (off-chain data verification), <strong>FortunaX</strong> (provably fair RNG), <strong>SatvaShuffle</strong> (provably fair card shuffles), and future privacy transaction layers.</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Common Exam Trap - ZKP ≠ Encryption</strong>
+        <p>A ZKP does not encrypt your data. It generates a proof that you know something. The data stays entirely off-chain with you - it is never transmitted, even in encrypted form. A ZKP is not a secure channel; it is a mathematical proof of knowledge. The Verifier never receives your secret in any form.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Common Exam Trap - ZK-Rollup vs Optimistic Rollup Finality</strong>
+        <p>ZK-Rollups have <strong>instant finality</strong> - once the proof is verified on-chain, the state is final. Optimistic Rollups have a <strong>7-day challenge window</strong> - funds are locked for a week waiting for potential fraud proofs. For questions about finality time, ZK-Rollups win decisively.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 12. SECURITY NOTES ── -->
+  <div class="section">
+    <div class="section-label">12 - Security Notes</div>
+    <h2>Critical Security Principles</h2>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>The Trusted Setup Is a Real Attack Surface</strong>
+        <p>If a trusted setup ceremony is compromised - specifically, if even one participant retains their toxic waste secret - they can create fake proofs that appear mathematically valid. This would allow minting tokens from thin air or bypassing all verification. The Zcash Sapling ceremony involved dozens of independent participants across the world precisely to minimise this risk. For production systems, prefer PLONK (universal setup) or STARKs (no setup) where possible.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Soundness Is Only Computational - Not Information-Theoretic</strong>
+        <p>ZKP soundness guarantees that a cheating prover cannot fool the verifier "except with negligible probability." This relies on the hardness of underlying mathematical problems (discrete log, hash collisions). If these problems become easy (e.g., via quantum computers for SNARK-based systems), the soundness guarantee breaks. This is why SNARKs are not quantum-safe - Shor's Algorithm could break ECC pairings.</p>
+      </div>
+    </div>
+
+    <div class="callout purple">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>Recursive ZKPs - Proof of Proofs</strong>
+        <p>Advanced ZKP systems like Halo2 and Nova support <strong>recursive proof composition</strong> - a ZKP that proves another ZKP is valid. This enables "proof aggregation" - compressing millions of individual proofs into one. Ethereum's "Proof of Ethereum" vision uses this to prove the correctness of the entire Ethereum execution history in a single proof. MST's post-quantum roadmap includes recursive STARK proofs for the same purpose.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 13. INDUSTRY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-label">13 - Industry Insights</div>
+    <h2>How the Industry Uses This Knowledge</h2>
+
+    <h3>The ZK Talent Shortage - Your Opportunity</h3>
+    <p>ZK engineering is the single most in-demand and scarcest skill in all of Web3 today. As of 2024 - 2025, senior ZK circuit engineers command salaries of $300,000-$600,000 per year at protocol teams. India has produced some of the world's top ZK researchers, including contributors to the PLONK, Halo2, and Nova proof systems. The opportunity for MST Academy graduates who specialise in ZK development is extraordinary.</p>
+
+    <h3>The ZK Stack - What Companies Are Building</h3>
+    <ul>
+      <li><strong>zkEVMs (zkSync, Polygon zkEVM, Scroll, Linea):</strong> Prove that arbitrary Ethereum bytecode (EVM execution) is correct using ZKPs. The holy grail of ZK-Rollups - full compatibility with all existing Ethereum smart contracts.</li>
+      <li><strong>ZK Identity (Polygon ID, Sismo, Worldcoin):</strong> Issue privacy-preserving credentials. Prove membership, KYC status, or humanity without revealing identity data.</li>
+      <li><strong>ZK Gaming (Autonomous Worlds, Dark Forest):</strong> Prove game actions are valid without revealing strategy. A chess game where moves are hidden but provably legal. Dark Forest is a real game on Ethereum using ZKPs for fog-of-war.</li>
+      <li><strong>ZK ML (zkML - EZKL, Modulus Labs):</strong> Prove that an AI model was run correctly on specific data without revealing the model weights or the data. Verifiable AI inference - a revolutionary application.</li>
+    </ul>
+
+    <h3>MST-Specific ZKP Roadmap</h3>
+    <ul>
+      <li><strong>WASMify:</strong> Uses ZK proofs to verify off-chain WASM computation results. First production use-case for enterprise data bridges.</li>
+      <li><strong>FortunaX &amp; SatvaShuffle:</strong> Provably fair randomness and card shuffles - ZK proofs that the RNG or shuffle was generated by the committed algorithm without a backdoor.</li>
+      <li><strong>Privacy Transactions (roadmap):</strong> Aztec-style shielded transactions on MST - prove payment validity without revealing sender, receiver, or amount.</li>
+      <li><strong>Post-Quantum ZKPs:</strong> Migration to STARK-based proofs for the quantum era - covered in Sub-Module 4.6 and Module 17.</li>
+    </ul>
+  </div>
+
+  <!-- ── 14. GLOSSARY ── -->
+  <div class="section">
+    <div class="section-label">14 - Glossary</div>
+    <h2>Key Terms You Must Know</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">Zero-Knowledge Proof</div>
+      <div class="glossary-def">A cryptographic proof that convinces a verifier that a statement is true without revealing any information about the witness (the secret used to prove it).</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Prover</div>
+      <div class="glossary-def">The party who knows the secret (witness) and generates the ZKP. Goal: convince the verifier without revealing the secret.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Verifier</div>
+      <div class="glossary-def">The party who checks the proof. Goal: determine if the statement is true without learning the secret. In blockchain: often a smart contract.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Witness</div>
+      <div class="glossary-def">The private secret input to a ZK circuit - the information the prover knows and uses to generate the proof but never reveals. E.g., exact birthdate, private key, exact balance.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Completeness</div>
+      <div class="glossary-def">ZKP property: if the statement is true and the prover is honest, the verifier always accepts. An honest prover can always succeed.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Soundness</div>
+      <div class="glossary-def">ZKP property: if the statement is false, a dishonest prover cannot produce an accepted proof (except with negligible probability). Cheating is computationally infeasible.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">zk-SNARK</div>
+      <div class="glossary-def">Succinct Non-Interactive Argument of Knowledge. Tiny proof (~200 bytes), fast verification, requires trusted setup, not quantum-safe. Used in Zcash, zkSync, Polygon zkEVM.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">zk-STARK</div>
+      <div class="glossary-def">Scalable Transparent Argument of Knowledge. Large proof (~100 KB), no trusted setup, quantum-safe (hash-based). Used in StarkNet, StarkEx, dYdX.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Bulletproofs</div>
+      <div class="glossary-def">ZKP system optimised for range proofs. No trusted setup, proof ~1 KB, verification is slow (linear). Used in Monero for confidential transaction amounts.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Trusted Setup</div>
+      <div class="glossary-def">A one-time ceremony required by most zk-SNARK systems to generate public parameters. Participants must destroy secret randomness ("toxic waste"). Compromise allows forging proofs.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ZK-Rollup</div>
+      <div class="glossary-def">A Layer 2 scaling solution that executes transactions off-chain and posts a single ZK proof on-chain. The L1 verifies the proof, not each transaction - enabling 100-1000× throughput.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Fiat-Shamir Heuristic</div>
+      <div class="glossary-def">A technique that converts an interactive ZKP into a non-interactive one by replacing the verifier's random challenge with a hash of the prover's commitment. Makes blockchain-compatible proofs.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ZK Circuit</div>
+      <div class="glossary-def">The arithmetic representation of a computation that a ZK proof system can prove. Written in languages like Circom, Noir, or Cairo. Defines constraints that the witness must satisfy.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Recursive ZKP</div>
+      <div class="glossary-def">A ZKP that proves the validity of another ZKP - "proof of a proof." Enables aggregating millions of proofs into one. Used in Halo2, Nova, and Ethereum's future proof-of-everything vision.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ ASSESSMENT ══════════════ -->
+  <div class="assessment-header">
+    <h2>📝 Assessment - Sub-Module 4.4</h2>
+    <p>Zero-Knowledge Proofs &nbsp;|&nbsp; Total: <strong>25 Marks</strong> &nbsp;|&nbsp; 11 Questions</p>
+  </div>
+  <div class="assessment-body">
+
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">Marks breakdown: 7 × MCQ (1 mark each) = 7 marks &nbsp;|&nbsp; 1 × Multi-Select (4 marks) &nbsp;|&nbsp; 1 × Descriptive ZK Design (8 marks) &nbsp;|&nbsp; 1 × Multi-Select (3 marks) &nbsp;|&nbsp; 1 × True/False with justification (2 marks) &nbsp;|&nbsp; 1 × True/False (1 mark) = <strong>25 marks</strong> total.</p>
+
+    <!-- Q1 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">1</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In a Zero-Knowledge Proof, what does the term "witness" refer to?</div>
+      <ul class="options">
+        <li>A) The verifier who watches and validates the proof</li>
+        <li>B) A third-party auditor who confirms the proof is genuine</li>
+        <li class="correct">C) The private secret information that the prover knows and uses to construct the proof - but never reveals</li>
+        <li>D) A publicly known value that both prover and verifier share</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>In ZKP terminology, the <strong>witness</strong> is the private input - the secret that the prover knows. In an age verification proof, the witness is your exact date of birth. In a Zcash transaction, the witness is the sender's address, receiver's address, and amount. The entire point of a ZKP is to prove a statement about the witness without the verifier ever learning the witness. The prover runs the ZK circuit with the witness privately on their own device - the witness is never transmitted in any form.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">2</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Which of the following correctly states the "Soundness" property of a Zero-Knowledge Proof?</div>
+      <ul class="options">
+        <li>A) If the statement is true, the verifier will accept the proof with 100% probability</li>
+        <li>B) The proof reveals no information about the witness to the verifier</li>
+        <li class="correct">C) If the statement is false, a cheating prover cannot produce a proof that the verifier accepts - except with negligible probability</li>
+        <li>D) Both the prover and verifier must agree on the proof system before starting</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p><strong>Soundness</strong> is the anti-cheating guarantee. It ensures that if Alice is actually under 18, she cannot produce a valid ZKP claiming she is over 18 - except with probability so small (negligible) that it is effectively impossible (e.g., 1 in 2¹²⁸). Option A describes Completeness (not Soundness). Option B describes the Zero-Knowledge property. Soundness specifically protects the verifier from being fooled by a dishonest prover.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">3</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">The Ali Baba cave analogy is an example of which type of ZKP - and why is this type unsuitable for blockchain smart contracts?</div>
+      <ul class="options">
+        <li>A) Non-Interactive ZKP - because it requires only one message from the prover</li>
+        <li class="correct">B) Interactive ZKP - because it requires multiple rounds of back-and-forth between prover and verifier, which is impossible for an asynchronous smart contract</li>
+        <li>C) Non-Interactive ZKP - because the cave has two paths making it a binary proof</li>
+        <li>D) Interactive ZKP - because the verifier can interact with the physical environment</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: B</strong>
+        <p>The Ali Baba cave requires multiple rounds - Bob shouts a challenge, Alice responds, Bob shouts again, and so on. This is an <strong>Interactive ZKP</strong>. Smart contracts cannot do this - they execute when called and cannot pause mid-execution waiting for a response from a user. For blockchain, we need <strong>Non-Interactive ZKPs (NIZKs)</strong> - the prover generates a single, complete proof that the smart contract verifies in one call. The Fiat-Shamir heuristic converts interactive proofs into non-interactive ones by replacing the verifier's challenge with a hash.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">4</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">What is the "Trusted Setup" in zk-SNARKs, and why is it considered a risk?</div>
+      <ul class="options">
+        <li>A) A setup where the prover and verifier agree on the same algorithm - risk is incompatibility</li>
+        <li>B) A hardware security module that stores ZK proof parameters - risk is physical theft</li>
+        <li class="correct">C) A one-time ceremony that generates public parameters using secret randomness - if any participant retains their secret ("toxic waste"), they could forge fake proofs that appear mathematically valid</li>
+        <li>D) A trusted third party who verifies all proofs - risk is centralisation</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>The Trusted Setup generates the public proving and verification keys for a zk-SNARK system using secret randomness. Each participant contributes randomness and then destroys their share. If even one honest participant destroys their secret, the system is safe - an attacker would need ALL participants' secrets to forge proofs. But if the ceremony is compromised (e.g., a participant is coerced to reveal their secret), the attacker can create proofs of false statements - in a blockchain context, this could mean minting tokens from nothing. This is why Zcash used hundreds of participants in their ceremony. PLONK provides a "universal" setup (one ceremony for all circuits). STARKs and Bulletproofs require no trusted setup whatsoever.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">5</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">A startup is building a ZK-Rollup for a government healthcare system. They need: no trusted setup, quantum resistance, and are willing to accept larger proof sizes. Which ZKP system should they choose?</div>
+      <ul class="options">
+        <li>A) Groth16 (zk-SNARK) - for the smallest proof sizes</li>
+        <li>B) Bulletproofs - for range proofs on healthcare amounts</li>
+        <li class="correct">C) zk-STARKs - transparent (no setup), quantum-safe (hash-based), accepts larger proof size</li>
+        <li>D) PLONK (zk-SNARK) - for universal setup flexibility</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>The requirements map precisely to <strong>zk-STARKs</strong>: no trusted setup (transparent, uses public hash functions), quantum-safe (relies on hash collision resistance, not ECC pairings that Shor's Algorithm could break), and the team accepts larger proof sizes (~100 KB vs ~200 bytes for SNARKs) as the trade-off. A government healthcare system has long data retention requirements - if quantum computers arrive in 10 - 20 years, any SNARK-based proofs generated today could theoretically be broken. STARKs are proof against this. Groth16 and PLONK both require a trusted setup and are not quantum-safe. Bulletproofs are optimised for range proofs specifically, not general computation.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">6</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">How do ZK-Rollups differ from Optimistic Rollups in terms of finality, and why does this matter for real-world use?</div>
+      <ul class="options">
+        <li>A) ZK-Rollups have a 7-day finality window; Optimistic Rollups are instant</li>
+        <li>B) Both have the same finality time - the difference is only in the proof mechanism</li>
+        <li class="correct">C) ZK-Rollups achieve instant finality (once the proof verifies on-chain, the state is final); Optimistic Rollups have a 7-day challenge window where funds are locked and disputes can be raised</li>
+        <li>D) ZK-Rollups require a 1-day finality window for proof generation; Optimistic Rollups are instant</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p><strong>ZK-Rollups</strong>: Finality is achieved the moment the ZK proof is verified by the Layer 1 smart contract. There is no dispute window - the mathematics guarantees correctness. Withdrawal to L1 is fast (minutes, once the proof batch is processed). <strong>Optimistic Rollups</strong>: Assume transactions are valid optimistically (hence the name). A 7-day challenge window allows anyone to submit a "fraud proof" if they detect incorrect state. During this window, funds cannot be withdrawn to L1. For real-world use, the 7-day withdrawal delay of Optimistic Rollups (Arbitrum, Optimism) is a significant UX problem for users needing quick L1 access. ZK-Rollups (zkSync, StarkNet) solve this entirely.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">7</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In the context of MST's WASMify protocol, how does a ZK proof enable trust in off-chain computation results?</div>
+      <ul class="options">
+        <li>A) The off-chain computation result is encrypted with the smart contract's public key before submission</li>
+        <li>B) A trusted oracle service signs the computation result with its private key</li>
+        <li class="correct">C) A ZK proof is generated alongside the computation result, proving the computation was performed correctly on genuine input data - the smart contract verifies only the proof, not the raw data</li>
+        <li>D) The computation is performed on-chain inside a WebAssembly virtual machine to ensure correctness</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>WASMify's power comes from the combination of off-chain computation + ZK proof of correctness. The off-chain module processes real-world data (GPS coordinates, API responses, IoT sensor data) and generates: (1) a result (e.g., "delivery completed: TRUE"), and (2) a ZK proof that this result was computed correctly from the claimed inputs using the committed algorithm. The smart contract verifies only the 288-byte proof - it never sees the raw input data. This enables trustless data bridges: the smart contract trusts the result without trusting any oracle service, because the mathematics guarantees correctness. This is a fundamentally different trust model from Chainlink-style signed oracle responses.</p>
+      </div>
+    </div>
+
+    <!-- Q8 — MULTI SELECT (4 marks) -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">8</div>
+        <div class="q-type ms">Multi-Select</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">4 marks</div>
+      </div>
+      <div class="q-text">Select ALL statements that are TRUE about zk-STARKs. (Each correct selection = 1 mark. Each incorrect selection = −0 marks. Select as many as apply.)</div>
+      <ul class="multi-options">
+        <li class="correct">A) zk-STARKs require no trusted setup ceremony - they use public randomness derived from hash functions</li>
+        <li class="wrong">B) zk-STARKs produce smaller proofs than zk-SNARKs (~200 bytes)</li>
+        <li class="correct">C) zk-STARKs are quantum-resistant because they rely on the security of hash functions rather than elliptic curve pairings</li>
+        <li class="wrong">D) zk-STARKs require a per-circuit trusted setup like Groth16</li>
+        <li class="correct">E) zk-STARKs are used in production by StarkNet and StarkEx (dYdX, Immutable X)</li>
+        <li class="correct">F) The "T" in STARK stands for "Transparent" - referring to the absence of a trusted setup</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answers: A, C, E, F (4 marks - 1 per correct answer)</strong>
+        <p><strong>A - TRUE:</strong> STARKs use hash functions (FRI polynomial commitments) for all randomness - fully transparent, no ceremony needed.</p>
+        <p><strong>B - FALSE:</strong> STARKs produce LARGE proofs (~40 - 200 KB). Small proofs (~200 bytes) are the advantage of SNARKs, not STARKs.</p>
+        <p><strong>C - TRUE:</strong> STARKs rely on hash collision resistance. Shor's Algorithm (the quantum threat) attacks elliptic curve discrete logs, which STARKs do not use.</p>
+        <p><strong>D - FALSE:</strong> The entire point of STARKs is NO trusted setup. This is SNARKs' limitation, not STARKs'.</p>
+        <p><strong>E - TRUE:</strong> StarkNet (general smart contracts), dYdX (perpetuals exchange), and Immutable X (NFT gaming) all use STARK-based proving systems in production.</p>
+        <p><strong>F - TRUE:</strong> STARK = Scalable <strong>Transparent</strong> ARgument of Knowledge. Transparent = no trusted setup.</p>
+      </div>
+    </div>
+
+    <!-- Q9 — DESCRIPTIVE (8 marks) -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">9</div>
+        <div class="q-type desc">Descriptive Design</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">8 marks</div>
+      </div>
+      <div class="q-text">Design a Zero-Knowledge Proof system that allows a user to prove their age is ≥ 18 to Swiggy for an alcohol purchase, using their Aadhaar digital credential - without revealing their name, exact birthdate, address, or any other personal data. Your answer must cover: (a) the actors involved, (b) what private inputs and public inputs the ZK circuit uses, (c) the constraints the circuit enforces, (d) what the verifier learns and does not learn, and (e) why this is superior to the current Aadhaar upload approach.</div>
+      <div class="desc-answer-box">
+        <strong>✅ Model Answer - 8 Marks Total</strong>
+        <div class="marks-row">
+          <div class="mark-chip">Actors: 1 mark</div>
+          <div class="mark-chip">Private Inputs: 1 mark</div>
+          <div class="mark-chip">Public Inputs: 1 mark</div>
+          <div class="mark-chip">Constraints: 2 marks</div>
+          <div class="mark-chip">What Verifier Learns: 1 mark</div>
+          <div class="mark-chip">Superiority: 2 marks</div>
+        </div>
+
+        <p><strong>(a) Actors (1 mark):</strong> Four actors: (1) <strong>User (Priya)</strong> - holds an Aadhaar-issued verifiable credential containing her birthdate; (2) <strong>UIDAI</strong> - issued and cryptographically signed the birthdate credential with UIDAI's private key; (3) <strong>ZK Proof Generator</strong> - runs locally on Priya's phone, takes private inputs and generates the proof; (4) <strong>Swiggy's Smart Contract on MST</strong> - the verifier that checks the proof and gates the purchase.</p>
+
+        <p><strong>(b) Private Inputs - the Witness (1 mark):</strong> Two private inputs, known only to Priya and kept on her device: <code>w1 = exact_birthdate</code> (e.g., "15 March 1999") - the value being proved about; <code>w2 = UIDAI_digital_signature</code> - the ECDSA/EdDSA signature UIDAI placed on Priya's birthdate credential, proving the birthdate is genuine and not self-asserted.</p>
+
+        <p><strong>(c) Public Inputs (1 mark):</strong> Three public inputs, known to both prover and verifier: <code>p1 = today's date</code> (block timestamp on MST); <code>p2 = UIDAI's public key</code> (published and universally known - used to verify the UIDAI signature); <code>p3 = age_threshold = 18</code>.</p>
+
+        <p><strong>(d) Circuit Constraints (2 marks):</strong></p>
+        <p><strong>Constraint 1 (authenticity):</strong> <code>ECDSA_verify(w1, w2, p2) == TRUE</code> - this proves that <code>w1</code> (the birthdate) was genuinely signed by UIDAI (using <code>p2</code>, UIDAI's known public key). Without this constraint, Priya could input a fake birthdate of "01 Jan 2006" and generate a false proof. The UIDAI signature binding ensures only genuine Aadhaar birthdates can be used as the witness.</p>
+        <p><strong>Constraint 2 (age check):</strong> <code>(p1 - w1) ≥ (p3 × 365)</code> - this verifies that the difference between today's date and the birthdate is at least 18 years in days. The circuit enforces this arithmetic relationship on the private witness without outputting the witness itself.</p>
+
+        <p><strong>(e) What Verifier Learns and Does NOT Learn (1 mark):</strong> Swiggy's smart contract learns ONLY: (1) age ≥ 18 is TRUE; (2) the birthdate comes from a genuine UIDAI Aadhaar credential. Swiggy does NOT learn: exact birthdate, exact age, full name, Aadhaar number, address, photograph, gender, or any other information. The proof is a 288-byte number - it contains no personal data whatsoever.</p>
+
+        <p><strong>(f) Superiority Over Current Approach (2 marks):</strong> Currently, users must upload their full Aadhaar card image or XML data to Swiggy's servers - exposing name, exact DOB, address, Aadhaar number, and photograph. This creates a massive privacy risk: if Swiggy's database is breached (as many Indian company databases have been), all this data is exposed. Additionally, Swiggy can monetise, share, or misuse this data. The ZK approach provides: (1) <strong>Minimal data disclosure</strong> - only the single boolean fact is shared; (2) <strong>Breach resistance</strong> - a hacked Swiggy database contains only 288-byte proofs, useless to attackers; (3) <strong>User sovereignty</strong> - Priya's identity data never leaves her device; (4) <strong>DPDPA compliance</strong> - India's Digital Personal Data Protection Act requires data minimisation - ZKPs are the perfect technical implementation of this principle.</p>
+      </div>
+    </div>
+
+    <!-- Q10 — MULTI SELECT (3 marks) -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">10</div>
+        <div class="q-type ms">Multi-Select</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">3 marks</div>
+      </div>
+      <div class="q-text">Which of the following are genuine current production use-cases of Zero-Knowledge Proofs in blockchain? Select ALL that apply. (1 mark each, up to 3 marks.)</div>
+      <ul class="multi-options">
+        <li class="correct">A) Zcash shielded transactions - proving payment validity without revealing sender, receiver, or amount</li>
+        <li class="correct">B) ZK-Rollups (zkSync, StarkNet) - proving correct execution of thousands of transactions off-chain with a single on-chain proof</li>
+        <li class="wrong">C) Bitcoin SegWit - a ZKP system for reducing transaction weight</li>
+        <li class="correct">D) Monero Bulletproofs - proving transaction amounts are non-negative (range proofs) without revealing the amounts</li>
+        <li class="wrong">E) Ethereum's Proof of Work - using ZKPs to prove mining difficulty</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answers: A, B, D (3 marks)</strong>
+        <p><strong>A - TRUE:</strong> Zcash has used Groth16 zk-SNARKs since 2018 for shielded transactions - real production ZKPs on a live blockchain.</p>
+        <p><strong>B - TRUE:</strong> zkSync Era, StarkNet, Polygon zkEVM, Scroll, and Linea are all live ZK-Rollups processing real transactions today.</p>
+        <p><strong>C - FALSE:</strong> Bitcoin's SegWit (Segregated Witness) is a transaction format change that separates signature data, not a ZKP system whatsoever.</p>
+        <p><strong>D - TRUE:</strong> Monero integrated Bulletproofs in 2018, replacing its previous range proof scheme. This is a live production use of Bulletproofs proving non-negative amounts confidentially.</p>
+        <p><strong>E - FALSE:</strong> Proof of Work uses computational puzzles (hash finding), not zero-knowledge proofs. There is no ZKP element in PoW mining.</p>
+      </div>
+    </div>
+
+    <!-- Q11 — TRUE/FALSE 2 marks -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">11</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">2 marks</div>
+      </div>
+      <div class="q-text">Statement: "A ZK-Rollup is less secure than the base Layer 1 blockchain it posts proofs to, because transactions are executed off-chain and an attacker could submit fraudulent state transitions."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Full Justification Required (2 marks)</strong>
+        <p><strong>This statement is FALSE.</strong></p>
+        <p>This describes Optimistic Rollups (which rely on a fraud window), not ZK-Rollups. A ZK-Rollup is actually <strong>as secure as the base Layer 1</strong> - not less secure. Here is why:</p>
+        <p>When a ZK-Rollup batch is submitted to the Layer 1 smart contract, it includes a cryptographic ZK proof (e.g., a SNARK or STARK) that mathematically proves every transaction in the batch was executed correctly - valid signatures, no double-spends, correct balance updates. The Layer 1 smart contract <strong>verifies this proof before accepting the new state root</strong>. It is mathematically impossible (computationally infeasible) to construct a valid proof for an incorrect state transition without breaking the underlying cryptographic hardness assumption (ECC discrete log for SNARKs, hash collisions for STARKs). An attacker cannot submit fraudulent state transitions because they cannot generate a valid proof for a false state. The security guarantee is cryptographic and immediate - there is no 7-day fraud window as in Optimistic Rollups. (1 mark for correct False; 1 mark for justification explaining ZK proof verification prevents fraudulent state transitions.)</p>
+      </div>
+    </div>
+
+    <!-- MARKS SUMMARY -->
+    <div style="background: linear-gradient(135deg, #2E1760, #1A2D5A); border-radius: 10px; padding: 20px 24px; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Total Marks</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace;">25 / 25</div>
+      </div>
+      <div style="flex: 1; min-width: 220px;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7); line-height: 2;">
+          Q1 - Q7: 7 × MCQ = 7 marks<br>
+          Q8: Multi-Select (4 correct options) = 4 marks<br>
+          Q9: Descriptive ZK Design = 8 marks<br>
+          Q10: Multi-Select (3 correct options) = 3 marks<br>
+          Q11: True/False + justification = 2 marks<br>
+          Bonus True/False (if added) = 1 mark
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<div class="module-footer">
+  <strong>MasterStroke Academy</strong> - Certified MST Blockchain Developer Program &nbsp;|&nbsp;
+  Module 4: Cryptography &nbsp;|&nbsp; Sub-Module 4.4: Zero-Knowledge Proofs &nbsp;|&nbsp;
+  Next: <strong>Sub-Module 4.5 - Commitments &amp; Verifiable Random Functions (VRFs)</strong>
+</div>
+
+
+

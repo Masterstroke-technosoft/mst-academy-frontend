@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Sub-Module 20.4 - Networking & Community | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+    }
+
+    /* ─── HEADER ─── */
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    /* ─── SECTION TITLES ─── */
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    /* ─── PROSE ─── */
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ─── CALLOUT BOXES ─── */
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    /* ─── OBJECTIVE GRID ─── */
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    /* ─── W5 GRID ─── */
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row {
+      display: grid; grid-template-columns: 110px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    /* ─── VISUAL DIAGRAM ─── */
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline { margin: 24px 0; }
+    .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+    .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+    .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+    .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-right { padding: 0 0 28px 4px; }
+    .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+    .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+    .tl-body strong { color: var(--ink); }
+
+    /* ─── FEATURE PILLS ─── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    /* ─── TWO COLUMN ─── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card {
+      border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid;
+    }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    /* ─── STAT CARDS ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    /* ─── ASSESSMENT ─── */
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+    }
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text {
+      font-size: 15.5px; font-weight: 600; color: var(--ink);
+      margin-bottom: 18px; line-height: 1.6;
+    }
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct {
+      border-color: var(--green); background: var(--green-light);
+      color: var(--ink);
+    }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+      font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    /* ─── SCORE SUMMARY ─── */
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* ─── FOOTER ─── */
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    /* ─── HIGHLIGHT STRIP ─── */
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid       { grid-template-columns: 1fr; }
+      .two-col        { grid-template-columns: 1fr; }
+      .stat-row       { grid-template-columns: 1fr 1fr; }
+      .glossary-grid  { grid-template-columns: 1fr; }
+      .module-title   { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">🤝 Module 20 &nbsp;·&nbsp; Sub-Module 20.4 of 5</div>
+<h1 class="module-title">Networking & Community - <span class="highlight">The Invisible Job Market</span></h1>
+<p class="module-subtitle">80% of Web3 jobs are never posted publicly. They are filled through referrals, DMs, and community reputation. This sub-module gives you the exact playbook to build a network that brings opportunities to you - without ever cold-applying.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 20 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (Community & Networking Best Practices)</div>
+  <div class="meta-chip green">Phase 4 · Career Launchpad</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🕸️</div>
+    <div class="obj-text">
+      <strong>Map the Web3 networking ecosystem</strong>
+      Identify the 5 types of communities (Discord, Twitter, GitHub, Forums, Events) and how they connect to job opportunities.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💬</div>
+    <div class="obj-text">
+      <strong>Engage effectively without being spammy</strong>
+      Ask smart questions, contribute value, and build a reputation that makes people want to refer you.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🌐</div>
+    <div class="obj-text">
+      <strong>Leverage the MST ecosystem for career growth</strong>
+      MST Dev Forum, Discord, hackathons, and grant programmes - how to use each to land a job.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📈</div>
+    <div class="obj-text">
+      <strong>Transform online presence into inbound offers</strong>
+      Proven tactics that convert a Twitter thread into a DM, and a Discord helper role into a full-time offer.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL-WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">How a Discord “Helper” Became a Core Developer at a DeFi Protocol</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In early 2023, Aditya - a computer science student from Nashik with no prior blockchain work experience - joined the MST Developer Discord. He didn't know anyone. He didn't have a job. He just wanted to learn.</p>
+  <br>
+  <p>Instead of lurking, Aditya started answering basic questions in the #solidity-help channel. “How do I fix this Hardhat compilation error?” He'd post the solution. “What's the difference between `memory` and `storage`?” He'd write a short explanation. He wasn't the smartest person in the server - but he was the most consistent. Within 3 months, he had answered over 200 questions. The community moderators noticed and gave him a “Community Helper” badge.</p>
+  <br>
+  <p>That badge caught the attention of a DeFi protocol building on MST. Their DevRel lead DMed Aditya: “We've seen your answers - you clearly understand the protocol. Are you open to a part-time developer advocate role?” Aditya interviewed, demonstrated his knowledge (which he had built entirely by helping others), and got the job. Six months later, he was promoted to a full-time Smart Contract Engineer. He never applied. <strong>The job came to him.</strong></p>
+</div>
+
+<p>This is the power of community-first networking in Web3. Unlike traditional industries where networking means awkward LinkedIn messages and cold emails, Web3 networking is about <strong>public proof of competence</strong>. Every helpful answer, every open-source pull request, every insightful tweet becomes a piece of your resume that the right people will see.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">How Web3 Communities Replaced the Resume</h2>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2008 - 2013</div>
+      <div class="tl-body"><strong>The cypherpunk mailing list era.</strong> Early Bitcoin developers communicated via email lists and IRC channels. Reputation was built through technical contributions to Bitcoin Core. Satoshi himself was just an email address. Jobs didn't exist - you were either a contributor or you weren't.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015 - 2017</div>
+      <div class="tl-body"><strong>Ethereum's Reddit and Gitter genesis.</strong> The Ethereum community coalesced on r/ethereum and Gitter. Vitalik Buterin was active in discussions. Early Solidity devs built their reputation by answering questions and sharing code snippets. The first “DevRel” hires were simply the most helpful community members.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2018 - 2020</div>
+      <div class="tl-body"><strong>Discord becomes the blockchain town square.</strong> Every protocol launched a Discord server. The role of “Community Manager” was born. Hackathons moved online (ETHGlobal, Gitcoin). Twitter/X became the public forum for thought leadership. Getting a job often started with a DM after a hackathon win.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2021 - Present</div>
+      <div class="tl-body"><strong>The fully on-chain portfolio network.</strong> Today, a developer's “network” includes their GitHub contribution graph, their Lens profile, their Dune dashboard views, and their Discord role badges. Hiring managers scan these signals before ever seeing a CV. The community is the first-round interview.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Web3 Networking Funnel - Where to Be, and Why</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 20.4-A · The Web3 Networking Funnel</div>
+  <pre>
+  ┌────────────────────────────────────────────────────────────┐
+  │  STAGE 1: DISCOVERY – Passive visibility                    │
+  │  GitHub (pinned repos) · Twitter bio · Lens/Link3 profile   │
+  │  ─────────────────────────────────────────────────────────  │
+  │  STAGE 2: ENGAGEMENT – Active contribution                  │
+  │  Discord (answer questions) · Forum (write tutorials)       │
+  │  Twitter (share insights) · GitHub (PR reviews)             │
+  │  ─────────────────────────────────────────────────────────  │
+  │  STAGE 3: RECOGNITION – Badges, roles, followers            │
+  │  Discord roles (Helper, Dev) · Twitter follower milestone   │
+  │  GitHub stars · Forum reputation points                     │
+  │  ─────────────────────────────────────────────────────────  │
+  │  STAGE 4: OPPORTUNITY – Inbound DMs & referrals             │
+  │  Recruiters reach out · Founders DM · Referral to job        │
+  │  Hackathon prize becomes grant · Talk invite becomes offer  │
+  └────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">Each stage builds on the previous. You cannot skip from Stage 1 to Stage 4 - you must build reputation through consistent public contribution.</div>
+</div>
+
+<p>Think of your Web3 career as a public performance. Every helpful answer you write on Discord, every insightful thread you post on Twitter, every clean PR you submit - these are all building blocks of your reputation. Unlike a CV which you send to one recruiter at a time, your community contributions are visible to <strong>everyone simultaneously</strong>, 24/7. One excellent answer can be seen by a dozen hiring managers over the next six months.</p>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Golden Rule of Web3 Networking</div>
+  <p><strong>Don't ask for a job. Become the person that jobs ask for.</strong> When you consistently provide value - answering questions, writing documentation, reporting bugs - opportunities naturally flow toward you. The moment you ask “any jobs?” in a Discord server, you become just another job seeker. The moment you answer someone's technical question, you become an expert.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE – THE 5 COMMUNITY CHANNELS
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The 5 Platforms That Matter - And How to Use Each One</h2>
+
+<p>Your networking strategy must span five distinct platforms. Each serves a different purpose, and neglecting any one weakens your overall presence.</p>
+
+<div class="feature-list">
+
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Discord - The Real-Time Reputation Engine</div>
+      <div class="feature-desc">
+        <strong>Why it matters:</strong> Most blockchain protocols (including MST) use Discord as their primary community hub. Hiring managers and core developers are active in these servers.<br>
+        <strong>Best practices:</strong> Join the MST Developer Discord. Complete the onboarding. Set your nickname to “YourName | Solidity Dev”. Find the #help or #solidity channels. Answer 2-3 questions per day - even simple ones. Over time, request a “Helper” or “Contributor” role.<br>
+        <strong>Pitfall:</strong> Never DM people you don't know asking for a job. Always contribute publicly first. Let the DMs come to you.<br>
+        <strong>MST-specific:</strong> The MST Discord has dedicated channels for #dev-general, #solidity, #wasmify, and #jobs. The #jobs channel is where MST ecosystem projects post openings - but you need at least a “Community Member” role to access it.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Twitter/X - The Public Portfolio</div>
+      <div class="feature-desc">
+        <strong>Why it matters:</strong> Twitter is where Web3 founders, VCs, and senior engineers share ideas and hire people. A single thread can go viral and reach 100,000+ people.<br>
+        <strong>Best practices:</strong> Optimise your bio: “Solidity Dev | Building on MST | Prev: deployed staking pool on testnet.” Tweet 2-3 times per week: share a code snippet, a lesson learned, a review of a new EIP. Write one technical thread per month. Engage with MST's official account and key ecosystem figures.<br>
+        <strong>Content ideas:</strong> “Today I gas-optimised a loop from 120k to 40k - here's how.” “Just deployed my first ERC-721 on MST Testnet - what I wish I knew.” “Why SARAL is the biggest unlock for mobile Web3.”<br>
+        <strong>Pitfall:</strong> Don't only tweet “gm” and price predictions. Provide technical value. Recruiters scroll through your timeline - they want to see your engineering mind, not your market opinions.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">GitHub - The Proof of Work</div>
+      <div class="feature-desc">
+        <strong>Why it matters:</strong> Your GitHub profile is the most visited page after your CV. It's where your code lives, and where recruiters verify your skills.<br>
+        <strong>Best practices (extending 20.2):</strong> Contribute to open-source MST ecosystem projects: fix a typo, add a test, improve documentation. Submit PRs. Review others' PRs. Star repos you admire. Follow key MST developers - their activity appears in your feed, keeping you visible.<br>
+        <strong>Networking hack:</strong> When you submit a PR to an MST ecosystem project, the maintainer will review it. That review interaction is a networking touchpoint. If your PR is high quality, the maintainer will remember your name. Later, when their protocol is hiring, your GitHub username will appear in their “recruit from contributors” search.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Developer Forums - The Searchable Knowledge Base</div>
+      <div class="feature-desc">
+        <strong>Why it matters:</strong> Forums like the MST Dev Forum, Ethereum StackExchange, and Reddit's r/ethdev are indexed by Google. A well-written answer on a forum can be read by thousands of developers over years.<br>
+        <strong>Best practices:</strong> Register on the MST Dev Forum (forum.mstblockchain.com). Set up your profile with your GitHub and Twitter links. Answer questions in the “Smart Contracts” and “Tooling” categories. Write at least one detailed “How-to” guide per quarter.<br>
+        <strong>Long-term value:</strong> Forum answers compound. A single post from 2023 can still be sending traffic to your profile in 2026. Recruiters searching for “MST staking contract example” will find your tutorial, see your name, and click through to your GitHub.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Hackathons & Events - The Accelerated Relationship Builder</div>
+      <div class="feature-desc">
+        <strong>Why it matters:</strong> A 48-hour hackathon builds relationships faster than 6 months of online interaction. You work side-by-side with other developers, sponsors meet you face-to-face (or screen-to-screen), and winning a prize adds a powerful credential.<br>
+        <strong>Best practices:</strong> Participate in MST-sponsored hackathons (check MST Dev Forum or Discord for announcements). Join ETHIndia (the largest Indian Web3 hackathon). Even if you don't win, submit a project - you'll get feedback from judges who are often hiring managers. Network in the Discord channels during the event. Follow up with a thank-you tweet tagging the organisers.<br>
+        <strong>In-person events:</strong> Attend local Web3 meetups in Bangalore, Delhi, Mumbai, or your nearest city. Meetups are smaller, less intimidating, and excellent for 1-on-1 conversations. Bring a demo of your project on your phone - showing code is infinitely better than handing out business cards.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- W5 Grid for deeper dive -->
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the single most effective networking activity for a junior developer?</div>
+      <div class="w5-a">Consistently answering questions in a protocol's Discord server. It builds trust with the exact people who later hire for that ecosystem. It's public, permanent, and demonstrates both technical skill and communication ability.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why is cold-applying to jobs less effective in Web3?</div>
+      <div class="w5-a">Because Web3 hiring managers are overwhelmed with applications. They filter by signals: “Has this person contributed to our ecosystem? Have I seen their name before?” A referred candidate (or a recognised community member) skips the resume pile entirely.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How do I start networking if I know nobody?</div>
+      <div class="w5-a">Pick one protocol (MST). Join its Discord. Read the last 50 messages in #help. Find a question you can answer. Write a helpful reply. Do this 3 times. You are now a contributing member. Repeat for 30 days. You now have a reputation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What should I avoid doing?</div>
+      <div class="w5-a">Never send unsolicited DMs asking for jobs or mentorship. Never spam your project link in every channel. Never engage in toxic arguments. Reputation takes months to build and seconds to destroy.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">The MST Ecosystem Networking Map</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 20.4-B · MST Community Channels & Their Career Functions</div>
+  <pre>
+                      ┌──────────────────────┐
+                      │    MST DEVELOPER       │
+                      │       DISCORD          │
+                      │  #solidity #wasmify     │
+                      │  #jobs #grants         │
+                      └──────────┬─────────────┘
+                                 │
+          ┌──────────────────────┼──────────────────────┐
+          │                      │                      │
+          ▼                      ▼                      ▼
+  ┌──────────────┐     ┌─────────────────┐    ┌─────────────────┐
+  │  MST DEV     │     │  MST TWITTER/X  │    │  MST HACKATHONS │
+  │   FORUM      │     │  @MSTBlockchain │    │  & EVENTS       │
+  │  Tutorials,  │     │  DevRel tweets, │    │  ETHIndia,      │
+  │  Q&A, How-to │     │  community spot-│    │  MST Hack Season │
+  └──────┬───────┘     │  lights         │    └────────┬────────┘
+         │             └────────┬────────┘             │
+         │                      │                      │
+         └──────────────────────┼──────────────────────┘
+                                │
+                                ▼
+                    ┌───────────────────────┐
+                    │   MST GRANT PROGRAM   │
+                    │  initGrant, buildGrant│
+                    │  scaleGrant           │
+                    └───────────────────────┘
+                                │
+                                ▼
+                    ┌───────────────────────┐
+                    │   JOB OFFERS &        │
+                    │   COLLABORATIONS      │
+                    └───────────────────────┘
+  </pre>
+  <div class="diagram-caption">Your activity in each channel feeds into the others. Answering questions on Discord leads to forum invites. Writing great forum posts gets shared on Twitter. Tweeting about your project earns you hackathon teammates. Winning a hackathon opens the door to MST grants - and the grant programme is the direct pipeline to funded startups hiring developers.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Passive Networker vs. Active Community Builder</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Behaviour</th>
+      <th class="bad">❌ Passive / Invisible</th>
+      <th class="good">✅ Active / Opportunity-Magnet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Discord</td>
+      <td class="bad">Joined, never sent a message. Lurks only.</td>
+      <td class="good">Answers 2-3 questions daily in #solidity-help. Has a “Helper” badge.</td>
+    </tr>
+    <tr>
+      <td>Twitter/X</td>
+      <td class="bad">Bio: “blockchain enthusiast 🚀”. Follows 500 accounts, tweets nothing.</td>
+      <td class="good">Bio: “Solidity dev | MST testnet: 0x1234”. Shares code snippets, writes monthly threads.</td>
+    </tr>
+    <tr>
+      <td>GitHub</td>
+      <td class="bad">Empty contribution graph. Forks repos but never contributes.</td>
+      <td class="good">Green graph. Submitted PRs to MST ecosystem projects. Maintains own well-documented repos.</td>
+    </tr>
+    <tr>
+      <td>Events</td>
+      <td class="bad">Registers for hackathons but doesn't submit. Watches talks but doesn't ask questions.</td>
+      <td class="good">Submits projects at every hackathon. Asks thoughtful questions during Q&A. Follows up with speakers on Twitter.</td>
+    </tr>
+    <tr>
+      <td>DM strategy</td>
+      <td class="bad">DMs strangers: “Sir any job?”</td>
+      <td class="good">Never DMs first. People DM her after seeing her contributions, asking if she's open to opportunities.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL-WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Indian Developers Who Networked Their Way Into Web3</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🐦</div>
+    <div class="feature-content">
+      <div class="feature-title">Pooja - From 0 Followers to Job Offer via Twitter</div>
+      <div class="feature-desc">Pooja was a QA engineer with no blockchain experience. She spent 2 months learning Solidity, then started tweeting daily about her progress. She tweeted every bug she encountered and how she fixed it. One thread - “10 Solidity mistakes I made so you don't have to” - got 400+ likes. A founder of a Web3 security startup saw it, DM'd her, and offered her a role as a Security Researcher. Her Twitter account was her portfolio.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">💬</div>
+    <div class="feature-content">
+      <div class="feature-title">Arun - The Discord Answer Machine</div>
+      <div class="feature-desc">Arun was a college student who spent 3 hours a day in the MST Discord, answering every question he could in #solidity. He became one of the top 10 contributors by message count. The MST DevRel team invited him to become a moderator. Six months later, an ecosystem project building a DEX on MST needed a junior Solidity dev. The DevRel team immediately recommended Arun. He got the job without a formal interview - they had already been “interviewing” him for 6 months.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏆</div>
+    <div class="feature-content">
+      <div class="feature-title">Deepa - Hackathon Winner to Funded Founder</div>
+      <div class="feature-desc">Deepa and her team won an MST-sponsored hackathon with a SARAL-based mobile wallet for gig workers. The MST grants team reached out and offered them an initGrant ($1,000) to continue building. They used the grant to deploy on testnet, then applied for buildGrant ($10,000). Today, they are a funded startup with 5 employees - all from a 48-hour hackathon project.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Principles - Know These for the MCQ</h2>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">1</div><div class="feature-content"><div class="feature-title">The 80/20 Rule of Web3 Hiring</div><div class="feature-desc">80% of jobs are filled through referrals and community reputation, not public job postings. Networking is not optional - it's the primary job search channel.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">2</div><div class="feature-content"><div class="feature-title">Contribution Before Ask</div><div class="feature-desc">Never ask for a job, mentorship, or favour in a public channel before you have contributed value. Your first 50 messages should all be answers, tutorials, or code - not requests.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">3</div><div class="feature-content"><div class="feature-title">Discord Helper → Referral</div><div class="feature-desc">The most reliable path to a Web3 job without experience: join a protocol Discord, answer questions consistently for 3-6 months, earn a role, then get referred by the DevRel team.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">4</div><div class="feature-content"><div class="feature-title">Twitter is Your Public Diary</div><div class="feature-desc">Tweet your learning journey, not just successes. Recruiters value authenticity and growth trajectory. A developer who tweets “Today I learned about reentrancy” is more hireable than one who only tweets “I'm an expert.”</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">5</div><div class="feature-content"><div class="feature-title">Hackathons Are Accelerated Networking</div><div class="feature-desc">One hackathon weekend can build relationships equivalent to 3 months of online presence. Always submit a project, even if incomplete. The judges' feedback is a direct line to industry professionals.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">6</div><div class="feature-content"><div class="feature-title">MST Grant Programme Is a Career Accelerator</div><div class="feature-desc">Winning an MST grant (initGrant, buildGrant, scaleGrant) gives you funding, mentorship, and instant ecosystem credibility. Grant recipients are heavily recruited by MST ecosystem projects.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3); font-size:11px;">7</div><div class="feature-content"><div class="feature-title">Consistency Over Virality</div><div class="feature-desc">One viral tweet is less valuable than 100 consistent, helpful interactions. Reputation is built on reliability, not spikes. The developer who answers one question every day for a year is far more trusted than the one who had a single tweet blow up.</div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (10 MARKS – 10 MCQ)
+════════════════════════════════════════════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 20.4 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions (Networking Best Practices)</div>
+      <div class="q-section-meta">10 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">According to industry data, what percentage of Web3 jobs are filled through referrals and community reputation rather than public job postings?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 20%</li>
+        <li><span class="opt-key">B</span> 50%</li>
+        <li class="correct"><span class="opt-key">C</span> 80% ✅</li>
+        <li><span class="opt-key">D</span> 95%</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C</div><p>The 80/20 rule is widely cited: 80% of Web3 jobs are filled through referrals and community reputation. This makes networking the primary job search channel, not a supplement.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the most effective FIRST action to build reputation in a protocol's Discord server?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> DM the admin asking for a job</li>
+        <li><span class="opt-key">B</span> Post your project link in every channel</li>
+        <li class="correct"><span class="opt-key">C</span> Consistently answer questions in the #help channel ✅</li>
+        <li><span class="opt-key">D</span> Add a flashy animated profile picture</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: C</div><p>Providing value by answering questions builds trust and visibility. Job requests and self-promotion before contribution are considered spam and damage reputation.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which Twitter bio is most likely to attract a recruiter's attention?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> “Blockchain enthusiast. Web3 believer. 🚀”</li>
+        <li class="correct"><span class="opt-key">B</span> “Solidity Dev | Deployed staking pool on MST Testnet | Prev: ERC-721 marketplace | Open to freelance” ✅</li>
+        <li><span class="opt-key">C</span> “Crypto trader. NFTs. DM for collab.”</li>
+        <li><span class="opt-key">D</span> “Student. Learning blockchain. Looking for opportunities.”</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>A bio with specific skills, verifiable achievements (chain/contract), and a clear professional stance is 10x more effective than vague enthusiasm.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">You want to contribute to the MST ecosystem on GitHub. Which of the following is the best first contribution?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> A major refactor of the SARAL protocol</li>
+        <li class="correct"><span class="opt-key">B</span> Fixing a typo in the documentation and submitting a PR ✅</li>
+        <li><span class="opt-key">C</span> Creating a new token standard without discussion</li>
+        <li><span class="opt-key">D</span> Forking the repository and never making a pull request</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Small, uncontroversial contributions (typo fixes, adding a test, improving a README) are the easiest way to get your first PR merged, build rapport with maintainers, and understand the contribution workflow.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why are hackathons considered “accelerated networking” events?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Because they provide free food and swag</li>
+        <li class="correct"><span class="opt-key">B</span> Because 48 hours of intense collaboration builds relationships equivalent to months of online interaction, and judges/sponsors are often hiring managers ✅</li>
+        <li><span class="opt-key">C</span> Because you can add “hackathon participant” to your CV</li>
+        <li><span class="opt-key">D</span> Because they are the only way to meet people in Web3</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The intensity, teamwork, and direct access to sponsors/judges who are often hiring create relationship depth that online chats cannot replicate. Winning or even participating opens doors.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of the MST Grant Program in the context of career building?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> It is a charity that gives away free money</li>
+        <li class="correct"><span class="opt-key">B</span> It funds your project, provides mentorship, and signals ecosystem credibility - making grant recipients heavily recruited by MST ecosystem startups ✅</li>
+        <li><span class="opt-key">C</span> It replaces the need for a CV</li>
+        <li><span class="opt-key">D</span> It guarantees a job at MST Foundation</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Grants validate your technical ability and commitment. Recipients are seen as “ecosystem insiders” and are often approached by projects needing developers.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">You have been active in the MST Discord for one month, answering questions daily. You see a job posting in the #jobs channel. What is the best way to express interest?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Immediately DM the hiring manager with your CV and salary expectations</li>
+        <li class="correct"><span class="opt-key">B</span> Reply in the thread (if public) with a brief, professional message linking to your GitHub and a relevant contribution you made in the server ✅</li>
+        <li><span class="opt-key">C</span> Post “interested” in the channel and wait</li>
+        <li><span class="opt-key">D</span> Ask a friend to refer you without mentioning your community activity</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Public, professional engagement that references your established community contributions is the most effective. It shows you understand the protocol and have already added value. Unsolicited DMs are still discouraged unless invited.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">You have zero Web3 experience and a brand-new GitHub account. What is the most effective long-term strategy to build a network from scratch?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Pick one ecosystem (MST), learn its tech deeply, join its Discord/Forum, answer questions daily, build public projects, and document the journey on Twitter - for at least 6 months ✅</li>
+        <li><span class="opt-key">B</span> Send your CV to 100 companies every week</li>
+        <li><span class="opt-key">C</span> Focus on getting as many Twitter followers as possible by following everyone</li>
+        <li><span class="opt-key">D</span> Wait until you are “ready” before engaging publicly</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>Deep ecosystem focus, consistent public contribution, and documenting the learning journey build a reputation that attracts opportunities. Spray-and-pray CV sending and follower-chasing are ineffective.</p></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of these actions is most likely to damage your Web3 reputation?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Writing a blog post with a minor technical inaccuracy</li>
+        <li class="correct"><span class="opt-key">B</span> Sending unsolicited DMs to multiple community members asking for a job ✅</li>
+        <li><span class="opt-key">C</span> Asking a question that was already answered in the FAQ</li>
+        <li><span class="opt-key">D</span> Tweeting less than once a week</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Unsolicited job-seeking DMs are the fastest way to be marked as spam and ignored. Honest mistakes or inactivity are far less damaging.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">A well-known MST core developer tweets: “Interesting challenge: how would you design a gas-efficient way to batch 100 token transfers?” You have a good idea. What should you do?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Reply with a concise technical thread explaining your approach (e.g., using a multi-call pattern), and include a link to a code snippet if possible ✅</li>
+        <li><span class="opt-key">B</span> DM them: “Sir, I can solve this. Please give me a job.”</li>
+        <li><span class="opt-key">C</span> Like the tweet and hope they notice you</li>
+        <li><span class="opt-key">D</span> Post a generic reply: “Great question! Following.”</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>A substantive technical reply demonstrates your expertise publicly, potentially getting seen by the core developer and their followers. Job requests are inappropriate; generic engagement is invisible.</p></div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 20.4 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ (Networking Best Practices) <span>(1 mark each) = 10 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 20.4</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Community Reputation</div>
+    <div class="glossary-def">The trust and recognition a developer earns through consistent, helpful participation in public forums, Discord servers, and open-source projects.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">DevRel (Developer Relations)</div>
+    <div class="glossary-def">A team within a protocol that bridges the gap between core developers and the broader ecosystem. They often identify and refer active community members for jobs.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">80/20 Rule of Web3 Hiring</div>
+    <div class="glossary-def">The observation that approximately 80% of Web3 jobs are filled through referrals and community networks, not through public job boards.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">PR (Pull Request)</div>
+    <div class="glossary-def">A proposed change to a codebase on GitHub. Submitting quality PRs is a primary way to build technical reputation in open-source ecosystems.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Hackathon</div>
+    <div class="glossary-def">A time-bound event (typically 24-72 hours) where developers build projects. In Web3, hackathons are primary networking and hiring venues.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">MST Grant Program</div>
+    <div class="glossary-def">A funding initiative (initGrant, buildGrant, scaleGrant) that provides capital, mentorship, and ecosystem integration to builders on MST. Grant recipients gain significant career visibility.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 20 · Sub-Module <strong>20.4</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 20.5 - Career Paths →</p>
+</div>
+
+</body>
+</html>

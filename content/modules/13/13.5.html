@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 13.5 - Mini-Project: Build a Weather Oracle | MasterStroke Academy</title>
+<meta name="description" content="Build a fully functional weather oracle using MST's WASMify. Write Rust code, generate ZK proofs, deploy Solidity contracts, and bring real‑world temperature data trustlessly on‑chain — all with sub‑paisa fees.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 13 &nbsp;·&nbsp; Sub-Module 13.5 of 5</div>
+<h1 class="module-title">Mini-Project: Build a <span class="highlight">Weather Oracle</span></h1>
+<p class="module-subtitle">Put everything you've learned into practice. In this capstone-style mini-project, you'll build a complete, trustless weather oracle using MST's WASMify - writing Rust code, generating ZK proofs, deploying a Solidity consumer contract, and bringing real-world temperature data on-chain without trusting any single data source.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 30 Marks</div>
+  <div class="meta-chip">📋 Project Submission (code that simulates external data feed on-chain)</div>
+  <div class="meta-chip green">Phase 4 · Oracles & WASMify</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🛠️</div>
+    <div class="obj-text">
+      <strong>Build a complete WASMify oracle pipeline from scratch</strong>
+      Design and implement the entire data flow - from fetching external weather data to generating a ZK proof to settling an on-chain smart contract.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🦀</div>
+    <div class="obj-text">
+      <strong>Write a Rust-based WASM module for deterministic computation</strong>
+      Compile weather logic into WebAssembly and understand how to structure code for provable execution.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📜</div>
+    <div class="obj-text">
+      <strong>Deploy and verify a Solidity consumer contract on MST</strong>
+      Use Hardhat, configure MST Testnet, and interact with the WASMify Verifier to accept or reject proofs.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧪</div>
+    <div class="obj-text">
+      <strong>Test end-to-end with simulated weather data</strong>
+      Run the off-chain executor, submit proofs, and observe the smart contract reacting - exactly as it would in production.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Farmer, the Insurance, and the Blockchain Rain Gauge</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In the arid fields of Marathwada, a farmer named Tukaram bought a blockchain-based crop insurance policy. The policy promised a payout of ₹50,000 if the monsoon rainfall in his district fell below 400 mm by the end of September. The smart contract held the insurer's funds in escrow. The insurer had deployed a weather oracle that, every day, fetched official rainfall data from the Indian Meteorological Department's API, ran a WASM module to compute the cumulative rainfall, and submitted a ZK proof to the contract. The farmer didn't have to trust the insurer, the API, or even the oracle operator - the ZK proof guaranteed the computation was correct. On October 1st, the contract verified the final proof: rainfall was 387 mm. The payout of ₹50,000 was released to Tukaram's wallet within seconds. The gas cost for the entire oracle over three months? Less than ₹10 on MST.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Weather Oracles - The First Killer App for Trustless Data</h2>
+<p>Weather data has been one of the earliest and most compelling use cases for blockchain oracles. Agriculture, insurance, logistics, and energy trading all depend on accurate, tamper-proof weather information. Traditional parametric insurance (payouts triggered by a predefined index, like rainfall amount) has existed for decades, but it relies on a central authority to certify the data. Blockchain changed that by enabling smart contracts to execute payouts automatically - but only if they could trust the incoming weather data.</p>
+<p>Early solutions used centralised oracles, but these introduced a single point of failure. Decentralised oracle networks like Chainlink added redundancy, yet they still required multiple trusted nodes and exposed raw data. WASMify, with its ZK-proof approach, allowed a single execution of a complex rainfall computation to be verified on-chain without any trust in the executor. This project simulates exactly that: you'll build a mini-oracle that reads a simulated temperature file, checks if the average is below a threshold, and settles a contract - all trustlessly.</p>
+
+<div class="highlight-strip">
+  <strong>Why this project matters:</strong> It's a perfect synthesis of blockchain, zero-knowledge, and real-world data. Completing it demonstrates you can design, code, and deploy a working oracle - a skill that top DeFi and insurance protocols actively seek.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Oracle You're Building - An Automatic Rainfall Judge</h2>
+<div class="callout analogy">
+  <div class="callout-label">🌧️ The Analogy</div>
+  <p>Imagine you're an umpire who must decide if a cricket match is rained out. But instead of looking at the sky yourself, you have a locked box. The box contains a thermometer and a calculator. The box can be opened, measurements taken, and then it prints a signed note saying "Rainfall was 387 mm - below 400 mm." The signature can't be forged. You never saw the raw data, but you trust the math. That's your WASM module. The signed note is the ZK proof. The umpire is the smart contract. This project teaches you to build that locked box.</p>
+</div>
+<p>You'll create a simple "weather station" that checks if the average temperature of a shipment or a crop season stayed below a critical threshold. The project will simulate the temperature data, prove the average is below the limit, and release escrowed funds on MST.</p>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">DATA</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where does the temperature data come from?</div>
+      <div class="w5-a">For this project, you'll use a <strong>simulated JSON file</strong> containing an array of temperature readings (one per minute for a 48-hour period). In a real deployment, this would come from IoT sensors or a trusted weather API. The WASM module will read this file as input.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">COMPUTE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What does the WASM module do?</div>
+      <div class="w5-a">It takes the temperature array, computes the <strong>average temperature</strong>, and checks if it's below a threshold (e.g., 8°C for a cold-chain vaccine). It returns <code>1</code> (true) if the condition is met, or <code>0</code> (false). This is a deterministic, provable computation.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">PROVE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is the ZK proof generated?</div>
+      <div class="w5-a">You'll use a simulated ZK prover (or a real one like RISC Zero if your hardware permits). The prover takes the WASM binary and the temperature data, executes the module, and produces a <strong>proof</strong> and the <strong>public output</strong> (1 or 0). For this project, we'll provide a simple Node.js script that simulates proof generation by hashing the output - you can replace it with a real prover later.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">④</div><div class="w5-word">VERIFY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the MST contract use the proof?</div>
+      <div class="w5-a">A Solidity consumer contract calls the WASMify Verifier contract with the proof and the claimed output. If valid, it executes the business logic - for example, releasing an escrowed payment to a farmer or certifying a shipment. The entire verification costs about ₹0.024 on MST.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 ARCHITECTURE DIAGRAM -->
+<div class="section-label">05 &nbsp; Project Architecture</div>
+<h2 class="section-title">The Complete Data Flow</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.5-A · Weather Oracle Architecture</div>
+  <pre>
+  ┌───────────────────────────────────────────────────────────┐
+  │                    OFF‑CHAIN (Your Laptop)                 │
+  │                                                            │
+  │  ┌──────────────────┐   ┌──────────────────────────────┐  │
+  │  │ Weather JSON      │──▶│ Rust → WASM Module            │  │
+  │  │ (simulated data)  │   │ compute_average()            │  │
+  │  └──────────────────┘   └──────────────┬───────────────┘  │
+  │                                        │                  │
+  │                                        ▼                  │
+  │                             ┌──────────────────────┐      │
+  │                             │  ZK Prover (Simulated)│      │
+  │                             │  • Executes WASM      │      │
+  │                             │  • Generates proof    │      │
+  │                             └──────────┬───────────┘      │
+  └────────────────────────────────────────┼──────────────────┘
+                                           │ Submit proof + result
+                                           ▼
+  ┌───────────────────────────────────────────────────────────┐
+  │                    ON‑CHAIN (MST Testnet)                  │
+  │                                                            │
+  │  ┌─────────────────────────────────────────────────────┐  │
+  │  │  WeatherOracle.sol (Consumer)                        │  │
+  │  │  ┌────────────────────────────────────────────┐     │  │
+  │  │  │  function settle(bytes proof, uint256 res) │     │  │
+  │  │  │  ┌──────────────────────────────────────┐  │     │  │
+  │  │  │  │  WASMify Verifier (pre‑deployed)     │  │     │  │
+  │  │  │  │  verifies proof                      │  │     │  │
+  │  │  │  └──────────────────────────────────────┘  │     │  │
+  │  │  │  if valid && res == 1 → release payment    │     │  │
+  │  │  └────────────────────────────────────────────┘     │  │
+  │  └─────────────────────────────────────────────────────┘  │
+  └───────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The off-chain world computes and proves; the on-chain world verifies and acts. No trust required.</div>
+</div>
+
+<!-- 06 TECHNICAL DEEP DIVE: STEP‑BY‑STEP IMPLEMENTATION -->
+<div class="section-label">06 &nbsp; Technical Deep Dive - Implementation</div>
+<h2 class="section-title">Let's Build the Weather Oracle Together</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 1: Write the WASM Module in Rust</h3>
+<p>Create a file <code>weather_check.rs</code>. The function <code>check_average</code> receives a pointer to a slice of temperature values (floating point) and returns 1 if the average is below the threshold (e.g., 8°C).</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// weather_check.rs
+#[no_mangle]
+pub extern "C" fn check_average(temps_ptr: *const f32, len: usize) -> u32 {
+    if len == 0 { return 0; }
+    let temps = unsafe { std::slice::from_raw_parts(temps_ptr, len) };
+    let sum: f32 = temps.iter().sum();
+    let avg = sum / len as f32;
+    if avg < 8.0 { 1 } else { 0 }
+}
+</pre>
+<p>Compile to WASM using <code>rustc --target wasm32-unknown-unknown --crate-type cdylib weather_check.rs -o weather_check.wasm</code>. You now have a portable, deterministic module.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 2: Prepare Simulated Temperature Data</h3>
+<p>Create a JSON file <code>temperatures.json</code> with an array of numbers representing temperatures over 48 hours (one reading per minute = 2880 values). Keep all values below 8°C to test the success case, and include one spike above 8°C to test failure.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 3: Simulate the ZK Prover (Node.js)</h3>
+<p>In a real deployment, you'd use RISC Zero or zkWASM. For this project, we'll simulate proof generation by executing the WASM module and creating a fake proof (a hash of the result). You'll later replace this with a real prover.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// prover.js
+const { readFileSync } = require('fs');
+const { ethers } = require('ethers');
+
+// Simulate running the WASM module (you can use a WASM runtime like wasmer)
+const temps = JSON.parse(readFileSync('temperatures.json'));
+const avg = temps.reduce((a,b) => a+b, 0) / temps.length;
+const result = avg < 8.0 ? 1 : 0;
+
+// Generate a "proof" (in reality, a ZK proof; here we just hash the result)
+const proof = ethers.keccak256(ethers.toUtf8Bytes(result.toString()));
+console.log("Result:", result);
+console.log("Proof:", proof);
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 4: Write the Solidity Consumer Contract</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+// WeatherOracle.sol
+interface IWASMifyVerifier {
+    function verify(bytes calldata proof, uint256 result) external view returns (bool);
+}
+
+contract WeatherOracle {
+    IWASMifyVerifier public verifier;
+    address public insurer;
+    address public farmer;
+    uint256 public payoutAmount;
+    bool public settled;
+
+    event PayoutReleased(address indexed farmer, uint256 amount);
+
+    constructor(address _verifier, address _farmer) payable {
+        verifier = IWASMifyVerifier(_verifier);
+        insurer = msg.sender;
+        farmer = _farmer;
+        payoutAmount = msg.value;
+    }
+
+    function settle(bytes calldata proof, uint256 result) external {
+        require(!settled, "Already settled");
+        require(verifier.verify(proof, result), "Invalid proof");
+        settled = true;
+        if (result == 1) {
+            payable(farmer).transfer(payoutAmount);
+            emit PayoutReleased(farmer, payoutAmount);
+        }
+        // else, no payout
+    }
+}
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 5: Deploy to MST Testnet</h3>
+<p>Use Hardhat. Configure <code>hardhat.config.js</code> with MST Testnet RPC and your private key. Deploy the <code>WeatherOracle</code> with the address of the WASMify Verifier (use a placeholder or a mock for now). Fund the contract with test MSTC.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+npx hardhat run scripts/deploy.js --network mst_testnet
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Step 6: Submit the Proof from the Off-Chain Script</h3>
+<p>Modify <code>prover.js</code> to include ethers.js and send a transaction to the deployed contract with the proof and result.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+const contract = new ethers.Contract(oracleAddress, abi, wallet);
+const tx = await contract.settle(proof, result);
+await tx.wait();
+console.log("Settled! Tx:", tx.hash);
+</pre>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.5-B · End-to-End Sequence</div>
+  <pre>
+  Off‑Chain Server                        MST Smart Contract
+  ──────────────                         ───────────────────
+  1. Read temperature JSON
+  2. Run WASM module → result (1/0)
+  3. Generate ZK proof
+  4. Submit proof + result  ──────────▶  5. Verify proof
+                                        6. If valid && result==1
+                                           → transfer payout
+                                        7. Emit PayoutReleased
+  </pre>
+  <div class="diagram-caption">All steps are automated. In a production system, the off-chain server runs periodically (e.g., end of season) triggered by a cron job or an event listener.</div>
+</div>
+
+<!-- 07 INTERACTIVE BUILD‑ALONG -->
+<div class="section-label">07 &nbsp; Interactive Build-Along</div>
+<h2 class="section-title">Click Each Step for Detailed Guidance</h2>
+
+<details>
+  <summary>🛠️ Prerequisites: Set Up Development Environment</summary>
+  <div class="content">
+    <p>Install Rust and <code>wasm32-unknown-unknown</code> target. Install Node.js. Have a Hardhat project ready.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+rustup target add wasm32-unknown-unknown
+npm install hardhat ethers dotenv
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>📝 Step 1: Create the WASM binary</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+rustc --target wasm32-unknown-unknown --crate-type cdylib weather_check.rs -o weather_check.wasm
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>📊 Step 2: Generate test data</summary>
+  <div class="content">
+    <p>Create a Python script or manually craft a JSON array of 2880 temperatures all below 8°C.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🧪 Step 3: Run the simulated prover</summary>
+  <div class="content">
+    <p>Execute <code>node prover.js</code>. It will output the result and proof hash.</p>
+  </div>
+</details>
+
+<details>
+  <summary>⚙️ Step 4: Deploy WeatherOracle.sol</summary>
+  <div class="content">
+    <p>In your Hardhat project, add the contract to <code>contracts/</code>, write a deploy script, and run it. Fund with test MSTC.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🚀 Step 5: Submit the proof</summary>
+  <div class="content">
+    <p>Modify <code>prover.js</code> to connect to the deployed contract and call <code>settle</code>. Check MST Explorer for the transaction.</p>
+  </div>
+</details>
+
+<!-- 08 GAS COST AND MST ADVANTAGES -->
+<div class="section-label">08 &nbsp; Gas Cost &amp; MST Advantages</div>
+<h2 class="section-title">Why This Project Runs on MST, Not Ethereum</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Operation</th><th>Ethereum Cost (₹)</th><th>MST Cost (₹)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Deploy WeatherOracle</td><td>₹5,000-₹10,000</td><td>₹0.03</td></tr>
+    <tr><td>Submit proof (250k gas)</td><td>₹2,925</td><td>₹0.024</td></tr>
+    <tr><td>Total for 100 settlements (yearly)</td><td>₹2,97,000</td><td>₹2.43</td></tr>
+  </tbody>
+</table>
+<div class="highlight-strip">
+  <strong>MST makes micro-insurance viable.</strong> On Ethereum, deploying and running this oracle for a single policy would cost more than the premium. On MST, it's practically free.
+</div>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Debugging Tips for Your Project</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">WASM module returns wrong result</div>
+      <div class="feature-desc">Double-check that you're using the correct data types (f32) and that the array length matches. Test the module locally with a small array before proving.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Proof verification fails on-chain</div>
+      <div class="feature-desc">Ensure the proof format matches what the Verifier expects. In the simulated version, your contract's <code>verify</code> function must mimic the prover's logic. In production, use the standard verifier contract.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Running out of test MSTC</div>
+      <div class="feature-desc">Use the MST Faucet to get test tokens. Remember that even 0.1 MSTC is enough for thousands of transactions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 13.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">30</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Project Submission (Weather Oracle)</div>
+      <div class="q-section-meta">1 Question · 30 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">Project Submission</span><span class="q-diff hard">Hard</span><span class="q-marks">30 marks</span></div></div>
+      <div class="q-text">Build the complete weather oracle as described. Submit a GitHub repository containing: the Rust source and compiled WASM binary, the Node.js prover script, the Solidity consumer contract, a Hardhat deploy script, a test file, and a README with instructions.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">📦 DELIVERABLES</div></div>
+        <div class="cc-scenario">Your submission must demonstrate a working pipeline: from reading temperature data to settling the on-chain contract.</div>
+        <div class="cc-requirements">
+          <strong>Required files:</strong><br>
+          • <code>weather_check.rs</code> and compiled <code>weather_check.wasm</code><br>
+          • <code>temperatures.json</code> (sample data)<br>
+          • <code>prover.js</code> that outputs result and proof, and submits to contract<br>
+          • <code>contracts/WeatherOracle.sol</code><br>
+          • <code>test/WeatherOracle.test.js</code> (test settle function)<br>
+          • <code>scripts/deploy.js</code><br>
+          • <code>README.md</code> explaining architecture and how to run<br>
+          • (Optional) A real ZK proof using RISC Zero or zkWASM for extra credit.
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">📊 Marking Rubric (30 marks)</div>
+          <p>
+            <strong>WASM module (5 marks):</strong> Correctly computes average and returns conditional. Compiles without errors.<br>
+            <strong>Prover script (5 marks):</strong> Generates result and proof hash, and successfully calls the contract.<br>
+            <strong>Consumer contract (8 marks):</strong> Properly implements verification, C-E-I, and event. Uses correct Solidity version.<br>
+            <strong>Deployment & testing (6 marks):</strong> Deployed to MST Testnet (address provided), at least 2 test cases (success and failure).<br>
+            <strong>Documentation (4 marks):</strong> Clear README, architecture diagram, setup instructions.<br>
+            <strong>Real ZK integration (2 marks bonus):</strong> Using a real prover (RISC Zero/zkWASM) instead of simulated hash. (Extra credit, can exceed 30.)
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 13.5 Assessment Summary</div>
+      <div class="score-row">Project Submission (GitHub Repository) <span>(30 marks)</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">30</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 13.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">WASM Module</div><div class="glossary-def">A compiled WebAssembly binary that performs a deterministic computation. Used in WASMify as the off-chain logic to be proven.</div></div>
+  <div class="glossary-item"><div class="glossary-term">ZK Prover</div><div class="glossary-def">Software that generates a zero-knowledge proof of a computation. In this project, simulated with a hash; in production, a real prover like RISC Zero.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Consumer Contract</div><div class="glossary-def">The on-chain Solidity contract that consumes the verified data and executes business logic (e.g., insurance payout).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Parametric Insurance</div><div class="glossary-def">An insurance model where payout is automatically triggered by a predefined index (like rainfall) rather than an assessed loss.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 13 · Sub-Module <strong>13.5</strong> of 5 &nbsp;·&nbsp; End of Module 13 - Oracles & WASMify Complete ✅</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+
+
+    <div class="module-badge">⚡ Module 14 · Sub-Module 14.3 of 7</div>
+    <h1 class="module-title">Optimistic <span class="highlight">Rollups</span></h1>
+    <p class="module-subtitle">How Arbitrum and Optimism process thousands of transactions off-chain, post compressed data to Ethereum, and use fraud proofs to guarantee security. The scaling technology that has saved Ethereum from its own success - and why a 7-day wait is the price of trust.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 50 Minutes</div>
+        <div class="meta-chip purple">🎯 15 Marks (MCQ + True/False)</div>
+        <div class="meta-chip">📋 Fraud proofs, Arbitrum, Optimism, challenge period</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s &amp; Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🧠</div>
+            <div class="feature-title">Explain the core philosophy behind Optimistic Rollups - "innocent until proven guilty"</div>
+            <div class="feature-desc">Understand why they are called "optimistic," how they assume transactions are valid by default, and how fraud proofs punish dishonest actors.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔍</div>
+            <div class="feature-title">Trace a complete fraud proof from submission to resolution</div>
+            <div class="feature-desc">Walk through the step-by-step process of how a challenger identifies a fraudulent transaction, initiates a dispute, and forces the rollup to correct its state.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">⚖️</div>
+            <div class="feature-title">Compare Arbitrum and Optimism - the two dominant Optimistic Rollups</div>
+            <div class="feature-desc">Understand their architectural differences: interactive fraud proofs vs. single-round proofs, the role of the Sequencer, and why Arbitrum chose a multi-round approach.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🌐</div>
+            <div class="feature-title">Evaluate Optimistic Rollups against MST's high-throughput L1</div>
+            <div class="feature-desc">Analyse the trade-offs: 7-day withdrawal delays vs. instant finality, L1 data posting costs vs. native low fees, and when each approach makes sense.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Million-Dollar Typo That Almost Nobody Caught</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In early 2023, a developer deployed a DeFi protocol to Arbitrum, Ethereum's most popular Optimistic Rollup. The contract contained a subtle bug: a misplaced decimal point in the interest rate calculation that would give borrowers an extra 1% on every loan repayment. The developer had tested thoroughly on a local testnet, but the bug slipped through. The contract went live. Within hours, a user noticed the anomaly and began borrowing and repaying in a loop, slowly draining the lending pool.</p>
+        <br>
+        <p>But here's the critical part: the Optimistic Rollup had a <strong>7-day challenge window</strong>. During that week, a security researcher running a verification node spotted the suspicious transactions. They ran the computation locally and discovered the discrepancy - the contract's on-chain state didn't match the correct execution. The researcher submitted a <strong>fraud proof</strong> to the Ethereum L1, demonstrating exactly which transaction was fraudulent and why. The rollup's state was rolled back to the pre-fraud point, the attacker's gains were reversed, and the developer patched the contract. The total loss was less than $5,000 - not the millions it could have been.</p>
+        <br>
+        <p>This story illustrates the genius and the frustration of Optimistic Rollups. The genius: a single honest verifier can protect the entire system, even if the Sequencer (the entity that orders transactions) is malicious. The frustration: it takes 7 days for withdrawals to finalise because the system must allow time for challenges. This is the fundamental trade-off of optimistic security: you gain scalability by trusting first and verifying later, but you pay for that trust with time. In this sub-module, you'll learn exactly how this mechanism works, how it compares to other scaling solutions, and how MST's architecture offers a different path to the same goal.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Are Optimistic Rollups? - The "Innocent Until Proven Guilty" Blockchain</div>
+    <h2 class="section-title">Trust, But Verify - With Teeth</h2>
+    <p>An <strong>Optimistic Rollup</strong> is a Layer-2 scaling solution that executes transactions off-chain, posts compressed transaction data to the Layer-1 blockchain (usually Ethereum), and <strong>assumes transactions are valid by default</strong>. The "optimistic" part means the system is optimistic that everyone is honest - it doesn't verify every transaction. Instead, it provides a <strong>challenge window</strong> (typically 7 days) during which anyone can submit a <strong>fraud proof</strong> if they detect an invalid transaction. If a fraud proof is valid, the dishonest party is penalised (they lose their staked bond), and the invalid state is corrected.</p>
+    <p>This is fundamentally different from how a Layer-1 blockchain works. On Ethereum L1, every single validator re-executes every single transaction to verify correctness. This is what makes L1 so secure - but also so slow. On an Optimistic Rollup, only one entity (the Sequencer) executes transactions. Everyone else just <strong>trusts</strong> that the Sequencer did it correctly - but they retain the right to <strong>challenge</strong> if they suspect fraud. This shifts the computational burden from "everyone verifies everything" to "one executes, everyone can challenge." The result is a massive increase in throughput: Arbitrum processes ~40,000 TPS compared to Ethereum's ~30 TPS.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.3-A · How an Optimistic Rollup Works - The Full Lifecycle</div>
+        <pre>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         OPTIMISTIC ROLLUP ARCHITECTURE                        │
+│                                                                              │
+│  Users ──▶ Sequencer ──▶ Batch Transactions ──▶ Post Compressed Data to L1   │
+│              │                                      │                        │
+│              │ (executes txs,                       │ (calldata on Ethereum)  │
+│              │  produces blocks)                    │                        │
+│              ▼                                      ▼                        │
+│         ┌──────────────────┐              ┌──────────────────────┐           │
+│         │   L2 STATE       │              │   L1 ROLLUP CONTRACT │           │
+│         │ (Arbitrum/Op)    │              │ (on Ethereum)        │           │
+│         │                  │              │                      │           │
+│         │ • Fast execution │              │ • Stores state root  │           │
+│         │ • Low fees       │              │ • Accepts fraud      │           │
+│         │ • Instant        │              │   proofs             │           │
+│         │   confirmations  │              │ • Enforces 7‑day     │           │
+│         └──────────────────┘              │   challenge window   │           │
+│                                           └──────────────────────┘           │
+│                                                      │                       │
+│                                                      ▼                       │
+│                                           ┌──────────────────────┐           │
+│                                           │   VERIFIER NODES     │           │
+│                                           │ (Anyone can run!)    │           │
+│                                           │                      │           │
+│                                           │ • Re‑execute batches  │           │
+│                                           │ • Compare state roots │           │
+│                                           │ • Submit fraud proofs │           │
+│                                           │   if discrepancy      │           │
+│                                           └──────────────────────┘           │
+└─────────────────────────────────────────────────────────────────────────────┘
+        </pre>
+        <div class="diagram-caption">The Sequencer executes transactions and posts data to L1. Verifier nodes watch for fraud and can challenge invalid state transitions within the 7-day window.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; The Fraud Proof - How One Honest Node Protects Everyone</div>
+    <h2 class="section-title">The Mechanism That Makes "Optimistic" Actually Secure</h2>
+    <p>The <strong>fraud proof</strong> (also called a fault proof) is the heart of Optimistic Rollup security. It is a cryptographic proof that a specific state transition - a transaction or a batch of transactions - was executed incorrectly. When a fraud proof is submitted and verified, the rollup contract on L1 punishes the dishonest party and reverts the fraudulent state.</p>
+    <p>Here is how a fraud proof works, step by step:</p>
+
+    <div class="timeline">
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 1</div>
+                <div class="tl-body"><strong>The Sequencer posts a new state root to L1.</strong> After processing a batch of transactions, the Sequencer computes the new state root (a Merkle hash of the entire rollup state) and submits it to the rollup contract on Ethereum. The Sequencer also posts the compressed transaction data as calldata on Ethereum, so anyone can reconstruct the state.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 2</div>
+                <div class="tl-body"><strong>A Verifier detects a problem.</strong> A verifier node (which anyone can run) re-executes the same batch of transactions independently and computes its own state root. If the verifier's state root differs from the Sequencer's posted state root, a fraud has occurred - the Sequencer either made a mistake or deliberately tried to cheat.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 3</div>
+                <div class="tl-body"><strong>The Verifier submits a fraud proof.</strong> The verifier submits a transaction to the L1 rollup contract, staking a bond (typically 1 ETH or more). The fraud proof identifies the specific batch, the disputed state transition, and - critically - pinpoints the <strong>exact instruction</strong> where the Sequencer's execution diverged from the correct execution.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 4</div>
+                <div class="tl-body"><strong>The L1 contract resolves the dispute.</strong> This is where Arbitrum and Optimism differ. In <strong>single-round fraud proofs</strong> (Optimism), the L1 contract re-executes the disputed instruction on-chain and compares the result. In <strong>interactive fraud proofs</strong> (Arbitrum), the dispute is narrowed down through multiple rounds until only one instruction remains in question, which is then executed on L1.</div>
+            </div>
+        </div>
+        <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-right">
+                <div class="tl-year">Step 5</div>
+                <div class="tl-body"><strong>The dishonest party is penalised.</strong> If the fraud proof is valid, the dishonest Sequencer loses their staked bond (or a portion of it). The verifier is rewarded. The fraudulent state is reverted to the last valid state. If the fraud proof is invalid (the verifier was wrong), the verifier loses their bond.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Economic Security of Fraud Proofs</div>
+        <p>The entire security of an Optimistic Rollup rests on the assumption that <strong>at least one honest verifier exists</strong>. As long as there is one person running a verification node, any fraud will be detected and challenged within the 7-day window. This is a much lighter security assumption than requiring a majority of validators to be honest (as in PoS). It's called "1-of-N honesty" - and it's the reason Optimistic Rollups are considered as secure as the L1 they settle on, despite processing most transactions off-chain.</p>
+    </div>
+
+    <div class="section-label">05 &nbsp; The 7-Day Challenge Window - Why So Long?</div>
+    <h2 class="section-title">The Most Controversial Feature of Optimistic Rollups</h2>
+    <p>If you've ever used an Optimistic Rollup, you've encountered the most frustrating aspect: <strong>withdrawing funds takes 7 days</strong>. You initiate a withdrawal on Arbitrum or Optimism, and your funds are locked for a week before they appear in your Ethereum wallet. This is not a bug. It is a deliberate security feature - the price of optimistic trust.</p>
+    <p>The 7-day window exists to give verifiers enough time to detect and challenge fraudulent state transitions. If the window were shorter - say, 1 hour - a sophisticated attacker could submit a fraudulent batch and hope that no verifier notices before the window closes. With 7 days, the probability that at least one honest verifier will check the state is extremely high. The longer the window, the more secure the system.</p>
+    <p><strong>Why not make it shorter?</strong> Several reasons:</p>
+    <p><strong>1. Network latency:</strong> The Ethereum L1 itself can experience congestion. A fraud proof transaction might take hours to be included if gas prices spike.</p>
+    <p><strong>2. Verifier computation time:</strong> Re-executing a large batch of transactions takes time. A verifier might need hours to process a full batch, especially on modest hardware.</p>
+    <p><strong>3. Interactive dispute resolution (Arbitrum):</strong> The multi-round dispute process itself takes time, as both parties must submit evidence back and forth.</p>
+    <p><strong>4. Human response time:</strong> Verifier operators are humans. They might be asleep, on vacation, or dealing with other issues. A 7-day window ensures they have time to respond.</p>
+    <p><strong>Third-party bridges solve this (mostly):</strong> In practice, most users don't wait 7 days. They use <strong>liquidity providers</strong> - services like Hop Protocol or Across that provide instant withdrawals for a small fee. The LP takes on the risk of the 7-day wait in exchange for a fee. This is how the ecosystem has adapted to the challenge window.</p>
+
+    <div class="section-label">06 &nbsp; Arbitrum vs. Optimism - Two Approaches to the Same Problem</div>
+    <h2 class="section-title">The Tale of Two Rollups</h2>
+    <p>Arbitrum and Optimism are the two dominant Optimistic Rollups on Ethereum. Both achieve the same goal - scaling Ethereum by executing transactions off-chain - but they take different approaches to fraud proofs, governance, and EVM compatibility.</p>
+
+    <table>
+        <thead><tr><th>Feature</th><th>Arbitrum One</th><th>OP Mainnet (Optimism)</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Fraud Proof Type</strong></td><td><strong>Interactive</strong> (multi-round). The dispute is narrowed down step by step until only one instruction is disputed, then executed on L1.</td><td><strong>Single-round</strong>. The entire disputed transaction is re-executed on L1. Simpler, but more expensive in gas.</td></tr>
+            <tr><td><strong>EVM Compatibility</strong></td><td><strong>Full EVM equivalence</strong> at the bytecode level. Any Solidity contract runs unchanged.</td><td><strong>EVM compatibility</strong> with minor differences. Some opcodes behave slightly differently.</td></tr>
+            <tr><td><strong>Sequencer</strong></td><td>Centralised Sequencer (Arbitrum Foundation) with plans for decentralisation.</td><td>Centralised Sequencer (OP Labs) with plans for decentralisation.</td></tr>
+            <tr><td><strong>Challenge Window</strong></td><td>~7 days (configurable)</td><td>~7 days</td></tr>
+            <tr><td><strong>Fraud Proofs Live?</strong></td><td>Yes (since 2023)</td><td>Yes (since 2023, upgraded from earlier version)</td></tr>
+            <tr><td><strong>Governance Token</strong></td><td>ARB (Arbitrum DAO)</td><td>OP (Optimism Collective)</td></tr>
+            <tr><td><strong>Unique Feature</strong></td><td>Arbitrum Nitro (WASM-based execution), AnyTrust chains</td><td>OP Stack (modular L2 framework), Superchain vision</td></tr>
+        </tbody>
+    </table>
+
+    <p><strong>Arbitrum's interactive fraud proof - a closer look:</strong> Arbitrum uses a <strong>bisection protocol</strong>. When a verifier challenges a batch, they don't ask the L1 to re-execute the entire batch (which would be enormously expensive). Instead, they play a game: the challenger and the Sequencer narrow down the dispute to a single instruction, alternating turns. The process works like this:</p>
+    <p><strong>Round 1:</strong> The challenger says "The state after step 500 of this batch is wrong." The Sequencer replies "No, it's correct."</p>
+    <p><strong>Round 2:</strong> The dispute is narrowed to "The state after step 250 is wrong."</p>
+    <p><strong>Round 3:</strong> Further narrowed to step 125, then 62, then 31, and so on - until only one instruction remains.</p>
+    <p><strong>Final round:</strong> The L1 contract executes that single instruction and determines who was right. The loser forfeits their bond.</p>
+    <p>This interactive approach is vastly more gas-efficient than re-executing the entire batch on L1. A batch might contain thousands of transactions; executing all of them on Ethereum would cost millions in gas. The bisection protocol reduces the on-chain execution to a single instruction.</p>
+
+    <div class="section-label">07 &nbsp; The Sequencer - The Centralised Chokepoint</div>
+    <h2 class="section-title">Why Optimistic Rollups Still Have a Single Point of Control</h2>
+    <p>Both Arbitrum and Optimism currently use a <strong>centralised Sequencer</strong> - a single node operated by the development team that orders and executes transactions. This is the most significant criticism of Optimistic Rollups. If the Sequencer goes down, the entire rollup halts. If the Sequencer censors your transaction, it never gets included.</p>
+    <p>However, the Sequencer <strong>cannot steal funds</strong>. Even a malicious Sequencer cannot forge a valid transaction because every transaction must be signed by the user's private key. And if the Sequencer tries to submit a fraudulent state update, any verifier can challenge it through a fraud proof. The Sequencer can delay and censor, but cannot steal.</p>
+    <p><strong>The path to decentralisation:</strong> Both Arbitrum and Optimism have roadmaps for decentralising their Sequencers. The plan involves rotating Sequencer duties among a set of staked validators, or using a consensus mechanism among multiple Sequencers. Until then, users of Optimistic Rollups must trust that the Sequencer will include their transactions - but they never need to trust the Sequencer with their funds.</p>
+
+    <div class="section-label">08 &nbsp; Optimistic Rollups vs. MST's High-Throughput L1</div>
+    <h2 class="section-title">Why Build a Rollup When the Base Layer Is Already Fast?</h2>
+    <p>Optimistic Rollups exist because Ethereum L1 is slow and expensive. They are a workaround - a clever, well-engineered workaround, but a workaround nonetheless. MST Blockchain takes a fundamentally different approach: <strong>make the base layer fast and cheap enough that you don't need rollups.</strong></p>
+
+    <table>
+        <thead><tr><th>Property</th><th>Ethereum + Optimistic Rollup</th><th>MST L1</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Throughput</strong></td><td>~30 TPS (L1) + ~40,000 TPS (L2 aggregate)</td><td>4,000+ TPS on L1</td></tr>
+            <tr><td><strong>Transaction cost</strong></td><td>$0.01-$0.10 (L2) + L1 settlement costs</td><td>₹0.001-₹0.01 (a fraction of a paisa)</td></tr>
+            <tr><td><strong>Withdrawal time</strong></td><td>7 days (native) or instant via bridge LP</td><td>~6 seconds (instant finality)</td></tr>
+            <tr><td><strong>Security model</strong></td><td>1-of-N honesty + Sequencer trust</td><td>55,000+ validators, Parlia PoSA</td></tr>
+            <tr><td><strong>Complexity for user</strong></td><td>High: bridge assets, manage L1+L2, understand challenge period</td><td>Low: one chain, one wallet, instant everything</td></tr>
+            <tr><td><strong>Composability</strong></td><td>Fragmented: dApps on different L2s cannot interact atomically</td><td>Full: all dApps share one state</td></tr>
+            <tr><td><strong>Bridge risk</strong></td><td>Yes: L1-L2 bridge holds billions</td><td>None: single layer, no bridges needed</td></tr>
+        </tbody>
+    </table>
+
+    <p>This comparison is not to say that Optimistic Rollups are bad technology. They are brilliant - they allow Ethereum to scale despite its L1 limitations, and they have enabled an enormous ecosystem of dApps that would be impossible on L1 alone. But they introduce complexity, delay, and risk that a high-throughput L1 like MST avoids entirely. The choice depends on your priorities: if you need Ethereum's specific network effects and security budget, rollups are the price of admission. If you need simplicity, speed, and low cost, a high-throughput L1 like MST is the natural choice.</p>
+
+    <div class="section-label">09 &nbsp; The Future of Optimistic Rollups - Fraud Proofs, Decentralisation, and Beyond</div>
+    <h2 class="section-title">Where the Technology Is Heading</h2>
+    <p>Optimistic Rollups are not standing still. Several major developments are reshaping the landscape:</p>
+    <p><strong>1. Permissionless fraud proofs:</strong> Currently, only whitelisted verifiers can submit fraud proofs on most rollups. The goal is to allow anyone to challenge - making the system truly trustless.</p>
+    <p><strong>2. Decentralised Sequencers:</strong> Moving from a single Sequencer to a distributed set of Sequencers, reducing censorship risk and single-point-of-failure.</p>
+    <p><strong>3. Shorter challenge windows:</strong> Research into techniques like "single-round fraud proofs with ZK assistance" could reduce the 7-day window to hours or even minutes.</p>
+    <p><strong>4. Hybrid rollups:</strong> Combining Optimistic and ZK approaches - using ZK proofs for fast finality and fraud proofs as a backup. This is the direction Arbitrum's "BOLD" protocol is exploring.</p>
+    <p><strong>5. Cross-rollup interoperability:</strong> Standards like ERC-7683 and intent-based bridges are making it easier to move assets between different rollups without the 7-day wait.</p>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>Optimistic Rollups assume transactions are valid by default, and provide a challenge window for fraud proofs.</strong> A single honest verifier can protect the entire system by challenging invalid state transitions.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>The 7-day challenge window exists to give verifiers enough time to detect and challenge fraud.</strong> It's the price of optimistic security - trust first, verify within a week.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Arbitrum uses interactive fraud proofs (multi-round bisection); Optimism uses single-round fraud proofs.</strong> Interactive proofs are more gas-efficient but more complex to implement.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>The Sequencer is a centralised entity that orders transactions, but cannot steal funds.</strong> It can censor, but any fraudulent state update can be challenged by a verifier.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>MST's high-throughput L1 (4,000+ TPS, near-zero fees) eliminates the need for rollups for most applications.</strong> A single fast chain is simpler, more secure, and more composable than an L1+L2 architecture.</div></div>
+
+    
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.3</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">Optimistic Rollup</div><div class="g-def">A Layer-2 scaling solution that executes transactions off-chain, posts compressed data to L1, and assumes transactions are valid unless challenged by a fraud proof within a 7-day window.</div></div>
+        <div class="glossary-card"><div class="g-term">Fraud Proof</div><div class="g-def">A cryptographic proof submitted to L1 demonstrating that a specific state transition was executed incorrectly. If valid, the dishonest party loses their bond and the state is corrected.</div></div>
+        <div class="glossary-card"><div class="g-term">Challenge Window</div><div class="g-def">The period (typically 7 days) after a state root is posted during which anyone can submit a fraud proof. After the window closes, the state is considered final.</div></div>
+        <div class="glossary-card"><div class="g-term">Sequencer</div><div class="g-def">The entity that orders and executes transactions on an Optimistic Rollup. Currently centralised on most rollups, but can only censor - not steal funds.</div></div>
+        <div class="glossary-card"><div class="g-term">Interactive Fraud Proof</div><div class="g-def">A multi-round dispute resolution process (used by Arbitrum) that narrows a dispute to a single instruction through bisection, minimising on-chain computation.</div></div>
+        <div class="glossary-card"><div class="g-term">Single-Round Fraud Proof</div><div class="g-def">A fraud proof where the entire disputed transaction is re-executed on L1 in one step (used by Optimism). Simpler but more expensive in gas.</div></div>
+        <div class="glossary-card"><div class="g-term">Bisection Protocol</div><div class="g-def">Arbitrum's method for narrowing a dispute: repeatedly splitting the disputed range in half until only one instruction remains in question.</div></div>
+        <div class="glossary-card"><div class="g-term">State Root</div><div class="g-def">A Merkle hash representing the entire state of the rollup (all account balances, contract storage, etc.) at a specific point in time.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.3</strong> of 7 · Next: Sub-Module 14.4 - ZK-Rollups →</p>
+    </div>
+
+

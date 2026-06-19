@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.5 - Transparency & Pseudo-Anonymity | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand:#6C3CE2; --brand-light:#EDE9FB; --brand-dark:#3C1FA0;
+    --accent:#F6A623; --accent-light:#FEF4E0;
+    --green:#16A34A; --green-light:#DCFCE7;
+    --red:#DC2626; --red-light:#FEE2E2;
+    --blue:#1D6FD8; --blue-light:#DBEAFE;
+    --orange:#EA580C; --orange-light:#FFEDD5;
+    --teal:#0D9488; --teal-light:#CCFBF1;
+    --ink:#111827; --ink-2:#374151; --ink-3:#6B7280; --ink-4:#9CA3AF;
+    --border:#E5E7EB; --border-2:#D1D5DB;
+    --surface:#F9FAFB; --surface-2:#F3F4F6;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    --radius:10px; --radius-lg:16px;
+  }
+  body { font-family:var(--sans); color:var(--ink); background:#fff; line-height:1.75; font-size:16px; max-width:880px; margin:0 auto; padding:48px 32px 100px; }
+  .module-badge { display:inline-flex; align-items:center; gap:8px; background:var(--brand-light); color:var(--brand-dark); font-size:11.5px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:20px; }
+  .module-title { font-size:clamp(28px,4vw,40px); font-weight:900; line-height:1.15; color:var(--ink); margin-bottom:12px; letter-spacing:-0.02em; }
+  .module-title .highlight { color:var(--brand); }
+  .module-subtitle { font-size:17px; color:var(--ink-3); font-weight:400; margin-bottom:28px; line-height:1.65; max-width:680px; }
+  .meta-bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:52px; padding-bottom:32px; border-bottom:2px solid var(--border); }
+  .meta-chip { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-size:13px; font-weight:500; color:var(--ink-2); }
+  .meta-chip.purple { background:var(--brand-light); border-color:#C4B5F5; color:var(--brand-dark); }
+  .meta-chip.green  { background:var(--green-light); border-color:#86EFAC; color:#14532D; }
+  .section-label { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--brand); margin-bottom:10px; margin-top:52px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-title { font-size:24px; font-weight:800; color:var(--ink); margin-bottom:18px; letter-spacing:-0.01em; line-height:1.3; }
+  p { color:var(--ink-2); margin-bottom:16px; font-size:15.5px; line-height:1.8; }
+  p strong { color:var(--ink); font-weight:700; }
+  p:last-child { margin-bottom:0; }
+  code { font-family:var(--mono); font-size:13px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:2px 6px; color:var(--brand-dark); }
+  .callout { border-radius:var(--radius-lg); padding:20px 24px; margin:24px 0; border-left:4px solid; }
+  .callout-label { font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .callout p { font-size:15px; margin:0; }
+  .callout.story   { background:#FAFAF5; border-color:var(--accent); }
+  .callout.story .callout-label { color:#92400E; }
+  .callout.key     { background:var(--brand-light); border-color:var(--brand); }
+  .callout.key .callout-label { color:var(--brand-dark); }
+  .callout.warning { background:var(--red-light); border-color:var(--red); }
+  .callout.warning .callout-label { color:var(--red); }
+  .callout.insight { background:var(--teal-light); border-color:var(--teal); }
+  .callout.insight .callout-label { color:var(--teal); }
+  .callout.analogy { background:var(--accent-light); border-color:var(--accent); }
+  .callout.analogy .callout-label { color:#92400E; }
+  .obj-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .obj-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .obj-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .obj-text { font-size:14px; color:var(--ink-2); line-height:1.55; }
+  .obj-text strong { display:block; color:var(--ink); font-weight:700; font-size:13.5px; margin-bottom:2px; }
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px 24px; margin:24px 0; overflow-x:auto; }
+  .diagram-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:20px; text-align:center; }
+  .diagram-wrap pre { font-family:var(--mono); font-size:13px; line-height:1.65; color:var(--ink-2); white-space:pre; margin:0; }
+  .diagram-caption { font-size:12px; color:var(--ink-4); text-align:center; margin-top:16px; font-style:italic; }
+  .feature-list { display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+  .feature-item { display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .feature-num { width:28px; height:28px; border-radius:50%; background:var(--brand); color:white; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .feature-content { flex:1; }
+  .feature-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .feature-desc  { font-size:14px; color:var(--ink-2); line-height:1.6; }
+  /* Spectrum bar */
+  .spectrum-wrap { margin:24px 0; }
+  .spectrum-bar { display:flex; height:48px; border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); }
+  .spectrum-seg { display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; letter-spacing:0.04em; }
+  .spectrum-labels { display:flex; margin-top:8px; }
+  .spectrum-label { font-size:12px; color:var(--ink-3); flex:1; text-align:center; }
+  .spectrum-markers { display:flex; margin-top:16px; gap:12px; flex-wrap:wrap; }
+  .spectrum-marker { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2); }
+  .spectrum-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  /* Block explorer mock */
+  .explorer-mock { border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin:24px 0; }
+  .explorer-header { background:var(--ink); color:white; padding:12px 20px; display:flex; align-items:center; gap:10px; }
+  .explorer-title { font-size:13px; font-weight:700; letter-spacing:0.04em; }
+  .explorer-url   { font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-left:auto; }
+  .explorer-field { display:grid; grid-template-columns:180px 1fr; border-bottom:1px solid var(--border); }
+  .explorer-field:last-child { border-bottom:none; }
+  .explorer-label { background:var(--surface-2); padding:12px 16px; font-size:12px; font-weight:700; color:var(--ink-3); letter-spacing:0.04em; border-right:1px solid var(--border); display:flex; align-items:center; }
+  .explorer-value { padding:12px 16px; font-family:var(--mono); font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .explorer-value .badge { background:var(--green-light); color:var(--green); font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; font-family:var(--sans); }
+  .explorer-value .badge.pending { background:var(--accent-light); color:#92400E; }
+  /* De-anon table */
+  .deanon-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px; }
+  .deanon-table thead th { padding:12px 16px; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; text-align:left; border-bottom:2px solid var(--border); background:var(--surface); color:var(--ink-3); }
+  .deanon-table tbody tr { border-bottom:1px solid var(--border); }
+  .deanon-table tbody tr:hover td { background:var(--surface); }
+  .deanon-table tbody td { padding:13px 16px; vertical-align:top; color:var(--ink-2); line-height:1.55; }
+  .deanon-table tbody td:first-child { font-weight:600; color:var(--ink); }
+  .deanon-table .risk-high { color:var(--red); font-weight:700; }
+  .deanon-table .risk-med  { color:var(--orange); font-weight:700; }
+  .deanon-table .risk-low  { color:var(--green); font-weight:700; }
+  .glossary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .glossary-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+  .glossary-term { font-size:13px; font-weight:700; color:var(--brand); margin-bottom:4px; }
+  .glossary-def  { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+  /* Assessment */
+  .assessment-section { margin-top:64px; }
+  .assessment-header { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .assessment-header h2 { font-size:20px; font-weight:800; color:white; }
+  .marks-total-badge { background:white; border-radius:10px; padding:10px 20px; text-align:center; flex-shrink:0; }
+  .marks-total-badge .num   { font-size:32px; font-weight:900; color:var(--brand); line-height:1; }
+  .marks-total-badge .label { font-size:10px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; }
+  .assessment-body { border:2px solid var(--border); border-top:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); overflow:hidden; }
+  .q-section-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .q-section-title { font-size:13px; font-weight:700; color:var(--ink); }
+  .q-section-meta  { font-size:12px; color:var(--ink-3); }
+  .question-block { padding:28px 28px 0; border-bottom:1px solid var(--border); }
+  .question-block:last-child { border-bottom:none; padding-bottom:28px; }
+  .q-header { display:flex; gap:10px; align-items:flex-start; margin-bottom:14px; }
+  .q-badge { background:var(--brand); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; white-space:nowrap; letter-spacing:0.04em; flex-shrink:0; margin-top:1px; }
+  .q-meta  { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .q-type  { font-size:11.5px; font-weight:600; color:var(--ink-3); }
+  .q-diff  { font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:4px; }
+  .q-diff.easy   { background:var(--green-light);  color:#14532D; }
+  .q-diff.medium { background:var(--accent-light); color:#92400E; }
+  .q-diff.hard   { background:var(--red-light);    color:#7F1D1D; }
+  .q-marks { font-size:12px; color:var(--ink-3); margin-left:auto; font-weight:500; flex-shrink:0; }
+  .q-text { font-size:15.5px; font-weight:600; color:var(--ink); margin-bottom:18px; line-height:1.6; }
+  .options { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:8px; }
+  .options li { display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14.5px; color:var(--ink-2); line-height:1.5; }
+  .options li.correct { border-color:var(--green); background:var(--green-light); color:var(--ink); }
+  .opt-key { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--ink-3); flex-shrink:0; margin-top:1px; min-width:18px; }
+  .options li.correct .opt-key { color:var(--green); }
+  .answer-box { background:var(--green-light); border:1.5px solid #86EFAC; border-radius:var(--radius); padding:18px 20px; margin-bottom:28px; }
+  .answer-box-label { font-size:10.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--green); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .answer-box p { font-size:14.5px; color:var(--ink-2); line-height:1.7; margin:0; }
+  .answer-box p strong { color:var(--ink); }
+  .answer-box .marks-bd { margin-top:12px; padding-top:10px; border-top:1px solid #86EFAC; font-size:13px; color:#14532D; }
+  .answer-box .marks-bd span { font-weight:700; }
+  .tf-box { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .tf-verdict { display:inline-block; font-size:13px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 14px; border-radius:6px; margin-bottom:10px; }
+  .tf-verdict.false { background:var(--red-light); color:#7F1D1D; }
+  .tf-must-write { font-size:11.5px; font-weight:700; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; }
+  .tf-sample { font-size:14.5px; color:var(--ink-2); line-height:1.7; border-left:3px solid var(--brand); padding-left:12px; }
+  .score-summary { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg); padding:28px 32px; margin-top:40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+  .score-label { color:#C4B5F5; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+  .score-row   { color:white; font-size:15px; font-weight:600; margin-bottom:4px; }
+  .score-row span { color:#C4B5F5; font-weight:400; }
+  .score-badge { background:white; border-radius:12px; padding:16px 28px; text-align:center; flex-shrink:0; }
+  .score-badge .score-num  { font-size:44px; font-weight:900; color:var(--brand); line-height:1; }
+  .score-badge .score-text { font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .page-footer { text-align:center; margin-top:64px; padding-top:32px; border-top:2px solid var(--border); }
+  .page-footer p { font-size:13px; color:var(--ink-3); margin-bottom:4px; }
+  @media(max-width:640px){ body{padding:28px 18px 72px;} .obj-grid,.glossary-grid{grid-template-columns:1fr;} .module-title{font-size:26px;} .explorer-field{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 3 &nbsp;·&nbsp; Sub-Module 3.5 of 9</div>
+<h1 class="module-title">Transparency &amp; <span class="highlight">Pseudo-Anonymity</span></h1>
+<p class="module-subtitle">Public blockchains are fully visible to the world - but not necessarily traceable to you. Understanding the critical difference between anonymity, pseudo-anonymity, and full transparency, and why it matters for privacy.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 5 Marks</div>
+  <div class="meta-chip">📋 4 MCQ + 1 True/False</div>
+  <div class="meta-chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔎</div>
+    <div class="obj-text"><strong>Navigate a block explorer</strong>Look up any transaction, wallet, or block on MSTScan and explain what every field means.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🎭</div>
+    <div class="obj-text"><strong>Distinguish anonymity from pseudo-anonymity</strong>Explain precisely why Bitcoin is NOT anonymous - and when pseudo-anonymity becomes traceable.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text"><strong>Explain how KYC bridges identity to addresses</strong>Describe the three main ways real-world identities get linked to wallet addresses.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text"><strong>Apply transparency to Indian governance scenarios</strong>MNREGA, GST, parliamentary expenses - where blockchain transparency serves the public interest.</div>
+  </div>
+</div>
+
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The YouTuber Who Accidentally Revealed His Entire Bitcoin History</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a popular Indian crypto YouTuber with 200,000 subscribers decided to add a donation button to his channel. He pasted his Bitcoin wallet address in the description: <code>1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf</code>. He thought: "My name isn't on this address - it's anonymous!"</p>
+  <br>
+  <p>Within hours, his subscribers were sharing a blockchain explorer link that showed his complete financial history: every Bitcoin he had ever received (including 15 BTC in a single transaction - about ₹45 lakh at the time), every address he had sent to, the exact timestamp of every transaction. Someone in the comments identified the exchange he used (by tracing a transfer to a known exchange address), which meant his real KYC identity was potentially accessible.</p>
+  <br>
+  <p>He had not been hacked. No one had broken any encryption. He had simply shared his address publicly - and the blockchain's radical transparency did the rest. <strong>Pseudo-anonymity evaporates the moment you link your address to your real identity - even once, even accidentally.</strong></p>
+  <br>
+  <p>This story captures the central tension of public blockchain transparency: it is simultaneously a powerful tool against corruption (anyone can verify government payments) and a serious privacy risk (once your address is known, your financial history is permanently public). Understanding this balance is essential for every blockchain developer and user.</p>
+</div>
+
+
+<!-- 03 THE PRIVACY SPECTRUM -->
+<div class="section-label">03 &nbsp; The Privacy Spectrum - From Cash to Blockchain</div>
+<h2 class="section-title">Three Models of Financial Privacy</h2>
+
+<p>Not all financial systems treat privacy the same way. Understanding where blockchain sits on the privacy spectrum helps you design systems appropriately and advise users correctly.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.5-A · The Financial Privacy Spectrum</div>
+  <pre>
+  ←──────────── MORE PRIVATE ────────────────────────────── MORE TRANSPARENT ──────────────────►
+
+  PHYSICAL CASH          PSEUDO-ANONYMOUS               PUBLIC LEDGER          FULL TRANSPARENCY
+  ───────────────        ─────────────────               ─────────────          ─────────────────
+  • No record of         • Transactions public           • All TX public        • Identity + TX
+    who paid whom        • Address ≠ name                • Address = name         both visible
+  • No trail at all      • Traceable if                  • Complete history      • Government
+  • Tax evasion easy       identity is linked              visible                 budgets, court
+  • Theft leaves         • Bitcoin, Ethereum,            • CoinSwitch KYC'd       records
+    no trace               MST public chain                wallets              • RBI/SEBI
+  • Bank robbery        ← MOST BLOCKCHAINS ARE HERE →     after breach           filings
+    is profitable        • WazirX, CoinDCX
+                           see your KYC + address
+
+  EXAMPLES:              EXAMPLES:                        EXAMPLES:             EXAMPLES:
+  Physical ₹500 note     Bitcoin wallet                   Named bank account    Parliamentary
+  Gold coins             Ethereum address                 with public ledger      expense filings
+  Cash payments          MST BridgeKey wallet             (hypothetical)        Court judgments
+  Hawala transfers       Anonymous crypto                                        Public tenders
+  </pre>
+  <div class="diagram-caption">Most public blockchains sit in the "pseudo-anonymous" zone - transparent transactions, non-transparent identities. The identity protection erodes whenever the two are linked.</div>
+</div>
+
+
+<!-- 04 WHAT IS PSEUDO-ANONYMITY -->
+<div class="section-label">04 &nbsp; Pseudo-Anonymity - What It Actually Means</div>
+<h2 class="section-title">Why "Anonymous" Is the Wrong Word for Bitcoin</h2>
+
+<p>Bitcoin is frequently described as "anonymous" in popular media. This is incorrect and dangerously misleading. The correct term is <strong>pseudo-anonymous</strong> - and the distinction matters enormously.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🔑 The Pen Name Analogy</div>
+  <p>A wallet address is like a pen name (pseudonym). The author of a book written under a pen name is not "anonymous" - their pen name has a publication history, a public record, an identifiable writing style. If someone links the pen name to the real author even once - through a signed contract, a public reading, a leaked email - the entire back-catalogue is attributed. The author was never truly anonymous; they were <em>pseudo</em>-anonymous. The same applies to wallet addresses.</p>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.5-B · How a Blockchain Address Works - Public Record, Hidden Identity</div>
+  <pre>
+  WHAT THE WORLD CAN SEE (from a block explorer):
+  ──────────────────────────────────────────────────────────────────────────────────
+  Address: 0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+
+  Transaction History:
+  ─────────────────────────────────────────────────────────────────────────────────
+  DATE         FROM             TO               AMOUNT    STATUS
+  2024-01-15   0x742d...f44e   0xUniswap...     5 ETH    ✅ Confirmed
+  2024-01-10   0xBinance...    0x742d...f44e   10 ETH    ✅ Confirmed
+  2023-12-20   0x742d...f44e   0xFriend...      2 ETH    ✅ Confirmed
+  2023-11-05   0xCoinbase...   0x742d...f44e   20 ETH    ✅ Confirmed
+
+  Current Balance: 23 ETH (~₹38 lakh at current prices)
+  ──────────────────────────────────────────────────────────────────────────────────
+  WHAT THE WORLD CANNOT SEE (without linking this address to a person):
+  ──────────────────────────────────────────────────────────────────────────────────
+  ❌ Whose address this is
+  ❌ This person's real name, phone number, Aadhaar, PAN
+  ❌ Where they live
+  ❌ Their employment or income source
+  ──────────────────────────────────────────────────────────────────────────────────
+  BUT: If we know "this address belongs to Rahul Sharma":
+  ✅ We can see every transaction Rahul has EVER made with this address
+  ✅ We can see his complete balance history
+  ✅ We can trace where his money came from and went to
+  ──────────────────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="diagram-caption">The address is public. The person behind it is not - unless a link is established.</div>
+</div>
+
+
+<!-- 05 HOW IDENTITY GETS LINKED -->
+<div class="section-label">05 &nbsp; De-Anonymisation - How Real Identity Gets Linked to Addresses</div>
+<h2 class="section-title">The Three Main Ways Pseudo-Anonymity Breaks Down</h2>
+
+<table class="deanon-table">
+  <thead>
+    <tr>
+      <th>De-Anonymisation Vector</th>
+      <th>How It Works</th>
+      <th>Indian Context</th>
+      <th>Risk Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>KYC on Exchanges</td>
+      <td>You buy crypto on WazirX, CoinDCX, or CoinSwitch - which require PAN, Aadhaar, and bank account verification. The exchange knows your identity AND your deposit/withdrawal addresses.</td>
+      <td>All Indian exchanges are SEBI/FIU-IND regulated and must comply with AML rules. They share data with authorities on request.</td>
+      <td class="risk-high">HIGH - Immediate and permanent link</td>
+    </tr>
+    <tr>
+      <td>Public Address Sharing</td>
+      <td>You share your address to receive donations, payments, or for public display (like the YouTuber in our story). Anyone who knows your address can see your full history.</td>
+      <td>Indian crypto influencers who posted wallet addresses for donations had their holdings made public by their own communities.</td>
+      <td class="risk-high">HIGH - Voluntary and often irreversible</td>
+    </tr>
+    <tr>
+      <td>Transaction Graph Analysis</td>
+      <td>Companies like Chainalysis, Elliptic, and TRM Labs trace fund flows across addresses. "Input clustering" - when multiple addresses fund one transaction, they're likely the same person. Even without KYC, patterns reveal identity.</td>
+      <td>Indian law enforcement (ED, CBI) uses such tools to trace crypto involved in money laundering and fraud cases - WazirX hack investigations used these methods.</td>
+      <td class="risk-med">MEDIUM - Technical, requires resources</td>
+    </tr>
+    <tr>
+      <td>IP Address Leakage</td>
+      <td>When you broadcast a transaction from your own node, nearby nodes may log your IP address with the transaction. Without a VPN or Tor, your IP can be subpoenaed from your ISP.</td>
+      <td>Using Jio/Airtel connections to broadcast transactions leaves a log at the ISP level accessible via court order.</td>
+      <td class="risk-med">MEDIUM - Requires legal process</td>
+    </tr>
+    <tr>
+      <td>Data Breaches at Exchanges</td>
+      <td>If an exchange is breached, KYC data (name, address, PAN, phone) + associated wallet addresses are exposed. The link between identity and address is in the breach dataset.</td>
+      <td>WazirX, BuyUCoin, and other Indian exchanges have suffered breaches exposing user KYC + wallet data - permanently linking millions of Indians' identities to their blockchain activity.</td>
+      <td class="risk-high">HIGH - Uncontrollable by the user</td>
+    </tr>
+    <tr>
+      <td>OSINT (Open Source Intelligence)</td>
+      <td>Social media, forum posts, donation requests, public profiles - correlated with on-chain data. Someone who posted "I just received 10 BTC!" on Twitter with their address has linked themselves.</td>
+      <td>Indian Reddit and Telegram crypto communities frequently share wallet addresses for charity drives or flex - permanently creating a traceable link.</td>
+      <td class="risk-low">VARIES - Depends on user behaviour</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Once Linked, Always Linked</div>
+  <p>The critical asymmetry: on a traditional database, if someone's data is linked incorrectly, it can be corrected or deleted. On a blockchain, once a transaction linking your identity to an address is recorded - or once you publicly associate yourself with an address - that link is <strong>permanently part of the immutable public record</strong>. There is no "right to be forgotten" on a public blockchain. This is why privacy-by-design is essential from the start.</p>
+</div>
+
+
+<!-- 06 BLOCK EXPLORER -->
+<div class="section-label">06 &nbsp; Reading a Block Explorer - MSTScan</div>
+<h2 class="section-title">What You Can See When You Look Up Any Transaction</h2>
+
+<p>A block explorer is a web interface to query and display blockchain data. MSTScan (mstscan.com) is MST's official block explorer. Anyone - with no login, no permission, no fee - can look up any transaction, any wallet, and any block from the genesis block to right now. This is what "transparent" means in practice.</p>
+
+<div class="explorer-mock">
+  <div class="explorer-header">
+    <div class="explorer-title">🔍 MSTScan - Transaction Detail</div>
+    <div class="explorer-url">mstscan.com/tx/0x4a2b...3f9c</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Transaction Hash</div>
+    <div class="explorer-value"><code>0x4a2b8c9d1e3f5a7b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f3f9c</code></div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Status</div>
+    <div class="explorer-value"><span class="badge">✅ Success</span></div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Block</div>
+    <div class="explorer-value"><strong>#847,293</strong> &nbsp;(14 confirmations)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Timestamp</div>
+    <div class="explorer-value">2024-01-15 10:42:07 UTC &nbsp;(3 days ago)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">From</div>
+    <div class="explorer-value"><code>0x742d35Cc6634C0532925a3b844Bc454e4438f44e</code></div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">To</div>
+    <div class="explorer-value"><code>0x9aF2d5Bb7742C0541239a4c955Cd565f5549g55f</code> &nbsp;(Contract)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Value</div>
+    <div class="explorer-value"><strong>5.00 MSTC</strong> &nbsp;(≈ ₹8,500 at current price)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Transaction Fee</div>
+    <div class="explorer-value"><strong>0.000021 MSTC</strong> &nbsp;(≈ ₹0.04)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Gas Used</div>
+    <div class="explorer-value">21,000 / 21,000 gas &nbsp;(100%)</div>
+  </div>
+  <div class="explorer-field">
+    <div class="explorer-label">Input Data</div>
+    <div class="explorer-value"><code>0x</code> &nbsp;(Simple transfer, no contract call)</div>
+  </div>
+</div>
+
+<p>Everything in this transaction detail is visible to anyone in the world. No login. No subscription. Just a public URL. This is the radical transparency of a public blockchain - and it is simultaneously its greatest strength (accountability) and its most significant privacy challenge.</p>
+
+
+<!-- 07 WHY TRANSPARENCY IS A FEATURE -->
+<div class="section-label">07 &nbsp; Transparency as a Feature - Not Just a Privacy Risk</div>
+<h2 class="section-title">Where Blockchain Transparency Serves the Public Interest</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">🏛️</div>
+    <div class="feature-content">
+      <div class="feature-title">Government Spending - MNREGA and PM-KISAN Payments</div>
+      <div class="feature-desc">India's welfare schemes lose estimated ₹1 lakh crore annually to leakage - ghost beneficiaries, diverted payments, inflated claims. If welfare payments were recorded on a public blockchain, every citizen could verify: "Did money reach the intended beneficiary?" Every district collector, every auditor, every journalist, every beneficiary themselves could trace every rupee from the government treasury to the final recipient's account. Transparency makes corruption visible to everyone - not just internal auditors who can be co-opted.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">🎰</div>
+    <div class="feature-content">
+      <div class="feature-title">MST Gaming - Provably Transparent RTP</div>
+      <div class="feature-desc">Online casinos and gaming platforms are accused of manipulating Return-to-Player (RTP) rates. Players cannot verify whether the platform is actually paying out at the advertised 96% RTP or secretly paying 70%. On MST using the Klethesia protocol, every game outcome is recorded on-chain. Players can independently calculate the actual RTP from all recorded games - not from the platform's claims. This is transparency as a trust mechanism: you don't need to trust the platform because you can verify the math yourself.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--green);">🎓</div>
+    <div class="feature-content">
+      <div class="feature-title">Academic Credentials - IIT Madras On-Chain Degrees</div>
+      <div class="feature-desc">Educational fraud - fake degrees and certificates - costs Indian companies billions in hiring the wrong people. When IIT Madras issues a degree as a blockchain record, any employer anywhere in the world can look up the transaction hash on a block explorer, see that IIT Madras's verified address issued a credential to the student's address on a specific date, and know it's authentic - without contacting IIT Madras, without paying a verification service, without waiting weeks for a physical document check. Transparency makes verification free, instant, and global.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 08 PRIVACY SOLUTIONS -->
+<div class="section-label">08 &nbsp; Privacy Solutions - When Transparency Is Too Much</div>
+<h2 class="section-title">Cryptographic Approaches to Privacy on Public Chains</h2>
+
+<p>When blockchain transparency creates privacy risks, cryptography can help - without sacrificing the verification properties that make blockchain useful.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Zero-Knowledge Proofs (ZK-Proofs)</div>
+      <div class="feature-desc">Allow you to prove something is true without revealing the underlying data. "Prove you are over 18 for a Swiggy alcohol order - without revealing your birthdate." "Prove you have sufficient balance for a transaction - without revealing your total balance." ZK-proofs are the most powerful privacy tool available on public chains. Covered deeply in Sub-Module 4.4 and 16.3.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Address Rotation (UTXO-based privacy)</div>
+      <div class="feature-desc">In Bitcoin's UTXO model, using a fresh address for every transaction's change output makes it harder to link transactions. Standard wallets (Bitcoin Core, Electrum) do this automatically. However, it does not guarantee anonymity - sophisticated clustering algorithms can still link addresses with high confidence. It is a mitigation, not a solution.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's Permissioned Zones - Hybrid Architecture</div>
+      <div class="feature-desc">MST's Hybrid Layer-1 architecture includes both public zones (fully transparent, for DeFi and gaming) and permissioned zones (for enterprise, banking, and sensitive data). In permissioned zones, transaction visibility is restricted to authorised participants - a bank's internal transfers are not visible to the public - while still maintaining the immutability guarantees of blockchain. This architectural flexibility is covered in Module 7.1.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Design Principle</div>
+  <p>As a blockchain developer, you must make deliberate choices about privacy from the start. "Store the hash, not the data" is the first principle - record the Keccak-256 hash of sensitive information on-chain, but keep the actual data off-chain (in encrypted storage). Anyone can verify the hash. Nobody can reconstruct the data. This is how medical records, legal agreements, and identity credentials can be verified on-chain without exposing their contents.</p>
+</div>
+
+
+<!-- 09 ASSESSMENT PREP -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Bitcoin Is NOT Anonymous - It Is Pseudo-Anonymous</div>
+      <div class="feature-desc">Transactions are publicly visible. Wallet addresses are public. Only the link between address and real identity is hidden - and that link is frequently established through exchanges, public posts, and transaction graph analysis.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Explorer - What Anyone Can See</div>
+      <div class="feature-desc">On MSTScan: Transaction hash, status, block number, timestamp, from address, to address, amount, fee, gas used, input data. All visible to anyone, anywhere, at any time, for free. No login required.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">KYC is the Primary De-Anonymisation Mechanism</div>
+      <div class="feature-desc">All SEBI/FIU-IND regulated Indian exchanges require PAN + Aadhaar + bank account. Once you KYC with an exchange, the exchange knows your identity AND your deposit/withdrawal wallet addresses. This link is permanent and legal-process-accessible.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Once Linked, Always Linked</div>
+      <div class="feature-desc">Blockchain records are immutable. If your identity is linked to an address (even by accident, even once), that link is permanently part of the public record. You cannot delete it. "Right to be forgotten" does not exist on a public blockchain.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Store Hash, Not Data</div>
+      <div class="feature-desc">Developer best practice: Store keccak256(sensitive_data) on-chain, not the data itself. Anyone can verify by computing the same hash. Nobody can reconstruct the data. Used for medical records, legal agreements, credentials.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 3.5 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">5</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">4 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 4 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">On Bitcoin's public blockchain, if someone knows your wallet address, what can they see?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Only transactions made in the last 30 days</li>
+        <li><span class="opt-key">B</span> Nothing - Bitcoin is completely anonymous</li>
+        <li class="correct"><span class="opt-key">C</span> Your complete transaction history, current balance, and every address you've interacted with - from the blockchain's inception ✅</li>
+        <li><span class="opt-key">D</span> Only incoming transactions - outgoing transactions are hidden</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>Public blockchains are <strong>fully transparent</strong>. Any address's complete transaction history - every incoming and outgoing transaction, exact amounts, timestamps, counterparty addresses, and current balance - is visible to anyone with internet access, from the very first transaction associated with that address. This is what "transparent" means. The only thing that is NOT visible (without an external link) is <em>whose</em> address it is.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">"Pseudo-anonymity" in the context of public blockchains is BEST described as:</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Complete anonymity - it is impossible to link any transaction to a real person</li>
+        <li><span class="opt-key">B</span> Full transparency - every transaction is linked to a verified real-world identity</li>
+        <li class="correct"><span class="opt-key">C</span> Transactions are publicly visible, but the identity behind an address is not inherently revealed - though it can be linked through external means ✅</li>
+        <li><span class="opt-key">D</span> Only validators and miners can see transaction details</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p><strong>Pseudo-anonymity</strong> means the transactions are fully public (anyone can see amounts, addresses, timestamps) but the addresses are pseudonyms - they don't inherently reveal who controls them. The "pseudo" part means it's not true anonymity: the identity can be linked through KYC on exchanges, public address sharing, IP address logging, or transaction graph analysis. Once linked, the entire history is exposed retroactively.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">What is a "block explorer" (such as MSTScan for MST Blockchain)?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> A tool used by miners to find valid block hashes faster</li>
+        <li><span class="opt-key">B</span> A private dashboard for validators to monitor the network</li>
+        <li class="correct"><span class="opt-key">C</span> A publicly accessible web interface for searching and reading blockchain data - transactions, wallet balances, blocks, and smart contracts ✅</li>
+        <li><span class="opt-key">D</span> A wallet application for storing and sending cryptocurrency</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>A <strong>block explorer</strong> is essentially a search engine and viewer for blockchain data. No login, no fee, no permission required. Examples: MSTScan (MST), Etherscan (Ethereum), Blockchain.com (Bitcoin). Anyone can look up any transaction hash, any wallet address, any block number, and any smart contract - viewing complete data going back to the genesis block. This is the tool that makes blockchain's transparency property practically accessible.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Rahul publicly posts his Bitcoin wallet address on his Instagram profile to receive donations. What privacy risk does this create?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> No risk - Bitcoin addresses don't reveal personal information</li>
+        <li><span class="opt-key">B</span> His private key may be exposed if someone analyses the address</li>
+        <li class="correct"><span class="opt-key">C</span> His real identity (Instagram profile) is now permanently linked to his Bitcoin address, exposing his complete transaction history to anyone who looks it up ✅</li>
+        <li><span class="opt-key">D</span> His wallet may be hacked because his address is public</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>By posting his Bitcoin address on his Instagram profile, Rahul has created a <strong>permanent, public link</strong> between his real-world identity (his Instagram account - which has his name, photo, and followers) and his blockchain address. Anyone who views his Instagram now knows his Bitcoin address. From that address, they can see his complete transaction history, total balance, all incoming donors, all outgoing transactions - everything. This link cannot be undone. Even if Rahul deletes the post, the information has already been seen and may be cached. Option B is wrong - public keys/addresses cannot reveal private keys (that would break elliptic curve cryptography).</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: True/False -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - True / False with Justification</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 1 mark</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta"><span class="q-type">True / False</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">"Using a different Bitcoin wallet address for every transaction makes a user completely untraceable - their transactions cannot be linked to each other or to their real identity."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write this to score the mark:</div>
+        <div class="tf-sample">
+          This statement is <strong>FALSE</strong>. While using fresh addresses for every transaction increases privacy and reduces traceability, it does not make a user "completely untraceable." Blockchain analytics companies (Chainalysis, Elliptic, TRM Labs) use techniques such as <strong>input clustering</strong>: when multiple different addresses are used together as inputs in a single transaction, they are almost certainly controlled by the same entity - revealing that those "different addresses" all belong to the same person. Additionally, once funds pass through a KYC-verified exchange - even a single time - the identity is captured regardless of how many addresses were used. IP address logging and OSINT can also link seemingly unrelated addresses. True privacy on a public blockchain requires cryptographic solutions like Zero-Knowledge Proofs, not just address rotation.
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> States FALSE and provides a coherent justification mentioning at least one de-anonymisation technique - input clustering, KYC linkage, IP logging, or transaction graph analysis.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 3.5 Assessment Summary</div>
+      <div class="score-row">Section A: 4 × MCQ <span>(1 mark each) = 4 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>= 1 mark</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">5</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 3.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Pseudo-Anonymity</div><div class="glossary-def">A state where blockchain transactions are publicly visible but the real-world identity behind an address is not inherently revealed - though it can be linked through external means.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Block Explorer</div><div class="glossary-def">A publicly accessible web tool for searching and viewing blockchain data. MSTScan for MST, Etherscan for Ethereum, Blockchain.com for Bitcoin. No login required.</div></div>
+  <div class="glossary-item"><div class="glossary-term">KYC (Know Your Customer)</div><div class="glossary-def">Regulatory requirement for exchanges to verify user identity with government documents. The primary mechanism linking wallet addresses to real-world identities in India (PAN + Aadhaar).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Input Clustering</div><div class="glossary-def">A blockchain analysis technique that groups addresses controlled by the same entity - based on the observation that addresses used as inputs in the same transaction are likely controlled by one person.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Transaction Graph Analysis</div><div class="glossary-def">Tracing the flow of funds across multiple addresses and transactions to build a picture of an entity's financial activity - used by law enforcement and analytics companies.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Zero-Knowledge Proof (ZK-Proof)</div><div class="glossary-def">A cryptographic method allowing one party to prove knowledge of something (age, balance, credential) without revealing the underlying data. The primary cryptographic solution to blockchain privacy. Covered in Sub-Module 4.4.</div></div>
+  <div class="glossary-item"><div class="glossary-term">De-Anonymisation</div><div class="glossary-def">The process of linking a blockchain address to a real-world identity - through KYC, public disclosure, transaction analysis, or IP logging. Once done, the link is permanent on-chain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Store Hash, Not Data</div><div class="glossary-def">Best practice: Record keccak256(sensitive_data) on-chain; keep the actual data off-chain in encrypted storage. Enables on-chain verification without on-chain exposure of private information.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.5</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.6 - Consensus Mechanisms →</p>
+</div>
+
+</body>
+</html>

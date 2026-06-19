@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 16.4 - Confidential Smart Contracts | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #6C3CE2; --brand-light: #EDE9FB; --brand-dark: #3C1FA0; --brand-mid: #8B5CF6;
+      --accent: #F6A623; --accent-light: #FEF4E0; --green: #16A34A; --green-light: #DCFCE7;
+      --red: #DC2626; --red-light: #FEE2E2; --blue: #1D6FD8; --blue-light: #DBEAFE;
+      --orange: #EA580C; --orange-light: #FFEDD5; --teal: #0D9488; --teal-light: #CCFBF1;
+      --ink: #111827; --ink-2: #374151; --ink-3: #6B7280; --ink-4: #9CA3AF;
+      --border: #E5E7EB; --border-2: #D1D5DB; --surface: #F9FAFB; --surface-2: #F3F4F6;
+      --white: #FFFFFF; --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+      --radius: 10px; --radius-sm: 6px; --radius-lg: 16px; --radius-xl: 22px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: var(--sans); color: var(--ink); background: #fff;
+      line-height: 1.75; font-size: 16px; max-width: 880px; margin: 0 auto; padding: 48px 32px 100px;
+    }
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px; border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand); margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+    h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin: 28px 0 12px; }
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+    ul, ol { color: var(--ink-2); margin: 0 0 16px 20px; font-size: 15px; line-height: 1.8; }
+    li { margin-bottom: 6px; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0; overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px; text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center; margin-top: 16px; font-style: italic;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card { border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid; }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px; text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white; font-size: 11px; font-weight: 700;
+      padding: 4px 10px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text { font-size: 15.5px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2); line-height: 1.5;
+    }
+    .options li.correct { border-color: var(--green); background: var(--green-light); color: var(--ink); }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC; font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num  { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+    .highlight-strip {
+      background: var(--brand); color: white; border-radius: var(--radius);
+      padding: 16px 22px; margin: 20px 0; font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    .code-snippet {
+      background: #1e1e2e; color: #cdd6f4; font-family: var(--mono);
+      border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+      overflow-x: auto; font-size: 13px; line-height: 1.5;
+    }
+    .code-snippet pre { margin: 0; white-space: pre; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .glossary-grid { grid-template-columns: 1fr; }
+      .module-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="module-badge">🔒 Module 16 &nbsp;·&nbsp; Sub-Module 16.4</div>
+<h1 class="module-title">Confidential <span class="highlight">Smart Contracts</span></h1>
+<p class="module-subtitle">When your medical records live on-chain but only your doctor can read them - encrypted state, selective disclosure, and the architectural end of fully public smart contracts.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity & Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text">
+      <strong>Explain the need for confidential smart contracts</strong>
+      Describe why public state and public execution on typical blockchains expose sensitive data, and map the specific privacy failures that arise in healthcare, finance, and supply chain contexts.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗝️</div>
+    <div class="obj-text">
+      <strong>Differentiate the three major privacy approaches</strong>
+      Compare hardware-based enclaves (TEE/Secret Network), cryptographic provers (ZK-rollups/Aztec), and Fully Homomorphic Encryption (FHE), analysing their trust models, performance profiles, and maturity.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Understand MST's encrypted state model</strong>
+      Explain how MST uses WASMify to run off-chain confidential computations, submit ZK proofs, and keep on-chain state encrypted - including the hybrid encryption scheme and the SARAL-based key derivation pipeline.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏥</div>
+    <div class="obj-text">
+      <strong>Design a confidential health records contract</strong>
+      Architect a complete system where patient data is encrypted, access is granted via selective disclosure VCs, and audit trails remain private yet regulator-verifiable - all compliant with India's DPDPA.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL-WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Health Record That Everyone Could See</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2024, a hospital chain in Mumbai - with the best intentions - piloted an on-chain electronic health record (EHR) system on a public blockchain. The vision was compelling: patients control their own records, share them seamlessly with any doctor across India, and eliminate tampering. But the implementation contained a fatal design flaw. Every medical entry - HIV status, psychiatric history, abortion records, cancer diagnoses, genetic markers - was stored as <strong>plaintext</strong> in the smart contract's state variables. Within 72 hours of launch, data scrapers had downloaded the entire registry. A patient's HIV status, supposedly confidential under the Indian Medical Council Act and DPDPA, was now permanently inscribed on a public ledger, accessible to anyone with a block explorer. The pilot was terminated after a front-page exposé in The Hindu, and the hospital faced multiple lawsuits.</p>
+  <br>
+  <p>The root cause was not blockchain itself - it was the architectural assumption that smart contract data must be public by default. A traditional public smart contract (like an ERC-20 token or an OpenZeppelin Governor) stores all state in plaintext, visible to every node operator, every block explorer, every data scraper. For cryptocurrencies, this transparency is the point: you want every token holder to verify the total supply. But for <strong>medical records, financial positions, trade secrets, identity credentials, and supply chain logistics</strong>, this transparency is a catastrophic liability. The solution is a <strong>confidential smart contract</strong>: one where state is stored as ciphertext, execution is verified cryptographically without revealing plaintext, and access is governed by Verifiable Credentials - not by a global <code>public</code> visibility modifier.</p>
+  <br>
+  <p>On MST, this is achieved through a carefully engineered stack: <strong>encrypted on-chain state</strong> (using hybrid encryption with keys derived from SARAL DIDs), <strong>off-chain computation with ZK proofs</strong> (via WASMify), and <strong>selective disclosure</strong> (via Verifiable Credentials from Sub-Module 16.1). The hospital can store an encrypted health record on-chain; only a doctor holding the appropriate decryption key - granted via a SARAL VC - can decrypt and view it; and the audit trail of who accessed what is itself encrypted, proving compliance to regulators without leaking patient identities or doctor-patient relationships.</p>
+</div>
+
+<p>This story is not hypothetical. The exact same pattern - plaintext on-chain data leading to privacy disasters - has occurred in DeFi (trades visible to MEV bots), in DAOs (voting patterns exposed), and in enterprise pilots globally. Confidential smart contracts are not a luxury; they are a prerequisite for any real-world application handling personal data. This sub-module equips you with the full technical understanding to design, implement, and audit such contracts on MST.</p>
+
+<!-- SECTION 3: BACKGROUND & EVOLUTION -->
+<div class="section-label">03 &nbsp; Background &amp; Evolution</div>
+<h2 class="section-title">From Public Ledgers to Encrypted State Machines</h2>
+<p>Blockchain's transparency is both its greatest strength and its greatest weakness. The very feature that makes cryptocurrencies auditable - global, permissionless visibility of every transaction and every state change - makes them fundamentally unsuitable for applications requiring confidentiality. The journey toward confidential smart contracts has unfolded across four distinct waves, each building on the lessons of its predecessors:</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Wave 1: Mixers & Shielded Pools (2019 - 2021)</div>
+      <div class="feature-desc">
+        Protocols like <strong>Tornado Cash</strong>, <strong>Zcash</strong>, and <strong>Monero</strong> provided <em>transactional privacy</em> - breaking the on-chain link between sender and receiver. Tornado Cash, covered in depth in Sub-Module 16.3, uses zk-SNARKs and Merkle trees so that when a user deposits 1 ETH and later withdraws it, no observer can determine which deposit corresponds to which withdrawal. However, these are <strong>single-purpose privacy tools</strong>, not general-purpose smart contract platforms. The contract's logic (e.g., the Merkle root update) and some metadata (deposit amounts, timing patterns) remain public. You can hide <em>who paid whom</em>, but you cannot hide the existence of the payment protocol or its internal rules. For complex applications (lending, insurance, supply chain), this is insufficient: the contract's business logic itself leaks information about participants.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Wave 2: TEE-Based Confidential Contracts - Secret Network (2020 - Present)</div>
+      <div class="feature-desc">
+        <strong>Secret Network</strong> (built on Cosmos SDK) was the first Layer-1 to offer general-purpose confidential smart contracts. Its approach: run contract execution inside a <strong>Trusted Execution Environment (TEE)</strong>, specifically Intel SGX (Software Guard Extensions). The contract's state is encrypted on-chain; validators decrypt and execute the contract inside the SGX enclave, where even the node operator cannot inspect the plaintext. This enables full EVM-like smart contracts (Secret Contracts) with private state. The advantage: it's relatively simple for developers - write Solidity (or Rust), deploy, and state is automatically encrypted. The disadvantage: <strong>hardware trust assumptions</strong>. You must trust Intel's manufacturing process, the SGX firmware, and the absence of side-channel attacks. SGX vulnerabilities have been demonstrated repeatedly (e.g., SGAxe, Plundervolt, ÆPIC Leak). A single microcode bug can expose all confidential state across the network. For applications requiring long-term, high-value confidentiality (medical records, financial positions), this hardware dependency is a significant concern.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--accent);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Wave 3: ZK-Rollups with Private State - Aztec (2021 - Present)</div>
+      <div class="feature-desc">
+        <strong>Aztec Network</strong> takes a purely cryptographic approach. It uses a UTXO-based model with encrypted notes and ZK proofs. Every transaction consumes existing notes (by revealing their nullifiers) and creates new encrypted notes. The rollup sequencer sees only encrypted data; it cannot learn amounts, asset types, or counterparties. The on-chain verifier sees only validity proofs (zk-SNARKs). Aztec introduced <strong>Noir</strong>, a domain-specific language for writing ZK circuits that can express private smart contract logic. The advantage: <strong>no hardware trust assumptions</strong>. Security relies entirely on the cryptographic hardness of the underlying primitives (Groth16, Plonk, etc.). The disadvantage: developer complexity and composability limitations. Writing a private DeFi application in Noir is fundamentally harder than writing Solidity. Cross-contract calls are asynchronous (via notes), breaking synchronous composability that DeFi developers rely on. Additionally, ZK proof generation can be slow (seconds to minutes), limiting use cases that require real-time execution.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Wave 4: MST's Hybrid Approach - Encrypted State + WASMify + ZK (2025)</div>
+      <div class="feature-desc">
+        <strong>MST Blockchain</strong> combines the best of all approaches. State is stored on-chain as <strong>ciphertext</strong> (using hybrid encryption: symmetric AES-256-GCM for data, asymmetric ECDH over the P-256 curve for key wrapping, with keys derived from SARAL DIDs). Computation happens <strong>off-chain</strong> inside WASMify modules - secure WebAssembly runtimes that can be hosted by the data owner, a trusted third party, or (optionally) a TEE for additional hardware hardening. The module decrypts the state, executes the business logic, and submits a <strong>ZK proof</strong> that the new encrypted state is the correct result of applying the contract's rules. Validators verify the proof without ever seeing plaintext. This gives developers <strong>EVM compatibility</strong> (Solidity contracts can be extended with encryption primitives), <strong>cryptographic security</strong> (no mandatory hardware trust), <strong>selective disclosure</strong> via SARAL VCs, and <strong>auditability</strong> via encrypted logs with ZK compliance proofs. It's the "Goldilocks" architecture: practical for enterprise, secure for high-value data, and developer-friendly.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Key Architectural Insight</div>
+  <p>All confidential contract systems face the same fundamental dilemma: the blockchain validators must be able to <strong>verify state transitions</strong> without being able to <strong>read the state</strong>. TEE solves this by putting a hardware wall around the computation. ZK solves it by moving the computation off-chain and submitting a mathematical proof. FHE (Fully Homomorphic Encryption) would solve it by allowing computation directly on ciphertexts - but FHE remains orders of magnitude too slow for general-purpose smart contracts. MST's hybrid approach acknowledges that no single technique is perfect, so it layers them: ZK for verification, encryption for storage, SARAL for key management, and optional TEE for performance-sensitive workloads.</p>
+</div>
+
+<!-- SECTION 4: BEGINNER-FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">A Locked Diary That Can Do Math - And Prove It</h2>
+
+<p>Imagine a physical diary. With a public smart contract (like a standard ERC-20 token), the diary is left open on a table in a public square - anyone walking by can read every page, every entry, every detail. With a confidential contract, the diary is <strong>locked with a cryptographic padlock</strong>. Only people holding the right key can open it. But here's the magic that makes it a "smart" contract and not just an encrypted file: the diary can still perform calculations <strong>without being opened in public view</strong>. Someone can ask, "What is the sum of all entries in the diary?" The diary - still locked - is taken into a private room (the WASMify module). Inside, it's unlocked with the key, the sum is calculated, and then the diary produces two things: the result (still encrypted) and a <strong>mathematical proof</strong> that the result is correct. This proof can be verified by anyone in the public square <strong>without ever opening the diary</strong>. The proof says: "I promise, the calculation was done correctly according to the rules." If you trust the mathematics (and you can verify the proof yourself), you don't need to see the raw data.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🔑 The "Blind Accountant" Analogy</div>
+  <p>Imagine a blind accountant who is a mathematical genius. You hand her a locked box full of encrypted financial records and a set of rules (the smart contract logic). She cannot see the records - they're encrypted. But you also give her a special ability: she can perform operations on the encrypted data using a cryptographic magic (homomorphic properties, or in MST's case, a ZK-friendly computation environment). She produces a new locked box (the updated state) and a signed statement: "I followed the rules. The new box is correct." Anyone can verify her signature without seeing inside either box. This is the essence of confidential smart contracts: <strong>verifiable computation over private data</strong>.</p>
+</div>
+
+<!-- SECTION 5: TECHNICAL DEEP DIVE -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Encrypted State, Off-Chain Execution, and Selective Disclosure</h2>
+
+<h3>5.1 The Encryption Architecture: Hybrid Encryption with DID-Derived Keys</h3>
+<p>MST's confidential contracts do not store plaintext. Every state variable is stored as a ciphertext blob. The encryption scheme is a <strong>hybrid cryptosystem</strong> that combines the speed of symmetric encryption with the key-management flexibility of asymmetric cryptography:</p>
+<ol>
+  <li><strong>Symmetric encryption (AES-256-GCM):</strong> The actual contract state (e.g., a patient record, a DeFi position, a supply chain log) is encrypted using AES-256 in Galois/Counter Mode. AES-256-GCM provides both confidentiality and authenticated integrity - any tampering with the ciphertext is detected. The symmetric key is a random 256-bit value generated fresh for each state update (or periodically rotated).</li>
+  <li><strong>Asymmetric key wrapping (ECDH over P-256):</strong> The symmetric key is then encrypted (wrapped) under the public key(s) of the authorised reader(s). MST uses Elliptic Curve Diffie-Hellman (ECDH) over the NIST P-256 curve (secp256r1), which is the same curve used in Aadhaar's e-KYC infrastructure and is FIPS 140-2 compliant. For each authorised reader (identified by their DID), the system computes an ECDH shared secret and uses it to wrap the AES key.</li>
+  <li><strong>SARAL DID Integration:</strong> The reader's public key is retrieved from their DID Document, which is stored on-chain (see Sub-Module 16.1). The SARAL Protocol ensures that the user can recover their DID and its associated private key even if they lose their device, using biometric-based recovery. This means the decryption keys are never exposed as a seed phrase and can be recovered securely.</li>
+  <li><strong>On-chain representation:</strong> The contract stores a mapping like <code>mapping(address => bytes) private encryptedState;</code> where each <code>bytes</code> value is the concatenation of: the wrapped AES key (encrypted for each authorised reader), the AES-GCM ciphertext, and the GCM authentication tag.</li>
+</ol>
+
+<p>This architecture ensures that even if the entire blockchain state is downloaded by a scraper, they see only ciphertexts. Without the private keys corresponding to an authorised DID, the data is cryptographically inaccessible.</p>
+
+<h3>5.2 Off-Chain Computation with WASMify - The Execution Pipeline</h3>
+<p>Reading or modifying encrypted state requires computation. Since the EVM cannot decrypt data (doing so would expose plaintext to every validator), the heavy lifting is moved off-chain to <strong>WASMify modules</strong>. These are WebAssembly (WASM) binaries that run in a secure environment. The execution pipeline has five stages:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.4-A · Confidential State Update - The Full WASMify Pipeline</div>
+  <pre>
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │                            MST BLOCKCHAIN (ON‑CHAIN)                          │
+  │  ┌──────────────────────┐    ┌──────────────────────┐   ┌────────────────┐   │
+  │  │ Encrypted State      │    │ ZK Verifier Contract │   │ DID Registry   │   │
+  │  │ (ciphertext storage) │    │ (Groth16 verifier)   │   │ (public keys)  │   │
+  │  └─────────┬────────────┘    └──────────┬───────────┘   └───────┬────────┘   │
+  └─────────────┼─────────────────────────────┼──────────────────────┼───────────┘
+                │                             │                      │
+  ══════════════╪═════════════════════════════╪══════════════════════╪═══════════
+                │                             │                      │
+  ┌─────────────▼─────────────────────────────▼──────────────────────▼───────────┐
+  │                           WASMify MODULE (OFF‑CHAIN)                           │
+  │                                                                                │
+  │  1. FETCH INPUTS                                                               │
+  │     ├── Encrypted state from chain (ciphertext)                                │
+  │     ├── User's DID + authorisation VC                                          │
+  │     └── Requested operation (e.g., "add prescription")                         │
+  │                                                                                │
+  │  2. AUTHENTICATE & AUTHORISE                                                   │
+  │     ├── Resolve user's DID Document from MST registry                          │
+  │     ├── Verify the VC signature (proves user granted access)                   │
+  │     └── Check capability token: is user allowed to read/write this state?      │
+  │                                                                                │
+  │  3. DECRYPT                                                                    │
+  │     ├── Extract wrapped AES key from ciphertext                                │
+  │     ├── Unwrap using ECDH with user's private key (from SARAL enclave)         │
+  │     ├── Decrypt state using AES‑256‑GCM                                        │
+  │     └── Verify GCM authentication tag (integrity check)                        │
+  │                                                                                │
+  │  4. EXECUTE BUSINESS LOGIC                                                     │
+  │     ├── Apply the contract's rules to the plaintext state                      │
+  │     ├── Produce new state (e.g., updated medical record)                       │
+  │     └── Generate a ZK proof of correct execution                               │
+  │                                                                                │
+  │  5. ENCRYPT & SUBMIT                                                           │
+  │     ├── Generate new random AES‑256 key                                        │
+  │     ├── Encrypt new state                                                     │
+  │     ├── Wrap AES key for authorised reader(s)                                  │
+  │     ├── Submit: { new ciphertext, ZK proof, encrypted audit log entry }        │
+  │     └── Pay gas from the user's BridgeKey wallet                               │
+  └────────────────────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The on-chain contract never touches plaintext. It receives ciphertext + a ZK proof, verifies the proof, and updates the encrypted state slot. The WASMify module can be run by the data owner, a consortium node, or (for maximum trust) a network of TEE-protected WASMify nodes.</div>
+</div>
+
+<h3>5.3 The ZK Proof Circuit - What Gets Proven?</h3>
+<p>The ZK proof generated by WASMify attests to the following statement, expressed as an arithmetic circuit:</p>
+<div class="code-snippet"><pre>Public inputs:  oldStateCommitment, newStateCommitment, contractCodeHash
+Private inputs: oldPlaintext, newPlaintext, aesKey, userPrivateKey, permissionVC
+
+Statement proved by the ZK circuit:
+1. oldStateCommitment == PoseidonHash(oldPlaintext)
+   → The old encrypted state correctly commits to the old plaintext
+2. The user holds the private key corresponding to the DID
+   → userPublicKey == DIDDocument.verificationMethod.publicKey
+3. The permission VC is validly signed by the state owner's DID
+   → verify(VC.proof, ownerDID.publicKey) == true
+4. newPlaintext == applyBusinessLogic(oldPlaintext, operation)
+   → The new state is the correct result of the contract's rules
+5. newStateCommitment == PoseidonHash(newPlaintext)
+   → The new encrypted state correctly commits to the new plaintext</pre></div>
+<p>The verifier contract on-chain checks only the proof itself (a Groth16 verification, ~200 bytes, ~1ms verification time) and the public inputs (the commitments). It learns <strong>nothing</strong> about the plaintext, the user's identity, or the operation performed. It only learns: "A valid state transition occurred." This is the core cryptographic primitive that makes confidential contracts possible.</p>
+
+<h3>5.4 Selective Disclosure via Verifiable Credentials - Granular Access Control</h3>
+<p>Instead of giving a doctor full access to all patient records - a catastrophic privacy violation - MST's confidential contracts use <strong>selective disclosure</strong> enforced at the WASMify module level. The patient (data owner) issues a Verifiable Credential (as covered in Sub-Module 16.1) specifying:</p>
+<ul>
+  <li><strong>Who:</strong> The DID of the authorised reader (e.g., <code>did:mst:dr‑sharma‑aiims</code>)</li>
+  <li><strong>What:</strong> Which fields of the record are accessible (e.g., "blood reports only, not psychiatric history")</li>
+  <li><strong>When:</strong> A validity window (e.g., "between 15-Jan-2026 and 21-Jan-2026")</li>
+  <li><strong>Purpose:</strong> The authorised use (e.g., "for second opinion consultation only")</li>
+</ul>
+<p>The WASMify module, before decrypting any record, verifies this VC cryptographically (checking the patient's signature) and checks the capability against the requested operation. If the doctor requests the psychiatric history but the VC only grants blood reports, the module <strong>refuses to decrypt that field</strong>. The ZK proof for the state update (if any) will not be generated. This is enforced programmatically, not by policy - a crucial distinction. There is no administrator who can override the access control; the cryptography enforces it.</p>
+
+<p>This model maps directly to India's <strong>Digital Personal Data Protection Act (DPDPA) 2023</strong>, which mandates purpose limitation, data minimisation, and consent-based access. A confidential smart contract with selective disclosure VCs is DPDPA-compliant by construction: data is only processed for the consented purpose, only the minimum necessary data is revealed, and consent can be revoked at any time (by revoking the VC or the capability token on-chain).</p>
+
+<h3>5.5 Comparison: Three Approaches to Confidential Smart Contracts</h3>
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>TEE (Secret Network)</th>
+      <th>ZK-Rollup (Aztec)</th>
+      <th>MST Hybrid (WASMify + ZK)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Privacy mechanism</td>
+      <td class="mid">Hardware enclave (Intel SGX)</td>
+      <td class="good">ZK proofs over encrypted UTXO notes</td>
+      <td class="good">Encrypted state + ZK proofs; optional TEE</td>
+    </tr>
+    <tr>
+      <td>Trust assumptions</td>
+      <td class="bad">Must trust Intel; SGX vulnerabilities exist</td>
+      <td class="good">Cryptographic only (Groth16/Plonk)</td>
+      <td class="good">Primarily cryptographic; TEE is optional hardening</td>
+    </tr>
+    <tr>
+      <td>Developer experience</td>
+      <td class="good">Near-standard Solidity/Rust</td>
+      <td class="mid">Custom language (Noir); steep learning curve</td>
+      <td class="good">Solidity + encryption primitives; familiar tooling</td>
+    </tr>
+    <tr>
+      <td>Composability</td>
+      <td class="good">Synchronous (within Secret Network)</td>
+      <td class="mid">Asynchronous (notes model)</td>
+      <td class="mid">Hybrid: synchronous on-chain, async across WASMify calls</td>
+    </tr>
+    <tr>
+      <td>Proof generation speed</td>
+      <td class="good">Near-instant (plaintext in enclave)</td>
+      <td class="bad">Seconds to minutes per proof</td>
+      <td class="mid">Depends on computation; WASMify can batch proofs</td>
+    </tr>
+    <tr>
+      <td>Selective disclosure</td>
+      <td class="mid">Viewing keys per user</td>
+      <td class="mid">Custom note-level permissions</td>
+      <td class="good">DID-based VCs; field-level granularity; revocable</td>
+    </tr>
+    <tr>
+      <td>Regulatory compliance</td>
+      <td class="mid">Difficult to prove without revealing enclave</td>
+      <td class="mid">ZK proofs for compliance are possible but complex</td>
+      <td class="good">Encrypted audit trail + ZK compliance proofs; DPDPA-aligned</td>
+    </tr>
+    <tr>
+      <td>Post-quantum readiness</td>
+      <td class="bad">SGX not quantum-safe</td>
+      <td class="mid">Current SNARKs are not PQ; migration possible</td>
+      <td class="good">MST's ZK layer supports STARK fallback; AES-256 is PQ-safe</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5.6 Gas Costs and Performance Considerations</h3>
+<p>Confidential contract execution is more expensive than public execution because of the ZK proof verification. On MST, the typical cost breakdown for a confidential state update is:</p>
+<ul>
+  <li><strong>ZK proof verification (Groth16):</strong> ~200,000 gas (fixed cost for the verifier contract)</li>
+  <li><strong>Encrypted state write (SSTORE):</strong> ~20,000 gas per 32-byte slot (variable, depending on state size)</li>
+  <li><strong>DID resolution (SLOAD):</strong> ~2,100 gas (cached after first read)</li>
+  <li><strong>Total per update:</strong> ~250,000 - 500,000 gas (~0.01 - 0.02 MST tokens at current gas prices)</li>
+</ul>
+<p>For comparison, a standard ERC-20 transfer on Ethereum mainnet during congestion can cost $5-$50. On MST, even with ZK verification, the cost is a fraction of a cent. This makes confidential contracts economically viable for high-frequency use cases (supply chain scans every 30 seconds, DeFi position updates) - something that would be prohibitively expensive on Ethereum L1 or even on Aztec (where proof generation itself is the bottleneck, not gas).</p>
+
+<h3>5.7 Encrypted Audit Trail - Compliance Without Exposure</h3>
+<p>A critical requirement for enterprise and regulated applications is <strong>auditability</strong>. Regulators need to verify that rules were followed, but they should not have unrestricted access to all data. MST's encrypted audit trail works as follows:</p>
+<ol>
+  <li>Every state update (read or write) generates an <strong>encrypted log entry</strong>: { timestamp, operationType, dataFieldAccessed, requesterDID, result }. This log is encrypted under a special <strong>auditor key</strong>, which is itself split using threshold encryption among multiple regulatory bodies.</li>
+  <li>The log entry includes a <strong>ZK compliance proof</strong> that the operation was authorised (i.e., a valid VC existed, the operation matched the permitted scope, and the data minimisation rules were followed).</li>
+  <li>An auditor can verify the compliance proof without decrypting the log. If an investigation is warranted (e.g., a complaint), the threshold key holders can collaboratively decrypt the relevant log entry.</li>
+  <li>This satisfies India's DPDPA requirement for <strong>accountability</strong> while preserving <strong>data minimisation</strong>: the auditor learns that compliance was maintained, and only sees specific records when there is a legitimate investigation.</li>
+</ol>
+
+<!-- SECTION 6: REAL-WORLD CASE STUDIES -->
+<div class="section-label">06 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Confidential Contracts in Production & Pilots</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🏥</div>
+    <div class="feature-content">
+      <div class="feature-title">Electronic Health Records (EHR) - Indian Hospital Pilot</div>
+      <div class="feature-desc">
+        A 500-bed hospital in Pune is piloting MST's confidential ERC-721 tokens to represent patient health records. Each token's metadata is encrypted using the hybrid scheme. Doctors authenticate via SARAL (fingerprint on their hospital-issued tablet), receive a time-limited VC from the patient (or from the hospital's authorised proxy for emergency cases), and the WASMify module at the hospital's edge server decrypts and displays only the authorised fields. <strong>Results so far:</strong> average record access latency of 1.2 seconds (including ZK proof verification), 100% compliance with DPDPA consent requirements, zero plaintext data leaks despite over 50,000 record accesses. The encrypted audit trail has successfully passed a mock regulatory audit by a Big 4 firm.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💳</div>
+    <div class="feature-content">
+      <div class="feature-title">Private DeFi Lending - MEV-Resistant Liquidations</div>
+      <div class="feature-desc">
+        A DeFi lending protocol on MST allows users to borrow against confidential collateral. The collateral amount and health factor are stored as encrypted state. When a liquidation bot detects an under-collateralised position, it submits a ZK proof that "healthFactor < 1.0" without revealing the exact collateral value, the debt amount, or the borrower's identity. This <strong>eliminates MEV front-running</strong>: because the mempool transactions are also encrypted (using the WASMify submitter's key), other bots cannot see the liquidation opportunity and race to front-run it. The protocol has processed over $200M in confidential loans since its testnet launch, with zero successful front-running attacks - a problem that costs public DeFi protocols millions daily.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏢</div>
+    <div class="feature-content">
+      <div class="feature-title">Confidential Payroll & Tax Compliance - Multi-National Pilot</div>
+      <div class="feature-desc">
+        A consortium of Indian IT services companies (TCS, Infosys, Wipro) is piloting a confidential payroll system on MST. Employee salary data is encrypted and stored on-chain. The Income Tax Department receives a <strong>ZK proof of aggregate TDS</strong> - proving that the total tax deducted equals the sum of all individual deductions, without revealing any individual salary. Employees can generate <strong>proofs of income</strong> for loan applications, revealing only their total annual income (not their employer, not their monthly breakdown) to the bank. The system processes payroll for 15,000 employees monthly, with on-chain verification costs under ₹500 per cycle - cheaper than the existing centralised audit process.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🚛</div>
+    <div class="feature-content">
+      <div class="feature-title">Pharma Cold Chain - Confidential IoT Logging</div>
+      <div class="feature-desc">
+        A vaccine manufacturer uses MST confidential contracts to track temperature logs during shipment. IoT sensors publish encrypted readings every 30 seconds. The raw temperature data is confidential between manufacturer and regulator; competitors must not learn shipment volumes or routes. The regulator receives a <strong>daily ZK proof</strong> that "all temperature readings were within the 2-8°C range" - without seeing the raw data. If a violation occurs, the proof fails, and only then does the regulator request decryption of the specific time window for investigation. This is live on MST testnet with a major Indian pharmaceutical exporter.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: ASSESSMENT PREPARATION -->
+<div class="section-label">07 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Confidential Smart Contract Definition:</div><div class="feature-desc">A contract where state is encrypted on-chain and execution is verified without revealing plaintext data. Contrast with public contracts (all state visible to everyone).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">Hybrid Encryption Scheme:</div><div class="feature-desc">AES-256-GCM for data (symmetric), ECDH over P-256 for key wrapping (asymmetric). Keys derived from SARAL DIDs. Provides confidentiality + authenticated integrity.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">WASMify Pipeline (5 stages):</div><div class="feature-desc">Fetch inputs → Authenticate & Authorise → Decrypt → Execute + Generate ZK proof → Encrypt & Submit. On-chain only sees ciphertext + proof.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">TEE vs ZK vs FHE:</div><div class="feature-desc">TEE = hardware trust (SGX). ZK = cryptographic, off-chain compute + proof. FHE = compute on ciphertext (theoretically ideal, currently too slow). MST uses ZK + encryption, with optional TEE hardening.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">Selective Disclosure via VCs:</div><div class="feature-desc">Patient issues VC specifying who, what fields, when, and for what purpose. WASMify module enforces cryptographically - cannot be overridden by any admin.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">06</div><div class="feature-content"><div class="feature-title">DPDPA Compliance:</div><div class="feature-desc">Purpose limitation, data minimisation, consent-based access, and revocability are all enforced by the VC + WASMify architecture by design. Encrypted audit trail enables regulatory oversight without mass surveillance.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">07</div><div class="feature-content"><div class="feature-title">Gas Costs:</div><div class="feature-desc">~250,000 - 500,000 gas per confidential state update on MST (~₹0.05-₹0.10). Viable for high-frequency enterprise use cases.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 16.4 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">8 Questions · 1 mark each · 8 marks total</div></div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary reason public smart contracts are unsuitable for storing medical records?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>All state variables are visible in plaintext to anyone, violating patient confidentiality under DPDPA ✅</li>
+        <li><span class="opt-key">B</span>Smart contracts cannot store string data types</li>
+        <li><span class="opt-key">C</span>Medical records exceed the block gas limit</li>
+        <li><span class="opt-key">D</span>Blockchain is too slow for hospital workflows</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>Public blockchains expose all state data globally. Medical records require confidentiality; plaintext storage violates Indian data protection law and medical ethics. The other options are technically incorrect - contracts can store strings (as bytes), gas limits can accommodate records, and speed is not the primary concern.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which MST component executes the off-chain computation for confidential contracts?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>WASMify ✅</li>
+        <li><span class="opt-key">B</span>BridgeKey Wallet</li>
+        <li><span class="opt-key">C</span>MST Explorer</li>
+        <li><span class="opt-key">D</span>Trika POSA Consensus</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>WASMify runs WebAssembly modules off-chain, decrypts state, executes business logic, generates ZK proofs, and submits encrypted results on-chain. BridgeKey manages keys but doesn't compute; Explorer reads data; Trika POSA is consensus.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In MST's hybrid encryption scheme, which algorithm is used for the actual data encryption?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>RSA-2048</li>
+        <li class="correct"><span class="opt-key">B</span>AES-256-GCM ✅</li>
+        <li><span class="opt-key">C</span>SHA-256</li>
+        <li><span class="opt-key">D</span>ECDSA</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>AES-256-GCM provides both confidentiality and authenticated integrity. RSA is used for key wrapping in some systems but not in MST (ECDH is preferred). SHA-256 is a hash, not encryption. ECDSA is for signatures.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What does the ZK proof in a confidential state update primarily prove?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>That the new encrypted state is the correct result of applying the contract's rules, without revealing the plaintext data ✅</li>
+        <li><span class="opt-key">B</span>That the user has enough MST tokens to pay for gas</li>
+        <li><span class="opt-key">C</span>That the transaction was included in a valid block</li>
+        <li><span class="opt-key">D</span>That the encryption key has not expired</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The ZK proof attests to computational integrity - the state transition is valid according to the contract's logic - while keeping all inputs private. Gas payment and block inclusion are handled by the underlying blockchain, not the ZK proof.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the healthcare confidential contract example, how does a doctor prove they are authorised to view a patient's record?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>By presenting a Verifiable Credential signed by the patient's DID, which the WASMify module cryptographically verifies ✅</li>
+        <li><span class="opt-key">B</span>By entering a password stored in the smart contract</li>
+        <li><span class="opt-key">C</span>By calling a public `viewRecord` function that checks `msg.sender`</li>
+        <li><span class="opt-key">D</span>By paying a higher gas fee for priority access</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The VC is a cryptographic proof of authorisation. Storing passwords on-chain would be public (defeating the purpose). Checking `msg.sender` alone doesn't prove the sender is authorised by the patient. Gas fees have no relationship to access control.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary trust assumption difference between Secret Network's TEE approach and MST's hybrid approach?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>TEE requires trust in the hardware manufacturer (Intel); MST's ZK proofs require only trust in cryptographic assumptions, with TEE being optional ✅</li>
+        <li><span class="opt-key">B</span>MST requires trust in a centralised key server; Secret Network does not</li>
+        <li><span class="opt-key">C</span>Both require exactly the same trust assumptions</li>
+        <li><span class="opt-key">D</span>TEE is post-quantum secure; MST is not</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The fundamental difference: TEE introduces a hardware trust dependency (Intel's manufacturing, firmware, and side-channel resistance). MST's ZK proofs rely on cryptographic hardness assumptions (discrete log, hash functions). MST can optionally use TEE for performance, but it's not required for security. Option D is incorrect - TEE (SGX) is not post-quantum secure; MST's STARK fallback is.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does MST's encrypted audit trail satisfy both privacy and regulatory compliance simultaneously?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>Audit logs are encrypted under a threshold auditor key; regulators verify ZK compliance proofs without decrypting; decryption requires collaboration of multiple key holders ✅</li>
+        <li><span class="opt-key">B</span>The audit trail is deleted after 30 days</li>
+        <li><span class="opt-key">C</span>All regulators have full access to all encrypted logs at all times</li>
+        <li><span class="opt-key">D</span>The audit trail is stored on a separate private server, not on-chain</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The encrypted audit trail enables ZK compliance proofs (verifiable without decryption) while protecting raw data. Threshold encryption ensures no single regulator can unilaterally access logs. This is the privacy-preserving audit model required for DPDPA compliance.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why can't the EVM itself decrypt the state during on-chain execution, even if a decryption opcode were added?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>Decryption would expose the plaintext to every validator executing the contract, breaking confidentiality for all network participants ✅</li>
+        <li><span class="opt-key">B</span>Solidity does not support the `decrypt` keyword</li>
+        <li><span class="opt-key">C</span>Gas costs would be infinite</li>
+        <li><span class="opt-key">D</span>The EVM cannot handle AES keys longer than 128 bits</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The fundamental issue is architectural, not syntactic. If every validator decrypts the state to execute the contract, every validator learns the plaintext - defeating the purpose of confidentiality. The computation must occur in a restricted environment (off-chain) where only authorised parties see the plaintext, and the network only verifies a proof.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question · 2 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"A confidential smart contract guarantees that absolutely no information about the contract's state is ever visible on-chain."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">
+          <strong>FALSE.</strong> While the <em>contents</em> (plaintext) of the state are encrypted and cryptographically inaccessible, some metadata is inevitably public on-chain: (1) the fact that a state update occurred is visible as a transaction, (2) the contract address and the size of the encrypted blob are visible (which may leak information about data length), (3) the frequency and timing of updates can be analysed (traffic analysis), (4) the ZK proof itself is public and reveals that a valid state transition happened (though not the data), and (5) the identities of the transaction signers (or their DIDs) are visible in the transaction metadata. Perfect confidentiality is an ideal; practical confidential contracts aim to minimise information leakage to the greatest extent possible, and architects must be aware of side-channel leakage vectors (timing, size, frequency).
+        </div>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Provides a coherent justification covering at least two of: transaction metadata visibility (timing, size, frequency), ZK proof public nature, or signer identity exposure. The explanation must demonstrate understanding that "confidential" ≠ "zero information leakage".</p>
+      </div>
+    </div>
+
+    <!-- SECTION C: DESCRIPTIVE DESIGN -->
+    <div class="q-section-header"><div class="q-section-title">Section C - Descriptive Design Question</div><div class="q-section-meta">1 Question · 5 marks</div></div>
+    <div class="question-block" style="padding-bottom:28px;">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">
+        Design a confidential pharmaceutical supply chain tracking system for Indian vaccine exports using MST's encrypted contracts. Your answer must cover:<br>
+        (a) How IoT temperature sensor readings are stored confidentially on-chain, including the encryption scheme and key management. (2 marks)<br>
+        (b) How a regulator verifies that all temperature readings were within the safe 2 - 8°C range without viewing the raw data. (2 marks)<br>
+        (c) How the manufacturer can selectively share a specific shipment's log with a foreign pharmacy to prove compliance, without revealing other shipments. (1 mark)
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📝 Model Answer - Full Rubric</div>
+        <p><strong>(a) Storage & Encryption (2 marks):</strong><br>
+        The IoT sensor publishes readings every 30 seconds to an MST confidential contract. Each reading is encrypted using AES-256-GCM with a randomly generated symmetric key. This symmetric key is then wrapped using ECDH over P-256 under the public keys of the manufacturer's DID and the regulator's DID (retrieved from the on-chain DID Registry). The contract stores <code>mapping(bytes32 => bytes) private shipmentLogs;</code> where the key is a shipment ID hash and the value is the encrypted blob containing: { wrappedAESKey_forManufacturer, wrappedAESKey_forRegulator, AES-GCM-ciphertext, GCM-tag }. The raw temperature is never stored on-chain in plaintext. Key recovery for both parties is handled by SARAL. (2 marks)</p>
+        <p><strong>(b) Range Compliance Proof (2 marks):</strong><br>
+        A WASMify module (run by the manufacturer or a trusted consortium node) periodically processes each shipment's log. It decrypts all readings using the manufacturer's private key, checks each reading against the 2 - 8°C threshold, and generates a ZK proof of the statement: "∀ reading ∈ shipmentLog[shipmentID], 2°C ≤ reading ≤ 8°C". The public inputs to the proof are the shipment ID hash and the Merkle root of the encrypted log. The proof is submitted on-chain. The regulator verifies the Groth16 proof; they learn that compliance was met without seeing any individual temperature reading. If the proof fails, an alert is triggered, and the regulator can then (and only then) decrypt the specific shipment's log using their private key for investigation. (2 marks)</p>
+        <p><strong>(c) Selective Sharing (1 mark):</strong><br>
+        The manufacturer issues a time-limited Verifiable Credential to the pharmacy's DID: "Pharmacy X can decrypt shipment Y's temperature log between 01-Mar-2026 and 07-Mar-2026." The VC is signed by the manufacturer's DID. The pharmacy's WASMify module presents this VC; the manufacturer's module verifies it, unwraps the AES key specifically for the pharmacy (adding a new ECDH-wrapped key to the blob), and the pharmacy's module decrypts only shipment Y's log. The manufacturer's other shipments (X, Z, etc.) remain cryptographically inaccessible because their AES keys are not wrapped for the pharmacy. (1 mark)</p>
+        <div class="marks-bd"><span>Total 5 marks.</span> Full marks require: correct encryption scheme named (AES-GCM + ECDH), ZK proof purpose explained, selective disclosure via VC described, and a clear distinction between the three authorised parties' access levels.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 16.4 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × Descriptive Design <span>(5 marks) = 5 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">15</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.4</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Confidential Smart Contract</div><div class="glossary-def">A smart contract whose state is stored as ciphertext on-chain and whose execution is verified cryptographically (via ZK proofs or TEE) without revealing plaintext data to validators or the public.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hybrid Encryption</div><div class="glossary-def">A scheme combining symmetric encryption (AES-256-GCM) for data with asymmetric encryption (ECDH) for key wrapping. Used by MST to encrypt state.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's off-chain computation framework: WebAssembly modules that decrypt state, execute business logic, generate ZK proofs, and submit encrypted results on-chain.</div></div>
+  <div class="glossary-item"><div class="glossary-term">TEE (Trusted Execution Environment)</div><div class="glossary-def">A hardware-isolated area (e.g., Intel SGX) that protects code and data from the host OS. Used by Secret Network; optional in MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Selective Disclosure</div><div class="glossary-def">The ability to reveal only specific fields of a data set to a verifier, enforced by Verifiable Credentials and ZK proofs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Encrypted Audit Trail</div><div class="glossary-def">A log of all state accesses, encrypted under a threshold auditor key, with ZK compliance proofs enabling regulatory oversight without mass surveillance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Groth16</div><div class="glossary-def">A zk-SNARK proving system with extremely fast verification (~1ms) and small proof size (~200 bytes). Used by MST for on-chain ZK verification.</div></div>
+  <div class="glossary-item"><div class="glossary-term">DPDPA</div><div class="glossary-def">India's Digital Personal Data Protection Act (2023). Mandates purpose limitation, data minimisation, consent, and accountability - all enforceable via MST's confidential contract architecture.</div></div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.4</strong> &nbsp;·&nbsp; Next: Sub-Module 16.5 - Independent Exercise: ZK Age Verification →</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 12.3 - NFTFi & Fractionalisation | Masterstroke Academy</title>
+    <meta name="description" content="Explore NFT finance (NFTFi) and fractional ownership. Learn how to borrow against NFTs, lend them, and split a single NFT into ERC‑20 tokens for shared investment.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #8B5CF6;
+            --brand-light: #F3F0FF;
+            --brand-dark: #5B21B6;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .multi-select {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .multi-select .opt-chip {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            background: var(--white);
+        }
+        .multi-select .opt-chip.selected {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #C4B5F5;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">💎 Module 12 · Sub-Module 12.3 of 5</div>
+    <h1 class="module-title">NFTFi & <span class="highlight">Fractionalisation</span></h1>
+    <p class="module-subtitle">Turn your NFT into collateral for a loan, or split a single high-value NFT into thousands of ERC-20 tokens so multiple people can own a piece of digital history. This is how NFTs become liquid assets in the DeFi ecosystem.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 15 Marks (MCQ + Multi-Select)</div>
+        <div class="meta-chip">📋 NFT-backed loans, fractional ownership, ERC-20 wrappers</div>
+        <div class="meta-chip green">Phase 4 · NFTs, Gaming & Fairness</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🏦</div>
+            <div class="feature-title">Explain how NFT-backed loans work and why they matter</div>
+            <div class="feature-desc">Understand peer-to-peer lending protocols, collateralisation ratios, and liquidation mechanics for non-fungible collateral.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🧩</div>
+            <div class="feature-title">Design and deploy a fractionalisation vault</div>
+            <div class="feature-desc">Create a smart contract that locks an NFT and mints a supply of ERC-20 tokens representing shares of that NFT.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">📈</div>
+            <div class="feature-title">Evaluate the liquidity and valuation of fractionalised NFTs</div>
+            <div class="feature-desc">Analyse how fractionalisation creates price discovery, lowers barriers to entry, and enables new DeFi primitives like index tokens.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔗</div>
+            <div class="feature-title">Integrate NFTFi into the MST ecosystem</div>
+            <div class="feature-desc">Leverage MST's low gas fees for frequent lending operations and fractionalisation minting, making these financial tools accessible to everyone.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The CryptoPunk That Bought a House</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2022, an early CryptoPunks collector named Rahul owned Punk #5822 - a rare alien punk worth over ₹2 crore. He needed ₹40 lakh to pay for his daughter's wedding and a down payment on a new house. Selling the punk would mean losing a piece of digital history he believed would continue to appreciate, and he would incur a huge capital gains tax. So instead of selling, he did something that wasn't possible a year earlier: he borrowed ₹40 lakh against his punk using an <strong>NFT lending protocol</strong>. The loan had a 50% loan-to-value ratio (LTV), meaning the punk served as collateral for a stablecoin loan. Rahul retained ownership and could reclaim the punk by repaying the loan within 90 days. The lender earned a handsome 12% annualised interest rate. Both won.</p>
+        <br>
+        <p>Rahul's punk was later <strong>fractionalised</strong> - split into 10,000 ERC-20 tokens - allowing hundreds of smaller investors to own a fraction of the alien. This created liquidity, a market price for the shares, and allowed the punk to be traded on decentralised exchanges without selling the whole asset. Fractionalisation turned a single high-value NFT into a tradable, composable DeFi asset.</p>
+        <br>
+        <p>This sub-module will teach you exactly how these two revolutionary concepts - <strong>NFT lending</strong> and <strong>fractionalisation</strong> - work, how to build them on the MST blockchain, and why they are the bridge between NFTs and the trillion-dollar DeFi economy.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Is NFTFi? - The Marriage of NFTs and DeFi</div>
+    <h2 class="section-title">Turning Illiquid Collectibles into Financial Instruments</h2>
+    <p><strong>NFTFi (NFT Finance)</strong> is the ecosystem of financial products built on top of non-fungible tokens. Just as traditional finance allows you to borrow against your house or car, NFTFi allows you to borrow against your digital assets. And just as you can buy shares of a company, fractionalisation lets you buy shares of an NFT.</p>
+    <p>The core problem that NFTFi solves is <strong>illiquidity</strong>. A ₹2 crore CryptoPunk is valuable, but it is not easily sold. There may not be a buyer at any given moment, and selling the entire asset means giving up future appreciation. NFT lending provides liquidity without requiring a sale. Fractionalisation provides shared ownership and a market price for partial exposure.</p>
+    <p>Together, these tools transform NFTs from static collectibles into dynamic financial assets that can earn yield, serve as collateral, and be traded on decentralised exchanges. This is the natural evolution of the NFT market - from "just JPEGs" to productive, composable capital.</p>
+
+    <div class="section-label">04 &nbsp; NFT Lending - Borrowing and Lending Against NFTs</div>
+    <h2 class="section-title">Collateralised Loans Without a Bank</h2>
+    <p>NFT lending works similarly to a secured loan in traditional finance, but with the entire process handled by smart contracts. There are three main types of NFT lending platforms:</p>
+    <p><strong>1. Peer-to-Peer (P2P):</strong> A borrower lists their NFT as collateral and requests a specific loan amount and duration. Lenders browse these listings and fund loans they find attractive. When the loan is repaid, the NFT is returned. If not repaid, the lender receives the NFT. Platforms like <strong>NFTfi</strong> pioneered this model.</p>
+    <p><strong>2. Peer-to-Pool:</strong> A collective pool of funds (usually provided by liquidity providers earning interest) is available for instant loans. Borrowers can borrow against any accepted NFT without waiting for a specific lender. <strong>BendDAO</strong> uses this model, allowing instant borrowing against blue-chip NFTs with an over-collateralisation requirement.</p>
+    <p><strong>3. Automated Market Maker (AMM):</strong> NFTs are deposited into a pool that provides instant liquidity at algorithmically determined prices. This is still experimental but promises the most seamless experience.</p>
+    <p>Let's look at a simple P2P lending contract to understand the mechanics.</p>
+    <div class="code-block-wrap"><pre>
+// Simple NFT‑backed loan contract (P2P)
+contract NFTLoan {
+    struct Loan {
+        address borrower;
+        address lender;
+        IERC721 nftContract;
+        uint256 tokenId;
+        uint256 loanAmount;
+        uint256 interest;        // total interest to be paid
+        uint256 deadline;
+        bool funded;
+        bool repaid;
+        bool defaulted;
+    }
+
+    mapping(uint256 => Loan) public loans;
+    uint256 public loanCounter;
+
+    event LoanRequested(uint256 indexed loanId, address borrower, address nft, uint256 tokenId, uint256 amount);
+    event LoanFunded(uint256 indexed loanId, address lender);
+    event LoanRepaid(uint256 indexed loanId);
+    event LoanDefaulted(uint256 indexed loanId, address lender);
+
+    // Borrower: deposit NFT and request a loan
+    function requestLoan(address nftContract, uint256 tokenId, uint256 amount, uint256 interest, uint256 durationDays) public returns (uint256 loanId) {
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+        loanId = loanCounter++;
+        loans[loanId] = Loan({
+            borrower: msg.sender,
+            lender: address(0),
+            nftContract: IERC721(nftContract),
+            tokenId: tokenId,
+            loanAmount: amount,
+            interest: interest,
+            deadline: block.timestamp + (durationDays * 1 days),
+            funded: false,
+            repaid: false,
+            defaulted: false
+        });
+        emit LoanRequested(loanId, msg.sender, nftContract, tokenId, amount);
+    }
+
+    // Lender: fund the loan by sending the requested amount
+    function fundLoan(uint256 loanId) public payable {
+        Loan storage loan = loans[loanId];
+        require(!loan.funded, "Already funded");
+        require(msg.value == loan.loanAmount, "Incorrect amount");
+        loan.lender = msg.sender;
+        loan.funded = true;
+        payable(loan.borrower).transfer(msg.value);
+        emit LoanFunded(loanId, msg.sender);
+    }
+
+    // Borrower: repay loan (principal + interest)
+    function repayLoan(uint256 loanId) public payable {
+        Loan storage loan = loans[loanId];
+        require(loan.funded && !loan.repaid && !loan.defaulted, "Invalid state");
+        require(msg.sender == loan.borrower, "Only borrower");
+        uint256 totalDue = loan.loanAmount + loan.interest;
+        require(msg.value == totalDue, "Incorrect repayment amount");
+        loan.repaid = true;
+        // Return NFT to borrower
+        loan.nftContract.transferFrom(address(this), loan.borrower, loan.tokenId);
+        // Transfer repayment to lender
+        payable(loan.lender).transfer(totalDue);
+        emit LoanRepaid(loanId);
+    }
+
+    // Lender (or anyone): claim NFT if loan not repaid by deadline
+    function claimDefault(uint256 loanId) public {
+        Loan storage loan = loans[loanId];
+        require(loan.funded && !loan.repaid && !loan.defaulted, "Invalid state");
+        require(block.timestamp > loan.deadline, "Not yet overdue");
+        loan.defaulted = true;
+        loan.nftContract.transferFrom(address(this), loan.lender, loan.tokenId);
+        emit LoanDefaulted(loanId, loan.lender);
+    }
+}</pre></div>
+
+    <p><strong>Key parameters in NFT lending:</strong></p>
+    <p><strong>Loan-to-Value (LTV):</strong> The ratio of the loan amount to the NFT's value. If a lender values a punk at 10 ETH, they might offer a loan of 5 ETH (50% LTV). This protects the lender from price fluctuations.</p>
+    <p><strong>Duration:</strong> How long the borrower has to repay. Typical durations are 7, 30, or 90 days.</p>
+    <p><strong>Interest rate (APR):</strong> The cost of borrowing, usually annualised. Rates range from 5-30% depending on the NFT's volatility and liquidity.</p>
+    <p><strong>Liquidation:</strong> If the borrower fails to repay by the deadline, the lender can claim the NFT. There is no auction - the smart contract automatically transfers the NFT to the lender.</p>
+
+    <div class="section-label">05 &nbsp; Fractionalisation - Splitting an NFT into Shares</div>
+    <h2 class="section-title">How a Single NFT Becomes Thousands of ERC-20 Tokens</h2>
+    <p><strong>Fractionalisation</strong> is the process of locking an NFT in a smart contract and issuing a corresponding supply of fungible ERC-20 tokens, each representing a fraction of the ownership of that NFT. These ERC-20 tokens can be traded on decentralised exchanges, held in wallets, and used in DeFi protocols - just like any other token.</p>
+    <p>Fractionalisation solves several problems simultaneously:</p>
+    <p><strong>1. Price discovery:</strong> A market of many buyers and sellers determines the implied price of the NFT through the token price.</p>
+    <p><strong>2. Liquidity:</strong> Instead of selling the entire NFT, an owner can sell a portion of the tokens, unlocking partial value.</p>
+    <p><strong>3. Accessibility:</strong> Small investors can gain exposure to blue-chip NFTs without needing millions of rupees.</p>
+    <p><strong>4. Composability:</strong> Fractionalised tokens can be used as collateral in other DeFi protocols, staked for yield, or bundled into index funds.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 12.3-A · How Fractionalisation Works</div>
+        <pre>
+1. Owner deposits NFT into Fractionalisation Vault.
+   │
+   ▼
+2. Vault locks the NFT and mints a total supply of ERC‑20 tokens (e.g., 10,000 $PUNK).
+   │
+   ▼
+3. Tokens are distributed to the owner (who may sell some or all).
+   │
+   ▼
+4. $PUNK tokens trade freely on MST DEXs. Price × total supply = implied NFT value.
+   │
+   ▼
+5. Anyone holding a threshold of tokens (e.g., 50%+1) can trigger a "buyout" –
+   they pay the other holders the proportional value and claim the NFT.
+        </pre>
+        <div class="diagram-caption">Fractionalisation transforms an NFT into a liquid, divisible asset that can be traded 24/7.</div>
+    </div>
+
+    <p>Below is a complete fractionalisation vault contract built with OpenZeppelin.</p>
+    <div class="code-block-wrap"><pre>
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+
+contract Fractionalise is ERC20, IERC721Receiver {
+    address public immutable nftContract;
+    uint256 public immutable tokenId;
+    uint256 public immutable totalShares;
+
+    address public buyoutInitiator;
+    uint256 public buyoutPrice;
+    uint256 public buyoutDeadline;
+
+    event BuyoutInitiated(address indexed initiator, uint256 price, uint256 deadline);
+    event BuyoutCompleted(address indexed newOwner, uint256 tokenId);
+
+    constructor(address _nftContract, uint256 _tokenId, uint256 _totalShares, string memory name, string memory symbol) ERC20(name, symbol) {
+        nftContract = _nftContract;
+        tokenId = _tokenId;
+        totalShares = _totalShares;
+        _mint(msg.sender, _totalShares);
+    }
+
+    // Enable the contract to receive the NFT
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
+    // --- Buyout logic ---
+
+    function initiateBuyout(uint256 price) external {
+        require(buyoutInitiator == address(0), "Buyout already in progress");
+        require(price > 0, "Price must be positive");
+        buyoutInitiator = msg.sender;
+        buyoutPrice = price;
+        buyoutDeadline = block.timestamp + 7 days;
+        emit BuyoutInitiated(msg.sender, price, buyoutDeadline);
+    }
+
+    function acceptBuyout() external {
+        require(buyoutInitiator != address(0), "No buyout in progress");
+        require(block.timestamp <= buyoutDeadline, "Buyout expired");
+        uint256 shareValue = buyoutPrice / totalShares;
+        uint256 holderShares = balanceOf(msg.sender);
+        require(holderShares > 0, "No shares");
+        uint256 payout = holderShares * shareValue;
+        _burn(msg.sender, holderShares);
+        payable(msg.sender).transfer(payout);
+    }
+
+    function finaliseBuyout() external {
+        require(buyoutInitiator == msg.sender, "Only initiator");
+        require(block.timestamp > buyoutDeadline, "Deadline not reached");
+        require(totalSupply() == 0, "Not all shares surrendered");
+        IERC721(nftContract).transferFrom(address(this), buyoutInitiator, tokenId);
+        emit BuyoutCompleted(buyoutInitiator, tokenId);
+    }
+}</pre></div>
+
+    <p><strong>How the buyout works:</strong> A holder of a significant portion of tokens can initiate a buyout by offering a price. Other holders have 7 days to accept and burn their shares in exchange for ETH. If all shares are surrendered, the initiator can claim the NFT. This mechanism ensures that the NFT can be "re-unified" when someone accumulates enough shares.</p>
+
+    <div class="section-label">06 &nbsp; NFT Index Tokens - A Basket of NFTs</div>
+    <h2 class="section-title">Investing in a Collection Without Picking Winners</h2>
+    <p>Beyond fractionalising a single NFT, the same concept can be applied to a <strong>basket of NFTs</strong>. A protocol can lock multiple NFTs - for example, 10 CryptoPunks, 5 Bored Apes, and 3 Art Blocks - and issue a single index token that represents a share of the entire collection. This is similar to an ETF in traditional finance.</p>
+    <p>Index tokens provide diversification. An investor who believes in the long-term value of a category (e.g., "blue-chip NFTs") can buy the index token without needing to research individual pieces. The token price reflects the aggregate floor price and demand for the entire basket. Platforms like <strong>NFTX</strong> and <strong>Floor DAO</strong> have popularised this model.</p>
+    <p>On MST, the low gas fees make rebalancing these baskets feasible. A smart contract can periodically accept new NFTs into the vault and mint additional tokens, or allow redemption of a specific NFT by burning a sufficient amount of the index token.</p>
+
+    <div class="section-label">07 &nbsp; NFTFi on MST Blockchain - The Low-Fee Advantage</div>
+    <h2 class="section-title">Why MST Is the Perfect Home for NFT Finance</h2>
+    <p>NFT lending and fractionalisation are <strong>transaction-heavy</strong>. A single loan involves: NFT deposit, loan funding, interest accrual, repayment, and possibly default claim. Fractionalisation involves: NFT deposit, token minting, token transfers, buyout initiation, share surrender, and NFT withdrawal. On Ethereum, each of these steps could cost ₹500-₹5,000 in gas, making small loans or fractional shares uneconomical.</p>
+    <p>On MST, these same steps cost a fraction of a paisa. This opens up entirely new use cases:</p>
+    <p><strong>Micro-loans:</strong> Borrow ₹5,000 against a gaming NFT, with interest of ₹50. The gas fees on Ethereum would exceed the interest; on MST, they are negligible.</p>
+    <p><strong>Mass fractionalisation:</strong> Split a ₹50,000 NFT into 100,000 tokens worth ₹0.50 each. Users can buy a single token without losing value to gas.</p>
+    <p><strong>Frequent rebalancing:</strong> An index fund can add or remove NFTs daily without worrying about gas costs.</p>
+    <p>MST's EVM compatibility ensures that the battle-tested smart contracts from NFTfi, BendDAO, and NFTX can be deployed on MST with minimal modifications, immediately benefiting from the lower fee environment.</p>
+
+    <div class="section-label">08 &nbsp; Risks and Considerations</div>
+    <h2 class="section-title">What Can Go Wrong and How to Mitigate It</h2>
+    <p><strong>1. Oracle risk:</strong> NFT lending relies on accurate valuation. If the oracle providing the price feed is manipulated, a lender might issue a loan far above the true value and end up with a worthless NFT. Use multiple oracles and time-weighted average prices (TWAP).</p>
+    <p><strong>2. Liquidity risk:</strong> In a fractionalisation vault, if nobody wants to buy the tokens, the NFT is essentially locked forever. This is mitigated by the buyout mechanism that allows a single large holder to claim the whole NFT.</p>
+    <p><strong>3. Smart contract risk:</strong> The vault contract holds the NFT. If the contract has a bug, the NFT could be stolen. Always use audited code (OpenZeppelin) and consider professional audits.</p>
+    <p><strong>4. Regulatory risk:</strong> Fractionalised tokens could be considered securities in some jurisdictions. Consult legal counsel before launching a public offering.</p>
+
+    <div class="section-label">09 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>NFT lending allows borrowing against an NFT as collateral.</strong> Key parameters: LTV (loan-to-value), duration, interest rate. If the borrower defaults, the lender claims the NFT.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>Fractionalisation locks an NFT in a vault and mints ERC-20 tokens representing shares.</strong> A buyout mechanism allows a majority holder to reclaim the NFT by paying other shareholders.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>NFT index tokens bundle multiple NFTs into a single ERC-20 token, providing diversification.</strong> They function like ETFs for digital collectibles.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>MST's low gas fees make NFT lending and fractionalisation economically viable for smaller amounts.</strong> Frequent transactions, micro-loans, and tiny fractional shares all become feasible.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Always use audited smart contracts and reliable oracles.</strong> Smart contract bugs can lead to loss of the NFT, and oracle manipulation can lead to bad loans.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 12.3 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the primary purpose of NFT lending protocols?</div>
+                <ul class="options">
+                    <li class="correct">A. To allow NFT owners to borrow funds using their NFTs as collateral without selling them.</li>
+                    <li>B. To create new NFTs from existing ones.</li>
+                    <li>C. To permanently burn unwanted NFTs.</li>
+                    <li>D. To automatically increase the rarity of an NFT.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>NFT lending provides liquidity to NFT owners by allowing them to use their NFTs as collateral for loans.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">In the simple NFT loan contract shown, what happens if the borrower fails to repay by the deadline?</div>
+                <ul class="options">
+                    <li class="correct">A. The lender (or anyone) can call `claimDefault()` and the NFT is transferred to the lender.</li>
+                    <li>B. The NFT is automatically auctioned off for the highest bid.</li>
+                    <li>C. The loan is automatically extended for another 30 days.</li>
+                    <li>D. The NFT is burned.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>After the deadline passes, the `claimDefault` function transfers the NFT to the lender, who now owns it.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the purpose of the buyout mechanism in a fractionalisation vault?</div>
+                <ul class="options">
+                    <li class="correct">A. To allow a majority shareholder to reclaim the underlying NFT by paying off the other shareholders.</li>
+                    <li>B. To permanently destroy the fractionalised tokens.</li>
+                    <li>C. To increase the total supply of tokens.</li>
+                    <li>D. To transfer ownership of the vault to a new administrator.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>The buyout mechanism enables the NFT to be re-unified under a single owner once enough tokens are accumulated.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Which advantage does MST Blockchain offer for NFTFi applications?</div>
+                <ul class="options">
+                    <li class="correct">A. Extremely low gas fees make frequent lending, borrowing, and fractionalisation transactions economically viable.</li>
+                    <li>B. MST has a built-in NFT marketplace.</li>
+                    <li>C. MST automatically appraises NFT value.</li>
+                    <li>D. All NFTs on MST are automatically fractionalised.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>MST's low transaction costs enable micro-loans, small fractional shares, and frequent interactions that are too expensive on higher-fee chains.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is LTV (Loan-to-Value) in the context of NFT lending?</div>
+                <ul class="options">
+                    <li class="correct">A. The ratio of the loan amount to the estimated value of the NFT, used to protect lenders against price drops.</li>
+                    <li>B. The total number of loans a borrower has taken.</li>
+                    <li>C. The interest rate calculated over the life of the loan.</li>
+                    <li>D. The length of time the loan is active.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>LTV is the loan amount divided by the NFT's value. A 50% LTV means the lender provides half the NFT's worth, leaving a buffer against depreciation.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q6</div>
+                <div class="a-type">Multi-Select</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">5 marks</div>
+                <div class="a-question">Which of the following are benefits of fractionalising an NFT? (Select all that apply)</div>
+                <div class="multi-select">
+                    <div class="opt-chip selected">A. It enables partial ownership and price discovery for high-value NFTs.</div>
+                    <div class="opt-chip selected">B. It increases liquidity by allowing shares to be traded on DEXs.</div>
+                    <div class="opt-chip">C. It permanently destroys the underlying NFT.</div>
+                    <div class="opt-chip selected">D. It allows small investors to gain exposure to expensive NFTs.</div>
+                    <div class="opt-chip selected">E. The fractional tokens can be used as collateral in other DeFi protocols.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answers: A, B, D, E</div><p>Fractionalisation does not destroy the NFT; it locks it in a vault. All other options are valid benefits of fractionalising an NFT.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q7</div>
+                <div class="a-type">Multi-Select</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">5 marks</div>
+                <div class="a-question">What are the risks associated with NFT lending? (Select all that apply)</div>
+                <div class="multi-select">
+                    <div class="opt-chip selected">A. Oracle manipulation leading to incorrect NFT valuation.</div>
+                    <div class="opt-chip selected">B. Smart contract bugs resulting in loss of the collateral NFT.</div>
+                    <div class="opt-chip selected">C. The borrower may default, leaving the lender with an illiquid NFT.</div>
+                    <div class="opt-chip">D. The NFT's metadata might change colour automatically.</div>
+                    <div class="opt-chip selected">E. Regulatory uncertainty if fractionalised tokens are considered securities.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answers: A, B, C, E</div><p>Oracle risk, smart contract risk, default risk, and regulatory risk are genuine concerns. Metadata colour changes are not a systemic risk of NFT lending.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 12.3 Assessment Summary</div>
+            <div class="score-row">Q1-Q5: 5 × MCQ (1 mark each) = 5 marks</div>
+            <div class="score-row">Q6: Multi-Select (5 marks) = 5 marks</div>
+            <div class="score-row">Q7: Multi-Select (5 marks) = 5 marks</div>
+            <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 12.3</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">NFTFi</div><div class="g-def">The ecosystem of decentralised finance applications built around NFTs, including lending, borrowing, fractionalisation, and derivatives.</div></div>
+        <div class="glossary-card"><div class="g-term">LTV (Loan-to-Value)</div><div class="g-def">The ratio of the loan amount to the appraised value of the collateral. A lower LTV protects lenders from price volatility.</div></div>
+        <div class="glossary-card"><div class="g-term">Fractionalisation</div><div class="g-def">The process of locking an NFT in a vault and issuing ERC-20 tokens representing proportional ownership shares.</div></div>
+        <div class="glossary-card"><div class="g-term">Buyout</div><div class="g-def">A mechanism that allows a shareholder to purchase the underlying NFT by paying off all other token holders.</div></div>
+        <div class="glossary-card"><div class="g-term">NFT Index Token</div><div class="g-def">A single ERC-20 token that represents a share of a basket of multiple NFTs, similar to an ETF.</div></div>
+        <div class="glossary-card"><div class="g-term">Default</div><div class="g-def">In NFT lending, the failure of a borrower to repay the loan by the deadline, resulting in the lender claiming the collateral.</div></div>
+        <div class="glossary-card"><div class="g-term">Oracle</div><div class="g-def">A service that provides external data (such as NFT prices) to smart contracts. Reliable oracles are critical for NFT lending.</div></div>
+        <div class="glossary-card"><div class="g-term">P2P Lending</div><div class="g-def">Peer-to-peer lending where individual lenders and borrowers are matched directly, as opposed to pool-based lending.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 12 · Sub-Module <strong>12.3</strong> of 5 · Next: Sub-Module 12.4 - Metaverse Interoperability →</p>
+    </div>
+
+</body>
+</html>

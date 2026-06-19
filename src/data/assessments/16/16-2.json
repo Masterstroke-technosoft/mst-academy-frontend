@@ -1,0 +1,304 @@
+{
+  "submoduleId": "16.2",
+  "totalMarks": 20,
+  "questions": [
+    {
+      "id": "q1",
+      "number": 1,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "What is the primary risk of giving an AI agent your private key?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The AI can't sign transactions fast enough",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The AI gets unconditional access to all your assets and can perform any action",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "The AI will charge you a fee for each transaction",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The private key becomes publicly visible on-chain",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "A private key is all-or-nothing. Giving it to an AI is like giving it your entire wallet. MST's capability model avoids this entirely.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>A private key is all-or-nothing. Giving it to an AI is like giving it your entire wallet. MST's capability model avoids this entirely.</p>"
+    },
+    {
+      "id": "q2",
+      "number": 2,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "Which component stores and enforces the permissions granted to AI agents on MST?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The Permission Registry smart contract",
+          "isCorrect": true
+        },
+        {
+          "key": "B",
+          "text": "The BridgeKey wallet",
+          "isCorrect": false
+        },
+        {
+          "key": "C",
+          "text": "The MST Explorer",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The SARAL biometric module",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "A",
+      "explanation": "The Permission Registry is an on-chain smart contract that stores capabilities and validates agent actions against them.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: A</div><p>The Permission Registry is an on-chain smart contract that stores capabilities and validates agent actions against them.</p>"
+    },
+    {
+      "id": "q3",
+      "number": 3,
+      "type": "mcq",
+      "difficulty": "Easy",
+      "marks": 1,
+      "text": "In the MST delegation model, which DID signs the transaction when an AI agent acts on behalf of a user?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The user's DID",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The AI agent's DID",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "The validator's DID",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The Permission Registry's DID",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "The agent signs with its own DID. The Registry then checks if that DID has been granted the necessary capability by the user.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>The agent signs with its own DID. The Registry then checks if that DID has been granted the necessary capability by the user.</p>"
+    },
+    {
+      "id": "q4",
+      "number": 4,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "Which field in an MST Capability struct prevents the agent from draining the user's entire balance in one go?",
+      "options": [
+        {
+          "key": "A",
+          "text": "validUntil",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "maxPerTransaction",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "targetContract",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "active",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "maxPerTransaction caps the amount the agent can spend in a single call. cumulativeCap limits the total over time.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p><code>maxPerTransaction</code> caps the amount the agent can spend in a single call. <code>cumulativeCap</code> limits the total over time.</p>"
+    },
+    {
+      "id": "q5",
+      "number": 5,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "How can a user instantly stop an AI agent from performing further actions?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Change the agent's private key",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "Call revokePermission on the Permission Registry",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "Delete the agent's DID from the blockchain",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "Transfer all funds to a new wallet",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Revocation sets the capability's active flag to false. All future transactions by the agent will be rejected by the Registry. No key change needed.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>Revocation sets the capability's <code>active</code> flag to false. All future transactions by the agent will be rejected by the Registry. No key change needed.</p>"
+    },
+    {
+      "id": "q6",
+      "number": 6,
+      "type": "mcq",
+      "difficulty": "Medium",
+      "marks": 1,
+      "text": "What advantage does a Verifiable Credential (VC) permission bring over a raw capability stored in the Registry?",
+      "options": [
+        {
+          "key": "A",
+          "text": "It is cheaper to store on-chain",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "It allows the AI to prove its authority off-chain, then have it verified on-chain in a single step",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "The VC cannot be revoked",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The VC encrypts the permission details",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "A VC can be presented by an off-chain AI, and the Registry verifies the signature against the user's DID Document on-chain. It bridges off-chain and on-chain worlds. Revocation is still possible (by revoking the credential or capability).",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>A VC can be presented by an off-chain AI, and the Registry verifies the signature against the user's DID Document on-chain. It bridges off-chain and on-chain worlds. Revocation is still possible (by revoking the credential or capability).</p>"
+    },
+    {
+      "id": "q7",
+      "number": 7,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "Why is the `functionSelector` field included in the Capability struct?",
+      "options": [
+        {
+          "key": "A",
+          "text": "To specify the gas limit for the transaction",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "To restrict which specific function the agent can call on the target contract",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "To identify the agent's wallet",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "To link the capability to a particular VC",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Without the function selector, an agent with permission to interact with a contract could call any function - including withdrawAll(). The selector limits the capability to a specific function, e.g., placeOrder().",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>Without the function selector, an agent with permission to interact with a contract could call any function - including <code>withdrawAll()</code>. The selector limits the capability to a specific function, e.g., <code>placeOrder()</code>.</p>"
+    },
+    {
+      "id": "q8",
+      "number": 8,
+      "type": "mcq",
+      "difficulty": "Hard",
+      "marks": 1,
+      "text": "In a session key model for high-frequency AI actions, what must be true to maintain security?",
+      "options": [
+        {
+          "key": "A",
+          "text": "The session key never expires",
+          "isCorrect": false
+        },
+        {
+          "key": "B",
+          "text": "The session key has a short lifetime and can be rotated, and its permissions are still checked against the Registry",
+          "isCorrect": true
+        },
+        {
+          "key": "C",
+          "text": "The session key is the same as the user's master key",
+          "isCorrect": false
+        },
+        {
+          "key": "D",
+          "text": "The AI agent stores the session key in plaintext",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswer": "B",
+      "explanation": "Session keys must be time-bound and rotate frequently. The Registry still enforces the original capability limits - the session key simply avoids the overhead of a full VC check on every transaction.",
+      "modelAnswer": "<div class=\"answer-box-label\">✅ Correct Answer: B</div><p>Session keys must be time-bound and rotate frequently. The Registry still enforces the original capability limits - the session key simply avoids the overhead of a full VC check on every transaction.</p>"
+    },
+    {
+      "id": "q9",
+      "number": 9,
+      "type": "true_false",
+      "difficulty": "Medium",
+      "marks": 2,
+      "text": "\"If an AI agent is granted a capability to spend up to ₹5,000 per week at BigBasket, the agent could still drain the user's entire balance by calling a different function in the BigBasket contract, such as `withdrawAll`, because the capability grants access to the entire contract.\"",
+      "correctAnswer": "FALSE",
+      "explanation": "1 mark: Correctly states FALSE.+1 mark: Explains that the functionSelector field restricts which function can be called, and that the Registry enforces this at the transaction level, preventing access to any other function in the contract.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that the <code>functionSelector</code> field restricts which function can be called, and that the Registry enforces this at the transaction level, preventing access to any other function in the contract.</p>",
+      "tfVerdict": "FALSE"
+    },
+    {
+      "id": "q10",
+      "number": 10,
+      "type": "descriptive",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "Design a secure delegation system for an AI agent that pays utility bills on behalf of a user using MST tokens. Your answer must include:<br>\n        (a) How the user grants the agent permission using DIDs and the Permission Registry (2 marks).<br>\n        (b) The fields you would include in the Capability struct and why each is necessary (2 marks).<br>\n        (c) How the system prevents the agent from paying bills to a fraudulent electricity board contract (1 mark).",
+      "explanation": "(a) The user (with DID did:mst:user‑home) calls grantPermission on the Permission Registry, specifying the agent's DID (did:mst:bill‑agent), the target contract address of the authorised electricity board, the function selector for payBill(), a maximum per-transaction amount (e.g., ₹2,000), a monthly cumulative cap (e.g., ₹10,000), and an expiry of one month. The agent later calls executeWithPermission with the capability ID and the bill payment transaction. The Registry verifies the capability is active, the agent's DID matches, and the limits are not exceeded before allowing execution.\n(b) Fields: grantor (the user), agent (the agent's DID), targetContract (the electricity board's verified contract address), functionSelector (restricts to payBill), maxPerTransaction (prevents large one-off fraud), cumulativeCap (limits total monthly spend), usedSoFar (tracks cumulative spending), validUntil (time-bound expiry), active (enables instant revocation). Each field is necessary for granular, revocable, and safe delegation.\n(c) The targetContract field is set to the verified electricity board's contract address. The Registry checks that msg.sender of the agent's transaction (the target contract) matches the stored targetContract. If the agent attempts to call a different contract (a fraudulent one), the check fails and the transaction reverts. Additionally, the user can revoke the capability at any time. (1 mark)",
+      "modelAnswer": "<div class=\"answer-box-label\">📝 Model Answer Outline</div>\n        <p><strong>(a)</strong> The user (with DID <code>did:mst:user‑home</code>) calls <code>grantPermission</code> on the Permission Registry, specifying the agent's DID (<code>did:mst:bill‑agent</code>), the target contract address of the authorised electricity board, the function selector for <code>payBill()</code>, a maximum per-transaction amount (e.g., ₹2,000), a monthly cumulative cap (e.g., ₹10,000), and an expiry of one month. The agent later calls <code>executeWithPermission</code> with the capability ID and the bill payment transaction. The Registry verifies the capability is active, the agent's DID matches, and the limits are not exceeded before allowing execution.</p>\n        <p><strong>(b)</strong> Fields: <code>grantor</code> (the user), <code>agent</code> (the agent's DID), <code>targetContract</code> (the electricity board's verified contract address), <code>functionSelector</code> (restricts to <code>payBill</code>), <code>maxPerTransaction</code> (prevents large one-off fraud), <code>cumulativeCap</code> (limits total monthly spend), <code>usedSoFar</code> (tracks cumulative spending), <code>validUntil</code> (time-bound expiry), <code>active</code> (enables instant revocation). Each field is necessary for granular, revocable, and safe delegation.</p>\n        <p><strong>(c)</strong> The <code>targetContract</code> field is set to the verified electricity board's contract address. The Registry checks that <code>msg.sender</code> of the agent's transaction (the target contract) matches the stored <code>targetContract</code>. If the agent attempts to call a different contract (a fraudulent one), the check fails and the transaction reverts. Additionally, the user can revoke the capability at any time. (1 mark)</p>\n        <div class=\"marks-bd\"><span>Total 5 marks.</span></div>"
+    },
+    {
+      "id": "q11",
+      "number": 11,
+      "type": "coding",
+      "difficulty": "Hard",
+      "marks": 5,
+      "text": "Write a simplified Solidity contract that mimics the core of the MST Permission Registry. The contract should include:<br>\nA <code>grantPermission</code> function that stores a capability with agent address, maximum amount, and expiry.<br>\nA modifier <code>onlyPermitted</code> that checks whether the caller has an active capability and that the requested amount is within the limit.<br>\nA function <code>spendWithPermission(uint amount)</code> that uses the modifier and deducts from a stored mapping of allowances.<br>\n        You do not need to handle cumulative caps or function selectors; only a simple per-call limit.",
+      "explanation": "2 marks: Correctly defines the Capability struct with relevant fields and the grantPermission function.\n        2 marks: Implements the onlyPermitted modifier that correctly checks active status, expiry, and amount limit.\n        1 mark: Includes a revocation function that sets the capability to inactive.\n        The contract must compile under Solidity 0.8.x. Edge case handling (e.g., zero amount) is not required but considered for full marks if elegantly handled.",
+      "modelAnswer": "<div class=\"answer-box-label\">📊 Marks Breakdown</div>\n        <p><strong>2 marks:</strong> Correctly defines the <code>Capability</code> struct with relevant fields and the <code>grantPermission</code> function.<br>\n        <strong>2 marks:</strong> Implements the <code>onlyPermitted</code> modifier that correctly checks active status, expiry, and amount limit.<br>\n        <strong>1 mark:</strong> Includes a revocation function that sets the capability to inactive.<br>\n        The contract must compile under Solidity 0.8.x. Edge case handling (e.g., zero amount) is not required but considered for full marks if elegantly handled.</p>\n        <div class=\"marks-bd\"><span>Total 5 marks.</span></div>",
+      "starterCode": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract SimplePermission {\n    struct Capability {\n        uint maxAmount;\n        uint expiry;\n        bool active;\n    }\n\n    mapping(address => Capability) public permissions;\n\n    function grantPermission(address agent, uint maxAmount, uint duration) external {\n        permissions[agent] = Capability({\n            maxAmount: maxAmount,\n            expiry: block.timestamp + duration,\n            active: true\n        });\n    }\n\n    modifier onlyPermitted(uint amount) {\n        Capability storage cap = permissions[msg.sender];\n        require(cap.active, \"No active permission\");\n        require(block.timestamp < cap.expiry, \"Permission expired\");\n        require(amount <= cap.maxAmount, \"Exceeds permitted amount\");\n        _;\n    }\n\n    function spendWithPermission(uint amount) external onlyPermitted(amount) {\n        // In a real contract, you would transfer tokens or perform the action here.\n        // For the assessment, we simply accept the call if checks pass.\n    }\n\n    function revokePermission(address agent) external {\n        permissions[agent].active = false;\n    }\n}",
+      "language": "solidity"
+    }
+  ]
+}

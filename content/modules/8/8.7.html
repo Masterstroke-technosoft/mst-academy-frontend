@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 8.7 - Inheritance & Interfaces | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #6C3CE2;
+            --brand-light: #EDE9FB;
+            --brand-dark: #3C1FA0;
+            --brand-mid: #8B5CF6;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --blue: #1D6FD8;
+            --blue-light: #DBEAFE;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 28px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 10px;
+            margin-top: 52px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.analogy {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .callout.analogy .callout-label {
+            color: #92400E;
+        }
+        .callout.insight {
+            background: #F0FDF4;
+            border-color: var(--green);
+        }
+        .callout.insight .callout-label {
+            color: var(--green);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .feature-content {
+            flex: 1;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        details {
+            margin: 16px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        details summary {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--brand-dark);
+            cursor: pointer;
+            background: var(--brand-light);
+            list-style: none;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '▶ ';
+            font-size: 12px;
+        }
+        details[open] summary::before {
+            content: '▼ ';
+        }
+        details .details-content {
+            padding: 0 18px 16px;
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+        .q-section-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .q-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .q-section-meta {
+            font-size: 12px;
+            color: var(--ink-3);
+        }
+        .question-block {
+            padding: 28px 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            padding-bottom: 28px;
+        }
+        .q-header {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .q-badge {
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .q-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .q-type {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--ink-3);
+        }
+        .q-diff {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .q-diff.easy {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .q-diff.medium {
+            background: var(--accent-light);
+            color: #92400E;
+        }
+        .q-diff.hard {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .q-marks {
+            font-size: 12px;
+            color: var(--ink-3);
+            margin-left: auto;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .q-text {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .options li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.5;
+            cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-3);
+            flex-shrink: 0;
+            margin-top: 1px;
+            min-width: 18px;
+        }
+        .options li.correct .opt-key {
+            color: var(--green);
+        }
+        .answer-box {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .answer-box p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .answer-box .marks-bd {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #86EFAC;
+            font-size: 13px;
+            color: #14532D;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .glossary-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .glossary-term {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🧬 Module 8 &nbsp;·&nbsp; Sub-Module 8.7 of 8</div>
+    <h1 class="module-title">Inheritance & <span class="highlight">Interfaces</span></h1>
+    <p class="module-subtitle">How Solidity contracts share code like a family tree. Master the "is" keyword, override functions, navigate the diamond problem with C3 linearization, and use interfaces to create standardized, interoperable smart contracts.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks</div>
+        <div class="meta-chip">📋 6 MCQ + 2 T/F with Justification + 1 Identify-Output</div>
+        <div class="meta-chip green">Phase 2 · Development Environment & Solidity</div>
+    </div>
+
+    <!-- 1. LEARNING OBJECTIVES -->
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+        <div class="feature-item"><div class="feature-num">🧬</div><div class="feature-content"><strong>Leverage single and multi-level inheritance</strong> to reuse and extend contract functionality securely.</div></div>
+        <div class="feature-item"><div class="feature-num">🔀</div><div class="feature-content"><strong>Solve the Diamond Problem</strong> in Solidity using C3 linearization and understand exactly how the compiler resolves multiple inheritance.</div></div>
+        <div class="feature-item"><div class="feature-num">📜</div><div class="feature-content"><strong>Define and implement Interfaces</strong> (like IERC-20) to guarantee that a contract follows a specific standard.</div></div>
+        <div class="feature-item"><div class="feature-num">🔧</div><div class="feature-content"><strong>Use Abstract Contracts and Libraries</strong> to build efficient, gas-optimized code with reusable internal functions.</div></div>
+    </div>
+
+    <!-- 2. REAL-WORLD STORY -->
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Copied Code That Cost ₹10 Lakh</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>Karan was building a DeFi protocol with two types of staking pools. He wrote the first pool's smart contract from scratch, implementing ownership checks, pause functionality, and a withdrawal mechanism. It worked perfectly. For the second pool, he copied the entire 200-line contract, changed the staking logic slightly, and deployed it.</p>
+        <br>
+        <p>Three weeks after launch, a user discovered that Karan had forgotten to update the <strong>require</strong> statement in the second contract's withdrawal function. The first contract limited withdrawals to 10% per day. The copied contract had no limit. An attacker drained the entire pool. Over ₹10 lakh worth of tokens were gone. The bug was not in the new logic - it was in the duplicated boilerplate that Karan had failed to synchronize between the two contracts.</p>
+        <br>
+        <p>If Karan had used <strong>inheritance</strong>, he would have written the ownership and pause logic once, in a base contract, and both staking pools would have inherited it. A single fix to the base contract would have fixed both. This is the power of inheritance: <strong>write once, reuse everywhere, fix once, secure everywhere.</strong> Combined with interfaces, which enforce standards, inheritance is what makes the composable "money lego" ecosystem of blockchain possible.</p>
+    </div>
+
+    <!-- 3. WHAT IS INHERITANCE? -->
+    <div class="section-label">03 &nbsp; The Core Concept</div>
+    <h2 class="section-title">What Is Inheritance? The "Is-A" Relationship</h2>
+    <p>Inheritance is a mechanism where one contract derives properties and behavior from another. The child contract <strong>inherits</strong> state variables and functions from the parent, and can override them or add new ones. This creates a hierarchical relationship that models real-world categories.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.7-A · Visualizing Inheritance in Solidity</div>
+        <pre>
+                          ┌─────────────────────────┐
+                          │        Ownable          │  ← Base contract: ownership logic
+                          │  - owner: address       │
+                          │  + onlyOwner() modifier │
+                          │  + transferOwnership()  │
+                          └───────────┬─────────────┘
+                                      │  "is"
+                          ┌───────────┴─────────────┐
+                          │        MyToken          │  ← Derived contract: inherits ownership
+                          │  (is Ownable)           │
+                          │  - balances: mapping    │
+                          │  + mint()               │
+                          │  + transfer()           │
+                          └─────────────────────────┘
+
+        MyToken now has: owner, onlyOwner, transferOwnership, balances, mint, transfer.
+        It "is‑a" Ownable contract with extra token functionality.
+        </pre>
+        <div class="diagram-caption">Solidity inheritance is declared with the <strong>is</strong> keyword. The child contract merges the parent's state and logic.</div>
+    </div>
+
+    <p>In Solidity, you declare inheritance using the <strong>is</strong> keyword: <code>contract Child is Parent { }</code>. The child contract automatically gets access to all non-private state variables and functions of the parent. This is the foundation of code reuse in smart contracts.</p>
+
+    <!-- 4. BASIC INHERITANCE -->
+    <div class="section-label">04 &nbsp; Basic Inheritance</div>
+    <h2 class="section-title">The "is" Keyword and the Ownable Pattern</h2>
+    <p>The most common inheritance pattern in blockchain development is the <strong>Ownable</strong> contract. OpenZeppelin's Ownable contract provides basic authorization: it stores the owner's address, provides a modifier that restricts access to the owner, and allows ownership transfer.</p>
+
+    <div class="code-block-wrap">
+        <pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract Ownable {
+    address public owner;
+
+    // Event emitted when ownership is transferred
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    // The deployer becomes the initial owner
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // Modifier: only the current owner can call the function
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the owner");
+        _;
+    }
+
+    // Transfer ownership to a new address
+    function transferOwnership(address newOwner) public onlyOwner {
+        require(newOwner != address(0), "New owner is zero address");
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+    }
+}
+
+// Now any contract can inherit this ownership logic
+contract MySecureContract is Ownable {
+    uint256 public secretValue;
+
+    // Only the owner can set this value
+    function setSecret(uint256 newValue) public onlyOwner {
+        secretValue = newValue;
+    }
+}</pre>
+    </div>
+
+    <p>In this example, <code>MySecureContract</code> inherits <code>owner</code>, <code>onlyOwner</code>, and <code>transferOwnership</code> from <code>Ownable</code>. It adds its own <code>secretValue</code> state variable and <code>setSecret</code> function. The <code>onlyOwner</code> modifier, defined in the parent, works perfectly in the child - because the child <strong>is</strong> an Ownable contract.</p>
+
+    <!-- 5. FUNCTION OVERRIDING -->
+    <div class="section-label">05 &nbsp; Overriding Functions</div>
+    <h2 class="section-title">virtual and override - Changing Inherited Behavior</h2>
+    <p>Sometimes a child contract needs to change how a parent's function works. Solidity provides the <strong>virtual</strong> and <strong>override</strong> keywords for this purpose. The parent marks a function as <strong>virtual</strong> to signal "I allow my children to override this." The child marks its version of the function with <strong>override</strong> to signal "I am intentionally replacing the parent's implementation."</p>
+
+    <div class="code-block-wrap">
+        <pre>contract Animal {
+    function makeSound() public pure virtual returns (string memory) {
+        return "...";
+    }
+}
+
+contract Dog is Animal {
+    // override replaces the parent's version
+    function makeSound() public pure override returns (string memory) {
+        return "Woof!";
+    }
+}
+
+contract Cat is Animal {
+    function makeSound() public pure override returns (string memory) {
+        return "Meow!";
+    }
+}</pre>
+    </div>
+
+    <p><strong>Important Rules:</strong></p>
+    <p>1. Only functions marked <strong>virtual</strong> can be overridden.</p>
+    <p>2. Overriding functions must use the <strong>override</strong> keyword.</p>
+    <p>3. The overriding function must have the same visibility or broader (e.g., external can be overridden as public, but not the reverse).</p>
+    <p>4. Mutability (view, pure, payable) must remain compatible - a non-payable function cannot be overridden as payable.</p>
+    <p>5. If overriding a function from multiple parents, you must explicitly list them: <strong>override(Parent1, Parent2)</strong>.</p>
+
+    <!-- 6. CONSTRUCTORS AND INHERITANCE -->
+    <div class="section-label">06 &nbsp; Constructors</div>
+    <h2 class="section-title">Constructors in Inheritance Chains</h2>
+    <p>When a child contract is deployed, the constructors of all its parent contracts execute, from the <strong>most base-like to the most derived</strong>. If a parent constructor requires arguments, the child must supply them in its constructor definition.</p>
+
+    <div class="code-block-wrap">
+        <pre>contract Base {
+    uint256 public creationTime;
+    constructor(uint256 time) {
+        creationTime = time;
+    }
+}
+
+contract Derived is Base(42) {  // Passes 42 to Base's constructor
+    // Derived gets creationTime = 42
+}
+
+contract DerivedWithParam is Base {
+    constructor(uint256 time) Base(time) {  // Passes deployment arg to Base
+        // Base's constructor runs before Derived's body
+    }
+}</pre>
+    </div>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 Constructor Execution Order</div>
+        <p>SolC (the Solidity compiler) enforces that <strong>base contracts are initialized before derived contracts</strong>. This ensures that state variables set in parent constructors are available when the child constructor executes. In multiple inheritance, the order follows C3 linearization (explained below).</p>
+    </div>
+
+    <!-- 7. MULTI-LEVEL INHERITANCE -->
+    <div class="section-label">07 &nbsp; Multi-Level Inheritance</div>
+    <h2 class="section-title">Grandparent → Parent → Child</h2>
+    <p>A contract can inherit from another contract that itself inherits from a third. This creates a chain: <strong>Grandparent → Parent → Child</strong>. The child inherits everything from the parent, which includes everything from the grandparent.</p>
+
+    <div class="code-block-wrap">
+        <pre>contract Grandparent {
+    function generation() public pure returns (string memory) {
+        return "I am the root";
+    }
+}
+
+contract Parent is Grandparent {
+    function generation() public pure virtual override returns (string memory) {
+        return "I am the middle";
+    }
+}
+
+contract Child is Parent {
+    function generation() public pure override returns (string memory) {
+        return "I am the leaf";
+    }
+}</pre>
+    </div>
+
+    <p>Deploying the Child contract creates a single contract on the blockchain that contains all three generations' code. Calling <code>generation()</code> returns "I am the leaf" - the most derived override wins.</p>
+
+    <!-- 8. MULTIPLE INHERITANCE & C3 LINEARIZATION -->
+    <div class="section-label">08 &nbsp; Multiple Inheritance</div>
+    <h2 class="section-title">The Diamond Problem and C3 Linearization</h2>
+    <p>Solidity allows a contract to inherit from <strong>multiple</strong> parent contracts. This creates a potential conflict: if two parents define the same function, which version does the child use? This is the classic <strong>Diamond Problem</strong>. Solidity solves it using <strong>C3 Linearization</strong>, an algorithm that creates a single, unambiguous order of all ancestor contracts.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.7-B · C3 Linearization Solving the Diamond Problem</div>
+        <pre>
+                    ┌──────────┐
+                    │    A     │  ← Base (virtual)
+                    │  foo()   │
+                    └────┬─────┘
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+        ┌─────┴─────┐         ┌────┴──────┐
+        │    B      │         │     C     │  ← Both override A
+        │ override  │         │ override  │
+        └─────┬─────┘         └────┬──────┘
+              │                    │
+              └──────────┬─────────┘
+                         │
+                   ┌─────┴─────┐
+                   │     D     │  ← inherits B, C
+                   │ override(B, C) │
+                   └───────────┘
+
+        C3 Linearization of D: [D, B, C, A]
+        When D calls foo(): D's override executes.
+        D's foo() can call super.foo() which resolves to B.foo(),
+        which can call super.foo() which resolves to C.foo(),
+        which can call super.foo() which resolves to A.foo().
+        </pre>
+        <div class="diagram-caption">C3 linearization creates a single inheritance path, resolving the ambiguity of which parent's function to call.</div>
+    </div>
+
+    <div class="code-block-wrap">
+        <pre>contract A {
+    function foo() public pure virtual returns (string memory) {
+        return "A";
+    }
+}
+
+contract B is A {
+    function foo() public pure virtual override returns (string memory) {
+        return string.concat("B", super.foo()); // "BA"
+    }
+}
+
+contract C is A {
+    function foo() public pure virtual override returns (string memory) {
+        return string.concat("C", super.foo()); // "CA"
+    }
+}
+
+contract D is B, C {
+    function foo() public pure override(B, C) returns (string memory) {
+        return string.concat("D", super.foo()); // "DBCA"
+    }
+}</pre>
+    </div>
+
+    <p>In this example, calling <code>D.foo()</code> returns <strong>"DBCA"</strong>. The <code>super</code> keyword follows C3 linearization: D → B → C → A. This is critical for understanding how initializers, constructors, and function calls flow in complex inheritance structures.</p>
+
+    <details>
+        <summary>🔬 Click to expand: The C3 Linearization Algorithm Explained</summary>
+        <div class="details-content">
+            <p>C3 linearization is the algorithm Python and Solidity use to resolve method resolution order. The rule is: <strong>a child contract always comes before its parents, and the order of parents as written in the contract declaration is preserved.</strong></p>
+            <p>For <code>contract D is B, C { }</code>, the linearization is <code>[D, B, C, A]</code>. This satisfies: D before B and C, B before A (since B is A), C before A (since C is A), B before C (because in D's declaration, B comes first). If the order had been <code>contract D is C, B { }</code>, the linearization would be <code>[D, C, B, A]</code>.</p>
+        </div>
+    </details>
+
+    <!-- 9. ABSTRACT CONTRACTS -->
+    <div class="section-label">09 &nbsp; Abstract Contracts</div>
+    <h2 class="section-title">The Blueprint - abstract Contracts</h2>
+    <p>An <strong>abstract contract</strong> is a contract that cannot be deployed directly. It exists only to be inherited by other contracts. It may contain <strong>unimplemented functions</strong> (functions without a body) that child contracts must implement. This is how Solidity defines templates and standards.</p>
+
+    <div class="code-block-wrap">
+        <pre>abstract contract Shape {
+    // Implemented function – child can inherit as‑is
+    function description() public pure returns (string memory) {
+        return "I am a shape";
+    }
+
+    // Unimplemented function – child MUST implement this
+    function area() public view virtual returns (uint256);
+}
+
+contract Circle is Shape {
+    uint256 public radius;
+
+    constructor(uint256 r) {
+        radius = r;
+    }
+
+    function area() public view override returns (uint256) {
+        return 3 * radius * radius; // Simplified!
+    }
+}</pre>
+    </div>
+
+    <p>Any contract that inherits from an abstract contract and does not implement all its unimplemented functions becomes abstract itself. Abstract contracts are ideal for creating base templates where some behavior is shared but specific implementations must be provided by the derived contracts.</p>
+
+    <!-- 10. INTERFACES -->
+    <div class="section-label">10 &nbsp; Interfaces</div>
+    <h2 class="section-title">The Contract Standard - Interfaces</h2>
+    <p>An <strong>interface</strong> is the strictest form of an abstract contract. It defines <strong>what</strong> functions a contract must have, but not <strong>how</strong> they work. Interfaces are the backbone of interoperability in the EVM ecosystem - they are what allow wallets to display your token balance, exchanges to list your token, and other contracts to interact with your contract without knowing its internal code.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 Rules of Interfaces</div>
+        <p>1. No state variables. None. Period.</p>
+        <p>2. No constructors. An interface cannot be deployed.</p>
+        <p>3. No function bodies. All functions must be external (or public, if defined as interface).</p>
+        <p>4. No modifiers with implementation (only function signatures).</p>
+        <p>5. Cannot inherit from other contracts, but can inherit from other interfaces.</p>
+    </div>
+
+    <p>The most famous interface in blockchain is <strong>IERC20</strong>. Any contract that implements IERC20 is recognized as a fungible token by wallets, exchanges, and dApps.</p>
+
+    <div class="code-block-wrap">
+        <pre>// The IERC20 interface (simplified)
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+// Our custom token promises to follow the IERC20 standard
+contract MyToken is IERC20 {
+    mapping(address => uint256) private _balances;
+    // ... implementation of all IERC20 functions ...
+}</pre>
+    </div>
+
+    <p>By declaring <code>contract MyToken is IERC20</code>, we promise that MyToken has all the functions IERC20 requires. If we forget to implement <code>totalSupply()</code>, the compiler will refuse to compile. This is a powerful enforcement mechanism that prevents catastrophic integration errors.</p>
+
+    <!-- 11. LIBRARIES -->
+    <div class="section-label">11 &nbsp; Libraries</div>
+    <h2 class="section-title">using for - Gas-Efficient Code Reuse with Libraries</h2>
+    <p>A <strong>library</strong> is a special type of contract that cannot hold state or receive ether. It is deployed once at a specific address, and other contracts call its functions using <strong>DELEGATECALL</strong>, meaning the library's code executes in the context of the calling contract's storage. Libraries are ideal for reusable utility functions like math operations, array manipulations, and string processing.</p>
+
+    <div class="code-block-wrap">
+        <pre>library MathLib {
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+}
+
+contract Calculator {
+    using MathLib for uint256;
+
+    function findMax(uint256 x, uint256 y) public pure returns (uint256) {
+        return x.max(y); // Calls MathLib.max(x, y)
+    }
+}</pre>
+    </div>
+
+    <p>The <strong>using for</strong> directive attaches library functions to a specific type. In the example, <code>using MathLib for uint256</code> makes <code>max</code> and <code>min</code> available as member functions on any uint256 variable. This is purely syntactic sugar - the compiler transforms it into a regular library call. Libraries keep your contracts modular, reusable, and gas-optimized.</p>
+
+    <!-- 12. HANDS-ON: OPENZEPPELIN -->
+    <div class="section-label">12 &nbsp; Hands-On Integration</div>
+    <h2 class="section-title">Using OpenZeppelin Contracts - The Standard Library</h2>
+    <p>OpenZeppelin provides battle-tested, community-audited base contracts for all common blockchain functionality. You should never write your own token standard, access control, or math library from scratch for production. Use OpenZeppelin and extend it through inheritance.</p>
+
+    <div class="code-block-wrap">
+        <pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyGovernanceToken is ERC20, Ownable {
+    // ERC20 provides: transfer, approve, transferFrom, balanceOf, totalSupply...
+    // Ownable provides: owner, onlyOwner, transferOwnership...
+
+    constructor() ERC20("MyGovernanceToken", "MGT") Ownable() {
+        // Mint 1 million tokens to the deployer
+        _mint(msg.sender, 1000000 * 10 ** decimals());
+    }
+
+    // Only the owner can mint additional tokens
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+}</pre>
+    </div>
+
+    <p>With just these few lines, we have created a fully functional ERC-20 token with ownership management, using code that has been audited by the top security firms in the world. This is the power of inheritance combined with interfaces - <strong>you build on the shoulders of giants.</strong></p>
+
+    <!-- 13. ASSESSMENT PREP -->
+    <div class="section-label">13 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Inheritance is declared with <strong>is</strong>. Use <strong>virtual</strong> and <strong>override</strong> for polymorphism.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">Constructors execute from <strong>most base-like to most derived</strong> following C3 linearization.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Multiple inheritance uses <strong>C3 linearization</strong> to solve the Diamond Problem. <code>super</code> follows this exact order.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">04</div><div class="feature-content"><div class="feature-title"><strong>Interfaces</strong> define external function signatures with no state, constructors, or function bodies. They enforce standards.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">05</div><div class="feature-content"><div class="feature-title"><strong>Libraries</strong> are deployed once and used via <strong>DELEGATECALL</strong>. Use <strong>using for</strong> for cleaner syntax.</div></div></div>
+    </div>
+
+    <!-- 14. ASSESSMENT -->
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 8.7 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+            <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">6 Questions · 1 mark each · 6 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What Solidity keyword is used to inherit a contract?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>inherit</li>
+                    <li class="correct"><span class="opt-key">B</span>is ✅</li>
+                    <li><span class="opt-key">C</span>extends</li>
+                    <li><span class="opt-key">D</span>import</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Solidity uses the <strong>is</strong> keyword for inheritance. Example: <code>contract Child is Parent { }</code>.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">If a parent function is marked as <strong>virtual</strong>, what must the child contract use to replace its behavior?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>replace</li>
+                    <li class="correct"><span class="opt-key">B</span>override ✅</li>
+                    <li><span class="opt-key">C</span>super</li>
+                    <li><span class="opt-key">D</span>new</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The child uses the <strong>override</strong> keyword to signal it is intentionally replacing the parent's virtual function.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What problem does C3 linearization solve in Solidity?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>Integer overflow in mathematical operations</li>
+                    <li class="correct"><span class="opt-key">B</span>The Diamond Problem - ambiguity when multiple parent contracts define the same function ✅</li>
+                    <li><span class="opt-key">C</span>Reentrancy attacks in withdrawal functions</li>
+                    <li><span class="opt-key">D</span>Gas optimization for large arrays</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>C3 linearization creates a single, unambiguous order of ancestor contracts, solving the ambiguity when a contract inherits from multiple parents that share a common grandparent.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">Which of the following is STRICTLY FORBIDDEN in a Solidity interface?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>Function signatures without a body</li>
+                    <li class="correct"><span class="opt-key">B</span>State variables and constructors ✅</li>
+                    <li><span class="opt-key">C</span>Event declarations</li>
+                    <li><span class="opt-key">D</span>External function visibility</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Interfaces cannot have state variables, constructors, or function bodies. They can only declare external function signatures and events.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">Given <strong>contract D is B, C</strong> and both B and C inherit from A, what is the C3 linearization order?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>[D, A, B, C]</li>
+                    <li class="correct"><span class="opt-key">B</span>[D, B, C, A] ✅</li>
+                    <li><span class="opt-key">C</span>[D, C, B, A]</li>
+                    <li><span class="opt-key">D</span>The compiler will throw an error due to the Diamond Problem</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>C3 linearization preserves the order in which parents are declared while ensuring base contracts come after their derivatives. B before C, and both before A.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What is the primary advantage of using a library over a regular contract for utility functions?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>Libraries can hold state variables across transactions</li>
+                    <li class="correct"><span class="opt-key">B</span>Libraries are deployed once and reused via DELEGATECALL, saving gas across multiple contracts ✅</li>
+                    <li><span class="opt-key">C</span>Libraries are the only way to perform mathematical operations</li>
+                    <li><span class="opt-key">D</span>Libraries can receive ether from users</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>Libraries are deployed once. Other contracts call them via DELEGATECALL, executing the library's code within their own storage context, avoiding code duplication.</p></div>
+            </div>
+
+            <div class="q-section-header" style="margin-top:8px;"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">2 Questions · 1 mark each · 2 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">"A contract that inherits an abstract contract must implement all the abstract contract's unimplemented functions, otherwise it becomes abstract itself."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict true">TRUE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>TRUE</strong>. If a contract inherits from an abstract contract and does not provide a body (implementation) for every function marked virtual without a body, the inheriting contract itself becomes abstract. Abstract contracts cannot be deployed; they exist solely to be inherited by other contracts that complete the implementation.</div>
+                </div>
+                <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p>1 mark for correctly stating TRUE and explaining that unimplemented functions force the inheritor to also be abstract.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">"The <strong>super</strong> keyword in Solidity always calls the immediate parent's function, regardless of C3 linearization."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. The <strong>super</strong> keyword follows the exact order determined by <strong>C3 linearization</strong>, not simply the immediate parent. In a multiple inheritance scenario like <code>contract D is B, C</code> where both inherit A, calling <code>super.foo()</code> from D calls B.foo(), and calling <code>super.foo()</code> from B calls C.foo() (not A.foo()), because C3 linearization orders them D → B → C → A.</div>
+                </div>
+                <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p>1 mark for correctly stating FALSE and explaining that super follows C3 linearization, which may jump to a sibling parent before reaching the immediate base.</p></div>
+            </div>
+
+            <div class="q-section-header" style="margin-top:8px;"><div class="q-section-title">Section C - Identify the Output</div><div class="q-section-meta">1 Question · 2 marks · 2 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">Identify-Output</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+                <div class="q-text">Given the following contracts, what is the EXACT string returned when <code>factory()</code> is called on a deployed <code>Child</code> contract?</div>
+                <div class="code-block-wrap">
+                    <pre>contract A {
+    function get() public pure virtual returns (string memory) {
+        return "A";
+    }
+}
+contract B is A {
+    function get() public pure virtual override returns (string memory) {
+        return string.concat("B", super.get());
+    }
+}
+contract C is A {
+    function get() public pure virtual override returns (string memory) {
+        return string.concat("C", super.get());
+    }
+}
+contract Child is B, C {
+    function get() public pure override(B, C) returns (string memory) {
+        return string.concat("Child", super.get());
+    }
+    function factory() public pure returns (string memory) {
+        return this.get();
+    }
+}</pre>
+                </div>
+                <div class="answer-box">
+                    <div class="answer-box-label">✅ Model Answer</div>
+                    <p><strong>"ChildBCA"</strong></p>
+                    <p>The C3 linearization is [Child, B, C, A]. super.get() in Child calls B.get() ("B" + super.get()). super.get() in B calls C.get() ("C" + super.get()). super.get() in C calls A.get() ("A"). Concatenating in order gives "ChildBCA".</p>
+                    <div class="marks-bd"><span>Grading:</span> 1 mark for the correct output "ChildBCA". 1 mark for correctly tracing the C3 linearization (Child -> B -> C -> A) to justify the result.</div>
+                </div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-left">
+                <div class="score-label">Sub-Module 8.7 Assessment Summary</div>
+                <div class="score-row">Section A: 6 × MCQ (1 mark each) = 6 marks</div>
+                <div class="score-row">Section B: 2 × True/False with Justification (1 mark each) = 2 marks</div>
+                <div class="score-row">Section C: 1 × Identify-Output (2 marks) = 2 marks</div>
+            </div>
+            <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">14 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 8.7</h2>
+    <div class="glossary-grid">
+        <div class="glossary-item"><div class="glossary-term">Inheritance</div><div class="glossary-def">A mechanism where a contract derives properties and behavior from another contract, using the <strong>is</strong> keyword.</div></div>
+        <div class="glossary-item"><div class="glossary-term">virtual / override</div><div class="glossary-def">Keywords used for polymorphism. Parent functions are marked <strong>virtual</strong>; child functions that replace them use <strong>override</strong>.</div></div>
+        <div class="glossary-item"><div class="glossary-term">C3 Linearization</div><div class="glossary-def">The algorithm Solidity uses to resolve multiple inheritance, creating a single unambiguous order for function resolution.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Abstract Contract</div><div class="glossary-def">A contract that cannot be deployed and may contain unimplemented functions. Used as a base template.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Interface</div><div class="glossary-def">A strict abstract contract defining external function signatures with no state, constructors, or function bodies.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Library</div><div class="glossary-def">A stateless contract deployed once and called via DELEGATECALL, used for reusable utility functions.</div></div>
+        <div class="glossary-item"><div class="glossary-term">using for</div><div class="glossary-def">A directive that attaches library functions to a specific type, enabling cleaner syntax like <strong>myArray.push(5)</strong>.</div></div>
+        <div class="glossary-item"><div class="glossary-term">super</div><div class="glossary-def">A keyword that calls the next function in the C3 linearization order, not necessarily the immediate parent.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 8 · Sub-Module <strong>8.7</strong> of 8 · Next: Sub-Module 8.8 - First dApp Contract →</p>
+    </div>
+
+</body>
+</html>

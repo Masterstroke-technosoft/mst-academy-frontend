@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 4.2 - Digital Signatures | MasterStroke Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #E8B84B;
+    --gold-light: #FFF3CC;
+    --gold-dark: #8A6A00;
+    --navy: #0D1B3E;
+    --navy-mid: #1A2D5A;
+    --navy-soft: #243A73;
+    --sky: #4A9EE8;
+    --sky-light: #D6EDFF;
+    --teal: #2EC4B6;
+    --teal-light: #D0F5F2;
+    --coral: #E8604A;
+    --coral-light: #FFE8E4;
+    --purple: #7B5EA7;
+    --purple-light: #EDE5FF;
+    --green: #3DB87A;
+    --green-light: #D5F4E6;
+    --red: #D63B3B;
+    --red-light: #FFEBEB;
+    --bg: #F5F3EE;
+    --bg-white: #FFFFFF;
+    --text-main: #1A1A2E;
+    --text-muted: #5A5A7A;
+    --text-light: #9090AA;
+    --border: #E0DDD4;
+    --shadow: 0 4px 24px rgba(13,27,62,0.10);
+    --shadow-strong: 0 8px 40px rgba(13,27,62,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, var(--navy-soft) 100%);
+    color: #fff;
+    padding: 56px 40px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '✍️';
+    position: absolute;
+    right: -10px;
+    top: -20px;
+    font-size: 200px;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--teal), var(--sky));
+  }
+  .breadcrumb {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .breadcrumb span { color: var(--gold); }
+  .hero h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em { font-style: normal; color: var(--gold); }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 300;
+    max-width: 640px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .meta-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pill.gold { background: rgba(232,184,75,0.18); border-color: var(--gold); color: var(--gold); }
+
+  .page-body {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.3;
+  }
+  .section > h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+  h3 { font-size: 19px; font-weight: 600; color: var(--navy-mid); margin: 28px 0 12px; }
+  h4 { font-size: 16px; font-weight: 600; color: var(--navy); margin: 20px 0 8px; }
+  p { margin-bottom: 14px; color: var(--text-main); }
+  ul, ol { margin: 10px 0 16px 20px; }
+  li { margin-bottom: 6px; }
+
+  .callout {
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 22px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .callout-body p { margin: 0; font-size: 15px; }
+  .callout.tip { background: var(--sky-light); border-left: 4px solid var(--sky); }
+  .callout.tip .callout-icon { color: var(--sky); }
+  .callout.key { background: var(--gold-light); border-left: 4px solid var(--gold); }
+  .callout.key .callout-icon { color: var(--gold-dark); }
+  .callout.warn { background: var(--coral-light); border-left: 4px solid var(--coral); }
+  .callout.warn .callout-icon { color: var(--coral); }
+  .callout.green { background: var(--green-light); border-left: 4px solid var(--green); }
+  .callout.green .callout-icon { color: var(--green); }
+  .callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); }
+  .callout.purple .callout-icon { color: var(--purple); }
+
+  .story-card {
+    background: var(--navy);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .story-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px; left: 20px;
+    font-family: 'Lora', serif;
+    font-size: 140px;
+    color: rgba(255,255,255,0.06);
+    line-height: 1;
+  }
+  .story-card p { color: rgba(255,255,255,0.88); font-size: 17px; line-height: 1.8; }
+  .story-card p:last-child { margin: 0; }
+  .story-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+
+  .diagram-wrap {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 24px 0;
+    box-shadow: var(--shadow);
+  }
+  .diagram-title {
+    background: var(--navy);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .diagram-title span { color: var(--gold); }
+  .diagram-body {
+    padding: 28px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    white-space: pre;
+    overflow-x: auto;
+    background: #F9F8F6;
+    color: var(--text-main);
+  }
+
+  .analogy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  @media (max-width: 640px) { .analogy-grid { grid-template-columns: 1fr; } }
+  .analogy-card {
+    background: var(--bg-white);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+  .analogy-card .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 8px; }
+  .analogy-card h4 { margin: 0 0 8px; font-size: 15px; color: var(--navy); }
+  .analogy-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+  .analogy-card.highlight { border-color: var(--gold); background: var(--gold-light); }
+  .analogy-card.highlight .tag { color: var(--gold-dark); }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+  }
+  .compare-table thead th {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .compare-table thead th:first-child { color: var(--gold); }
+  .compare-table tbody tr:nth-child(odd) { background: var(--bg-white); }
+  .compare-table tbody tr:nth-child(even) { background: #F2F0EB; }
+  .compare-table td { padding: 12px 16px; color: var(--text-main); }
+  .compare-table td:first-child { font-weight: 600; color: var(--navy); }
+  .badge { display: inline-block; border-radius: 100px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .badge.good { background: var(--green-light); color: #1A6B40; }
+  .badge.bad { background: var(--red-light); color: var(--red); }
+  .badge.mid { background: var(--sky-light); color: #0C447C; }
+
+  .persona-row { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
+  .persona { flex: 1; min-width: 200px; border-radius: 14px; padding: 22px; text-align: center; border: 2px solid; }
+  .persona.alice { background: var(--sky-light); border-color: var(--sky); }
+  .persona.bob { background: var(--teal-light); border-color: var(--teal); }
+  .persona.eve { background: var(--coral-light); border-color: var(--coral); }
+  .persona-avatar { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; color: #fff; }
+  .alice .persona-avatar { background: var(--sky); }
+  .bob .persona-avatar { background: var(--teal); }
+  .eve .persona-avatar { background: var(--coral); }
+  .persona h4 { margin: 0 0 6px; font-size: 16px; color: var(--navy); }
+  .persona p { font-size: 13px; margin: 0; color: var(--text-muted); }
+
+  .steps { counter-reset: step; margin: 20px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .step-body h4 { margin: 0 0 4px; }
+  .step-body p { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+  .key-visual { background: var(--bg-white); border-radius: 16px; padding: 28px; margin: 24px 0; border: 1px solid var(--border); }
+
+  .assessment-header {
+    background: linear-gradient(135deg, #1A2D5A 0%, #2E1760 100%);
+    border-radius: 16px 16px 0 0;
+    padding: 28px 32px 22px;
+    color: #fff;
+  }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .assessment-header p { color: rgba(255,255,255,0.7); margin: 0; font-size: 15px; }
+  .assessment-body {
+    background: var(--bg-white);
+    border-radius: 0 0 16px 16px;
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .q-block { margin-bottom: 36px; padding-bottom: 36px; border-bottom: 1px solid var(--border); }
+  .q-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .q-num { background: var(--navy); color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .q-type { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; }
+  .q-type.mcq { background: var(--sky-light); color: #0C447C; }
+  .q-type.tf { background: var(--purple-light); color: var(--purple); }
+  .q-type.io { background: var(--teal-light); color: #0F6E56; }
+  .q-difficulty { font-size: 12px; font-weight: 600; }
+  .q-difficulty.easy { color: var(--green); }
+  .q-difficulty.medium { color: var(--gold-dark); }
+  .q-difficulty.hard { color: var(--coral); }
+  .q-marks { font-size: 12px; color: var(--text-light); margin-left: auto; font-weight: 600; }
+  .q-text { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 16px; line-height: 1.55; }
+
+  .options { list-style: none; margin: 0 0 16px; padding: 0; }
+  .options li { padding: 11px 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; font-size: 15px; cursor: default; }
+  .options li.correct { background: var(--green-light); border-color: var(--green); color: #1A6B40; font-weight: 600; }
+  .options li.correct::before { content: '✅ '; }
+
+  .answer-box { background: #F0FAF5; border: 1px solid var(--green); border-radius: 10px; padding: 16px 20px; margin-top: 12px; }
+  .answer-box strong { color: var(--green); font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+  .answer-box p { margin: 0 0 8px; font-size: 14px; color: var(--text-main); line-height: 1.65; }
+  .answer-box p:last-child { margin: 0; }
+
+  .tf-options { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tf-btn { padding: 10px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; border: 1px solid; cursor: default; }
+  .tf-btn.correct-tf { background: var(--green-light); border-color: var(--green); color: #1A6B40; }
+  .tf-btn.wrong-tf { background: var(--red-light); border-color: var(--red); color: var(--red); }
+
+  .identify-output {
+    background: #F9F8F6;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+
+  .glossary-item { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .glossary-item:last-child { border-bottom: none; }
+  .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--navy); background: var(--sky-light); border-radius: 6px; padding: 4px 10px; min-width: 160px; text-align: center; flex-shrink: 0; }
+  .glossary-def { font-size: 15px; color: var(--text-muted); }
+
+  .must-know { counter-reset: mk; margin: 0; padding: 0; list-style: none; }
+  .must-know li { counter-increment: mk; display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; font-size: 15px; }
+  .must-know li:last-child { border-bottom: none; }
+  .must-know li::before { content: counter(mk, decimal-leading-zero); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--gold-dark); background: var(--gold-light); border-radius: 6px; padding: 3px 8px; min-width: 36px; text-align: center; flex-shrink: 0; margin-top: 2px; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 40px 0; }
+
+  .module-footer { background: var(--navy); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 13px; }
+  .module-footer strong { color: var(--gold); }
+
+  code { font-family: 'JetBrains Mono', monospace; background: rgba(74,158,232,0.12); color: var(--navy); padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+
+  blockquote { border-left: 4px solid var(--gold); margin: 20px 0; padding: 12px 20px; background: var(--gold-light); border-radius: 0 8px 8px 0; font-style: italic; color: var(--text-muted); font-family: 'Lora', serif; font-size: 16px; }
+
+  .highlight-box { background: var(--navy); color: #fff; border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
+  .highlight-box p { color: rgba(255,255,255,0.85); margin: 0; }
+  .highlight-box strong { color: var(--gold); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  @media (max-width: 580px) { .two-col { grid-template-columns: 1fr; } }
+
+  .fact-card { background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border); padding: 18px; }
+  .fact-card .fact-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 6px; }
+  .fact-card .fact-value { font-size: 22px; font-weight: 700; color: var(--navy); font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+  .fact-card .fact-note { font-size: 13px; color: var(--text-muted); }
+
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 20px 0; }
+  @media (max-width: 640px) { .three-col { grid-template-columns: 1fr; } }
+
+  .property-card { background: var(--bg-white); border-radius: 12px; border: 1px solid var(--border); padding: 20px; border-top: 4px solid; }
+  .property-card.auth { border-top-color: var(--sky); }
+  .property-card.int { border-top-color: var(--green); }
+  .property-card.non { border-top-color: var(--purple); }
+  .property-card .prop-icon { font-size: 28px; margin-bottom: 10px; }
+  .property-card h4 { margin: 0 0 8px; font-size: 15px; color: var(--navy); }
+  .property-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+  @media (max-width: 700px) {
+    .hero { padding: 36px 20px 36px; }
+    .page-body { padding: 28px 16px 60px; }
+    .diagram-body { font-size: 11px; }
+    .assessment-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="breadcrumb">MasterStroke Academy › Module 4: Cryptography › <span>Sub-Module 4.2</span></div>
+  <h1>Digital Signatures<br><em>Prove You Said It - Without Sharing Your Secret</em></h1>
+  <p class="hero-sub">How ECDSA, Ed25519, and Schnorr signatures power every blockchain transaction - and why your wallet's "send" button is really a signature machine.</p>
+  <div class="meta-pills">
+    <div class="pill">⏱ 60 Minutes</div>
+    <div class="pill">📊 Module 4 - Cryptography</div>
+    <div class="pill gold">🎯 15 Marks</div>
+    <div class="pill">✍️ Sub-Module 4.2</div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE BODY ══════════════ -->
+<div class="page-body">
+
+  <!-- ── 1. LEARNING OBJECTIVES ── -->
+  <div class="section">
+    <div class="section-label">01 - Learning Objectives</div>
+    <h2>What You Will Know By The End</h2>
+    <p>By the time you finish this sub-module, you will be able to:</p>
+    <ul>
+      <li>✅ Explain the difference between <strong>encryption</strong> (hiding a message) and <strong>signing</strong> (proving authorship) - the single most confused concept in all of cryptography.</li>
+      <li>✅ Describe the <strong>three guarantees</strong> a digital signature gives: Authentication, Integrity, and Non-Repudiation.</li>
+      <li>✅ Trace the exact steps of how <strong>ECDSA</strong> (the algorithm used by Ethereum and MST) signs and verifies a transaction.</li>
+      <li>✅ Understand <strong>Ed25519</strong> and <strong>Schnorr signatures</strong> - what they improve over ECDSA.</li>
+      <li>✅ Perform an <strong>Identify-Output</strong> task: given a signed message, a public key, and a signature - verify whether the signature is valid.</li>
+      <li>✅ Connect signing to real Indian scenarios: Aadhaar e-Sign, cheque signing, court affidavits, and MST blockchain transactions.</li>
+    </ul>
+  </div>
+
+  <!-- ── 2. REAL WORLD STORY ── -->
+  <div class="section">
+    <div class="section-label">02 - Real World Introduction Story</div>
+    <h2>The Cheque That Nobody Could Forge</h2>
+
+    <div class="story-card">
+      <div class="story-tag">📖 Story Time</div>
+      <p>It's 2019. Vikram runs a mid-sized textile business in Surat. He needs to transfer ₹40 lakh to a supplier in Tiruppur. He signs a cheque and couriers it.</p>
+      <p>Three weeks later, his accountant calls him in a panic: <em>"Sir, a cheque for ₹4 crore just cleared from your account. The signature looks exactly like yours."</em></p>
+      <p>Someone had photocopied his signature, altered the amount, and successfully forged it. The bank's ink-and-paper verification process had failed. <strong>His physical signature was not enough.</strong></p>
+      <p>Now contrast this with 2024: Vikram's business partner Priya, running a supply chain on MST Blockchain, approves a ₹40 lakh payment with one tap on her phone. Her private key signs the transaction with ECDSA. The signature is mathematically unique to that exact transaction - if even one character of the payment details changes, the signature becomes completely invalid. Nobody can copy it, alter it, or forge it. <strong>Not even Priya herself can deny having signed it.</strong></p>
+      <p>That is the power of a <strong>digital signature</strong>.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>Signing ≠ Encryption - The #1 Confusion</strong>
+        <p>In Sub-Module 4.1, we used Bob's <em>public key</em> to encrypt a message so only Bob could read it. In this sub-module, Alice uses her own <em>private key</em> to <em>sign</em> a message so everyone can verify she wrote it. Completely opposite operations, completely opposite keys used. This distinction is critical - mix them up in an interview and you'll lose the job.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. BACKGROUND / HISTORY ── -->
+  <div class="section">
+    <div class="section-label">03 - Background & History</div>
+    <h2>Why Physical Signatures Were Never Enough</h2>
+
+    <h3>The Problem With Ink on Paper</h3>
+    <p>A physical signature has three fundamental weaknesses in a digital world:</p>
+    <ul>
+      <li><strong>It can be forged</strong> - a skilled forger can replicate a signature. Even banks with signature verification have been fooled.</li>
+      <li><strong>It doesn't bind to the content</strong> - you can photocopy a signature from a ₹1,000 cheque and attach it to a ₹1 crore cheque. The signature is the same; the document changed.</li>
+      <li><strong>It can be repudiated</strong> - a signer can later claim "that isn't my signature" and there's often no way to definitively prove otherwise.</li>
+    </ul>
+
+    <h3>The Birth of Digital Signatures - 1976 to 1991</h3>
+    <p>Diffie and Hellman's 1976 paper didn't just propose encryption - it also proposed the <em>concept</em> of digital signatures. The first practical scheme was <strong>RSA Signatures</strong> (1977). Then came the <strong>Digital Signature Standard (DSS)</strong> published by NIST in 1991, which introduced <strong>DSA (Digital Signature Algorithm)</strong>. The Elliptic Curve variant - <strong>ECDSA</strong> - arrived in the late 1990s and became the standard for all modern blockchains because of its compact key size and speed.</p>
+
+    <div class="two-col">
+      <div class="fact-card">
+        <div class="fact-label">ECDSA First Proposed</div>
+        <div class="fact-value">1992</div>
+        <div class="fact-note">Scott Vanstone, published in Electronics Letters</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-label">Signature Size (ECDSA)</div>
+        <div class="fact-value">64 bytes</div>
+        <div class="fact-note">Two 32-byte integers: r and s - every blockchain transaction carries this</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. BEGINNER FRIENDLY EXPLANATION ── -->
+  <div class="section">
+    <div class="section-label">04 - Beginner-Friendly Deep Explanation</div>
+    <h2>The Three Guarantees - and Why Each Matters</h2>
+
+    <p>A valid digital signature gives exactly <strong>three guarantees</strong> - no more, no less. These are the properties every examiner will ask about:</p>
+
+    <div class="three-col">
+      <div class="property-card auth">
+        <div class="prop-icon">🪪</div>
+        <h4>Authentication</h4>
+        <p>Proves that the message came from the claimed sender. Nobody else could have produced this exact signature - because only Alice has Alice's private key.</p>
+      </div>
+      <div class="property-card int">
+        <div class="prop-icon">🔒</div>
+        <h4>Integrity</h4>
+        <p>Proves the message was not altered after signing. If even a single byte changes, the signature verification fails completely - like a wax seal that shatters if the letter is opened.</p>
+      </div>
+      <div class="property-card non">
+        <div class="prop-icon">🚫</div>
+        <h4>Non-Repudiation</h4>
+        <p>Alice cannot later deny having signed the message. The signature is mathematically tied to her private key - she cannot claim someone else signed it.</p>
+      </div>
+    </div>
+
+    <div class="callout key">
+      <div class="callout-icon">🗝️</div>
+      <div class="callout-body">
+        <strong>The Wax Seal Analogy - Perfect for Non-Repudiation</strong>
+        <p>In medieval times, kings and nobles used a unique wax seal stamped with their ring to authenticate letters. If the seal was intact, you knew the letter was unopened and genuine. Digital signatures are the mathematical equivalent - except they're infinitely harder to forge, they shatter if anyone tampers with even one word of the letter, and they can be verified by anyone in the world without needing to see the original seal.</p>
+      </div>
+    </div>
+
+    <h3>The Cheque Signing Analogy - Step by Step</h3>
+    <p>Let's use a cheque to build the intuition before we see the math.</p>
+
+    <div class="persona-row">
+      <div class="persona alice">
+        <div class="persona-avatar">A</div>
+        <h4>Alice</h4>
+        <p>Signer. Sends a transaction. Uses her <strong>private key</strong> to sign.</p>
+      </div>
+      <div class="persona bob">
+        <div class="persona-avatar">B</div>
+        <h4>Bob / Validators</h4>
+        <p>Verifier. Receives transaction. Uses Alice's <strong>public key</strong> to verify.</p>
+      </div>
+      <div class="persona eve">
+        <div class="persona-avatar">E</div>
+        <h4>Eve</h4>
+        <p>Attacker. Tries to forge Alice's signature or alter the transaction.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Alice writes the transaction (the "cheque")</h4>
+          <p>"Send 500 MST from 0xAlice to 0xBob. Nonce: 42. Gas: 21000."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Alice hashes the transaction</h4>
+          <p>She runs the transaction through a hash function (Keccak-256 on Ethereum/MST) to get a short, fixed-length "fingerprint." This is like summarising the cheque into a unique 32-byte stamp. This hash is called the <strong>message digest</strong>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Alice signs the hash with her private key</h4>
+          <p>Using ECDSA, Alice applies a mathematical operation with her private key and a random number <code>k</code> to the hash. The output is a signature: two numbers called <strong>r</strong> and <strong>s</strong>. Together they form a 64-byte proof that Alice signed exactly this transaction.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Alice broadcasts: transaction + signature</h4>
+          <p>She sends the original transaction plus the (r, s) signature to the MST network. She does NOT send her private key. She never needs to.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Validators verify using Alice's public key</h4>
+          <p>Every validator runs a mathematical check: using Alice's public key and the (r, s) signature, they verify that the hash of the received transaction matches. If it does - the transaction is valid. If Eve altered even one byte - the verification fails and the transaction is rejected.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>The Beautiful Inversion</strong>
+        <p>In <strong>encryption</strong>: use recipient's public key to encrypt → recipient uses their private key to decrypt.<br>
+        In <strong>signing</strong>: use your own private key to sign → anyone uses your public key to verify.<br>
+        The keys are used in the <em>opposite roles</em> for opposite purposes. Remember this always.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. TECHNICAL DEEP DIVE ── -->
+  <div class="section">
+    <div class="section-label">05 - Technical Deep Dive</div>
+    <h2>Inside ECDSA, Ed25519, and Schnorr</h2>
+
+    <h3>ECDSA - Elliptic Curve Digital Signature Algorithm</h3>
+    <p>This is the algorithm used by <strong>Bitcoin, Ethereum, and MST Blockchain</strong> for signing transactions. It operates on the secp256k1 curve (same as key generation). Here is the signing process in precise terms:</p>
+
+    <h4>Signing (Alice's side):</h4>
+    <ol>
+      <li>Let <code>m</code> = the message (transaction data)</li>
+      <li>Compute <code>e = Hash(m)</code> - the Keccak-256 hash of the transaction (a 256-bit number)</li>
+      <li>Pick a cryptographically random number <code>k</code> (this MUST be unique per signature - reusing <code>k</code> destroys security; see Security Notes)</li>
+      <li>Compute the curve point <code>R = k × G</code> where <code>G</code> is the generator point of secp256k1</li>
+      <li>Let <code>r = R.x mod n</code> (the x-coordinate of R, modulo curve order <code>n</code>)</li>
+      <li>Compute <code>s = k⁻¹ × (e + r × privateKey) mod n</code></li>
+      <li>The signature is the pair <strong>(r, s)</strong> - 32 bytes each, 64 bytes total</li>
+    </ol>
+
+    <h4>Verification (Bob/Validator's side):</h4>
+    <ol>
+      <li>Receive: message <code>m</code>, signature <code>(r, s)</code>, and Alice's public key <code>Q</code></li>
+      <li>Compute <code>e = Hash(m)</code></li>
+      <li>Compute <code>w = s⁻¹ mod n</code></li>
+      <li>Compute two curve points: <code>u₁ = e × w mod n</code>, <code>u₂ = r × w mod n</code></li>
+      <li>Compute point <code>X = u₁ × G + u₂ × Q</code></li>
+      <li>If <code>X.x mod n == r</code> → Signature is <strong>valid ✅</strong>. Otherwise → <strong>invalid ❌</strong></li>
+    </ol>
+
+    <div class="callout tip">
+      <div class="callout-icon">🧮</div>
+      <div class="callout-body">
+        <strong>You Don't Need to Memorise the Math</strong>
+        <p>What matters is the <em>concept</em>: signing uses your private key and a random number to produce (r, s). Verification uses your public key and (r, s) to reconstruct a point on the curve - if the x-coordinate matches r, the signature is valid. The math ensures this works only if the signer genuinely had the private key.</p>
+      </div>
+    </div>
+
+    <h3>Ed25519 - The Modern Alternative</h3>
+    <p>Ed25519 uses a different elliptic curve - <strong>Curve25519</strong> - and a different signature scheme called <strong>EdDSA (Edwards-curve Digital Signature Algorithm)</strong>. It is used by Solana, Cardano, near-protocol, and many modern systems.</p>
+
+    <p><strong>Key improvements over ECDSA:</strong></p>
+    <ul>
+      <li>🚀 <strong>Faster:</strong> Ed25519 verification is roughly 2-3× faster than ECDSA</li>
+      <li>🔒 <strong>Deterministic:</strong> The random number <code>k</code> is derived deterministically from the private key and message - so there's no risk of reusing <code>k</code> (which is catastrophic in ECDSA, as Sony discovered)</li>
+      <li>📦 <strong>Smaller signatures:</strong> 64 bytes, same as ECDSA - but generated more reliably</li>
+      <li>🛡️ <strong>More resilient:</strong> Resistant to several side-channel attacks that affect ECDSA</li>
+    </ul>
+
+    <h3>Schnorr Signatures - The Future</h3>
+    <p>Schnorr signatures are a simpler, more elegant signature scheme also based on elliptic curves. <strong>Bitcoin activated Schnorr signatures in November 2021 (Taproot upgrade)</strong>. Key advantages:</p>
+
+    <ul>
+      <li>🔗 <strong>Signature aggregation:</strong> Multiple signatures can be combined into one single signature - massive space and gas savings. This is called <strong>MuSig</strong>. A 10-of-15 multisig wallet can have just ONE signature on-chain instead of 10.</li>
+      <li>🔏 <strong>Batch verification:</strong> A verifier can check 1,000 Schnorr signatures faster than 1,000 individual ECDSA checks</li>
+      <li>📐 <strong>Mathematically provably secure</strong> under simpler assumptions than ECDSA</li>
+      <li>🕵️ <strong>Privacy:</strong> Aggregated signatures make multi-sig transactions look identical to single-sig - improving privacy</li>
+    </ul>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>ECDSA (secp256k1)</th>
+          <th>Ed25519 (Curve25519)</th>
+          <th>Schnorr (secp256k1)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Used In</td>
+          <td>Bitcoin, Ethereum, MST</td>
+          <td>Solana, Cardano</td>
+          <td>Bitcoin (Taproot), MST future</td>
+        </tr>
+        <tr>
+          <td>Signature Size</td>
+          <td>64 bytes</td>
+          <td>64 bytes</td>
+          <td>64 bytes</td>
+        </tr>
+        <tr>
+          <td>Deterministic k</td>
+          <td><span class="badge bad">No (risk!)</span></td>
+          <td><span class="badge good">Yes</span></td>
+          <td><span class="badge good">Yes</span></td>
+        </tr>
+        <tr>
+          <td>Aggregatable</td>
+          <td><span class="badge bad">No</span></td>
+          <td><span class="badge bad">No</span></td>
+          <td><span class="badge good">Yes (MuSig)</span></td>
+        </tr>
+        <tr>
+          <td>Speed</td>
+          <td><span class="badge mid">Moderate</span></td>
+          <td><span class="badge good">Fast</span></td>
+          <td><span class="badge good">Fast + batch</span></td>
+        </tr>
+        <tr>
+          <td>Security Proof</td>
+          <td><span class="badge mid">Complex</span></td>
+          <td><span class="badge good">Simple</span></td>
+          <td><span class="badge good">Simple</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 6. DIAGRAMS ── -->
+  <div class="section">
+    <div class="section-label">06 - Architecture & Diagrams</div>
+    <h2>Visual Walkthroughs</h2>
+
+    <h3>Diagram 1: The Complete ECDSA Sign → Verify Flow</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">✍️ <span>ECDSA Digital Signature</span> - Alice Signs, Validators Verify</div>
+      <div class="diagram-body">
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                          ALICE'S SIDE (Signing)                              │
+ │                          ═══════════════════════                             │
+ │                                                                              │
+ │  Transaction:  "Send 500 MST → 0xBob | Nonce:42 | Gas:21000"               │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              ┌──────────────────────────┐                                   │
+ │              │   Keccak-256 Hash        │                                   │
+ │              │   H = Hash(transaction)  │                                   │
+ │              └──────────────────────────┘                                   │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              H = 0x2a3f...9c1b  (32 bytes - the message digest)             │
+ │                             │                                                │
+ │          ┌──────────────────┴────────────────────┐                          │
+ │          │                                       │                          │
+ │   Alice's Private Key               Random nonce k                          │
+ │   0xe987...3f2c                     (unique, secret,                        │
+ │                                      generated fresh                        │
+ │                                      per signature)                         │
+ │          │                                       │                          │
+ │          └──────────────────┬────────────────────┘                          │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              ┌──────────────────────────────┐                               │
+ │              │  ECDSA Sign Algorithm        │                               │
+ │              │  r = (k×G).x  mod  n         │                               │
+ │              │  s = k⁻¹(H + r × privKey)   │                               │
+ │              │            mod  n            │                               │
+ │              └──────────────────────────────┘                               │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              Signature = (r, s) = 64 bytes                                  │
+ │              r = 0x3d5a...8c21                                               │
+ │              s = 0xf71b...44ae                                               │
+ │                                                                              │
+ │  Alice broadcasts:  [ Transaction ] + [ Signature (r,s) ]                   │
+ │                          │                                                   │
+ └──────────────────────────┼───────────────────────────────────────────────── ┘
+                            │
+                            │  🌐 Public MST Network
+                            │
+                            ▼
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                      VALIDATORS' SIDE (Verification)                        │
+ │                      ══════════════════════════════                         │
+ │                                                                              │
+ │  Received:  Transaction + Signature (r, s) + Alice's Public Key Q           │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              ┌──────────────────────────┐                                   │
+ │              │  Compute H = Hash(tx)    │  ← same hash of same message      │
+ │              └──────────────────────────┘                                   │
+ │                             │                                                │
+ │                             ▼                                                │
+ │              ┌──────────────────────────────────────┐                       │
+ │              │   ECDSA Verify Algorithm             │                       │
+ │              │   w  = s⁻¹ mod n                     │                       │
+ │              │   u₁ = H×w mod n                     │                       │
+ │              │   u₂ = r×w mod n                     │                       │
+ │              │   X  = u₁×G + u₂×Q (curve point)    │                       │
+ │              └──────────────────────────────────────┘                       │
+ │                             │                                                │
+ │              ┌──────────────┴──────────────┐                                │
+ │              │                             │                                 │
+ │        X.x mod n == r ?                                                     │
+ │              │                             │                                 │
+ │             YES                           NO                                │
+ │              │                             │                                 │
+ │    ✅ VALID  - include            ❌ INVALID - reject                       │
+ │       transaction in block            transaction                            │
+ │                                                                              │
+ │  NOTE: Eve intercepted (r,s) but cannot forge a new valid (r,s) for        │
+ │  a different transaction without Alice's private key. Math prevents it.     │
+ └──────────────────────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <h3>Diagram 2: Signing vs Encryption - Side-by-Side Comparison</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚖️ <span>Signing vs Encryption</span> - The Critical Difference</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ GOAL: CONFIDENTIALITY (Encryption)      GOAL: AUTHENTICITY (Signing)
+ "Only Bob can read this"                "Prove Alice wrote this"
+ ════════════════════════════════════════════════════════════════════════════
+
+  Alice uses ────► BOB'S PUBLIC KEY      Alice uses ────► ALICE'S PRIVATE KEY
+               to ENCRYPT                             to SIGN
+
+  Bob uses ─────► BOB'S PRIVATE KEY      Anyone uses ──► ALICE'S PUBLIC KEY
+               to DECRYPT                             to VERIFY
+
+ ────────────────────────────────────────────────────────────────────────────
+
+  ENCRYPTION FLOW:                       SIGNING FLOW:
+  ──────────────                         ────────────
+  Plaintext                              Transaction
+      │                                       │
+      │  + Bob's 🔓 PubKey                   │  Hash() ───► Digest
+      │                                       │
+      ▼                                       │  + Alice's 🔑 PrivKey
+  Ciphertext                                  │
+  (unreadable)                                ▼
+      │                                  Signature (r, s)
+      │  + Bob's 🔑 PrivKey                   │
+      │                                       │  + Alice's 🔓 PubKey
+      ▼                                       │
+  Plaintext ✅                                ▼
+  (only Bob decrypts)               Valid ✅ or Invalid ❌
+                                    (anyone can verify)
+
+ ────────────────────────────────────────────────────────────────────────────
+ KEY USED BY SENDER:   Recipient's PubKey     Sender's OWN PrivKey
+ KEY USED BY RECEIVER: Recipient's PrivKey    Sender's PubKey (public!)
+ OUTPUT:               Ciphertext             Signature
+ PURPOSE:              Hide content           Prove authorship
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 3: Why Reusing k Is Catastrophic (The Sony PlayStation 3 Attack)</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">⚠️ <span>The k-Reuse Attack</span> - How Sony Was Hacked in 2010</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ ECDSA SIGNING FORMULA:
+   s = k⁻¹ × (H + r × privKey)  mod n
+   (where r = (k×G).x mod n - r is the same if k is the same!)
+ ════════════════════════════════════════════════════════════════════════════
+
+ NORMAL (SAFE):
+   Message 1 ──► k₁ (random) ──► (r₁, s₁)   ← r₁ ≠ r₂. Attacker learns nothing.
+   Message 2 ──► k₂ (random) ──► (r₂, s₂)
+
+ ════════════════════════════════════════════════════════════════════════════
+
+ VULNERABLE (SONY'S MISTAKE):
+   Message 1 ──► k (SAME!) ──► (r, s₁)   ← r is IDENTICAL in both!
+   Message 2 ──► k (SAME!) ──► (r, s₂)   ← Attacker notices r₁ == r₂
+
+   Attacker now has:
+   s₁ = k⁻¹(H₁ + r×privKey)  mod n
+   s₂ = k⁻¹(H₂ + r×privKey)  mod n
+
+   Subtract:
+   s₁ - s₂ = k⁻¹(H₁ - H₂)   mod n
+
+   Solve for k:
+   k = (H₁ - H₂) × (s₁ - s₂)⁻¹  mod n  ← k is RECOVERED!
+
+   Plug k back in:
+   privKey = (s₁×k - H₁) × r⁻¹  mod n   ← PRIVATE KEY STOLEN! 💀
+
+ ════════════════════════════════════════════════════════════════════════════
+ REAL INCIDENT: In 2010, hackers noticed Sony PlayStation 3 used the same
+ k for every ECDSA signature. They extracted Sony's private key, signed
+ any software they wanted, and enabled piracy on the entire PS3 platform.
+
+ FIX: Ed25519 and RFC 6979 (deterministic ECDSA) derive k from the
+ private key + message hash - making it impossible to accidentally reuse k.
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+
+    <h3>Diagram 4: Schnorr Signature Aggregation - Why It Matters</h3>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">🔗 <span>Schnorr MuSig</span> - 3-of-3 Multisig With One Signature</div>
+      <div class="diagram-body">
+ ════════════════════════════════════════════════════════════════════════════
+ SCENARIO: A DAO treasury requires 3 signatures to release funds.
+ ════════════════════════════════════════════════════════════════════════════
+
+ WITH ECDSA (old way):
+ ─────────────────────
+ Alice signs  ──► sig_A  (64 bytes)
+ Bob signs    ──► sig_B  (64 bytes)    All three go on-chain separately
+ Carol signs  ──► sig_C  (64 bytes)
+                                        Total on-chain: 192 bytes + 3 verify ops
+ ────────────────────────────────────────────────────────────────────────────
+
+ WITH SCHNORR / MuSig (new way):
+ ─────────────────────────────────
+ Alice, Bob, Carol each compute a partial signature locally.
+                    │
+                    ▼
+          ┌────────────────────┐
+          │  Aggregate locally │   (NO trusted coordinator needed)
+          │  sig_agg = sig_A   │
+          │          + sig_B   │   Mathematical property of Schnorr:
+          │          + sig_C   │   sum of partial sigs = valid aggregate sig
+          └────────────────────┘
+                    │
+                    ▼
+          One 64-byte signature on-chain
+          One aggregated public key on-chain
+          One verification operation
+
+          Total on-chain: 64 bytes + 1 verify op  ← 3x cheaper!
+
+ ════════════════════════════════════════════════════════════════════════════
+ PRIVACY BONUS: The aggregated sig looks IDENTICAL to a single-signer tx.
+ An observer cannot tell if 1 or 100 people signed. Maximum privacy. ✅
+ ════════════════════════════════════════════════════════════════════════════</div>
+    </div>
+  </div>
+
+  <!-- ── 7. STEP-BY-STEP ── -->
+  <div class="section">
+    <div class="section-label">07 - Step-by-Step Workflow</div>
+    <h2>The Five "W" Questions Answered</h2>
+
+    <h3>❓ WHY Does the Signing Process Use a Hash First?</h3>
+    <p>Because ECDSA mathematically operates on numbers of a fixed size (256 bits for secp256k1). A blockchain transaction can be any size - 100 bytes to 10,000 bytes. Hashing reduces it to a fixed 256-bit number. Additionally, the hash provides integrity: if the transaction changes, the hash completely changes, making the old signature invalid.</p>
+
+    <h3>❓ WHAT Happens If Eve Tries to Alter the Transaction?</h3>
+    <p>Eve intercepts "Send 500 MST to Bob" and changes it to "Send 500 MST to Eve." The transaction bytes are now different. The validators compute <code>Hash(modified_tx)</code> - which is completely different from <code>Hash(original_tx)</code>. The signature (r, s) that Alice produced for the original hash will fail verification for the new hash. The transaction is rejected. Eve gains nothing.</p>
+
+    <h3>❓ HOW Does a Validator Know Alice's Public Key?</h3>
+    <p>A clever trick: in ECDSA with secp256k1, the verifier can actually <strong>recover</strong> the signer's public key from the signature (r, s) and the signed message alone. This is called <strong>ecrecover</strong> and it's a built-in operation in Ethereum/Solidity. This is how <code>msg.sender</code> in Solidity is determined - the EVM recovers the signer's address from the transaction signature without needing the public key to be stored anywhere.</p>
+
+    <div class="callout purple">
+      <div class="callout-icon">🔮</div>
+      <div class="callout-body">
+        <strong>Solidity's ecrecover - Very Important for Developers</strong>
+        <p>The Ethereum/MST virtual machine has a built-in precompile at address <code>0x01</code> that implements <code>ecrecover(hash, v, r, s)</code>. It takes a hash and a signature and returns the Ethereum address that signed it. This is used in many smart contract patterns - EIP-712 typed signatures, meta-transactions, permit() in ERC-20 tokens, and off-chain order books (like Uniswap). You will use <code>ecrecover</code> in Module 8 and beyond.</p>
+      </div>
+    </div>
+
+    <h3>❓ WHERE Are Digital Signatures Used in India Every Day?</h3>
+    <ul>
+      <li>📋 <strong>Aadhaar e-Sign:</strong> Every digitally signed document (property deeds, consent forms, EPFO claims) uses a private key in UIDAI's HSM</li>
+      <li>🏛️ <strong>GST filings:</strong> DSC (Digital Signature Certificate) based on RSA/ECDSA signs your GST returns</li>
+      <li>🏦 <strong>NSDL/CDSL:</strong> Demat account transactions use DSCs</li>
+      <li>📜 <strong>DigiLocker documents:</strong> Government-issued certificates carry a digital signature verifiable by any third party</li>
+      <li>🔗 <strong>Every MST transaction:</strong> Your wallet app signs every send, approve, or smart contract interaction with ECDSA</li>
+    </ul>
+
+    <h3>❓ WHAT Are the Limitations of Digital Signatures?</h3>
+    <ul>
+      <li>⚠️ <strong>Key loss = identity loss:</strong> If you lose your private key, you can no longer sign transactions. Nobody can recover it for you.</li>
+      <li>⚠️ <strong>Key compromise = total impersonation:</strong> If an attacker gets your private key, they can sign anything as you - forever, until you migrate funds.</li>
+      <li>⚠️ <strong>No revocation in base blockchain:</strong> Unlike PKI (Certificate Authorities), you cannot "revoke" a blockchain private key and announce it. Smart contract wallets (Account Abstraction) can add this.</li>
+      <li>⚠️ <strong>Quantum threat:</strong> Shor's Algorithm can break ECDSA. Covered in Sub-Module 4.6 and Module 17.</li>
+    </ul>
+  </div>
+
+  <!-- ── 10. CASE STUDIES ── -->
+  <div class="section">
+    <div class="section-label">10 - Real World Case Studies</div>
+    <h2>Signatures in Action - Three Scenarios</h2>
+
+    <h3>Case Study 1: An MST Blockchain Transaction - Under the Hood</h3>
+    <p>When Priya taps "Send 200 MST" in the BridgeKey Wallet, this is what happens in under 100 milliseconds:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Transaction is constructed</h4>
+          <p>The wallet builds: <code>{to, value, nonce, gasLimit, gasPrice, data, chainId}</code> encoded as RLP bytes.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Keccak-256 hash computed</h4>
+          <p>The wallet computes <code>txHash = keccak256(rlp_encoded_tx)</code> - a 32-byte fingerprint.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>ECDSA signature generated</h4>
+          <p>Priya's private key (stored in her phone's Secure Enclave) signs <code>txHash</code>. Output: <code>v, r, s</code> where <code>v</code> (1 byte) is a recovery ID, <code>r</code> (32 bytes) and <code>s</code> (32 bytes) are the signature components.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Signed transaction broadcast</h4>
+          <p>The wallet sends the full signed transaction to the MST network via the BridgeKey RPC endpoint.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Validators use ecrecover</h4>
+          <p>Each validator calls <code>ecrecover(txHash, v, r, s)</code> - which returns Priya's wallet address. They verify this matches the transaction's <code>from</code> field. If yes - the transaction is authentic and included in the next block.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Case Study 2: EIP-712 - Signing Structured Data (Used in DeFi)</h3>
+    <p>DeFi protocols like Uniswap, Aave, and OpenSea need users to sign <em>specific structured data</em> off-chain - not raw bytes. For example: "I approve spending up to 1000 USDC from my wallet, valid until block 18,500,000."</p>
+    <p><strong>EIP-712</strong> defines a standard way to hash and sign typed structured data so that:</p>
+    <ul>
+      <li>The user's wallet can display human-readable information before signing (not raw hex)</li>
+      <li>The signature is domain-specific - a signature for Uniswap cannot be replayed on Aave</li>
+      <li>The smart contract can verify the signature on-chain using <code>ecrecover</code></li>
+    </ul>
+    <p>This is also how <strong>MST's WASMify off-chain data</strong> can be brought on-chain with signature verification - the off-chain computation produces a signed result that the smart contract verifies using ecrecover.</p>
+
+    <h3>Case Study 3: How MetaMask (and BridgeKey) Sign - Without Exposing Your Key</h3>
+    <p>You might wonder: "My private key is stored in MetaMask / BridgeKey. Doesn't the website I'm connecting to have access to it?"</p>
+    <p><strong>No.</strong> Here's why: When you connect your wallet to a dApp and click "Sign" or "Confirm Transaction," the wallet app intercepts the signing request. It performs the ECDSA operation internally, using the private key stored in its encrypted vault. <strong>The private key never leaves the wallet software.</strong> Only the completed signature (v, r, s) is passed back to the dApp. The dApp gets proof you agreed - but never sees your key.</p>
+
+    <div class="callout green">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>SARAL Protocol (MST) Extension</strong>
+        <p>MST's SARAL Protocol goes further: key generation happens inside your device's Secure Enclave (a dedicated hardware chip, separate from the main CPU) using your Google/mobile login as the access gate. The private key is generated and used inside the enclave - it never exists in app memory or on any server. This is the same model as Apple Pay and Android Pay - cryptographic operations happen in hardware you own.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 11. ASSESSMENT PREP ── -->
+  <div class="section">
+    <div class="section-label">11 - Assessment Preparation</div>
+    <h2>Top Must-Know Facts Before the Test</h2>
+
+    <ul class="must-know">
+      <li>Digital signatures use the <strong>signer's private key</strong> to sign and the <strong>signer's public key</strong> to verify - the opposite of encryption.</li>
+      <li>Three guarantees of a digital signature: <strong>Authentication</strong> (who sent it), <strong>Integrity</strong> (it wasn't altered), <strong>Non-repudiation</strong> (sender can't deny it).</li>
+      <li>ECDSA signing produces two values: <strong>r</strong> and <strong>s</strong> - each 32 bytes. Together they form the 64-byte signature.</li>
+      <li>The message is always <strong>hashed first</strong> (Keccak-256 in Ethereum/MST) before signing - never the raw message.</li>
+      <li>ECDSA requires a unique random nonce <strong>k</strong> per signature. Reusing k allows private key recovery (as Sony PS3 demonstrated).</li>
+      <li>Ed25519 uses <strong>deterministic k</strong> derived from the message and private key - making k-reuse impossible by design.</li>
+      <li>Schnorr signatures support <strong>MuSig aggregation</strong>: n signatures from n signers combine into one 64-byte signature on-chain.</li>
+      <li><code>ecrecover(hash, v, r, s)</code> is a built-in EVM operation that recovers the signer's address from a signature - this is how <code>msg.sender</code> works.</li>
+      <li><strong>EIP-712</strong> is the standard for signing typed structured data off-chain for use in smart contracts.</li>
+      <li>Blockchain addresses cannot "revoke" private keys - unlike PKI certificate authorities who can revoke certificates.</li>
+      <li>Signature verification is a <strong>one-way check</strong>: you cannot extract the private key from a valid signature, even with the public key and message.</li>
+      <li>The <strong>v</strong> component in Ethereum signatures (v = 27 or 28, or 35/36 for EIP-155) is a recovery ID that tells <code>ecrecover</code> which of two possible public keys matches.</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Common Exam Trap</strong>
+        <p>"Alice signs with Bob's public key" - this is WRONG and a common trap. You sign with your OWN private key. You encrypt with the recipient's public key. Mixing up who uses which key in which direction is the most tested concept in this sub-module.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 12. SECURITY NOTES ── -->
+  <div class="section">
+    <div class="section-label">12 - Security Notes</div>
+    <h2>Critical Security Principles</h2>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Never Reuse the ECDSA Nonce k</strong>
+        <p>If your signing implementation accidentally uses the same <code>k</code> value for two different messages, an attacker who observes both signatures can mathematically recover your private key in seconds. This is not theoretical - it destroyed Sony's PlayStation 3 security in 2010 and has affected several bitcoin wallets. Always use a CSPRNG for <code>k</code>, or use RFC 6979 deterministic nonce generation.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">🔴</div>
+      <div class="callout-body">
+        <strong>Always Check What You're Signing</strong>
+        <p>Phishing attacks often get users to sign malicious EIP-712 messages that drain their wallets. A user who blindly clicks "Sign" on a hex blob in MetaMask may be signing a permit() that gives an attacker unlimited spending approval. Always read what your wallet displays before signing. Modern wallets (including BridgeKey) decode and display structured data - use that feature.</p>
+      </div>
+    </div>
+
+    <div class="callout purple">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>Signature Malleability</strong>
+        <p>In ECDSA, for any valid signature (r, s), the signature (r, n-s) is also mathematically valid. This is called signature malleability. Ethereum mitigated this by requiring <code>s</code> to be in the lower half of the curve order (enforced in EIP-2). Schnorr signatures are not malleable by design. Solidity's <code>ecrecover</code> does not protect against this - always use OpenZeppelin's ECDSA library which enforces the low-s check.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 13. INDUSTRY INSIGHTS ── -->
+  <div class="section">
+    <div class="section-label">13 - Industry Insights</div>
+    <h2>How the Industry Uses This Knowledge</h2>
+
+    <h3>Patterns Built on Digital Signatures</h3>
+    <ul>
+      <li><strong>Meta-transactions / Gasless transactions:</strong> A user signs a transaction off-chain; a "relayer" pays the gas and submits it on-chain. The smart contract verifies the user's signature with <code>ecrecover</code>. Used in SARAL onboarding to allow new users with zero gas balance to interact with MST.</li>
+      <li><strong>Off-chain order books (DEXes):</strong> Uniswap, dYdX users sign orders off-chain. Only executed trades go on-chain - saving gas costs massively.</li>
+      <li><strong>Multi-party computation (MPC) wallets:</strong> No single device holds a complete private key. Instead, Shamir's Secret Sharing splits the key across multiple parties. Each party signs a share, and the shares combine into a valid ECDSA signature. Used by Fireblocks, Coinbase Custody.</li>
+      <li><strong>Account Abstraction (ERC-4337):</strong> Replaces the fixed ECDSA signing requirement - allows wallets to use any signing scheme (biometrics, passkeys, hardware keys, social recovery). MST's SARAL protocol aligns with this vision.</li>
+    </ul>
+
+    <h3>Salary Context - Why This Matters for Your Career</h3>
+    <p>Smart contract security auditors specifically test for: signature malleability, missing <code>ecrecover</code> output validation (it returns <code>address(0)</code> on failure - if you don't check this, anyone can forge a signature), replay attacks across chains (missing <code>chainId</code> in signed data), and front-running signature submissions. Understanding ECDSA at this level is a direct competitive advantage in Web3 security roles paying ₹30 - 80 LPA.</p>
+  </div>
+
+  <!-- ── 14. GLOSSARY ── -->
+  <div class="section">
+    <div class="section-label">14 - Glossary</div>
+    <h2>Key Terms You Must Know</h2>
+
+    <div class="glossary-item">
+      <div class="glossary-term">Digital Signature</div>
+      <div class="glossary-def">A cryptographic proof that a specific private key produced a signature for a specific message. Provides authentication, integrity, and non-repudiation.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ECDSA</div>
+      <div class="glossary-def">Elliptic Curve Digital Signature Algorithm. The signing scheme used by Bitcoin, Ethereum, and MST. Produces a (r, s) signature pair using the signer's private key and a random nonce k.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Message Digest</div>
+      <div class="glossary-def">The fixed-length hash of a message (e.g., Keccak-256 of a transaction). The digest - not the original message - is what ECDSA actually signs.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Non-Repudiation</div>
+      <div class="glossary-def">The mathematical guarantee that a signer cannot deny having produced a signature, because the signature could only have been created by the holder of the private key.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Nonce k</div>
+      <div class="glossary-def">A random number used once per ECDSA signature. Must be unique and unpredictable per signature. Reusing k for two different messages allows private key recovery.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Ed25519</div>
+      <div class="glossary-def">An EdDSA signature scheme using Curve25519. Deterministic (no random k), faster than ECDSA, and resistant to many side-channel attacks. Used in Solana and Cardano.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Schnorr Signature</div>
+      <div class="glossary-def">A signature scheme provably secure under simpler assumptions than ECDSA. Supports MuSig aggregation - multiple signatures combined into one. Activated in Bitcoin via the Taproot upgrade (2021).</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">MuSig</div>
+      <div class="glossary-def">A Schnorr-based multi-signature protocol that aggregates n signatures from n parties into a single 64-byte signature and a single aggregated public key - reducing on-chain footprint of multisig.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">ecrecover</div>
+      <div class="glossary-def">An EVM precompile (at address 0x01) that recovers the signer's Ethereum address from a message hash and its (v, r, s) ECDSA signature. Used to implement msg.sender verification in smart contracts.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">EIP-712</div>
+      <div class="glossary-def">Ethereum standard for signing typed structured data off-chain. Makes signatures human-readable in wallets and domain-specific (prevents replay across different contracts/chains).</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Signature Malleability</div>
+      <div class="glossary-def">An ECDSA property where (r, s) and (r, n-s) are both valid signatures for the same message. Mitigated in Ethereum by requiring low-s values (EIP-2). Schnorr signatures are not malleable.</div>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">DSC</div>
+      <div class="glossary-def">Digital Signature Certificate. An India-specific PKI certificate issued by licensed CAs (eMudhra, NSDL, Sify). Legally recognised under the IT Act 2000. Uses RSA or ECDSA under the hood.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════ ASSESSMENT ══════════════ -->
+  <div class="assessment-header">
+    <h2>📝 Assessment - Sub-Module 4.2</h2>
+    <p>Digital Signatures &nbsp;|&nbsp; Total: <strong>15 Marks</strong> &nbsp;|&nbsp; 10 Questions</p>
+  </div>
+  <div class="assessment-body">
+
+    <p style="color:var(--text-muted); font-size:14px; margin-bottom:28px;">Marks breakdown: 7 × MCQ (1 mark each) = 7 marks &nbsp;|&nbsp; 1 × Identify-Output (5 marks) &nbsp;|&nbsp; 1 × True/False with justification (2 marks) &nbsp;|&nbsp; 1 × True/False (1 mark) = 15 marks total.</p>
+
+    <!-- Q1 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">1</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Alice wants to digitally sign a document so that anyone can verify she authored it. Which key does she use to create the signature?</div>
+      <ul class="options">
+        <li>A) Bob's public key</li>
+        <li>B) Alice's public key</li>
+        <li class="correct">C) Alice's private key</li>
+        <li>D) Bob's private key</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>A digital signature is created using the <strong>signer's own private key</strong>. This is the opposite of encryption (which uses the recipient's public key). Because only Alice has her private key, only Alice could have produced the signature - this is what gives it legal and technical weight. Anyone can then verify the signature using Alice's freely available public key.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">2</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Which three properties does a valid digital signature guarantee?</div>
+      <ul class="options">
+        <li>A) Confidentiality, Compression, Consistency</li>
+        <li class="correct">B) Authentication, Integrity, Non-Repudiation</li>
+        <li>C) Anonymity, Speed, Reversibility</li>
+        <li>D) Encryption, Hashing, Decentralisation</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: B</strong>
+        <p><strong>Authentication</strong> - proves who sent the message. <strong>Integrity</strong> - proves the message was not altered after signing (any change invalidates the signature). <strong>Non-repudiation</strong> - the signer cannot deny having signed. These three are the defining properties. Note that digital signatures do NOT provide confidentiality - the message content is still visible unless separately encrypted.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">3</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">In ECDSA, what does the random nonce <code>k</code> represent, and what is the catastrophic consequence of reusing it for two different messages?</div>
+      <ul class="options">
+        <li>A) k is the message hash; reusing it causes signature collision</li>
+        <li>B) k is a per-session symmetric key; reusing it breaks confidentiality</li>
+        <li class="correct">C) k is a random number used once per signature; reusing it across two messages allows an attacker to mathematically recover the private key</li>
+        <li>D) k is the public key; reusing it increases efficiency with no security downside</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>In ECDSA, <code>k</code> is a random nonce (used-once number) that must be unique and secret for every signature operation. If <code>k</code> is reused for two different messages (producing the same <code>r</code> value but different <code>s</code> values), an attacker can set up two simultaneous equations - <code>s₁ = k⁻¹(H₁ + r·privKey) mod n</code> and <code>s₂ = k⁻¹(H₂ + r·privKey) mod n</code> - and solve for both <code>k</code> and <code>privKey</code> with basic algebra. This was the exact vulnerability exploited in the 2010 Sony PlayStation 3 hack.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">4</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">What does the Solidity/EVM function <code>ecrecover(hash, v, r, s)</code> return?</div>
+      <ul class="options">
+        <li>A) The decrypted message from the ciphertext</li>
+        <li>B) The private key of the signer</li>
+        <li class="correct">C) The Ethereum wallet address of the account that signed the hash</li>
+        <li>D) A boolean: true if the signature is valid, false otherwise</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p><code>ecrecover</code> is an EVM precompile that performs signature recovery - it takes a hash and a signature (v, r, s) and returns the <strong>Ethereum address</strong> (not the public key) of the signer. This is how <code>msg.sender</code> is determined for every transaction. Critical security note: <code>ecrecover</code> returns <code>address(0)</code> (zero address) when the signature is invalid - if smart contract code doesn't explicitly check <code>require(signer != address(0))</code>, it can be exploited to bypass signature verification.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">5</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">What is the primary advantage of Ed25519 over ECDSA (secp256k1) in terms of the signing nonce?</div>
+      <ul class="options">
+        <li>A) Ed25519 uses a larger nonce for better security</li>
+        <li>B) Ed25519 allows nonce reuse safely due to its curve properties</li>
+        <li class="correct">C) Ed25519 derives the nonce deterministically from the private key and message, making accidental nonce reuse impossible</li>
+        <li>D) Ed25519 does not use any nonce, making it faster</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>Ed25519 (based on EdDSA) computes its nonce deterministically: <code>k = Hash(privKey || message)</code>. This means the same private key signing the same message always produces the same nonce - but different messages produce completely different nonces, making reuse impossible. ECDSA relies on the developer's random number generator being truly random - a faulty RNG (like Sony's) is a catastrophic vulnerability. Ed25519's deterministic approach eliminates this entire class of attacks.</p>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">6</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">A DAO treasury uses a 5-of-7 Schnorr MuSig multisig. All 5 required signers produce their partial signatures. What appears on-chain?</div>
+      <ul class="options">
+        <li>A) Five separate 64-byte signatures and five separate public keys</li>
+        <li>B) One 320-byte aggregated signature (5 × 64 bytes concatenated)</li>
+        <li class="correct">C) One 64-byte aggregated signature and one aggregated public key - indistinguishable from a regular single-signer transaction</li>
+        <li>D) A Merkle tree of the five signatures with the root posted on-chain</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This is Schnorr's most powerful property: through MuSig, all n partial signatures mathematically combine into a <strong>single valid 64-byte Schnorr signature</strong>, and all n public keys combine into a single aggregated public key. To any on-chain observer, this looks completely identical to a single-signer transaction - providing massive savings in block space, gas costs, and verification time, plus complete privacy about the number and identity of signers.</p>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">7</div>
+        <div class="q-type mcq">MCQ</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Eve intercepts Alice's signed transaction: <code>{to: Bob, amount: 500 MST, sig: (r,s)}</code> and modifies it to <code>{to: Eve, amount: 500 MST, sig: (r,s)}</code> - keeping the same signature. What happens when validators verify it?</div>
+      <ul class="options">
+        <li>A) The transaction is accepted because the signature format (r, s) is unchanged</li>
+        <li>B) The transaction is accepted if Eve's address is valid on the network</li>
+        <li class="correct">C) The transaction is rejected because the hash of the modified transaction is completely different, causing signature verification to fail</li>
+        <li>D) The transaction is rejected only if the validator checks the recipient address specifically</li>
+      </ul>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: C</strong>
+        <p>This demonstrates the <strong>Integrity</strong> property of digital signatures. The validator computes <code>Hash(modified_tx)</code> - which is completely different from <code>Hash(original_tx)</code> because the recipient address changed. The ECDSA verification then tries to confirm that (r, s) is a valid signature for <code>Hash(modified_tx)</code>. It is not - Alice signed the original hash. Verification fails, the transaction is invalid and rejected. Eve gains nothing. The signature is cryptographically bound to every single byte of the original transaction.</p>
+      </div>
+    </div>
+
+    <!-- Q8 — IDENTIFY OUTPUT (5 marks) -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">8</div>
+        <div class="q-type io">Identify Output</div>
+        <div class="q-difficulty hard">● Hard</div>
+        <div class="q-marks">5 marks</div>
+      </div>
+      <div class="q-text">Study the following ECDSA signature verification scenario and answer all five sub-questions (1 mark each).</div>
+
+      <div class="identify-output">Alice has:
+  Private Key (privKey) = 0xc87f...3a2e (kept secret)
+  Public Key (pubKey)   = 0x04b3...91fc (shared publicly)
+  Wallet Address        = 0x742d...F3fA (last 20 bytes of keccak256(pubKey))
+
+Alice signs this transaction:
+  Message = "Send 1000 MST to 0xBob, Nonce: 7, ChainID: 1"
+  H       = keccak256(Message) = 0x3f8a...c291
+  k       = (random, unique, secret)
+  r       = 0x5d2c...8a71
+  s       = 0xb3f1...4e09
+  v       = 27
+
+Validator receives: [Message, v=27, r=0x5d2c...8a71, s=0xb3f1...4e09]
+
+Sub-questions:
+(a) Which formula does the validator use to begin verification?
+(b) What does ecrecover(H, 27, r, s) return if the signature is valid?
+(c) Eve intercepts and changes the message to "Send 1000 MST to 0xEve".
+    She keeps (v, r, s) unchanged. Will verification pass? Why?
+(d) Eve attempts a different attack: she computes (r, n - s) and submits
+    this as a modified signature for the SAME original message.
+    Will this modified signature (r, n-s) be mathematically valid?
+    What is this vulnerability called?
+(e) Alice accidentally uses the same k for another transaction with a
+    different message, producing signature (r, s₂) where r is the same.
+    What can an attacker compute?</div>
+
+      <div class="answer-box">
+        <strong>✅ Model Answers - 1 mark each</strong>
+
+        <p><strong>(a) Validator begins with:</strong> Computing <code>H' = keccak256(received_message)</code> and then running the ECDSA verify algorithm: compute <code>w = s⁻¹ mod n</code>, then <code>u₁ = H'·w mod n</code>, <code>u₂ = r·w mod n</code>, then curve point <code>X = u₁·G + u₂·pubKey</code>, and check if <code>X.x mod n == r</code>. Alternatively - and more commonly in practice - the validator calls <code>ecrecover(H', v, r, s)</code> and checks the returned address equals Alice's address.</p>
+
+        <p><strong>(b) ecrecover returns:</strong> Alice's wallet address: <code>0x742d...F3fA</code>. The validator confirms this matches the <code>from</code> field of the transaction. If the signature is forged or the message was tampered, ecrecover returns <code>address(0)</code> (the zero address).</p>
+
+        <p><strong>(c) Verification will FAIL.</strong> The validator computes <code>H_eve = keccak256("Send 1000 MST to 0xEve, Nonce: 7, ChainID: 1")</code> which is a completely different 32-byte hash from the original <code>H = 0x3f8a...c291</code>. When the validator runs ecrecover with the unchanged (v, r, s) against the new hash <code>H_eve</code>, the recovered address will NOT be Alice's address - it will be a garbage or zero address. The transaction is rejected. The (r, s) signature is mathematically bound to the specific hash it signed.</p>
+
+        <p><strong>(d) YES - (r, n-s) is also a mathematically valid ECDSA signature</strong> for the same message. This is called <strong>Signature Malleability</strong>. Because the curve is symmetric, both (r, s) and (r, n-s) satisfy the verification equation. Ethereum mitigates this by requiring <code>s &lt; n/2</code> (enforced in EIP-2). OpenZeppelin's ECDSA library also checks this. Developers who use raw ecrecover without checking the low-s constraint are vulnerable to transaction ID malleability and certain replay attacks.</p>
+
+        <p><strong>(e) With two signatures (r, s₁) and (r, s₂) sharing the same r:</strong> An attacker can solve the system: <code>s₁ = k⁻¹(H₁ + r·privKey) mod n</code> and <code>s₂ = k⁻¹(H₂ + r·privKey) mod n</code>. Subtracting gives <code>(s₁ - s₂) = k⁻¹(H₁ - H₂) mod n</code>, allowing the attacker to solve for <code>k</code>. With k recovered, privKey can be directly computed: <code>privKey = (s₁·k - H₁)·r⁻¹ mod n</code>. The private key is completely compromised.</p>
+      </div>
+    </div>
+
+    <!-- Q9 — TRUE/FALSE 2 marks -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">9</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty medium">● Medium</div>
+        <div class="q-marks">2 marks</div>
+      </div>
+      <div class="q-text">Statement: "A digital signature on a blockchain transaction proves that the transaction content is confidential and cannot be read by validators or the public."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Full Justification Required (2 marks)</strong>
+        <p><strong>This statement is FALSE.</strong></p>
+        <p>Digital signatures provide <strong>Authentication, Integrity, and Non-Repudiation</strong> - but they do <strong>NOT</strong> provide confidentiality. A signature proves <em>who</em> created the transaction and that it was not altered - it does not hide the transaction content. On a public blockchain like MST, Ethereum, or Bitcoin, <strong>all transaction data is fully public and readable</strong> by every validator, every block explorer user, and every participant on the network. Anyone can look up any transaction on MSTScan.com and read the recipient address, amount, and calldata.</p>
+        <p>Confidentiality is a separate concern - it requires encryption (covered in Sub-Module 4.1) or zero-knowledge proofs (covered in Sub-Module 4.4). A signed but unencrypted transaction is like a letter with a notarised signature - it proves who wrote it, but anyone can read the contents. (1 mark for correct False answer; 1 mark for correct justification explaining signatures ≠ confidentiality.)</p>
+      </div>
+    </div>
+
+    <!-- Q10 — TRUE/FALSE 1 mark -->
+    <div class="q-block">
+      <div class="q-meta">
+        <div class="q-num">10</div>
+        <div class="q-type tf">True / False + Justification</div>
+        <div class="q-difficulty easy">● Easy</div>
+        <div class="q-marks">1 mark</div>
+      </div>
+      <div class="q-text">Statement: "In ECDSA, the transaction message itself is directly signed by the private key - the message is not hashed before signing."</div>
+      <div class="tf-options">
+        <div class="tf-btn wrong-tf">TRUE ✗</div>
+        <div class="tf-btn correct-tf">FALSE ✅</div>
+      </div>
+      <div class="answer-box">
+        <strong>✅ Correct Answer: FALSE - Justification Required (1 mark)</strong>
+        <p><strong>This statement is FALSE.</strong> ECDSA - and all practical digital signature schemes - do <strong>not</strong> sign the raw message directly. The message is first passed through a cryptographic hash function (Keccak-256 in Ethereum/MST, SHA-256 in Bitcoin) to produce a fixed-length <strong>message digest</strong> (32 bytes). This digest is what the private key mathematically signs. This is necessary for two reasons: (1) ECDSA mathematically operates on fixed-size field elements - arbitrary-length messages don't fit; (2) the hash binds the signature to every byte of the original message - changing even one character produces a completely different digest, invalidating the signature.</p>
+      </div>
+    </div>
+
+    <!-- MARKS SUMMARY -->
+    <div style="background: var(--navy); border-radius: 10px; padding: 20px 24px; margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
+      <div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Total Marks</div>
+        <div style="font-size: 32px; font-weight: 800; color: var(--gold); font-family: 'JetBrains Mono', monospace;">15 / 15</div>
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.8;">
+          Q1 - Q7: 7 × MCQ = 7 marks<br>
+          Q8: Identify-Output (5 sub-parts × 1 mark) = 5 marks<br>
+          Q9: True/False + justification = 2 marks<br>
+          Q10: True/False + justification = 1 mark
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<div class="module-footer">
+  <strong>MasterStroke Academy</strong> - Certified MST Blockchain Developer Program &nbsp;|&nbsp;
+  Module 4: Cryptography &nbsp;|&nbsp; Sub-Module 4.2: Digital Signatures &nbsp;|&nbsp;
+  Next: <strong>Sub-Module 4.3 - Hash Functions & Merkle Proofs</strong>
+</div>
+
+</body>
+</html>

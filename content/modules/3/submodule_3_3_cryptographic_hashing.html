@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 3.3 - Cryptographic Hashing | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand:#6C3CE2; --brand-light:#EDE9FB; --brand-dark:#3C1FA0; --brand-mid:#8B5CF6;
+    --accent:#F6A623; --accent-light:#FEF4E0;
+    --green:#16A34A; --green-light:#DCFCE7;
+    --red:#DC2626; --red-light:#FEE2E2;
+    --blue:#1D6FD8; --blue-light:#DBEAFE;
+    --orange:#EA580C; --orange-light:#FFEDD5;
+    --teal:#0D9488; --teal-light:#CCFBF1;
+    --ink:#111827; --ink-2:#374151; --ink-3:#6B7280; --ink-4:#9CA3AF;
+    --border:#E5E7EB; --border-2:#D1D5DB;
+    --surface:#F9FAFB; --surface-2:#F3F4F6; --white:#FFFFFF;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+    --radius:10px; --radius-sm:6px; --radius-lg:16px;
+  }
+  body { font-family:var(--sans); color:var(--ink); background:#fff; line-height:1.75; font-size:16px; max-width:880px; margin:0 auto; padding:48px 32px 100px; }
+
+  .module-badge { display:inline-flex; align-items:center; gap:8px; background:var(--brand-light); color:var(--brand-dark); font-size:11.5px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; padding:5px 14px; border-radius:20px; margin-bottom:20px; }
+  .module-title { font-size:clamp(28px,4vw,40px); font-weight:900; line-height:1.15; color:var(--ink); margin-bottom:12px; letter-spacing:-0.02em; }
+  .module-title .highlight { color:var(--brand); }
+  .module-subtitle { font-size:17px; color:var(--ink-3); font-weight:400; margin-bottom:28px; line-height:1.65; max-width:680px; }
+  .meta-bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:52px; padding-bottom:32px; border-bottom:2px solid var(--border); }
+  .meta-chip { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 14px; font-size:13px; font-weight:500; color:var(--ink-2); }
+  .meta-chip.purple { background:var(--brand-light); border-color:#C4B5F5; color:var(--brand-dark); }
+  .meta-chip.green  { background:var(--green-light); border-color:#86EFAC; color:#14532D; }
+
+  .section-label { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--brand); margin-bottom:10px; margin-top:52px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-title { font-size:24px; font-weight:800; color:var(--ink); margin-bottom:18px; letter-spacing:-0.01em; line-height:1.3; }
+
+  p { color:var(--ink-2); margin-bottom:16px; font-size:15.5px; line-height:1.8; }
+  p strong { color:var(--ink); font-weight:700; }
+  p:last-child { margin-bottom:0; }
+  code { font-family:var(--mono); font-size:13px; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:2px 6px; color:var(--brand-dark); }
+
+  .callout { border-radius:var(--radius-lg); padding:20px 24px; margin:24px 0; border-left:4px solid; }
+  .callout-label { font-size:11px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .callout p { font-size:15px; margin:0; }
+  .callout.story   { background:#FAFAF5; border-color:var(--accent); }
+  .callout.story .callout-label { color:#92400E; }
+  .callout.key     { background:var(--brand-light); border-color:var(--brand); }
+  .callout.key .callout-label { color:var(--brand-dark); }
+  .callout.warning { background:var(--red-light); border-color:var(--red); }
+  .callout.warning .callout-label { color:var(--red); }
+  .callout.insight { background:var(--teal-light); border-color:var(--teal); }
+  .callout.insight .callout-label { color:var(--teal); }
+  .callout.analogy { background:var(--accent-light); border-color:var(--accent); }
+  .callout.analogy .callout-label { color:#92400E; }
+
+  .obj-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .obj-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; display:flex; gap:12px; align-items:flex-start; }
+  .obj-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .obj-text { font-size:14px; color:var(--ink-2); line-height:1.55; }
+  .obj-text strong { display:block; color:var(--ink); font-weight:700; font-size:13.5px; margin-bottom:2px; }
+
+  .diagram-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px 24px; margin:24px 0; overflow-x:auto; }
+  .diagram-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:20px; text-align:center; }
+  .diagram-wrap pre { font-family:var(--mono); font-size:13px; line-height:1.65; color:var(--ink-2); white-space:pre; margin:0; }
+  .diagram-caption { font-size:12px; color:var(--ink-4); text-align:center; margin-top:16px; font-style:italic; }
+
+  /* Property cards */
+  .prop-grid { display:grid; grid-template-columns:1fr; gap:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin:24px 0; }
+  .prop-row { display:grid; grid-template-columns:220px 1fr; border-bottom:1px solid var(--border); }
+  .prop-row:last-child { border-bottom:none; }
+  .prop-label-cell { background:var(--brand-light); padding:18px 20px; border-right:1px solid #C4B5F5; display:flex; flex-direction:column; justify-content:center; }
+  .prop-name { font-size:14px; font-weight:800; color:var(--brand-dark); margin-bottom:4px; }
+  .prop-tag  { font-size:10.5px; font-weight:700; color:var(--brand); letter-spacing:0.06em; text-transform:uppercase; }
+  .prop-content { padding:18px 20px; }
+  .prop-what { font-size:13px; font-weight:700; color:var(--ink); margin-bottom:5px; }
+  .prop-desc { font-size:14px; color:var(--ink-2); line-height:1.6; }
+  .prop-analogy { font-size:13px; color:var(--brand-dark); margin-top:6px; background:var(--brand-light); border-radius:6px; padding:6px 10px; display:inline-block; }
+
+  /* Hash demo box */
+  .hash-demo { background:var(--surface-2); border:1px solid var(--border-2); border-radius:var(--radius-lg); padding:20px 24px; margin:20px 0; }
+  .hash-demo-title { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:16px; }
+  .hash-row { display:grid; grid-template-columns:1fr 40px 1fr; align-items:center; gap:12px; margin-bottom:12px; }
+  .hash-row:last-child { margin-bottom:0; }
+  .hash-input { font-family:var(--mono); font-size:13px; background:white; border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--ink-2); }
+  .hash-arrow { text-align:center; font-size:18px; color:var(--ink-3); font-weight:700; }
+  .hash-output { font-family:var(--mono); font-size:11.5px; background:var(--brand-light); border:1px solid #C4B5F5; border-radius:8px; padding:10px 14px; color:var(--brand-dark); word-break:break-all; line-height:1.4; }
+
+  /* Code block */
+  .code-wrap { background:#0F1117; border-radius:var(--radius-lg); overflow:hidden; margin:24px 0; }
+  .code-header { background:#1A1D27; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #2D3148; }
+  .code-lang { font-family:var(--mono); font-size:12px; font-weight:600; color:var(--accent); }
+  .code-dots { display:flex; gap:6px; }
+  .code-dot { width:10px; height:10px; border-radius:50%; }
+  .code-body { padding:24px 20px; overflow-x:auto; }
+  .code-body pre { font-family:var(--mono); font-size:13px; line-height:1.9; color:#E2E8F0; white-space:pre; margin:0; }
+  .c-kw  { color:#F472B6; }
+  .c-fn  { color:#A78BFA; }
+  .c-str { color:#86EFAC; }
+  .c-num { color:#FCD34D; }
+  .c-cmt { color:#6B7280; font-style:italic; }
+  .c-type{ color:#67E8F9; }
+  .c-hl  { background:rgba(109,57,226,0.2); display:block; margin:0 -20px; padding:0 20px; border-left:3px solid var(--brand); }
+
+  .feature-list { display:flex; flex-direction:column; gap:12px; margin:20px 0; }
+  .feature-item { display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .feature-num { width:28px; height:28px; border-radius:50%; background:var(--brand); color:white; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+  .feature-content { flex:1; }
+  .feature-title { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+  .feature-desc  { font-size:14px; color:var(--ink-2); line-height:1.6; }
+
+  .glossary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
+  .glossary-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; }
+  .glossary-term { font-size:13px; font-weight:700; color:var(--brand); margin-bottom:4px; }
+  .glossary-def  { font-size:13.5px; color:var(--ink-2); line-height:1.55; }
+
+  /* Assessment */
+  .assessment-section { margin-top:64px; }
+  .assessment-header { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; }
+  .assessment-header h2 { font-size:20px; font-weight:800; color:white; }
+  .marks-total-badge { background:white; border-radius:10px; padding:10px 20px; text-align:center; flex-shrink:0; }
+  .marks-total-badge .num   { font-size:32px; font-weight:900; color:var(--brand); line-height:1; }
+  .marks-total-badge .label { font-size:10px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; }
+  .assessment-body { border:2px solid var(--border); border-top:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); overflow:hidden; }
+  .q-section-header { background:var(--surface); border-bottom:1px solid var(--border); padding:14px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .q-section-title { font-size:13px; font-weight:700; color:var(--ink); }
+  .q-section-meta  { font-size:12px; color:var(--ink-3); }
+  .question-block { padding:28px 28px 0; border-bottom:1px solid var(--border); }
+  .question-block:last-child { border-bottom:none; padding-bottom:28px; }
+  .q-header { display:flex; gap:10px; align-items:flex-start; margin-bottom:14px; }
+  .q-badge { background:var(--brand); color:white; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; white-space:nowrap; letter-spacing:0.04em; flex-shrink:0; margin-top:1px; }
+  .q-meta  { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .q-type  { font-size:11.5px; font-weight:600; color:var(--ink-3); }
+  .q-diff  { font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:4px; }
+  .q-diff.easy   { background:var(--green-light);  color:#14532D; }
+  .q-diff.medium { background:var(--accent-light); color:#92400E; }
+  .q-diff.hard   { background:var(--red-light);    color:#7F1D1D; }
+  .q-marks { font-size:12px; color:var(--ink-3); margin-left:auto; font-weight:500; flex-shrink:0; }
+  .q-text { font-size:15.5px; font-weight:600; color:var(--ink); margin-bottom:18px; line-height:1.6; }
+  .options { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:8px; }
+  .options li { display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:14.5px; color:var(--ink-2); line-height:1.5; }
+  .options li.correct { border-color:var(--green); background:var(--green-light); color:var(--ink); }
+  .opt-key { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--ink-3); flex-shrink:0; margin-top:1px; min-width:18px; }
+  .options li.correct .opt-key { color:var(--green); }
+  .answer-box { background:var(--green-light); border:1.5px solid #86EFAC; border-radius:var(--radius); padding:18px 20px; margin-bottom:28px; }
+  .answer-box-label { font-size:10.5px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--green); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .answer-box p { font-size:14.5px; color:var(--ink-2); line-height:1.7; margin:0; }
+  .answer-box p strong { color:var(--ink); }
+  .answer-box .marks-bd { margin-top:12px; padding-top:10px; border-top:1px solid #86EFAC; font-size:13px; color:#14532D; }
+  .answer-box .marks-bd span { font-weight:700; }
+  .tf-box { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; }
+  .tf-verdict { display:inline-block; font-size:13px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 14px; border-radius:6px; margin-bottom:10px; }
+  .tf-verdict.false { background:var(--red-light); color:#7F1D1D; }
+  .tf-must-write { font-size:11.5px; font-weight:700; color:var(--brand-dark); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:8px; }
+  .tf-sample { font-size:14.5px; color:var(--ink-2); line-height:1.7; border-left:3px solid var(--brand); padding-left:12px; }
+  .score-summary { background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%); border-radius:var(--radius-lg); padding:28px 32px; margin-top:40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+  .score-label { color:#C4B5F5; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; }
+  .score-row   { color:white; font-size:15px; font-weight:600; margin-bottom:4px; }
+  .score-row span { color:#C4B5F5; font-weight:400; }
+  .score-badge { background:white; border-radius:12px; padding:16px 28px; text-align:center; flex-shrink:0; }
+  .score-badge .score-num  { font-size:44px; font-weight:900; color:var(--brand); line-height:1; }
+  .score-badge .score-text { font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .page-footer { text-align:center; margin-top:64px; padding-top:32px; border-top:2px solid var(--border); }
+  .page-footer p { font-size:13px; color:var(--ink-3); margin-bottom:4px; }
+
+  @media(max-width:640px){
+    body{padding:28px 18px 72px;}
+    .obj-grid,.glossary-grid{grid-template-columns:1fr;}
+    .module-title{font-size:26px;}
+    .prop-row{grid-template-columns:1fr;}
+    .prop-label-cell{border-right:none;border-bottom:1px solid #C4B5F5;}
+    .hash-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 3 &nbsp;·&nbsp; Sub-Module 3.3 of 9</div>
+<h1 class="module-title">Cryptographic <span class="highlight">Hashing</span></h1>
+<p class="module-subtitle">The one-way mathematical fingerprint that makes blockchain immutable. Understanding SHA-256 and Keccak-256 - the engines under the hood of every block, every transaction, every wallet address.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 4 MCQ + 1 Code-Completion + 1 True/False</div>
+  <div class="meta-chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01. OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔐</div>
+    <div class="obj-text"><strong>Define a cryptographic hash function</strong>Name and explain all five essential properties that make a hash function "cryptographic."</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text"><strong>Distinguish SHA-256 from Keccak-256</strong>Know which blockchain uses which, and why Solidity uses <code>keccak256()</code>.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text"><strong>Connect hashing to Aadhaar biometrics</strong>Explain why UIDAI stores a hash of your fingerprint - not the fingerprint itself.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">💻</div>
+    <div class="obj-text"><strong>Write a keccak256 hash call in Solidity</strong>Use <code>keccak256(abi.encodePacked(...))</code> correctly in a smart contract.</div>
+  </div>
+</div>
+
+
+<!-- 02. STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">Your Aadhaar Fingerprint Was Never Stored</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2013, you went to an Aadhaar enrolment centre in Pune. The operator pressed your finger onto the scanner. In that moment, you probably assumed UIDAI (Unique Identification Authority of India) was saving a photograph of your fingerprint - a digital image of your swirling ridges, stored in some massive government database.</p>
+  <br>
+  <p>They did not. What they stored was a number. A very specific, very long number - computed by running your fingerprint image through a mathematical function that is, for all practical purposes, <strong>irreversible</strong>. Your actual fingerprint image was discarded. Only the number remains.</p>
+  <br>
+  <p>Every time you use Aadhaar authentication - to open a bank account, get a SIM card, access your DigiLocker - the scanner computes the same mathematical function on your fresh scan and compares the result to the stored number. If they match: it's you. If they don't: it's not. And no hacker who steals the UIDAI database gains access to your actual fingerprint - they only get the irreversible number. <strong>This is a hash function.</strong></p>
+  <br>
+  <p>Blockchain uses the exact same idea - but applied to transactions, blocks, and addresses. Every piece of data in a blockchain is fingerprinted. And the entire security model depends on one critical property: <strong>you cannot reverse the fingerprint to find the original data.</strong></p>
+</div>
+
+
+<!-- 03. BACKGROUND -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Cryptographic Hash Functions</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">1979</div>
+    <div class="feature-content">
+      <div class="feature-title">Ralph Merkle's PhD - The Foundation</div>
+      <div class="feature-desc">Ralph Merkle's doctoral thesis introduced the concept of one-way hash functions and Merkle trees. His work established the theoretical basis for all modern cryptographic hashing - the same Merkle trees used in every Bitcoin and Ethereum block today.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">1993</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-1 - The First Widely Deployed Hash</div>
+      <div class="feature-desc">The NSA designed SHA-1 for the US government. It was used everywhere - SSL certificates, digital signatures, version control (Git still uses SHA-1 internally for commit hashes). Critically broken in 2017 when Google demonstrated a "collision" - two different files with the same SHA-1 hash. This is why SHA-1 is now deprecated for security applications.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">2001</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-256 - Bitcoin's Hash Function</div>
+      <div class="feature-desc">SHA-256 (Secure Hash Algorithm, 256-bit output) was standardised by NIST. Satoshi Nakamoto chose it for Bitcoin in 2008 - it is used for block hashing (PoW), transaction IDs, and address derivation. As of 2024, no practical attack on SHA-256 exists. The entire Bitcoin security model rests on it.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">2012</div>
+    <div class="feature-content">
+      <div class="feature-title">Keccak Wins the SHA-3 Competition - Ethereum's Choice</div>
+      <div class="feature-desc">NIST ran an open competition for a new hash standard. Keccak (designed by Bertoni, Daemen, Peeters, and Van Assche) won after 5 years and 64 competing submissions. Ethereum adopted Keccak-256 (a specific Keccak variant) for all internal operations - address derivation, transaction hashing, the <code>keccak256()</code> Solidity opcode. MST, as an EVM-compatible chain, uses the same function.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 04. THE FIVE PROPERTIES -->
+<div class="section-label">04 &nbsp; The Five Properties of Cryptographic Hash Functions</div>
+<h2 class="section-title">What Makes a Hash Function "Cryptographic"?</h2>
+
+<p>Not every hash function is cryptographic. A simple hash like "sum all the ASCII values of characters" is a hash function - but it's not cryptographic. Five specific properties distinguish a cryptographic hash function from a basic one.</p>
+
+<div class="prop-grid">
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">1. Deterministic</div>
+      <div class="prop-tag">Must-Have</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Same input → Always same output</div>
+      <div class="prop-desc">No matter when, where, or on which computer you run SHA-256("Hello"), you always get the exact same 64-character output. This is essential for blockchain consensus - every node must independently compute the same result to agree on block validity.</div>
+      <div class="prop-analogy">🇮🇳 Your fingerprint always produces the same Aadhaar biometric code - on any scanner, any day.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">2. Pre-image Resistant</div>
+      <div class="prop-tag">One-Way</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Cannot reverse the hash to find the original input</div>
+      <div class="prop-desc">Given a hash output H, it is computationally infeasible to find any input X such that hash(X) = H. SHA-256 has 2²⁵⁶ possible outputs - approximately 10⁷⁷. Even if every atom in the universe were a computer running since the Big Bang, you could not brute-force a SHA-256 hash in the lifetime of the universe.</div>
+      <div class="prop-analogy">🇮🇳 Nobody can reconstruct your fingerprint from your Aadhaar biometric number - even UIDAI itself.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">3. Avalanche Effect</div>
+      <div class="prop-tag">Sensitivity</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Tiny input change → Completely different output</div>
+      <div class="prop-desc">Changing even a single bit in the input produces a drastically different hash output - typically about half the output bits flip. This means you cannot make subtle, undetectable changes to data. Any tampering is immediately visible through a completely changed fingerprint.</div>
+      <div class="prop-analogy">🇮🇳 A single ridge alteration on your fingerprint produces a completely unrecognisable biometric code.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">4. Collision Resistant</div>
+      <div class="prop-tag">Uniqueness</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Computationally infeasible to find two different inputs with the same hash</div>
+      <div class="prop-desc">It should be essentially impossible to find X ≠ Y where hash(X) = hash(Y). By the birthday paradox, finding a SHA-256 collision would require approximately 2¹²⁸ operations - far beyond any known or projected computational capability. SHA-1's collision resistance was broken; SHA-256's has not been.</div>
+      <div class="prop-analogy">🇮🇳 No two people in India share an Aadhaar number - the biometric hashing system is designed to be unique per individual.</div>
+    </div>
+  </div>
+  <div class="prop-row">
+    <div class="prop-label-cell">
+      <div class="prop-name">5. Fixed Output Size</div>
+      <div class="prop-tag">Consistency</div>
+    </div>
+    <div class="prop-content">
+      <div class="prop-what">Output is always exactly the same length regardless of input size</div>
+      <div class="prop-desc">SHA-256 always produces exactly 256 bits = 32 bytes = 64 hexadecimal characters. Whether you hash the word "Hi" (2 bytes) or the entire Harry Potter series (4.1 MB), the output is always 64 hex characters. This is critical for block headers - they need a predictable-size field for PrevHash.</div>
+      <div class="prop-analogy">🇮🇳 Whether you scan 1 finger or 10 simultaneously, Aadhaar produces one fixed-length biometric template.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 05. SHA-256 vs KECCAK -->
+<div class="section-label">05 &nbsp; SHA-256 vs Keccak-256 - The Two Engines</div>
+<h2 class="section-title">Which Hash Function Powers Which Blockchain?</h2>
+
+<p>Both SHA-256 and Keccak-256 are cryptographic hash functions with 256-bit outputs, but they use completely different internal algorithms and are used in different ecosystems.</p>
+
+<div class="hash-demo">
+  <div class="hash-demo-title">🔬 Live Hash Demonstration - Avalanche Effect in Action</div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain!"</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">SHA-256: 3c9683017f9e4bf33d0a90e87f17f4a2625cdfede6a7572e22834f0e61fc7bf3</div>
+  </div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain." &nbsp;← one char changed (! → .)</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">SHA-256: a8e5f679b4d0e51cf7c2d0f4eb9283c04b63c97de12e5e93c7bdb3e89d4e5f1a</div>
+  </div>
+  <div class="hash-row">
+    <div class="hash-input">"Hello, Blockchain!" (same as Row 1)</div>
+    <div class="hash-arrow">→</div>
+    <div class="hash-output">Keccak-256: 8a1c4d2e7f3b9056ae1234c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5</div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-3);margin-top:12px;margin-bottom:0;">Note: Row 1 and Row 2 - identical input except one character. Completely different outputs. Row 1 and Row 3 - identical input, different algorithms, different outputs. All outputs are 64 hex characters (256 bits) regardless.</p>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.3-A · SHA-256 vs Keccak-256 - Usage in Blockchain Ecosystem</div>
+  <pre>
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │                    SHA-256                                               │
+  │  Designed by: NSA (2001) · Standardised: NIST FIPS 180-4                │
+  │  Output: 256 bits (64 hex chars)                                         │
+  │  Internal structure: Merkle-Damgård with Davies-Meyer compression        │
+  │                                                                          │
+  │  Used in BLOCKCHAIN for:                                                 │
+  │  ✦ Bitcoin block hashing (PoW — miners compute SHA-256 of block header)  │
+  │  ✦ Bitcoin transaction IDs (TXID = SHA-256(SHA-256(raw_tx)))             │
+  │  ✦ Bitcoin address derivation (SHA-256 → RIPEMD-160 → Base58)           │
+  │  ✦ Bitcoin's double-SHA-256: hash(hash(x)) for extra security            │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │                    Keccak-256                                            │
+  │  Designed by: Bertoni, Daemen, Peeters, Van Assche (2012 SHA-3 winner)  │
+  │  Output: 256 bits (64 hex chars)                                         │
+  │  Internal structure: Sponge construction (absorb → squeeze)              │
+  │                                                                          │
+  │  Used in BLOCKCHAIN for:                                                 │
+  │  ✦ Ethereum address derivation (Keccak-256 of public key → last 20 bytes)│
+  │  ✦ Ethereum transaction hashing                                           │
+  │  ✦ Solidity built-in: keccak256() opcode                                 │
+  │  ✦ MST (EVM-compatible) — all the above + smart contract storage keys    │
+  │  ✦ Merkle-Patricia Trie nodes in Ethereum/MST state                      │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  ⚠️  IMPORTANT: Ethereum uses Keccak-256, NOT the NIST SHA-3 standard.
+      They are both Keccak-based but with different padding — they produce
+      different outputs for the same input. When Solidity says keccak256(),
+      it means the Ethereum variant — NOT NIST SHA-3.
+  </pre>
+  <div class="diagram-caption">Knowing which hash function each ecosystem uses is a common exam question - and a common source of bugs for developers crossing between Bitcoin and Ethereum tooling.</div>
+</div>
+
+
+<!-- 06. HOW SHA-256 WORKS INTERNALLY -->
+<div class="section-label">06 &nbsp; Inside SHA-256 - Conceptual Understanding</div>
+<h2 class="section-title">How Does SHA-256 Actually Compute Its Output?</h2>
+
+<p>You don't need to implement SHA-256 - but understanding the conceptual steps builds deep intuition for why it has the properties it does.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 3.3-B · SHA-256 Internal Process (Conceptual)</div>
+  <pre>
+  INPUT: "Ravi sends 1 BTC to Priya"  (any length)
+
+  STEP 1: PADDING
+  ─────────────────────────────────────────────────────────────────────
+  Append a '1' bit, then '0' bits, then a 64-bit length field
+  until the total message length is a multiple of 512 bits.
+  Reason: SHA-256 processes data in fixed 512-bit chunks.
+
+  STEP 2: INITIALISE 8 HASH VALUES (h0 through h7)
+  ─────────────────────────────────────────────────────────────────────
+  These are the first 32 bits of the fractional parts of the
+  square roots of the first 8 prime numbers:
+  h0 = 0x6a09e667  (from √2)
+  h1 = 0xbb67ae85  (from √3)
+  h2 = 0x3c6ef372  (from √5)
+  ... (why primes? They have no mathematical "back door" — public verifiability)
+
+  STEP 3: 64 ROUNDS OF COMPRESSION PER 512-BIT CHUNK
+  ─────────────────────────────────────────────────────────────────────
+  For each 512-bit chunk:
+    Expand chunk into 64 × 32-bit "words" using bit rotations and XOR
+    Run 64 rounds of: Σ (sigma), Ch (choose), Maj (majority) operations
+    These are simple bitwise operations — AND, OR, XOR, bit-rotate
+    Each round mixes the current state using a "round constant"
+    (derived from cube roots of the first 64 primes — again, no back door)
+
+  STEP 4: ADD COMPRESSED CHUNK TO CURRENT HASH VALUE
+  ─────────────────────────────────────────────────────────────────────
+  After 64 rounds, add the compressed chunk to the running hash values.
+  Process the next 512-bit chunk. Repeat.
+
+  STEP 5: OUTPUT THE FINAL HASH
+  ─────────────────────────────────────────────────────────────────────
+  Concatenate h0 through h7 → 8 × 32-bit = 256-bit output.
+  Convert to 64 hexadecimal characters.
+
+  OUTPUT: 3c9683017f9e4bf33d0a90e87f17f4a2625cdfede6a7572e22834f0e61fc7bf3
+
+  ─────────────────────────────────────────────────────────────────────
+  KEY INSIGHT: Each step is designed to ensure that ANY change in the input
+  cascades through ALL subsequent rounds, changing the output completely.
+  This is the avalanche effect — by design, not by accident.
+  ─────────────────────────────────────────────────────────────────────
+  </pre>
+  <div class="diagram-caption">SHA-256 runs approximately 64 rounds of bitwise mixing operations. A modern CPU can compute ~500 million SHA-256 hashes per second. Bitcoin's network collectively computes ~500 exahashes (5×10²⁰) per second.</div>
+</div>
+
+
+<!-- 07. HASHING IN SOLIDITY -->
+<div class="section-label">07 &nbsp; Hashing in Solidity - keccak256() in Practice</div>
+<h2 class="section-title">Writing Hash Functions in Smart Contracts</h2>
+
+<p>In Solidity (the smart contract language for Ethereum and MST), the <code>keccak256()</code> function is a built-in - a first-class opcode. It takes bytes as input and returns a <code>bytes32</code> (256-bit) hash. Understanding how to use it correctly is essential for building secure contracts.</p>
+
+<div class="code-wrap">
+  <div class="code-header">
+    <div class="code-lang">Solidity · keccak256 - Complete Usage Guide</div>
+    <div class="code-dots">
+      <div class="code-dot" style="background:#FF5F56"></div>
+      <div class="code-dot" style="background:#FFBD2E"></div>
+      <div class="code-dot" style="background:#27C93F"></div>
+    </div>
+  </div>
+  <div class="code-body">
+<pre><span class="c-cmt">// SPDX-License-Identifier: MIT</span>
+<span class="c-kw">pragma solidity</span> ^0.8.0;
+
+<span class="c-kw">contract</span> <span class="c-fn">HashingExamples</span> {
+
+    <span class="c-cmt">// ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 1: Hash a string
+    // Use case: Commit-reveal schemes, storing verifiable secrets
+    // ─────────────────────────────────────────────────────────────────</span>
+<span class="c-hl">    <span class="c-kw">function</span> <span class="c-fn">hashString</span>(<span class="c-type">string memory</span> input) <span class="c-kw">public pure returns</span> (<span class="c-type">bytes32</span>) {</span>
+<span class="c-hl">        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(input));</span>
+<span class="c-hl">    }</span>
+    <span class="c-cmt">// abi.encodePacked(input) converts the string to tightly packed bytes.
+    // keccak256() hashes those bytes → returns bytes32.
+    // "pure" means it doesn't read or modify blockchain state.
+
+    // ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 2: Hash multiple values together
+    // Use case: Creating unique identifiers from multiple inputs
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-kw">function</span> <span class="c-fn">generateId</span>(<span class="c-type">address</span> user, <span class="c-type">uint256</span> nonce) <span class="c-kw">public pure returns</span> (<span class="c-type">bytes32</span>) {
+        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(user, nonce));
+    }
+    <span class="c-cmt">// Different users + different nonces → completely different IDs.
+    // Collision-resistant: virtually impossible for two inputs to produce same ID.
+
+    // ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 3: Password storage WITHOUT storing the password
+    // Use case: On-chain authentication — store hash, verify with hash
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-type">bytes32</span> <span class="c-kw">public</span> storedPasswordHash;
+
+    <span class="c-kw">function</span> <span class="c-fn">setPassword</span>(<span class="c-type">string memory</span> password) <span class="c-kw">public</span> {
+<span class="c-hl">        storedPasswordHash = <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(password));</span>
+        <span class="c-cmt">// Never store raw password — only its hash. Even blockchain explorers
+        // cannot reverse-engineer the original password from this hash.</span>
+    }
+
+    <span class="c-kw">function</span> <span class="c-fn">verifyPassword</span>(<span class="c-type">string memory</span> attempt) <span class="c-kw">public view returns</span> (<span class="c-type">bool</span>) {
+        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(attempt)) == storedPasswordHash;
+        <span class="c-cmt">// Compute hash of attempt, compare to stored hash. True if they match.</span>
+    }
+
+    <span class="c-cmt">// ─────────────────────────────────────────────────────────────────
+    // EXAMPLE 4: Commit-Reveal Scheme
+    // Use case: MST FortunaX random number generation, sealed auctions
+    // Phase 1 (COMMIT): Player hashes their secret choice + salt
+    // Phase 2 (REVEAL): Player reveals choice + salt → contract verifies
+    // ─────────────────────────────────────────────────────────────────</span>
+    <span class="c-kw">mapping</span>(<span class="c-type">address</span> => <span class="c-type">bytes32</span>) <span class="c-kw">public</span> commitments;
+
+    <span class="c-kw">function</span> <span class="c-fn">commit</span>(<span class="c-type">bytes32</span> commitment) <span class="c-kw">public</span> {
+        commitments[msg.sender] = commitment;
+        <span class="c-cmt">// Player submits: keccak256(abi.encodePacked(choice, salt))</span>
+    }
+
+    <span class="c-kw">function</span> <span class="c-fn">reveal</span>(<span class="c-type">uint256</span> choice, <span class="c-type">uint256</span> salt) <span class="c-kw">public view returns</span> (<span class="c-type">bool</span>) {
+<span class="c-hl">        <span class="c-type">bytes32</span> computed = <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(choice, salt));</span>
+<span class="c-hl">        <span class="c-kw">return</span> computed == commitments[msg.sender];</span>
+        <span class="c-cmt">// True = player's revealed choice matches their original commitment.
+        // They cannot change their choice after committing — the hash proves it.</span>
+    }
+}</pre>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Why abi.encodePacked() - Not Just keccak256(data)</div>
+  <p><code>keccak256()</code> only accepts <code>bytes</code> as input. <code>abi.encodePacked()</code> converts any Solidity type (string, uint, address, bool, bytes) into tightly packed bytes that <code>keccak256</code> can process. This is the standard pattern. Important warning: <code>abi.encodePacked(A, B)</code> can sometimes produce the same bytes for different A,B pairs (e.g., <code>encodePacked("ab","c")</code> vs <code>encodePacked("a","bc")</code>). For sensitive applications, use <code>abi.encode()</code> instead - it adds type information that prevents this collision.</p>
+</div>
+
+
+<!-- 08. HOW HASHING IS USED IN BLOCKCHAIN -->
+<div class="section-label">08 &nbsp; Hashing Throughout the Blockchain Stack</div>
+<h2 class="section-title">Every Place Hashing Appears in a Blockchain System</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Block Hashing - Creating the Chain</div>
+      <div class="feature-desc">Each block's header fields are concatenated and hashed to produce the block's ID (its hash). This hash becomes the PrevHash of the next block - creating the immutable chain. In Bitcoin, miners must find a nonce such that SHA-256(SHA-256(block_header)) begins with a certain number of zero bits. Finding this nonce is "mining."</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Transaction IDs (TXID)</div>
+      <div class="feature-desc">Every transaction is hashed to produce its Transaction ID - the unique identifier you see on a block explorer. In Bitcoin: TXID = SHA-256(SHA-256(raw_transaction_bytes)). In Ethereum/MST: TXID = Keccak-256(RLP_encoded_transaction). This TXID is what you paste into MSTScan to look up a specific transaction.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Wallet Address Derivation</div>
+      <div class="feature-desc">Your Ethereum/MST wallet address is derived from your public key using hashing. Process: Generate private key (random 256-bit number) → Compute public key (elliptic curve multiplication) → <strong>Keccak-256(public_key)</strong> → Take last 20 bytes → That's your address (0x...). The hash is one-way: nobody can compute your private key from your address.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Merkle Trees - Transaction Summaries</div>
+      <div class="feature-desc">All transactions in a block are hashed, then pairs of hashes are hashed together, and so on - until a single "Merkle Root" hash summarises every transaction. This enables fraud detection (any tampered transaction changes the root) and efficient verification by light clients. Covered in depth in Sub-Module 3.8.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">5</div>
+    <div class="feature-content">
+      <div class="feature-title">Smart Contract Storage Keys</div>
+      <div class="feature-desc">In Ethereum/MST, the storage location of mapping values is computed as <code>keccak256(key, slot)</code>. When you access <code>mapping[address]</code>, the EVM computes the storage slot by hashing the key and the mapping's base slot number. This is why even complex nested mappings can be stored efficiently in the 256-bit address space.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">6</div>
+    <div class="feature-content">
+      <div class="feature-title">Commit-Reveal in Gaming (MST FortunaX)</div>
+      <div class="feature-desc">In MST's FortunaX random number protocol, the game operator commits a hash of a secret seed before the game begins. After the game, they reveal the seed. Players can verify: <code>keccak256(revealed_seed) == committed_hash</code>. If it matches, the seed was fixed before the game - the operator could not have chosen it based on player actions. This is provably fair randomness without a trusted random oracle.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 09. REAL WORLD CASE STUDIES -->
+<div class="section-label">09 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Hashing in the Wild - India and Beyond</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">🇮🇳</div>
+    <div class="feature-content">
+      <div class="feature-title">Aadhaar - 1.3 Billion Biometric Hashes</div>
+      <div class="feature-desc">UIDAI stores a biometric hash (not the fingerprint image) for all 1.3 billion enrolled Indians. The 2018 Aadhaar data breach exposed demographic data (names, addresses) but NOT biometric data - because only hashes were stored. Even if the hash database is stolen, no fingerprint can be reconstructed. This is hash security working exactly as designed. However, the breach did expose that the database was accessible - a governance failure, not a cryptographic one.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">💬</div>
+    <div class="feature-content">
+      <div class="feature-title">WhatsApp Encryption - Hash Chains in Messaging</div>
+      <div class="feature-desc">WhatsApp uses the Signal protocol, which uses HKDF (Hash-based Key Derivation Function - built on SHA-256) to derive new encryption keys for every single message. This is called "forward secrecy" - even if an attacker steals your current key, they cannot decrypt past messages because each message used a different derived key, and key derivation is one-way. The same hashing principle that secures blockchain transactions secures your WhatsApp messages.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--green);">📱</div>
+    <div class="feature-content">
+      <div class="feature-title">APK Integrity - Android App Downloads</div>
+      <div class="feature-desc">When you download an APK (Android app package) - whether from the Play Store or directly - Google publishes its SHA-256 hash. Your device computes SHA-256 of the downloaded file and compares to the published hash. If they match, the file is authentic and unmodified. If they don't, the device warns you or refuses to install. This prevents "man-in-the-middle" attacks where a malicious party modifies the APK between Google's server and your phone.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 10. ASSESSMENT PREP -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">SHA-256 = Bitcoin. Keccak-256 = Ethereum/MST.</div>
+      <div class="feature-desc">Both produce 256-bit (32-byte = 64 hex character) outputs. SHA-256 was designed by the NSA. Keccak-256 won the NIST SHA-3 competition. Ethereum uses the Keccak variant - NOT the final NIST SHA-3 standard (they differ in padding).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">The Five Properties</div>
+      <div class="feature-desc">Deterministic, Pre-image Resistant (one-way), Avalanche Effect (sensitive), Collision Resistant, Fixed Output Size. If an exam asks "why can't you reverse a hash?" - the answer is Pre-image Resistance.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Solidity Syntax</div>
+      <div class="feature-desc"><code>keccak256(abi.encodePacked(data))</code> - returns <code>bytes32</code>. The function is <code>pure</code> (no state read/write). Use <code>abi.encode()</code> instead of <code>encodePacked</code> when hashing multiple variable-length arguments to avoid collisions.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Output Size - Always 256 bits</div>
+      <div class="feature-desc">SHA-256 and Keccak-256 always produce exactly 256 bits regardless of input size. Hash "Hi" (2 bytes) or "The complete works of Shakespeare" (5 MB) - both produce 64 hex characters. This is why the PrevHash field in a block header is always exactly 32 bytes.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--ink-3);font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Commit-Reveal Pattern</div>
+      <div class="feature-desc">Phase 1 (Commit): Publish hash(secret). Phase 2 (Reveal): Publish secret. Verifier checks: hash(secret) == commitment. Used by MST FortunaX for provably fair random numbers - the secret is fixed before the game; hashing proves you can't change it after.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 3.3 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">10</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">4 Questions &nbsp;·&nbsp; 1 mark each &nbsp;·&nbsp; 4 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q1</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">Which hash algorithm does Ethereum (and MST Blockchain, as an EVM-compatible chain) use internally - including for the <code>keccak256()</code> Solidity opcode?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> SHA-256</li>
+        <li><span class="opt-key">B</span> MD5</li>
+        <li class="correct"><span class="opt-key">C</span> Keccak-256 ✅</li>
+        <li><span class="opt-key">D</span> BLAKE2b</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>Ethereum chose <strong>Keccak-256</strong> (the 2012 SHA-3 competition winner) for all internal operations - including address derivation, transaction hashing, and the <code>keccak256()</code> Solidity built-in. Bitcoin uses SHA-256. MD5 is a broken 128-bit hash not used in any serious blockchain. BLAKE2b is a modern high-speed hash used in some contexts (e.g., Zcash) but not Ethereum/MST.</p>
+        <div class="marks-bd"><span>Common trap:</span> Ethereum's Keccak-256 is NOT identical to NIST's final SHA-3 standard - they use different padding. They produce different outputs for the same input.</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q2</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">You hash a 50 MB video file using SHA-256. What is the size of the output?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 50 MB (same as input)</li>
+        <li><span class="opt-key">B</span> 25 MB (half of input)</li>
+        <li class="correct"><span class="opt-key">C</span> Exactly 256 bits (32 bytes = 64 hexadecimal characters) ✅</li>
+        <li><span class="opt-key">D</span> Variable - depends on input content</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>SHA-256 always produces exactly <strong>256 bits</strong> = 32 bytes = 64 hexadecimal characters - regardless of input size. Hash "a" (1 byte) or a 50 MB video - the output is always 64 hex chars. This is the "Fixed Output Size" property. It's what makes block header PrevHash fields a predictable 32 bytes.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q3</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">The "avalanche effect" in cryptographic hashing means:</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Large inputs cause the hash function to run slower</li>
+        <li><span class="opt-key">B</span> Running the hash function multiple times produces a more secure output</li>
+        <li class="correct"><span class="opt-key">C</span> A tiny change in the input (even a single bit) produces a completely different output ✅</li>
+        <li><span class="opt-key">D</span> The hash function gets faster as block count increases</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p>The <strong>avalanche effect</strong> is the property that a minimal input change causes a drastic output change - roughly half the output bits flip. Changing "Hello!" to "Hello." (one character) produces a completely different SHA-256 hash. This is critical for blockchain: it means any tampering with a block's data changes its hash dramatically - making subtle, undetectable forgery impossible.</p>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q4</div>
+        <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">UIDAI (Aadhaar) stores a hash of your biometric data rather than the biometric image itself. Which property of cryptographic hash functions makes this secure?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Determinism - same fingerprint always produces the same hash</li>
+        <li><span class="opt-key">B</span> Fixed output size - the hash is smaller than the fingerprint image</li>
+        <li class="correct"><span class="opt-key">C</span> Pre-image resistance - the hash cannot be reversed to reconstruct the original fingerprint ✅</li>
+        <li><span class="opt-key">D</span> Collision resistance - no two fingerprints produce the same hash</li>
+      </ul>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Correct Answer: C - Explanation</div>
+        <p><strong>Pre-image resistance</strong> (one-way property) is what makes storing a biometric hash secure. Even if an attacker steals the entire hash database, they cannot compute the original fingerprint from the hash - the function is irreversible. Note that Determinism (A) and Collision Resistance (D) are also relevant properties for Aadhaar's functioning, but they are not what makes it <em>secure</em> against database theft - that specific security property is pre-image resistance.</p>
+        <div class="marks-bd"><span>Exam tip:</span> When a question asks specifically about "protecting stored data" or "security against database breaches," the answer is pre-image resistance.</div>
+      </div>
+    </div>
+
+    <!-- SECTION B: Code Completion -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section B - Code-Completion</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 5 marks</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q5</div>
+        <div class="q-meta"><span class="q-type">Code-Completion</span><span class="q-diff medium">Medium</span><span class="q-marks">5 marks</span></div>
+      </div>
+      <div class="q-text">
+        Complete the following Solidity smart contract. It should:<br><br>
+        (a) Implement a function <code>hashEntry()</code> that takes a <code>string</code> (player name) and a <code>uint256</code> (score), and returns their <code>keccak256</code> hash as a unique record ID. <em>(2 marks)</em><br><br>
+        (b) Implement a function <code>storeEntry()</code> that stores this hash in a mapping from the caller's address to their record ID. <em>(1 mark)</em><br><br>
+        (c) Implement a function <code>verifyEntry()</code> that takes a player name and score, recomputes the hash, and checks if it matches the stored record ID for the caller. Returns <code>true</code> if it matches. <em>(2 marks)</em>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Complete Model Answer</div>
+        <div class="code-wrap" style="margin:12px 0;">
+          <div class="code-header">
+            <div class="code-lang">Solidity · Complete Solution</div>
+            <div class="code-dots"><div class="code-dot" style="background:#FF5F56"></div><div class="code-dot" style="background:#FFBD2E"></div><div class="code-dot" style="background:#27C93F"></div></div>
+          </div>
+          <div class="code-body">
+<pre><span class="c-cmt">// SPDX-License-Identifier: MIT</span>
+<span class="c-kw">pragma solidity</span> ^0.8.0;
+
+<span class="c-kw">contract</span> <span class="c-fn">GameLeaderboard</span> {
+
+    <span class="c-cmt">// Mapping: player address → their record hash</span>
+    <span class="c-kw">mapping</span>(<span class="c-type">address</span> => <span class="c-type">bytes32</span>) <span class="c-kw">public</span> records;
+
+    <span class="c-cmt">// (a) Compute hash from player name + score</span>
+<span class="c-hl">    <span class="c-kw">function</span> <span class="c-fn">hashEntry</span>(<span class="c-type">string memory</span> playerName, <span class="c-type">uint256</span> score)</span>
+<span class="c-hl">        <span class="c-kw">public pure returns</span> (<span class="c-type">bytes32</span>)</span>
+<span class="c-hl">    {</span>
+<span class="c-hl">        <span class="c-kw">return</span> <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(playerName, score));</span>
+<span class="c-hl">    }</span>
+
+    <span class="c-cmt">// (b) Store the hash for the caller's address</span>
+<span class="c-hl">    <span class="c-kw">function</span> <span class="c-fn">storeEntry</span>(<span class="c-type">string memory</span> playerName, <span class="c-type">uint256</span> score) <span class="c-kw">public</span> {</span>
+<span class="c-hl">        records[msg.sender] = <span class="c-fn">hashEntry</span>(playerName, score);</span>
+<span class="c-hl">    }</span>
+
+    <span class="c-cmt">// (c) Verify that the caller's stored entry matches the provided data</span>
+<span class="c-hl">    <span class="c-kw">function</span> <span class="c-fn">verifyEntry</span>(<span class="c-type">string memory</span> playerName, <span class="c-type">uint256</span> score)</span>
+<span class="c-hl">        <span class="c-kw">public view returns</span> (<span class="c-type">bool</span>)</span>
+<span class="c-hl">    {</span>
+<span class="c-hl">        <span class="c-type">bytes32</span> computed = <span class="c-fn">keccak256</span>(<span class="c-fn">abi.encodePacked</span>(playerName, score));</span>
+<span class="c-hl">        <span class="c-kw">return</span> computed == records[msg.sender];</span>
+<span class="c-hl">    }</span>
+}</pre>
+          </div>
+        </div>
+        <p><strong>Marks Breakdown:</strong></p>
+        <div class="marks-bd">
+          <span>(a) 2 marks:</span> 1 mark for correct <code>keccak256()</code> usage, 1 mark for correct <code>abi.encodePacked(playerName, score)</code> with both parameters and correct return type <code>bytes32</code>.<br><br>
+          <span>(b) 1 mark:</span> Correctly assigns result to <code>records[msg.sender]</code>. Must use <code>msg.sender</code> (not a hardcoded address). Can call <code>hashEntry()</code> internally or recompute inline.<br><br>
+          <span>(c) 2 marks:</span> 1 mark for correctly recomputing the hash, 1 mark for comparing computed hash to <code>records[msg.sender]</code> and returning the boolean result.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION C: True/False -->
+    <div class="q-section-header" style="margin-top:8px;">
+      <div class="q-section-title">Section C - True / False with Justification</div>
+      <div class="q-section-meta">1 Question &nbsp;·&nbsp; 1 mark</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header">
+        <div class="q-badge">Q6</div>
+        <div class="q-meta"><span class="q-type">True / False</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+      </div>
+      <div class="q-text">"Given the SHA-256 hash of a password, a modern computer can reverse-engineer the original password within a few hours using available computing power."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write this to score the mark:</div>
+        <div class="tf-sample">This statement is FALSE. SHA-256 is designed to be <strong>pre-image resistant</strong> - computationally infeasible to reverse. SHA-256 has 2²⁵⁶ possible output values (approximately 10⁷⁷). Brute-forcing requires trying inputs until one produces the target hash. Even if a computer could compute 10¹⁸ hashes per second (roughly the entire Bitcoin network's hashrate), exhausting the output space would take longer than the age of the universe (≈ 4.3 × 10¹⁷ seconds). The only practical attack is a dictionary attack - checking common passwords - which is defeated by using strong, random passwords with salt. The mathematical one-way property of SHA-256 itself has not been broken.</div>
+      </div>
+      <div class="answer-box" style="margin-top:0;">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> States FALSE and provides a coherent justification referencing pre-image resistance, the astronomically large output space (2²⁵⁶), or the computational infeasibility of brute force.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 3.3 Assessment Summary</div>
+      <div class="score-row">Section A: 4 × MCQ <span>(1 mark each) = 4 marks</span></div>
+      <div class="score-row">Section B: 1 × Code-Completion <span>= 5 marks</span></div>
+      <div class="score-row">Section C: 1 × True/False with Justification <span>= 1 mark</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">10</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 3.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Cryptographic Hash Function</div>
+    <div class="glossary-def">A mathematical function that converts any input to a fixed-size output with five properties: deterministic, pre-image resistant, avalanche effect, collision resistant, fixed output size.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">SHA-256</div>
+    <div class="glossary-def">Secure Hash Algorithm 256-bit. Bitcoin's primary hash function. Produces 64 hex characters. Designed by NSA, standardised by NIST in 2001.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Keccak-256</div>
+    <div class="glossary-def">Ethereum and MST's hash function. Used in Solidity as keccak256(). Won the SHA-3 competition in 2012. Note: slightly different from NIST SHA-3 due to padding.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Pre-image Resistance</div>
+    <div class="glossary-def">The one-way property - given a hash output, it is computationally infeasible to find any input that produces it. Makes hash storage secure against database breaches.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Avalanche Effect</div>
+    <div class="glossary-def">A tiny change in input (even one bit) causes a completely different hash output - roughly half the output bits flip. Makes subtle undetectable tampering impossible.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Collision Resistance</div>
+    <div class="glossary-def">Computationally infeasible to find two different inputs that produce the same hash output. SHA-256 requires ~2¹²⁸ operations to find a collision - far beyond any known attack.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">abi.encodePacked()</div>
+    <div class="glossary-def">Solidity function that tightly packs multiple values into bytes for hashing. Used as: keccak256(abi.encodePacked(a, b)). Warning: can cause ambiguity with variable-length types - use abi.encode() for critical security applications.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Commit-Reveal Scheme</div>
+    <div class="glossary-def">A two-phase protocol using hashing: Phase 1 - commit by publishing hash(secret). Phase 2 - reveal the secret. Used in MST FortunaX for provably fair random number generation.</div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.3</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.4 - Immutability &amp; Tamper-Evidence →</p>
+</div>
+
+</body>
+</html>

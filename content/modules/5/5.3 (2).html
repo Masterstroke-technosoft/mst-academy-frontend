@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 5.3 - Wallets & Key Management | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  /* ─── HEADER ─── */
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  /* ─── SECTION TITLES ─── */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  /* ─── PROSE ─── */
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ─── CALLOUT BOXES ─── */
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  /* ─── OBJECTIVE GRID ─── */
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  /* ─── W5 GRID ─── */
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row {
+    display: grid; grid-template-columns: 110px 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── COMPARISON TABLE ─── */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  /* ─── VISUAL DIAGRAM ─── */
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  /* ─── TIMELINE ─── */
+  .timeline { margin: 24px 0; }
+  .tl-item { display: flex; gap: 0; margin-bottom: 0; }
+  .tl-left  { display: flex; flex-direction: column; align-items: center; width: 52px; flex-shrink: 0; }
+  .tl-dot   { width: 12px; height: 12px; border-radius: 50%; background: var(--brand); border: 3px solid var(--brand-light); margin-top: 5px; flex-shrink: 0; }
+  .tl-line  { width: 2px; background: var(--border); flex: 1; min-height: 20px; }
+  .tl-item:last-child .tl-line { display: none; }
+  .tl-right { padding: 0 0 28px 4px; }
+  .tl-year  { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 4px; }
+  .tl-body  { font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+  .tl-body strong { color: var(--ink); }
+
+  /* ─── FEATURE PILLS ─── */
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ─── ASSESSMENT ─── */
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  /* TF justification */
+  .tf-box {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+  }
+  .tf-verdict {
+    display: inline-block; font-size: 13px; font-weight: 800;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+  .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+  .tf-must-write {
+    font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 8px;
+  }
+  .tf-sample {
+    font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+    border-left: 3px solid var(--brand); padding-left: 12px;
+  }
+
+  /* Code Completion Box */
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 5 &nbsp;·&nbsp; Sub-Module 5.3 of 6</div>
+<h1 class="module-title">Wallets &amp; <span class="highlight">Key Management</span></h1>
+<p class="module-subtitle">From twelve English words to a billion addresses - the cryptography that keeps your crypto safe, and why losing your seed phrase means losing everything forever.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 2 T/F with Justification (2 marks) + 1 Code-Completion (6 marks)</div>
+  <div class="meta-chip green">Phase 2 · Cryptocurrency & Tokenomics</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔑</div>
+    <div class="obj-text">
+      <strong>Explain the private-key-to-address pipeline</strong>
+      From random entropy → mnemonic → seed → master key → child keys → public address, using BIP39, BIP32, and BIP44 standards.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧠</div>
+    <div class="obj-text">
+      <strong>Generate and validate mnemonics programmatically</strong>
+      Write Node.js code that uses `bip39` to create a 12-word seed phrase and derive the corresponding HD wallet root seed.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Secure keys against common threats</strong>
+      Identify risks like phishing, keylogging, insecure storage, and understand why hardware wallets and air-gapped signing are essential for large holdings.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔄</div>
+    <div class="obj-text">
+      <strong>Recover a wallet from nothing but a seed phrase</strong>
+      Know exactly how a 12-word backup can restore access to every address and token you've ever created on any EVM chain (including MST).
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD INTRODUCTION STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The ₹50 Lakh Mistake - A Seed Phrase Lost in a Fire</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a software developer in Bengaluru had accumulated 8 ETH (worth roughly ₹20 lakh at the time) over several years of trading and building dApps. He stored his 12-word seed phrase on a piece of paper tucked into a notebook on his desk. One evening, a kitchen fire spread to his home office. The notebook burned. His laptop - with the MetaMask wallet - was destroyed. He had no other backup. His 8 ETH, an ENS domain, and several valuable NFTs were now permanently inaccessible. Not because the blockchain went down, not because a hacker stole them, but because he lost the one piece of information that could prove ownership: his seed phrase.</p>
+  <br>
+  <p>This story is tragically common. Unlike a bank account where you can reset a password with a PAN card and a phone call, a blockchain wallet has no customer support, no password reset, no "forgot my seed phrase" button. The seed phrase <strong>is</strong> the wallet. Whoever holds it controls the assets - forever. This sub-module explains exactly what a seed phrase is, how it generates your private keys, and how to manage it safely. By the end, you'll know how to generate, store, and recover wallets like a professional - and why the words "abandon abandon abandon" can unlock a fortune.</p>
+</div>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Brain Wallets to BIP39 - The Quest for Recoverable Keys</h2>
+<p>In Bitcoin's earliest days, wallets were simply files containing randomly generated private keys. There was no standard way to back them up, no human-readable recovery mechanism, and no way to derive multiple keys from a single secret. If you lost your `wallet.dat` file, you lost your coins. If you wanted multiple addresses for privacy, you had to generate and store each private key separately. This was a usability disaster waiting to happen.</p>
+
+<p>The first major improvement came with <strong>Brain Wallets</strong> - the idea that a human-memorable passphrase could be hashed to produce a private key. The passphrase "correct horse battery staple" could be turned into a deterministic key. However, humans are terrible at generating entropy. Passphrases like "ilovebitcoin" or "password123" were cracked in seconds by attackers running dictionary attacks, resulting in millions of dollars in stolen Bitcoin.</p>
+
+<p>In 2012, Bitcoin Improvement Proposal 32 (<strong>BIP32</strong>) introduced <strong>Hierarchical Deterministic (HD) Wallets</strong>. Instead of random independent keys, an HD wallet uses a single master seed to derive a tree of key pairs. This means one backup (the seed) can recover every address the wallet will ever generate. BIP32 defined the mathematical structure: a root master private key and a chain code, from which child keys are derived using HMAC-SHA512. Each child can derive grandchildren, forming an infinite tree. A parent key can generate child public keys without exposing the parent private key, enabling powerful audit and accounting features.</p>
+
+<p>In 2013, <strong>BIP39</strong> (Mnemonic Code for Generating Deterministic Keys) added the crucial usability layer. Instead of backing up a long hex string like `0x1a2b3c...`, users could write down 12 or 24 common English words - like "abandon ability able about above absent absorb abstract absurd abuse access accident". These words encode a specific entropy, which is then combined with an optional passphrase to produce the BIP32 master seed. BIP39 also introduced a wordlist of 2048 words, each representing 11 bits of entropy. A 12-word mnemonic encodes 128 bits of entropy (plus 4 bits of checksum), providing 2¹²⁸ possible combinations - astronomically secure against brute force.</p>
+
+<p>Finally, <strong>BIP44</strong> (Multi-Account Hierarchy for Deterministic Wallets) defined a standard derivation path structure: `m / purpose' / coin_type' / account' / change / address_index`. This allowed a single seed to manage multiple cryptocurrencies (BTC, ETH, MSTC) across multiple accounts, with clear separation between external (receiving) and internal (change) addresses. The apostrophe indicates hardened derivation, which prevents child keys from being derived from parent public keys - a critical security feature.</p>
+
+<p>Today, nearly every wallet - MetaMask, Trust Wallet, Ledger, Trezor, and MST's own BridgeKey wallet - uses the BIP39 → BIP32 → BIP44 pipeline. A 12-word phrase written on a piece of paper is the root of a cryptographic tree that can generate billions of addresses across dozens of blockchains, all recoverable from those twelve words alone.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2011</div>
+      <div class="tl-body"><strong>Early Bitcoin wallets.</strong> Random private keys stored in `wallet.dat`. No recovery mechanism. Losing the file meant losing coins forever. Brain wallets introduced, but proven insecure.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2012</div>
+      <div class="tl-body"><strong>BIP32 - Hierarchical Deterministic Wallets.</strong> A single master seed generates a tree of key pairs. One backup restores all addresses. Introduced chain codes for hardened derivation.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2013</div>
+      <div class="tl-body"><strong>BIP39 - Mnemonic Seed Phrases.</strong> 12 - 24 English words encode 128 - 256 bits of entropy. Optional passphrase. Becomes the universal wallet backup standard.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2014</div>
+      <div class="tl-body"><strong>BIP44 - Multi-Asset HD Wallets.</strong> Standard derivation paths for multiple coins. A single mnemonic manages BTC, ETH, and eventually all EVM chains like MST.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST BridgeKey & ecosystem.</strong> Fully BIP39/44 compatible. Same mnemonic works across MetaMask and BridgeKey. MST's low fees make wallet operations like key generation and recovery essentially free.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Twelve Words = Infinite Money - How a Seed Phrase Works</h2>
+<div class="callout analogy">
+  <div class="callout-label">🌱 The Analogy</div>
+  <p>Think of your seed phrase as a <strong>DNA sample</strong>. From a single strand of DNA, an entire organism can develop - every cell, every organ, every fingerprint. Similarly, from your 12-word seed phrase, your wallet can mathematically generate every private key, public key, and address you will ever need - across Bitcoin, Ethereum, MST, and hundreds of other chains. The seed phrase is the DNA; the wallet software is the developmental process; your addresses are the cells. If you have the DNA, you can rebuild the entire organism. If you lose the DNA, the organism can never be reconstructed.</p>
+</div>
+<p>Let's walk through the transformation chain step by step, starting from randomness and ending at a usable address:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">ENTROPY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is entropy and why does it matter?</div>
+      <div class="w5-a">Entropy is <strong>randomness</strong> - the unpredictability that makes your keys secure. A wallet starts by generating 128 bits (for 12 words) or 256 bits (for 24 words) of cryptographically random data. This randomness must come from a secure source - the operating system's random number generator (`/dev/urandom` on Linux, `crypto.randomBytes` in Node.js). If the entropy is predictable (e.g., based on the current time), an attacker can guess it and steal everything. The security of your entire wallet rests on the quality of these initial random bits.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">MNEMONIC</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How is entropy turned into words?</div>
+      <div class="w5-a">The entropy is divided into 11-bit chunks. Each 11-bit number (0 - 2047) maps to a word from the BIP39 English wordlist - a standardized list of 2048 words. For 128 bits, that's 11 chunks (121 bits) plus a 4-bit checksum (the first 4 bits of SHA256(entropy)) to make 132 bits = 12 words. The wordlist is carefully chosen: no two words have the same first four letters, making it easy to auto-complete. Words like "abandon" and "zoo" are deliberately distinct. A 12-word mnemonic has 2¹²⁸ possible combinations - more than the number of atoms in the observable universe. Brute-forcing it is physically impossible.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">SEED</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the mnemonic become a seed?</div>
+      <div class="w5-a">The mnemonic is fed into <strong>PBKDF2</strong> (Password-Based Key Derivation Function 2) with HMAC-SHA512, using the string "mnemonic" + an optional passphrase as the salt, and iterating 2048 times. This produces a 512-bit seed. The passphrase is crucial: it acts as a "13th word" (or "25th word" for 24-word mnemonics). An empty passphrase yields the default wallet; a different passphrase yields a completely different wallet from the same mnemonic. This allows for plausible deniability: you can store a small amount in the default wallet and the real funds in a passphrase-protected wallet.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">④</div><div class="w5-word">MASTER KEY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the seed become a master key?</div>
+      <div class="w5-a">The 512-bit seed is split in half: the left 256 bits become the <strong>master private key</strong>, and the right 256 bits become the <strong>chain code</strong>. The master private key can be used to derive child keys; the chain code ensures that each child's derivation is unique and that children cannot be derived from public keys alone (when hardened). This master key pair is the root of the HD tree.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">⑤</div><div class="w5-word">CHILD KEYS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How are individual addresses created?</div>
+      <div class="w5-a">Using the BIP44 path `m/44'/60'/0'/0/0` (for the first Ethereum-compatible account on the first external address), the wallet iteratively applies HMAC-SHA512 to derive child private keys. The apostrophe (`'`) indicates hardened derivation, which means the parent private key is used - this prevents an attacker who knows a child private key and the parent chain code from deriving sibling keys. Each derived private key can then be converted to a public key using elliptic curve multiplication (secp256k1), and then hashed with Keccak-256 to produce the 20-byte address. The final address is the last 20 bytes of the hash, prefixed with `0x`. This whole process is deterministic: given the same mnemonic and path, you'll always get the same address.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Mathematics of HD Wallets - BIP32, BIP39, BIP44 in Code</h2>
+<p>Let's now examine the precise algorithms that turn twelve words into a secure, recoverable wallet. We'll focus on the most common implementation: Ethereum-compatible wallets (like MetaMask and MST's BridgeKey) that use the derivation path `m/44'/60'/0'/0/0`.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP39: Mnemonic Generation Step by Step</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Generate entropy.</strong> Produce 128 bits (16 bytes) of cryptographically secure random data. In Node.js: `const entropy = crypto.randomBytes(16);`</li>
+  <li><strong>Compute checksum.</strong> Take the SHA-256 hash of the entropy. The first `entropy_length / 32` bits are the checksum. For 128 bits, that's 4 bits. So checksum = `sha256(entropy).slice(0, 1) >> 4` (the first 4 bits of the first byte).</li>
+  <li><strong>Concatenate.</strong> Append the checksum bits to the entropy, resulting in 132 bits (128 + 4).</li>
+  <li><strong>Split into 11-bit chunks.</strong> 132 bits ÷ 11 bits = 12 chunks. Each chunk is an integer from 0 to 2047.</li>
+  <li><strong>Map to words.</strong> Each integer is used as an index into the BIP39 wordlist (a sorted array of 2048 English words). For example, index 0 → "abandon", index 1 → "ability", index 2047 → "zoo".</li>
+  <li><strong>Join with spaces.</strong> The 12 words are concatenated with a space separator, forming the mnemonic sentence.</li>
+</ol>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP39: Mnemonic to Seed (PBKDF2)</h3>
+<p>The mnemonic sentence is used to derive a 512-bit seed via PBKDF2:</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>seed = PBKDF2(password: mnemonic, salt: "mnemonic" + passphrase, iterations: 2048, keylen: 512 bits, hash: HMAC-SHA512)</strong></p>
+<p>The salt is the string `"mnemonic"` concatenated with the passphrase (which defaults to empty string if not provided). The 2048 iterations make brute-forcing the passphrase computationally expensive, adding a layer of security even if the mnemonic is exposed. The result is 64 bytes (512 bits) of pseudo-random data.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP32: Master Key Derivation from Seed</h3>
+<p>The 64-byte seed is used to generate the master private key and master chain code using HMAC-SHA512 with the key `"Bitcoin seed"` (yes, even for Ethereum, the string is literally `Bitcoin seed` - a historical artifact):</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>I = HMAC-SHA512(key: "Bitcoin seed", data: seed)</strong><br>
+<strong>master private key = I[0:32]</strong><br>
+<strong>master chain code = I[32:64]</strong></p>
+<p>The master private key is a 256-bit integer, which is then used as the starting point for the elliptic curve secp256k1. The master public key is derived by multiplying the generator point G by this integer: `master_public_key = master_private_key * G`.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP32: Child Key Derivation (CKD)</h3>
+<p>To derive a child key at index `i`, the parent's private key, chain code, and the index are used:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>If hardened (i >= 2³¹):</strong> data = 0x00 || parent_private_key || i (big-endian 4 bytes). This uses the parent private key, so a child key cannot be derived from a parent public key - it's hardened.</li>
+  <li><strong>If non-hardened (i < 2³¹):</strong> data = parent_public_key (compressed) || i. This allows public derivation (useful for watch-only wallets).</li>
+</ul>
+<p>The HMAC-SHA512 is computed with the chain code as the key: `I = HMAC-SHA512(key: chain_code, data: data)`. The left 32 bytes of I are the child private key (added to parent private key modulo the curve order), and the right 32 bytes become the child chain code. The process can be repeated to any depth.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">BIP44: The Derivation Path</h3>
+<p>BIP44 defines a standardized path structure so that wallets from different vendors can generate the same addresses from the same mnemonic. The path for Ethereum (and all EVM chains like MST) is:</p>
+<p style="margin-left:24px; font-family:var(--mono); font-size:14px; color:var(--ink);"><strong>m / 44' / 60' / 0' / 0 / 0</strong></p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>`m` - master key</li>
+  <li>`44'` - purpose (BIP44)</li>
+  <li>`60'` - coin type (60 = Ethereum, also used by all EVM-compatible chains like MST, Polygon, BSC)</li>
+  <li>`0'` - account (first account; you can have multiple accounts: 0', 1', 2'...)</li>
+  <li>`0` - change (0 = external/receiving addresses, 1 = internal/change addresses)</li>
+  <li>`0` - address index (first address; increment for more addresses)</li>
+</ul>
+<p>The apostrophe means hardened derivation. The account level is hardened, so a compromised child private key at the address level cannot expose sibling addresses in the same account. This path is used by MetaMask, BridgeKey, and nearly every EVM wallet. A wallet that supports multiple blockchains simply uses different coin types (e.g., 0' for Bitcoin, 60' for Ethereum, and a custom coin type for MST if needed, though MST uses the same 60' path for EVM compatibility).</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 5.3-A · The Complete Key Derivation Pipeline</div>
+  <pre>
+┌────────────────────────────────────────────────────────────────────┐
+│                      1. ENTROPY GENERATION                          │
+│  crypto.randomBytes(16) → 128 bits of cryptographically random data │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      2. BIP39 MNEMONIC                             │
+│  Split entropy into 11‑bit chunks → map to 2048‑word wordlist      │
+│  Result: 12 English words (e.g., "abandon ability ...")            │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      3. PBKDF2 → SEED                              │
+│  seed = PBKDF2(mnemonic, "mnemonic"+passphrase, 2048, 512 bits)    │
+│  Result: 64‑byte deterministic seed                                 │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      4. BIP32 MASTER KEY                           │
+│  I = HMAC‑SHA512("Bitcoin seed", seed)                             │
+│  Master private key = I[0:32]; Chain code = I[32:64]               │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      5. BIP44 DERIVATION PATH                      │
+│  m/44'/60'/0'/0/0                                                  │
+│  Apply CKD function iteratively for each level                     │
+└───────────────────────────┬────────────────────────────────────────┘
+                            ▼
+┌────────────────────────────────────────────────────────────────────┐
+│                      6. PRIVATE KEY → ADDRESS                      │
+│  Private key (32 bytes) × secp256k1 G → Public key (64 bytes)      │
+│  Keccak‑256(public key) → take last 20 bytes → 0x... address       │
+│  This address can receive MSTC, ERC‑20 tokens, NFTs                │
+└────────────────────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">A single 12-word mnemonic, derived once, can generate billions of addresses across dozens of blockchains. The process is entirely deterministic: the same mnemonic always produces the same sequence of keys and addresses. This is why backing up the mnemonic is equivalent to backing up every wallet you will ever own.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Immutable Truth</div>
+  <p><strong>Not your keys, not your coins.</strong> A wallet does not "hold" your cryptocurrency. Your assets exist as entries on the blockchain. The wallet holds the private keys that allow you to sign transactions proving you own those assets. The mnemonic is the master key to all your private keys. Lose the mnemonic, and you lose the ability to prove ownership - forever. Share the mnemonic, and anyone who has it can take everything. There is no customer support, no recovery email, no KYC reset. The keys are the kingdom.</p>
+</div>
+
+<!-- ═══════════════ 06 WALLET TYPES & SECURITY ═══════════════ -->
+<div class="section-label">06 &nbsp; Wallet Types &amp; Security</div>
+<h2 class="section-title">Hot, Cold, Hardware, and Paper - The Spectrum of Key Custody</h2>
+<p>Wallets are categorized by how they store and use private keys. Understanding the trade-offs is essential for protecting funds of any significant value.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Software (Hot) Wallets</h3>
+<p>MetaMask, Trust Wallet, and MST's BridgeKey browser extension are <strong>hot wallets</strong> - they store keys encrypted on a device connected to the internet. They are convenient for daily use and dApp interaction, but they are vulnerable to malware, keyloggers, and phishing. A malicious browser extension can read your keystrokes or intercept transactions. Hot wallets are best for small, transactional amounts - what you'd carry in a physical wallet, not your life savings.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Hardware (Cold) Wallets</h3>
+<p>Ledger, Trezor, and similar devices are <strong>cold wallets</strong> - they store private keys on a dedicated hardware device that never exposes them to the internet. When you sign a transaction, the transaction data is sent to the device, which signs it internally and returns only the signature. The private key never leaves the device. This protects against malware and phishing, even if the computer is compromised. Hardware wallets are the gold standard for storing large amounts. They still use BIP39 mnemonics, so recovery is identical to hot wallets.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Paper Wallets & Metal Backups</h3>
+<p>A <strong>paper wallet</strong> is simply a physical copy of a mnemonic or private key. Paper burns, gets wet, and fades. For long-term storage, metal backups (like Cryptosteel or stamped steel plates) are recommended - they survive fires, floods, and decades of neglect. Regardless of medium, the mnemonic must be stored securely, ideally in multiple geographically separated locations, and never in a digital photograph or cloud storage.</p>
+
+<div class="highlight-strip">
+  <strong>MST BridgeKey:</strong> MST's native wallet follows the BIP39/44 standards and integrates directly with the MST ecosystem. A mnemonic created in BridgeKey can be imported into MetaMask or any compliant wallet, and vice versa. Because MST is EVM-compatible, the same 0x address that receives MSTC can also receive any ERC-20 token deployed on MST. One mnemonic controls all assets on MST.
+</div>
+
+<!-- ═══════════════ 07 CASE STUDIES ═══════════════ -->
+<div class="section-label">07 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">When Key Management Goes Right - and Horribly Wrong</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">🔥</div>
+    <div class="feature-content">
+      <div class="feature-title">The Lost Hard Drive - 7,500 BTC in a Landfill</div>
+      <div class="feature-desc">In 2013, James Howells accidentally threw away a hard drive containing the private keys to 7,500 BTC (worth over ₹2,000 crore today). The hard drive is buried in a Newport landfill. Despite years of legal battles and offers to share the recovery with the city, the drive has never been found. The coins remain unspent on the blockchain, visible to everyone, but permanently inaccessible. This is the ultimate cautionary tale: <strong>a private key stored in only one place is a disaster waiting to happen.</strong> A simple mnemonic backup in a safety deposit box would have prevented this entirely.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🎣</div>
+    <div class="feature-content">
+      <div class="feature-title">The MetaMask Phishing Epidemic - "Enter Your Seed Phrase to Verify"</div>
+      <div class="feature-desc">Since 2020, phishing scams targeting MetaMask users have exploded. Victims receive a fake email or website that looks exactly like MetaMask, asking them to "verify their wallet" by entering their 12-word seed phrase. Once entered, the attacker immediately imports the seed into their own wallet and drains all assets. This is successful because many users do not understand that <strong>no legitimate service will ever ask for your seed phrase.</strong> The seed phrase is for you and you alone. It should never be typed into a website, shared on Telegram, or stored in a password manager. This attack vector has stolen hundreds of millions of dollars. Education - like this sub-module - is the only defense.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💼</div>
+    <div class="feature-content">
+      <div class="feature-title">The Institutional Custody Model - Multi-Sig and MPC</div>
+      <div class="feature-desc">For exchanges and institutions holding billions in customer funds, a single mnemonic is unacceptable. Instead, they use <strong>multi-signature (multi-sig) wallets</strong>, where multiple private keys are required to authorize a transaction (e.g., 3 of 5 signatures). More recently, <strong>Multi-Party Computation (MPC)</strong> has gained traction, where the private key is split into shares held by different parties, and no single party ever has the full key. Both approaches prevent a single point of failure. MST's smart contract platform supports multi-sig wallets natively - a simple Solidity multi-sig contract can be deployed with low gas fees, making it practical for team treasury management.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 08 ASSESSMENT PREPARATION ═══════════════ -->
+<div class="section-label">08 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">BIP39 Mnemonic = Entropy + Checksum → 12/24 Words</div>
+      <div class="feature-desc">A 12-word mnemonic encodes 128 bits of entropy + 4 bits checksum. Each word is an index (0 - 2047) into a standardized 2048-word list. The words can be converted back to the seed using PBKDF2 with 2048 iterations.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">BIP32 HD Wallets: Master Seed → Tree of Keys</div>
+      <div class="feature-desc">A single 512-bit seed generates a master private key and chain code. Child keys are derived using HMAC-SHA512, either hardened (uses private key) or non-hardened (uses public key). Hardened derivation is marked with an apostrophe (e.g., 44').</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Standard EVM Derivation Path: m/44'/60'/0'/0/0</div>
+      <div class="feature-desc">This BIP44 path is used by MetaMask, BridgeKey, and all EVM-compatible wallets for the first external address. Coin type 60' = Ethereum and all EVM chains (MST, Polygon, BSC).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Seed Phrase = Unlimited Recovery. Lose It = Lose Everything.</div>
+      <div class="feature-desc">Anyone with the mnemonic can recreate every private key and address. There is no "forgot password" option. Store it offline, never digitally, and never share it with anyone - including support teams.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Hardware Wallets Sign Offline; Hot Wallets Are for Daily Use</div>
+      <div class="feature-desc">Use hardware wallets (Ledger, Trezor) for large holdings - they keep keys offline. Use hot wallets (MetaMask, BridgeKey) with small amounts for dApp interaction. Never enter your hardware wallet's seed phrase into a hot wallet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 5.3 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of a BIP39 mnemonic phrase?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> To encrypt private keys before storing them on a blockchain.</li>
+        <li class="correct"><span class="opt-key">B</span> To serve as a human-readable backup that can deterministically regenerate all private keys in an HD wallet. ✅</li>
+        <li><span class="opt-key">C</span> To act as a password for logging into a crypto exchange.</li>
+        <li><span class="opt-key">D</span> To prove ownership of a wallet to a blockchain validator.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>The mnemonic encodes entropy that, combined with an optional passphrase, can derive the master seed for an HD wallet. From this seed, all private keys and addresses can be regenerated.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">A 12-word BIP39 mnemonic encodes how many bits of entropy?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> 64 bits</li>
+        <li class="correct"><span class="opt-key">B</span> 128 bits ✅</li>
+        <li><span class="opt-key">C</span> 256 bits</li>
+        <li><span class="opt-key">D</span> 132 bits (entropy only, excluding checksum)</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>12 words × 11 bits/word = 132 bits total. The last 4 bits are the checksum, so the underlying entropy is 128 bits. 24-word mnemonics encode 256 bits of entropy.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the standard BIP44 derivation path for the first external address on an Ethereum-compatible wallet (including MST)?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> m/44'/0'/0'/0/0</li>
+        <li class="correct"><span class="opt-key">B</span> m/44'/60'/0'/0/0 ✅</li>
+        <li><span class="opt-key">C</span> m/44'/60'/0'/1/0</li>
+        <li><span class="opt-key">D</span> m/0'/60'/44'/0/0</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>BIP44 assigns coin type 60' to Ethereum. The path m/44'/60'/0'/0/0 represents purpose 44', coin 60', account 0', change 0 (external), address index 0. All EVM chains reuse this path for compatibility.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why does BIP44 use hardened derivation (apostrophe) for the account level?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> To make the derivation path shorter.</li>
+        <li class="correct"><span class="opt-key">B</span> To ensure that a compromised child private key cannot be used to derive sibling keys or the parent key. ✅</li>
+        <li><span class="opt-key">C</span> To allow public key derivation for watch-only wallets.</li>
+        <li><span class="opt-key">D</span> To make the mnemonic easier to remember.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>Hardened derivation uses the parent private key (not public key) in the HMAC computation. This means that even if an attacker obtains a child private key and the chain code, they cannot derive parent or sibling keys. It isolates accounts from each other.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is the BEST practice for storing a mnemonic phrase for a wallet holding significant value?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> Save it in a password manager like LastPass.</li>
+        <li class="correct"><span class="opt-key">B</span> Stamp it onto a metal plate and store it in a secure, offline location (e.g., a safe deposit box). ✅</li>
+        <li><span class="opt-key">C</span> Email it to yourself as an encrypted PDF.</li>
+        <li><span class="opt-key">D</span> Take a screenshot and store it in a private Google Photos album.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p>Digital storage of any kind (password manager, email, cloud) exposes the mnemonic to malware, breaches, and remote attacks. A physical, durable medium (metal) stored offline is the gold standard.</p></div>
+    </div>
+
+    <!-- SECTION B: TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <!-- T/F Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"If you use an additional passphrase (the '13th word') with your BIP39 mnemonic, losing the passphrase is equivalent to losing the mnemonic - the wallet cannot be recovered."</div>
+      <div class="tf-box">
+        <div class="tf-verdict true">TRUE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>TRUE</strong>. The passphrase is combined with the mnemonic during the PBKDF2 step to produce the seed. The same mnemonic with a different passphrase (or no passphrase) yields a <strong>completely different seed</strong>, and therefore a completely different wallet. There is no way to brute-force the passphrase from the mnemonic alone - you would need to try every possible passphrase and check if the resulting addresses have any transaction history, which is computationally infeasible. If you lose the passphrase, the wallet derived from that specific mnemonic+passphrase combination is permanently inaccessible. This is why passphrases are both powerful (for plausible deniability) and dangerous (if forgotten).
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states TRUE.<br><strong>+1 mark:</strong> Justification explains that the passphrase changes the PBKDF2 seed output, that a different passphrase yields a completely different wallet, and that recovery without the exact passphrase is practically impossible.</p></div>
+    </div>
+
+    <!-- T/F Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Since MST is an EVM-compatible chain, a MetaMask wallet created with a BIP39 mnemonic can be imported into MST's BridgeKey wallet, and the same 0x address will control the same assets on both chains."</div>
+      <div class="tf-box">
+        <div class="tf-verdict true">TRUE</div>
+        <div class="tf-must-write">📝 Sample Justification - Write something like this to score 2/2:</div>
+        <div class="tf-sample">
+          This statement is <strong>TRUE</strong>. Because MST is fully EVM-compatible, it uses the same elliptic curve (secp256k1), the same address derivation (Keccak-256 of the public key), and the same BIP44 path (m/44'/60'/0'/0/0) as Ethereum. A private key derived from a given mnemonic will generate the same 0x address on both chains. When you import a MetaMask mnemonic into BridgeKey (or vice versa), the wallet will discover the same addresses and display the assets held on the respective chain. However, the <strong>assets themselves are chain-specific</strong> - USDT on Ethereum is not the same as USDT on MST, even if controlled by the same address. But the key management is identical, which is one of the major advantages of EVM compatibility.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states TRUE.<br><strong>+1 mark:</strong> Justification explains that EVM compatibility ensures identical key derivation and address generation, and that the same mnemonic produces the same 0x address across all EVM chains. Must note that assets are chain-specific.</p></div>
+    </div>
+
+    <!-- SECTION C: CODE-COMPLETION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - Code-Completion (Generate a BIP39 Mnemonic)</div>
+      <div class="q-section-meta">1 Question · 6 marks</div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">Code-Completion</span><span class="q-diff medium">Medium</span><span class="q-marks">6 marks</span></div></div>
+      <div class="q-text">Complete the following Node.js code to generate a 12-word BIP39 mnemonic and derive the corresponding HD wallet seed. Fill in the blanks and write the expected output format.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">💻 CODE TASK</div></div>
+        <div class="cc-scenario">You are writing a script to create a new wallet for a user on MST Blockchain. Use the `bip39` library.</div>
+        <div class="cc-code">const bip39 = require('bip39');
+
+// Step 1: Generate 128 bits of entropy
+const entropy = crypto.randomBytes(_______); // (a) fill the byte length
+
+// Step 2: Generate the mnemonic (12 words)
+const mnemonic = bip39.________________(entropy); // (b) fill the method name
+
+console.log('Mnemonic:', mnemonic);
+
+// Step 3: Convert mnemonic to seed (with empty passphrase)
+const seed = bip39.________________(mnemonic); // (c) fill the method name
+
+console.log('Seed (hex):', seed.toString('hex'));
+console.log('Seed length (bytes):', seed.length); // (d) expected length in bytes
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">✅ Expected Answers</div>
+          <p>
+            <strong>(a) 16</strong> - 128 bits = 16 bytes.<br>
+            <strong>(b) generateMnemonic</strong> - the method that takes entropy and returns the 12-word phrase.<br>
+            <strong>(c) mnemonicToSeedSync</strong> (or mnemonicToSeed) - converts the mnemonic to a 64-byte seed using PBKDF2. The sync version is acceptable in a simple script.<br>
+            <strong>(d) 64</strong> - the BIP39 seed is always 512 bits = 64 bytes.<br><br>
+            <strong>Sample output (mnemonic will vary):</strong><br>
+            <code>Mnemonic: abandon ability able about above absent absorb abstract absurd abuse access accident</code><br>
+            <code>Seed (hex): 5eb00bbddcf069084889a8ab9155568165f5c453cc... (64 bytes total)</code><br>
+            <code>Seed length (bytes): 64</code>
+          </p>
+          <div class="marks-bd"><span>6 marks:</span> 1.5 marks each for (a), (b), (c) - must be exactly correct method name and byte count. 1.5 marks for (d) the correct byte length. Partial credit: 1 mark for "mnemonicToSeed" without "Sync" if contextually correct, but full marks require the exact library API. (c) must clearly generate the 512-bit seed from the mnemonic.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 5.3 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 2 × True/False with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section C: 1 × Code-Completion <span>(6 marks) = 6 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">09 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 5.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Private Key</div><div class="glossary-def">A 256-bit secret number that allows signing of transactions. Whoever knows the private key controls the associated assets. Never share it.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Public Key</div><div class="glossary-def">Derived from the private key using elliptic curve multiplication. Can be shared freely. Used to verify signatures and generate addresses.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Address</div><div class="glossary-def">A 20-byte hex string (0x...) derived from the public key via Keccak-256 hashing. Used to receive funds on EVM chains like MST.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Mnemonic (Seed Phrase)</div><div class="glossary-def">A set of 12 or 24 English words that encode entropy. Used to generate the master seed for an HD wallet. The ultimate backup.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP39</div><div class="glossary-def">Standard for mnemonic generation. Defines the wordlist, entropy encoding, and PBKDF2 seed derivation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP32</div><div class="glossary-def">Standard for Hierarchical Deterministic (HD) wallets. Defines how to derive a tree of child keys from a master seed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BIP44</div><div class="glossary-def">Defines the multi-asset derivation path structure: m / purpose' / coin_type' / account' / change / address_index.</div></div>
+  <div class="glossary-item"><div class="glossary-term">PBKDF2</div><div class="glossary-def">Password-Based Key Derivation Function 2. Used in BIP39 to convert a mnemonic + passphrase into a 512-bit seed, with 2048 iterations for brute-force resistance.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardened Derivation</div><div class="glossary-def">Child key derivation that uses the parent private key, preventing a compromised child key from exposing parent or sibling keys. Marked with `'` in paths.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hot Wallet</div><div class="glossary-def">A wallet that stores keys on an internet-connected device. Convenient but vulnerable to malware. Use for small, daily amounts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Cold Wallet</div><div class="glossary-def">A wallet that keeps keys offline (hardware device, paper, metal). Much more secure; used for long-term storage of significant funds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">BridgeKey</div><div class="glossary-def">MST's native wallet. Fully EVM-compatible, BIP39/44 compliant. Can import mnemonics from MetaMask and vice versa. Integrated with the MST ecosystem.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 5 · Sub-Module <strong>5.3</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 5.4 - Coins vs Tokens & Gas →</p>
+</div>
+
+</body>
+</html>

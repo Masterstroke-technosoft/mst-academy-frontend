@@ -1,0 +1,712 @@
+
+
+<div class="module-badge">🎓 Module 9 &nbsp;·&nbsp; Sub-Module 9.3 of 6</div>
+<h1 class="module-title">Building <span class="highlight">Core Smart Contracts</span></h1>
+<p class="module-subtitle">From blueprint to code - write the Solidity contracts that make your dApp tick. Master access control, escrow logic, events, and testing with Hardhat to build a rock-solid foundation for your capstone project on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 90 Minutes</div>
+  <div class="meta-chip purple">🎯 25 Marks</div>
+  <div class="meta-chip">📋 Code Submission (GitHub)</div>
+  <div class="meta-chip green">Phase 3 · Capstone Kickoff</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Translate architecture into compilable Solidity code</strong>
+      Implement the contracts you designed - escrow, marketplace, DAO - with correct state variables, functions, modifiers, and events.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Implement robust access control and reentrancy protection</strong>
+      Use OpenZeppelin's Ownable, AccessControl, and nonReentrant modifiers to keep your core logic safe from exploits.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧪</div>
+    <div class="obj-text">
+      <strong>Write comprehensive unit tests with Hardhat &amp; Chai</strong>
+      Test every function for happy paths, edge cases, and revert conditions, achieving at least 80% code coverage.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text">
+      <strong>Deploy and verify your contracts locally</strong>
+      Use Hardhat's built-in network to deploy, interact, and debug your contracts - then prepare for MST Testnet deployment.
+    </div>
+  </div>
+</div>
+
+<!-- 02 REAL‑WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Escrow That Escaped - A Coding Horror Story</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In late 2023, a freelance developer named Ankit built a simple escrow dApp for a client. The design was straightforward: a buyer deposits MSTC, the seller delivers work, the buyer releases payment. Ankit coded the <code>Escrow.sol</code> contract in a single afternoon. He tested it once, saw it worked, and handed it over.</p>
+  <br>
+  <p>Two weeks later, the client called in a panic. A buyer had found a loophole: after the seller delivered, the buyer could call <code>releaseFunds()</code> multiple times, each time draining the escrow balance. Ankit had forgotten to update the escrow state <em>before</em> sending the funds - the classic reentrancy vulnerability. Worse, the contract had no <code>nonReentrant</code> modifier, no event emission, and no test suite. The buyer drained 5,000 MSTC before anyone noticed.</p>
+  <br>
+  <p>Ankit rewrote the contract from scratch, this time following the Checks-Effects-Interactions pattern, adding events, a <code>nonReentrant</code> guard, and a full test suite with Hardhat. The new contract was secure, auditable, and unbreakable. The lesson: coding a smart contract isn't just about making it work - it's about making it impossible to break. This sub-module gives you the discipline to do it right the first time.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Solidity Coding Practices</h2>
+<p>In Ethereum's early days, Solidity was young and dangerous. Developers deployed contracts without testing frameworks, without access control patterns, and often without understanding reentrancy. The infamous <strong>DAO hack of 2016</strong> - where $60 million worth of ETH was drained from a smart contract - was caused by a simple reentrancy bug in a <code>splitDAO</code> function. The attacker repeatedly called back into the contract before it could update its balance, draining funds over and over.</p>
+<p>That single event changed the industry. Security became the top priority. New patterns emerged: <strong>Checks-Effects-Interactions</strong> (C-E-I), <strong>OpenZeppelin libraries</strong> for reusable, audited code, and <strong>automated testing frameworks</strong> like Hardhat and Foundry. Today, no professional developer would deploy a contract without tests and security audits.</p>
+<p>MST, being fully EVM-compatible, inherits these same best practices. The contracts you write for MST follow the same Solidity standards, but with the added benefit of extremely low gas fees - meaning you can afford more on-chain logic, richer events, and comprehensive testing without worrying about cost.</p>
+<div class="highlight-strip">
+  <strong>Modern Solidity development rule:</strong> Never deploy a contract without tests. Never write a function that transfers funds without C-E-I. Never skip OpenZeppelin for standard patterns. These aren't suggestions - they're the difference between a successful project and a headline about another hack.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION (WITH LIFECYCLE FLOWCHART) -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Coding a Smart Contract Is Like Building a Vending Machine</h2>
+<div class="callout analogy">
+  <div class="callout-label">🥤 The Analogy</div>
+  <p>Think of your smart contract as a <strong>vending machine</strong>. The machine has <strong>state</strong> - how many snacks are left, how much money has been deposited. It has <strong>functions</strong> - select snack, insert coin, dispense change. It has <strong>security</strong> - a lock on the cash box, a coin validator that rejects fakes. And it prints a <strong>receipt</strong> (event) for every transaction. If you build the machine wrong - say, the cash box doesn't lock, or the change dispenser can be triggered without paying - people will exploit it. Coding a smart contract is the same: you define the state, the functions, the guards, and the logs, and you test everything before letting anyone use it.</p>
+</div>
+
+<p>To help you visualize the entire process, here is the lifecycle of developing a core smart contract, from idea to deployment:</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-A · Smart Contract Development Lifecycle</div>
+  <pre>┌──────────────────┐
+│ 1. Requirement   │
+│    Analysis      │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 2. Architecture   │
+│    &amp; Design       │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 3. Write State   │
+│    Variables     │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 4. Write Functions│
+│   with Modifiers │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 5. Add Events    │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 6. Write Unit    │
+│    Tests         │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 7. Deploy Locally│
+│    (Hardhat)     │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 8. Deploy to MST │
+│    Testnet       │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ 9. Audit &amp;       │
+│    Mainnet       │
+└──────────────────┘
+  </pre>
+  <div class="diagram-caption">The workflow is iterative. You often cycle back from testing to writing functions until coverage is complete.</div>
+</div>
+
+<p>Every core smart contract has four essential parts. Click on any to expand:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">STATE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What is the contract's persistent memory?</div>
+      <div class="w5-a">State variables are the permanent data stored on the blockchain. They include mappings (like <code>balances</code>), structs (like <code>Order</code>), and simple values (like <code>owner</code>). Every write to state costs gas, so you design them carefully - storing only what's essential and packing small types together.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FUNCTIONS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What actions can users take?</div>
+      <div class="w5-a">Functions are the executable logic. They read and modify state, enforce rules, and emit events. Each function must have a clear visibility (<code>public</code>, <code>external</code>) and may be marked <code>view</code>, <code>pure</code>, or <code>payable</code>. A well-designed contract has small, focused functions that do one thing well.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">G</div><div class="w5-word">GUARDS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How are sensitive actions protected?</div>
+      <div class="w5-a">Modifiers and <code>require</code> statements act as guards. <code>onlyOwner</code> ensures only the admin can withdraw fees. <code>nonReentrant</code> prevents recursive calls. <code>require</code> checks validate inputs and state conditions. Guards are your first line of defense - if they fail, the entire transaction reverts.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">E</div><div class="w5-word">EVENTS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does the contract communicate with the outside?</div>
+      <div class="w5-a">Events are logged into the transaction receipt. They are cheap, permanent, and indexable. Every state change should emit an event so that frontends, subgraphs, and auditors can track the contract's activity without reading storage directly.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: BUILDING AN ESCROW CONTRACT (EXPANDED WITH FLOWCHARTS) -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Write a Complete Escrow Contract - Step by Step with Visual Guides</h2>
+<p>Let's build a real contract together - a <strong>secure escrow</strong> for a freelance platform. A client deposits MSTC, a freelancer delivers work, and when both confirm, the funds are released. If there's a dispute, an admin can refund or release.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Data Structure: What State Do We Need?</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">enum EscrowStatus { AWAITING_PAYMENT, FUNDED, DELIVERED, COMPLETED, DISPUTED }
+
+struct Escrow {
+    address client;
+    address freelancer;
+    uint256 amount;
+    EscrowStatus status;
+    bool clientConfirmed;
+    bool freelancerConfirmed;
+}
+
+mapping(uint256 =&gt; Escrow) public escrows;
+uint256 public nextEscrowId;
+address public admin;
+</pre>
+<p>We use an enum for status clarity. The struct groups all the data for one escrow. The mapping gives O(1) access by ID. We store an admin address for dispute resolution.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Access Control Modifiers</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">modifier onlyAdmin() {
+    require(msg.sender == admin, "Not admin");
+    _;
+}
+modifier onlyClient(uint256 escrowId) {
+    require(msg.sender == escrows[escrowId].client, "Not client");
+    _;
+}
+modifier onlyFreelancer(uint256 escrowId) {
+    require(msg.sender == escrows[escrowId].freelancer, "Not freelancer");
+    _;
+}
+</pre>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Funding an Escrow (Function Flow)</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">function createEscrow(address freelancer) external payable returns (uint256) {
+    require(msg.value &gt; 0, "No MSTC sent");
+    uint256 id = nextEscrowId++;
+    escrows[id] = Escrow({
+        client: msg.sender,
+        freelancer: freelancer,
+        amount: msg.value,
+        status: EscrowStatus.FUNDED,
+        clientConfirmed: false,
+        freelancerConfirmed: false
+    });
+    emit EscrowCreated(id, msg.sender, freelancer, msg.value);
+    return id;
+}
+</pre>
+
+<p>Here is the visual flow of what happens when a client calls <code>createEscrow</code>:</p>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-B · createEscrow Flow</div>
+  <pre>Client calls createEscrow(freelancer, {value: amount})
+        │
+        ▼
+ ┌──────────────────┐
+ │ require(msg.value│
+ │   &gt; 0)           │──(false)──▶ REVERT
+ └────┬─────────────┘
+      │(true)
+      ▼
+ ┌──────────────────┐
+ │ escrows[id] =    │
+ │   Escrow{...}    │  (SSTORE: writes struct to storage)
+ └────┬─────────────┘
+      │
+      ▼
+ ┌──────────────────┐
+ │ emit EscrowCreated│  (LOG: event recorded in transaction receipt)
+ └────┬─────────────┘
+      │
+      ▼
+   Return id
+  </pre>
+  <div class="diagram-caption">The function is straightforward: validate input, update state, emit event. No external call is made, so no reentrancy risk.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Confirming Delivery and Releasing Funds (with Security Flow)</h3>
+<p>The delivery confirmation and fund release involve the most critical security pattern: <strong>Checks-Effects-Interactions</strong>.</p>
+
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">function confirmDelivery(uint256 escrowId) external onlyFreelancer(escrowId) {
+    Escrow storage escrow = escrows[escrowId];
+    require(escrow.status == EscrowStatus.FUNDED, "Not funded");
+    escrow.freelancerConfirmed = true;
+    escrow.status = EscrowStatus.DELIVERED;
+    emit DeliveryConfirmed(escrowId);
+}
+
+function releaseFunds(uint256 escrowId) external onlyClient(escrowId) nonReentrant {
+    Escrow storage escrow = escrows[escrowId];
+    require(escrow.status == EscrowStatus.DELIVERED, "Not delivered");
+    require(escrow.clientConfirmed == false, "Already confirmed");
+    // Effects first
+    escrow.clientConfirmed = true;
+    escrow.status = EscrowStatus.COMPLETED;
+    uint256 amount = escrow.amount;
+    // Interactions last (Checks‑Effects‑Interactions)
+    (bool success, ) = payable(escrow.freelancer).call{value: amount}("");
+    require(success, "Transfer failed");
+    emit FundsReleased(escrowId, escrow.freelancer, amount);
+}
+</pre>
+
+<p>Here is the detailed flow of the <code>releaseFunds</code> function, highlighting C-E-I:</p>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-C · releaseFunds Flow (Checks-Effects-Interactions)</div>
+  <pre>Client calls releaseFunds(escrowId)
+        │
+        ▼
+ ┌─────────────────────┐
+ │ CHECK: onlyClient   │──(fail)──▶ REVERT
+ │ CHECK: status ==    │
+ │   DELIVERED?        │──(no)──▶ REVERT
+ │ CHECK: clientConfirm│
+ │   ed == false?      │──(no)──▶ REVERT
+ └────────┬────────────┘
+          │(all passed)
+          ▼
+ ┌────────────────────────────────────────┐
+ │ EFFECTS (state update before external) │
+ │  escrow.clientConfirmed = true;        │
+ │  escrow.status = COMPLETED;            │
+ │  amount = escrow.amount; (memory copy) │
+ └────────┬───────────────────────────────┘
+          │
+          ▼
+ ┌────────────────────────────────────────┐
+ │ INTERACTIONS (external call last)      │
+ │  payable(freelancer).call{value:amount}│
+ │  require(success);                      │
+ │  emit FundsReleased(...);              │
+ └────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The key is that the contract's state is updated <em>before</em> the external call. If the freelancer's fallback attempts to re-enter, it will see that <code>clientConfirmed</code> is already true and revert.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Dispute Resolution</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">function raiseDispute(uint256 escrowId) external onlyClient(escrowId) {
+    Escrow storage escrow = escrows[escrowId];
+    require(escrow.status == EscrowStatus.DELIVERED, "Not delivered");
+    escrow.status = EscrowStatus.DISPUTED;
+    emit DisputeRaised(escrowId);
+}
+
+function resolveDispute(uint256 escrowId, bool refundClient) external onlyAdmin nonReentrant {
+    Escrow storage escrow = escrows[escrowId];
+    require(escrow.status == EscrowStatus.DISPUTED, "Not disputed");
+    escrow.status = EscrowStatus.COMPLETED;
+    uint256 amount = escrow.amount;
+    address receiver = refundClient ? escrow.client : escrow.freelancer;
+    (bool success, ) = payable(receiver).call{value: amount}("");
+    require(success, "Transfer failed");
+    emit DisputeResolved(escrowId, receiver, amount);
+}
+</pre>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-D · Escrow State Machine</div>
+  <pre>                    ┌──────────────┐
+                    │ AWAITING     │
+                    │ _PAYMENT     │
+                    └──────┬───────┘
+                           │ createEscrow() + msg.value
+                           ▼
+                    ┌──────────────┐
+                    │   FUNDED     │
+                    └──────┬───────┘
+                           │ confirmDelivery()
+                           ▼
+                    ┌──────────────┐
+                    │  DELIVERED   │──────────────┐
+                    └──────┬───────┘              │
+                           │ releaseFunds()       │ raiseDispute()
+                           ▼                      ▼
+                    ┌──────────────┐       ┌──────────────┐
+                    │  COMPLETED   │       │  DISPUTED    │
+                    └──────────────┘       └──────┬───────┘
+                                                  │ resolveDispute()
+                                                  ▼
+                                           ┌──────────────┐
+                                           │  COMPLETED   │
+                                           └──────────────┘
+  </pre>
+  <div class="diagram-caption">The escrow contract follows a strict state machine. Transitions are controlled by modifiers and status checks, preventing unauthorized or out-of-order actions.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Golden Rule of Smart Contract Coding</div>
+  <p>Every function that transfers native coins or tokens must follow <strong>Checks-Effects-Interactions</strong>. Check conditions first, update contract state second, interact with external contracts last. Combined with OpenZeppelin's <code>nonReentrant</code> modifier, this is the industry-standard defense against the most common attack vector in blockchain history.</p>
+</div>
+
+<!-- 06 OPENZEPPELIN INTEGRATION (WITH VISUAL COMPARISON) -->
+<div class="section-label">06 &nbsp; OpenZeppelin Integration</div>
+<h2 class="section-title">Stand on the Shoulders of Giants - Leverage Audited Libraries</h2>
+<p>OpenZeppelin provides battle-tested implementations of common Solidity patterns. Using them in your core contracts is a best practice that saves time and reduces risk. Here's how to integrate them into your project:</p>
+
+<details>
+  <summary>🛡️ Ownable for Simple Admin Control</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyContract is Ownable {
+    function withdrawFees() external onlyOwner {
+        // only the owner can call this
+    }
+}
+    </pre>
+  </div>
+</details>
+<details>
+  <summary>🔁 ReentrancyGuard for Extra Safety</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract Vault is ReentrancyGuard {
+    function withdraw() external nonReentrant {
+        // safe from reentrancy
+    }
+}
+    </pre>
+  </div>
+</details>
+<details>
+  <summary>🪙 ERC-20 and ERC-721 Templates</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MyToken is ERC20 {
+    constructor() ERC20("MyToken", "MTK") {
+        _mint(msg.sender, 1000000 * 10**decimals());
+    }
+}
+    </pre>
+  </div>
+</details>
+
+<div class="compare-table">
+  
+    PatternWithout OpenZeppelinWith OpenZeppelin
+  
+  
+    Access ControlWrite custom <code>require</code> checks in each function, prone to errorInherit <code>Ownable</code> or <code>AccessControl</code>, use <code>onlyOwner</code> or <code>onlyRole</code>
+    Reentrancy ProtectionImplement your own lock variable, risk forgetting itInherit <code>ReentrancyGuard</code>, add <code>nonReentrant</code> modifier
+    Token StandardsWrite full ERC-20/721 from scratch, potential bugsInherit <code>ERC20</code> or <code>ERC721</code>, fully audited and gas-optimized
+  
+
+
+<!-- 07 TESTING WITH HARDHAT (WITH FLOWCHART) -->
+<div class="section-label">07 &nbsp; Testing with Hardhat</div>
+<h2 class="section-title">Prove Your Contract Works Before Anyone Uses It</h2>
+<p>A contract without tests is a ticking time bomb. Hardhat integrates with Mocha and Chai to let you write comprehensive unit tests in JavaScript. You can test every function, every edge case, and every revert condition - all on a local blockchain that resets between tests.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-E · Test Execution Flow with Hardhat</div>
+  <pre> ┌────────────────┐
+ │ Write test.js  │
+ │ (describe, it) │
+ └───────┬────────┘
+         │ npx hardhat test
+         ▼
+ ┌────────────────────┐
+ │ Start Hardhat Node  │
+ │ (fresh state)       │
+ └────────┬───────────┘
+          │
+          ▼
+ ┌────────────────────┐
+ │ Deploy contracts   │
+ │ via fixtures       │
+ └────────┬───────────┘
+          │
+          ▼
+ ┌────────────────────┐
+ │ Run each it() block│
+ │  - call functions   │
+ │  - assert state     │
+ │  - check events     │
+ │  - expect reverts   │
+ └────────┬───────────┘
+          │
+          ▼
+ ┌────────────────────┐
+ │ Report results      │
+ │  ✓ passing / ✗ failing│
+ └────────────────────┘
+  </pre>
+  <div class="diagram-caption">Hardhat provides a clean, isolated environment for each test file, ensuring no state leaks between tests.</div>
+</div>
+
+<p>Here's a sample test suite for our Escrow contract:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">const { expect } = require("chai");
+
+describe("Escrow Contract", function () {
+  let Escrow, escrow, owner, client, freelancer, admin;
+
+  beforeEach(async function () {
+    [owner, client, freelancer, admin] = await ethers.getSigners();
+    Escrow = await ethers.getContractFactory("Escrow");
+    escrow = await Escrow.deploy(admin.address);
+    await escrow.deployed();
+  });
+
+  it("Should create an escrow with correct amount", async function () {
+    await escrow.connect(client).createEscrow(freelancer.address, { value: ethers.parseEther("1.0") });
+    const e = await escrow.escrows(0);
+    expect(e.amount).to.equal(ethers.parseEther("1.0"));
+    expect(e.client).to.equal(client.address);
+  });
+
+  it("Should revert if non‑client tries to release funds", async function () {
+    await escrow.connect(client).createEscrow(freelancer.address, { value: ethers.parseEther("1.0") });
+    await escrow.connect(freelancer).confirmDelivery(0);
+    await expect(escrow.connect(freelancer).releaseFunds(0))
+      .to.be.revertedWith("Not client");
+  });
+
+  it("Should prevent double release (reentrancy test)", async function () {
+    // ... deploy a malicious contract that tries to re‑enter
+  });
+});
+</pre>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> Because gas is so cheap on MST, you can afford more thorough on-chain testing. Deploy your contracts to MST Testnet (gas fee ~₹0.02 per deployment) and run integration tests in a live environment without breaking the bank. This is simply impractical on Ethereum.
+</div>
+
+<!-- 08 INTERACTIVE BUILD‑ALONG (EXPANDED WITH MORE STEPS) -->
+<div class="section-label">08 &nbsp; Interactive Build-Along</div>
+<h2 class="section-title">Code Along: A Simple Staking Contract</h2>
+<p>Let's reinforce the concepts by building a simple staking contract together. Click each step to reveal the code.</p>
+
+<details>
+  <summary>🧱 Step 1: State and constructor</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">contract Staking {
+    IERC20 public stakingToken;
+    uint256 public rewardRate = 100; // reward per block per token staked
+    mapping(address =&gt; uint256) public stakedBalance;
+    mapping(address =&gt; uint256) public lastUpdateBlock;
+    mapping(address =&gt; uint256) public rewards;
+
+    constructor(address _stakingToken) {
+        stakingToken = IERC20(_stakingToken);
+    }
+}
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>📥 Step 2: Stake and unstake functions</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">function stake(uint256 amount) external {
+    updateReward(msg.sender);
+    stakingToken.transferFrom(msg.sender, address(this), amount);
+    stakedBalance[msg.sender] += amount;
+    emit Staked(msg.sender, amount);
+}
+
+function unstake(uint256 amount) external {
+    require(stakedBalance[msg.sender] &gt;= amount, "Insufficient stake");
+    updateReward(msg.sender);
+    stakedBalance[msg.sender] -= amount;
+    stakingToken.transfer(msg.sender, amount);
+    emit Unstaked(msg.sender, amount);
+}
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>🏆 Step 3: Reward calculation and claim</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">function updateReward(address user) internal {
+    if (lastUpdateBlock[user] &gt; 0) {
+        uint256 blocks = block.number - lastUpdateBlock[user];
+        rewards[user] += stakedBalance[user] * rewardRate * blocks;
+    }
+    lastUpdateBlock[user] = block.number;
+}
+
+function claimReward() external {
+    updateReward(msg.sender);
+    uint256 reward = rewards[msg.sender];
+    require(reward &gt; 0, "No rewards");
+    rewards[msg.sender] = 0;
+    stakingToken.transfer(msg.sender, reward);
+    emit RewardClaimed(msg.sender, reward);
+}
+    </pre>
+  </div>
+</details>
+
+<details>
+  <summary>📊 Step 4: Event declarations and modifiers</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">event Staked(address indexed user, uint256 amount);
+event Unstaked(address indexed user, uint256 amount);
+event RewardClaimed(address indexed user, uint256 amount);
+
+modifier updateRewardModifier(address user) {
+    updateReward(user);
+    _;
+}
+    </pre>
+  </div>
+</details>
+
+<!-- 09 GAS OPTIMIZATION (WITH VISUAL COMPARISON) -->
+<div class="section-label">09 &nbsp; Gas Optimization in Core Contracts</div>
+<h2 class="section-title">Write Efficient Code - Even Cheap Gas Deserves Respect</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Pack storage variables</div>
+      <div class="feature-desc">Place small <code>uint</code> types, <code>bool</code>, and <code>address</code> together in your contract declarations. The compiler will pack them into a single 32-byte slot, reducing SSTORE and SLOAD gas.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Use <code>calldata</code> for read-only parameters</div>
+      <div class="feature-desc">In external functions, mark array and string parameters as <code>calldata</code>. This avoids copying them into memory, saving thousands of gas for large inputs.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">Cache storage reads</div>
+      <div class="feature-desc">If you read the same storage variable multiple times in a function, cache it in a local memory variable first. Each SLOAD costs 100-2,100 gas; a memory copy is essentially free.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Use <code>unchecked</code> for arithmetic where safe</div>
+      <div class="feature-desc">Solidity 0.8+ adds overflow checks. If you're certain a loop index won't overflow, wrap it in <code>unchecked { i++ }</code> to save a small amount of gas. Use cautiously.</div>
+    </div>
+  </div>
+</div>
+
+<p>Here's a visual comparison of gas costs for common operations on MST vs Ethereum:</p>
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.3-F · Gas Cost Comparison (MST vs Ethereum)</div>
+  <pre>Operation           Gas Units    Ethereum (₹)   MST (₹)
+─────────────────────────────────────────────────────
+Native transfer      21,000       ₹2,340         ₹0.002
+ERC‑20 transfer      65,000       ₹7,250         ₹0.006
+ERC‑721 mint        200,000       ₹22,300        ₹0.019
+Escrow creation     150,000       ₹16,700        ₹0.014
+</pre>
+  <div class="diagram-caption">MST's low gas price (~12 Gwei, MSTC at ₹8) makes complex on-chain logic affordable for mass adoption.</div>
+</div>
+
+<!-- 10 CASE STUDIES -->
+<div class="section-label">10 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Top Protocols Build Their Core Contracts</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v2 Pair - The Minimalist Masterpiece</div>
+      <div class="feature-desc">The UniswapV2Pair contract is a masterclass in core contract design. It has exactly the state it needs (reserves, balances, token addresses), functions that are short and focused (swap, mint, burn), and rigorous checks. It uses a lock (<code>unlocked</code> modifier) to prevent reentrancy during swaps. The contract is under 300 lines of Solidity but powers billions of dollars in volume. Its simplicity is its strength.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave LendingPool - Upgradeable and Modular</div>
+      <div class="feature-desc">Aave's LendingPool is a proxy contract that delegates to implementation contracts. The core logic handles deposits, borrows, liquidations, and interest rate calculations. Aave uses a <code>ReserveLogic</code> library to keep the core contract clean, and an <code>AddressesProvider</code> contract to resolve dependency addresses. This design lets Aave upgrade the logic without touching user funds.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 ASSESSMENT PREP -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These for Your Code Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Checks-Effects-Interactions is non-negotiable</div>
+      <div class="feature-desc">Every function that sends funds must update state before the external call. Combined with <code>nonReentrant</code>, this is your primary defense against reentrancy.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Use OpenZeppelin's Ownable, AccessControl, and ReentrancyGuard</div>
+      <div class="feature-desc">Don't reinvent the wheel. These libraries are audited, gas-efficient, and battle-tested on billions of dollars of value.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Write tests that cover happy path, reverts, and edge cases</div>
+      <div class="feature-desc">Use Hardhat + Mocha + Chai. Test events, state changes, and reverts. Aim for at least 80% branch coverage.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Events are your contract's public API</div>
+      <div class="feature-desc">Emit a well-designed event for every state change. Index parameters that frontends will filter on.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Commit clean, documented code to GitHub</div>
+      <div class="feature-desc">Your submission will be evaluated on code quality, not just functionality. Use NatSpec comments, consistent formatting, and a clear README.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 9.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Core Contract</div><div class="glossary-def">The main smart contract that contains the essential business logic of a dApp. Typically handles state transitions, fund transfers, and access control.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">A security pattern: check conditions, update contract state, then interact with external contracts. Prevents reentrancy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">OpenZeppelin</div><div class="glossary-def">A library of audited, reusable Solidity contracts for access control, tokens, proxies, and security. Industry standard for production contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Hardhat Test Suite</div><div class="glossary-def">A JavaScript testing environment using Mocha and Chai that runs against a local Hardhat Network. Enables automated, repeatable tests for smart contracts.</div></div>
+  <div class="glossary-item"><div class="glossary-term">NatSpec</div><div class="glossary-def">Solidity's natural language specification format. Uses <code>/// @notice</code>, <code>@dev</code>, <code>@param</code> tags to document code for users and developers.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Event</div><div class="glossary-def">A log record emitted by a contract, stored in transaction receipts. Used for off-chain communication and historical audit trails.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 9 · Sub-Module <strong>9.3</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 9.4 - Unit Testing &amp; Local Deployment →</p>
+</div>
+
+
+</div>

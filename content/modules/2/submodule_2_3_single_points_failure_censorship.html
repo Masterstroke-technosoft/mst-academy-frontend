@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 2.3 - Single Points of Failure & Censorship | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand: #6C3CE2; --brand-light: #EDE9FB; --brand-dark: #3C1FA0;
+    --accent: #F6A623; --accent-light: #FEF4E0;
+    --green: #16A34A; --green-light: #DCFCE7;
+    --red: #DC2626; --red-light: #FEE2E2;
+    --blue: #1D6FD8; --blue-light: #DBEAFE;
+    --ink: #111827; --ink-2: #374151; --ink-3: #6B7280;
+    --border: #E5E7EB; --surface: #F9FAFB;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+    --radius: 10px; --radius-sm: 6px; --radius-lg: 14px;
+  }
+  body { font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.75; font-size: 16px; max-width: 860px; margin: 0 auto; padding: 48px 32px 96px; }
+  .module-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--brand-light); color: var(--brand-dark); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
+  .module-title { font-size: 38px; font-weight: 900; line-height: 1.15; color: var(--ink); margin-bottom: 12px; }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle { font-size: 18px; color: var(--ink-3); font-weight: 400; margin-bottom: 28px; line-height: 1.6; }
+  .meta-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }
+  .meta-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .meta-chip.highlight { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green { background: var(--green-light); border-color: #86EFAC; color: #166534; }
+  .section-number { display: inline-block; background: var(--brand); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+  h2.section-title { font-size: 26px; font-weight: 800; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  h2.section-title .icon { width: 38px; height: 38px; border-radius: 9px; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  h3.sub-title { font-size: 19px; font-weight: 700; color: var(--ink); margin: 32px 0 14px; padding-left: 14px; border-left: 4px solid var(--brand); }
+  p { margin-bottom: 14px; color: var(--ink-2); line-height: 1.75; }
+  section { margin-bottom: 56px; }
+  .callout { border-radius: var(--radius); padding: 18px 22px; margin: 20px 0; border-left: 5px solid; font-size: 15px; line-height: 1.7; }
+  .callout.tip { background: var(--green-light); border-color: var(--green); }
+  .callout.warning { background: var(--red-light); border-color: var(--red); }
+  .callout.info { background: var(--blue-light); border-color: var(--blue); }
+  .callout.key { background: var(--brand-light); border-color: var(--brand); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout-label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; opacity: 0.7; }
+  .callout p { margin-bottom: 0; }
+  .story-block { background: var(--ink); color: #F3F4F6; border-radius: var(--radius); padding: 28px 32px; margin: 24px 0; position: relative; overflow: hidden; }
+  .story-block::before { content: '"'; position: absolute; top: -20px; right: 24px; font-size: 160px; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; }
+  .story-label { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: block; }
+  .story-block p { color: #D1D5DB; margin-bottom: 10px; }
+  .story-block strong { color: #FCD34D; }
+  .story-block p:last-child { margin-bottom: 0; }
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--ink); }
+  thead th { color: white; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 12px 16px; text-align: left; }
+  thead th:first-child { border-radius: 9px 0 0 0; }
+  thead th:last-child { border-radius: 0 9px 0 0; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 12px 16px; color: var(--ink-2); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--ink); }
+  .cell-green { color: var(--green) !important; font-weight: 700 !important; }
+  .cell-red { color: var(--red) !important; font-weight: 700 !important; }
+  .diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 24px 0; overflow-x: auto; }
+  .diagram-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); margin-bottom: 16px; }
+  pre { font-family: var(--mono); font-size: 13px; line-height: 1.65; color: var(--ink-2); white-space: pre; overflow-x: auto; margin: 0; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .compare-card { border-radius: var(--radius); border: 1.5px solid; padding: 20px; }
+  .compare-card.bad { border-color: #FCA5A5; background: #FFF7F7; }
+  .compare-card.good { border-color: #6EE7B7; background: #F0FDF9; }
+  .compare-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 15px; font-weight: 800; }
+  .compare-card.bad .compare-card-header { color: #991B1B; }
+  .compare-card.good .compare-card-header { color: #065F46; }
+  .compare-card ul { padding-left: 18px; font-size: 14px; }
+  .compare-card ul li { margin-bottom: 7px; line-height: 1.55; }
+  .compare-card.bad ul li { color: #7F1D1D; }
+  .compare-card.good ul li { color: #064E3B; }
+  .objectives-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .objective-item { display: flex; align-items: flex-start; gap: 10px; background: var(--green-light); border: 1px solid #BBF7D0; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 14px; color: #166534; line-height: 1.5; }
+  .objective-item .check { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; font-size: 11px; margin-top: 1px; }
+  .steps { list-style: none; padding: 0; margin: 16px 0; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start; }
+  .step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); color: white; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 5px; }
+  .step-desc { font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+  .highlight-box { background: var(--brand); color: white; border-radius: var(--radius); padding: 24px 28px; margin: 28px 0; font-size: 18px; font-weight: 700; line-height: 1.5; text-align: center; }
+  .highlight-box span { color: #FCD34D; }
+  .facts-list { list-style: none; padding: 0; counter-reset: fact; }
+  .facts-list li { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); counter-increment: fact; align-items: flex-start; font-size: 15px; color: var(--ink-2); }
+  .facts-list li:last-child { border-bottom: none; }
+  .facts-list li::before { content: counter(fact); display: flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; background: var(--brand); color: white; border-radius: 50%; font-size: 12px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .glossary-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; background: white; }
+  .glossary-term { font-weight: 700; font-size: 14px; color: var(--brand-dark); margin-bottom: 4px; }
+  .glossary-def { font-size: 13px; color: var(--ink-3); line-height: 1.5; margin: 0; }
+  .assessment-header { background: linear-gradient(135deg, var(--ink) 0%, #1a2f5e 100%); border-radius: var(--radius); padding: 28px 32px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+  .assessment-header h2 { font-size: 24px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .assessment-header p { color: #9CA3AF; font-size: 14px; margin: 0; }
+  .marks-badge-big { background: var(--accent); color: var(--ink); padding: 10px 24px; border-radius: 8px; font-size: 24px; font-weight: 900; white-space: nowrap; }
+  .question-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 28px; }
+  .question-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .q-num { font-size: 13px; font-weight: 700; color: var(--brand); }
+  .q-type { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--brand-light); color: var(--brand-dark); padding: 3px 10px; border-radius: 4px; }
+  .q-marks { font-size: 12px; font-weight: 700; background: var(--ink); color: white; padding: 3px 10px; border-radius: 4px; margin-left: auto; }
+  .difficulty { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; }
+  .difficulty.easy { background: var(--green-light); color: var(--green); }
+  .difficulty.medium { background: var(--accent-light); color: #B45309; }
+  .difficulty.hard { background: var(--red-light); color: var(--red); }
+  .question-body { padding: 22px; }
+  .question-text { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+  .options { list-style: none; padding: 0; margin: 0 0 20px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 7px; font-size: 15px; border: 1.5px solid var(--border); color: var(--ink-2); background: white; line-height: 1.5; }
+  .option.correct { background: var(--green-light); border-color: #4ADE80; color: #166534; }
+  .option.correct .opt-label { background: var(--green); color: white; border-color: var(--green); }
+  .option .opt-label { min-width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .answer-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-top: 6px; }
+  .answer-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: block; }
+  .answer-block p { font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+  .answer-block p:last-child { margin-bottom: 0; }
+  .tf-area { background: #FFFBEB; border: 1.5px solid #FCD34D; border-radius: var(--radius); padding: 18px 22px; margin: 16px 0; }
+  .tf-verdict { display: inline-block; padding: 4px 14px; border-radius: 4px; font-weight: 800; font-size: 14px; margin-bottom: 10px; }
+  .tf-verdict.true { background: var(--green-light); color: var(--green); }
+  .tf-verdict.false { background: var(--red-light); color: var(--red); }
+  .marks-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .mark-cell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--ink-2); }
+  .mark-cell strong { color: var(--ink); display: block; font-size: 14px; margin-bottom: 2px; }
+  .descriptive-area { background: #F0FDF9; border: 1.5px solid #6EE7B7; border-radius: var(--radius); padding: 22px; margin: 16px 0; }
+  .descriptive-label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #065F46; margin-bottom: 10px; display: block; }
+  mark { background: var(--brand-light); color: var(--brand-dark); padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+  hr { border: none; border-top: 2px solid var(--border); margin: 52px 0; }
+  @media (max-width: 620px) {
+    body { padding: 24px 16px 64px; }
+    .objectives-grid, .compare-grid, .glossary-grid, .marks-breakdown { grid-template-columns: 1fr; }
+    .module-title { font-size: 28px; }
+    .assessment-header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 2 · Sub-Module 3 of 6</div>
+<h1 class="module-title">Sub-Module 2.3<br><span class="highlight">Single Points of Failure &amp; Censorship</span></h1>
+<p class="module-subtitle">When AWS went down in 2021, Netflix, Swiggy, and hundreds of startups died simultaneously. When Instagram bans a creator, their entire livelihood vanishes. These are not freak events - they are architectural certainties baked into centralised design.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 40 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 20</div>
+  <div class="meta-chip">📝 2 × MCQ (1 mark each)</div>
+  <div class="meta-chip">📝 2 × Multi-Select (4 marks each)</div>
+  <div class="meta-chip">📝 1 × Descriptive Risk Analysis (10 marks)</div>
+  <div class="meta-chip green">🔰 Module 2 · Phase 1</div>
+</div>
+
+<!-- SECTION 1 -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+  <p>By the end of this sub-module, you will be able to:</p>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="check">✓</div>Define technical Single Points of Failure (SPOF) precisely and identify them in real infrastructure diagrams</div>
+    <div class="objective-item"><div class="check">✓</div>Explain the AWS outage of December 2021 - what failed, why, and what cascaded from it</div>
+    <div class="objective-item"><div class="check">✓</div>Distinguish between technical failure (infrastructure breaks) and governance censorship (deliberate removal of access)</div>
+    <div class="objective-item"><div class="check">✓</div>Analyse real Indian creator censorship examples - Instagram, YouTube - with specific metrics and incidents</div>
+    <div class="objective-item"><div class="check">✓</div>Write a structured risk analysis identifying SPOFs, censorship vectors, and blockchain mitigations for a given system</div>
+    <div class="objective-item"><div class="check">✓</div>Explain how MST Blockchain's architecture eliminates both technical SPOFs and governance censorship vectors</div>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>The Story - Two Creators. Two Disasters. Same Root Cause.</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Two Stories - One Architecture Problem</span>
+    <p><strong>Story A - Technical SPOF:</strong> December 7, 2021. Anjali runs a small online clothing boutique in Surat. Her website is hosted on AWS. Her payment gateway uses AWS infrastructure. Her inventory management tool: also AWS. At 2:30 PM, AWS's us-east-1 region fails. Anjali's website goes offline. Her payment gateway stops working. Her inventory system becomes inaccessible. <strong>Seven hours of sales - gone. Estimated loss: ₹3.8 lakh in the crucial pre-winter sale season.</strong> Her mistake: not a bad product, not bad marketing. She built everything on one infrastructure provider.</p>
+    <p><strong>Story B - Censorship SPOF:</strong> March 2023. Karan is a political commentator with 2.1 million Instagram followers. He posts a video criticising a state government's infrastructure project. Within 18 hours, his account is restricted - his posts don't appear in explore, his reach drops 94%. Two weeks later, after sustained pressure, Instagram says it was a "mistake." <strong>But those two weeks cost him three brand partnership deals worth ₹45 lakh.</strong> His mistake: building his entire professional platform on infrastructure controlled by a US company that can restrict access based on algorithmically flagged content - with no effective appeal and no transparency.</p>
+    <p>Same root cause. Different manifestation. <strong>Centralised single point of control.</strong></p>
+  </div>
+</section>
+
+<!-- SECTION 3 -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">🕰</div>Background - SPOFs and Censorship: A History of Failures</h2>
+
+  <h3 class="sub-title">3.1 - The Two Categories: Technical SPOF vs Governance Censorship</h3>
+
+  <p>It is critical to distinguish between these two failure types - they have different causes, different solutions, and different blockchain mitigations.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Cause</th>
+          <th>Who Controls It</th>
+          <th>Example</th>
+          <th>Blockchain Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Technical SPOF</td>
+          <td>Infrastructure component fails - server, network, database</td>
+          <td>Cloud provider / infrastructure owner</td>
+          <td>AWS outage (Dec 2021): all apps on AWS fail</td>
+          <td class="cell-green">Distributed validators - no single infrastructure node</td>
+        </tr>
+        <tr>
+          <td>Governance Censorship</td>
+          <td>Policy decision deliberately restricts access for political, commercial, or regulatory reasons</td>
+          <td>Platform company / government</td>
+          <td>Instagram suppressing political content / YouTube demonetising creators</td>
+          <td class="cell-green">Smart contract rules - code executes regardless of any company's policy decision</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ Why This Distinction Matters</span>
+    <p>Technical SPOFs are accidents - infrastructure teams try to prevent them but cannot guarantee zero failures. Governance censorship is deliberate - companies and governments make conscious decisions to restrict access. Both share the same architectural root: a single entity with authority over the system. Blockchain addresses both by ensuring no single entity has that authority, whether the action would be accidental or deliberate.</p>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">🧠</div>Beginner-Friendly Deep Explanation</h2>
+
+  <h3 class="sub-title">4.1 - Technical SPOF: Anatomy of the AWS Outage</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔴 AWS us-east-1 Outage - Full Cascade Analysis (December 7, 2021)</div>
+<pre>
+  ROOT CAUSE:
+  ─────────────────────────────────────────────────────────────
+  AWS's internal network automation system (used to manage
+  capacity scaling) ran a command that incorrectly deleted
+  a large number of network capacity resources in us-east-1.
+  This cascaded into the AWS network control plane going
+  unavailable — meaning AWS's own systems could not talk
+  to each other to manage traffic.
+
+  THE SINGLE POINT OF FAILURE:
+  ─────────────────────────────────────────────────────────────
+  AWS's network control plane (one centralised system that
+  manages ALL traffic routing within the region).
+
+  THE CASCADE:
+  ─────────────────────────────────────────────────────────────
+  AWS Network Control Plane fails
+       │
+       ├─→ EC2 instances (virtual servers): Cannot communicate
+       │    → All apps running on us-east-1 VMs: offline
+       │
+       ├─→ S3 (storage): Request routing fails
+       │    → All files stored in us-east-1 S3: inaccessible
+       │
+       ├─→ Lambda (serverless functions): Fail to trigger
+       │    → All event-driven apps: broken
+       │
+       └─→ RDS (database): Management plane fails
+            → Database backups, scaling, failover: all broken
+
+  DOWNSTREAM IMPACT (INDIA):
+  ─────────────────────────────────────────────────────────────
+  ├─ Netflix India: Video quality degraded (CDN issues)
+  ├─ Amazon.in: Search, checkout, recommendations: broken
+  ├─ Swiggy: Delivery tracking and order management: disrupted
+  ├─ Hundreds of Indian SaaS startups: Partially or fully down
+  └─ Indian e-commerce companies: Sales lost during peak hours
+
+  DURATION: ~7 hours
+  TOTAL AFFECTED: Estimated 100,000+ companies globally
+
+  WHY BLOCKCHAIN IS IMMUNE:
+  ─────────────────────────────────────────────────────────────
+  MST validators run on diverse infrastructure:
+  ├─ Different cloud providers (AWS, GCP, Azure, OVH, bare metal)
+  ├─ Different geographic regions
+  ├─ Different organisations and individuals
+  
+  An AWS outage takes down ~30% of internet infrastructure.
+  It takes down 0% of a well-distributed blockchain network.
+  No single provider hosts a majority of MST validators.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.2 - Governance Censorship: The Instagram Creator Suppression</h3>
+
+  <p>Unlike technical SPOFs (accidents), censorship is a deliberate exercise of platform power. Understanding exactly how it works mechanically is essential for both creators and blockchain developers designing alternatives.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">📵 How Instagram Censorship Works - The Mechanics</div>
+<pre>
+  STEP 1: CONTENT FLAGGED (Automated or Human)
+  ─────────────────────────────────────────────────────────────
+  Instagram's AI content moderation scans every post.
+  Flags: political content, sensitive topics, local regulations,
+  advertiser-unfriendly content, "misinformation" labels.
+
+  Government request received:
+  "Suppress content about X infrastructure project"
+  Instagram complies under local content laws.
+
+  STEP 2: DISTRIBUTION THROTTLING (Shadow-banning)
+  ─────────────────────────────────────────────────────────────
+  BEFORE flagging:         AFTER flagging:
+  Post reaches followers:  Post reaches followers:
+  100% via home feed       8% via home feed
+  40% via explore          0% via explore
+  Hashtag discovery: YES   Hashtag discovery: NO
+
+  User still posts.        Account not suspended.
+  Content still visible    But reach destroyed.
+  to direct visitors.      Income destroyed.
+  User gets NO notification this is happening.
+
+  STEP 3: THE OPACITY (No transparency)
+  ─────────────────────────────────────────────────────────────
+  User notices reach dropped from 2M to 190K impressions.
+  Tries to understand why: NO explanation given.
+  Tries to appeal: NO specific violation to appeal.
+  Tries to sue: Instagram's ToS grants them this right.
+
+  This is the architecture of censorship:
+  ├─ Centralised algorithm control (one entity decides distribution)
+  ├─ No transparency (no public audit of distribution decisions)
+  ├─ No recourse (ToS covers all platform decisions)
+  └─ No portability (audience lives on Instagram's servers)
+
+  BLOCKCHAIN ALTERNATIVE (MST Social Layer):
+  ─────────────────────────────────────────────────────────────
+  Content stored on IPFS (decentralised).
+  Social graph on MST Blockchain (on-chain follower relationships).
+  Distribution algorithm: open-source, runs on user's device.
+  No entity controls what content gets distributed to whom.
+  Content hash on chain: immutable proof of original publication.
+  Government request to suppress: No single entity to serve it to.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.3 - The Five Censorship Mechanisms of Centralised Platforms</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Mechanism</th>
+          <th>What It Does</th>
+          <th>How It's Hidden from User</th>
+          <th>Indian Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Shadow-banning</td>
+          <td>Reduces content distribution without notifying the creator</td>
+          <td>Account still active; no notification; metrics drop silently</td>
+          <td>Indian LGBTQ+ content creators reported sudden reach drops in 2021-22 coinciding with content sensitivity classifications</td>
+        </tr>
+        <tr>
+          <td>Demonetisation</td>
+          <td>Removes ad revenue from content without removing the content</td>
+          <td>Yellow icon on video (YouTube); no income explanation</td>
+          <td>Indian journalism channels report systematic demonetisation of videos critical of any government policy</td>
+        </tr>
+        <tr>
+          <td>Account Suspension</td>
+          <td>Temporarily or permanently disables account access</td>
+          <td>Email with vague policy violation; automated "appeal" process</td>
+          <td>Priya's story (Sub-Module 2.1): 890,000 subscribers, 3 years of content, ₹5L income - gone for 6 weeks</td>
+        </tr>
+        <tr>
+          <td>Government-ordered Removal</td>
+          <td>Platform removes specific content under government request</td>
+          <td>Content disappears; often no notification to creator</td>
+          <td>India is consistently in the top 5 globally for government content removal requests to Google and Meta (3,000+ requests in H1 2023)</td>
+        </tr>
+        <tr>
+          <td>Algorithmic Deprioritisation</td>
+          <td>Content ranked lower in search/discovery without explicit removal</td>
+          <td>No notification; only visible through analytics drops</td>
+          <td>YouTube's recommendation algorithm reportedly reduced distribution of independent news channels in 2022 in favour of "authoritative" mainstream media</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">⚙️</div>Technical Deep Dive</h2>
+
+  <h3 class="sub-title">5.1 - SPOF Analysis Methodology: The Fault Tree</h3>
+
+  <p>Professional systems engineers use a technique called Fault Tree Analysis (FTA) to systematically identify all single points of failure in a system. As a blockchain developer, you must be able to apply this to any existing system to understand its vulnerability and design the decentralised alternative.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🌳 Fault Tree Analysis - Swiggy's Order Processing System</div>
+<pre>
+  TOP EVENT: "Swiggy order fails to be placed"
+  ─────────────────────────────────────────────────────────────
+
+  OR gate: Any ONE of these causes failure:
+  │
+  ├─ [SPOF 1] AWS Mumbai Region Outage
+  │    → Swiggy's app servers down → Cannot receive order
+  │    Probability: ~0.01% per hour (historically)
+  │
+  ├─ [SPOF 2] Google Maps API Failure
+  │    → Restaurant location/route cannot be calculated
+  │    → Order cannot be assigned to delivery partner
+  │    Probability: ~0.005% per hour
+  │
+  ├─ [SPOF 3] Payment Gateway Failure (Razorpay/PayU)
+  │    → Payment cannot be processed
+  │    → Order cannot be confirmed
+  │    Probability: ~0.008% per hour
+  │
+  ├─ [SPOF 4] Swiggy's Database (Primary)
+  │    → Cannot write order to database
+  │    → Order lost
+  │    Probability: mitigated by replicas but still possible
+  │
+  └─ [SPOF 5] SMS OTP Gateway Failure
+       → User cannot verify login
+       → Cannot access app to place order
+       Probability: ~0.02% per hour (SMS gateways have higher failure rates)
+
+  COMBINED SYSTEM RELIABILITY:
+  ─────────────────────────────────────────────────────────────
+  Each SPOF has small individual probability.
+  But 5 independent SPOFs combined:
+  System failure rate ≈ sum of all SPOF rates
+  = significantly higher than any single component
+
+  This is why complex centralised systems have "nines" of uptime:
+  "99.9% uptime" = 8.76 hours of downtime per year
+  "99.99% uptime" = 52.6 minutes of downtime per year
+  
+  Blockchain target: 100% uptime (no planned downtime)
+  because no single node failure can stop the network.
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.2 - How Censorship Resistance Works Architecturally in Blockchain</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🛡️ Censorship Resistance - Why Blockchain Cannot Be Censored</div>
+<pre>
+  CENSORING CONTENT ON INSTAGRAM:
+  ─────────────────────────────────────────────────────────────
+  Government order → Instagram receives order → One team
+  executes: UPDATE content SET visible=false WHERE id=X
+  → Content removed globally in seconds.
+  Single entity. Single decision. Instant execution.
+
+  CENSORING CONTENT ON MST BLOCKCHAIN:
+  ─────────────────────────────────────────────────────────────
+  
+  Step 1: Government issues order to "MST Blockchain"
+  Problem: MST Blockchain is not a legal entity with an address.
+  No single company to serve the order to.
+  
+  Step 2: Government targets individual validators
+  To censor: Must control 51%+ of 71,000 validators
+  = Must control 35,500+ independent operators globally
+  Across different countries, jurisdictions, legal systems
+  
+  Step 3: Even if 49% of validators comply with a government
+  The remaining 51% (in other jurisdictions) continue
+  Block production continues. Content accessible.
+  The transaction is already on-chain — immutable.
+  
+  Step 4: Content already stored on IPFS
+  IPFS content addressed by hash — not by account/location
+  File exists as long as ANY node globally hosts it
+  Government cannot enumerate all IPFS nodes globally
+  Even if 99% of IPFS nodes removed the file:
+  One remaining node = file still accessible
+  
+  CONCLUSION:
+  ─────────────────────────────────────────────────────────────
+  Censorship requires a single authority with control.
+  Blockchain distributes control so widely that
+  censorship becomes computationally and economically impossible.
+  
+  This is not a theoretical claim — it is arithmetic.
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.3 - The Resilience Comparison: RAID vs Blockchain</h3>
+
+  <p>In traditional computing, engineers use RAID (Redundant Array of Independent Disks) to protect data. Data is written to multiple disks simultaneously - if one fails, others have copies. Blockchain extends this principle from storage to governance.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-card-header">💾 RAID Storage (Technical Resilience Only)</div>
+      <ul>
+        <li>Data replicated across multiple disks - protects against hardware failure</li>
+        <li>All disks in one location, owned by one company</li>
+        <li>Company can still delete data by software command</li>
+        <li>Government can order company to delete data</li>
+        <li>Resilient against: hardware failure only</li>
+        <li>Vulnerable to: governance decisions, legal orders, hacks</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">⛓️ Blockchain Ledger (Technical + Governance Resilience)</div>
+      <ul>
+        <li>Data replicated across 71,000+ validators globally</li>
+        <li>Each validator independently owned and operated</li>
+        <li>No single company can delete data - requires 51% consensus</li>
+        <li>No single government can order deletion - multiple jurisdictions</li>
+        <li>Resilient against: hardware failure, governance decisions, legal orders</li>
+        <li>Still vulnerable to: 51% attack (computationally near-impossible at scale)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🌍</div>Real-World Case Studies</h2>
+
+  <h3 class="sub-title">Case Study 1 - Instagram's Restriction of Kashmiri Journalists (2021)</h3>
+
+  <p>In May 2021, during heightened tensions in Jammu &amp; Kashmir, multiple Kashmiri journalists and news organisations reported that their Instagram accounts were experiencing significant reach suppression. Posts about local incidents were receiving fewer than 5% of their usual impressions. Several accounts were temporarily suspended without specific violation notices.</p>
+
+  <p>Instagram later acknowledged that its "safety systems" had incorrectly applied restrictions to accounts it categorised as being in a "conflict area." The restrictions were applied algorithmically - no human reviewed individual accounts. Instagram's statement: "We have restored all improperly restricted accounts." But for the three-week period of restriction, news could not be shared, communities could not communicate, and journalists' work - some covering human rights situations - was effectively suppressed.</p>
+
+  <div class="callout warning">
+    <span class="callout-label">⚠️ The Architectural Root</span>
+    <p>One company's algorithm, with no human oversight, restricted an entire geographic region's news communication for three weeks. This was not an attack. This was the system working as designed - one entity with central control over information distribution, applying automated policies at scale. No appeal process existed that could operate faster than three weeks. The journalism that could not be published during those three weeks cannot be recovered.</p>
+  </div>
+
+  <h3 class="sub-title">Case Study 2 - The Jio-Netflix Bandwidth Throttling Allegation (2019 - 2020)</h3>
+
+  <p>In 2019 - 2020, multiple Indian users reported that Netflix streaming quality was significantly lower on Jio networks compared to other ISPs. Independent speed tests showed Netflix data receiving lower priority routing through Jio's network - a potential violation of net neutrality principles. TRAI (Telecom Regulatory Authority of India) had banned "zero rating" (differential treatment of internet services) in 2016, but bandwidth throttling - technically different - remained a grey area.</p>
+
+  <p>This represents a different type of SPOF: the Internet Service Provider as an infrastructure chokepoint. Your ISP controls the pipe through which all internet traffic flows. If Jio decides that Netflix's traffic should be de-prioritised relative to JioTV, every Jio user watching Netflix experiences degraded service - regardless of what Netflix does technically.</p>
+
+  <h3 class="sub-title">Case Study 3 - AWS GovCloud and the Parler Takedown (Global Lesson for India)</h3>
+
+  <p>In January 2021, Amazon Web Services terminated its hosting contract with Parler (a social media platform) within 24 hours, following pressure related to content moderation concerns. Parler's entire service went offline globally - not because of a technical failure, but because their infrastructure provider exercised a governance decision.</p>
+
+  <p>The direct relevance for India: any Indian startup, news organisation, or platform that hosts its infrastructure on AWS, Google Cloud, or Azure is subject to the same risk. The infrastructure provider can terminate the contract - and the platform goes offline immediately, regardless of Indian law or Indian courts. This is why Indian sovereign cloud initiatives (like MeitY's cloud policy and NIC's cloud offerings) exist - to create a jurisdictional alternative. But even MeitY's cloud is a centralised chokepoint, just under Indian jurisdiction. Blockchain hosting (distributed validators in India and globally) provides genuine architectural resilience that no government cloud can match.</p>
+</section>
+
+<!-- SECTION 7 -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">🔄</div>Step-by-Step: Writing a Risk Analysis for SPOFs and Censorship</h2>
+
+  <p>The Descriptive assessment for this sub-module requires you to write a structured risk analysis. Here is the exact framework professionals use.</p>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Identify the System and Its Core Function</div>
+        <div class="step-desc">State clearly what the system does, who uses it, and what value it provides. Example: "Swiggy is a food delivery platform connecting 150,000 restaurants with 80 million customers across India, processing ₹7,000 crore in GMV per quarter."</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Map All Infrastructure Dependencies</div>
+        <div class="step-desc">List every external system the platform depends on. For each: name the provider, describe what it provides, and state what breaks if it fails. Include cloud providers, APIs, databases, payment gateways, SMS services, CDNs, and regulatory licences.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Identify Governance/Censorship Vectors</div>
+        <div class="step-desc">List who has the authority to restrict the platform's operation and through what mechanism: government bodies (TRAI, RBI, MeitY, courts), infrastructure providers (AWS, Google), the platform company itself (can change rules or ban users). For each, describe what action they could take and what the impact would be.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Quantify the Impact</div>
+        <div class="step-desc">For each SPOF and censorship vector, estimate: how many users affected, what revenue/income is at risk, how long recovery would take, and whether recovery is even possible. Specific numbers earn marks; vague statements do not.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Propose Blockchain Mitigations</div>
+        <div class="step-desc">For each risk identified, propose the specific blockchain component that mitigates it. Match SPOF → distributed validators. Match database control → on-chain ledger. Match account censorship → DID + smart contract rules. Match algorithm suppression → open-source on-device recommendation engine. Each mitigation must name the specific component, not just "use blockchain."</div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="highlight-box">
+    A SPOF is an accident waiting to happen.<br>
+    Censorship is a <span>design choice</span> made by those in power.<br>
+    Blockchain makes both <span>architecturally impossible.</span>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - Must-Know Facts</h2>
+  <ul class="facts-list">
+    <li><strong>Two SPOF categories:</strong> Technical SPOF (infrastructure failure - accident) vs Governance Censorship (deliberate access restriction - decision). Different causes, same architectural root: single entity with control.</li>
+    <li><strong>AWS December 2021 outage:</strong> Network control plane failure in us-east-1. Cascaded to all EC2, S3, Lambda, and RDS services in the region. Affected: Netflix, Amazon, Slack, Swiggy, and 100,000+ companies. Duration: 7 hours. Root cause: one automated management system executing an incorrect command.</li>
+    <li><strong>Five censorship mechanisms:</strong> Shadow-banning, demonetisation, account suspension, government-ordered removal, algorithmic deprioritisation. Know all five with Indian examples.</li>
+    <li><strong>Shadow-banning definition:</strong> Reducing content distribution without notifying the creator. Account remains active. No formal notice. Only detectable through analytics drops. The most insidious censorship mechanism because it is invisible to the creator.</li>
+    <li><strong>India's government removal requests:</strong> India sends 3,000+ content removal requests to Google and Meta per half-year, consistently in the global top 5. Compliance rate: ~68%. All legally enforceable because platforms are centralised entities under Indian jurisdiction.</li>
+    <li><strong>Censorship resistance architecture:</strong> To censor content on MST Blockchain requires controlling 51%+ of 71,000+ globally distributed validators simultaneously. No single government or entity can achieve this. Content on IPFS accessible as long as any node globally hosts it.</li>
+    <li><strong>RAID vs Blockchain resilience:</strong> RAID protects against hardware failure (technical). Blockchain protects against hardware failure AND governance decisions (technical + governance). The key difference: RAID disks are owned by one entity; blockchain validators are independently owned.</li>
+    <li><strong>Fault Tree Analysis (FTA):</strong> Methodology for identifying all paths to system failure. Each external dependency is a branch. The system fails if ANY branch fails (OR gate). More dependencies = more failure paths = lower overall reliability.</li>
+    <li><strong>Parler takedown lesson for India:</strong> AWS terminated hosting for Parler within 24 hours. Any platform on a single cloud provider can be taken down by the provider's governance decision - regardless of the platform's own legal standing. Indian platforms are equally vulnerable.</li>
+    <li><strong>WASMify for oracle censorship resistance:</strong> On MST, external data (APIs) can be fed through WASMify with ZK proofs - eliminating dependency on centralised API providers. Smart contracts execute based on verified off-chain data without trusting any single data provider.</li>
+  </ul>
+</section>
+
+<!-- SECTION 9 -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">🔐</div>Security Notes</h2>
+
+  <h3 class="sub-title">9.1 - The 51% Attack: Blockchain's Own SPOF</h3>
+  <p>In the spirit of intellectual honesty - blockchain is not immune to all forms of attack. The theoretical "51% attack" means if any entity gains control of more than 51% of a network's validators (or hash power in PoW), they could manipulate transactions. This is blockchain's own Single Point of Failure risk.</p>
+
+  <div class="callout info">
+    <span class="callout-label">ℹ️ Why MST's 51% Attack Risk is Negligible</span>
+    <p>MST Blockchain has 71,000+ validators with staked MSTC. To gain 51% control: an attacker must acquire and stake enough MSTC to control 35,500+ validator slots. At current MSTC valuation, this would cost hundreds of millions of dollars - and the act of buying that much MSTC would itself drive the price up dramatically, making the attack progressively more expensive. Additionally, MST's Trika POSA mechanism allows community governance to detect and respond to suspicious validator concentration. The attack is theoretically possible but economically irrational.</p>
+  </div>
+
+  <h3 class="sub-title">9.2 - Social Engineering: The Human SPOF</h3>
+  <p>Technology can be made robust. Humans cannot. The most common successful attacks on both centralised and decentralised systems go through human vulnerabilities - phishing, social engineering, insider threats. A validator operator tricked into handing over their private key effectively removes their validator from honest participation. This is why MST's SARAL Protocol uses secure enclaves (hardware-protected key storage) to minimise the human attack surface.</p>
+</section>
+
+<!-- SECTION 10 -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - India's Internet Shutdowns: The Ultimate SPOF</h3>
+  <p>India leads the world in internet shutdowns - over 100 shutdowns per year, more than any other democracy. These shutdowns are ordered by state governments under Section 144 of the CrPC and the Telecom Suspension Rules. They affect entire districts or states - all internet traffic, all platforms, all services simultaneously. In 2021, the Rajasthan government shut down internet for 27 million people for 11 hours to prevent cheating in a government exam.</p>
+  <p>This is the ultimate centralised SPOF: the government's ability to switch off the internet at the ISP level. No technical redundancy within the internet helps - if the ISP is ordered to drop all traffic, it drops all traffic. Blockchain networks with satellite-based validators (like MST's planned integration with satellite internet infrastructure) would be the only system that could continue functioning through a ground-based internet shutdown. Starlink and similar satellite networks, combined with distributed validators, represent the architectural response to government-ordered infrastructure shutdown.</p>
+
+  <h3 class="sub-title">10.2 - The Creator Economy's Existential Risk</h3>
+  <p>India's creator economy has 80 million+ content creators, with 2 million earning meaningful income. 100% of this income flows through platforms that control distribution via algorithms that can suppress, demonetise, or ban without meaningful appeal. The total value at risk: estimated ₹3,500 crore in annual creator income that can be disrupted by algorithmic or governance decisions of three US companies. No regulatory body currently audits these algorithms. No Indian law currently protects creators from arbitrary platform decisions. The blockchain-based creator economy (censorship-resistant distribution, direct monetisation, on-chain reputation) is India's biggest untapped Web3 opportunity.</p>
+</section>
+
+<!-- SECTION 11 -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="glossary-term">Single Point of Failure (SPOF)</div>
+      <p class="glossary-def">A component whose failure causes the entire system to stop working. Technical SPOFs are infrastructure; governance SPOFs are the authority to restrict access.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Censorship</div>
+      <p class="glossary-def">Deliberate restriction of access to content or services by a central authority. Distinct from technical failure - it is an intentional governance decision.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Shadow-banning</div>
+      <p class="glossary-def">Reducing content distribution without notifying the creator. Account active, content visible to direct visitors, but algorithm stops distributing it. Most invisible censorship mechanism.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Demonetisation</div>
+      <p class="glossary-def">Platform removes ability to earn revenue from content without removing content. Yellow icon on YouTube; income drops to zero while video remains live.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Fault Tree Analysis (FTA)</div>
+      <p class="glossary-def">Engineering methodology for identifying all failure paths in a system. Each dependency is a potential failure branch. Essential tool for SPOF identification.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Censorship Resistance</div>
+      <p class="glossary-def">Architectural property of a system where no single entity can restrict access to content or transactions. Achieved through sufficient validator decentralisation and IPFS content addressing.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Content Addressing (IPFS)</div>
+      <p class="glossary-def">Files identified by their content hash, not by server location. Content remains accessible as long as any node globally hosts it - cannot be taken down by removing one server.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">51% Attack</div>
+      <p class="glossary-def">Blockchain's theoretical SPOF: if any entity controls 51%+ of validators, they can manipulate the ledger. Economically irrational on large networks like MST (would cost hundreds of millions of dollars).</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Bandwidth Throttling</div>
+      <p class="glossary-def">ISP reducing the speed of specific internet traffic. Gives ISPs (like Jio) the ability to de-prioritise competitors' services without technically "blocking" them.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Internet Shutdown</div>
+      <p class="glossary-def">Government ordering ISPs to cut all internet connectivity in a geographic area. India leads globally in frequency. Represents the deepest-layer SPOF for any centralised internet service.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Algorithmic Deprioritisation</div>
+      <p class="glossary-def">Search/discovery algorithm ranking content lower without explicit removal. Invisible to creators; only detectable through analytics. Used to suppress content without formal censorship actions.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Governance Censorship Vector</div>
+      <p class="glossary-def">An authority with the power to restrict a system's operation through policy decision rather than technical attack. Government bodies, infrastructure providers, and platform companies are all governance censorship vectors.</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ASSESSMENT -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 2.3 Assessment</h2>
+      <p>Single Points of Failure &amp; Censorship &nbsp;·&nbsp; 20 total marks across four question types.</p>
+    </div>
+    <div class="marks-badge-big">20 Marks</div>
+  </div>
+
+  <h3 class="sub-title">Section A - Multiple Choice Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(2 × 1 Mark = 2 Marks)</span></h3>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 1</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">What is the fundamental difference between a "technical Single Point of Failure" and "governance censorship" in centralised systems?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Technical SPOFs affect large companies; censorship only affects individual users</li>
+        <li class="option"><div class="opt-label">B</div>Technical SPOFs are more dangerous than censorship because they affect more users simultaneously</li>
+        <li class="option correct"><div class="opt-label">C</div>Technical SPOFs are accidental infrastructure failures; censorship is a deliberate governance decision to restrict access - but both result from a single entity having central control</li>
+        <li class="option"><div class="opt-label">D</div>Technical SPOFs can be fixed by the platform; censorship cannot be fixed because it is government-mandated</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> The distinction is critical for both understanding the problem and designing solutions. Technical SPOFs (like the AWS December 2021 outage) are unintentional - infrastructure engineers try to prevent them but cannot guarantee zero failures. Governance censorship (like Instagram suppressing a journalist's reach) is intentional - a deliberate exercise of platform authority. However, both share the same root architectural cause: centralised control. Both require one entity to have sufficient authority over the system to affect all users. Blockchain addresses both by distributing that authority across thousands of independent validators - making both accidental cascade failures and deliberate censorship decisions architecturally impossible at scale. Option D is incorrect: courts can potentially challenge censorship, and technical SPOFs can be mitigated through redundancy.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 2</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In the AWS December 2021 outage, Anjali's entire business (website, payment gateway, inventory system) went offline simultaneously even though each was a separate product from a different company. Why?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>All three products had independent bugs that happened to occur at the same time</li>
+        <li class="option correct"><div class="opt-label">B</div>All three products were hosted on AWS's us-east-1 region, sharing the same underlying infrastructure SPOF - when that infrastructure failed, all products depending on it failed simultaneously</li>
+        <li class="option"><div class="opt-label">C</div>Anjali's business model was flawed; she should have built all three herself</li>
+        <li class="option"><div class="opt-label">D</div>The products failed because they were all communicating with each other through APIs that went down</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> This illustrates the hidden danger of infrastructure SPOFs. Anjali correctly chose three separate, reputable products for different business functions - a sensible approach. But all three, despite being different companies' products, ran on the same underlying infrastructure (AWS us-east-1). When that infrastructure failed, the shared SPOF caused all three to fail simultaneously. This is the hidden centralisation of the modern internet: thousands of companies, products, and services all built on three cloud providers (AWS, Google Cloud, Azure) that control ~70% of global cloud infrastructure. "Diversifying" products without diversifying the underlying infrastructure provides false resilience. The correct mitigation: choose products hosted on different cloud providers, different geographic regions - or use blockchain-based alternatives that run on independently-owned, globally-distributed validator infrastructure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION B — MULTI-SELECT -->
+  <h3 class="sub-title" style="margin-top:40px;">Section B - Multi-Select Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(2 × 4 Marks = 8 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">Select ALL correct answers. Full marks only if all correct options are selected and no incorrect options are included. Partial credit: 2 marks for any 2 correct selections.</p>
+
+  <!-- MS Q1 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 3</span><span class="q-type">Multi-Select</span>
+      <span class="q-marks">4 Marks</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Which of the following are examples of "governance censorship" (deliberate access restriction) rather than "technical SPOF" (infrastructure failure)? Select ALL that apply.</div>
+      <ul class="options">
+        <li class="option correct"><div class="opt-label">A</div>Instagram reducing Karan's post reach by 94% after he published political commentary - without notifying him or citing a specific violation</li>
+        <li class="option"><div class="opt-label">B</div>AWS us-east-1 network control plane failing due to an automated management script executing an incorrect command</li>
+        <li class="option correct"><div class="opt-label">C</div>YouTube demonetising an Indian journalism channel's videos without specifying which videos violated which guidelines</li>
+        <li class="option correct"><div class="opt-label">D</div>The Indian government ordering ISPs to shut down internet connectivity in a district during civil unrest under Section 144</li>
+        <li class="option"><div class="opt-label">E</div>PhonePe's payment processing failing because Yes Bank's systems were frozen under RBI's moratorium</li>
+        <li class="option correct"><div class="opt-label">F</div>Amazon Web Services terminating Parler's hosting contract within 24 hours based on content moderation concerns</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answers: A, C, D, F</span>
+        <p><strong>Explanation:</strong></p>
+        <p><strong>A - Governance Censorship ✅:</strong> Instagram's algorithmic suppression was a deliberate policy decision (whether automated or manual), not a technical failure. The system worked as designed - it reduced distribution of flagged content. A decision, not an accident.</p>
+        <p><strong>B - Technical SPOF ✗:</strong> This was an accidental infrastructure failure caused by a bug in AWS's automated management system. Not deliberate. No human decided to take down the network.</p>
+        <p><strong>C - Governance Censorship ✅:</strong> YouTube's demonetisation is a deliberate platform policy decision applied algorithmically. The content is still live; the decision to remove monetisation is a governance choice, not a technical failure.</p>
+        <p><strong>D - Governance Censorship ✅:</strong> Government-ordered internet shutdowns are explicit governance decisions - legal orders directing ISPs to restrict access. Highly deliberate. India has executed 100+ such shutdowns annually.</p>
+        <p><strong>E - Complex (Neither pure category) ✗:</strong> Yes Bank's failure was a financial/regulatory cascade - the RBI moratorium was a governance decision, but its effect on PhonePe was a technical dependency cascade, not deliberate censorship of PhonePe specifically. This is a regulatory chokepoint - a third category.</p>
+        <p><strong>F - Governance Censorship ✅:</strong> AWS's termination of Parler was a deliberate business/governance decision by AWS leadership - not a technical failure. AWS infrastructure was functional; the decision to not host Parler was intentional.</p>
+        <div class="marks-breakdown">
+          <div class="mark-cell"><strong>4/4 marks:</strong> All four correct (A, C, D, F) selected, no incorrect ones included</div>
+          <div class="mark-cell"><strong>2/4 marks:</strong> Any two correct answers selected without including incorrect options</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MS Q2 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 4</span><span class="q-type">Multi-Select</span>
+      <span class="q-marks">4 Marks</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Which of the following architectural features of MST Blockchain directly address SPOFs or censorship vulnerabilities? Select ALL that apply and be prepared to explain each.</div>
+      <ul class="options">
+        <li class="option correct"><div class="opt-label">A</div>71,000+ independently-owned and operated validators globally - eliminating the infrastructure SPOF by ensuring no single entity controls majority of the network</li>
+        <li class="option correct"><div class="opt-label">B</div>Smart contract rules for platform operations - replacing company policy decisions with immutable code that requires consensus to change</li>
+        <li class="option"><div class="opt-label">C</div>EVM compatibility - allows Ethereum developers to deploy their code on MST without rewriting it</li>
+        <li class="option correct"><div class="opt-label">D</div>SARAL Protocol for decentralised identity - creating user identities that no platform can suspend, because they are controlled by the user's own cryptographic key</li>
+        <li class="option correct"><div class="opt-label">E</div>IPFS integration for content storage - storing content with hash-based addressing so it cannot be removed by any single entity as long as one node globally hosts it</li>
+        <li class="option"><div class="opt-label">F</div>3-second block time - ensuring fast transaction confirmation for user experience parity with centralised apps</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answers: A, B, D, E</span>
+        <p><strong>Explanation:</strong></p>
+        <p><strong>A ✅ - Infrastructure SPOF Mitigation:</strong> 71,000+ independent validators eliminate the centralised infrastructure SPOF. No single node failure cascades to the network. Even losing 30% of validators (23,000+) leaves the network functional.</p>
+        <p><strong>B ✅ - Censorship Mitigation:</strong> Smart contracts replace company policy with code. Platform rules for content distribution, account management, and monetisation are written in publicly auditable code - no company can change rules unilaterally. Any change requires a community governance vote.</p>
+        <p><strong>C ✗ - Performance Feature, Not SPOF/Censorship Mitigation:</strong> EVM compatibility is a developer convenience feature. It does not address SPOFs or censorship - it just makes it easier to port existing code.</p>
+        <p><strong>D ✅ - Governance Censorship Mitigation:</strong> SARAL-created DIDs cannot be suspended by any platform because the private key is held by the user. No company's database entry controls the identity. Account suspension as a censorship mechanism is architecturally eliminated.</p>
+        <p><strong>E ✅ - Content Censorship Mitigation:</strong> IPFS content addressing means content cannot be taken down by targeting a server or an account. The content hash remains valid as long as any IPFS node globally hosts the file - giving global censorship resistance.</p>
+        <p><strong>F ✗ - User Experience Feature:</strong> Fast block time improves UX but does not directly address SPOFs or censorship. A censored blockchain that confirms transactions in 3 seconds is still censored.</p>
+        <div class="marks-breakdown">
+          <div class="mark-cell"><strong>4/4 marks:</strong> All four correct (A, B, D, E) selected with no incorrect options included</div>
+          <div class="mark-cell"><strong>2/4 marks:</strong> Any two correct answers selected without including incorrect options</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION C — DESCRIPTIVE -->
+  <h3 class="sub-title" style="margin-top:40px;">Section C - Descriptive Risk Analysis &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 × 10 Marks = 10 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:8px;">Write a structured risk analysis. Use the framework taught in Section 07. Vague answers earn 0. Specific, structured analysis earns full marks.</p>
+
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 5</span><span class="q-type">Descriptive Risk Analysis</span>
+      <span class="q-marks">10 Marks</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Ananya is launching a live cricket commentary platform - "CricketVoice" - where 500 independent commentators can stream live audio commentary on cricket matches and earn income from listener subscriptions. The platform will use: AWS for server hosting, YouTube for video backup streams, Razorpay for subscription payments, and Instagram for community building. Write a complete risk analysis identifying: (1) all SPOFs, (2) all censorship vectors, (3) quantified impact of each, and (4) specific MST Blockchain mitigations for each risk.</div>
+
+      <div class="descriptive-area">
+        <span class="descriptive-label">✅ Model Answer - Full 10 Marks</span>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:6px;">SPOF 1 - AWS Server Hosting (Technical SPOF) | Impact: High</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">CricketVoice's entire streaming infrastructure runs on AWS. An AWS outage (probability ~0.01% per hour; historically occurs several times per year for major regions) would take all 500 commentators' streams offline simultaneously. During an India - Pakistan match - when demand peaks at 10+ million simultaneous listeners - a one-hour outage could result in ₹2 - 5 crore in lost subscription revenue and severe user trust damage. Recovery time: dependent on AWS, not Ananya. MST Mitigation: Deploy commentary streaming nodes across multiple independent cloud providers AND on MST validator infrastructure. Smart contracts manage listener subscription payments. Even if AWS is down, subscription payments continue processing via smart contracts, and streams hosted on non-AWS nodes remain live.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:6px;">SPOF 2 - Razorpay Payment Gateway (Technical + Financial SPOF) | Impact: Medium-High</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">Razorpay processes all subscription payments. Razorpay has its own banking partners and infrastructure dependencies. A Razorpay outage - or a regulatory action against Razorpay's banking partners - prevents all new subscriptions from being processed and could delay existing subscription renewals. For a platform with 100,000 subscribers at ₹99/month, even a 6-hour payment gateway outage during a major match could lose ₹15 - 25 lakh in failed renewal attempts. MST Mitigation: Smart contract subscriptions on MST Blockchain. Listeners stake MSTC tokens to subscribe; the smart contract automatically distributes subscription income to commentators daily. No payment gateway required. No banking partner. No Razorpay outage risk.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:6px;">CENSORSHIP VECTOR 1 - YouTube Content Policy (Governance Censorship) | Impact: Very High</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">CricketVoice uses YouTube for backup video streams. YouTube's policies on live sports content include strict copyright enforcement - BCCI holds IP rights to cricket match footage. Even audio commentary without footage could be flagged by YouTube's Content ID system if a commentator's stream picks up ambient broadcast audio. Mass channel terminations during the IPL season (April - May) - when platform income peaks - could eliminate 30 - 50% of CricketVoice's revenue in a single enforcement action. India has repeatedly been in the top 5 for YouTube sports content removal requests. MST Mitigation: Streams stored on IPFS with hash-based addressing. No YouTube dependency. Smart contract governs commentary licensing directly with BCCI or through DAO-approved licencing terms. Content moderation via community governance (DAO), not YouTube's algorithm.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:6px;">CENSORSHIP VECTOR 2 - Instagram Algorithm (Governance Censorship) | Impact: Medium</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">CricketVoice's community building depends on Instagram. During politically sensitive matches (India - Pakistan, India - Australia in controversial circumstances), Instagram may algorithmically suppress sports commentary that contains political language - even if incidental. Shadow-banning of CricketVoice's account could reduce community growth by 90%+ (as seen with Karan's case: reach dropped from 2.1M to 190K impressions). MST Mitigation: On-chain social graph on MST Blockchain. Listeners follow commentators' DID addresses - not Instagram profiles. Community grows on-chain. No algorithm suppresses it. SARAL Protocol enables listeners to join with simple phone number login - matching Instagram's UX without the censorship risk.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);font-weight:700;margin-bottom:6px;">CENSORSHIP VECTOR 3 - Government / BCCI Content Order (Regulatory) | Impact: Catastrophic</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:14px;">If BCCI or the Indian government issues a content order (which has legal standing under IT Act Section 69A) to AWS or YouTube to remove CricketVoice's content, all centralised infrastructure operators would comply within 24 - 48 hours. CricketVoice could be entirely offline during the IPL finals - losing ₹3 - 10 crore in peak-season revenue in one government order. MST Mitigation: Content on IPFS. Payments via smart contracts. Community on on-chain social graph. A government order sent to "MST Blockchain" has no addressable entity to receive it. Validators in 50+ countries cannot all be simultaneously ordered to comply with any single government's directive. The platform continues operating regardless.</p>
+
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:0;">
+          <strong>Summary Marks Distribution:</strong><br>
+          SPOF 1 (AWS): 2 marks - specific failure mechanism + quantified impact + MST mitigation<br>
+          SPOF 2 (Razorpay): 2 marks - specific failure mechanism + quantified impact + MST mitigation<br>
+          Censorship 1 (YouTube): 2 marks - specific censorship vector + quantified impact + MST mitigation<br>
+          Censorship 2 (Instagram): 2 marks - specific censorship vector + quantified impact + MST mitigation<br>
+          Censorship 3 (Government): 2 marks - specific regulatory vector + catastrophic impact + MST mitigation
+        </p>
+      </div>
+
+      <div class="marks-breakdown" style="margin-top:16px;">
+        <div class="mark-cell"><strong>9 - 10 marks:</strong> All five risks identified with specific mechanisms, quantified impacts (actual numbers), and named MST components for mitigation</div>
+        <div class="mark-cell"><strong>6 - 8 marks:</strong> 3 - 4 risks fully analysed with specifics; remaining risks mentioned without full analysis</div>
+        <div class="mark-cell"><strong>3 - 5 marks:</strong> Risks correctly categorised but impacts are vague ("many users affected") and mitigations generic ("use blockchain")</div>
+        <div class="mark-cell"><strong>0 - 2 marks:</strong> Only surface-level description; no quantification; no specific MST features named</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div style="background: var(--brand); border-radius: var(--radius); padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div style="color: #C4B5F5; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">Sub-Module 2.3 Assessment Summary</div>
+      <div style="color: white; font-size: 16px; font-weight: 700;">Section A: 2 × MCQ = 2 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section B: 2 × Multi-Select = 8 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section C: 1 × Descriptive Risk Analysis = 10 marks</div>
+    </div>
+    <div style="background: white; border-radius: 10px; padding: 14px 28px; text-align: center;">
+      <div style="font-size: 42px; font-weight: 900; color: var(--brand); line-height: 1;">20</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--ink-3);">TOTAL MARKS</div>
+    </div>
+  </div>
+</section>
+
+<div style="text-align:center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);">
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size: 13px; color: var(--ink-3);">Module 2 · Sub-Module 2.3 of 6 &nbsp;·&nbsp; Next: Sub-Module 2.4 - Decentralised Systems: Wikipedia &amp; BitTorrent →</div>
+</div>
+
+</body>
+</html>

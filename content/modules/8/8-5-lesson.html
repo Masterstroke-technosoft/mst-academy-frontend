@@ -1,0 +1,310 @@
+
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.5 of 8</div>
+<h1 class="module-title">Data Types &amp; <span class="highlight">Storage</span></h1>
+<p class="module-subtitle">From uint256 to bytes, from memory to calldata - mastering the building blocks of Solidity and learning how the EVM stores your data, with cost implications that directly impact your users' gas bills.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 1 Code-Completion (10 marks)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment &amp; Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text">
+      <strong>Choose the correct Solidity data type for any variable</strong>
+      Use uint, int, bool, address, string, bytes, mapping, and struct - understanding the size variants, default values, and gas trade-offs.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🗄️</div>
+    <div class="obj-text">
+      <strong>Master storage, memory, and calldata</strong>
+      Explain exactly where each variable lives, who pays for it, and why using <code>calldata</code> instead of <code>memory</code> can save thousands of gas.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📦</div>
+    <div class="obj-text">
+      <strong>Pack variables into storage slots for gas savings</strong>
+      Understand how the EVM packs multiple small variables into one 32-byte slot, and write contracts that minimize storage costs on MST.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Write a complete contract using the right storage layout</strong>
+      Code a practical example with mappings, structs, and proper storage declarations, then deploy it on Hardhat with confidence.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Staking Contract That Cost Users ₹500 per Claim</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a DeFi protocol on Ethereum launched a staking pool. Users could deposit tokens and claim rewards daily. The contract stored every user's reward history in a <code>mapping(address =&gt; uint256[])</code> - a dynamic array per user, stored in <strong>storage</strong>. The claim function looped over the entire history array each time, reading from storage repeatedly. Storage reads (SLOAD) cost 2,100 gas each (cold). For a user with 100 entries, a single claim cost over 500,000 gas - about ₹1,000 at the time. Users were furious.</p>
+  <br>
+  <p>The developers had not understood Solidity's storage model. They could have stored only the last claim timestamp and a running total, both in storage, and computed rewards mathematically without any loop. Or they could have used a <strong>mapping</strong> directly for each day's reward, eliminating the array. A simple data structure change reduced the claim cost from 500,000 gas to 65,000 gas - an 87% savings. On MST, the same mistake would have cost only ₹0.03 instead of ₹0.004, but the lesson is the same: <strong>storage is expensive, and choosing the right data type and location is the most impactful gas optimization you can make.</strong></p>
+</div>
+<p>This sub-module equips you with a deep understanding of every Solidity data type and the three storage locations - storage, memory, and calldata. You'll learn when to use each, what gas they consume, and how to design contracts that are both functional and cost-efficient on MST.</p>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">Why the EVM Has Three Data Locations</h2>
+<p>When the Ethereum Virtual Machine (EVM) was designed, its creators faced a fundamental challenge: a blockchain is a permanent, replicated database. Every byte stored on-chain must be stored by every full node forever. This makes storage <strong>extremely expensive</strong> - it's the scarcest resource on the network. In contrast, computations are relatively cheap because they are ephemeral: they run once and disappear. The EVM's gas model reflects this reality.</p>
+<p>To balance permanence with cost, the EVM introduced three distinct data locations:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Storage:</strong> Persistent key-value store, written to the blockchain's state trie. Data survives forever. Costs 20,000 gas for a new write (SSTORE), 5,000 gas for an update, and 2,100 gas for a cold read (SLOAD). This is where your contract's state lives.</li>
+  <li><strong>Memory:</strong> Temporary workspace, cleared after external function execution. Much cheaper than storage, but costs scale quadratically with size. Used for complex data manipulation within a function.</li>
+  <li><strong>Calldata:</strong> Read-only input data attached to a transaction. The cheapest location - you pay only for the bytes you include. Perfect for function parameters that don't need to be modified.</li>
+</ul>
+<p>Solidity, as a high-level language, abstracts these locations but requires the developer to explicitly specify them for reference types (arrays, structs, mappings). This is one of the most important skills in smart contract development: knowing where your data lives.</p>
+<p>MST, as an EVM-compatible chain, inherits the exact same storage model. The gas costs are identical per opcode, but because MST's gas price is ~12 Gwei (vs Ethereum's 30-500 Gwei), the rupee cost is orders of magnitude lower. However, <strong>the architectural principles remain unchanged</strong>: you should still write efficient Solidity to keep your contracts scalable and your users happy.</p>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Stone Tablet, Whiteboard, and Sticky Note - The Storage Analogy</h2>
+<div class="callout analogy">
+  <div class="callout-label">🪨 The Analogy</div>
+  <p>Think of <strong>storage</strong> as carving words into a stone tablet - it's permanent, visible to everyone forever, and extremely laborious. <strong>Memory</strong> is like writing on a whiteboard in your office - you can scribble calculations, but it gets erased when you leave the room (end of function). <strong>Calldata</strong> is a sticky note someone handed you - you can read it, but you can't write on it, and it's cheap because it's just paper. Smart contract developers spend most of their optimization time moving data from the stone tablet to the whiteboard or sticky note.</p>
+</div>
+<p>Let's explore each data type and its typical location, starting with the simplest value types.</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">V</div><div class="w5-word">VALUE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are value types?</div>
+      <div class="w5-a"><strong>Value types</strong> are simple data that fit into 32 bytes. They are always passed by value (copied). This includes <code>uint256</code>, <code>int256</code>, <code>bool</code>, <code>address</code>, <code>bytes32</code>, and <code>enum</code>. When you assign a value type, the EVM copies the data. They can be stored in storage (state variables), memory, or calldata, but since they are small, the location matters less for gas - though using <code>calldata</code> for function parameters still saves a few hundred gas.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">R</div><div class="w5-word">REF</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are reference types?</div>
+      <div class="w5-a"><strong>Reference types</strong> can be larger than 32 bytes and include <code>array</code>, <code>struct</code>, <code>mapping</code>, and <code>bytes</code> (dynamic). They are stored as pointers to a memory or storage location. When you assign a reference type, you copy the pointer, not the data - unless you explicitly create a copy. <strong>You must specify the data location</strong> (<code>memory</code>, <code>storage</code>, or <code>calldata</code>) for reference types in function parameters and local variables. Getting this wrong is the #1 compiler error for new Solidity developers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Every Data Type, Every Size, Every Default - Complete Reference</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Integer Types: uint and int</h3>
+<p>Solidity provides unsigned (<code>uint</code>) and signed (<code>int</code>) integers, from 8 bits to 256 bits in steps of 8. <code>uint</code> is an alias for <code>uint256</code>. The default value is <code>0</code>. Arithmetic overflow/underflow was historically a major vulnerability, but since Solidity 0.8.0, the compiler automatically inserts checks and reverts on overflow - unless you use an <code>unchecked { ... }</code> block, which saves gas but must be used with extreme caution.</p>
+<p>Why choose smaller sizes like <code>uint8</code>? The EVM operates on 256-bit words. A <code>uint8</code> still takes up a full 32-byte storage slot, but multiple <code>uint8</code> variables can be <strong>packed</strong> into a single slot by the compiler if they are declared consecutively. This is a crucial gas optimization: reading one slot costs 2,100 gas (cold) or 100 gas (warm). Reading two packed variables from the same slot costs the same as reading one. Declare small variables together to maximize packing.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Bool and Address</h3>
+<p><code>bool</code> is either <code>true</code> or <code>false</code>, default <code>false</code>. It occupies 1 byte but, like other small types, can be packed into a slot. <code>address</code> is a 20-byte (160-bit) Ethereum address, default <code>0x0000...0000</code>. Addresses have special members like <code>.balance</code> (returns the native coin balance in wei) and <code>.transfer(uint256 amount)</code> (sends native coin). <code>address payable</code> is a subtype that allows <code>.send()</code> and <code>.transfer()</code>.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Bytes and Strings</h3>
+<p>Fixed-size byte arrays (<code>bytes1</code> to <code>bytes32</code>) hold exactly that many bytes. They are value types and are cheap because they fit in a single EVM word. <code>bytes32</code> is often used for hashes and identifiers. Dynamic <code>bytes</code> and <code>string</code> are reference types. They are stored in storage as a length prefix and data. <code>string</code> is essentially <code>bytes</code> with UTF-8 encoding but with no length operator (you can't do <code>myString.length</code> without converting to bytes). Use <code>bytes</code> for raw data, <code>string</code> for human-readable text.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Mapping: The Workhorse of Solidity</h3>
+<p>A <code>mapping(KeyType =&gt; ValueType)</code> is a hash table that maps keys to values. All possible keys exist and return the default value of the ValueType (0, false, zero address) - there is no "does this key exist" check. Mappings are stored in storage only; you cannot have a memory mapping. They are ideal for keeping track of balances (<code>mapping(address =&gt; uint256)</code>), allowances, or any associative data.</p>
+<p>Mappings cannot be iterated over. To track which keys have been set, use a separate array of keys or an enumerable mapping pattern (using OpenZeppelin's EnumerableMap). On MST, where gas is cheap, even storage-heavy patterns like enumerable mappings are practical.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Structs: Custom Data Bundles</h3>
+<p>A <code>struct</code> groups multiple variables under one name. Structs can be stored in storage or memory. When stored in storage, they are written to consecutive storage slots, with potential packing. You can create arrays of structs and mappings to structs. Example:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">struct User {
+    address addr;
+    uint256 balance;
+    bool isActive;
+}
+mapping(address =&gt; User) public users;
+</pre>
+<p>This mapping stores a <code>User</code> struct per address. Accessing <code>users[addr].balance</code> reads from a storage slot determined by keccak256(key, slot).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Enums: Finite State Machines</h3>
+<p><code>enum Status { Pending, Shipped, Delivered }</code> creates a custom type with named constants. Internally, they are stored as <code>uint8</code> starting from 0. Use them to make contract states explicit and readable.</p>
+
+<!-- ═══════════════ 06 STORAGE DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Storage, Memory, and Calldata</div>
+<h2 class="section-title">Where Your Data Lives - The Gas Cost of Every Decision</h2>
+<table class="compare-table">
+  <thead>
+    <tr><th>Property</th><th>💾 Storage</th><th>🧠 Memory</th><th>📋 Calldata</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Persistence</td><td>Permanent (until explicitly deleted)</td><td>Temporary (function execution)</td><td>Temporary (read-only input)</td></tr>
+    <tr><td>Cost to write</td><td>20,000 gas (new), 5,000 gas (update)</td><td>Scales quadratically with size (3 gas per byte + expansion)</td><td>Not writable</td></tr>
+    <tr><td>Cost to read</td><td>2,100 gas (cold), 100 gas (warm)</td><td>Cheap (MLOAD: 3 gas)</td><td>Read via CALLDATALOAD (3 gas)</td></tr>
+    <tr><td>Default for state variables</td><td>Yes - all state variables are in storage</td><td>No</td><td>No</td></tr>
+    <tr><td>Best use</td><td>Contract state (balances, config)</td><td>Temporary arrays, strings during computation</td><td>Function parameters that don't change</td></tr>
+    <tr><td>Must be specified?</td><td>Implicit for state variables</td><td>Required for local reference types</td><td>Required for external function parameters</td></tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Gas Cost of Ignoring Calldata</h3>
+<p>When you write an external function like <code>function setData(string memory _data)</code>, the EVM first copies the entire string from calldata into memory - every character. For a 1 KB string, that's an extra ~3,000 gas, plus memory expansion costs. Change <code>memory</code> to <code>calldata</code> and the data stays in the read-only input area, with no copy. The function can read it directly. Rule of thumb: <strong>if a parameter is not being modified, declare it as <code>calldata</code></strong>. This applies to <code>string</code>, <code>bytes</code>, and <code>uint256[]</code> arrays.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Storage Packing - Fit More in Less Gas</h3>
+<p>The EVM stores data in 32-byte slots. If you declare a <code>uint128 a; uint128 b;</code> consecutively, the compiler packs them into a single slot. If you interleave them with a <code>uint256</code>, they each take their own slot. Packing reduces the number of SSTORE/SLOAD operations, directly lowering gas costs. On MST, a packed storage layout might save only ₹0.001 per read, but for a contract called thousands of times, those savings add up - and it's excellent practice for any EVM chain.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.5-A · Storage Slot Packing</div>
+  <pre>  Unpacked (3 slots):                     Packed (1 slot):
+  ┌───────────────────────┐               ┌───────────────────────┐
+  │ uint256 a  (32 bytes)  │               │ uint128 a (16 bytes)   │
+  └───────────────────────┘               │ uint128 b (16 bytes)   │
+  ┌───────────────────────┐               └───────────────────────┘
+  │ uint128 b (16 bytes)   │
+  │ (padded to 32 bytes)   │
+  └───────────────────────┘               Saving 2 storage slots
+  ┌───────────────────────┐               means 40,000 gas saved
+  │ uint128 c (16 bytes)   │               on deployment and cheaper
+  │ (padded to 32 bytes)   │               reads (fewer SLOADs).
+  └───────────────────────┘
+  </pre>
+  <div class="diagram-caption">The Solidity compiler automatically packs small variables that are adjacent in the contract declaration. Struct fields are also packed. Check your storage layout with <code>solc --storage-layout</code>.</div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Golden Rule of Solidity Data</div>
+  <p><strong>Use storage for state that must persist. Use memory for temporary computations. Use calldata for read-only external function parameters.</strong> Always ask: "Does this variable need to survive after this function call?" If no, keep it in memory or calldata. This mindset alone will make you a better smart contract developer.</p>
+</div>
+
+<!-- ═══════════════ 07 INTERACTIVE EXAMPLES ═══════════════ -->
+<div class="section-label">07 &nbsp; Interactive Code Examples</div>
+<h2 class="section-title">Common Patterns - Click to Reveal</h2>
+<details>
+  <summary>📋 Using mapping for balances (storage)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">contract Token {
+    mapping(address =&gt; uint256) public balanceOf;
+
+    function transfer(address to, uint256 amount) external {
+        require(balanceOf[msg.sender] &gt;= amount, "insufficient");
+        balanceOf[msg.sender] -= amount;  // SSTORE (5,000 gas)
+        balanceOf[to] += amount;           // SSTORE (5,000 or 20,000)
+        emit Transfer(msg.sender, to, amount);
+    }
+}
+    </pre>
+    <p>The mapping is stored in storage. Each write costs 5,000-20,000 gas. MST makes this affordable at ~₹0.006 per update.</p>
+  </div>
+</details>
+<details>
+  <summary>🧠 Building a struct in memory</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">function createUser(address addr, uint256 bal) external pure returns (User memory) {
+    User memory newUser;
+    newUser.addr = addr;
+    newUser.balance = bal;
+    newUser.isActive = true;
+    return newUser;  // copies memory to calldata (return data)
+}
+    </pre>
+    <p>All struct fields are in memory, so no permanent storage cost. The returned struct is copied to calldata automatically.</p>
+  </div>
+</details>
+<details>
+  <summary>📨 Using calldata for read-only array</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">function sumArray(uint256[] calldata arr) external pure returns (uint256) {
+    uint256 total = 0;
+    for (uint256 i = 0; i &lt; arr.length; i++) {
+        total += arr[i];  // reads directly from calldata, no copy
+    }
+    return total;
+}
+    </pre>
+    <p>If <code>arr</code> were declared <code>memory</code>, the EVM would first copy the entire array from calldata to memory, costing ~3 gas per byte plus memory expansion. Calldata avoids that overhead entirely.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 08 CASE STUDIES ═══════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">Storage Choices That Saved (and Cost) Millions</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💰</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v2 - Mapping Over Array for Pair Tracking</div>
+      <div class="feature-desc">Uniswap v2 tracks every trading pair in a <code>mapping(address =&gt; mapping(address =&gt; address))</code> - a nested mapping from token0 to token1 to the pair contract address. This O(1) lookup costs one SLOAD (100-2,100 gas) per query. If they had used an array and looped through it for every swap, the cost would have scaled linearly with the number of pairs, eventually making swaps prohibitively expensive. The choice of mapping over array was a deliberate storage optimization that keeps the protocol scalable.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">🔴</div>
+    <div class="feature-content">
+      <div class="feature-title">The "String in Storage" Anti-Pattern</div>
+      <div class="feature-desc">A common beginner mistake is storing user names or descriptions as <code>string</code> state variables. A <code>string</code> in storage is a dynamic array of bytes - it occupies at least one slot for the length, plus slots for the data. For a 50-character name, that's 3+ slots (over 60,000 gas to write). The better pattern is to store an IPFS hash (<code>bytes32</code>) that points to the actual data off-chain. This reduces the storage cost to a single 32-byte slot (20,000 gas). On MST, the gas savings are modest, but the principle of storing only essential on-chain data remains critical for scalability.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 09 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Storage is persistent and expensive; memory is temporary and cheap</div>
+      <div class="feature-desc">SSTORE costs 20,000 gas for a new write. MLOAD costs 3 gas. Choose memory over storage whenever possible. For read-only external parameters, use calldata.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Mapping cannot be iterated; use an array of keys if you need enumeration</div>
+      <div class="feature-desc"><code>mapping(address =&gt; uint)</code> gives O(1) lookup but no way to list all keys. Pair it with an <code>address[]</code> if you need to iterate.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Use calldata for external function parameters that are not modified</div>
+      <div class="feature-desc">It avoids an expensive memory copy. Example: <code>function foo(uint[] calldata arr) external { ... }</code></div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Pack consecutive small variables into storage slots</div>
+      <div class="feature-desc">Declare <code>uint128</code>, <code>uint64</code>, <code>bool</code> together. The compiler packs them. Verify with <code>solc --storage-layout</code>. On MST, gas savings are smaller but still best practice.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">All value types have a default zero value (0, false, 0x0)</div>
+      <div class="feature-desc">Mappings return the default for nonexistent keys. No "key exists" check. Use an <code>isActive</code> boolean or a separate Set contract if needed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Value Type</div><div class="glossary-def">A Solidity type that fits in 32 bytes and is always copied when assigned. Includes uint, int, bool, address, bytes32, enum.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Reference Type</div><div class="glossary-def">A type that can be larger than 32 bytes, stored as a reference to a location. Includes arrays, structs, mappings, strings, dynamic bytes. Must specify data location.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Storage</div><div class="glossary-def">Persistent key-value store on the blockchain. Costs 20,000 gas for a new write (SSTORE). Used for contract state variables. Survives forever.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Memory</div><div class="glossary-def">Temporary data area cleared after each external function call. Cheaper than storage (MLOAD = 3 gas). Used for local variables and computations.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Calldata</div><div class="glossary-def">Read-only input data attached to a transaction. The cheapest data location; use for external function parameters that aren't modified.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Mapping</div><div class="glossary-def">A hash table <code>mapping(Key =&gt; Value)</code> stored in storage. O(1) lookup. Cannot be iterated; all keys return the default value if unset.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Struct</div><div class="glossary-def">A custom type that groups multiple variables. Can be stored in storage or memory. Use for complex data like user profiles or order details.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Storage Slot Packing</div><div class="glossary-def">Compiler optimization that places multiple small variables into a single 32-byte storage slot. Reduces gas costs by lowering SSTORE/SLOAD count.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SLOAD / SSTORE</div><div class="glossary-def">EVM opcodes for reading and writing storage. SLOAD: 100-2,100 gas. SSTORE: 5,000-20,000 gas. Most expensive operations; minimize them.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Gas Optimization</div><div class="glossary-def">The practice of reducing computational cost by choosing efficient data types, minimizing storage access, and using calldata over memory. Even on low-fee chains like MST, good practice is essential.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.5</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.6 - Functions, Modifiers &amp; Events →</p>
+</div>
+
+

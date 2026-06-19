@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 12.5 - Hands-On: Mint an NFT Collection | Masterstroke Academy</title>
+    <meta name="description" content="Build, deploy, and mint your own NFT collection on MST Blockchain. Learn the complete workflow from OpenZeppelin Wizard to IPFS upload, React frontend, and marketplace listing.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #059669;
+            --brand-light: #D1FAE5;
+            --brand-dark: #064E3B;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #A7F3D0;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #A7F3D0;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #A7F3D0;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">🖼️ Module 12 · Sub-Module 12.5 of 5</div>
+    <h1 class="module-title">Hands-On: Mint an <span class="highlight">NFT Collection</span></h1>
+    <p class="module-subtitle">Your complete practical guide to building, deploying, and minting a full NFT collection on MST Blockchain. From a blank Hardhat project to a live React frontend, all the way to listing on a marketplace - every step, every line of code, every best practice.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 30 Minutes</div>
+        <div class="meta-chip purple">🎯 40 Marks (Practical Project)</div>
+        <div class="meta-chip">📋 Deploy contract, mint NFTs, list on marketplace</div>
+        <div class="meta-chip green">Phase 4 · NFTs, Gaming & Fairness</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will have built…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">🏗️</div>
+            <div class="feature-title">A complete, customisable ERC-721 NFT collection smart contract</div>
+            <div class="feature-desc">Generated with OpenZeppelin Wizard, extended with minting limits, pricing, and royalty support - all deployed to the MST testnet.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🌐</div>
+            <div class="feature-title">Metadata and assets stored on IPFS</div>
+            <div class="feature-desc">Generate metadata JSON files for each NFT, upload images and metadata to IPFS using Pinata, and ensure your collection is truly decentralised.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🖥️</div>
+            <div class="feature-title">A React minting frontend with wallet connection</div>
+            <div class="feature-desc">Build a clean, responsive UI where users connect their MST BridgeKey wallet, see the collection, and mint NFTs with a single click.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🏪</div>
+            <div class="feature-title">A marketplace listing for your freshly minted NFT</div>
+            <div class="feature-desc">List one of your NFTs for sale on a decentralised marketplace (like OpenSea Testnet or an MST marketplace), and capture a screenshot as proof of a complete, end-to-end NFT lifecycle.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Artist Who Went from Zero to Sold-Out Collection in One Weekend</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>Ananya, a digital illustrator from Pune, had been creating art for years and sharing it on Instagram. Her follower count was growing, but she was making almost no income from her work. A friend told her about NFTs and how artists were selling their art directly to collectors without galleries taking commissions. Ananya was intrigued but intimidated - she knew nothing about blockchain, Solidity, or crypto wallets.</p>
+        <br>
+        <p>She followed a guide exactly like this one. In two days, she had: generated an ERC-721 contract using the OpenZeppelin Wizard (which required no coding), uploaded her 10 artwork pieces and metadata to IPFS, deployed the contract to the MST testnet for testing, then deployed to mainnet. She built a simple minting page using the provided React template. She set a mint price of 0.01 ETH (about ₹2,500 at the time) and a maximum supply of 50 editions per artwork.</p>
+        <br>
+        <p>Ananya shared the minting link on her Instagram and Twitter. Within 48 hours, all 500 NFTs were minted. She earned 5 ETH (₹12.5 lakh) directly to her wallet - no gallery commission, no payment processor delay, no middleman. Her collection was verified on OpenSea, and secondary sales started generating royalties. Ananya went from "I don't know how to code" to a successful Web3 creator in one weekend. The guide that helped her is the one you're about to follow.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; Project Overview - The Complete Roadmap</div>
+    <h2 class="section-title">What We're Building, Step by Step</h2>
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 12.5-A · The Complete NFT Collection Workflow</div>
+        <pre>
+STEP 1: Generate Smart Contract
+  │ (OpenZeppelin Wizard → ERC‑721 with mint, royalty, max supply)
+  ▼
+STEP 2: Set Up Hardhat Project
+  │ (npx hardhat init, install deps, configure MST testnet)
+  ▼
+STEP 3: Write & Compile Contract
+  │ (contracts/MyCollection.sol, npx hardhat compile)
+  ▼
+STEP 4: Prepare Metadata & Assets
+  │ (Create JSON metadata for each NFT, prepare images)
+  ▼
+STEP 5: Upload to IPFS
+  │ (Pinata or web3.storage → get CID, set base URI)
+  ▼
+STEP 6: Deploy to MST Testnet
+  │ (npx hardhat run scripts/deploy.js --network mst_testnet)
+  ▼
+STEP 7: Build React Frontend
+  │ (Vite + React, ethers.js, wallet connection, mint button)
+  ▼
+STEP 8: Mint NFTs from Frontend
+  │ (Connect wallet, pay mint fee, receive NFT)
+  ▼
+STEP 9: List on Marketplace
+  │ (OpenSea Testnet or MST marketplace, set price, list)
+  ▼
+STEP 10: Submit Your Project
+  │ (GitHub repo + deployed contract + screenshot)
+        </pre>
+        <div class="diagram-caption">A complete roadmap from zero to a live, listed NFT collection in 10 steps.</div>
+    </div>
+
+    <div class="section-label">04 &nbsp; Step 1 - Generate the Smart Contract with OpenZeppelin Wizard</div>
+    <h2 class="section-title">No Need to Write ERC-721 from Scratch</h2>
+    <p>The <strong>OpenZeppelin Contract Wizard</strong> is a web-based tool that generates secure, audited smart contract code based on the options you select. It's the safest and fastest way to create an NFT contract for any EVM chain, including MST.</p>
+    <p>Open <strong>https://wizard.openzeppelin.com</strong> in your browser. Select the <strong>ERC-721</strong> tab. You'll see a visual interface where you can toggle features on and off. Here is the configuration we'll use for our collection:</p>
+    <p><strong>Name & Symbol:</strong> Set the name to "MST Collection" and the symbol to "MSTC".</p>
+    <p><strong>Base URI:</strong> Leave this empty for now - we'll set it after uploading to IPFS.</p>
+    <p><strong>Mintable:</strong> Enable this. It adds a <code>safeMint</code> function that only the contract owner can call.</p>
+    <p><strong>Auto-increment IDs:</strong> Enable this. Each NFT will get a sequential token ID starting from 0.</p>
+    <p><strong>Enumerable:</strong> Enable this. It adds functions to list all token IDs and query total supply, which marketplaces need.</p>
+    <p><strong>URI Storage:</strong> Enable this. It adds a function to set the base URI for all token metadata.</p>
+    <p><strong>Royalties (ERC-2981):</strong> Enable this. Set a royalty percentage (e.g., 5%) and a royalty receiver address (your wallet). This means you'll earn 5% on every secondary sale forever.</p>
+    <p><strong>Ownable:</strong> Enable this. It restricts minting and administrative functions to the contract owner.</p>
+    <p><strong>Pausable:</strong> Enable this (optional). It lets you pause minting in an emergency.</p>
+    <p>Click "Copy to Clipboard" and save the generated code as <code>contracts/MyCollection.sol</code> in your Hardhat project. The wizard produces a complete, production-ready contract with all the features you selected.</p>
+
+    <div class="code-block-wrap"><pre>
+// contracts/MyCollection.sol (generated by OpenZeppelin Wizard)
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
+
+contract MyCollection is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Pausable, Ownable, ERC2981 {
+    uint256 private _nextTokenId;
+
+    constructor(address initialOwner, address royaltyReceiver)
+        ERC721("MST Collection", "MSTC")
+        Ownable(initialOwner)
+    {
+        _setDefaultRoyalty(royaltyReceiver, 500); // 5% royalty
+    }
+
+    function safeMint(address to, string memory uri) public onlyOwner {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+    }
+
+    function pause() public onlyOwner { _pause(); }
+    function unpause() public onlyOwner { _unpause(); }
+
+    // Overrides required by Solidity
+    function _update(address to, uint256 tokenId, address auth)
+        internal override(ERC721, ERC721Enumerable, ERC721Pausable)
+        returns (address)
+    { return super._update(to, tokenId, auth); }
+
+    function _increaseBalance(address account, uint128 value)
+        internal override(ERC721, ERC721Enumerable)
+    { super._increaseBalance(account, value); }
+
+    function tokenURI(uint256 tokenId)
+        public view override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    { return super.tokenURI(tokenId); }
+
+    function supportsInterface(bytes4 interfaceId)
+        public view override(ERC721, ERC721Enumerable, ERC721URIStorage, ERC2981)
+        returns (bool)
+    { return super.supportsInterface(interfaceId); }
+}</pre></div>
+
+    <div class="section-label">05 &nbsp; Step 2 - Set Up the Hardhat Project</div>
+    <h2 class="section-title">Create, Configure, and Install Dependencies</h2>
+    <div class="code-block-wrap"><pre>
+mkdir my-nft-collection
+cd my-nft-collection
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox @openzeppelin/contracts dotenv
+npx hardhat init
+# Choose "Create a JavaScript project"</pre></div>
+    <p>Configure <code>hardhat.config.js</code> for MST testnet:</p>
+    <div class="code-block-wrap"><pre>
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
+module.exports = {
+    solidity: "0.8.20",
+    networks: {
+        mst_testnet: {
+            url: "https://testnetrpc.mstblockchain.com",
+            chainId: 4545,
+            accounts: [process.env.PRIVATE_KEY]
+        }
+    }
+};</pre></div>
+    <p>Create a <code>.env</code> file with your private key (do NOT commit this!):</p>
+    <div class="code-block-wrap"><pre>
+PRIVATE_KEY=0x_your_mst_testnet_private_key_here</pre></div>
+
+    <div class="section-label">06 &nbsp; Step 3 - Prepare Metadata and Artwork</div>
+    <h2 class="section-title">Every NFT Needs a JSON File and an Image</h2>
+    <p>For a collection of 10 NFTs, create a folder <code>metadata/</code> and a folder <code>images/</code>. For each token ID (0 through 9), you need:</p>
+    <p><strong>1. An image file</strong> (e.g., <code>0.png</code>, <code>1.png</code>, etc.) in the <code>images/</code> folder.</p>
+    <p><strong>2. A JSON metadata file</strong> (e.g., <code>0.json</code>, <code>1.json</code>) that references the image and describes the NFT.</p>
+    <div class="code-block-wrap"><pre>
+{
+    "name": "MST Collection #0",
+    "description": "The very first NFT in the MST Collection – a symbol of your journey into Web3.",
+    "image": "ipfs://QmYourImagesCID/0.png",
+    "attributes": [
+        { "trait_type": "Background", "value": "Midnight Blue" },
+        { "trait_type": "Rarity", "value": "Common" }
+    ]
+}</pre></div>
+    <p>After uploading all images to IPFS, you'll get a single CID for the folder (e.g., <code>QmYourImagesCID</code>). Replace the image URL in every JSON file with <code>ipfs://QmYourImagesCID/0.png</code> (changing the filename for each). Then upload the entire <code>metadata/</code> folder to IPFS, which gives you a second CID for the metadata folder.</p>
+    <p>Your base URI will be <code>ipfs://QmYourMetadataCID/</code>. The contract will construct the full token URI as <code>ipfs://QmYourMetadataCID/0.json</code>, <code>1.json</code>, etc.</p>
+
+    <div class="section-label">07 &nbsp; Step 4 - Upload to IPFS with Pinata</div>
+    <h2 class="section-title">Decentralised Storage for Your Collection</h2>
+    <p><strong>Pinata</strong> is a free IPFS pinning service. Create an account at <strong>https://pinata.cloud</strong>, generate an API key, and use the Pinata web app or the Node.js SDK to upload your folders.</p>
+    <div class="code-block-wrap"><pre>
+npm install @pinata/sdk
+# upload.js
+const pinataSDK = require("@pinata/sdk");
+const pinata = new pinataSDK({ pinataJWTKey: "YOUR_JWT" });
+
+async function upload() {
+    const result = await pinata.pinFromFS("./images/", { pinataMetadata: { name: "MST-Collection-Images" } });
+    console.log("Images CID:", result.IpfsHash);
+    // Then do the same for ./metadata/
+}
+upload();</pre></div>
+    <p>Once you have both CIDs, set the base URI in your contract's constructor or via a setter function. For our contract, we'll use the <code>ERC721URIStorage</code> approach where each token gets its own URI passed during minting. In the <code>safeMint</code> function, we pass <code>ipfs://QmMetadataCID/0.json</code> for token 0, etc. For automated minting, you can script it.</p>
+
+    <div class="section-label">08 &nbsp; Step 5 - Deploy to MST Testnet</div>
+    <h2 class="section-title">Take Your Contract Live in Minutes</h2>
+    <div class="code-block-wrap"><pre>
+// scripts/deploy.js
+const hre = require("hardhat");
+async function main() {
+    const [deployer] = await hre.ethers.getSigners();
+    console.log("Deploying with account:", deployer.address);
+    const MyCollection = await hre.ethers.getContractFactory("MyCollection");
+    const contract = await MyCollection.deploy(deployer.address, deployer.address);
+    await contract.waitForDeployment();
+    console.log("Contract deployed to:", await contract.getAddress());
+}
+main();</pre></div>
+    <p>Run: <strong>npx hardhat run scripts/deploy.js --network mst_testnet</strong></p>
+    <p>Copy the deployed contract address. Verify the contract on MSTScan using <strong>npx hardhat verify --network mst_testnet YOUR_ADDRESS</strong> with constructor arguments if needed.</p>
+
+    <div class="section-label">09 &nbsp; Step 6 - Build the React Minting Frontend</div>
+    <h2 class="section-title">A Clean UI for Your Collectors</h2>
+    <div class="code-block-wrap"><pre>
+npm create vite@latest mint-frontend -- --template react
+cd mint-frontend
+npm install ethers</pre></div>
+    <p>Replace <code>src/App.jsx</code> with the minting page code. The page connects to the user's wallet, displays the minted count, and provides a "Mint" button that calls the <code>safeMint</code> function (restricted to the owner; in a real public sale, you'd use a payable mint function). For this project, we'll mint as the owner via the frontend (using a signer).</p>
+    <div class="code-block-wrap"><pre>
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import MyCollectionABI from './abis/MyCollection.json';
+
+const CONTRACT_ADDRESS = "0x_YOUR_DEPLOYED_CONTRACT";
+
+function App() {
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [contract, setContract] = useState(null);
+    const [account, setAccount] = useState('');
+    const [totalMinted, setTotalMinted] = useState(0);
+    const [minting, setMinting] = useState(false);
+
+    const connectWallet = async () => {
+        if (window.ethereum) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const address = await signer.getAddress();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, MyCollectionABI.abi, signer);
+            setProvider(provider); setSigner(signer); setContract(contract); setAccount(address);
+            window.ethereum.on('accountsChanged', (accts) => { if (accts.length === 0) disconnect(); else setAccount(accts[0]); });
+        } else { alert('Install MST BridgeKey!'); }
+    };
+
+    const disconnect = () => { setProvider(null); setSigner(null); setContract(null); setAccount(''); };
+
+    const fetchTotalMinted = async () => {
+        if (!contract) return;
+        const count = await contract.totalSupply();
+        setTotalMinted(Number(count));
+    };
+
+    const mint = async () => {
+        if (!contract) return;
+        setMinting(true);
+        try {
+            const tokenURI = `ipfs://QmMetadataCID/${totalMinted}.json`;
+            const tx = await contract.safeMint(account, tokenURI);
+            await tx.wait();
+            await fetchTotalMinted();
+            alert('NFT minted!');
+        } catch (err) { alert('Error: ' + (err.reason || err.message)); }
+        setMinting(false);
+    };
+
+    useEffect(() => { if (contract) fetchTotalMinted(); }, [contract]);
+
+    return (
+        <div style={{ maxWidth: 500, margin: '50px auto', textAlign: 'center' }}>
+            <h1>MST Collection Minting</h1>
+            {!account ? (
+                <button onClick={connectWallet} style={{ padding: '12px 24px', fontSize: 16 }}>Connect Wallet</button>
+            ) : (
+                <>
+                    <p>Connected: {account.slice(0,6)}...{account.slice(-4)}</p>
+                    <p>Total Minted: {totalMinted} / 10</p>
+                    <button onClick={mint} disabled={minting || totalMinted >= 10} style={{ padding: '12px 24px', fontSize: 16, background: '#059669', color: '#fff', border: 'none', borderRadius: 8 }}>
+                        {minting ? 'Minting...' : 'Mint NFT'}
+                    </button>
+                </>
+            )}
+        </div>
+    );
+}
+export default App;</pre></div>
+    <p>Replace <code>QmMetadataCID</code> with your actual IPFS metadata folder CID. Run <code>npm run dev</code> to start the development server. Visit <code>http://localhost:5173</code>, connect your MST BridgeKey wallet, and click "Mint NFT" to mint tokens sequentially.</p>
+
+    <div class="section-label">10 &nbsp; Step 7 - List Your NFT on a Marketplace</div>
+    <h2 class="section-title">Show the World Your Collection</h2>
+    <p>After minting a few NFTs, you can list them for sale on a marketplace. For MST testnet, you can use <strong>OpenSea Testnet</strong> (if they support MST testnet) or any MST-compatible NFT marketplace. Alternatively, deploy a simple marketplace contract from the MST ecosystem, or use a generic listing platform.</p>
+    <p>To list an NFT, you typically:</p>
+    <p><strong>1. Approve the marketplace contract</strong> to transfer your NFT by calling <code>approve(marketplaceAddress, tokenId)</code> on your NFT contract.</p>
+    <p><strong>2. List the NFT</strong> on the marketplace by calling the marketplace's <code>listItem</code> function with the price and duration.</p>
+    <p>Take a screenshot showing your NFT listed for sale with a price. This proves you completed the full NFT lifecycle.</p>
+
+    <div class="section-label">11 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>OpenZeppelin Wizard generates production-ready ERC-721 code.</strong> Always start with the wizard for security and standards compliance. Customise after.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>IPFS storage ensures your NFT metadata and images are decentralised.</strong> Pin your files using Pinata or web3.storage, and use <code>ipfs://</code> URIs in your token metadata.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Royalties (ERC-2981) give you a percentage of every secondary sale forever.</strong> Set the royalty receiver and fee in the constructor, and marketplaces like OpenSea will honour it automatically.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Always test on MST testnet first.</strong> Mint a few NFTs, verify the contract, and test the marketplace listing before deploying to mainnet.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>Your GitHub repository is your portfolio.</strong> A clean repo with contract, tests, frontend, and screenshots proves you can deliver a complete Web3 project.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 12.5 Assessment - NFT Collection Project</h2>
+            <div class="marks-total-badge"><div class="num">40</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">R1</div>
+                <div class="a-type">Smart Contract</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">15 marks</div>
+                <div class="a-question">Submit your complete Solidity contract (MyCollection.sol). It must include ERC-721 with minting, enumerable, URI storage, royalties (ERC-2981), and access control (Ownable).</div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Grading Rubric</div><p><strong>5 marks:</strong> Correct ERC-721 implementation with mint function.<br><strong>3 marks:</strong> Enumerable and URI Storage extensions.<br><strong>3 marks:</strong> ERC-2981 royalties configured correctly.<br><strong>2 marks:</strong> Ownable access control on mint and pause functions.<br><strong>2 marks:</strong> Code compiles without errors.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R2</div>
+                <div class="a-type">Metadata & IPFS</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">10 marks</div>
+                <div class="a-question">Submit your metadata JSON files and the IPFS links (or screenshots proving upload). Show that each token's URI points to a valid IPFS metadata file with name, description, image, and attributes.</div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Grading Rubric</div><p><strong>4 marks:</strong> Images and metadata successfully uploaded to IPFS.<br><strong>3 marks:</strong> Metadata JSON files follow the standard format.<br><strong>3 marks:</strong> Token URIs correctly point to IPFS metadata (test on MST testnet).</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R3</div>
+                <div class="a-type">React Frontend</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">10 marks</div>
+                <div class="a-question">Submit your React (Vite) frontend code. It must connect to the user's wallet, display the total minted count, and provide a "Mint" button that calls the contract's safeMint function with the correct token URI.</div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Grading Rubric</div><p><strong>3 marks:</strong> Wallet connection works (MST BridgeKey or MetaMask).<br><strong>3 marks:</strong> Mint function calls the contract correctly.<br><strong>2 marks:</strong> Displays total minted and provides user feedback.<br><strong>2 marks:</strong> Clean, usable UI.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">R4</div>
+                <div class="a-type">Marketplace Listing Screenshot</div>
+                <div class="a-diff">Required</div>
+                <div class="a-marks">5 marks</div>
+                <div class="a-question">Submit a screenshot of one of your minted NFTs listed for sale on a marketplace (OpenSea Testnet, MST marketplace, or a mock marketplace). The screenshot must show the NFT image, name, and a listed price.</div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Grading Rubric</div><p><strong>3 marks:</strong> NFT is listed with a price on a marketplace.<br><strong>2 marks:</strong> Screenshot clearly shows the NFT details and listing status.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 12.5 Assessment Summary</div>
+            <div class="score-row">R1: Smart Contract = 15 marks</div>
+            <div class="score-row">R2: Metadata & IPFS = 10 marks</div>
+            <div class="score-row">R3: React Frontend = 10 marks</div>
+            <div class="score-row">R4: Marketplace Listing Screenshot = 5 marks</div>
+            <div class="score-badge"><div class="score-num">40</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 12.5</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">OpenZeppelin Wizard</div><div class="g-def">A web-based tool that generates secure, audited smart contract code based on selected features. Eliminates the need to write ERC-721 from scratch.</div></div>
+        <div class="glossary-card"><div class="g-term">IPFS</div><div class="g-def">InterPlanetary File System - a decentralised, peer-to-peer file storage network. NFT metadata and images should be stored on IPFS for true decentralisation.</div></div>
+        <div class="glossary-card"><div class="g-term">Pinata</div><div class="g-def">A free IPFS pinning service that ensures your files remain available on the IPFS network. Used to upload NFT images and metadata.</div></div>
+        <div class="glossary-card"><div class="g-term">ERC-2981 (Royalties)</div><div class="g-def">A standard that allows NFT creators to receive a percentage of every secondary sale. Marketplaces like OpenSea automatically enforce it.</div></div>
+        <div class="glossary-card"><div class="g-term">Base URI</div><div class="g-def">The common prefix for all token metadata URIs. If your base URI is <code>ipfs://Qm.../</code>, token 0's metadata is at <code>ipfs://Qm.../0.json</code>.</div></div>
+        <div class="glossary-card"><div class="g-term">MST Testnet</div><div class="g-def">A testing network for MST Blockchain where you can deploy contracts and mint NFTs without using real value. Chain ID: 4545.</div></div>
+        <div class="glossary-card"><div class="g-term">MST BridgeKey</div><div class="g-def">MST's non-custodial wallet (browser extension). Used to connect to dApps, sign transactions, and manage NFTs on MST.</div></div>
+        <div class="glossary-card"><div class="g-term">Marketplace Listing</div><div class="g-def">The act of offering an NFT for sale on a platform like OpenSea. Requires approving the marketplace to transfer the NFT and setting a price.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 12 · Sub-Module <strong>12.5</strong> of 5 · Next: Module 13 - Oracles & WASMify →</p>
+    </div>
+
+</body>
+</html>

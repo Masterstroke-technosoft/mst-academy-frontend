@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 8.6 - Functions, Modifiers & Events | MasterStroke Academy</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+  .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+  .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .code-completion {
+    background: var(--blue-light); border: 1.5px solid #93C5FD;
+    border-radius: var(--radius); padding: 20px; margin: 20px 0;
+  }
+  .cc-header { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .cc-badge { background: var(--blue); color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 6px; letter-spacing: 0.06em; }
+  .cc-scenario { font-size: 15px; color: var(--ink); font-weight: 600; }
+  .cc-code { background: white; border-radius: var(--radius-sm); padding: 12px 16px; margin: 14px 0; font-family: var(--mono); font-size: 13px; color: var(--ink-2); line-height: 1.7; white-space: pre-wrap; }
+  .cc-expected { background: var(--green-light); border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .cc-expected-label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .cc-expected p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .two-col        { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎓 Module 8 &nbsp;·&nbsp; Sub-Module 8.6 of 8</div>
+<h1 class="module-title">Functions, Modifiers &amp; <span class="highlight">Events</span></h1>
+<p class="module-subtitle">The logic, the guards, and the broadcast signals of your smart contracts - mastering function visibility, access control with modifiers, and on-chain logging with events. This is where smart contracts come alive, enforce rules, and communicate with the outside world.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 15 Marks</div>
+  <div class="meta-chip">📋 5 MCQ (1 mark) + 1 Code-Completion (10 marks)</div>
+  <div class="meta-chip green">Phase 3 · Development Environment & Solidity Foundations</div>
+</div>
+
+<!-- ═══════════════ 01 LEARNING OBJECTIVES ═══════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚙️</div>
+    <div class="obj-text">
+      <strong>Design functions with precise visibility and mutability</strong>
+      Choose among <code>public</code>, <code>external</code>, <code>internal</code>, <code>private</code> and apply <code>view</code>, <code>pure</code>, <code>payable</code> to control gas costs and access - and explain the gas implications of each choice.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🛡️</div>
+    <div class="obj-text">
+      <strong>Create robust access control with modifiers</strong>
+      Write reusable <code>onlyOwner</code>, <code>nonReentrant</code>, time-based, and role-based modifiers that protect critical functions, reduce code duplication, and make audits straightforward.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📡</div>
+    <div class="obj-text">
+      <strong>Emit optimized events for off-chain indexing</strong>
+      Declare events with indexed parameters, understand the gas cost per event, and design event schemas that enable efficient dApp notifications and transparent audit trails.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Combine these patterns into secure, production-grade contracts</strong>
+      Implement the Checks-Effects-Interactions pattern with modifiers and events to prevent reentrancy and build a complete vault contract that you can deploy on MST.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 02 REAL‑WORLD INTRODUCTION STORY ═══════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DeFi Protocol That Let Anyone Withdraw - Because of One Missing Modifier</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In early 2023, a newly launched DeFi vault on a popular EVM chain held over $2 million in user deposits. The contract had a <code>withdrawFees()</code> function intended solely for the protocol owner to collect performance fees. However, the developer - working late, tired, and rushing to meet a deadline - forgot to add an access control modifier. The function was left as <strong>public</strong> with no restrictions whatsoever.</p>
+  <br>
+  <p>Within hours of deployment, an automated bot scanning the blockchain detected the unprotected function. It called <code>withdrawFees()</code> in a single transaction and drained the entire fee pool - over $80,000 worth of tokens - into an anonymous wallet. The community was outraged. The protocol's reputation never recovered, and the developer's career took a serious hit.</p>
+  <br>
+  <p>The fix would have been trivial: a single line adding <code>modifier onlyOwner</code> to the function signature, and a one-line modifier definition checking <code>require(msg.sender == owner)</code>. That oversight - essentially forgetting to lock the door - cost real money and trust. This sub-module ensures you never make that mistake. By the end, you'll be able to write contracts that are secure by design, using functions, modifiers, and events as your primary tools.</p>
+</div>
+
+<!-- ═══════════════ 03 BACKGROUND & HISTORY (EXPANDED) ═══════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution of Solidity Functions, Modifiers, and Events</h2>
+<p>Solidity's design has evolved dramatically since its inception in 2014. Understanding that evolution helps you appreciate the "why" behind every syntax rule.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Early Wild West: All Functions Public by Default</h3>
+<p>In Solidity versions before 0.4.0, every function was implicitly <strong>public</strong>. If you wrote <code>function withdraw(uint amount) { ... }</code>, it was callable by anyone - from outside the contract, from inside, from anywhere. Developers who were new to blockchain often didn't realize that public meant globally accessible. Countless contracts were exploited because a helper function, intended only for internal use, was accidentally exposed to the world.</p>
+<p>The introduction of explicit visibility specifiers (<code>public</code>, <code>private</code>, <code>internal</code>, and later <code>external</code>) forced developers to consciously declare who could call each function. This single language change prevented an entire class of security vulnerabilities.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Modifiers: From Copy-Paste to Centralized Guards</h3>
+<p>Before modifiers, developers duplicated the same <code>require(msg.sender == owner)</code> check at the top of every admin function. A contract with ten admin functions had ten identical checks. If one was missed or written incorrectly, the contract was vulnerable. Modifiers were introduced as a way to <strong>encapsulate access control logic</strong> in a single, reusable block. Now you define the check once and apply it everywhere. This not only made contracts more secure but also made them easier to audit - an auditor could verify one modifier and know that every function using it was protected.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Events: Cheap, Permanent Logs</h3>
+<p>Events were part of Ethereum from the very beginning, inspired by the logging facilities in the underlying Yellow Paper. They are emitted via the <code>LOG0</code> through <code>LOG4</code> EVM opcodes. Unlike storage, event data is not stored in the state trie - it's recorded in the transaction receipt, which is accessible but not part of the state that smart contracts can read. This makes events extremely cheap (375 gas base + 8 gas per byte) compared to storage (20,000 gas for a new write). The <code>indexed</code> keyword was added to enable efficient filtering of events by specific parameter values, which is how every wallet displays your transaction history.</p>
+<p>The ERC-20 standard's <code>Transfer</code> event became the most emitted event in blockchain history. Every token transfer, every swap, every mint emits a <code>Transfer</code> event. Frontends listen for these events to update balances in real-time. Without events, dApps would need to poll storage constantly, which is slow and expensive.</p>
+
+<!-- ═══════════════ 04 BEGINNER‑FRIENDLY EXPLANATION ═══════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">Functions Are the Buttons, Modifiers Are the Locks, Events Are the Receipts</h2>
+<div class="callout analogy">
+  <div class="callout-label">🔒 The Analogy</div>
+  <p>Think of a smart contract as a <strong>vending machine</strong> in a public place. Each function is a <strong>button</strong> on the machine - press it, and something happens: a snack drops, a refund processes, or the machine reports its inventory. <strong>Modifiers</strong> are the locks on those buttons. The <code>onlyOwner</code> modifier is like a keyhole - only the owner's key can press the "empty the cash box" button. <strong>Events</strong> are the receipts printed by the machine, recording what happened, when, and for how much, so anyone can audit the machine's activity later. Together, they make the machine usable, secure, and accountable.</p>
+</div>
+
+<p>Let's explore each concept with the precision you'll need for writing and debugging real contracts on MST:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">F</div><div class="w5-word">FUNC</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Function anatomy: visibility, mutability, parameters, returns</div>
+      <div class="w5-a">A Solidity function has a <strong>visibility</strong> (who can call it), an optional <strong>mutability</strong> (<code>view</code>, <code>pure</code>, <code>payable</code>), input parameters, return values, and a body. Visibility must be declared explicitly. Mutability specifiers tell the compiler (and the user) whether the function will modify state or receive coins. The function signature - its name and parameter types - determines the 4-byte selector used to call it.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">M</div><div class="w5-word">MODIFIER</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Modifiers as reusable guard clauses</div>
+      <div class="w5-a">A <strong>modifier</strong> is a special function that runs before (and potentially after) the function it decorates. It can check conditions, modify arguments, or even prevent execution. The placeholder <code>_;</code> marks where the original function body will execute. Modifiers can be stacked, and the order of execution is from left to right. They are the primary tool for access control, reentrancy protection, and validation in Solidity.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">E</div><div class="w5-word">EVENT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Events as a permanent, cheap, off-chain log</div>
+      <div class="w5-a">An <strong>event</strong> is a structured log entry emitted by a contract. It is stored in the transaction receipt and can be read by any off-chain application. Events are extremely cheap - around 1,200-1,500 gas for a typical <code>Transfer</code> event, compared to 20,000 gas for a storage write. Up to three parameters can be marked <code>indexed</code>, enabling efficient filtering. Events are the backbone of dApp frontends and blockchain explorers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 05 TECHNICAL DEEP DIVE: FUNCTIONS ═══════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive - Functions</div>
+<h2 class="section-title">Function Visibility: The Gatekeeper of Smart Contract Logic</h2>
+
+<p>Every function must declare exactly one of four visibility specifiers. The choice affects security, gas costs, and the contract's public API. Here's the detailed breakdown with gas implications and common pitfalls:</p>
+
+<table class="compare-table">
+  <thead>
+    <tr><th>Visibility</th><th>Callable from this contract?</th><th>Callable from derived contracts?</th><th>Callable externally (via transaction)?</th><th>Gas efficiency</th><th>Typical use</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>public</code></td><td class="good">Yes</td><td class="good">Yes</td><td class="good">Yes (auto-generates getter for state vars)</td><td class="mid">Slightly higher overhead for external calls because parameters are copied to memory</td><td>Main API functions, state variable getters</td></tr>
+    <tr><td><code>external</code></td><td class="bad">No (only via <code>this.f()</code>)</td><td class="bad">No</td><td class="good">Yes</td><td class="good">Cheapest for external calls: parameters read directly from calldata without copying to memory</td><td>Functions intended for external callers only</td></tr>
+    <tr><td><code>internal</code></td><td class="good">Yes</td><td class="good">Yes</td><td class="bad">No</td><td class="mid">Cheaper than public for internal calls (no external dispatch overhead)</td><td>Helper functions shared with child contracts</td></tr>
+    <tr><td><code>private</code></td><td class="good">Yes</td><td class="bad">No</td><td class="bad">No</td><td class="good">Cheapest for purely internal logic; keeps bytecode cleaner</td><td>Functions strictly for this contract's internal logic</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Why <code>external</code> saves gas:</strong> When an externally called <code>public</code> function receives an array or string parameter, the EVM first copies the data from calldata into memory - an expensive operation for large data. An <code>external</code> function reads the parameter directly from calldata, avoiding the copy. For small value types (uint256, address), the difference is negligible. But for dynamic arrays or long strings, the savings can be thousands of gas.</p>
+
+<p><strong>Real-world example:</strong> In the ERC-20 standard, the <code>transfer</code> and <code>approve</code> functions are usually declared <code>public</code> because they may be called internally by the contract itself (e.g., in a <code>transferFrom</code> implementation). But the <code>transferFrom</code> function is often <code>external</code> because it's only called from outside (by the spender). Understanding this nuance helps you design efficient contracts.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Mutability Modifiers: <code>view</code>, <code>pure</code>, <code>payable</code></h3>
+<p>Beyond visibility, you can (and often should) declare a function's relationship to the contract state:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong><code>view</code>:</strong> Promises not to modify the blockchain state. It can read storage variables, call other <code>view</code> functions, and use <code>staticcall</code>. When called externally (via a transaction), a <code>view</code> function costs <strong>zero gas</strong> because the node executes it locally and returns the result without broadcasting a transaction. This is perfect for getter functions.</li>
+  <li><strong><code>pure</code>:</strong> Even more restrictive - it cannot read or modify state. It can only operate on its input parameters and local variables. Think of it as a mathematical function: <code>function add(uint a, uint b) pure returns (uint) { return a + b; }</code>. Also costs zero gas when called externally.</li>
+  <li><strong><code>payable</code>:</strong> Marks a function that can receive the native coin (MSTC on MST, ETH on Ethereum) via <code>msg.value</code>. If a transaction sends coins to a non-payable function, the transaction <strong>reverts</strong>. This is a critical safety feature - it prevents accidental loss of funds. The <code>receive()</code> and <code>fallback()</code> functions must also be <code>payable</code> if they are to accept coins.</li>
+</ul>
+<p>A state-changing function (one that writes to storage) does not need any special keyword - the absence of <code>view</code> or <code>pure</code> tells the compiler it will modify state. The compiler enforces these rules: if you try to write to storage inside a <code>view</code> function, compilation fails.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Function Overloading and the Fallback</h3>
+<p>Solidity supports function overloading - multiple functions with the same name but different parameter types. The compiler distinguishes them by their function selector (the first 4 bytes of the Keccak-256 hash of the signature). For example, <code>transfer(address,uint256)</code> and <code>transfer(address,uint256,bytes)</code> are different functions. Overloading is resolved at compile time.</p>
+<p>Every contract can also have special <code>receive()</code> and <code>fallback()</code> functions:
+  <ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+    <li><code>receive() external payable</code> - called when the transaction has no calldata and sends coins. Used for plain MSTC transfers.</li>
+    <li><code>fallback() external payable</code> - called when no other function matches the selector, or when the <code>receive</code> function is not defined and coins are sent. Can also be non-payable.</li>
+  </ul>
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 8.6-A · Function Call Routing in the EVM</div>
+  <pre>
+  External Call (transaction)
+         │
+         ▼
+  ┌─────────────────────┐
+  │  Has calldata?       │
+  └──────┬──────────────┘
+         │ No                │ Yes
+         ▼                   ▼
+  ┌──────────────┐   ┌─────────────────────────┐
+  │ receive()?   │   │ Extract 4‑byte selector  │
+  │ (if exists)  │   │ from calldata            │
+  └──────┬───────┘   └──────────┬──────────────┘
+         │ Yes                  │ Match found?
+         ▼                      ▼
+   Execute receive()    ┌──────────────────┐
+                        │  Execute function │
+                        └──────────────────┘
+                        │ No match
+                        ▼
+                 ┌──────────────────┐
+                 │  fallback()?      │
+                 │  (if exists)      │
+                 └──────────────────┘
+                        │ No fallback
+                        ▼
+                    REVERT
+  </pre>
+  <div class="diagram-caption">The EVM first checks if calldata is empty (pure MSTC transfer → receive()). Otherwise, it matches the first 4 bytes to a function selector. If no match, it falls back to fallback(). This is why function signatures must be unique.</div>
+</div>
+
+<!-- ═══════════════ 06 MODIFIERS DEEP DIVE ═══════════════ -->
+<div class="section-label">06 &nbsp; Technical Deep Dive - Modifiers</div>
+<h2 class="section-title">Modifiers: The Swiss Army Knife of Function Guards</h2>
+<p>Modifiers are one of Solidity's most elegant features. They let you inject reusable logic before and after a function execution, without polluting the function body with repeated checks. Let's break down exactly how they work, from simple access control to sophisticated patterns.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Anatomy of a Modifier</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not the owner");
+    _; // The function body will be inserted here
+}
+
+function withdraw(uint amount) external onlyOwner {
+    // ... function logic
+}
+</pre>
+<p>When <code>withdraw</code> is called, the modifier's code runs first. It checks <code>require(msg.sender == owner)</code>. If the check fails, the entire transaction reverts with the error message "Not the owner". If it passes, the modifier reaches the <code>_;</code> placeholder, at which point the function body executes. After the function body finishes, execution returns to the modifier, which can run additional code after the placeholder (if any).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Common Modifier Patterns</h3>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">onlyOwner - Basic Ownership</div>
+      <div class="feature-desc">The simplest and most common modifier. Checks that the caller is the contract owner. Used for admin functions like pausing, withdrawing fees, or upgrading contracts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">nonReentrant - Blocking Recursive Calls</div>
+      <div class="feature-desc">Sets a boolean lock <code>locked = true</code> before the function and clears it after. If the function is called again while locked, the modifier's <code>require(!locked)</code> reverts. This is the standard defense against reentrancy attacks. Used in OpenZeppelin's ReentrancyGuard.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">onlyBefore / onlyAfter - Time-Based Access</div>
+      <div class="feature-desc">Accepts a timestamp parameter and checks <code>block.timestamp</code>. Used for auctions (only accept bids before deadline) or token vesting (only release tokens after cliff).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">onlyRole - Role-Based Access Control (RBAC)</div>
+      <div class="feature-desc">Instead of a single owner, the contract maintains a mapping of roles (e.g., <code>keccak256("MINTER_ROLE")</code> → addresses). The modifier checks if the caller has the required role. Used in complex dApps with multiple admin tiers.</div>
+    </div>
+  </div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Stacking Modifiers</h3>
+<p>Modifiers execute in the order they are listed, from left to right. Each modifier can independently pass or revert. Consider a function that must be called only by the owner, only before a deadline, and must not be reentrant:</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+function emergencyWithdraw() external onlyOwner onlyBefore(deadline) nonReentrant {
+    // ... protected logic
+}
+</pre>
+<p>Execution flow:
+  <ol style="margin:8px 0 8px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+    <li><code>onlyOwner</code> runs → checks <code>msg.sender == owner</code>.</li>
+    <li>If passed, <code>onlyBefore(deadline)</code> runs → checks <code>block.timestamp < deadline</code>.</li>
+    <li>If passed, <code>nonReentrant</code> runs → sets <code>locked = true</code>, then <code>_;</code>.</li>
+    <li>Function body executes.</li>
+    <li>After body, <code>nonReentrant</code> clears <code>locked = false</code>.</li>
+  </ol>
+</p>
+<p>This composability is what makes modifiers so powerful. Each is a self-contained guard that you can mix and match.</p>
+
+<!-- ═══════════════ 07 EVENTS DEEP DIVE ═══════════════ -->
+<div class="section-label">07 &nbsp; Technical Deep Dive - Events</div>
+<h2 class="section-title">Events: Permanent, Off-Chain, Filterable Logs</h2>
+<p>Events are the bridge between the blockchain and the outside world. Smart contracts are deterministic, isolated environments - they cannot make HTTP requests or push notifications. Events solve this by emitting structured data into the transaction log, where off-chain systems (indexers, frontends, alert bots) can read and react to them.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">The Anatomy of an Event</h3>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">
+event Transfer(address indexed from, address indexed to, uint256 value);
+event Deposit(address indexed user, uint256 amount, uint256 timestamp);
+
+function deposit() external payable {
+    emit Deposit(msg.sender, msg.value, block.timestamp);
+}
+</pre>
+<p>Each event declaration creates a signature - the Keccak-256 hash of its name and parameter types - which becomes the <strong>first topic</strong> of the log entry. Indexed parameters become additional topics (up to three, plus the signature). Non-indexed parameters are ABI-encoded and stored in the log's data section.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Why Indexed Matters for Gas and Efficiency</h3>
+<p>Indexed parameters are <strong>searchable</strong> - you can ask a node "give me all Transfer events where <code>from</code> equals this address" without scanning every log. Non-indexed parameters require downloading all logs and filtering client-side. The cost of an indexed parameter is an additional topic (32 bytes of storage in the log), which adds a small gas overhead (375 gas per additional topic).</p>
+<p><strong>Golden rule:</strong> Index the parameters you'll query by. For ERC-20, <code>from</code> and <code>to</code> are indexed so wallets can display your transaction history. For a staking contract, index the user address so frontends can show "My Staking History". Don't index parameters you'll never filter on - it's wasted gas.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Gas Comparison: Events vs Storage</h3>
+<table class="compare-table">
+  <thead>
+    <tr><th>Action</th><th>Gas Cost</th><th>Permanence</th><th>Readable by contracts?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Write 1 uint256 to storage (new slot)</td><td>20,000 gas</td><td>Permanent, stored in state trie</td><td class="good">Yes</td></tr>
+    <tr><td>Update 1 uint256 in storage</td><td>5,000 gas</td><td>Permanent</td><td class="good">Yes</td></tr>
+    <tr><td>Emit a Transfer event (2 indexed addresses + 1 uint)</td><td>~1,500 gas</td><td>Permanent, stored in transaction log</td><td class="bad">No - only off-chain</td></tr>
+    <tr><td>Emit a simple event with no indexed params (1 uint)</td><td>~800 gas</td><td>Permanent, in log</td><td class="bad">No</td></tr>
+  </tbody>
+</table>
+<p>Events are <strong>30x cheaper</strong> than storage for permanent records. For historical data that doesn't need to be read by the contract itself, events are the clear winner. On MST, where gas is already extremely cheap, the rupee cost of emitting an event is about ₹0.00001 - effectively free - but the practice of using events over storage is still critical for scalability and clean architecture.</p>
+
+<div class="highlight-strip">
+  <strong>MST Advantage:</strong> With MST's gas price around 12 Gwei and MSTC at ₹8, emitting a typical <code>Transfer</code> event costs approximately <strong>₹0.00014</strong>. That's less than 1/60th of a paisa. You can log millions of events for less than the cost of a single Ethereum storage write. This makes event-driven architectures extremely practical on MST.
+</div>
+
+<!-- ═══════════════ 08 INTERACTIVE CODE EXAMPLES ═══════════════ -->
+<div class="section-label">08 &nbsp; Interactive Code Examples</div>
+<h2 class="section-title">Build Along: A Secure Vault with Modifiers and Events</h2>
+<p>Let's build a complete vault contract step by step. Click each section to reveal the code and explanation.</p>
+
+<details>
+  <summary>🏗️ Step 1: Base contract with state variables</summary>
+  <div class="content">
+    <p>We'll create a <code>Vault</code> that stores user balances and has an owner.</p>
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+contract Vault {
+    address public owner;
+    mapping(address => uint256) public balances;
+    
+    constructor() {
+        owner = msg.sender;
+    }
+}
+    </pre>
+    <p>The owner is set to the deployer. Balances are stored in a mapping.</p>
+  </div>
+</details>
+<details>
+  <summary>🔐 Step 2: Add an onlyOwner modifier</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+modifier onlyOwner() {
+    require(msg.sender == owner, "Not owner");
+    _;
+}
+    </pre>
+    <p>Now any function can be protected by adding <code>onlyOwner</code>. The <code>_;</code> is where the function body goes.</p>
+  </div>
+</details>
+<details>
+  <summary>📥 Step 3: Deposit function (anyone can call)</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+event Deposited(address indexed user, uint256 amount);
+
+function deposit() external payable {
+    require(msg.value > 0, "No MSTC sent");
+    balances[msg.sender] += msg.value;
+    emit Deposited(msg.sender, msg.value);
+}
+    </pre>
+    <p>This function is <code>payable</code> and <code>external</code>. Anyone can send MSTC to the contract. The deposit is recorded in storage and an event is emitted so frontends can update instantly.</p>
+  </div>
+</details>
+<details>
+  <summary>🚀 Step 4: Withdraw function with onlyOwner, Checks-Effects-Interactions, and event</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+event Withdrawn(address indexed user, uint256 amount);
+
+function withdraw(uint256 amount) external onlyOwner {
+    // Checks
+    require(balances[owner] >= amount, "Insufficient balance");
+    // Effects
+    balances[owner] -= amount;
+    // Interactions
+    payable(owner).transfer(amount);
+    // Log
+    emit Withdrawn(owner, amount);
+}
+    </pre>
+    <p>Notice the order: state is updated <strong>before</strong> the external call. This prevents reentrancy. The event is emitted after the transfer, though it could be before - the important thing is that the state change precedes the external call.</p>
+  </div>
+</details>
+<details>
+  <summary>🔄 Step 5: Adding nonReentrant for extra safety</summary>
+  <div class="content">
+    <pre style="background:var(--surface); padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2);">
+bool private locked;
+modifier nonReentrant() {
+    require(!locked, "Reentrant call");
+    locked = true;
+    _;
+    locked = false;
+}
+
+function withdraw(uint256 amount) external onlyOwner nonReentrant {
+    // ... same body
+}
+    </pre>
+    <p>Even if someone finds a way to re-enter, the lock will prevent it. This is belt-and-suspenders with C-E-I.</p>
+  </div>
+</details>
+
+<!-- ═══════════════ 09 COMMON PITFALLS AND BEST PRACTICES ═══════════════ -->
+<div class="section-label">09 &nbsp; Common Pitfalls and Best Practices</div>
+<h2 class="section-title">Don't Learn These the Hard Way</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Forgetting <code>payable</code> on a function that must receive MSTC</div>
+      <div class="feature-desc">If a user sends MSTC to a non-payable function, the transaction reverts. The user loses gas and gets nothing. Always mark functions <code>payable</code> if they need to accept coins. Use <code>receive()</code> for plain transfers.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using <code>public</code> instead of <code>external</code> for large calldata arrays</div>
+      <div class="feature-desc">For functions that accept dynamic arrays or long strings, <code>public</code> will copy the data to memory, costing thousands of extra gas. Use <code>external</code> and read directly from calldata.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Emitting events after external calls</div>
+      <div class="feature-desc">Always emit events <strong>before</strong> external interactions, or at least ensure the state changes are committed first. If an external call fails, the entire transaction reverts, but the event will not be emitted. However, for reentrancy safety, the Checks-Effects-Interactions pattern should have Effects (state changes) before Interactions (external calls). Events are not state changes per se, but they should be positioned logically.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">💡</div>
+    <div class="feature-content">
+      <div class="feature-title">Over-indexing events</div>
+      <div class="feature-desc">Each indexed parameter costs extra gas and occupies a topic slot. Only index the fields you'll actually filter on. For a <code>Transfer</code> event, <code>from</code> and <code>to</code> are essential; for a <code>Deposit</code> event, <code>user</code> is essential.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 10 ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Function visibility controls who can call; mutability controls state access</div>
+      <div class="feature-desc"><code>public</code>, <code>external</code>, <code>internal</code>, <code>private</code> define the caller scope. <code>view</code>, <code>pure</code>, <code>payable</code> define what the function can do. A function without <code>view</code>/<code>pure</code> can modify state.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Modifiers encapsulate access control; the placeholder <code>_;</code> marks where the function body runs</div>
+      <div class="feature-desc">Stack modifiers left to right. They execute in order. Use <code>nonReentrant</code> to prevent recursive calls.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Events are cheap logs (~1,200 gas) not readable by contracts; use for off-chain history</div>
+      <div class="feature-desc">Index up to 3 parameters for filtering. The event signature is always the first topic.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Checks-Effects-Interactions (C-E-I) + nonReentrant = reentrancy protection</div>
+      <div class="feature-desc">Check conditions, update state, then call external contracts. Always in that order.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title"><code>view</code> and <code>pure</code> functions cost zero gas when called externally</div>
+      <div class="feature-desc">They are executed locally by the node. Use them for getters to save users gas. On MST, savings are small but still good practice.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 8.6 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">15</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <!-- SECTION A: MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">5 Questions · 1 mark each · 5 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which function visibility allows the function to be called from outside the contract but NOT from within the contract itself (except via <code>this.f()</code>)?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> public</li>
+        <li class="correct"><span class="opt-key">B</span> external ✅</li>
+        <li><span class="opt-key">C</span> internal</li>
+        <li><span class="opt-key">D</span> private</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: B</div><p><code>external</code> functions are optimized for external calls and cannot be called internally except via <code>this.f()</code>, which adds gas overhead.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary purpose of a Solidity modifier?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> To encapsulate reusable access control or validation logic that runs before a function body. ✅</li>
+        <li><span class="opt-key">B</span> To change the visibility of a function.</li>
+        <li><span class="opt-key">C</span> To increase the gas cost of a function.</li>
+        <li><span class="opt-key">D</span> To replace the need for events.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Modifiers centralize checks like <code>onlyOwner</code> or <code>nonReentrant</code>, avoiding code duplication and ensuring consistent security across multiple functions.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which keyword marks a function that can receive native coins (MSTC) via <code>msg.value</code>?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> payable ✅</li>
+        <li><span class="opt-key">B</span> view</li>
+        <li><span class="opt-key">C</span> pure</li>
+        <li><span class="opt-key">D</span> external</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Only <code>payable</code> functions and the <code>receive()</code> fallback can accept native coins. Without it, the transaction reverts if any coin is sent.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why are events cheaper than storage for recording permanent data?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Events use LOG opcodes (~375 gas), while storage uses SSTORE (5,000-20,000 gas). ✅</li>
+        <li><span class="opt-key">B</span> Events are stored off-chain, so they cost no gas at all.</li>
+        <li><span class="opt-key">C</span> Events are deleted after a transaction is confirmed.</li>
+        <li><span class="opt-key">D</span> Events are only emitted once per block, reducing cost.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Events use LOG1-LOG4 opcodes, costing 375 gas base plus 8 gas/byte, while storage writes (SSTORE) cost at least 5,000 gas. Events are still permanent on-chain, but are stored in transaction receipts, not in the state trie.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What pattern should you follow to prevent reentrancy attacks in a withdrawal function?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Checks-Effects-Interactions: check conditions, update state, then transfer funds. ✅</li>
+        <li><span class="opt-key">B</span> Transfer funds first, then update state.</li>
+        <li><span class="opt-key">C</span> Use only public functions.</li>
+        <li><span class="opt-key">D</span> Avoid using modifiers.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>By updating state (like deducting the balance) before calling an external transfer, you ensure that if the external call re-enters, the state already reflects the deduction, preventing double-spending.</p></div>
+    </div>
+
+    <!-- SECTION B: CODE-COMPLETION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - Code-Completion (Implement an onlyOwner Withdraw)</div>
+      <div class="q-section-meta">1 Question · 10 marks</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">Code-Completion</span><span class="q-diff medium">Medium</span><span class="q-marks">10 marks</span></div></div>
+      <div class="q-text">Complete the following Solidity contract by filling in the blanks to implement a secure withdrawal function with an onlyOwner modifier and an event. The contract should store user balances, allow deposits, and allow the owner to withdraw any amount from their own balance.</div>
+      <div class="code-completion">
+        <div class="cc-header"><div class="cc-badge">💻 CODE TASK</div></div>
+        <div class="cc-scenario">You are building a simple vault. Users can deposit MSTC, and the owner can withdraw their balance. Implement the missing parts.</div>
+        <div class="cc-code">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract SimpleVault {
+    address public owner;
+    mapping(address => uint256) public balances;
+    // (a) Declare an event Withdrawal(address indexed user, uint256 amount)
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    // (b) Define a modifier onlyOwner that requires msg.sender == owner
+
+    // (c) Write a deposit function (payable) that adds to balances[msg.sender]
+
+    // (d) Write a withdraw function that:
+    //     - uses the onlyOwner modifier
+    //     - requires that the owner's balance >= amount
+    //     - deducts the amount from the owner's balance (Effects)
+    //     - transfers the amount to the owner (Interactions)
+    //     - emits the Withdrawal event
+}
+        </div>
+        <div class="cc-expected">
+          <div class="cc-expected-label">✅ Model Answer</div>
+          <pre style="background:white; padding:12px; border-radius:6px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7;">
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+contract SimpleVault {
+    address public owner;
+    mapping(address => uint256) public balances;
+
+    event Withdrawal(address indexed user, uint256 amount);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
+    function deposit() external payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdraw(uint256 amount) external onlyOwner {
+        require(balances[owner] >= amount, "Insufficient balance");
+        balances[owner] -= amount;
+        payable(owner).transfer(amount);
+        emit Withdrawal(owner, amount);
+    }
+}
+          </pre>
+          <div class="marks-bd"><span>10 marks:</span> (a) Event declaration with indexed address and uint256 - 2 marks. (b) Modifier with correct require and `_` - 2 marks. (c) deposit function payable, updates mapping - 1 mark. (d) withdraw function: uses onlyOwner - 1 mark, require check - 1 mark, deducts balance - 1 mark, transfer - 1 mark, emits event - 1 mark. Deduct 1 mark if missing <code>payable</code> on transfer. Deduct 1 mark if order is incorrect (transfer before state update).</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 8.6 Assessment Summary</div>
+      <div class="score-row">Section A: 5 × MCQ <span>(1 mark each) = 5 marks</span></div>
+      <div class="score-row">Section B: 1 × Code-Completion <span>(10 marks) = 10 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">15</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 8.6</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Visibility</div><div class="glossary-def">Specifies who can call a function: <code>public</code>, <code>external</code>, <code>internal</code>, <code>private</code>. Controls access and gas efficiency.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Modifier</div><div class="glossary-def">A reusable code block that runs before a function. Used for access control (<code>onlyOwner</code>), reentrancy guards, and validation.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Event</div><div class="glossary-def">A log record emitted by a contract, stored in transaction receipts. Used for off-chain communication. Cheaper than storage.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Indexed</div><div class="glossary-def">Keyword for event parameters that enables filtering. Up to 3 parameters can be indexed. Indexed parameters are stored as topics.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">A security pattern: check conditions, update state, then interact with external contracts. Prevents reentrancy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">payable</div><div class="glossary-def">Function modifier that allows the function to receive native coins (MSTC). Required for any function that uses <code>msg.value</code>.</div></div>
+  <div class="glossary-item"><div class="glossary-term">view / pure</div><div class="glossary-def">Function modifiers that promise not to modify state (<code>view</code>) or not to read or modify state (<code>pure</code>). Cost zero gas externally.</div></div>
+  <div class="glossary-item"><div class="glossary-term">receive()</div><div class="glossary-def">Special fallback function that is called when a contract receives plain native coin transfers without calldata. Must be <code>payable</code>.</div></div>
+  <div class="glossary-item"><div class="glossary-term">nonReentrant</div><div class="glossary-def">A modifier pattern that prevents a function from being called while it's still executing, blocking reentrancy attacks.</div></div>
+  <div class="glossary-item"><div class="glossary-term">msg.sender</div><div class="glossary-def">Global variable containing the address that called the current function. Often used in access control checks within modifiers.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 8 · Sub-Module <strong>8.6</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 8.7 - Inheritance & Interfaces →</p>
+</div>
+
+</body>
+</html>

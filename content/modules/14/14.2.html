@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 14.2 - State Channels & Sidechains | Masterstroke Academy</title>
+    <meta name="description" content="Master state channels and sidechains. Learn how Lightning Network and Polygon enable millions of off‑chain transactions, and discover why MST's high‑throughput L1 offers a simpler path to scalability.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #0D9488;
+            --brand-light: #CCFBF1;
+            --brand-dark: #115E59;
+            --accent: #F59E0B;
+            --accent-light: #FFFBEB;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --red: #EF4444;
+            --red-light: #FEE2E2;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: block;
+            width: fit-content;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 32px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: block;
+            width: fit-content;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+            margin-bottom: 8px;
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #99F6E4;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #065F46;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 8px;
+            margin-top: 52px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.warning {
+            background: var(--red-light);
+            border-color: var(--red);
+        }
+        .callout.warning .callout-label {
+            color: var(--red);
+        }
+        .feature-list {
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .feature-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .fact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 10px;
+        }
+        .fact-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--ink-3);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+        .fact-text {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .fact-text strong {
+            color: var(--ink);
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+        .assess-card {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+        .assess-card:last-child {
+            border-bottom: none;
+        }
+        .a-badge {
+            display: inline-block;
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .a-type {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .a-diff {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--accent-light);
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .a-marks {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-3);
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        .a-question {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        .options li {
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            font-size: 14.5px;
+            color: var(--ink-2);
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .a-rubric {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .a-rubric-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .a-rubric p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #065F46;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+        }
+        .score-label {
+            color: #99F6E4;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .score-row span {
+            color: #99F6E4;
+            font-weight: 400;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            display: inline-block;
+            margin-top: 12px;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-list {
+            margin: 20px 0;
+        }
+        .glossary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+        .g-term {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .g-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        table thead th {
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            background: var(--brand-light);
+            color: var(--brand-dark);
+        }
+        table tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+        table tbody td {
+            padding: 13px 16px;
+            vertical-align: top;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        table tbody td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="module-badge">⚡ Module 14 · Sub-Module 14.2 of 7</div>
+    <h1 class="module-title">State Channels & <span class="highlight">Sidechains</span></h1>
+    <p class="module-subtitle">How Bitcoin's Lightning Network processes millions of instant payments, why Polygon became Ethereum's most popular sidechain, and the fundamental differences between moving transactions off-chain and building a separate chain - all with MST's high-throughput L1 in perspective.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 40 Minutes</div>
+        <div class="meta-chip purple">🎯 10 Marks (MCQ + True/False)</div>
+        <div class="meta-chip">📋 Lightning Network, Raiden, Polygon PoS</div>
+        <div class="meta-chip green">Phase 4 · Scaling, L2s & Interoperability</div>
+    </div>
+
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">⚡</div>
+            <div class="feature-title">Explain how state channels work and why they are the ultimate scaling solution for frequent, small transactions</div>
+            <div class="feature-desc">Trace a payment from channel opening to closing, understand multi-hop routing, and see why state channels achieve near-infinite TPS between participants.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🔗</div>
+            <div class="feature-title">Distinguish sidechains from state channels and Layer-2 rollups</div>
+            <div class="feature-desc">Know that sidechains are independent blockchains with their own consensus, while state channels are peer-to-peer off-chain agreements - and why this matters for security.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🏗️</div>
+            <div class="feature-title">Design a simple payment channel smart contract</div>
+            <div class="feature-desc">Write Solidity code for a unidirectional payment channel, implement signature-based state updates, and understand the dispute window mechanism.</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">🌐</div>
+            <div class="feature-title">Evaluate MST's high-throughput L1 as an alternative to sidechains</div>
+            <div class="feature-desc">Understand why a base layer that processes 4,000+ TPS with near-zero fees makes sidechains unnecessary for most applications, simplifying architecture and security.</div>
+        </div>
+    </div>
+
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Coffee Shop That Accepted Bitcoin - and Waited an Hour for Confirmation</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>In 2017, a café in Bengaluru became one of the first in India to accept Bitcoin. A customer ordered a latte (₹180) and paid with Bitcoin. The café owner, excited about the publicity, waited for the transaction to confirm. Five minutes passed. Ten. Twenty. The customer had already finished the latte and left, but the Bitcoin transaction had zero confirmations. The block time was 10 minutes, and the network was congested. The transaction eventually confirmed an hour later - long after the customer had gone. The café stopped accepting Bitcoin shortly after.</p>
+        <br>
+        <p>This story illustrates why Bitcoin cannot be a daily payment system at Layer 1. Waiting an hour for a ₹180 coffee is absurd. But what if the customer and the café had a <strong>Lightning channel</strong> open? They could have exchanged the ₹180 in milliseconds, with near-zero fees, and the transaction would have been instantly final between them. The coffee shop owner could then periodically settle the accumulated payments to the Bitcoin blockchain - once a day, or once a week - paying only one on-chain fee for thousands of transactions. This is the magic of state channels, and it's exactly what the Lightning Network does for Bitcoin.</p>
+        <br>
+        <p>Meanwhile, Ethereum faced its own scaling crisis during the 2020-2021 DeFi boom. Transactions cost ₹500-₹5,000 in gas fees, making even simple token transfers uneconomical for small amounts. The solution that emerged was <strong>Polygon PoS</strong> - a sidechain that processed transactions cheaply and quickly, then periodically committed a checkpoint to Ethereum for security. By 2022, Polygon was processing more transactions daily than Ethereum itself. Both Lightning and Polygon are responses to the same problem: the Layer-1 scalability bottleneck. In this sub-module, you'll learn exactly how they work, and why MST's design makes this problem far less severe.</p>
+    </div>
+
+    <div class="section-label">03 &nbsp; What Are State Channels? - The Off-Chain Superhighway</div>
+    <h2 class="section-title">Transactions That Happen Off-Chain, Security That Comes From On-Chain</h2>
+    <p>A <strong>state channel</strong> is a technique where two or more parties lock some funds on the main blockchain, then exchange cryptographically signed messages among themselves to update their balances - all without touching the blockchain. Only two on-chain transactions are needed: one to <strong>open</strong> the channel (lock the funds) and one to <strong>close</strong> the channel (unlock the final balances). Everything in between happens off-chain, at the speed of light, with zero blockchain fees.</p>
+    <p>Think of it like opening a tab at a bar. You hand the bartender your credit card (open the channel). You order drinks throughout the night, and the bartender keeps a running total (off-chain transactions). At the end of the night, the bartender swipes your card once for the final amount (close the channel). All the individual drink purchases happened without processing a separate card transaction. The blockchain is the bartender's card machine - you only use it twice, no matter how many transactions you made.</p>
+    <p>State channels have three key properties that make them a genuine scaling solution:</p>
+    <p><strong>1. Instant finality:</strong> As soon as both parties sign an update, the new state is final between them. There's no waiting for blocks or confirmations.</p>
+    <p><strong>2. Near-zero cost:</strong> Only the opening and closing transactions pay blockchain fees. A million transactions inside the channel cost zero gas.</p>
+    <p><strong>3. Privacy:</strong> Only the opening and closing transactions are visible on-chain. All intermediate transactions remain private between the participants.</p>
+    <p>However, state channels have limitations: they require participants to lock funds for the duration of the channel, they work best for frequent interactions between the same set of parties, and they cannot support arbitrary smart contract execution without significant complexity (that's what rollups are for).</p>
+
+    <div class="section-label">04 &nbsp; The Lightning Network - Bitcoin's Payment Channel Network</div>
+    <h2 class="section-title">How Millions of Bitcoin Payments Flow Without Touching the Blockchain</h2>
+    <p>The <strong>Lightning Network</strong> is a network of bidirectional payment channels built on top of Bitcoin. It was proposed in a 2016 whitepaper by Joseph Poon and Thaddeus Dryja. The key innovation is that channels can be linked together through <strong>multi-hop routing</strong>: if Alice has a channel with Bob, and Bob has a channel with Carol, then Alice can pay Carol through Bob - without Alice and Carol needing a direct channel. The routing is done using <strong>HTLCs (Hash Time-Locked Contracts)</strong>, which ensure that no intermediary can steal the funds.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.2-A · Lightning Network Multi-Hop Payment</div>
+        <pre>
+Alice ────── Bob ────── Carol
+   channel      channel
+
+1. Alice wants to pay Carol 0.01 BTC.
+2. Carol generates a secret R and gives its hash H to Alice.
+3. Alice → Bob: "I'll pay you 0.01 BTC if you can produce R within 3 blocks."
+4. Bob → Carol: "I'll pay you 0.01 BTC if you can produce R within 2 blocks."
+5. Carol reveals R to Bob, claiming her payment.
+6. Bob reveals R to Alice, claiming his payment.
+7. Result: Alice paid Carol. Bob earned a tiny routing fee.
+   All atomic — no trust required between any parties.
+        </pre>
+        <div class="diagram-caption">HTLCs enable trustless, atomic payments across multiple hops. No party can steal funds because all transfers are conditional on revealing the secret R.</div>
+    </div>
+
+    <p>The Lightning Network has grown to process millions of payments daily, with thousands of BTC locked in channels. A coffee payment can be routed through several intermediaries and settle in under a second, costing a fraction of a satoshi. However, Lightning has limitations: both parties must be online to receive payments (though watchtowers can monitor for fraud), channel liquidity must be carefully managed, and routing through a large network can sometimes fail if no path has sufficient liquidity.</p>
+
+    <div class="section-label">05 &nbsp; Payment Channel Smart Contract - Building One from Scratch</div>
+    <h2 class="section-title">Write Solidity Code That Enables Trustless Off-Chain Payments</h2>
+    <p>Let's build a simple unidirectional payment channel in Solidity. Alice opens a channel by depositing funds. She can then send signed messages to Bob, each authorising a higher payment. Bob can close the channel at any time by submitting the latest signed message. If Alice tries to cheat by submitting an old message, Bob has a dispute window to submit a newer one. This is the core mechanism behind all state channels.</p>
+    <div class="code-block-wrap"><pre>
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract SimplePaymentChannel {
+    address public immutable sender;    // Alice (the payer)
+    address public immutable recipient; // Bob (the payee)
+    uint256 public immutable expiration; // Channel expires after this timestamp
+    uint256 public immutable channelId;
+
+    constructor(address _recipient, uint256 _duration) payable {
+        require(msg.value > 0, "Must fund channel");
+        sender = msg.sender;
+        recipient = _recipient;
+        expiration = block.timestamp + _duration;
+    }
+
+    // Bob closes the channel by providing a signed authorisation from Alice
+    function closeChannel(uint256 amount, bytes memory signature) public {
+        require(msg.sender == recipient, "Only recipient can close");
+        require(block.timestamp < expiration, "Channel expired");
+
+        // Reconstruct the signed message: "channelId, amount"
+        bytes32 message = keccak256(abi.encodePacked(channelId, amount));
+        bytes32 ethSignedMessage = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
+
+        // Recover the signer from the signature
+        address signer = recoverSigner(ethSignedMessage, signature);
+        require(signer == sender, "Invalid signature");
+
+        // Transfer the authorised amount to Bob
+        require(amount <= address(this).balance, "Amount exceeds balance");
+        payable(recipient).transfer(amount);
+
+        // Return any remaining balance to Alice
+        if (address(this).balance > 0) {
+            payable(sender).transfer(address(this).balance);
+        }
+    }
+
+    // Alice can close the channel after expiration to reclaim all funds
+    function claimTimeout() public {
+        require(block.timestamp >= expiration, "Not expired yet");
+        payable(sender).transfer(address(this).balance);
+    }
+
+    // Recover signer address from signature (standard ECDSA recovery)
+    function recoverSigner(bytes32 ethSignedMessage, bytes memory signature)
+        internal pure returns (address)
+    {
+        (bytes32 r, bytes32 s, uint8 v) = splitSignature(signature);
+        return ecrecover(ethSignedMessage, v, r, s);
+    }
+
+    function splitSignature(bytes memory sig)
+        internal pure returns (bytes32 r, bytes32 s, uint8 v)
+    {
+        require(sig.length == 65, "Invalid signature length");
+        assembly {
+            r := mload(add(sig, 32))
+            s := mload(add(sig, 64))
+            v := byte(0, mload(add(sig, 96)))
+        }
+        if (v < 27) v += 27;
+    }
+}</pre></div>
+    <p><strong>How this contract works:</strong> Alice deploys the contract and sends ETH (the channel funding). Off-chain, Alice sends Bob signed messages like "I, Alice, authorise a payment of 0.5 ETH to Bob, for channel #1." Each subsequent message has a higher amount. When Bob wants to close the channel, he submits the latest message and its signature. The contract verifies the signature and transfers the authorised amount to Bob, returning the rest to Alice. If the channel expires, Alice can reclaim all funds. A more sophisticated version (bidirectional) would allow both parties to send payments and include a challenge period where the other party can dispute with a newer state.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Dispute Mechanism - Why Cheating Is Impossible</div>
+        <p>If Alice tries to cheat by submitting an old message (where she authorised only 0.1 ETH when the latest is 0.5 ETH), Bob can <strong>challenge</strong> within a dispute window by submitting the newer message. The contract will see Bob's message has a higher amount and honour it. This is why state channels are trustless: even if one party tries to cheat, the honest party can always prove the true latest state. In a more complete implementation, the contract stores the highest authorised amount and rejects any lower one.</p>
+    </div>
+
+    <div class="section-label">06 &nbsp; Sidechains - Independent Blockchains Connected to a Main Chain</div>
+    <h2 class="section-title">When You Need a Whole New Chain, Not Just a Channel</h2>
+    <p>A <strong>sidechain</strong> is a separate blockchain that runs in parallel to a main chain (like Ethereum or Bitcoin) and is connected to it by a <strong>two-way bridge</strong>. Assets can be transferred from the main chain to the sidechain (locked on main, minted on side) and back (burned on side, unlocked on main). The sidechain has its own consensus mechanism, validators, and block time - independent of the main chain.</p>
+    <p>Sidechains are fundamentally different from state channels and rollups. A state channel is an agreement between a fixed set of parties, with security derived directly from the L1 chain. A sidechain is a separate chain with its own security model. If the sidechain's validators collude, they can steal the bridged assets - there is no L1-level security guarantee. This is the <strong>sidechain security trade-off</strong>.</p>
+    <p>The most prominent sidechain in the Ethereum ecosystem is <strong>Polygon PoS</strong>. It has 100 validators (selected by staking MATIC), produces blocks every ~2 seconds, and achieves ~7,000 TPS. It periodically commits a checkpoint (a hash of its state) to Ethereum. This checkpoint provides some security: if the sidechain validators misbehave, the checkpoint on Ethereum can be used as evidence. But this does not provide the same security as Ethereum's L1 - the validators could still collude to steal the bridged assets, and users would need to exit through a complex challenge process.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 14.2-B · Sidechain Architecture - Polygon PoS Example</div>
+        <pre>
+ETHEREUM L1                          POLYGON POS SIDECHAIN
+┌─────────────────┐                  ┌─────────────────────────┐
+│ Lock ETH in     │    Bridge         │ Mint equivalent wETH    │
+│ bridge contract │◄────────────────►│ on sidechain            │
+│ (trustless)     │                  │                         │
+└─────────────────┘                  │ Validators (100):       │
+                                     │ • Stake MATIC           │
+       ┌─────────────────────────────│ • Produce blocks (~2s)  │
+       │  Checkpoint (state hash)    │ • Process transactions  │
+       │  committed periodically     │   (7,000 TPS)           │
+       │                             └─────────────────────────┘
+       │
+       ▼
+Ethereum stores checkpoint hash.
+If sidechain validators misbehave,
+checkpoint can be used as evidence —
+but users still rely on sidechain's
+own consensus for day‑to‑day security.
+        </pre>
+        <div class="diagram-caption">A sidechain has its own validators and security. The bridge locks assets on the main chain and mints them on the sidechain.</div>
+    </div>
+
+    <div class="section-label">07 &nbsp; Sidechain Bridges - The Weakest Link</div>
+    <h2 class="section-title">Why Bridges Are the Most Attacked Infrastructure in Crypto</h2>
+    <p>Bridges connect sidechains to their parent chains. They are the critical infrastructure that locks assets on one chain and mints or releases them on another. Unfortunately, bridges have been the target of the largest hacks in cryptocurrency history. The <strong>Ronin Bridge</strong> (Axie Infinity's sidechain) was hacked for $625 million in 2022 because 5 of 9 validator keys were compromised. The <strong>Wormhole Bridge</strong> (Solana-Ethereum) lost $325 million. The <strong>Poly Network</strong> hack drained $610 million. In total, over $2.5 billion has been stolen from blockchain bridges.</p>
+    <p>Why are bridges so vulnerable? Because they concentrate enormous value - all the assets that have been bridged - into a single smart contract or a small set of validators. If the bridge's security is breached, all bridged assets can be stolen instantly. This is why Vitalik Buterin has repeatedly warned that bridges are the weakest link in multi-chain architectures. The more value bridges hold, the bigger the incentive for attackers.</p>
+    <p>This is a critical argument for <strong>monolithic scaling</strong> (making the base layer fast enough that you don't need bridges) versus <strong>modular scaling</strong> (using many chains connected by bridges). MST follows the monolithic approach: by achieving 4,000+ TPS at the base layer with near-zero fees, MST eliminates the need for sidechains and their associated bridge risks for most applications. A single high-throughput L1 is inherently more secure than a network of sidechains connected by vulnerable bridges.</p>
+
+    <div class="section-label">08 &nbsp; State Channels vs. Sidechains vs. Rollups - A Clear Comparison</div>
+    <h2 class="section-title">Know Exactly Which Scaling Solution Fits Your Use Case</h2>
+    <table>
+        <thead><tr><th>Property</th><th>State Channels (Lightning, Raiden)</th><th>Sidechains (Polygon PoS)</th><th>Optimistic/ZK Rollups</th></tr></thead>
+        <tbody>
+            <tr><td><strong>Security model</strong></td><td>Inherits full L1 security</td><td>Own validators (separate security)</td><td>Inherits full L1 security</td></tr>
+            <tr><td><strong>Transaction cost</strong></td><td>Near-zero (off-chain)</td><td>Low (sidechain fees)</td><td>Low (fraction of L1)</td></tr>
+            <tr><td><strong>Finality time</strong></td><td>Instant between parties</td><td>Sidechain block time (~2 sec)</td><td>L1 finality (minutes to days)</td></tr>
+            <tr><td><strong>Smart contracts</strong></td><td>Very limited (payment + simple state)</td><td>Full EVM support</td><td>Full EVM support</td></tr>
+            <tr><td><strong>Capital lockup</strong></td><td>Yes (funds locked in channel)</td><td>No (assets are liquid on sidechain)</td><td>No</td></tr>
+            <tr><td><strong>Bridge risk</strong></td><td>None (direct L1 security)</td><td>Yes (bridge contract risk)</td><td>Minimal (L1 bridge)</td></tr>
+            <tr><td><strong>Best for</strong></td><td>Frequent payments between same parties</td><td>General dApps needing low fees</td><td>General dApps needing L1 security</td></tr>
+            <tr><td><strong>Example</strong></td><td>Lightning Network (Bitcoin)</td><td>Polygon PoS (Ethereum)</td><td>Arbitrum, Optimism (Ethereum)</td></tr>
+        </tbody>
+    </table>
+
+    <div class="section-label">09 &nbsp; MST's Approach - A High-Throughput L1 That Makes Sidechains Optional</div>
+    <h2 class="section-title">Why Build a Sidechain When the Main Chain Already Does 4,000+ TPS for Near-Zero Fees?</h2>
+    <p>MST Blockchain was designed from the ground up to avoid the scalability bottlenecks that forced Bitcoin and Ethereum to rely on sidechains and rollups. With <strong>4,000+ TPS on mainnet</strong>, <strong>~3-second block times</strong>, and <strong>gas fees a fraction of a paisa</strong>, MST delivers at the base layer what other chains achieve only through complex L2 solutions. This has profound architectural implications:</p>
+    <p><strong>1. Simplicity:</strong> No need for users to understand sidechains, bridges, or rollups. One chain, one wallet, one fee structure. This dramatically reduces the cognitive load on users and the integration complexity for developers.</p>
+    <p><strong>2. Security:</strong> No bridge risk. All assets remain on a single, secure L1 with a large, decentralised validator set (55,000+ validators). There is no centralised bridge contract holding billions of dollars, waiting to be hacked.</p>
+    <p><strong>3. Composability:</strong> Every dApp on MST can interact with every other dApp atomically. On Ethereum, a dApp on Polygon cannot directly interact with a dApp on Arbitrum without a bridge. On MST, all dApps share the same state, enabling seamless composability - the "money lego" property that made Ethereum's early DeFi ecosystem so powerful.</p>
+    <p><strong>4. Lower entry barrier:</strong> Developers can deploy a dApp on MST and immediately benefit from the full security and throughput of the L1, without needing to choose a sidechain, manage bridge contracts, or worry about cross-chain compatibility.</p>
+    <p>This is not to say that rollups and sidechains are obsolete - they serve specific needs, particularly for chains that cannot scale at L1. But for the vast majority of applications, MST's high-throughput L1 eliminates the need for these additional layers. The simplest architecture is often the best.</p>
+
+    <div class="section-label">10 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="fact-card"><div class="fact-num">01</div><div class="fact-text"><strong>State channels lock funds on-chain and perform transactions off-chain.</strong> Only opening and closing transactions touch the blockchain. All intermediate transfers are instant and free.</div></div>
+    <div class="fact-card"><div class="fact-num">02</div><div class="fact-text"><strong>The Lightning Network uses HTLCs for multi-hop routing.</strong> Payments can flow through intermediaries without requiring trust, because each hop is conditional on revealing a secret.</div></div>
+    <div class="fact-card"><div class="fact-num">03</div><div class="fact-text"><strong>Sidechains are independent blockchains with their own validators and consensus.</strong> They connect to a main chain via a bridge, which locks and mints assets. Bridge security is the critical risk.</div></div>
+    <div class="fact-card"><div class="fact-num">04</div><div class="fact-text"><strong>Polygon PoS is a sidechain to Ethereum with 100 validators and ~7,000 TPS.</strong> It commits checkpoints to Ethereum but relies on its own validators for day-to-day security.</div></div>
+    <div class="fact-card"><div class="fact-num">05</div><div class="fact-text"><strong>MST's 4,000+ TPS L1 eliminates the need for sidechains for most applications.</strong> A high-throughput base layer is simpler, more secure, and more composable than a network of sidechains connected by bridges.</div></div>
+
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 14.2 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+
+            <div class="assess-card">
+                <div class="a-badge">Q1</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Easy</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is a state channel?</div>
+                <ul class="options">
+                    <li class="correct">A. An off-chain agreement between parties where only the opening and closing transactions touch the blockchain.</li>
+                    <li>B. A separate blockchain connected to Ethereum by a bridge.</li>
+                    <li>C. A type of smart contract that executes automatically every 10 minutes.</li>
+                    <li>D. A network of validators that processes transactions in parallel.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>State channels allow participants to transact off-chain by exchanging signed messages, settling only the final state on-chain.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q2</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">How does the Lightning Network route a payment from Alice to Carol through Bob?</div>
+                <ul class="options">
+                    <li class="correct">A. Using Hash Time-Locked Contracts (HTLCs) that ensure each hop is conditional on revealing a secret.</li>
+                    <li>B. By creating a new on-chain transaction for every hop.</li>
+                    <li>C. By requiring Alice to open a direct channel with Carol first.</li>
+                    <li>D. By trusting Bob not to steal the funds.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>HTLCs make multi-hop payments atomic and trustless. Funds are released only when the recipient reveals the secret, which cascades back through the route.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q3</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What is the key difference between a sidechain and a state channel?</div>
+                <ul class="options">
+                    <li class="correct">A. A sidechain is a separate blockchain with its own consensus; a state channel is an off-chain agreement between parties secured by the L1.</li>
+                    <li>B. A sidechain is faster than a state channel.</li>
+                    <li>C. A sidechain does not require locking funds.</li>
+                    <li>D. A state channel requires a bridge contract.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Sidechains have their own validators and security model; state channels inherit security directly from the L1 blockchain.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q4</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">Why are blockchain bridges considered the weakest link in multi-chain architectures?</div>
+                <ul class="options">
+                    <li class="correct">A. They concentrate enormous value in a single contract or a small set of validators, making them a high-value target for attackers.</li>
+                    <li>B. They are built using outdated programming languages.</li>
+                    <li>C. They charge higher fees than any other blockchain component.</li>
+                    <li>D. They require every user to run a full node.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>Bridges hold billions of dollars in locked assets. If compromised, all bridged funds can be drained. This has made them the target of the largest hacks in crypto history.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q5</div>
+                <div class="a-type">Multiple Choice</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">1 mark</div>
+                <div class="a-question">What advantage does MST's high-throughput L1 offer over a sidechain-based scaling approach?</div>
+                <ul class="options">
+                    <li class="correct">A. No bridge risk, full composability between all dApps, and simpler architecture for users and developers.</li>
+                    <li>B. MST does not support smart contracts.</li>
+                    <li>C. MST requires users to run their own validators.</li>
+                    <li>D. MST charges higher fees than sidechains.</li>
+                </ul>
+                <div class="a-rubric"><div class="a-rubric-label">✅ Correct Answer: A</div><p>MST's monolithic L1 approach eliminates bridge vulnerabilities, enables atomic composability, and reduces complexity for everyone in the ecosystem.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q6</div>
+                <div class="a-type">True / False with Mandatory Justification</div>
+                <div class="a-diff">Medium</div>
+                <div class="a-marks">2 marks</div>
+                <div class="a-question">"Because state channels process transactions off-chain, they are completely private - no information about the transactions ever appears on the blockchain."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. While individual off-chain transactions are private between the parties, the <strong>opening and closing transactions</strong> are recorded on-chain. The opening transaction reveals the participants and the funded amount. The closing transaction reveals the final balances. Anyone can see that a channel existed and how much was ultimately transferred, even though the intermediate transactions remain hidden.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>1 mark:</strong> Explains that opening and closing transactions are visible on-chain, even though intermediate transfers are private.</p></div>
+            </div>
+
+            <div class="assess-card">
+                <div class="a-badge">Q7</div>
+                <div class="a-type">True / False with Mandatory Justification</div>
+                <div class="a-diff">Hard</div>
+                <div class="a-marks">2 marks</div>
+                <div class="a-question">"A sidechain like Polygon PoS provides the same security guarantees as the Ethereum mainnet because it periodically commits checkpoints to Ethereum."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. While Polygon commits checkpoints to Ethereum, its <strong>day-to-day security</strong> depends on its own 100 validators. If a majority of those validators collude, they can produce fraudulent blocks and steal bridged assets. The checkpoint on Ethereum serves as evidence but does not prevent the attack. Ethereum L1 security comes from its large validator set (1M+) and its economic guarantees; Polygon has a far smaller validator set and correspondingly lower security. Users on Polygon accept this trade-off for lower fees.</div>
+                </div>
+                <div class="a-rubric"><div class="a-rubric-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>1 mark:</strong> Explains that sidechain security depends on its own validators, and checkpoints do not provide equivalent security to the L1.</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-label">Sub-Module 14.2 Assessment Summary</div>
+            <div class="score-row">Q1-Q5: 5 × MCQ (1 mark each) = 5 marks</div>
+            <div class="score-row">Q6-Q7: 2 × True/False with Justification (2 marks each) = 4 marks</div>
+            <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 14.2</h2>
+    <div class="glossary-list">
+        <div class="glossary-card"><div class="g-term">State Channel</div><div class="g-def">An off-chain mechanism where two or more parties lock funds on the blockchain, exchange signed messages to update state, and settle the final state on-chain.</div></div>
+        <div class="glossary-card"><div class="g-term">Lightning Network</div><div class="g-def">A network of bidirectional payment channels on Bitcoin, enabling instant, low-cost payments through multi-hop routing using HTLCs.</div></div>
+        <div class="glossary-card"><div class="g-term">HTLC (Hash Time-Locked Contract)</div><div class="g-def">A contract that ensures a payment is released only when a secret is revealed within a time limit, enabling trustless routing across multiple channels.</div></div>
+        <div class="glossary-card"><div class="g-term">Sidechain</div><div class="g-def">An independent blockchain with its own consensus mechanism, connected to a main chain by a two-way bridge. Assets are locked on the main chain and minted on the sidechain.</div></div>
+        <div class="glossary-card"><div class="g-term">Bridge</div><div class="g-def">A protocol that transfers assets between two blockchains. Locks tokens on the source chain and mints equivalent tokens on the destination chain. A major security risk.</div></div>
+        <div class="glossary-card"><div class="g-term">Polygon PoS</div><div class="g-def">A popular sidechain for Ethereum with 100 validators, ~2-second block times, and ~7,000 TPS. Periodically commits checkpoints to Ethereum.</div></div>
+        <div class="glossary-card"><div class="g-term">Monolithic Scaling</div><div class="g-def">Scaling a blockchain by making the base layer (L1) fast and cheap enough for all use cases, avoiding sidechains and L2s. MST follows this approach.</div></div>
+        <div class="glossary-card"><div class="g-term">Dispute Window</div><div class="g-def">A time period after a state channel is closed during which the counterparty can challenge the submitted state by providing a newer authorised state.</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 14 · Sub-Module <strong>14.2</strong> of 7 · Next: Sub-Module 14.3 - Optimistic Rollups →</p>
+    </div>
+
+</body>
+</html>

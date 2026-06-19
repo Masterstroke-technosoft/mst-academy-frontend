@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>Sub-Module 21.3 - Production Frontend & Documentation | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:        #6C3CE2;
+      --brand-light:  #EDE9FB;
+      --brand-dark:   #3C1FA0;
+      --brand-mid:    #8B5CF6;
+      --accent:       #F6A623;
+      --accent-light: #FEF4E0;
+      --green:        #16A34A;
+      --green-light:  #DCFCE7;
+      --red:          #DC2626;
+      --red-light:    #FEE2E2;
+      --blue:         #1D6FD8;
+      --blue-light:   #DBEAFE;
+      --orange:       #EA580C;
+      --orange-light: #FFEDD5;
+      --teal:         #0D9488;
+      --teal-light:   #CCFBF1;
+      --ink:          #111827;
+      --ink-2:        #374151;
+      --ink-3:        #6B7280;
+      --ink-4:        #9CA3AF;
+      --border:       #E5E7EB;
+      --border-2:     #D1D5DB;
+      --surface:      #F9FAFB;
+      --surface-2:    #F3F4F6;
+      --white:        #FFFFFF;
+      --mono:         'JetBrains Mono', monospace;
+      --sans:         'Inter', sans-serif;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --radius-lg:    16px;
+      --radius-xl:    22px;
+      --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #fff;
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px;
+      border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand);
+      margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    p:last-child { margin-bottom: 0; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex;
+      align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+      text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center;
+      margin-top: 16px; font-style: italic;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+    .col-card { border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid; }
+    .col-card.green { background: var(--green-light); border-color: #86EFAC; }
+    .col-card.red   { background: var(--red-light);   border-color: #FCA5A5; }
+    .col-card-title { font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .col-card.green .col-card-title { color: #14532D; }
+    .col-card.red   .col-card-title { color: #7F1D1D; }
+    .col-card ul    { padding-left: 0; list-style: none; }
+    .col-card ul li { font-size: 14px; color: var(--ink-2); line-height: 1.6; padding: 4px 0; display: flex; gap: 8px; }
+    .col-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .col-card.red ul li::before { content: '✗'; color: var(--red); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 20px 0; }
+    .stat-card {
+      background: var(--brand-light); border: 1px solid #C4B5F5;
+      border-radius: var(--radius-lg); padding: 20px 18px; text-align: center;
+    }
+    .stat-value { font-size: 28px; font-weight: 900; color: var(--brand); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--brand-dark); line-height: 1.4; }
+
+    .code-block {
+      background: #1e1e2f; color: #e2e2f0; border-radius: var(--radius);
+      padding: 20px; margin: 18px 0; overflow-x: auto;
+      font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+      white-space: pre; border: 1px solid #2a2a40;
+    }
+    .code-inline {
+      font-family: var(--mono); background: var(--surface-2); padding: 2px 8px;
+      border-radius: 4px; font-size: 13.5px; color: var(--brand-dark);
+    }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px;
+      text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body { border: 2px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; }
+    .q-badge {
+      background: var(--brand); color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 10px;
+      border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text { font-size: 15.5px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+      line-height: 1.5; cursor: default;
+    }
+    .options li.correct { border-color: var(--green); background: var(--green-light); color: var(--ink); }
+    .opt-key { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px; }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd { margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC; font-size: 13px; color: #14532D; }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write { font-size: 11.5px; font-weight: 700; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+    .tf-sample { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; border-left: 3px solid var(--brand); padding-left: 12px; }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .score-left { }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px;
+      border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid, .two-col, .glossary-grid { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      .module-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════ -->
+<div class="module-badge">🎨 Module 21 · Sub-Module 21.3 of 5</div>
+<h1 class="module-title">Production Frontend &amp; <span class="highlight">Documentation</span></h1>
+<p class="module-subtitle">
+  Your smart contracts are live on MST mainnet. Now you must wrap them in a beautiful, intuitive interface and document every detail - because a dApp without a frontend is just a backend, and a project without a README is invisible.
+</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 90 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 3 MCQ · 2 T/F · 2 T/F+Just · 2 Desc · 1 Mini Project</div>
+  <div class="meta-chip green">Phase 4 · Portfolio Ready</div>
+</div>
+
+<!-- ═══════════════════════════════ OBJECTIVES ═══════════════ -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">⚛️</div>
+    <div class="obj-text"><strong>Build a production-grade React dApp</strong> connected to MST mainnet via BridgeKey wallet and the MST SDK.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🚀</div>
+    <div class="obj-text"><strong>Deploy the frontend to a live URL</strong> using Vercel, Netlify, or IPFS - and configure environment variables securely.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📝</div>
+    <div class="obj-text"><strong>Write a professional README</strong> that includes architecture, setup, contract addresses, and a demo video link.</div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🎥</div>
+    <div class="obj-text"><strong>Record a compelling 5-minute demo</strong> that showcases your capstone’s core flow for investors and grant reviewers.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ STORY ═══════════════ -->
+<div class="section-label">02 · Real-World Story</div>
+<h2 class="section-title">The dApp That Nobody Could Use</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>
+    In 2023, a team of three developers won a hackathon with a brilliant DeFi protocol on an EVM testnet. Their smart contracts were flawless - audited, gas-optimised, and ready for mainnet. They rushed to deploy the contracts and submitted their grant application. But the grant committee asked a simple question: <em>"Can you share a link where we can try it?"</em>
+  </p>
+  <br/>
+  <p>
+    The team had no frontend. They scrambled, hacked together a React app in two days, hardcoded the contract address, and deployed it to a random Vercel link. The interface crashed on mobile, the wallet connection button didn't work on Brave browser, and there was no error handling. The grant was rejected - not because the idea was bad, but because the reviewers couldn't evaluate it.
+  </p>
+  <br/>
+  <p>
+    Your capstone is your ticket to an MST grant, a job, or your own startup. A polished frontend and crystal-clear documentation are what separate a hobby project from a professional product. In this sub-module, you’ll build both.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ ARCHITECTURE ═══════════════ -->
+<div class="section-label">03 · Frontend Architecture for MST dApps</div>
+<h2 class="section-title">React + MST SDK + BridgeKey = The Golden Stack</h2>
+<p>
+  The frontend of a Web3 application follows a clean separation: React for UI, <code>ethers.js</code> (or MST’s own SDK) for blockchain communication, and the BridgeKey wallet for user authentication. Because MST is EVM-compatible, you can use the exact same libraries and patterns you would for Ethereum - but with lower fees and faster confirmations.
+</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.3-A · Production Frontend Architecture</div>
+  <pre>
+  ┌──────────────────────────────────────────────────────┐
+  │                    User's Browser                     │
+  │  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐ │
+  │  │  React App  │  │ BridgeKey   │  │  ethers.js   │ │
+  │  │  (Vite)     │  │ Extension   │  │  / MST SDK   │ │
+  │  └──────┬──────┘  └──────┬──────┘  └──────┬───────┘ │
+  └─────────┼────────────────┼────────────────┼─────────┘
+            │                │                │
+            ▼                ▼                ▼
+  ┌─────────────────────────────────────────────────────┐
+  │              MST Mainnet (Chain ID 4646)             │
+  │  ┌──────────┐  ┌──────────┐  ┌────────────────────┐ │
+  │  │  Your    │  │  MST     │  │  Public RPC        │ │
+  │  │  Smart   │  │  Bridge  │  │  (mariorpc.mst-    │ │
+  │  │  Contracts│  │  Contracts│  │   blockchain.com) │ │
+  │  └──────────┘  └──────────┘  └────────────────────┘ │
+  └─────────────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The React app communicates with MST via the RPC endpoint <code>https://mariorpc.mstblockchain.com</code>. The wallet signs transactions, and the frontend is deployed on a CDN (Vercel / IPFS).</div>
+</div>
+
+<!-- ═══════════════════════════════ SETTING UP REACT ═══════════════ -->
+<div class="section-label">04 · Setting Up the React Project</div>
+<h2 class="section-title">From Zero to a Working Wallet Connection in 15 Minutes</h2>
+<p>
+  We use <strong>Vite</strong> for fast builds and a clean developer experience. The following steps create a TypeScript React app, install dependencies, and connect to the BridgeKey wallet on MST mainnet.
+</p>
+
+<div class="code-block"><code>npm create vite@latest my-dapp -- --template react-ts
+cd my-dapp
+npm install ethers@5.7.2   # or the MST SDK if available
+npm install react-toastify  # for transaction notifications
+npm run dev</code></div>
+
+<p>Now, inside <code>src/App.tsx</code>, we build the wallet connection logic. MST’s BridgeKey injects <code>window.ethereum</code> just like MetaMask, so the code is identical to standard Ethereum dApps.</p>
+
+<div class="code-block"><code>import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+
+function App() {
+  const [account, setAccount] = useState<string | null>(null);
+
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      setAccount(address);
+    } else {
+      alert("Please install BridgeKey wallet!");
+    }
+  };
+
+  return (
+    <div>
+      {account ? (
+        <p>Connected: {account}</p>
+      ) : (
+        <button onClick={connectWallet}>Connect BridgeKey</button>
+      )}
+    </div>
+  );
+}</code></div>
+
+<div class="callout warning">
+  <div class="callout-label">⚠️ Network Check</div>
+  <p>
+    Always verify the user is on MST mainnet (chain ID <strong>4646</strong>). If not, prompt them to switch. Use <code>provider.getNetwork()</code> to check <code>chainId</code>.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ CONTRACT INTERACTION ═══════════════ -->
+<div class="section-label">05 · Reading & Writing to Your Deployed Contracts</div>
+<h2 class="section-title">Bringing Your Mainnet Contracts to the UI</h2>
+<p>
+  After connecting the wallet, the user can call view functions (free) and send state-changing transactions (costing gas). You need the contract ABI and the address you deployed in 21.2.
+</p>
+<p>
+  Create a custom hook <code>useContract</code> that returns a contract instance with the signer attached.
+</p>
+
+<div class="code-block"><code>import { ethers } from 'ethers';
+import { useMemo } from 'react';
+import ABI from './MyToken.json';
+
+export function useContract(address: string, signer: ethers.Signer | null) {
+  return useMemo(() => {
+    if (!signer) return null;
+    return new ethers.Contract(address, ABI, signer);
+  }, [signer, address]);
+}</code></div>
+
+<p>
+  Then, in a component, you can read a balance or call <code>transfer</code>. Always handle loading and error states. Use <code>toast</code> notifications for pending and confirmed transactions.
+</p>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Pro UX Patterns</div>
+  <p>
+    Show a spinner while the transaction is pending. Disable the button during the transaction. Display a success message with a link to the transaction on MST Explorer (<code>https://mstscan.com/tx/{hash}</code>). These small touches make your dApp feel professional.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ DEPLOYING THE FRONTEND ═══════════════ -->
+<div class="section-label">06 · Deploying to Production - Vercel, Netlify & IPFS</div>
+<h2 class="section-title">From localhost to a Public URL</h2>
+<p>
+  Your frontend needs to be accessible to users, judges, and grant reviewers. Here are three battle-tested options.
+</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--blue);">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Vercel (Recommended)</div>
+      <div class="feature-desc">
+        Connect your GitHub repo, set the build command to <code>npm run build</code> and output directory to <code>dist</code>. Add environment variables (e.g., <code>VITE_CONTRACT_ADDRESS</code>) in the Vercel dashboard. Deploys in seconds with automatic SSL.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--teal);">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Netlify</div>
+      <div class="feature-desc">
+        Similar to Vercel. Drag-and-drop your <code>dist</code> folder or connect a Git repo. Netlify also supports environment variables and preview deployments for each pull request.
+      </div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background:var(--orange);">3</div>
+    <div class="feature-content">
+      <div class="feature-title">IPFS via Fleek</div>
+      <div class="feature-desc">
+        For maximum decentralisation, deploy your static site to IPFS. Fleek provides a gateway and automatic pinning. However, updates are slower. Use this if your dApp is fully on-chain and you want to avoid centralised hosting.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ Environment Variables in Vite</div>
+  <p>
+    In Vite, environment variables must be prefixed with <code>VITE_</code> to be exposed to the client. Store your contract address in <code>VITE_CONTRACT_ADDRESS</code> and access it via <code>import.meta.env.VITE_CONTRACT_ADDRESS</code>.
+  </p>
+</div>
+
+<!-- ═══════════════════════════════ DOCUMENTATION ═══════════════ -->
+<div class="section-label">07 · Crafting the Perfect Documentation</div>
+<h2 class="section-title">README, Technical Specs & Demo Video - The Holy Trinity</h2>
+<p>
+  Documentation is not an afterthought. It’s the first thing a grant committee, potential employer, or open-source contributor sees. Your capstone repository must include a <strong>README.md</strong> that answers every question before it’s asked.
+</p>
+
+<div class="two-col">
+  <div class="col-card green">
+    <div class="col-card-title">✅ What a Great README Contains</div>
+    <ul>
+      <li>Project name, tagline, and a live demo link</li>
+      <li>Architecture diagram (can be a Mermaid diagram)</li>
+      <li>List of smart contracts with mainnet addresses</li>
+      <li>Step-by-step local setup instructions</li>
+      <li>How to deploy to testnet/mainnet</li>
+      <li>Security audit summary (from 21.1)</li>
+      <li>Demo video embed or link</li>
+      <li>License & team information</li>
+    </ul>
+  </div>
+  <div class="col-card red">
+    <div class="col-card-title">❌ Common Mistakes</div>
+    <ul>
+      <li>Missing live demo link - reviewers can’t test</li>
+      <li>Hardcoded private keys (even in examples)</li>
+      <li>No mention of which network the contracts are on</li>
+      <li>README copied from a template with placeholder text</li>
+      <li>No demo video - text alone rarely convinces</li>
+    </ul>
+  </div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">Fig. 21.3-B · Anatomy of a Professional README</div>
+  <pre>
+  # 🚀 MyCapstone dApp
+  [Live Demo](https://my-dapp.vercel.app)
+
+  ## 📜 Smart Contracts (MST Mainnet)
+  | Contract   | Address                                      |
+  |------------|----------------------------------------------|
+  | Token      | 0x1234...abcd (verified on MST Explorer)     |
+  | Marketplace| 0x5678...ef01 (verified)                     |
+
+  ## 🏗️ Architecture
+  ![architecture](./docs/architecture.png)
+
+  ## 🛠️ Local Setup
+  ```bash
+  git clone ...
+  npm install
+  cp .env.example .env
+  npm run dev
+  ```
+
+  ## 🔒 Security Audit
+  Full audit report available [here](./audit/REPORT.md).
+  No critical issues. Slither / Mythril output: clean.
+
+  ## 🎥 Demo Video
+  [Watch on YouTube](https://youtu.be/example)
+  </pre>
+
+  <div class="diagram-caption">This structure immediately tells the reviewer what the project does, how to run it, and where to find the contracts - without any friction.</div>
+</div>
+
+<!-- ═══════════════════════════════ DEMO VIDEO ═══════════════ -->
+<div class="section-label">08 · Recording a Killer Demo Video</div>
+<h2 class="section-title">5 Minutes That Can Change Your Career</h2>
+<p>
+  A well-produced demo video is the most persuasive asset in your portfolio. It shows your dApp working end-to-end and lets your personality shine. Follow this script:
+</p>
+
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num">1</div><div class="feature-content"><div class="feature-title">Hook (0-30 sec)</div><div class="feature-desc">State the problem you’re solving and show the dApp’s home screen.</div></div></div>
+  <div class="feature-item"><div class="feature-num">2</div><div class="feature-content"><div class="feature-title">Walkthrough (30 sec - 3 min)</div><div class="feature-desc">Connect wallet, perform the core action (mint, swap, stake), show the transaction on MST Explorer.</div></div></div>
+  <div class="feature-item"><div class="feature-num">3</div><div class="feature-content"><div class="feature-title">Technical Highlights (3-4 min)</div><div class="feature-desc">Mention MST protocols used (SARAL, WASMify, FortunaX), show gas costs, explain your smart contract design.</div></div></div>
+  <div class="feature-item"><div class="feature-num">4</div><div class="feature-content"><div class="feature-title">Call to Action (4-5 min)</div><div class="feature-desc">Share your GitHub, ask for feedback, mention you’re open to grants or collaboration.</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT PREP ═══════════════ -->
+<div class="section-label">09 · Assessment Preparation</div>
+<h2 class="section-title">Quick Facts to Remember</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">A</div><div class="feature-content"><div class="feature-title">BridgeKey Wallet</div><div class="feature-desc">MST’s native browser extension; injects <code>window.ethereum</code> and supports Chain ID 4646. Works with ethers.js seamlessly.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">B</div><div class="feature-content"><div class="feature-title">Vite Environment Variables</div><div class="feature-desc">Must be prefixed with <code>VITE_</code>. Access via <code>import.meta.env.VITE_...</code>. Never expose private keys in client-side code.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">C</div><div class="feature-content"><div class="feature-title">MST Explorer URL</div><div class="feature-desc">Live mainnet explorer: <code>https://mstscan.com</code>. Link to transactions with <code>/tx/{hash}</code> and to contracts with <code>/address/{address}</code>.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);font-size:11px;">D</div><div class="feature-content"><div class="feature-title">Documentation Must-Haves</div><div class="feature-desc">Live URL, contract addresses, local setup instructions, architecture diagram, audit report, demo video.</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════ ASSESSMENT ═══════════════ -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 21.3 Assessment</h2>
+    <div class="marks-total-badge">
+      <div class="num">20</div>
+      <div class="label">Total Marks</div>
+    </div>
+  </div>
+
+  <div class="assessment-body">
+    <!-- SECTION A – MCQ -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">3 Questions · 1 mark each · 3 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which wallet injects <code>window.ethereum</code> for MST mainnet (Chain ID 4646)?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span> MetaMask only</li>
+        <li class="correct"><span class="opt-key">B</span> BridgeKey ✅</li>
+        <li><span class="opt-key">C</span> Trust Wallet</li>
+        <li><span class="opt-key">D</span> Coinbase Wallet</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ B - BridgeKey</div><p>BridgeKey is MST’s native wallet and the recommended extension for dApps on MST mainnet.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In a Vite React project, how do you access an environment variable named <code>CONTRACT_ADDRESS</code>?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> <code>import.meta.env.VITE_CONTRACT_ADDRESS</code> ✅</li>
+        <li><span class="opt-key">B</span> <code>process.env.CONTRACT_ADDRESS</code></li>
+        <li><span class="opt-key">C</span> <code>window.CONTRACT_ADDRESS</code></li>
+        <li><span class="opt-key">D</span> <code>env.CONTRACT_ADDRESS</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ A</div><p>Vite requires the <code>VITE_</code> prefix and uses <code>import.meta.env</code>.</p></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is the correct URL to view a transaction on MST mainnet explorer?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> <code>https://mstscan.com/tx/{hash}</code> ✅</li>
+        <li><span class="opt-key">B</span> <code>https://mstscan.com/transaction/{hash}</code></li>
+        <li><span class="opt-key">C</span> <code>https://explorer.mst.com/tx/{hash}</code></li>
+        <li><span class="opt-key">D</span> <code>https://mstscan.com/hash/{hash}</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ A</div><p>MST Explorer uses the <code>/tx/</code> path. Option C is fictional.</p></div>
+    </div>
+
+    <!-- SECTION B – TRUE/FALSE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section B - True / False</div>
+      <div class="q-section-meta">2 Questions · 1 mark each · 2 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">A React dApp connected to MST mainnet must use a different library than ethers.js because MST is not EVM-compatible.</div>
+      <div class="tf-box"><div class="tf-verdict false">FALSE</div><p>MST is fully EVM-compatible, so ethers.js works perfectly.</p></div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for FALSE</div></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">T/F</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">The README of a production dApp should include the live demo URL and the contract addresses on mainnet.</div>
+      <div class="tf-box"><div class="tf-verdict true">TRUE</div><p>These are essential for reviewers to test and verify the deployment.</p></div>
+      <div class="answer-box"><div class="answer-box-label">✅ 1 mark for TRUE</div></div>
+    </div>
+
+    <!-- SECTION C – TRUE/FALSE WITH JUSTIFICATION -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section C - True / False with Mandatory Justification</div>
+      <div class="q-section-meta">2 Questions · 2 marks each · 4 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">T/F + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Deploying a React frontend to IPFS guarantees that the dApp is fully decentralised with no central points of failure."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample">
+          While IPFS removes the centralised hosting server, the frontend still relies on an RPC endpoint (e.g., <code>https://mariorpc.mstblockchain.com</code>) to communicate with the blockchain. That RPC provider could become a single point of failure. True full decentralisation requires the user to run their own node or use a decentralised RPC network. IPFS only solves the frontend-hosting part.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 2 marks: 1 for FALSE, 1 for mentioning RPC dependency.</div></div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">T/F + Justification</span><span class="q-diff hard">Hard</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"Hardcoding the contract address directly in the React component is an acceptable practice for production dApps."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Justification must mention maintainability and environment management.</div>
+        <div class="tf-sample">
+          Hardcoding makes it difficult to switch between testnet and mainnet, and if the contract is redeployed (e.g., after an upgrade), every import must be manually changed. Environment variables allow a single configuration change across all components and build pipelines.
+        </div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 2 marks: FALSE + justification that covers reusability and environment config.</div></div>
+    </div>
+
+    <!-- SECTION D – DESCRIPTIVE -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section D - Descriptive Questions</div>
+      <div class="q-section-meta">2 Questions · 2+2 = 4 marks total</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">List four items that must be present in a professional capstone README for an MST BuildGrant application.</div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer</div>
+        <p>Live demo URL, mainnet contract addresses (verified), local setup instructions, security audit summary or report link. (any four valid)</p>
+        <div class="marks-bd"><span>2 marks:</span> 0.5 per correct item.</div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">Why is it important to show a transaction link to MST Explorer after a user performs an on-chain action?</div>
+      <div class="answer-box">
+        <div class="answer-box-label">✅ Model Answer</div>
+        <p>It builds trust by allowing the user to independently verify the transaction on-chain. It also helps debugging and provides a permanent record. Without it, the user has to blindly trust the frontend.</p>
+        <div class="marks-bd"><span>2 marks:</span> trust/transparency + verification.</div>
+      </div>
+    </div>
+
+    <!-- SECTION E – MINI PROJECT / PRACTICAL -->
+    <div class="q-section-header">
+      <div class="q-section-title">Section E - Practical Portfolio Task</div>
+      <div class="q-section-meta">1 Task · 7 marks</div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Portfolio Task</span><span class="q-diff hard">Hard</span><span class="q-marks">7 marks</span></div></div>
+      <div class="q-text">
+        Submit a production-ready portfolio page that includes:
+        <br/>• A live URL (Vercel/Netlify/IPFS) of your dApp working on MST mainnet (Chain ID 4646).
+        <br/>• A GitHub repository with a complete README (following the checklist above).
+        <br/>• A 5-minute demo video (YouTube link or Loom).
+        <br/>• Screenshot of the deployed contract verified on MST Explorer.
+        <br/><br/>
+        <strong>Evaluation criteria:</strong>
+      </div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marks Breakdown</div>
+        <p>
+          <strong>3 marks:</strong> Live dApp works (wallet connects, at least one read & write function works).
+          <br/><strong>2 marks:</strong> README complete with contract addresses, setup, and architecture diagram.
+          <br/><strong>1 mark:</strong> Demo video shows core user flow and mentions MST features.
+          <br/><strong>1 mark:</strong> Verified contract screenshot included in the repo.
+        </p>
+        <div class="marks-bd"><span>Total: 7 marks.</span> Partial credit for incomplete submission.</div>
+      </div>
+    </div>
+
+  </div><!-- end assessment-body -->
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 21.3 Assessment Summary</div>
+      <div class="score-row">Section A: 3 × MCQ <span>(1 mark each) = 3 marks</span></div>
+      <div class="score-row">Section B: 2 × True/False <span>(1 mark each) = 2 marks</span></div>
+      <div class="score-row">Section C: 2 × True/False with Justification <span>(2 marks each) = 4 marks</span></div>
+      <div class="score-row">Section D: 2 × Descriptive <span>(2+2) = 4 marks</span></div>
+      <div class="score-row">Section E: 1 × Portfolio Task <span>(7 marks) = 7 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">20</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ GLOSSARY ═══════════════ -->
+<div class="section-label" style="margin-top:52px;">10 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 21.3</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">BridgeKey</div><div class="glossary-def">MST’s native browser extension wallet that injects the Ethereum provider API for dApps.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Vite</div><div class="glossary-def">A fast frontend build tool that supports React, TypeScript, and environment variable handling with <code>VITE_</code> prefix.</div></div>
+  <div class="glossary-item"><div class="glossary-term">MST Explorer</div><div class="glossary-def">The block explorer for MST mainnet (mstscan.com) where contracts are verified and transactions viewed.</div></div>
+  <div class="glossary-item"><div class="glossary-term">IPFS</div><div class="glossary-def">InterPlanetary File System - a decentralised storage network for hosting static frontends without a single server.</div></div>
+  <div class="glossary-item"><div class="glossary-term">README</div><div class="glossary-def">The documentation file in a repository that explains what the project does, how to run it, and where the contracts are.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Demo Video</div><div class="glossary-def">A short screen recording that walks through the dApp’s core features, intended for investors and grant reviewers.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 21 · Sub-Module <strong>21.3</strong> of 5 · Next: 21.4 - Final Demo Day & Graduation →</p>
+</div>
+
+</body>
+</html>

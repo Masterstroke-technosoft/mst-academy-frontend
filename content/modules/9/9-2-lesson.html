@@ -1,0 +1,482 @@
+
+
+<div class="module-badge">🎓 Module 9 &nbsp;·&nbsp; Sub-Module 9.2 of 6</div>
+<h1 class="module-title">System Architecture &amp; <span class="highlight">Smart Contract Design</span></h1>
+<p class="module-subtitle">The blueprint before the build - a comprehensive guide to designing modular, secure, and gas-efficient dApp architectures on MST Blockchain. Learn to think like a chief architect, draw professional diagrams, and create a capstone project that wins grants and passes audits with flying colors.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 60 Minutes</div>
+  <div class="meta-chip purple">🎯 20 Marks</div>
+  <div class="meta-chip">📋 Architecture Diagram + Design Explanation</div>
+  <div class="meta-chip green">Phase 3 · Capstone Kickoff</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏗️</div>
+    <div class="obj-text">
+      <strong>Deconstruct a dApp into logical layers</strong>
+      Separate frontend, smart contracts, storage, and external integrations - understanding how each layer communicates and where trust boundaries lie.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📐</div>
+    <div class="obj-text">
+      <strong>Design smart contract architecture using proven patterns</strong>
+      Choose between monolithic, modular, proxy-upgradeable, and diamond patterns based on project needs, and apply the Checks-Effects-Interactions principle at the system level.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">📊</div>
+    <div class="obj-text">
+      <strong>Create clear, professional architecture diagrams</strong>
+      Use UML component diagrams and data flowcharts to communicate your design to developers, auditors, and grant committees - including MST-specific integrations.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🧩</div>
+    <div class="obj-text">
+      <strong>Document design rationale and trade-offs</strong>
+      Write a concise architecture document explaining why you chose specific data structures, access controls, and off-chain components - exactly what evaluators look for.
+    </div>
+  </div>
+</div>
+
+<!-- 02 REAL‑WORLD STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Startup That Built Without a Blueprint</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2022, a team of three developers set out to build a decentralized freelance platform on Ethereum. They started coding immediately - a single large <code>FreelanceMarket.sol</code> contract that handled user profiles, job postings, escrow, disputes, and payments. No diagram, no component separation, no modular design.</p>
+  <br>
+  <p>Three months in, they needed to add arbitration by a DAO. The single contract was already near the 24 KB size limit. Adding more code was impossible without splitting, but the logic was so intertwined that refactoring took weeks. The gas costs were astronomical because every user action looped through arrays. When they applied for a grant, the evaluators asked for an architecture diagram - and they had none. The grant was rejected.</p>
+  <br>
+  <p>A mentor stepped in: "Draw the system first. Separate concerns. Profile, escrow, dispute - each its own contract. Link them through interfaces. Use events for off-chain data. Only then code." In one week, they redesigned the entire architecture. The new system was modular, upgradeable, and gas-efficient. They received the grant on the second attempt and launched successfully.</p>
+</div>
+<p>This sub-module gives you the mindset and tools to be that mentor for your own capstone project. Before you write a single line of Solidity, you'll learn to think like a system architect - designing components, defining interfaces, and anticipating future needs. The result: a project that is robust, maintainable, and impressive to evaluators.</p>
+
+<!-- 03 BACKGROUND & HISTORY (EXPANDED) -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Monolithic to Modular - The Evolution of dApp Architecture</h2>
+<p>The earliest dApps (2015 - 2017) were monolithic. A single smart contract contained all the logic: storage, business rules, and access control. This was simple but quickly became unmanageable. Contracts hit the size limit. Bugs in one feature threatened the entire system. Upgrading meant deploying a new contract and migrating all state - a nightmare.</p>
+<p>The breakthrough came with <strong>modular design</strong> and <strong>proxy patterns</strong>. Developers started separating concerns: a token contract, a governance contract, a treasury contract, each talking through defined interfaces. This made audits easier (each contract could be audited independently) and upgrades possible (only one module needed replacement).</p>
+<p><strong>ERC-20</strong> and <strong>ERC-721</strong> are themselves examples of successful architecture: the standard defines a minimal interface, and thousands of projects implement it. The <strong>Uniswap</strong> architecture - separating the factory, pair, and router contracts - became a reference design for DeFi protocols. The <strong>Diamond Standard (EIP-2535)</strong> pushed modularity further by allowing a single contract to delegate function calls to multiple facet contracts, enabling unlimited contract size.</p>
+<p>On MST, you have additional architectural options: <strong>WASMify</strong> enables off-chain computation bridged on-chain, <strong>SARAL</strong> provides non-custodial wallet abstraction, and the <strong>hybrid L1</strong> allows permissioned zones for private data. Understanding how to integrate these into your architecture is key to building next-generation dApps.</p>
+<p><strong>The architectural evolution timeline:</strong></p>
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2015-2016</div>
+      <div class="tl-body"><strong>Monolithic era.</strong> Single contracts with all logic. Size limits, no upgradeability. Examples: early token ICOs.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2017-2018</div>
+      <div class="tl-body"><strong>Interface standardization.</strong> ERC-20, ERC-721 established. Contracts started using interfaces for composability. Factory pattern emerges.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2019-2020</div>
+      <div class="tl-body"><strong>Proxy patterns and upgradeability.</strong> OpenZeppelin's Transparent Proxy and UUPS pattern enable logic upgrades without state migration. DeFi summer explodes with modular designs.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2021-2022</div>
+      <div class="tl-body"><strong>Diamond Standard (EIP-2535).</strong> Multi-facet proxy allows unlimited contract size. Layer 2 architectures separate execution from data availability.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST-native architectures.</strong> Hybrid L1 with public + permissioned zones, WASMify for verifiable off-chain compute, SARAL for wallet abstraction. Architects can design systems that blend on-chain security with off-chain efficiency.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION (EXPANDED) -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Blueprint Analogy - Why Architects Don't Build Without Plans</h2>
+<div class="callout analogy">
+  <div class="callout-label">🏛️ The Analogy</div>
+  <p>When constructing a building, you don't start by mixing cement. You draw a <strong>blueprint</strong> first: the foundation, the pillars, the electrical wiring, the plumbing - each a separate system that connects at defined points. A smart contract system is no different. The <strong>contracts</strong> are the pillars, the <strong>frontend</strong> is the facade, the <strong>events</strong> are the communication pipes, and the <strong>oracles</strong> are the external utility connections. If you pour concrete without a plan, you'll regret it when you need to add a window.</p>
+</div>
+<p>At its core, every dApp architecture answers five questions:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What data must live on-chain, and what can be off-chain?</div>
+      <div class="w5-a">Critical state (ownership, balances, governance) must be on-chain for trustlessness. Large blobs (images, documents) belong on IPFS or Arweave. Derived data (analytics, leaderboards) can be indexed off-chain via events. Choosing the boundary is the most impactful architectural decision - it determines gas costs and scalability. On MST, the low gas costs mean you can store more on-chain, but you should still be disciplined. Every byte on-chain is replicated forever on every node. Use events for historical logs.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How will contracts interact and be upgraded?</div>
+      <div class="w5-a">Monolithic vs modular. If modular, through interfaces, inheritance, or proxy delegation? Will you use the Diamond Standard for unlimited size? Will you use a factory pattern for user-deployed contracts? The interaction pattern dictates security, gas efficiency, and upgradeability. For a simple capstone, a modular set of contracts with clear interfaces is often best. For a long-lived protocol, proxy patterns are essential. Think about how you'll add features in v2 without breaking v1 users.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">A</div><div class="w5-word">ACCESS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Who can do what - access control architecture</div>
+      <div class="w5-a">A single <code>onlyOwner</code> modifier, or role-based access control (RBAC) with multiple roles (minter, pauser, upgrader)? How will governance (DAO) interact with admin functions? This is the security foundation - misdesigning it leads to exploits. Production contracts almost always use OpenZeppelin's AccessControl or a custom role system. Document who holds each role and why. For a DAO-based project, define how proposals can change roles or parameters.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">O</div><div class="w5-word">OFF-CHAIN</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What off-chain services does the dApp need?</div>
+      <div class="w5-a">Oracles for price feeds, WASMify for verifiable computation, IPFS for metadata, The Graph for indexing, SARAL for wallet abstraction. Identify these early - they shape the contract interface and the frontend integration. For example, if you're using a subgraph, your events must be designed for efficient indexing (indexed parameters). If you're using WASMify, your contract needs a callback or verification function.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">S</div><div class="w5-word">SCALE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How will the architecture handle growth?</div>
+      <div class="w5-a">Can you migrate state? Can you add new features without breaking existing ones? Are you using proxy patterns? Does your event schema support new data fields? Planning for growth from day one avoids costly rewrites. Design your storage layout with extra padding or use a flexible struct. Ensure your events include a version or extra data field that can be extended. For MST, the hybrid architecture lets you expand from a public dApp into permissioned enterprise zones later.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 THE ARCHITECTURAL COMPONENTS (MORE DETAILED) -->
+<div class="section-label">05 &nbsp; Architectural Components</div>
+<h2 class="section-title">The Building Blocks of a dApp System - A Deep Dive</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">1. Frontend Layer (React / Next.js + ethers.js / MST SDK)</h3>
+<p>The frontend is the user's window into your smart contracts. It connects to the wallet (BridgeKey or MetaMask), reads contract state via <code>view</code> functions or event indexing, and sends transactions. A well-architected frontend separates UI components, data fetching hooks, and contract interaction services. On MST, you can use the same React components with the MST SDK (which is ethers-compatible) - just configure the RPC URL and chain ID.</p>
+<p>Key architectural decisions for the frontend:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>State management:</strong> Use React context or a lightweight state library (Zustand, Jotai) for wallet connection state. Avoid storing sensitive data in local storage.</li>
+  <li><strong>Data fetching:</strong> Use <code>ethers.Contract</code> for on-chain calls. For complex queries, set up a subgraph and use Apollo Client for GraphQL. Polling is simpler but less scalable.</li>
+  <li><strong>Transaction handling:</strong> Provide clear UI feedback during transaction lifecycle: pending (spinner), confirmed (checkmark), failed (error message). Use the MST SDK's gas estimation for predictable fees.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">2. Smart Contract Layer (Solidity on MST)</h3>
+<p>This is where business logic lives. A typical modular dApp might have:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Core Logic Contract:</strong> The main entry point, delegating to other modules.</li>
+  <li><strong>Token Contract(s):</strong> ERC-20 for utility/governance, ERC-721 or ERC-1155 for assets.</li>
+  <li><strong>Storage Contract:</strong> Holds all mutable state, separated from logic (Eternal Storage pattern) to enable upgrades.</li>
+  <li><strong>Access Control Contract:</strong> RBAC or Ownable, managing roles.</li>
+  <li><strong>Upgrade Proxy:</strong> OpenZeppelin's Transparent Proxy or UUPS pattern.</li>
+</ul>
+<p>On MST, because of low gas costs, you can afford more on-chain logic, but the separation of concerns remains critical for security and maintainability. Consider how these contracts will be deployed - should the factory contract be owned by a multisig? What addresses get initial admin rights?</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">3. Storage Layer (IPFS, Arweave, Subgraph)</h3>
+<p>Smart contracts store only what must be on-chain. Everything else goes to decentralized storage (IPFS for NFT metadata, Arweave for permanent archives) or is indexed from events into a queryable database via The Graph (subgraph). A subgraph listens to contract events, transforms them, and provides a GraphQL API for the frontend - far more efficient than reading storage directly.</p>
+<p>When designing your event schema, think about what the frontend will query. Index the parameters needed for filtering. For a marketplace, index <code>seller</code>, <code>buyer</code>, <code>tokenId</code>. For a DAO, index <code>proposalId</code> and <code>voter</code>. Good event design makes your subgraph queries fast and simple.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">4. Oracle / External Data Layer (WASMify, Chainlink)</h3>
+<p>Smart contracts can't natively fetch external data. Oracles bridge this gap. On MST, <strong>WASMify</strong> allows you to run verifiable off-chain computation and bring the result on-chain with a ZK proof. This is ideal for complex computations, IoT data, or custom APIs. Chainlink can also be used on MST for price feeds.</p>
+<p>Architecturally, an oracle integration involves: a user or keeper calls an off-chain service, the service produces a signed result, and the contract verifies the signature and uses the data. With WASMify, the computation itself produces a ZK proof that the contract verifies in a single transaction. This reduces trust assumptions.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">5. Wallet / Authentication Layer (SARAL, BridgeKey)</h3>
+<p>User onboarding is critical. MST's <strong>SARAL</strong> protocol allows users to create wallets with Google login or biometrics, without seed phrases. Architecturally, your dApp interacts with the wallet through the standard EIP-1193 provider interface. The wallet signs transactions; the dApp never sees the private key.</p>
+<p>For your capstone, document the wallet flow: user clicks "Connect", BridgeKey prompts for login, wallet returns accounts. The dApp uses the connected signer to send transactions. If using SARAL, the user experience is even simpler - no extension needed, just a web login.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 9.2-A · Typical dApp Architecture for MST</div>
+  <pre>┌──────────────────────────────────────────────────────────────────────────┐
+│                            USER DEVICE                                    │
+│  ┌─────────────────────┐     ┌─────────────────────┐                      │
+│  │   React Frontend     │────▶│   BridgeKey Wallet   │                      │
+│  │ (Vercel / IPFS)     │     │ (Signs TXs)         │                      │
+│  └──────────┬──────────┘     └─────────────────────┘                      │
+└─────────────┼────────────────────────────────────────────────────────────┘
+              │ ethers.js / MST SDK
+              ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        MST BLOCKCHAIN (L1)                                │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ Core Logic  │  │  ERC‑20/721  │  │  Governance  │  │  Proxy       │  │
+│  │ Contract    │  │  Tokens      │  │  Contract    │  │  (Upgrade)   │  │
+│  └──────┬──────┘  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  │
+│         │                │                 │                 │          │
+│         └────────────────┴─────────────────┴─────────────────┘          │
+│                                   │                                       │
+│                          Events emitted                                   │
+└───────────────────────────────────┬───────────────────────────────────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+          ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+          │  Subgraph   │  │  WASMify    │  │  IPFS       │
+          │ (Indexing)  │  │ (Off‑chain  │  │ (Metadata)  │
+          │             │  │  Compute)   │  │             │
+          └──────┬──────┘  └──────┬──────┘  └─────────────┘
+                 │               │
+                 ▼               ▼
+          ┌─────────────┐  ┌─────────────┐
+          │  Frontend   │  │ On‑chain    │
+          │  Data API   │  │ Verified    │
+          │  (GraphQL)  │  │ Result      │
+          └─────────────┘  └─────────────┘
+  </pre>
+  <div class="diagram-caption">A layered architecture: user ↔ frontend ↔ smart contracts ↔ off-chain services. Each layer has a clear responsibility, making the system modular, testable, and upgradeable.</div>
+</div>
+
+<!-- 06 SMART CONTRACT DESIGN PATTERNS (EXPANDED) -->
+<div class="section-label">06 &nbsp; Smart Contract Design Patterns</div>
+<h2 class="section-title">Proven Blueprints for Solidity Contracts</h2>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">1. Factory Pattern</h3>
+<p>A factory contract creates instances of another contract. Example: Uniswap's factory creates pair contracts for each token pair. This keeps the factory lightweight and the pairs isolated - a bug in one pair doesn't affect others. For your capstone, if users create their own resources (like custom tokens or staking pools), use a factory.</p>
+<pre style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; font-family:var(--mono); font-size:13px; color:var(--ink-2); line-height:1.7; margin:12px 0;">contract PoolFactory {
+    mapping(address =&gt; address) public getPool;
+    event PoolCreated(address indexed pool, address token, address creator);
+
+    function createPool(address token) external returns (address) {
+        require(getPool[token] == address(0), "Pool exists");
+        Pool pool = new Pool(token, msg.sender);
+        getPool[token] = address(pool);
+        emit PoolCreated(address(pool), token, msg.sender);
+        return address(pool);
+    }
+}
+</pre>
+<p>Gas consideration: deploying a child contract costs around 32,000 gas + the deployment code. On MST, this is about ₹0.003. On Ethereum, it could be ₹10,000+. The factory pattern is far more practical on low-fee chains.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">2. Proxy Upgradeability (Transparent / UUPS)</h3>
+<p>Smart contracts are immutable - once deployed, code cannot change. Proxy patterns separate storage and logic. Users interact with a proxy contract that delegates calls to an implementation contract. To upgrade, you deploy a new implementation and point the proxy to it. OpenZeppelin provides audited implementations.</p>
+<p>Two common proxy patterns:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Transparent Proxy:</strong> The admin (upgrader) cannot call the implementation; users cannot call admin functions. Simpler, but slightly higher gas cost.</li>
+  <li><strong>UUPS (Universal Upgradeable Proxy Standard):</strong> The upgrade logic is in the implementation contract itself. Cheaper gas, but requires careful implementation to avoid locking the upgrade mechanism.</li>
+</ul>
+<p>For your capstone, if you anticipate long-term maintenance, UUPS is the modern recommendation. Document who holds the upgrade admin role and how it might transition to a DAO.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">3. Diamond Standard (EIP-2535)</h3>
+<p>The Diamond pattern takes modularity to the extreme: one proxy delegates to many "facet" contracts, each implementing a subset of functions. This removes the 24 KB contract size limit and allows granular upgrades. It's complex but powerful for large dApps.</p>
+<p>How it works: a mapping <code>bytes4 =&gt; address</code> routes function selectors to facet contracts. When a call comes in, the proxy looks up the selector and <code>delegatecall</code>s to the matching facet. Adding a new feature means deploying a new facet and updating the mapping. MST's low gas costs make the extra delegation overhead negligible.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">4. Eternal Storage</h3>
+<p>Separate the data storage from the logic. The logic contract writes to a separate storage contract. When upgrading logic, only the logic contract changes; data remains intact. This is simpler than a full proxy but requires disciplined separation.</p>
+<p>Example: a <code>UserStorage</code> contract holds all mappings, and a <code>UserLogic</code> contract reads/writes through it. The logic contract address can be updated by an admin. This pattern is great for projects that want upgradeability without the complexity of proxy patterns.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">5. Role-Based Access Control (RBAC)</h3>
+<p>Instead of a single <code>owner</code>, define roles like <code>MINTER_ROLE</code>, <code>PAUSER_ROLE</code>, <code>UPGRADER_ROLE</code>. Each role is a bytes32 hash. The contract stores a mapping from role to address list. Functions check <code>onlyRole(MINTER_ROLE)</code>. OpenZeppelin's <code>AccessControl</code> provides a battle-tested implementation.</p>
+<p>For your capstone, use AccessControl for any contract with multiple admin tiers. Example: a DAO contract might have a <code>PROPOSER_ROLE</code> and an <code>EXECUTOR_ROLE</code>. The DAO governance contract itself could be granted the <code>EXECUTOR_ROLE</code> to execute passed proposals automatically.</p>
+
+<!-- 07 INTERACTIVE DESIGN WALKTHROUGH (MORE DETAILED) -->
+<div class="section-label">07 &nbsp; Interactive Design Walkthrough</div>
+<h2 class="section-title">Design Your Capstone Architecture - Step by Step</h2>
+<p>Follow the steps below to build your own architecture diagram. Click each step to expand. By the end, you'll have a complete blueprint.</p>
+
+<details>
+  <summary>📝 Step 1: Define user stories and on-chain state</summary>
+  <div class="content">
+    <p>Write down 3-5 core user stories for your dApp. Example for a "Decentralized Swiggy":</p>
+    <ul>
+      <li>Customer places order with MSTC payment held in escrow.</li>
+      <li>Restaurant confirms order and marks it ready for pickup.</li>
+      <li>Delivery partner picks up and delivers.</li>
+      <li>Upon delivery confirmation, escrow releases payment to restaurant and delivery partner.</li>
+    </ul>
+    <p>Identify what state must be on-chain: order details, escrow balances, delivery status, participant addresses. What can be off-chain: restaurant menus, images, reviews (these can be indexed from events or stored on IPFS).</p>
+    <p><strong>Pro tip:</strong> For each piece of state, ask: "If this data were wrong, could someone steal funds?" If yes, it must be on-chain with appropriate validation.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🧩 Step 2: Decompose into smart contract modules</summary>
+  <div class="content">
+    <p>Based on the user stories, list the necessary contracts:</p>
+    <ul>
+      <li><strong>OrderContract:</strong> Manages the lifecycle of an order - placed, accepted, picked, delivered, disputed.</li>
+      <li><strong>EscrowContract:</strong> Holds MSTC until delivery is confirmed, with rules for release and refund.</li>
+      <li><strong>UserProfileContract:</strong> Stores reputation, delivery stats, and preferences.</li>
+    </ul>
+    <p>Decide how they interact. Should OrderContract hold the escrow logic internally, or delegate to a separate EscrowContract? A separate contract is more modular and upgradable. Define the interface between them. For each contract, write a one-paragraph description of its responsibility.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔗 Step 3: Define interfaces and data flow</summary>
+  <div class="content">
+    <p>For each contract, specify:</p>
+    <ul>
+      <li><strong>State variables:</strong> mappings, structs, arrays.</li>
+      <li><strong>Public functions:</strong> their visibility, parameters, and effects.</li>
+      <li><strong>Events:</strong> what events are emitted and when.</li>
+      <li><strong>Modifiers:</strong> access control rules.</li>
+    </ul>
+    <p>Draw a sequence diagram for a key flow, e.g., "Place Order".</p>
+    <pre>User → OrderContract.placeOrder(restaurant, deliveryPartner, amount)
+    → creates new Order struct, calls EscrowContract.deposit{value: amount}(orderId)
+    → EscrowContract holds MSTC, emits EscrowDeposited(orderId, amount)
+OrderContract emits OrderPlaced(orderId, user, restaurant, ...)
+    </pre>
+    <p>Define the interface <code>IEscrow</code> with <code>deposit(uint orderId) payable</code> and <code>release(uint orderId)</code>. OrderContract calls <code>IEscrow(escrowAddress).deposit{value: amount}(orderId)</code>. This decoupling lets you swap the escrow implementation later.</p>
+  </div>
+</details>
+
+<details>
+  <summary>🔄 Step 4: Choose off-chain components</summary>
+  <div class="content">
+    <p>Determine what data the frontend needs in real time. For a delivery app, the user needs to see order status updates. You could poll the contract (gas-free via <code>view</code> functions) or set up a subgraph to index <code>OrderStatusChanged</code> events. A subgraph is more efficient for complex queries (e.g., "all orders by user X in the last week").</p>
+    <p>If you need external data (e.g., GPS proof of delivery), consider WASMify to verify location data and submit a ZK proof on-chain, triggering the escrow release. Document how the off-chain worker will be triggered (cron, event listener) and how the contract verifies the proof.</p>
+  </div>
+</details>
+
+<details>
+  <summary>📐 Step 5: Draw the architecture diagram</summary>
+  <div class="content">
+    <p>Using any drawing tool (draw.io, Excalidraw, Figma, or even pen and paper), create a component diagram with:</p>
+    <ul>
+      <li>Boxes for each contract, frontend, and off-chain service.</li>
+      <li>Arrows showing function calls and event flow.</li>
+      <li>Labels indicating the interface or data passed.</li>
+    </ul>
+    <p>Keep it clean. Use different colors for on-chain vs off-chain. Include a legend. This diagram will be part of your assessment submission. Example:</p>
+    <pre style="font-size:12px; line-height:1.5;">[User Browser] → [React Frontend] → [BridgeKey Wallet]
+[React Frontend] → ethers.js → [OrderContract] → [EscrowContract]
+[OrderContract] emits OrderPlaced → [Subgraph] → [Frontend API]
+    </pre>
+  </div>
+</details>
+
+<!-- 08 CASE STUDIES (EXPANDED) -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How the Best dApps Are Architectured</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">🦄</div>
+    <div class="feature-content">
+      <div class="feature-title">Uniswap v2 - The Factory + Pair Model</div>
+      <div class="feature-desc">Uniswap's architecture is a masterclass in modularity. The <strong>UniswapV2Factory</strong> creates <strong>UniswapV2Pair</strong> contracts for each trading pair. The <strong>UniswapV2Router</strong> provides a user-friendly interface to interact with pairs. This separation means each pair is isolated - a bug in one doesn't drain the entire exchange. The factory stores an array of all pairs, making them discoverable. This pattern is so effective that it's replicated across hundreds of DeFi protocols. For your capstone, if you need multiple instances of a contract (like staking pools), a factory is the way to go.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">Aave - Modular Lending with Upgradeable Proxy</div>
+      <div class="feature-desc">Aave uses a proxy-based architecture. The <strong>LendingPool</strong> is a proxy that delegates to upgradeable implementation contracts. The <strong>aToken</strong> contracts (representing deposits) are also upgradeable. This has allowed Aave to evolve from v1 to v3 while preserving user funds - the storage remained intact across upgrades. They also use an <strong>AddressesProvider</strong> contract as a central registry for all protocol addresses, so other contracts can look up the latest versions without hardcoding. This pattern is ideal for projects that expect long-term evolution.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Axie Infinity (Ronin) - ERC-1155 + Off-Chain Indexing</div>
+      <div class="feature-desc">Axie Infinity's architecture uses ERC-1155 for all in-game assets (Axies, land, items) to allow batch transfers and multiple asset types in one contract. The game logic (breeding, battling) happens largely off-chain on the game server, with only final state changes (ownership transfers, rewards) settled on-chain. This hybrid architecture balances decentralization with performance. Events are indexed by a custom backend to power the marketplace and user inventories. MST's low fees make such hybrid models even more practical, allowing more logic on-chain if desired.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 ACCESS CONTROL AND SECURITY ARCHITECTURE -->
+<div class="section-label">09 &nbsp; Access Control &amp; Security Architecture</div>
+<h2 class="section-title">Locking the Doors - Designing Permissions That Don't Leak</h2>
+<p>Access control is the single most important security decision in your architecture. A well-designed permission system prevents unauthorized actions while remaining flexible for future governance. Here's a comprehensive guide:</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Simple Ownership (Ownable)</h3>
+<p>Best for: simple projects, single-admin dApps. An <code>owner</code> address is set at deployment. A modifier <code>onlyOwner</code> protects admin functions. Ownership can be transferred to a new address. Pros: simple, well-understood. Cons: single point of failure; if the owner key is lost or compromised, the entire contract is compromised.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Role-Based Access Control (AccessControl)</h3>
+<p>Best for: projects with multiple admin tiers, DAO-controlled parameters. OpenZeppelin's <code>AccessControl</code> uses a mapping from <code>bytes32 role =&gt; address[]</code>. Roles are granted and revoked by an admin. Functions check <code>onlyRole(role)</code>. Example roles: <code>MINTER_ROLE</code>, <code>PAUSER_ROLE</code>, <code>UPGRADER_ROLE</code>. This is the industry standard for production contracts.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Timelocks and Governance</h3>
+<p>For critical functions (like upgrading a proxy or draining fees), add a <strong>timelock</strong> between the proposal and execution. This gives users time to exit if they disagree with a change. A timelock contract holds the admin role; the DAO or multisig proposes transactions through it. OpenZeppelin's <code>TimelockController</code> provides this.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Multi-Signature (Multisig) Wallets</h3>
+<p>For the initial admin of your contracts, use a multisig wallet like Gnosis Safe. A 3-of-5 multisig requires multiple team members to sign any transaction. This prevents a single compromised key from draining the treasury. The multisig address becomes the <code>owner</code> or is granted the <code>DEFAULT_ADMIN_ROLE</code>.</p>
+
+<div class="highlight-strip">
+  <strong>Architecture rule:</strong> Never give a single EOA (externally owned account) unchecked power over a production contract. Use a multisig for admin, and timelocks for irreversible changes. Your architecture diagram should show the admin structure.
+</div>
+
+<!-- 10 GAS OPTIMIZATION IN ARCHITECTURE -->
+<div class="section-label">10 &nbsp; Gas-Aware Architecture Design</div>
+<h2 class="section-title">Structuring Contracts to Save Gas - Even on MST</h2>
+<p>MST's gas fees are a fraction of Ethereum's, but gas optimization still matters for scale. A contract called 1,000,000 times with a 50,000 gas difference will save 50 MSTC overall. Here's how to design for gas efficiency:</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Minimize On-Chain Storage</h3>
+<p>Every storage write costs 5,000-20,000 gas. Design your contract to write as little as possible. Use events for historical data. Use <code>calldata</code> for read-only parameters. Pack small variables into structs. If you only need to track "last updated timestamp," don't store an entire history array.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Use External Calls Wisely</h3>
+<p>Calling another contract costs gas. If multiple contracts need the same data, consider caching it locally or using a central registry. However, avoid redundant calls. Batch multiple operations into a single transaction when possible (e.g., use ERC-1155 batch transfers instead of multiple ERC-721 transfers).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Proxy Gas Overhead</h3>
+<p>Proxy patterns add a <code>delegatecall</code> overhead of about 700-1,000 gas per function call. This is negligible on MST but worth noting if your dApp has millions of calls. Choose UUPS over Transparent Proxy for slightly lower gas (no admin check overhead).</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Computation vs Storage Trade-off</h3>
+<p>On-chain computation is cheap (3 gas for ADD). Storage is expensive. It's often cheaper to recompute a value from other stored values than to store the derived value itself. For example, don't store a user's "total rewards" if you can calculate it from a base reward rate and the number of blocks staked. Let the frontend do the math.</p>
+
+<!-- 11 ASSESSMENT PREP (EXPANDED) -->
+<div class="section-label">11 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for Your Architecture Submission</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Separate concerns: logic, storage, access control, tokens</div>
+      <div class="feature-desc">A good architecture has distinct contracts for distinct responsibilities. This enables independent testing, auditing, and upgrading.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Use interfaces (ISomething.sol) to define contract interactions</div>
+      <div class="feature-desc">Contracts should depend on interfaces, not concrete implementations. This allows swapping implementations without changing dependent contracts.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Plan for upgradeability if the project is long-lived</div>
+      <div class="feature-desc">Choose between Eternal Storage, UUPS proxy, or Diamond. Document the upgrade mechanism and access controls (who can upgrade).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Use events as the primary off-chain data pipeline</div>
+      <div class="feature-desc">Emit events for all state changes. Use a subgraph or custom indexer to populate a database for the frontend. This avoids expensive on-chain storage reads.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Integrate MST features where they add value</div>
+      <div class="feature-desc">If your dApp needs non-custodial wallet onboarding, use SARAL. If it needs verifiable off-chain compute, use WASMify. Document why you chose these and how they connect.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY (EXPANDED) -->
+<div class="section-label" style="margin-top:52px;">12 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 9.2</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Architecture Diagram</div><div class="glossary-def">A visual representation of a system's components, their relationships, and data flows. Essential for communicating design to developers and auditors.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Modular Design</div><div class="glossary-def">Breaking a system into independent, interchangeable modules with well-defined interfaces. Improves maintainability and testability.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Proxy Pattern</div><div class="glossary-def">A design that separates contract logic from storage, allowing logic to be upgraded without changing the contract address or losing state.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Factory Pattern</div><div class="glossary-def">A contract that creates instances of other contracts. Used when many independent instances of a contract are needed (e.g., trading pairs).</div></div>
+  <div class="glossary-item"><div class="glossary-term">Diamond Standard</div><div class="glossary-def">EIP-2535, allowing a single proxy contract to delegate calls to many facet contracts, removing the contract size limit.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Subgraph</div><div class="glossary-def">An off-chain indexer that transforms blockchain events into a queryable GraphQL API, used to efficiently power frontends.</div></div>
+  <div class="glossary-item"><div class="glossary-term">SARAL</div><div class="glossary-def">MST's non-custodial wallet protocol enabling biometric / Google-login wallet creation without seed phrases. Simplifies user onboarding.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's bridge for verifiable off-chain computation, bringing results on-chain with ZK proofs. Useful for oracles and complex logic.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Checks-Effects-Interactions</div><div class="glossary-def">A security pattern: check conditions, update contract state, then interact with external contracts. Prevents reentrancy.</div></div>
+  <div class="glossary-item"><div class="glossary-term">RBAC</div><div class="glossary-def">Role-Based Access Control - an access control model where permissions are assigned to roles rather than individual addresses.</div></div>
+  <div class="glossary-item"><div class="glossary-term">UUPS</div><div class="glossary-def">Universal Upgradeable Proxy Standard - a proxy pattern where upgrade logic resides in the implementation contract, offering lower gas costs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Timelock</div><div class="glossary-def">A contract that delays execution of transactions, giving users time to react to governance changes. Enhances security for critical operations.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 9 · Sub-Module <strong>9.2</strong> of 6 &nbsp;·&nbsp; Next: Sub-Module 9.3 - Building Core Smart Contracts →</p>
+</div>
+
+

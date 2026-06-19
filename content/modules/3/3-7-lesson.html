@@ -1,0 +1,463 @@
+
+
+<div class="badge">🎓 Module 3 · Sub-Module 3.7 of 9</div>
+<h1>Forks &amp; <span class="hl">Network Evolution</span></h1>
+<p class="subtitle">How blockchains upgrade themselves without a central authority - and why sometimes upgrades tear communities apart permanently. The complete story of soft forks, hard forks, and the great Ethereum split.</p>
+
+<div class="meta-bar">
+  <div class="chip">⏱ 30 Minutes</div>
+  <div class="chip purple">🎯 5 Marks</div>
+  <div class="chip">📋 3 MCQ + 1 True/False (2 marks)</div>
+  <div class="chip green">Phase 1 · Blockchain Fundamentals</div>
+</div>
+
+
+<!-- 01 OBJECTIVES -->
+<div class="sec-label">01 · Learning Objectives</div>
+<h2 class="sec-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card"><div class="obj-icon">🍴</div><div class="obj-text"><strong>Define soft fork and hard fork precisely</strong>Explain the technical difference and which old nodes can still participate in each.</div></div>
+  <div class="obj-card"><div class="obj-icon">⛓️</div><div class="obj-text"><strong>Trace the Ethereum / Ethereum Classic split</strong>Explain the DAO hack, the community debate, and why Ethereum Classic exists today.</div></div>
+  <div class="obj-card"><div class="obj-icon">📋</div><div class="obj-text"><strong>Compare major historical forks</strong>Bitcoin Cash, Bitcoin SV, SegWit, The Merge - and the forces that drove each one.</div></div>
+  <div class="obj-card"><div class="obj-icon">🔮</div><div class="obj-text"><strong>Explain how MST handles upgrades</strong>How Trika POSA enables on-chain governance for protocol upgrades without contentious forks.</div></div>
+</div>
+
+
+<!-- 02 STORY -->
+<div class="sec-label">02 · Real-World Introduction Story</div>
+<h2 class="sec-title">The Day Ethereum Split in Two - The DAO Hack of 2016</h2>
+
+<div class="callout story">
+  <div class="cl">📖 Story</div>
+  <p>June 17, 2016. A hacker exploits a vulnerability in "The DAO" - a decentralised autonomous organisation that had raised $150 million worth of ETH (the largest crowdfund in history at the time). The attacker begins draining funds through a recursive calling exploit, siphoning 3.6 million ETH (~$60 million) into a child contract. The Ethereum community watches in real time as weeks of crowdfunded capital disappears.</p>
+  <br>
+  <p>The crisis sparks an existential debate: should the Ethereum community alter the blockchain's history to return the stolen funds - or uphold the principle of "code is law" and let the theft stand?</p>
+  <br>
+  <p>Those who voted to intervene: "This is pragmatic. 14% of all ETH in existence was stolen. We can fix it."<br>
+  Those who refused: "If we reverse this, blockchain is not immutable. We've proven that human consensus can override cryptographic guarantees. Everything is corrupt."</p>
+  <br>
+  <p>The community voted. The majority chose to create a <strong>hard fork</strong> - rewriting history so the stolen funds returned to their original owners. Ethereum was born anew. But a minority refused to join the new chain and continued on the original, unaltered blockchain - calling it <strong>Ethereum Classic (ETC)</strong>. One network. Two communities. Two coins. Forever.</p>
+  <br>
+  <p>This is the story of a <strong>hard fork</strong> - and why upgrades to decentralised networks are never just technical decisions.</p>
+</div>
+
+
+<!-- 03 WHAT IS A FORK -->
+<div class="sec-label">03 · What Is a Fork? - The Core Concept</div>
+<h2 class="sec-title">When a Blockchain's Rules Change</h2>
+
+<p>A blockchain's rules - which transactions are valid, how blocks are structured, what the block size limit is - are called the <strong>protocol</strong>. When developers propose changes to the protocol, every node must decide whether to adopt the new rules. How many nodes upgrade, and whether the old rules are compatible with the new ones, determines what kind of fork occurs.</p>
+
+<div class="callout analogy">
+  <div class="cl">🔑 The Road Fork Analogy</div>
+  <p>Imagine a highway suddenly splits into two roads. If your car can drive on both roads - the old rules still get you somewhere - that's a <strong>soft fork</strong>: backward compatible. If the new road requires a completely different kind of vehicle - your old car simply can't drive there - that's a <strong>hard fork</strong>: a permanent divergence. Anyone still driving the old car is on a different network entirely.</p>
+</div>
+
+<div class="fork-compare">
+  <div class="fork-card soft">
+    <div class="fork-card-title">🟢 Soft Fork - Backward Compatible</div>
+    <ul>
+      <li>New rules are a <strong>subset</strong> of old rules - old nodes still accept new blocks</li>
+      <li>Only miners/validators need to upgrade to enforce new rules</li>
+      <li>Non-upgraded nodes remain on the same chain (they just don't enforce the new rule)</li>
+      <li>No chain split - one blockchain continues</li>
+      <li>Requires majority of mining/validator power to activate</li>
+      <li>Less disruptive - users don't need to do anything</li>
+    </ul>
+  </div>
+  <div class="fork-card hard">
+    <div class="fork-card-title">🔴 Hard Fork - NOT Backward Compatible</div>
+    <ul>
+      <li>New rules are <strong>incompatible</strong> with old rules - old nodes reject new blocks</li>
+      <li>Everyone must upgrade - or they stay on the old chain</li>
+      <li>If a significant minority refuses to upgrade: <strong>permanent chain split</strong></li>
+      <li>Two separate coins, two separate communities, forever</li>
+      <li>May create replay attack risk - same TX valid on both chains</li>
+      <li>Examples: Ethereum vs ETC (2016), BTC vs BCH (2017)</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- 04 DETAILED DIAGRAMS -->
+<div class="sec-label">04 · Architecture - Visualising Soft vs Hard Fork</div>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.7-A · Soft Fork - One Chain Continues</div>
+  <pre>  BEFORE FORK:
+  Block #1000 ──── Block #1001 ──── Block #1002 ──── Block #1003...
+  (All nodes agree on rules — old and new validators coexist)
+
+  SOFT FORK ACTIVATES AT BLOCK #1004:
+  New rule: "Transactions must include field X" (stricter subset of old rules)
+
+       Upgraded nodes:    Accept blocks with X ✅    Reject blocks without X ✅
+       Old nodes:         Accept blocks with X ✅    Accept blocks without X ✅ (but don't mine them)
+
+  ...Block #1003 ──── Block #1004 (new rule enforced) ──── Block #1005 ──── ...
+                             │
+                    ONE CONTINUOUS CHAIN
+                    Old nodes stay on same chain
+                    They just don't know about the new rule
+                    Upgraded miners enforce it for everyone
+
+  RESULT: Single chain. No split. Backward compatible.
+  Old-rule blocks are still technically valid to old nodes —
+  but the upgraded majority will never mine them.
+  </pre>
+  <div class="dbox-caption">A soft fork tightens the rules - old nodes see new blocks as valid. Upgraded miners enforce the new rule through economic majority.</div>
+</div>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.7-B · Hard Fork - Two Chains Split Permanently</div>
+  <pre>  BEFORE FORK:
+  Block #1920000... all nodes agree — ONE chain
+
+  HARD FORK AT BLOCK #1920001 (Ethereum DAO fork, July 2016):
+
+  UPGRADERS (majority):                  NON-UPGRADERS (minority):
+  Follow new rules                       Follow original rules
+  DAO funds returned                     DAO hack stands — "code is law"
+
+        ┌──────────────────────────────────────────────────┐
+        │ ...Block #1920000 (shared history — both agree)  │
+        └──────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+              ▼                               ▼
+   NEW ETH CHAIN (forked)           ORIGINAL ETC CHAIN
+   Block #1920001 (NEW rules)       Block #1920001 (OLD rules)
+   Block #1920002...                Block #1920002...
+   Block #1920003...                Block #1920003...
+        │                                    │
+        ▼                                    ▼
+   ETHEREUM (ETH)                   ETHEREUM CLASSIC (ETC)
+   $300B+ market cap (2024)         ~$3B market cap (2024)
+   PoS since 2022                   Still PoW
+   Smart contracts, DeFi, NFTs      Smaller ecosystem
+
+  BOTH chains share IDENTICAL history up to Block #1920000.
+  Every wallet, every transaction before that block exists on BOTH chains.
+  REPLAY ATTACK RISK: A TX signed for ETH may also be valid on ETC
+  unless chains implement replay protection.
+  </pre>
+  <div class="dbox-caption">A hard fork creates two permanent, diverging blockchains from the same shared history. Both ETH and ETC started from the same genesis block and share identical transaction history up to the fork point.</div>
+</div>
+
+
+<!-- 05 MAJOR FORKS IN HISTORY -->
+<div class="sec-label">05 · Major Forks in History</div>
+<h2 class="sec-title">Every Significant Fork - What Happened and Why</h2>
+
+<table class="ftable">
+  <thead>
+    <tr>
+      <th>Fork Name</th>
+      <th>Type</th>
+      <th>Chain</th>
+      <th>When</th>
+      <th>What Changed</th>
+      <th>Outcome</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SegWit (Segregated Witness)</td>
+      <td><span class="soft-tag">Soft Fork</span></td>
+      <td>Bitcoin</td>
+      <td>Aug 2017</td>
+      <td>Moved signature data outside the transaction body - effectively increasing block capacity without changing the 1 MB block size limit. Also fixed transaction malleability.</td>
+      <td>Activated after long political battle. ~80% of Bitcoin transactions now use SegWit. Non-upgraded nodes still accept SegWit blocks. No chain split.</td>
+    </tr>
+    <tr>
+      <td>Bitcoin Cash (BCH)</td>
+      <td><span class="hard-tag">Hard Fork</span></td>
+      <td>Bitcoin</td>
+      <td>Aug 1, 2017</td>
+      <td>Increased block size from 1 MB to 8 MB (later 32 MB) to allow more transactions per block and lower fees - the "big blockers" solution to Bitcoin's scaling debate.</td>
+      <td>Permanent split. BCH holders received 1 BCH for every BTC. BCH has ~1 - 2% of Bitcoin's market cap. Never achieved its "PayPal killer" ambitions.</td>
+    </tr>
+    <tr>
+      <td>Bitcoin SV (BSV)</td>
+      <td><span class="hard-tag">Hard Fork</span></td>
+      <td>Bitcoin Cash</td>
+      <td>Nov 2018</td>
+      <td>Craig Wright's faction split from BCH claiming to restore "Satoshi's original vision" - even larger blocks (128 MB) and additional opcodes for on-chain data storage.</td>
+      <td>BCH split into BCH and BSV. Both had hash wars. BSV has minimal market share. Craig Wright's claim to be Satoshi has been legally challenged and largely rejected.</td>
+    </tr>
+    <tr>
+      <td>Ethereum DAO Fork</td>
+      <td><span class="hard-tag">Hard Fork</span></td>
+      <td>Ethereum</td>
+      <td>July 20, 2016</td>
+      <td>Returned 3.6M ETH stolen from The DAO by rewriting the blockchain state - effectively reversing a series of transactions that had already been mined and confirmed.</td>
+      <td>Ethereum (ETH) continues on the forked chain. Ethereum Classic (ETC) continues on the original. First major demonstration that "immutable" blockchains can be altered by social consensus.</td>
+    </tr>
+    <tr>
+      <td>Ethereum "The Merge"</td>
+      <td><span class="hard-tag">Hard Fork</span></td>
+      <td>Ethereum</td>
+      <td>Sept 15, 2022</td>
+      <td>Switched Ethereum's consensus mechanism from PoW to PoS. The Beacon Chain (launched Dec 2020) merged with the original execution layer. Energy use dropped 99.95%.</td>
+      <td>Smooth transition - no significant chain split (a tiny ETHW PoW fork briefly existed). Considered the most complex blockchain upgrade in history. Successfully executed.</td>
+    </tr>
+    <tr>
+      <td>Taproot</td>
+      <td><span class="soft-tag">Soft Fork</span></td>
+      <td>Bitcoin</td>
+      <td>Nov 2021</td>
+      <td>Added Schnorr signatures (replacing ECDSA) enabling signature aggregation, improved smart contract privacy (all complex scripts look like simple payments externally), and enabled Bitcoin Ordinals/Inscriptions as a side effect.</td>
+      <td>Activated via Speedy Trial (miners signal readiness). Backward compatible - old nodes still work. Now enables richer Bitcoin scripting and privacy-preserving multisig.</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- 06 ETH vs ETC DEEP DIVE -->
+<div class="sec-label">06 · Deep Dive - Ethereum vs Ethereum Classic</div>
+<h2 class="sec-title">The Philosophical Battle Behind the Chain Split</h2>
+
+<p>The ETH/ETC split is not merely a technical event - it is the most important philosophical debate in blockchain history, still unresolved today. Two irreconcilable worldviews collided:</p>
+
+<div class="flist">
+  <div class="fitem">
+    <div class="fnum" style="background:var(--brand)">ETH</div>
+    <div>
+      <div class="ftitle">The Pragmatist View - Ethereum (ETH)</div>
+      <div class="fdesc">"Blockchains are tools created by humans for human purposes. The DAO hack was a catastrophic technical failure that exploited a bug - not a legitimate expression of smart contract intent. The spirit of The DAO was to fund projects, not to enrich an attacker through a recursive call exploit. Immutability is a desirable property, but it is not an absolute moral law that supersedes the interests of the human community it serves. We can and should fix clear injustices when we have the ability to do so - especially when there is overwhelming community consensus."</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum" style="background:var(--orange)">ETC</div>
+    <div>
+      <div class="ftitle">The Absolutist View - Ethereum Classic (ETC)</div>
+      <div class="fdesc">"Code is law. Smart contracts execute exactly as written - including unforeseen edge cases. The attacker did not hack anything; they used the contract's own functions legally. If we reverse this transaction because 'we don't like the outcome,' we have proven that Ethereum is not immutable - that a sufficiently motivated social consensus can rewrite history. This makes every smart contract promise conditional on the community's approval. No one can trust any blockchain guarantee ever again. The only honest choice is to let the code execute as written, however painful."</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="cl">🗝️ The Unresolved Tension</div>
+  <p>Both views are internally consistent. The ETH community chose pragmatism and now hosts 60%+ of all DeFi, NFTs, and smart contract activity. The ETC community chose ideological purity and maintained a much smaller but more consistent ecosystem. Neither side has been proven definitively right - the tension between "code is law" absolutism and "community governance pragmatism" remains the central philosophical fault line in blockchain today. MST resolves this by designing governance explicitly into the protocol through Trika POSA's on-chain governance layer.</p>
+</div>
+
+
+<!-- 07 THE SCALING WAR — BTC vs BCH -->
+<div class="sec-label">07 · The Bitcoin Scaling War - BTC vs BCH</div>
+<h2 class="sec-title">What the Block Size Debate Was Really About</h2>
+
+<p>Bitcoin's 1 MB block size limit - added by Satoshi in 2010 to prevent spam - became a fierce battleground from 2015 to 2017. As Bitcoin grew in popularity, blocks filled up. Fees spiked. Transactions took hours or days to confirm.</p>
+
+<div class="dbox">
+  <div class="dbox-title">FIGURE 3.7-C · The Bitcoin Block Size Debate - Two Camps, One Fork</div>
+  <pre>  SMALL BLOCKERS (Team BTC / Core developers):
+  ──────────────────────────────────────────────────────────────────
+  "Keep blocks small. Large blocks require expensive hardware to store
+   and process — only large companies could run full nodes. This
+   centralises Bitcoin — undermining its decentralisation."
+  "Scale off-chain through Lightning Network (payment channels)."
+  "SegWit (soft fork) effectively increases capacity without
+   increasing block size."
+  Supporters: Bitcoin Core developers, many exchanges, institutional investors.
+
+  BIG BLOCKERS (Team BCH / Roger Ver, Jihan Wu):
+  ──────────────────────────────────────────────────────────────────
+  "Increase block size to 8 MB (then 32 MB). Bitcoin was designed
+   to be electronic cash — cheap, fast, global payments."
+  "Satoshi himself said blocks could be increased when needed."
+  "A chain nobody can afford to use is not Bitcoin."
+  Supporters: Some large miners (Bitmain), Bitcoin.com.
+
+  THE RESULT: August 1, 2017 — BCH hard fork
+  ─────────────────────────────────────────────────────────────────
+  Every BTC holder received 1 BCH (same private key unlocks both).
+  Two chains diverged from block #478,558 onward.
+
+  2024 Status:
+  BTC: $1.2T+ market cap. Digital gold. Lightning Network maturing.
+  BCH: ~$6B market cap. "Peer-to-peer electronic cash" mission unclear.
+  BSV: Craig Wright's further fork. Marginal ecosystem.
+
+  WHO WAS RIGHT? The market voted for BTC. But the philosophical
+  debate about what Bitcoin "is" — store of value or payment system —
+  was never definitively answered.
+  </pre>
+  <div class="dbox-caption">The BTC/BCH fork was not purely technical - it was a fundamental disagreement about what Bitcoin was supposed to be, which community gets to decide, and how decentralised governance should work.</div>
+</div>
+
+
+<!-- 08 MST UPGRADES -->
+<div class="sec-label">08 · How MST Handles Protocol Upgrades</div>
+<h2 class="sec-title">On-Chain Governance - Avoiding Contentious Forks by Design</h2>
+
+<p>MST's Trika POSA includes an <strong>on-chain governance module</strong> - the Governor contract - that provides a structured, transparent process for protocol upgrades. This is designed to avoid the chaotic, politically charged fork battles that split Bitcoin and Ethereum communities.</p>
+
+<div class="flist">
+  <div class="fitem">
+    <div class="fnum">1</div>
+    <div>
+      <div class="ftitle">Proposal - Any Staker Can Propose</div>
+      <div class="fdesc">Any wallet holding above the minimum proposal threshold of MSTC can submit a governance proposal - a formal description of a protocol change, including code, rationale, and implementation timeline. Proposals are posted on-chain and visible to all. This replaces the informal BIP (Bitcoin Improvement Proposal) or EIP (Ethereum Improvement Proposal) process with a binding on-chain mechanism.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum">2</div>
+    <div>
+      <div class="ftitle">Deliberation - Community Debates On-Chain</div>
+      <div class="fdesc">A defined deliberation period (default: 7 days) allows the community to discuss, amend, and respond to the proposal. All activity is recorded on-chain. Cabinet Validators can signal support or opposition publicly - creating a transparent record of sentiment before the formal vote.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum">3</div>
+    <div>
+      <div class="ftitle">Vote - Stake-Weighted Community Decision</div>
+      <div class="fdesc">All MSTC stakers vote - weighted by their stake. A 2/3 supermajority is required to pass a proposal. This threshold ensures that a narrow majority cannot force changes on a large minority - mimicking the high bar required for constitutional amendments. Delegators' votes are cast by their validator unless they override.</div>
+    </div>
+  </div>
+  <div class="fitem">
+    <div class="fnum">4</div>
+    <div>
+      <div class="ftitle">Execution - Automatic, On-Chain</div>
+      <div class="fdesc">If the proposal passes, the Governor contract automatically executes the change - updating parameters, activating new features, or triggering validator upgrades - without requiring manual intervention by any developer or company. No hard fork needed for most upgrades. This is governance as a protocol feature, not a political process.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="cl">💡 Why This Matters</div>
+  <p>The Bitcoin and Ethereum communities spent years in acrimonious public debates about upgrades - with social media campaigns, miner signal games, and eventually chain splits. MST's on-chain governance transforms this political process into a transparent, mathematically enforced one. If 2/3 of staked MSTC votes yes - it passes. If it doesn't reach 2/3 - it fails. No ambiguity. No backroom deals. No contentious hard forks from upgrade disagreements.</p>
+</div>
+
+
+<!-- 09 ASSESSMENT PREP -->
+<div class="sec-label">09 · Assessment Preparation</div>
+<h2 class="sec-title">Top Facts - Know These Cold</h2>
+
+<div class="flist">
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">01</div><div><div class="ftitle">Soft Fork = Backward Compatible</div><div class="fdesc">Old nodes still accept new blocks. Only miners/validators need to upgrade to enforce new rules. No chain split. Examples: SegWit (Bitcoin 2017), Taproot (Bitcoin 2021).</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">02</div><div><div class="ftitle">Hard Fork = NOT Backward Compatible</div><div class="fdesc">Old nodes reject new blocks. Everyone must upgrade or stay on old chain. If significant minority stays behind → permanent chain split. Two coins, two communities. Examples: ETH/ETC (2016), BTC/BCH (2017).</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">03</div><div><div class="ftitle">The DAO Hack - July 2016</div><div class="fdesc">Attacker drained 3.6 million ETH (~$60M) using a recursive call exploit. Ethereum community hard-forked to return funds. Those who refused the fork continued as Ethereum Classic (ETC). Fork occurred at block #1,920,000.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">04</div><div><div class="ftitle">ETH vs ETC - Two Philosophies</div><div class="fdesc">ETH: pragmatism - communities can fix clear injustices. ETC: absolutism - "code is law," immutability must be preserved even when outcomes are bad. Both chains share identical history before block #1,920,000.</div></div></div>
+  <div class="fitem"><div class="fnum" style="background:var(--ink-3);font-size:11px">05</div><div><div class="ftitle">Replay Attack After Hard Fork</div><div class="fdesc">After a hard fork, a transaction signed for Chain A may also be valid on Chain B (same private key, same format). This "replay attack" risk requires chains to implement replay protection - adding chain-specific data to transactions so they're only valid on one chain.</div></div></div>
+</div>
+
+
+<!-- ASSESSMENT -->
+<section class="asec">
+  <div class="ahdr">
+    <h2>📝 Sub-Module 3.7 Assessment</h2>
+    <div class="mbadge"><div class="mn">5</div><div class="ml">Total Marks</div></div>
+  </div>
+  <div class="abody">
+
+    <div class="qsec-hdr">
+      <div class="qsec-title">Section A - Multiple Choice Questions</div>
+      <div class="qsec-meta">3 Questions · 1 mark each · 3 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q1</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff easy">Easy</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Which of the following BEST describes a "soft fork" in a blockchain network?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> A permanent split creating two separate blockchains with incompatible rules</li>
+        <li><span class="okey">B</span> A temporary network outage caused by too many transactions in the mempool</li>
+        <li class="correct"><span class="okey">C</span> A backward-compatible protocol upgrade where old nodes still accept blocks produced under the new rules ✅</li>
+        <li><span class="okey">D</span> A process where validators vote to reduce the block reward for miners</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>A <strong>soft fork</strong> tightens the protocol rules - the new rules are a strict subset of the old rules. Old nodes see new-rule blocks as valid (they comply with old rules too), so non-upgraded nodes remain on the same chain. Only miners/validators need to upgrade to enforce the new rules. No chain split occurs. Bitcoin's SegWit (2017) and Taproot (2021) are examples - old nodes still sync the chain, they just don't understand the new features.</p>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q2</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">Ethereum Classic (ETC) exists because:</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> It was launched as a separate blockchain from scratch by a different team</li>
+        <li><span class="okey">B</span> Ethereum's network suffered a technical failure and split automatically</li>
+        <li class="correct"><span class="okey">C</span> A minority of the Ethereum community refused the 2016 hard fork that reversed the DAO hack, continuing on the original unaltered chain ✅</li>
+        <li><span class="okey">D</span> Ethereum Classic uses a different smart contract language than Ethereum</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: C - Explanation</div>
+        <p>After the 2016 DAO hack, the Ethereum community voted to hard fork - rewriting state so the stolen 3.6M ETH was returned to original owners. The majority adopted the forked chain (ETH). A minority who believed in "code is law" refused to follow the fork and continued on the original, unaltered chain. This became <strong>Ethereum Classic (ETC)</strong>. ETC and ETH share identical history up to block #1,920,000 - the fork point. ETH has vastly outgrown ETC in market cap and ecosystem.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q3</div><div class="qmeta"><span class="qtype">MCQ</span><span class="qdiff medium">Medium</span><span class="qmarks">1 mark</span></div></div>
+      <div class="qtext">What is the primary risk of a "replay attack" after a contentious hard fork?</div>
+      <ul class="opts">
+        <li><span class="okey">A</span> Miners on the new chain can access wallets on the old chain using brute force</li>
+        <li class="correct"><span class="okey">B</span> A transaction broadcast on one chain may also be valid and executed on the other chain - spending coins on both simultaneously ✅</li>
+        <li><span class="okey">C</span> The new chain slows down because it must replay all historical transactions from scratch</li>
+        <li><span class="okey">D</span> Smart contracts must be redeployed because their addresses change after the fork</li>
+      </ul>
+      <div class="abox">
+        <div class="abox-lbl">✅ Correct Answer: B - Explanation</div>
+        <p>After a hard fork, both chains share the same cryptographic key format and (initially) the same transaction structure. A signed transaction - "send 1 ETH from my address to Priya" - may be valid and executable on BOTH chains, since both recognise the same signature and format. An attacker (or even an accidental broadcast) could "replay" your ETH transaction on ETC, moving ETC you intended to keep. Protection: chains add a <strong>Chain ID</strong> field to transactions - a unique identifier per chain. ETH uses Chain ID 1; ETC uses Chain ID 61. Transactions signed for one chain are rejected by the other.</p>
+      </div>
+    </div>
+
+    <!-- SECTION B: True/False -->
+    <div class="qsec-hdr" style="margin-top:8px">
+      <div class="qsec-title">Section B - True / False with Justification</div>
+      <div class="qsec-meta">1 Question · 2 marks</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qblock">
+      <div class="qhdr"><div class="qbadge">Q4</div><div class="qmeta"><span class="qtype">True / False + Justification</span><span class="qdiff medium">Medium</span><span class="qmarks">2 marks</span></div></div>
+      <div class="qtext">"A hard fork always results in a permanent chain split - creating two separate blockchains and two different cryptocurrencies."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-mw">📝 Sample Justification - write both marks' worth:</div>
+        <div class="tf-sample">This statement is <strong>FALSE</strong>. A hard fork is a non-backward-compatible protocol upgrade - old nodes cannot follow the new chain. However, a chain split only occurs when a <strong>significant minority of nodes refuse to upgrade</strong> and continue mining/validating the old chain. If the entire community upgrades (or the non-upgraders have negligible mining/staking power), there is no permanent split - the old chain simply dies from lack of validators, and only one chain survives. A clear example is Ethereum's "The Merge" (September 2022) - a hard fork switching from PoW to PoS. The community overwhelmingly adopted the new chain. A tiny ETHW (EthereumPoW) fork briefly appeared but was negligible and quickly faded. The result was one dominant chain, not a permanent split. Therefore, hard forks are a necessary condition for a split, but not a sufficient one - community adoption determines whether two chains persist.</div>
+      </div>
+      <div class="abox">
+        <div class="abox-lbl">📊 Marks Breakdown</div>
+        <p><strong>1 mark:</strong> States FALSE and correctly notes that a chain split requires a significant minority to continue the old chain - not just a hard fork occurring.<br><br><strong>1 mark:</strong> Provides a concrete example (The Merge, or any other hard fork that did not result in a permanent split) to substantiate the claim.</p>
+      </div>
+    </div>
+
+  </div><!-- end abody -->
+
+  <div class="score-sum">
+    <div>
+      <div class="sl">Sub-Module 3.7 Assessment Summary</div>
+      <div class="sr">Section A: 3 × MCQ <span>(1 mark each) = 3 marks</span></div>
+      <div class="sr">Section B: 1 × True/False with Justification <span>= 2 marks</span></div>
+    </div>
+    <div class="sbadge"><div class="sn">5</div><div class="st">Total Marks</div></div>
+  </div>
+</section>
+
+
+<!-- GLOSSARY -->
+<div class="sec-label" style="margin-top:52px">10 · Glossary</div>
+<h2 class="sec-title">Key Terms - Sub-Module 3.7</h2>
+<div class="ggrind">
+  <div class="gitem"><div class="gterm">Soft Fork</div><div class="gdef">A backward-compatible protocol upgrade. Old nodes still accept new blocks. Only miners/validators need to upgrade. No chain split. Examples: SegWit, Taproot.</div></div>
+  <div class="gitem"><div class="gterm">Hard Fork</div><div class="gdef">A non-backward-compatible protocol upgrade. Old nodes reject new blocks. If significant minority refuses to upgrade: permanent chain split into two blockchains.</div></div>
+  <div class="gitem"><div class="gterm">Ethereum Classic (ETC)</div><div class="gdef">The continuation of the original Ethereum blockchain after the 2016 DAO hard fork. Upholds "code is law" - no transaction reversals. Shares history with ETH before block #1,920,000.</div></div>
+  <div class="gitem"><div class="gterm">The DAO Hack (2016)</div><div class="gdef">Attack draining 3.6M ETH from The DAO using a recursive call exploit. Prompted the Ethereum hard fork. The philosophical debate between ETH and ETC stems from this event.</div></div>
+  <div class="gitem"><div class="gterm">Replay Attack</div><div class="gdef">After a fork, a transaction valid on one chain may also execute on the other. Prevented by Chain ID - a per-chain unique identifier embedded in transactions. ETH = Chain ID 1, ETC = Chain ID 61.</div></div>
+  <div class="gitem"><div class="gterm">SegWit</div><div class="gdef">Segregated Witness - Bitcoin's 2017 soft fork moving signature data outside transaction bodies. Effectively increased capacity and fixed transaction malleability. Now used in ~80% of Bitcoin transactions.</div></div>
+  <div class="gitem"><div class="gterm">Bitcoin Cash (BCH)</div><div class="gdef">August 2017 hard fork of Bitcoin increasing block size from 1 MB to 8 MB. Led by "big blockers" wanting cheaper, faster on-chain payments. Now has ~1% of Bitcoin's market cap.</div></div>
+  <div class="gitem"><div class="gterm">The Merge (2022)</div><div class="gdef">Ethereum's September 2022 hard fork switching from PoW to PoS. The Beacon Chain merged with the execution layer. Energy use dropped 99.95%. No significant chain split.</div></div>
+  <div class="gitem"><div class="gterm">Code is Law</div><div class="gdef">The ETC philosophy: smart contracts execute exactly as written, regardless of outcome. No human consensus can override what code does. The counterposition to ETH's pragmatic governance.</div></div>
+  <div class="gitem"><div class="gterm">On-Chain Governance</div><div class="gdef">Protocol upgrade decisions made through binding blockchain votes (stake-weighted). MST's Governor contract enables this - avoiding the political fork battles of Bitcoin and Ethereum.</div></div>
+</div>
+
+<div class="pfooter">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 3 · Sub-Module <strong>3.7</strong> of 9 &nbsp;·&nbsp; Next: Sub-Module 3.8 - Merkle Trees &amp; State Management →</p>
+</div>
+
+
+

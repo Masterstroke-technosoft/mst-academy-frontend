@@ -1,0 +1,252 @@
+
+
+<div class="module-badge">🧪 Module 16 &nbsp;·&nbsp; Sub-Module 16.5</div>
+<h1 class="module-title">Independent Exercise: <span class="highlight">ZK Age Verification</span></h1>
+<p class="module-subtitle">Build a zero-knowledge circuit that proves you are over 18 - without revealing your exact birthdate, Aadhaar number, or even your name. From Circom to a working proof on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 25 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design + 1 Coding Challenge</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity &amp; Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text">
+      <strong>Model age verification as a cryptographic problem</strong>
+      Convert the real-world requirement "prove age ≥ 18" into a set of arithmetic constraints suitable for a ZK circuit.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">✍️</div>
+    <div class="obj-text">
+      <strong>Write a complete Circom circuit for range proofs</strong>
+      Implement a circuit that takes a birthdate and today's date as private inputs and outputs a single bit: 1 if age ≥ 18, else 0.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔏</div>
+    <div class="obj-text">
+      <strong>Generate and verify a Groth16 proof</strong>
+      Use the Circom + snarkjs toolchain to produce a proof that can be verified on-chain (MST) without revealing the birthdate.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text">
+      <strong>Integrate with Indian identity systems</strong>
+      Design the complete flow where a user proves age from a DigiLocker/Aadhaar-issued VC, using SARAL for DID management.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL-WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Bar That Asked for Aadhaar - and Got Sued</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2025, a popular microbrewery in Bengaluru introduced a digital ID check at the entrance. Patrons had to scan their Aadhaar QR code; the system would verify age and allow entry. Within a month, a privacy activist filed a PIL: the bar now possessed a database of Aadhaar numbers, names, and birthdates of thousands of customers - linked to their drinking habits. The Supreme Court, recalling its 2017 right-to-privacy judgment, ordered the bar to delete the data and find a less invasive method. The bar's dilemma was real: how do you verify someone is over 18 without collecting their birthdate? The answer: <strong>Zero-Knowledge Age Verification</strong>.</p>
+  <br>
+  <p>Here's how it works with MST. The customer opens their SARAL wallet, which holds a Verifiable Credential issued by UIDAI (or DigiLocker) containing their birthdate. At the bar, the customer does not show the credential or reveal any data. Instead, their wallet generates a <strong>ZK proof</strong> that the statement "I am ≥ 18 years old" is true, given the birthdate in the credential and today's date. The proof is a tiny blob (~200 bytes) that the bar's tablet verifies in milliseconds. The bar learns exactly one bit: "This person is an adult." It learns nothing else - not the birthdate, not the Aadhaar number, not even the exact age. The customer's privacy is preserved; the bar's legal obligation is satisfied. The activist withdraws the PIL.</p>
+  <br>
+  <p>This sub-module is your hands-on exercise to build that circuit. You will write the Circom code that proves age ≥ 18, generate a Groth16 proof, and understand how this primitive integrates with MST's identity layer. By the end, you will have a working ZK circuit that you can use as the foundation for any privacy-preserving eligibility check - voting, alcohol sales, driving licences, senior citizen discounts, and more.</p>
+</div>
+
+<!-- SECTION 3: BACKGROUND — RANGE PROOFS & AGE VERIFICATION -->
+<div class="section-label">03 &nbsp; Background &amp; Mathematics</div>
+<h2 class="section-title">From Dates to Arithmetic Circuits</h2>
+<p>Age verification is a classic <strong>range proof</strong> problem. You need to prove that a hidden number <em>birthDate</em> (expressed as days since a reference point, e.g., Unix epoch) satisfies the inequality:</p>
+<div class="diagram-wrap">
+  <pre>todayDate − birthDate ≥ 6570 days  (≈ 18 years × 365 days, simplified)</pre>
+</div>
+<p>In a ZK circuit, we cannot directly use inequality (<code>&lt;</code>, <code>&gt;</code>) because they are not natively supported in R1CS (Rank-1 Constraint System). Instead, we perform the subtraction and then prove that the result is less than some maximum bound and that no underflow occurred. The standard approach is to use a <strong>comparator circuit</strong> that decomposes the numbers into bits and checks the subtraction using a <strong>LessThan</strong> template from circomlib.</p>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Why 6570 days?</div>
+  <p>We can choose any reference point, but using a fixed <strong>threshold date</strong> simplifies the circuit. For example, if today is 01-Jan-2026, the threshold for being 18 is 01-Jan-2008. Instead of computing the difference between two dynamic dates, we pre-compute the threshold date and prove that <code>birthDate ≤ thresholdDate</code>. This is a simpler inequality to express in a circuit. However, for generality, we'll build a circuit that takes <code>today</code> and <code>birthDate</code> as inputs and computes the difference, then checks it's ≥ 6570. Both approaches are valid; the fixed-threshold method is more gas-efficient because the threshold can be a hardcoded constant.</p>
+</div>
+
+<h3>3.1 The LessThan Template</h3>
+<p>Circomlib provides a <code>LessThan(n)</code> template that takes two n-bit numbers and outputs 1 if the first is strictly less than the second. Internally, it uses a long subtraction with bit decomposition and a check that the final borrow is 0. You will use this template. For age verification, we need to check that <code>today - birthDate &gt;= 6570</code>. We can compute <code>diff = today - birthDate</code> and then check that <code>6570 - 1 &lt; diff</code> (i.e., <code>diff &gt;= 6570</code>). To avoid negative numbers, we first assert that <code>today &gt;= birthDate</code> using another LessThan call. This is a crucial step: if birthDate is in the future, the proof must fail.</p>
+
+<h3>3.2 Preventing Date Manipulation</h3>
+<p>The circuit's public output is a single bit <code>isAdult</code>. The verifier (the bar's tablet) must be convinced that the proof was generated with the correct <code>today</code>. If the prover can choose an arbitrary <code>today</code>, they could set it to a future date and appear older. The solution is to bind <code>today</code> to a trusted timestamp. In practice, the verifier provides the current date as a public input to the circuit, or the circuit uses the blockchain's <code>block.timestamp</code> (with caveats about miner manipulation). In our exercise, we'll make <code>today</code> a public input that the verifier checks against a recent block timestamp or a trusted server.</p>
+
+<!-- SECTION 4: TECHNICAL DEEP DIVE — BUILDING THE CIRCUIT -->
+<div class="section-label">04 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The AgeVerification Circuit in Circom</h2>
+
+<p>Let's write the circuit step-by-step. We'll use a reference point of days since 01-Jan-1970 (Unix epoch). The inputs will be:</p>
+<ul>
+  <li><strong>Private inputs:</strong> <code>birthDay</code> (the user's birthdate as days since epoch).</li>
+  <li><strong>Public inputs:</strong> <code>today</code> (the current date in days since epoch), <code>threshold</code> (the minimum required age in days, e.g., 6570).</li>
+  <li><strong>Output:</strong> <code>isAdult</code> (1 if age ≥ threshold days, else 0).</li>
+</ul>
+<p>The circuit must enforce:</p>
+<ol>
+  <li><code>today &gt;= birthDay</code> (the user cannot be born in the future).</li>
+  <li><code>diff = today - birthDay</code>.</li>
+  <li><code>isAdult = (diff &gt;= threshold) ? 1 : 0</code>.</li>
+</ol>
+
+<div class="code-snippet">
+  <div class="diagram-title">Circom Circuit for Age Verification</div>
+<pre>pragma circom 2.0.0;
+
+include "circomlib/circuits/comparators.circom";
+
+template AgeVerification() {
+    // Private input: user's birthdate (days since epoch)
+    signal input birthDay;
+
+    // Public inputs: current date and age threshold in days
+    signal input today;
+    signal input threshold;
+
+    // Output: 1 if age &gt;= threshold days, else 0
+    signal output isAdult;
+
+    // 1. Ensure today &gt;= birthDay
+    // Using LessThan to check that birthDay &lt; today (strictly) OR equal.
+    // LessThan(32) checks if birthDay &lt; today; if so, out=1.
+    component birthBeforeToday = LessThan(32);
+    birthBeforeToday.in[0] &lt;== birthDay;
+    birthBeforeToday.in[1] &lt;== today;
+    // If birthDay == today, LessThan returns 0. We need to allow equality.
+    // So we add an equality check: birthDay == today → also valid.
+    component isEqual = IsEqual();
+    isEqual.in[0] &lt;== birthDay;
+    isEqual.in[1] &lt;== today;
+    // Valid if birthBeforeToday.out == 1 OR isEqual.out == 1
+    signal validBirth &lt;== birthBeforeToday.out + isEqual.out;
+    validBirth === 1;  // must hold
+
+    // 2. Compute difference
+    signal diff &lt;== today - birthDay;
+
+    // 3. Check diff &gt;= threshold
+    // To prove diff &gt;= threshold, we check that threshold - 1 &lt; diff.
+    // That is, (threshold - 1) is strictly less than diff.
+    // We need to handle threshold=0 case separately (unlikely).
+    signal thresholdMinusOne &lt;== threshold - 1;
+    component ageCheck = LessThan(32);
+    ageCheck.in[0] &lt;== thresholdMinusOne;
+    ageCheck.in[1] &lt;== diff;
+    // If ageCheck.out == 1, then threshold-1 &lt; diff, so diff &gt;= threshold.
+    isAdult &lt;== ageCheck.out;
+}
+
+component main {public [today, threshold]} = AgeVerification();</pre>
+</div>
+
+<h3>4.1 Explanation of Constraints</h3>
+<p><strong>Birthdate validity:</strong> The <code>validBirth</code> signal is the sum of the LessThan output and the equality output. Since both are boolean (0 or 1), their sum is 1 only if exactly one condition holds (or both if birthDay &lt; today and birthDay == today is impossible). Actually if birthDay &lt; today, LessThan gives 1, IsEqual gives 0, sum=1. If birthDay == today, LessThan gives 0, IsEqual gives 1, sum=1. If birthDay &gt; today (future), both give 0, sum=0, and the constraint <code>validBirth === 1</code> fails. Perfect.</p>
+<p><strong>Difference:</strong> The subtraction <code>today - birthDay</code> is safe because we have already proven <code>birthDay &lt;= today</code>, so no underflow.</p>
+<p><strong>Age threshold:</strong> To check <code>diff &gt;= threshold</code>, we use the trick: <code>threshold - 1 &lt; diff</code>. If <code>threshold - 1</code> is strictly less than <code>diff</code>, then <code>diff</code> is at least <code>threshold</code>. The LessThan component outputs 1 if the first input is less than the second. So we set <code>ageCheck.in[0] = thresholdMinusOne</code> and <code>ageCheck.in[1] = diff</code>. If <code>thresholdMinusOne &lt; diff</code>, out=1, and <code>isAdult = 1</code>. If <code>diff == threshold - 1</code>, then thresholdMinusOne is not less, out=0, isAdult=0 - exactly what we want (age is not yet 18 if exactly 17 years and 364 days).</p>
+
+<h3>4.2 Generating the Proof with snarkjs</h3>
+<p>After writing the circuit, you compile it to an R1CS, generate a proving key, and use snarkjs to produce a Groth16 proof. The verifier contract on MST will check the proof with the public inputs <code>today</code> and <code>threshold</code>. The verifier does not see <code>birthDay</code>.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.5-A · Full ZK Age Verification Flow</div>
+  <pre>  ┌──────────────┐      ┌──────────────┐      ┌──────────────────┐
+  │ User's SARAL  │      │ Verifier App  │      │ MST Verifier     │
+  │ Wallet        │      │ (Bar Tablet)  │      │ Contract (on‑chain)│
+  └──────┬───────┘      └──────┬───────┘      └────────┬─────────┘
+         │                     │                         │
+         │ 1. Request today's  │                         │
+         │    date from verifier│                         │
+         │◄────────────────────│                         │
+         │                     │                         │
+         │ 2. Generate proof:  │                         │
+         │   Private: birthDay │                         │
+         │   Public: today,    │                         │
+         │   threshold=6570    │                         │
+         │                     │                         │
+         │ 3. Send proof +     │                         │
+         │    public inputs    │                         │
+         │─────────────────────▶                         │
+         │                     │ 4. Verify proof on‑chain │
+         │                     │─────────────────────────▶
+         │                     │                         │
+         │                     │ 5. Contract returns      │
+         │                     │    true/false            │
+         │                     │◄─────────────────────────│
+         │                     │                         │
+         │ 6. Access granted   │                         │
+         │   (isAdult == 1)    │                         │
+  </pre>
+  <div class="diagram-caption">The verifier contract only learns the public inputs and the proof. Birthdate remains completely hidden. The contract can be a simple Groth16 verifier, pre-deployed on MST.</div>
+</div>
+
+<!-- SECTION 5: INTEGRATION WITH INDIAN IDENTITY STACK -->
+<div class="section-label">05 &nbsp; Integration with Indian Identity Systems</div>
+<h2 class="section-title">From Aadhaar XML to ZK Proof</h2>
+<p>The circuit above assumes <code>birthDay</code> is already extracted from a trusted credential. In practice, the user's Aadhaar XML (or DigiLocker VC) contains the birthdate in YYYY-MM-DD format. The SARAL wallet can parse this, convert it to days-since-epoch, and feed it into the circuit. Importantly, the user must also prove that the <code>birthDay</code> used in the circuit corresponds to the birthdate in the credential - otherwise they could input any birthdate. This requires a <strong>linked proof</strong>: the circuit also takes as private input the Aadhaar VC and its signature, verifies the signature inside the circuit, and extracts the birthdate. That's more complex, but for simplicity, in this exercise we assume the wallet has already authenticated the credential, and we only prove age from the extracted birthdate. In production, you'd combine the VC verification and age proof into one circuit.</p>
+
+<p>MST's SARAL protocol can store the birthdate VC in the wallet, and the wallet's WASMify module can handle the conversion and proof generation. The verifier contract on MST can be invoked by any dApp (bar, liquor shop, voting booth) with a simple call to <code>verifyAgeProof(proof, pubInputs)</code>.</p>
+
+<!-- SECTION 6: COMMON PITFALLS & BEST PRACTICES -->
+<div class="section-label">06 &nbsp; Common Pitfalls &amp; Best Practices</div>
+<h2 class="section-title">What Can Go Wrong - and How to Avoid It</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Missing equality check</div>
+      <div class="feature-desc">If you only use LessThan to check birthDay &lt; today, a user born exactly at midnight today (age 0) could pass as adult. Always include an equality check or use a combination to allow birthDate &lt;= today.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using today provided by prover</div>
+      <div class="feature-desc">If the verifier doesn't check that <code>today</code> matches the actual current date, a prover can supply a future date and appear older. Always make <code>today</code> a public input that the verifier provides or checks against a trusted source.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Integer overflow</div>
+      <div class="feature-desc">Days-since-epoch for a birthdate in 1970 is small, but for safety use 64-bit numbers (the LessThan template parameter). Circom signals are field elements (prime p ~ 2^254), so overflow is not a risk, but bit-width affects constraints.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: ASSESSMENT PREPARATION -->
+<div class="section-label">07 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Range proof:</div><div class="feature-desc">Proving that a hidden number lies within a range without revealing it. Age verification uses a range proof: age ∈ [18, ∞).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">LessThan template:</div><div class="feature-desc">From circomlib, checks a &lt; b for n‑bit numbers. Used to build comparisons. For &gt;=, use (threshold-1) &lt; x.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Public vs Private inputs:</div><div class="feature-desc">Birthdate is private; today and threshold are public. The verifier must enforce today's value. Public inputs are visible to the verifier but not necessarily to the blockchain (unless output).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Groth16 proof:</div><div class="feature-desc">~200 bytes, verification in ~1ms. Requires a trusted setup ceremony. MST's verifier contract uses pre-compiled pairing checks.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">Binding to VC:</div><div class="feature-desc">In production, the circuit also verifies the VC signature to ensure the birthdate is from an authorised issuer (UIDAI). This can be done by hashing the VC and checking against the issuer's public key.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Range Proof</div><div class="glossary-def">A cryptographic proof that a secret number lies within a specific range without revealing the number itself. Age verification is a one-sided range proof (≥ threshold).</div></div>
+  <div class="glossary-item"><div class="glossary-term">LessThan Template</div><div class="glossary-def">A Circom template that proves a &lt; b for two n‑bit numbers. Foundation of inequality checks in ZK circuits.</div></div>
+  <div class="glossary-item"><div class="glossary-term">snarkjs</div><div class="glossary-def">JavaScript/WASM library for trusted setup, proof generation, and verification of Groth16 zk-SNARKs, compatible with Circom outputs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Public Input</div><div class="glossary-def">A value that is known to both prover and verifier. In age verification, today and threshold are public; birthdate is private.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Groth16</div><div class="glossary-def">A widely used zk-SNARK proving system with very small proofs (~200 bytes) and millisecond verification, requiring a circuit-specific trusted setup.</div></div>
+  <div class="glossary-item"><div class="glossary-term">VC-Binding</div><div class="glossary-def">The technique of proving that a ZK circuit's private inputs are derived from a valid Verifiable Credential, preventing input forgery.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.5</strong> &nbsp;·&nbsp; End of Module 16 - Congratulations! Next: Module 17 - Post-Quantum Security →</p>
+</div>
+

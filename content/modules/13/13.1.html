@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sub-Module 13.1 - The Oracle Problem | MasterStroke Academy</title>
+<meta name="description" content="Discover why blockchains need external data and the critical 'Oracle Problem' that arises when smart contracts must trust the outside world. Deep dive into centralised vs decentralised oracles, Chainlink, and how MST's WASMify provides a revolutionary ZK-powered bridge.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand:        #6C3CE2;
+    --brand-light:  #EDE9FB;
+    --brand-dark:   #3C1FA0;
+    --brand-mid:    #8B5CF6;
+    --accent:       #F6A623;
+    --accent-light: #FEF4E0;
+    --green:        #16A34A;
+    --green-light:  #DCFCE7;
+    --red:          #DC2626;
+    --red-light:    #FEE2E2;
+    --blue:         #1D6FD8;
+    --blue-light:   #DBEAFE;
+    --orange:       #EA580C;
+    --orange-light: #FFEDD5;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --ink:          #111827;
+    --ink-2:        #374151;
+    --ink-3:        #6B7280;
+    --ink-4:        #9CA3AF;
+    --border:       #E5E7EB;
+    --border-2:     #D1D5DB;
+    --surface:      #F9FAFB;
+    --surface-2:    #F3F4F6;
+    --white:        #FFFFFF;
+    --mono:         'JetBrains Mono', monospace;
+    --sans:         'Inter', sans-serif;
+    --radius:       10px;
+    --radius-sm:    6px;
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.75;
+    font-size: 16px;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 100px;
+  }
+
+  .module-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .module-title {
+    font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+    line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .module-title .highlight { color: var(--brand); }
+  .module-subtitle {
+    font-size: 17px; color: var(--ink-3); font-weight: 400;
+    margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+  }
+  .meta-bar {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 52px; padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+  .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+  .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--brand);
+    margin-bottom: 10px; margin-top: 52px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title {
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+  }
+
+  p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+  p strong { color: var(--ink); font-weight: 700; }
+  p:last-child { margin-bottom: 0; }
+
+  .callout {
+    border-radius: var(--radius-lg); padding: 20px 24px;
+    margin: 24px 0; border-left: 4px solid;
+  }
+  .callout-label {
+    font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 6px;
+  }
+  .callout p { font-size: 15px; margin: 0; }
+  .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+  .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+  .callout.key .callout-label     { color: var(--brand-dark); }
+  .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+  .callout.insight .callout-label { color: var(--teal); }
+  .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+  .callout.analogy .callout-label { color: #92400E; }
+  .callout.story .callout-label   { color: #92400E; }
+
+  .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .obj-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+  .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+  .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+  .w5-row:last-child { border-bottom: none; }
+  .w5-label-cell {
+    background: var(--brand-light); padding: 18px 16px;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    border-right: 1px solid #C4B5F5;
+  }
+  .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+  .w5-content { padding: 16px 20px; }
+  .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table thead th {
+    padding: 12px 16px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-align: left; border-bottom: 2px solid var(--border);
+  }
+  .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:hover td { background: var(--surface); }
+  .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+  .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+  .compare-table .good { color: var(--green); font-weight: 600; }
+  .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+  .diagram-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+    overflow-x: auto;
+  }
+  .diagram-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+    text-align: center;
+  }
+  .diagram-wrap pre {
+    font-family: var(--mono); font-size: 13px; line-height: 1.65;
+    color: var(--ink-2); white-space: pre; margin: 0;
+  }
+  .diagram-caption {
+    font-size: 12px; color: var(--ink-4); text-align: center;
+    margin-top: 16px; font-style: italic;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .feature-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .feature-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--brand); color: white;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .feature-content { flex: 1; }
+  .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  .assessment-section { margin-top: 64px; }
+  .assessment-header {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 24px 32px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+  .marks-total-badge {
+    background: white; border-radius: 10px; padding: 10px 20px;
+    text-align: center; flex-shrink: 0;
+  }
+  .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .assessment-body {
+    border: 2px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .q-section-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+  .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+  .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+  .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+  .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+  .q-badge {
+    background: var(--brand); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 10px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .q-diff {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+  .q-diff.medium { background: var(--accent-light); color: #92400E; }
+  .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+  .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+  .q-text {
+    font-size: 15.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+
+  .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+  .options li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+    line-height: 1.5; cursor: default;
+  }
+  .options li.correct {
+    border-color: var(--green); background: var(--green-light);
+    color: var(--ink);
+  }
+  .opt-key {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+  }
+  .options li.correct .opt-key { color: var(--green); }
+
+  .answer-box {
+    background: var(--green-light); border: 1.5px solid #86EFAC;
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+  }
+  .answer-box-label {
+    font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+  .answer-box p strong { color: var(--ink); }
+  .answer-box .marks-bd {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+    font-size: 13px; color: #14532D;
+  }
+  .answer-box .marks-bd span { font-weight: 700; }
+
+  .score-summary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .score-left { }
+  .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .score-row span { color: #C4B5F5; font-weight: 400; }
+  .score-badge {
+    background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+  }
+  .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+  .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+  .page-footer {
+    text-align: center; margin-top: 64px; padding-top: 32px;
+    border-top: 2px solid var(--border);
+  }
+  .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .glossary-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+  .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+  .highlight-strip {
+    background: var(--brand); color: white;
+    border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+    font-size: 15px; font-weight: 600; line-height: 1.6;
+  }
+  .highlight-strip strong { font-weight: 800; }
+
+  details {
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 4px 16px;
+  }
+  details summary {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 12px 0;
+    cursor: pointer;
+    outline: none;
+  }
+  details[open] summary {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  details .content {
+    padding: 8px 0 16px;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 18px 72px; }
+    .obj-grid       { grid-template-columns: 1fr; }
+    .glossary-grid  { grid-template-columns: 1fr; }
+    .module-title   { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="module-badge">🎓 Module 13 &nbsp;·&nbsp; Sub-Module 13.1 of 5</div>
+<h1 class="module-title">The <span class="highlight">Oracle Problem</span></h1>
+<p class="module-subtitle">Blockchains are islands of perfect digital truth - but they're blind to the real world. How can a smart contract know the price of gold, the winner of an election, or the weather in Mumbai? Enter the Oracle Problem: the critical challenge of getting trustworthy external data onto a trustless blockchain, and the solutions that keep DeFi, insurance, and prediction markets alive.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 30 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 10 MCQ (1 mark each)</div>
+  <div class="meta-chip green">Phase 4 · Oracles & WASMify</div>
+</div>
+
+<!-- 01 LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🏝️</div>
+    <div class="obj-text">
+      <strong>Articulate why blockchains are "walled gardens"</strong>
+      Explain determinism, consensus, and why a smart contract cannot simply call a web API - and the fundamental trust gap this creates for real-world data.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Compare centralised vs decentralised oracle models</strong>
+      Contrast a single data provider with a network like Chainlink, evaluating the trade-offs in trust, cost, and security for on-chain applications.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Understand how Chainlink bridges data to blockchains</strong>
+      Describe the role of oracle nodes, data aggregation, and reputation in creating reliable price feeds used by DeFi protocols worth billions.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚡</div>
+    <div class="obj-text">
+      <strong>Discover how MST's WASMify revolutionises the oracle model</strong>
+      See how off-chain computation with ZK proofs can bring verifiable data on-chain without needing a network of oracle nodes, reducing trust assumptions and cost.
+    </div>
+  </div>
+</div>
+
+<!-- 02 STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The DeFi Protocol That Trusted a Single Weather Website</h2>
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2021, a small DeFi crop insurance protocol launched on Ethereum. Farmers in Maharashtra could buy policies that paid out automatically if the monsoon rainfall in their district fell below a certain level. The smart contract needed real-world rainfall data. The developer, in a hurry, pointed the contract at a single government weather API. The contract would call this API, read the rainfall number, and if it was below the threshold, release the payout.</p>
+  <br>
+  <p>For the first season, everything worked. But in the second season, the weather website went down for maintenance for three days during a critical measurement period. The oracle - a single server the developer had set up - couldn't fetch the data. The smart contract, unable to get an answer, simply did nothing. Farmers who had paid premiums didn't get their payout during the worst drought in years. The protocol's reputation was destroyed.</p>
+  <br>
+  <p>The root cause? A <strong>single point of failure</strong> in the data pipeline. If the developer had used a decentralised oracle network, multiple independent nodes would have fetched the data from different sources, aggregated it, and delivered it on-chain even if one source failed. This story is a perfect illustration of the Oracle Problem - and why getting external data right is the difference between a robust dApp and a ticking time bomb.</p>
+</div>
+
+<!-- 03 BACKGROUND & HISTORY -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">From Centralised APIs to Decentralised Truth - The Evolution of Oracles</h2>
+<p>In the early days of blockchain, developers quickly realised that smart contracts, for all their power, were isolated. A contract could execute flawless logic, but it could only act on data already on-chain - transaction inputs, block timestamps, and internal state. What about the price of ETH in USD? The outcome of a sports match? Whether a flight landed on time? These live in the outside world, inaccessible to the EVM.</p>
+<p>The first attempts to solve this were <strong>centralised oracles</strong>. A trusted third party - often the dApp developer - would run a server that watched the blockchain for requests, fetched the relevant data from a web API, and submitted it to the contract via a transaction. This worked, but it introduced a massive trust assumption: users had to trust the oracle operator to provide accurate data and to stay online. If the operator was malicious, they could feed false data and drain a DeFi protocol. If their server crashed, the dApp stopped working. This "single point of failure" contradicted the very ethos of decentralisation.</p>
+<p>The breakthrough came in 2017 with <strong>Chainlink</strong>, founded by Sergey Nazarov and Steve Ellis. Chainlink proposed a <strong>decentralised oracle network</strong>: instead of one node, many independent node operators fetch data from multiple sources, aggregate it, and submit it to the blockchain. The network uses economic incentives - nodes stake LINK tokens, and if they provide bad data, they lose their stake. This model proved so successful that Chainlink became the standard oracle for DeFi, securing tens of billions of dollars in value.</p>
+<p>However, Chainlink still has limitations. It requires a network of nodes that must be economically incentivised and coordinated. The data aggregation happens off-chain and is submitted on-chain, meaning users trust the majority of nodes. For some use cases, especially those requiring heavy computation or privacy, a different approach is needed.</p>
+<p>This is where <strong>MST's WASMify</strong> enters. Instead of relying on a network of nodes to fetch and agree on data, WASMify allows <strong>verifiable off-chain computation</strong>: a single entity can perform complex computations (fetch data, process it, run machine learning models) and produce a <strong>zero-knowledge proof</strong> that the computation was done correctly. The smart contract verifies this proof on-chain, trusting the math rather than the entity. This dramatically reduces trust assumptions and opens the door to a new class of oracle applications.</p>
+
+<div class="highlight-strip">
+  <strong>Key insight:</strong> The Oracle Problem is not about getting data onto the blockchain - anyone can submit a transaction. It's about getting <em>trustworthy</em> data onto the blockchain in a way that doesn't compromise the very decentralisation that makes blockchain valuable.
+</div>
+
+<!-- 04 BEGINNER‑FRIENDLY EXPLANATION -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The Blind Librarian - Why Smart Contracts Can't Just Google It</h2>
+<div class="callout analogy">
+  <div class="callout-label">📚 The Analogy</div>
+  <p>Imagine a brilliant mathematician (your smart contract) locked inside a perfectly soundproof, windowless room. The mathematician has a calculator, a whiteboard, and a rulebook. You can slip a note under the door with a question, and the mathematician will solve it using their logic and slide the answer back. But if you ask, "What's the price of gold right now?" the mathematician has no way to know - they can't see the internet, they can't ask anyone, they only know what's in that room. An <strong>oracle</strong> is a trusted messenger who stands outside the room, looks up the gold price on their phone, and slips the answer under the door. The problem? If the messenger lies, the mathematician has no way to verify it. A decentralised oracle is like having a hundred messengers, each checking the price independently - you trust the consensus. WASMify is like giving the mathematician a magic box: you put a question in, it does complex research outside the room, and produces a mathematical certificate proving the answer is correct, which the mathematician can verify without trusting anyone.</p>
+</div>
+
+<p>Let's explore the three generations of oracle solutions:</p>
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">①</div><div class="w5-word">CENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Centralised Oracle - The Single Messenger</div>
+      <div class="w5-a">One entity (often the dApp developer) runs a server that fetches data and pushes it on-chain via a transaction. <strong>Advantage:</strong> simple, fast, cheap. <strong>Disadvantage:</strong> single point of failure - if the server is hacked, goes offline, or the operator lies, the entire dApp is compromised. This is the "oracle" in our crop insurance story. It violates the core principle of blockchain: <em>don't trust a single entity</em>.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">②</div><div class="w5-word">DECENTRAL</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Decentralised Oracle Network (Chainlink) - The Committee of Messengers</div>
+      <div class="w5-a">Multiple independent node operators fetch data from multiple sources, aggregate it off-chain (e.g., median or weighted average), and submit it on-chain. Nodes stake tokens as collateral; if they submit bad data, they lose their stake. The smart contract receives a single aggregated answer. <strong>Advantage:</strong> no single point of failure, economic incentives for honesty. <strong>Disadvantage:</strong> requires bootstrapping a network of trusted nodes, still involves some trust in the majority, and can be slow and expensive for large data sets. However, it has been battle-tested in DeFi and works well for price feeds.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">③</div><div class="w5-word">ZK-ORACLE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">ZK-Powered Oracle (WASMify) - The Mathematical Certificate</div>
+      <div class="w5-a">Instead of trusting multiple messengers, a single party can perform off-chain computation (fetch data, run complex logic) and produce a <strong>zero-knowledge proof</strong> that the computation was performed correctly. The smart contract verifies this proof on-chain using cryptographic verification. No need to trust the messenger - the math guarantees correctness. <strong>Advantage:</strong> minimal trust assumptions, can handle heavy computation, no need for a network of staked nodes. <strong>Disadvantage:</strong> generating ZK proofs is computationally intensive (though improving rapidly). MST's WASMify is designed to make this practical: run any WebAssembly module, produce a ZK proof of its execution, and submit it to the blockchain. This opens oracles to a new level of trustlessness.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 TECHNICAL DEEP DIVE: THE BLOCKCHAIN DETERMINISM PROBLEM -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">Why Can't a Smart Contract Just Call an API?</h2>
+<p>At the heart of the Oracle Problem is a fundamental property of blockchains: <strong>determinism</strong>. Every node in the network must be able to independently verify every transaction and reach the same result. If a smart contract were to call an external API - say, <code>fetch('https://api.weather.com/mumbai')</code> - different nodes would get different results depending on when they called it, their network latency, or even whether the API was up. This would break consensus - nodes would disagree on the state after executing the transaction, and the blockchain would fork.</p>
+<p>Therefore, the EVM is intentionally isolated from the outside world. It can only process data that is already on-chain or explicitly passed in a transaction. This is not a bug; it's a feature that ensures the integrity of the blockchain. But it means that any real-world data must be brought on-chain by someone (an oracle) <strong>before</strong> the smart contract can use it.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-A · The Deterministic Wall</div>
+  <pre>
+  ┌──────────────────────────────────────────────┐
+  │              OUTSIDE WORLD                     │
+  │  🌦️ Weather  💹 Stock Prices  ⚽ Sports Scores │
+  │  🌐 Web APIs  📰 News Feeds  📡 IoT Sensors    │
+  └──────────────┬───────────────────────────────┘
+                 │
+                 │   ❌ Smart contracts CANNOT access
+                 │   (would break consensus)
+                 │
+       ┌─────────┴─────────┐
+       │                   │
+       │   ORACLE BRIDGE   │  ← The only way across
+       │                   │
+       └─────────┬─────────┘
+                 │
+                 │   ✅ Oracle submits signed/verified data
+                 │   as a transaction
+                 ▼
+  ┌──────────────────────────────────────────────┐
+  │            BLOCKCHAIN (MST)                    │
+  │  📜 Smart Contract                             │
+  │  "if rainfall < 50mm → payout"                │
+  │  Uses data now on‑chain to execute logic       │
+  └──────────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">The blockchain is deterministic; external data is not. Oracles bridge the gap by fetching non-deterministic data and placing it on-chain as a transaction, after which the smart contract can use it deterministically.</div>
+</div>
+
+<!-- 06 CHAINLINK DEEP DIVE -->
+<div class="section-label">06 &nbsp; Chainlink - The Decentralised Oracle Standard</div>
+<h2 class="section-title">How a Network of Nodes Delivers Trustworthy Data</h2>
+<p>Chainlink is the most widely used decentralised oracle network. Let's break down exactly how it works, because it's the reference design that MST's WASMify and other solutions compare against.</p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Architecture</h3>
+<p>Chainlink consists of:</p>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Oracle Nodes:</strong> Independent operators who run the Chainlink client. They stake LINK tokens as collateral. They are rewarded for providing accurate data and penalised (slashed) for bad data.</li>
+  <li><strong>Data Sources / APIs:</strong> Nodes fetch data from multiple sources to avoid a single point of truth. For a price feed, they might hit Binance, Coinbase, and Kraken.</li>
+  <li><strong>Aggregation Contract:</strong> A smart contract on the blockchain that receives submissions from multiple nodes, computes an aggregated answer (e.g., median), and stores it for consumption by other smart contracts.</li>
+  <li><strong>Service Level Agreement (SLA):</strong> When a dApp requests a new data feed, it specifies the parameters: how many nodes, what data sources, how often to update, what deviation triggers an update.</li>
+</ul>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Flow for a Price Feed</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li>A dApp (e.g., a lending protocol) needs the ETH/USD price. It reads from a Chainlink Price Feed contract already deployed on the chain.</li>
+  <li>Chainlink nodes are pre-configured to monitor this feed. They periodically fetch the ETH/USD price from multiple exchanges off-chain.</li>
+  <li>Each node submits its observed price to the aggregation contract. The contract waits for a minimum number of submissions (e.g., 7 out of 21 nodes).</li>
+  <li>The contract computes the median of the submitted prices and stores it. Other contracts can now read this verified price.</li>
+  <li>If a node submits a price that deviates significantly from the consensus, it may be penalised.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-B · Chainlink Data Flow</div>
+  <pre>
+  ┌────────────┐   ┌────────────┐   ┌────────────┐
+  │  Node 1    │   │  Node 2    │   │  Node 3    │
+  │ fetches    │   │ fetches    │   │ fetches    │
+  │ Binance    │   │ Coinbase   │   │ Kraken     │
+  │ $2,000.10  │   │ $2,000.50  │   │ $2,000.30  │
+  └─────┬──────┘   └─────┬──────┘   └─────┬──────┘
+        │                │                │
+        └────────────────┼────────────────┘
+                         │ submit price on‑chain
+                         ▼
+              ┌─────────────────────┐
+              │ Aggregation Contract│
+              │ (Median = $2,000.30)│
+              └────────┬────────────┘
+                       │
+                       │ read by consuming contracts
+                       ▼
+              ┌─────────────────────┐
+              │  Lending Protocol   │
+              │ "ETH/USD = $2,000.30"│
+              └─────────────────────┘
+  </pre>
+  <div class="diagram-caption">Chainlink's strength is its decentralisation: no single node can manipulate the price because the median of multiple independent submissions is used.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Limitations of Chainlink</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Cost and Speed:</strong> Updating a price feed requires multiple on-chain transactions. On Ethereum, this can be expensive. On MST, the cost is negligible, but the architecture still requires maintaining a network of nodes.</li>
+  <li><strong>Data Variety:</strong> Chainlink excels at simple data points like prices. For complex data - a 100-page legal document, an IoT data stream, the result of a machine learning model - it's less suited because the entire data must be submitted on-chain, which can be expensive or impractical.</li>
+  <li><strong>Trust in Majority:</strong> While decentralised, a 51% attack on the oracle nodes is theoretically possible. Also, the data sources themselves could be manipulated.</li>
+</ul>
+
+<!-- 07 MST'S WASMify — THE ZK ORACLE -->
+<div class="section-label">07 &nbsp; MST's WASMify - The ZK Oracle</div>
+<h2 class="section-title">Verifiable Off-Chain Computation That Changes Everything</h2>
+<p>MST's <strong>WASMify</strong> is not just another oracle - it's a fundamentally different approach that eliminates the need for a committee of trusted nodes entirely. Instead of "trust the majority," WASMify says: <strong>"verify the math."</strong></p>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">How WASMify Works</h3>
+<ol style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Define the computation:</strong> Write a program (in Rust, C, Python, or any language that compiles to WebAssembly) that fetches and processes external data. For example, a WASM module that reads GPS coordinates from an IoT device, checks if they are within a geofence, and returns a boolean.</li>
+  <li><strong>Execute off-chain:</strong> The module is run on any off-chain server (could be the dApp operator, a third-party service, or even the user). The execution produces a result and a <strong>zero-knowledge proof</strong> that the computation was performed exactly as specified, with the correct inputs, without revealing the inputs if needed.</li>
+  <li><strong>Submit proof on-chain:</strong> The proof is submitted to an MST smart contract. The contract verifies the proof using a cryptographic verification algorithm (much cheaper than re-running the computation). If the proof is valid, the contract accepts the result as truth.</li>
+  <li><strong>Use the result:</strong> The smart contract now has a verified piece of external data and can proceed with its logic - payout an insurance claim, execute a trade, mint an NFT.</li>
+</ol>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 13.1-C · WASMify Oracle Flow</div>
+  <pre>
+  ┌─────────────────────────────────────────┐
+  │            OFF‑CHAIN (Any Server)         │
+  │  ┌──────────────────────────────────┐   │
+  │  │  WASM Module                      │   │
+  │  │  • Fetch GPS data from IoT        │   │
+  │  │  • Check geofence                 │   │
+  │  │  • Generate ZK proof of execution │   │
+  │  └──────────────┬───────────────────┘   │
+  └─────────────────┼───────────────────────┘
+                    │ Submit proof + result
+                    ▼
+  ┌─────────────────────────────────────────┐
+  │            ON‑CHAIN (MST)                │
+  │  ┌──────────────────────────────────┐   │
+  │  │  Verification Contract            │   │
+  │  │  • Verify ZK proof                │   │
+  │  │  • If valid, accept result: TRUE  │   │
+  │  │  • Trigger insurance payout       │   │
+  │  └──────────────────────────────────┘   │
+  └─────────────────────────────────────────┘
+  </pre>
+  <div class="diagram-caption">WASMify replaces trust in a committee with cryptographic verification. The smart contract doesn't need to know who ran the computation, only that the proof is valid.</div>
+</div>
+
+<h3 style="font-size:18px; font-weight:700; margin:20px 0 8px; color:var(--ink);">Why WASMify Is a Game-Changer</h3>
+<ul style="margin:12px 0 12px 24px; color:var(--ink-2); font-size:15px; line-height:1.8;">
+  <li><strong>Trustless:</strong> No need to trust any oracle node operator. The ZK proof guarantees correctness regardless of who executed the computation.</li>
+  <li><strong>Computation-heavy:</strong> Complex logic - machine learning, image processing, large data analysis - can be run off-chain, with only the proof submitted on-chain. This is impossible with traditional oracles that submit raw data.</li>
+  <li><strong>Privacy:</strong> The ZK proof can be constructed such that the inputs remain private. For example, a proof can show that a person's age is over 18 without revealing their birthdate. This is perfect for identity and KYC use cases.</li>
+  <li><strong>Cost:</strong> On MST, verifying a proof costs a fraction of a paisa. No need for multiple on-chain transactions from multiple nodes.</li>
+  <li><strong>Flexibility:</strong> Any computation that can be expressed as a WASM module can be verified. This opens the door to oracles for supply chain (IoT data), AI (model inference), and gaming (verifiable randomness).</li>
+</ul>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Paradigm Shift</div>
+  <p>Traditional oracles answer the question: "Who can I trust to bring data on-chain?" WASMify answers: "No one. I'll verify the data mathematically." This shift from economic trust to cryptographic trust is the next evolution of blockchain oracles, and MST is at the forefront.</p>
+</div>
+
+<!-- 08 INTERACTIVE COMPARISON -->
+<div class="section-label">08 &nbsp; Interactive Comparison</div>
+<h2 class="section-title">Choose the Right Oracle for Your dApp</h2>
+<p>Click each scenario to see the recommended approach and why.</p>
+
+<details>
+  <summary>💹 Scenario 1: DeFi lending protocol needs ETH/USD price</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> Chainlink Price Feed (or similar decentralised oracle network).</p>
+    <p>Why: Price feeds are well-served by Chainlink's battle-tested infrastructure. The data is simple (a single number), the aggregation model works well, and Chainlink already provides this feed on many chains. WASMify could also be used but is overkill for a simple price feed.</p>
+  </div>
+</details>
+<details>
+  <summary>🚚 Scenario 2: Supply chain dApp needs to verify that a container maintained -20°C during transit (IoT data)</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> WASMify.</p>
+    <p>Why: The IoT temperature data stream is complex, private to the shipping company, and requires processing (checking if temperature ever exceeded a threshold). A WASMify module can process the entire data stream off-chain, produce a ZK proof that the temperature was always below -20°C, and submit only the proof on-chain. Traditional oracles would struggle with the data volume and privacy requirements.</p>
+  </div>
+</details>
+<details>
+  <summary>🆔 Scenario 3: Age verification for a Web3 alcohol delivery app (privacy-critical)</summary>
+  <div class="content">
+    <p><strong>Recommendation:</strong> WASMify with ZK privacy.</p>
+    <p>Why: The app needs to verify that a user is over 18 without revealing their exact age or identity. A WASMify module can take a government-issued digital ID as input, verify the age, and produce a ZK proof that the age is >18 - without revealing the ID itself. This is impossible with traditional oracles, which would require submitting the ID on-chain (a privacy nightmare).</p>
+  </div>
+</details>
+
+<!-- 09 COMMON PITFALLS -->
+<div class="section-label">09 &nbsp; Common Pitfalls</div>
+<h2 class="section-title">Don't Let Your Oracle Become a Single Point of Failure</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using a single data source</div>
+      <div class="feature-desc">Even with multiple oracle nodes, if all nodes fetch from the same API, that API is still a single point of failure. Always use multiple independent data sources.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Assuming oracle data is instantly final</div>
+      <div class="feature-desc">Oracles update periodically. The price on-chain may be seconds or minutes old. For time-sensitive applications (like liquidations), account for this latency.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Ignoring the oracle's own security model</div>
+      <div class="feature-desc">If your dApp relies on an oracle, the security of your dApp is bounded by the security of the oracle. A hacked oracle can drain your protocol. Always understand the oracle's trust assumptions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 ASSESSMENT PREP -->
+<div class="section-label">10 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the Exam</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Blockchains are deterministic; external data is not. Oracles bridge the gap.</div>
+      <div class="feature-desc">Smart contracts cannot call APIs directly because it would break consensus. Oracles fetch external data and submit it on-chain as a transaction.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Centralised oracles are a single point of failure; decentralised oracle networks (Chainlink) mitigate this.</div>
+      <div class="feature-desc">Chainlink uses multiple independent nodes that fetch from multiple sources, aggregate data, and submit on-chain with economic incentives for honesty.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">MST's WASMify uses ZK proofs for verifiable off-chain computation, eliminating trust in the oracle operator.</div>
+      <div class="feature-desc">Any computation can be run off-chain, a ZK proof generated, and verified on-chain by a smart contract. Trust the math, not the messenger.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 13.1 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">10</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+
+    <div class="q-section-header">
+      <div class="q-section-title">Section A - Multiple Choice Questions</div>
+      <div class="q-section-meta">10 Questions · 1 mark each · 10 marks total</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why can't a smart contract directly call an external web API?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Because external API responses are non-deterministic, and different nodes might get different results, breaking consensus. ✅</li>
+        <li><span class="opt-key">B</span> Because Solidity doesn't support HTTP requests.</li>
+        <li><span class="opt-key">C</span> Because it would cost too much gas.</li>
+        <li><span class="opt-key">D</span> Because APIs are too slow for blockchain.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Blockchain consensus requires that every node can independently verify the same result. External API calls would return different results at different times or for different nodes.</p></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is the primary risk of using a centralised oracle?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Single point of failure - if the oracle operator is compromised or goes offline, the dApp is affected. ✅</li>
+        <li><span class="opt-key">B</span> It uses too much gas.</li>
+        <li><span class="opt-key">C</span> It only works with Ethereum.</li>
+        <li><span class="opt-key">D</span> It requires Chainlink tokens.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>A centralised oracle is controlled by one entity, creating a single point of trust and failure that contradicts the decentralised ethos of blockchain.</p></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does Chainlink achieve decentralisation in its oracle network?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> By using multiple independent node operators who fetch data from multiple sources, with economic incentives for accurate reporting. ✅</li>
+        <li><span class="opt-key">B</span> By running all nodes on a single server.</li>
+        <li><span class="opt-key">C</span> By using a single API for all data.</li>
+        <li><span class="opt-key">D</span> By requiring users to run their own nodes.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Chainlink's decentralised oracle network uses many independent nodes with staked LINK tokens to provide data, and aggregates their responses to avoid reliance on any single node.</p></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What role do LINK tokens play in the Chainlink network?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> They are staked by node operators as collateral to incentivise honest data reporting. ✅</li>
+        <li><span class="opt-key">B</span> They are used to pay gas fees on Ethereum.</li>
+        <li><span class="opt-key">C</span> They are the only currency accepted for oracle requests.</li>
+        <li><span class="opt-key">D</span> They are burned when data is submitted.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>LINK is staked by oracle nodes; if they submit bad data, their stake can be slashed. This economic model secures the network.</p></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does MST's WASMify fundamentally differ from Chainlink as an oracle solution?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> WASMify uses zero-knowledge proofs to verify off-chain computation, eliminating the need to trust any node operator. ✅</li>
+        <li><span class="opt-key">B</span> WASMify is a centralised oracle run by MST.</li>
+        <li><span class="opt-key">C</span> WASMify only works for price feeds.</li>
+        <li><span class="opt-key">D</span> WASMify requires a network of staked validators like Chainlink.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>WASMify shifts trust from economic incentives (staking) to cryptographic verification (ZK proofs), allowing trustless oracle operation without a network of nodes.</p></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What is a key advantage of using WASMify for IoT or complex data oracles?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> It can process large, complex data off-chain and only submit a small ZK proof on-chain, saving gas and maintaining privacy. ✅</li>
+        <li><span class="opt-key">B</span> It automatically connects to all IoT devices.</li>
+        <li><span class="opt-key">C</span> It requires no programming.</li>
+        <li><span class="opt-key">D</span> It is free to use.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>WASMify enables heavy computation off-chain, reducing on-chain data requirements to a tiny proof - ideal for IoT streams, ML models, and private data.</p></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the Chainlink aggregation process, what happens if one node submits a price far different from others?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> The aggregation contract calculates the median, so outliers have minimal impact, and the outlier node may be penalised. ✅</li>
+        <li><span class="opt-key">B</span> The whole feed shuts down.</li>
+        <li><span class="opt-key">C</span> That node's data is automatically accepted as correct.</li>
+        <li><span class="opt-key">D</span> The node receives a bonus for being different.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Median aggregation makes the feed resistant to outliers. Nodes submitting extreme values risk losing their staked LINK.</p></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What does "deterministic" mean in the context of blockchain execution?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Given the same inputs and state, every node must produce exactly the same output. ✅</li>
+        <li><span class="opt-key">B</span> The transaction order is random.</li>
+        <li><span class="opt-key">C</span> Only one node executes the transaction.</li>
+        <li><span class="opt-key">D</span> The result depends on the time of day.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>Determinism is essential for consensus: all nodes must agree on the new state after a transaction.</p></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which of the following is a realistic use case for a ZK-powered oracle like WASMify?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Verifying that a cargo container maintained a specific temperature range using IoT sensor data, without revealing the full data log on-chain. ✅</li>
+        <li><span class="opt-key">B</span> Checking the current time.</li>
+        <li><span class="opt-key">C</span> Validating a simple ERC-20 transfer.</li>
+        <li><span class="opt-key">D</span> Generating random numbers.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>ZK oracles excel at complex, private data verification - processing large sensor logs and proving compliance without exposing sensitive data.</p></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why is the Oracle Problem considered one of the hardest challenges in blockchain development?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span> Because it requires bridging the trustless, deterministic on-chain world with the non-deterministic, trust-based off-chain world without reintroducing centralisation. ✅</li>
+        <li><span class="opt-key">B</span> Because Solidity doesn't have oracle support.</li>
+        <li><span class="opt-key">C</span> Because oracles are expensive to deploy.</li>
+        <li><span class="opt-key">D</span> Because there is no solution yet.</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct: A</div><p>The Oracle Problem is fundamentally about maintaining blockchain's trustless properties while still gaining access to real-world data - a delicate balance.</p></div>
+    </div>
+
+  </div>
+
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 13.1 Assessment Summary</div>
+      <div class="score-row">Section A: 10 × MCQ <span>(1 mark each) = 10 marks</span></div>
+    </div>
+    <div class="score-badge"><div class="score-num">10</div><div class="score-text">Total Marks</div></div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">11 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 13.1</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Oracle</div><div class="glossary-def">A bridge that brings external, real-world data onto a blockchain so that smart contracts can use it.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Determinism</div><div class="glossary-def">The property that given the same inputs and state, a computation always produces the same output - essential for blockchain consensus.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Chainlink</div><div class="glossary-def">The leading decentralised oracle network; uses multiple independent nodes and economic incentives to provide reliable data feeds.</div></div>
+  <div class="glossary-item"><div class="glossary-term">WASMify</div><div class="glossary-def">MST's framework for verifiable off-chain computation; generates ZK proofs that can be verified on-chain, enabling trustless oracles.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Zero-Knowledge Proof (ZKP)</div><div class="glossary-def">A cryptographic method allowing one party to prove to another that a statement is true without revealing any additional information.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Aggregation Contract</div><div class="glossary-def">A Chainlink smart contract that collects data from multiple oracle nodes and computes a single trusted answer (e.g., median).</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 13 · Sub-Module <strong>13.1</strong> of 5 &nbsp;·&nbsp; Next: Sub-Module 13.2 - Centralised vs Decentralised Oracles →</p>
+</div>
+
+</body>
+</html>

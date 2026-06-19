@@ -1,0 +1,551 @@
+
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER
+════════════════════════════════════════════════════ -->
+<div class="module-badge">⚙️ Module 7 &nbsp;·&nbsp; Sub-Module 7.1 of 8</div>
+<h1 class="module-title">Hybrid <span class="highlight">Layer-1 Architecture</span></h1>
+<p class="module-subtitle">Why the world's most advanced blockchains don't force you to choose between public openness and enterprise privacy - MST's dual-zone design explained in detail.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 40 Minutes</div>
+  <div class="meta-chip purple">🎯 10 Marks</div>
+  <div class="meta-chip">📋 9 MCQ + 1 True/False</div>
+  <div class="meta-chip green">Phase 2 · MST Architecture &amp; Protocol</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: LEARNING OBJECTIVES
+════════════════════════════════════════════════════ -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🧱</div>
+    <div class="obj-text">
+      <strong>Define Hybrid Layer-1 architecture</strong>
+      Explain what it means for a blockchain to have both public and permissioned zones under one consensus.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">⚖️</div>
+    <div class="obj-text">
+      <strong>Contrast public, private, and hybrid models</strong>
+      Know exactly when a pure public chain fails and why a hybrid approach is the enterprise-grade solution.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🏦</div>
+    <div class="obj-text">
+      <strong>Apply the concept to real-world scenarios</strong>
+      Map a CBDC, a supply-chain track-and-trace system, and a gaming platform onto MST's dual-zone model.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔗</div>
+    <div class="obj-text">
+      <strong>Describe inter-zone communication</strong>
+      Understand how transactions and data flow between the Public Zone and Permissioned Zone without breaking trust boundaries.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: REAL WORLD INTRODUCTION STORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Central Bank's Dilemma - Why Public Chains Are Not Enough</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>It is 2025. The Reserve Bank of India (RBI) has decided to issue a Digital Rupee - a Central Bank Digital Currency (CBDC) - to bring financial inclusion to 300 million unbanked Indians. The technology team evaluates two paths.</p>
+  <br>
+  <p><strong>Option A: Use a pure public blockchain like Ethereum.</strong> The digital Rupee would be an ERC-20 token. Anybody could read every wallet balance. Transaction fees would spike unpredictably. And worst, the RBI would have zero control over which validators process payments - a node in a sanctioned country could order transactions. Regulatorially impossible.</p>
+  <br>
+  <p><strong>Option B: Build a private, permissioned blockchain just for the RBI and partner banks.</strong> Fast, compliant, fully controlled. But then the digital Rupee would be locked inside a walled garden - no interoperability with DeFi, no open innovation, no programmability for the broader economy. It would be a glorified internal database.</p>
+  <br>
+  <p>The team is stuck. Public is too open. Private is too closed. They need a third option - a <strong>hybrid architecture</strong> where the sensitive core (minting, burning, KYC) runs in a permissioned zone under RBI's validator set, while the retail transfer and payments layer runs on a public zone that anyone can verify. Yet both zones share the same consensus, the same gas token, and a secure bridge that allows a Rupee minted in the permissioned zone to flow seamlessly into a public wallet.</p>
+  <br>
+  <p>This is not a theoretical wish. This is <strong>exactly the architecture MST Blockchain delivers</strong> - a hybrid Layer-1 where public and permissioned zones coexist, communicate, and are secured by the same Trika POSA consensus engine. The RBI story is one of dozens: every enterprise, from pharmaceutical supply chains to gaming studios, faces the same public-vs-private deadlock. Hybrid architecture is the unlock.</p>
+</div>
+
+<p>This dilemma captures the fundamental design tension in enterprise blockchain adoption. Pure public chains promise openness and censorship resistance but fail compliance. Private chains deliver control but sacrifice the network effect and composability that make blockchain valuable. A hybrid Layer-1 doesn't choose sides - it lets each application pick the right zone for each component.</p>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: BACKGROUND / HISTORY
+════════════════════════════════════════════════════ -->
+<div class="section-label">03 &nbsp; Background &amp; History</div>
+<h2 class="section-title">The Evolution from "One Chain to Rule Them All" to Multi-Zone Architectures</h2>
+
+<p>The blockchain world began with a single, monolithic philosophy: one ledger, one set of rules, open to all. But as real businesses began to explore the technology, it became clear that one size does not fit all. The journey from Bitcoin to hybrid Layer-1s is a story of growing pains and architectural compromises.</p>
+
+<div class="timeline">
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2009 - 2015</div>
+      <div class="tl-body"><strong>The Public-Only Era.</strong> Bitcoin launched as a purely public, permissionless network. Anyone could run a node, mine, or transact. Ethereum followed, adding programmable smart contracts but keeping the same open-to-all philosophy. This worked brilliantly for censorship-resistant money and early DeFi, but enterprises couldn't touch it - data is public, validators are anonymous, and there's no way to enforce KYC/AML at the protocol level.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2016 - 2018</div>
+      <div class="tl-body"><strong>The Private Chain Boom.</strong> Hyperledger Fabric, R3 Corda, and Quorum emerged. These were permissioned blockchains for consortia - banks, supply chains, governments. Nodes required identity verification. Data could be kept confidential between parties. But they were completely isolated from public ecosystems. A token on Hyperledger could never interact with a Uniswap pool. Developers had to choose between the open innovation of public chains and the compliance of private ones.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2019 - 2021</div>
+      <div class="tl-body"><strong>The Sidechain &amp; L2 Compromise.</strong> Polygon, xDai, and various Layer-2 rollups tried to bridge the gap. They offered faster, cheaper transactions while relying on Ethereum's security. But they were still fundamentally public - no native privacy zones, no built-in permissioned validators. Enterprises had to bolt on complex privacy layers or run separate private sidechains with fragile bridges. The integration was clunky and introduced new trust assumptions at every bridge point.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">2022 - 2024</div>
+      <div class="tl-body"><strong>The Hybrid Layer-1 Thesis.</strong> A new generation of blockchains - including MST - recognized that the future is not public <em>or</em> private, but <em>both</em>, natively integrated. By designing a single consensus layer that could simultaneously secure an open public zone and one or more permissioned zones, these chains eliminated the need for external bridges. The result: a CBDC can mint in a permissioned zone and circulate in the public zone, a supply-chain contract can keep sensitive pricing data confidential while sharing shipment milestones publicly, and a gaming platform can run provably fair public logic while keeping user KYC data in a compliant sub-zone. All under one network, one token, one trust model.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+    <div class="tl-right">
+      <div class="tl-year">Today</div>
+      <div class="tl-body"><strong>MST's Production Hybrid Architecture.</strong> MST's mainnet runs a Hybrid Layer-1 with the Public Zone (open validator set, EVM-compatible, full transparency) and Permissioned Zones (whitelisted validators, confidential state, enterprise-grade SLAs). The same MSTC token powers gas fees in both zones. Trika POSA validators can participate in one or both zones, and a native inter-zone messaging protocol allows smart contracts to call each other across the boundary with cryptographic guarantees.</div>
+    </div>
+  </div>
+</div>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Architectural Insight</div>
+  <p>The key realisation that made hybrid Layer-1s possible: <strong>consensus and execution can be separated by zone</strong>. A single set of validators (or overlapping sets) can agree on the ordering of transactions for multiple execution environments, each with its own state, access control, and privacy rules. The blockchain isn't one state machine - it's a <em>federation of state machines</em> that share a common consensus engine.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: BEGINNER-FRIENDLY EXPLANATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">04 &nbsp; Beginner-Friendly Explanation</div>
+<h2 class="section-title">The City Analogy - Understanding Hybrid Architecture</h2>
+
+<p>Imagine a modern city. The city has <strong>public roads, public parks, and public markets</strong> that anyone can enter, use, and verify. A street vendor selling fruit on a public road must display prices openly - anyone walking by can see the transaction. This is like the <strong>Public Zone</strong> of a blockchain: open, transparent, permissionless. Anyone can deploy a smart contract, send a transaction, or run a node.</p>
+
+<p>But the same city also has <strong>private office buildings, gated residential communities, and bank vaults</strong>. These have restricted entry - you need an ID card, a key, or an invitation. Inside, confidential meetings happen, sensitive data is stored, and strict rules are enforced. Yet these private spaces are still <strong>connected to the public roads</strong> - a delivery truck can leave the private loading dock and drive on the public highway. This is the <strong>Permissioned Zone</strong>: restricted access, confidential data, but still connected to the broader network.</p>
+
+<div class="callout analogy">
+  <div class="callout-label">🏙️ The City &amp; The Blockchain</div>
+  <p><strong>Public Zone = City Roads &amp; Public Markets.</strong> Anybody can set up a shop (smart contract), trade goods (tokens), and everyone can see the prices and transactions. Validators are like the city's traffic police - they keep order but don't control who enters.</p>
+  <p><strong>Permissioned Zone = Gated Community or Bank Vault.</strong> Only authorised residents (whitelisted validators) can enter. Inside, confidential deals happen behind closed doors. But the vault still has a door to the street - assets can move out to the public zone under strict rules.</p>
+  <p><strong>Inter-Zone Bridge = The Secure Gate.</strong> When a package (token) moves from the gated community to the public road, the gate checks the paperwork cryptographically. No unauthorised asset can enter or leave without proof.</p>
+</div>
+
+<div class="w5-grid">
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHY</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Why does a hybrid architecture exist?</div>
+      <div class="w5-a">Because real-world applications have <strong>mixed trust requirements</strong>. A CBDC needs the central bank to control minting (permissioned) but wants retail payments to be interoperable with the open ecosystem (public). A supply chain needs confidential pricing between supplier and buyer (permissioned) but public shipment tracking for consumers (public). Hybrid architecture delivers both without forcing a trade-off.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHAT</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What problem does it solve?</div>
+      <div class="w5-a">The <strong>"enterprise adoption gap"</strong>. Before hybrid chains, a company had to choose between a fully public chain (no privacy, no compliance) and a fully private chain (no interoperability, no public auditability). Hybrid eliminates this binary choice. A single application can have components in both zones, with secure communication between them.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">H</div><div class="w5-word">HOW</div></div>
+    <div class="w5-content">
+      <div class="w5-q">How does it work technically?</div>
+      <div class="w5-a">A common consensus engine (Trika POSA) finalises blocks for <strong>all zones simultaneously</strong>. Each zone has its own execution environment (EVM instance), its own state trie, and its own validator access policy. Transactions in the Public Zone are visible to all; transactions in a Permissioned Zone are visible only to authorised parties. A native inter-zone communication protocol (IBC-like) allows smart contracts to send messages and assets across zones, with cryptographic proofs that the source zone's validators approved the transfer.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">W</div><div class="w5-word">WHERE</div></div>
+    <div class="w5-content">
+      <div class="w5-q">Where is it used in daily life?</div>
+      <div class="w5-a"><strong>CBDC:</strong> Central bank mints digital currency in a Permissioned Zone; citizens use it in the Public Zone for DeFi, payments, etc. <strong>Pharma Supply Chain:</strong> Manufacturer and distributor share confidential pricing in a Permissioned Zone; consumers verify drug authenticity on the Public Zone. <strong>Gaming:</strong> Game logic and random number generation run in the Public Zone (provably fair); player identity and KYC data stay in a Permissioned Zone (compliance). <strong>Enterprise Resource Planning (ERP):</strong> Legacy ERP systems use WASMify to post data to a Permissioned Zone, while public reporting dashboards read from the Public Zone.</div>
+    </div>
+  </div>
+  <div class="w5-row">
+    <div class="w5-label-cell"><div class="w5-letter">L</div><div class="w5-word">LIMITS</div></div>
+    <div class="w5-content">
+      <div class="w5-q">What are its limitations?</div>
+      <div class="w5-a">A hybrid architecture adds complexity - developers must decide which data goes where and how to handle cross-zone calls. Inter-zone communication is not instant; there's a latency of a few blocks for finality on both sides. Also, the security of a Permissioned Zone depends on its validator set; if that set is small or compromised, the zone's integrity is at risk, though the Public Zone remains unaffected. Proper validator incentive design and slashing conditions are crucial.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5: TECHNICAL DEEP DIVE
+════════════════════════════════════════════════════ -->
+<div class="section-label">05 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The Four Layers That Make a Hybrid Layer-1 Work</h2>
+
+<p>Understanding MST's hybrid architecture requires examining four distinct but interconnected layers: the <strong>Consensus Layer</strong>, the <strong>Execution Layer</strong>, the <strong>State Layer</strong>, and the <strong>Inter-Zone Communication Layer</strong>. Each is designed to support multiple zones without sacrificing security or performance.</p>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num">1</div>
+    <div class="feature-content">
+      <div class="feature-title">Consensus Layer - Trika POSA, Unified Across Zones</div>
+      <div class="feature-desc">
+        All zones - public and permissioned - share the same consensus engine. Trika POSA (Proof of Stake Authority) elects a set of validators through staking and reputation. These validators produce and finalise blocks for every zone. A validator can be active in both zones, or only in a specific permissioned zone if it meets that zone's additional identity/KYC requirements. The consensus protocol reaches finality on a block that contains transactions from multiple zones, all in one block - like a multi-container shipping vessel. This unified finality is the magic that eliminates the need for external bridges between zones: they all settle at the same time on the same base ledger.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">2</div>
+    <div class="feature-content">
+      <div class="feature-title">Execution Layer - Separate EVM Instances per Zone</div>
+      <div class="feature-desc">
+        Each zone runs its own independent instance of the Ethereum Virtual Machine (EVM). The Public Zone's EVM processes transactions from anyone, charges gas in MSTC, and stores all state publicly. A Permissioned Zone's EVM also charges gas in MSTC (from the same token pool), but its validator set is restricted, and its state is only readable by authorised nodes. A transaction calling a smart contract in the Permissioned Zone must be submitted to one of that zone's validators. This design means that a developer deploys the same Solidity bytecode to any zone - the only difference is who can see the state and who can submit transactions.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">3</div>
+    <div class="feature-content">
+      <div class="feature-title">State Layer - Partitioned Merkle Tries with Access Control</div>
+      <div class="feature-desc">
+        The global state is not one giant Merkle Patricia Trie but a collection of <strong>zone-specific tries</strong>, each with its own root hash. The consensus block header contains a commitment to all zone roots. When a light client wants to verify a transaction from the Public Zone, it only needs the Public Zone's state root. Permissioned Zone data is cryptographically committed but not revealed - only the zone's validators and authorised observers can retrieve the actual data. This partitioned state allows enterprises to keep sensitive data confidential while still proving to the public that a transaction occurred (via ZK-proofs or Merkle proofs over committed data). MST's WASMify module can generate zero-knowledge proofs that a particular state transition happened in the Permissioned Zone without revealing the underlying data.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num">4</div>
+    <div class="feature-content">
+      <div class="feature-title">Inter-Zone Communication (IZC) - Native, Trustless Bridge</div>
+      <div class="feature-desc">
+        The inter-zone communication protocol allows a smart contract in Zone A to send a message or asset to a contract in Zone B. This is not an external bridge with a separate validator set - it is a native protocol enforced by the same consensus validators. When a cross-zone transaction is initiated, the source zone's validators include a special IZC transaction in the block. The destination zone's validators observe this transaction (since they participate in consensus for all zones) and include a corresponding receiving transaction in the destination zone's next block. The protocol ensures that the message is delivered exactly once, with proof that the source zone confirmed it. This allows a CBDC minted in a Permissioned Zone to flow to a user's public wallet, or a public DeFi protocol to trigger a payout in a private settlement zone - all without trusting a third-party bridge operator.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="callout key">
+  <div class="callout-label">🗝️ The Critical Distinction</div>
+  <p>A hybrid Layer-1 is <strong>NOT</strong> a public chain with a sidechain attached, nor a private chain that sometimes talks to a public network via a bridge. It is a <strong>single network</strong> with a single consensus engine that simultaneously runs multiple execution environments. The validators are the bridge - they finalise blocks for all zones in the same consensus round. This eliminates the multi-signature trust assumptions and latency of external bridges. When a validator finalises a block, it attests to the state of all zones at that height. Cross-zone communication is simply the validators agreeing to include a message from Zone A's block into Zone B's subsequent block.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 6: ARCHITECTURE & DIAGRAMS
+════════════════════════════════════════════════════ -->
+<div class="section-label">06 &nbsp; Architecture &amp; Diagrams</div>
+<h2 class="section-title">Visualising MST's Hybrid Layer-1</h2>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.1-A · The Dual-Zone Architecture of MST</div>
+  <pre>  ┌────────────────────────────────────────────────────────────────────┐
+  │                    TRIKA POSA CONSENSUS ENGINE                     │
+  │   (Unified block production &amp; finality for all zones)              │
+  │   Validator Set: V₁, V₂, V₃, ... Vₙ (some authorized for both)    │
+  └───────┬──────────────────────────────┬─────────────────────────────┘
+          │                              │
+   ┌──────▼──────────┐          ┌────────▼─────────────┐
+   │  PUBLIC ZONE    │          │  PERMISSIONED ZONE   │
+   │  (Zone ID: 0)   │          │  (Zone ID: 1001)     │
+   │                 │          │                      │
+   │ • Open Access   │          │ • Whitelisted Nodes  │
+   │ • All State     │          │ • Confidential State │
+   │   Public        │◄────────►│ • Enterprise Val's   │
+   │ • Gas: MSTC     │  IZC     │ • Gas: MSTC          │
+   │ • Any Validator │ Protocol │ • KYC'd Validators   │
+   └─────────────────┘          └──────────────────────┘
+             ▲                            ▲
+             │                            │
+     ┌───────┴───────┐            ┌───────┴────────┐
+     │ DeFi, Gaming, │            │ CBDC Minting,  │
+     │ NFT Market,   │            │ Supply Chain,  │
+     │ Social dApps  │            │ KYC Identity   │
+     └───────────────┘            └────────────────┘
+  </pre>
+  <div class="diagram-caption">MST's architecture runs multiple execution environments (zones) under a single consensus umbrella. Validators that meet permissioned zone criteria can participate in both zones, providing a trustless inter-zone bridge without external relayers.</div>
+</div>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 7.1-B · Inter-Zone Communication Flow (CBDC Example)</div>
+  <pre>  PERMISSIONED ZONE (RBI)                 PUBLIC ZONE (Retail Users)
+  ──────────────────────                  ─────────────────────────
+  
+  1. RBI mints 100 Digital ₹               
+     in Permissioned Zone.                 
+     Mint TX included in Block #N          
+     (visible only to RBI validators)      
+            │                               
+            ▼                               
+  2. IZC Message created:                   
+     "Transfer 100 ₹ to Public              
+      Wallet 0xABCD..."                     
+     Included in Block #N by               
+     Permissioned Zone validators           
+            │                               
+            ▼                               
+  3. Public Zone validators                 
+     observe IZC message in                 
+     Block #N (they see the                 
+     commitment, not the                    
+     confidential mint details)             
+            │                               
+            ▼                               
+  4. Public Zone Block #N+1                 
+     includes "Receive 100 ₹                
+     from Permissioned Zone"                
+     → balance of 0xABCD                    
+     increases by 100.                      
+     This transaction is fully              
+     public and verifiable.                 
+            │                               
+            ▼                               
+  5. User 0xABCD now has                    
+      100 Digital ₹ in their                
+      BridgeKey wallet on                   
+      the Public Zone.                      
+      Can swap on DEX, send                 
+      to friends, pay merchant.             
+  </pre>
+  <div class="diagram-caption">A CBDC minted in the confidential Permissioned Zone flows to a public wallet via IZC, with the consensus validators ensuring atomicity and proof of origin. The public sees only the arrival - the minting details remain confidential.</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 7: COMPARISON TABLE
+════════════════════════════════════════════════════ -->
+<div class="section-label">07 &nbsp; Comparison</div>
+<h2 class="section-title">Pure Public vs Pure Private vs Hybrid Layer-1 - Head to Head</h2>
+
+<table class="compare-table">
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>❌ Pure Public (Ethereum)</th>
+      <th>⚠️ Pure Private (Hyperledger)</th>
+      <th>✅ Hybrid Layer-1 (MST)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validator access</td>
+      <td class="bad">Permissionless - anyone can join</td>
+      <td class="mid">Permissioned - whitelisted only</td>
+      <td class="good">Both: Public zone open, Permissioned zone whitelisted</td>
+    </tr>
+    <tr>
+      <td>Data visibility</td>
+      <td class="bad">All state public</td>
+      <td class="good">Confidential state possible</td>
+      <td class="good">Partitioned: public where needed, confidential where required</td>
+    </tr>
+    <tr>
+      <td>Regulatory compliance</td>
+      <td class="bad">Extremely difficult (KYC/AML)</td>
+      <td class="good">Built-in (identity-based validators)</td>
+      <td class="good">Permissioned zone handles compliance; public zone stays open</td>
+    </tr>
+    <tr>
+      <td>Interoperability</td>
+      <td class="good">High within ecosystem</td>
+      <td class="bad">Isolated - no native DeFi access</td>
+      <td class="good">Native IZC connects zones; assets flow to public DeFi</td>
+    </tr>
+    <tr>
+      <td>Network effect</td>
+      <td class="good">Large developer &amp; user base</td>
+      <td class="bad">Small, consortium-locked</td>
+      <td class="good">Public zone inherits EVM network effects; permissioned zone adds enterprise</td>
+    </tr>
+    <tr>
+      <td>Gas / fee model</td>
+      <td class="bad">Volatile, can be extremely high</td>
+      <td class="mid">Usually free or fixed (internal)</td>
+      <td class="good">Single MSTC token, predictable &amp; low; fees in both zones</td>
+    </tr>
+    <tr>
+      <td>Throughput &amp; finality</td>
+      <td class="mid">~15 TPS, ~6 min finality</td>
+      <td class="good">High TPS, fast (centralised)</td>
+      <td class="good">4000+ TPS, ~3 sec finality (Trika POSA)</td>
+    </tr>
+    <tr>
+      <td>Use case flexibility</td>
+      <td class="bad">DeFi, NFTs only - no enterprise privacy</td>
+      <td class="mid">Enterprise only - no open innovation</td>
+      <td class="good">CBDC, supply chain, gaming, DeFi - all on one network</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout insight">
+  <div class="callout-label">💡 The Enterprise Sweet Spot</div>
+  <p>The hybrid model lets an enterprise start in a Permissioned Zone for compliance and internal workflows, then gradually expose selected data and assets to the Public Zone as trust and market demand grow. This is <strong>progressive decentralisation</strong> - a company doesn't have to go fully public on day one. It can move along the spectrum as the ecosystem matures.</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 8: REAL WORLD CASE STUDIES
+════════════════════════════════════════════════════ -->
+<div class="section-label">08 &nbsp; Real-World Case Studies</div>
+<h2 class="section-title">How Hybrid Architecture Solves Real Business Problems</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--orange);">🏦</div>
+    <div class="feature-content">
+      <div class="feature-title">CBDC - The Digital Rupee on MST</div>
+      <div class="feature-desc">
+        The Reserve Bank of India issues the Digital Rupee on MST's Permissioned Zone. Minting, burning, and inter-bank settlement happen confidentially among authorised validators (scheduled banks). Retail users receive Digital Rupees in their BridgeKey wallets on the Public Zone, where they can use them for merchant payments, DeFi lending, or cross-border remittances. The inter-zone bridge ensures that every Rupee in the public zone is backed 1:1 by a Rupee locked in the permissioned zone. Regulators can audit the permissioned zone at any time, while the public enjoys censorship-resistant, low-cost transactions. No other architecture delivers this combination of central bank control and public usability.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--blue);">💊</div>
+    <div class="feature-content">
+      <div class="feature-title">Pharmaceutical Supply Chain - Track &amp; Trace with Confidential Pricing</div>
+      <div class="feature-desc">
+        A consortium of Indian pharma manufacturers, distributors, and pharmacies runs on MST. The <strong>Permissioned Zone</strong> holds sensitive data: wholesale pricing, batch quality reports, and contractual terms. Only authorised parties can read this data. Meanwhile, the <strong>Public Zone</strong> stores shipment milestones and final dispensing records. A consumer can scan a QR code on a medicine strip and see its entire journey from factory to pharmacy - verifying authenticity on-chain - without ever seeing the confidential commercial data. The hybrid architecture makes public transparency and business confidentiality coexist on the same network.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--green);">🎮</div>
+    <div class="feature-content">
+      <div class="feature-title">Provably Fair Gaming with Regulatory Compliance</div>
+      <div class="feature-desc">
+        An online rummy platform uses MST. The <strong>Public Zone</strong> runs the game logic - the SatvaShuffle algorithm records every card shuffle on-chain, so any player can verify the deck was truly random. The <strong>Permissioned Zone</strong> stores player identity, KYC documents, and self-exclusion lists, meeting state gaming regulations. When a player wins, the payout smart contract in the Public Zone checks the Permissioned Zone's KYC oracle (via IZC) to ensure the player is not on a banned list before releasing funds. The game is provably fair <em>and</em> legally compliant - a combination impossible on a pure public chain.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--brand);">🏭</div>
+    <div class="feature-content">
+      <div class="feature-title">Enterprise ERP Integration via WASMify</div>
+      <div class="feature-desc">
+        A large manufacturing company already runs SAP for inventory management. They want to publish real-time stock levels to a public marketplace without exposing internal cost data. Using <strong>WASMify</strong>, they deploy a lightweight WebAssembly module that reads SAP data, generates a ZK-proof of current stock quantity, and posts it to the Public Zone. The proof is verified by the Public Zone's validators, and the stock level appears on a public dApp that buyers use to place orders. The actual SAP data remains inside the enterprise firewall, never touching the blockchain. Only the cryptographically verified summary enters the public domain.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 9: ASSESSMENT PREPARATION
+════════════════════════════════════════════════════ -->
+<div class="section-label">09 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold for the 10-Mark Assessment</h2>
+
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+    <div class="feature-content">
+      <div class="feature-title">Definition of Hybrid Layer-1</div>
+      <div class="feature-desc">A single blockchain network that runs <strong>multiple execution environments (zones)</strong> under a unified consensus engine. Each zone can have different access policies, data visibility rules, and validator sets, but they share the same base token and finality.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+    <div class="feature-content">
+      <div class="feature-title">Public Zone vs Permissioned Zone</div>
+      <div class="feature-desc"><strong>Public Zone:</strong> Open validator set, all state publicly visible, permissionless smart contract deployment. <strong>Permissioned Zone:</strong> Whitelisted validators, confidential state, restricted contract deployment. Both use the same gas token (MSTC).</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+    <div class="feature-content">
+      <div class="feature-title">Inter-Zone Communication (IZC)</div>
+      <div class="feature-desc">A native protocol that allows smart contracts in different zones to exchange messages and assets. It is not an external bridge; the same validators that finalise blocks in both zones include the cross-zone messages, guaranteeing atomicity and trustless delivery.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+    <div class="feature-content">
+      <div class="feature-title">Why Not Just Use a Sidechain?</div>
+      <div class="feature-desc">Sidechains have their own validator sets and consensus, requiring a separate bridge that introduces additional trust assumptions. In a hybrid Layer-1, the validators are shared - cross-zone communication is as secure as the consensus itself, with no extra layer of trust.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+    <div class="feature-content">
+      <div class="feature-title">Enterprise Adoption Enabler</div>
+      <div class="feature-desc">Hybrid architecture is the primary reason enterprises can adopt MST. They can keep sensitive data confidential in a permissioned zone while leveraging the liquidity, developers, and composability of the public zone. This progressive model de-risks blockchain adoption.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     ASSESSMENT (UPDATED: 9 MCQ + 1 T/F, 10 marks total)
+════════════════════════════════════════════════════ -->
+
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOSSARY
+════════════════════════════════════════════════════ -->
+<div class="section-label" style="margin-top:52px;">10 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 7.1</h2>
+
+<div class="glossary-grid">
+  <div class="glossary-item">
+    <div class="glossary-term">Hybrid Layer-1</div>
+    <div class="glossary-def">A blockchain that runs multiple execution zones (public and permissioned) under a single consensus engine, allowing different trust models within one network.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Public Zone</div>
+    <div class="glossary-def">The permissionless execution environment where anyone can deploy contracts, send transactions, and run a validator node. All state is publicly visible.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Permissioned Zone</div>
+    <div class="glossary-def">An execution environment with restricted validator access and confidential state. Only authorised entities can read data or submit transactions. Often used for enterprise compliance.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Inter-Zone Communication (IZC)</div>
+    <div class="glossary-def">The native protocol that allows smart contracts in different zones to exchange messages and assets, secured by the same consensus validators without external bridges.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Trika POSA</div>
+    <div class="glossary-def">MST's Proof of Stake Authority consensus mechanism that elects validators through staking and reputation, providing fast finality and energy efficiency. (Covered in depth in Sub-Module 7.3.)</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">State Partitioning</div>
+    <div class="glossary-def">The separation of blockchain state into distinct Merkle tries per zone, allowing different visibility rules for each zone while maintaining a unified consensus commitment.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">CBDC</div>
+    <div class="glossary-def">Central Bank Digital Currency - a digital form of fiat money issued by a central bank. MST's hybrid architecture enables CBDCs with both regulatory control and public interoperability.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">WASMify</div>
+    <div class="glossary-def">MST's module for executing WebAssembly binaries and generating ZK-proofs, allowing off-chain computation to be verified on-chain. (Covered in Sub-Module 7.5.)</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Progressive Decentralisation</div>
+    <div class="glossary-def">A strategy where a project starts with more centralised control (e.g., in a permissioned zone) and gradually moves toward open, public participation as the ecosystem matures.</div>
+  </div>
+  <div class="glossary-item">
+    <div class="glossary-term">Finality</div>
+    <div class="glossary-def">The point at which a block and its transactions are irreversibly confirmed. In MST, Trika POSA provides ~3-second finality across all zones simultaneously.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 7 · Sub-Module <strong>7.1</strong> of 8 &nbsp;·&nbsp; Next: Sub-Module 7.2 - EVM Compatibility →</p>
+</div>
+
+

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sub-Module 16.5 - ZK Age Verification | MasterStroke Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #6C3CE2; --brand-light: #EDE9FB; --brand-dark: #3C1FA0; --brand-mid: #8B5CF6;
+      --accent: #F6A623; --accent-light: #FEF4E0; --green: #16A34A; --green-light: #DCFCE7;
+      --red: #DC2626; --red-light: #FEE2E2; --blue: #1D6FD8; --blue-light: #DBEAFE;
+      --orange: #EA580C; --orange-light: #FFEDD5; --teal: #0D9488; --teal-light: #CCFBF1;
+      --ink: #111827; --ink-2: #374151; --ink-3: #6B7280; --ink-4: #9CA3AF;
+      --border: #E5E7EB; --border-2: #D1D5DB; --surface: #F9FAFB; --surface-2: #F3F4F6;
+      --white: #FFFFFF; --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+      --radius: 10px; --radius-sm: 6px; --radius-lg: 16px; --radius-xl: 22px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: var(--sans); color: var(--ink); background: #fff;
+      line-height: 1.75; font-size: 16px; max-width: 880px; margin: 0 auto; padding: 48px 32px 100px;
+    }
+    .module-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--brand-light); color: var(--brand-dark);
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .module-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+      line-height: 1.15; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.02em;
+    }
+    .module-title .highlight { color: var(--brand); }
+    .module-subtitle {
+      font-size: 17px; color: var(--ink-3); font-weight: 400;
+      margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+    }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 52px; padding-bottom: 32px; border-bottom: 2px solid var(--border);
+    }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--ink-2);
+    }
+    .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+    .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+    .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+
+    .section-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--brand); margin-bottom: 10px; margin-top: 52px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .section-title {
+      font-size: 24px; font-weight: 800; color: var(--ink);
+      margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+    }
+    h3 { font-size: 18px; font-weight: 700; color: var(--ink); margin: 28px 0 12px; }
+    p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+    p strong { color: var(--ink); font-weight: 700; }
+    ul, ol { color: var(--ink-2); margin: 0 0 16px 20px; font-size: 15px; line-height: 1.8; }
+    li { margin-bottom: 6px; }
+
+    .callout {
+      border-radius: var(--radius-lg); padding: 20px 24px;
+      margin: 24px 0; border-left: 4px solid;
+    }
+    .callout-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .callout p { font-size: 15px; margin: 0; }
+    .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+    .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+    .callout.key .callout-label     { color: var(--brand-dark); }
+    .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+    .callout.insight .callout-label { color: var(--teal); }
+    .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+    .callout.analogy .callout-label { color: #92400E; }
+    .callout.story .callout-label   { color: #92400E; }
+
+    .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .obj-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+    .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+    .w5-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 20px 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+    .w5-row { display: grid; grid-template-columns: 110px 1fr; border-bottom: 1px solid var(--border); }
+    .w5-row:last-child { border-bottom: none; }
+    .w5-label-cell {
+      background: var(--brand-light); padding: 18px 16px;
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      border-right: 1px solid #C4B5F5;
+    }
+    .w5-letter { font-size: 22px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .w5-word   { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-dark); margin-top: 2px; }
+    .w5-content { padding: 16px 20px; }
+    .w5-q { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .w5-a { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .diagram-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0; overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px; text-align: center;
+    }
+    .diagram-wrap pre {
+      font-family: var(--mono); font-size: 13px; line-height: 1.65;
+      color: var(--ink-2); white-space: pre; margin: 0;
+    }
+    .diagram-caption {
+      font-size: 12px; color: var(--ink-4); text-align: center; margin-top: 16px; font-style: italic;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .feature-num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: white;
+      font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .feature-content { flex: 1; }
+    .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    .compare-table thead th {
+      padding: 12px 16px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; text-align: left; border-bottom: 2px solid var(--border);
+    }
+    .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+    .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+    .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+    .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+    .compare-table tbody tr:hover td { background: var(--surface); }
+    .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+    .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+    .compare-table .good { color: var(--green); font-weight: 600; }
+    .compare-table .bad  { color: var(--red);   font-weight: 600; }
+    .compare-table .mid  { color: var(--orange); font-weight: 600; }
+
+    .code-snippet {
+      background: #1e1e2e; color: #cdd6f4; font-family: var(--mono);
+      border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+      overflow-x: auto; font-size: 13px; line-height: 1.5;
+    }
+    .code-snippet pre { margin: 0; white-space: pre; }
+
+    .assessment-section { margin-top: 64px; }
+    .assessment-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+    .marks-total-badge {
+      background: white; border-radius: 10px; padding: 10px 20px; text-align: center; flex-shrink: 0;
+    }
+    .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+    .assessment-body {
+      border: 2px solid var(--border); border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden;
+    }
+
+    .q-section-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+    .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+    .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+    .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+    .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .q-badge {
+      background: var(--brand); color: white; font-size: 11px; font-weight: 700;
+      padding: 4px 10px; border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+    .q-diff {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+    }
+    .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+    .q-diff.medium { background: var(--accent-light); color: #92400E; }
+    .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+    .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+    .q-text { font-size: 15.5px; font-weight: 600; color: var(--ink); margin-bottom: 18px; line-height: 1.6; }
+    .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+    .options li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 16px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2); line-height: 1.5;
+    }
+    .options li.correct { border-color: var(--green); background: var(--green-light); color: var(--ink); }
+    .opt-key {
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+    }
+    .options li.correct .opt-key { color: var(--green); }
+
+    .answer-box {
+      background: var(--green-light); border: 1.5px solid #86EFAC;
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+    }
+    .answer-box-label {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+    .answer-box p strong { color: var(--ink); }
+    .answer-box .marks-bd {
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC; font-size: 13px; color: #14532D;
+    }
+    .answer-box .marks-bd span { font-weight: 700; }
+
+    .tf-box {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+    }
+    .tf-verdict {
+      display: inline-block; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+    }
+    .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+    .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+    .tf-must-write {
+      font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+      text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+    }
+    .tf-sample {
+      font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+      border-left: 3px solid var(--brand); padding-left: 12px;
+    }
+
+    .score-summary {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+      border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+    }
+    .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .score-row span { color: #C4B5F5; font-weight: 400; }
+    .score-badge {
+      background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+    }
+    .score-badge .score-num  { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+    .score-badge .score-text { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    .page-footer {
+      text-align: center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);
+    }
+    .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .glossary-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .highlight-strip {
+      background: var(--brand); color: white;
+      border-radius: var(--radius); padding: 16px 22px; margin: 20px 0;
+      font-size: 15px; font-weight: 600; line-height: 1.6;
+    }
+    .highlight-strip strong { font-weight: 800; }
+
+    @media (max-width: 640px) {
+      body { padding: 28px 18px 72px; }
+      .obj-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .glossary-grid { grid-template-columns: 1fr; }
+      .module-title { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="module-badge">🧪 Module 16 &nbsp;·&nbsp; Sub-Module 16.5</div>
+<h1 class="module-title">Independent Exercise: <span class="highlight">ZK Age Verification</span></h1>
+<p class="module-subtitle">Build a zero-knowledge circuit that proves you are over 18 - without revealing your exact birthdate, Aadhaar number, or even your name. From Circom to a working proof on MST.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ 50 Minutes</div>
+  <div class="meta-chip purple">🎯 25 Marks</div>
+  <div class="meta-chip">📋 8 MCQ + 1 True/False with Justification + 1 Descriptive Design + 1 Coding Challenge</div>
+  <div class="meta-chip green">Phase 3 · AI, Identity & Privacy</div>
+</div>
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<div class="section-label">01 &nbsp; Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+  <div class="obj-card">
+    <div class="obj-icon">🔢</div>
+    <div class="obj-text">
+      <strong>Model age verification as a cryptographic problem</strong>
+      Convert the real-world requirement "prove age ≥ 18" into a set of arithmetic constraints suitable for a ZK circuit.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">✍️</div>
+    <div class="obj-text">
+      <strong>Write a complete Circom circuit for range proofs</strong>
+      Implement a circuit that takes a birthdate and today's date as private inputs and outputs a single bit: 1 if age ≥ 18, else 0.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🔏</div>
+    <div class="obj-text">
+      <strong>Generate and verify a Groth16 proof</strong>
+      Use the Circom + snarkjs toolchain to produce a proof that can be verified on-chain (MST) without revealing the birthdate.
+    </div>
+  </div>
+  <div class="obj-card">
+    <div class="obj-icon">🇮🇳</div>
+    <div class="obj-text">
+      <strong>Integrate with Indian identity systems</strong>
+      Design the complete flow where a user proves age from a DigiLocker/Aadhaar-issued VC, using SARAL for DID management.
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: REAL-WORLD INTRODUCTION STORY -->
+<div class="section-label">02 &nbsp; Real-World Introduction Story</div>
+<h2 class="section-title">The Bar That Asked for Aadhaar - and Got Sued</h2>
+
+<div class="callout story">
+  <div class="callout-label">📖 Story</div>
+  <p>In 2025, a popular microbrewery in Bengaluru introduced a digital ID check at the entrance. Patrons had to scan their Aadhaar QR code; the system would verify age and allow entry. Within a month, a privacy activist filed a PIL: the bar now possessed a database of Aadhaar numbers, names, and birthdates of thousands of customers - linked to their drinking habits. The Supreme Court, recalling its 2017 right-to-privacy judgment, ordered the bar to delete the data and find a less invasive method. The bar's dilemma was real: how do you verify someone is over 18 without collecting their birthdate? The answer: <strong>Zero-Knowledge Age Verification</strong>.</p>
+  <br>
+  <p>Here's how it works with MST. The customer opens their SARAL wallet, which holds a Verifiable Credential issued by UIDAI (or DigiLocker) containing their birthdate. At the bar, the customer does not show the credential or reveal any data. Instead, their wallet generates a <strong>ZK proof</strong> that the statement "I am ≥ 18 years old" is true, given the birthdate in the credential and today's date. The proof is a tiny blob (~200 bytes) that the bar's tablet verifies in milliseconds. The bar learns exactly one bit: "This person is an adult." It learns nothing else - not the birthdate, not the Aadhaar number, not even the exact age. The customer's privacy is preserved; the bar's legal obligation is satisfied. The activist withdraws the PIL.</p>
+  <br>
+  <p>This sub-module is your hands-on exercise to build that circuit. You will write the Circom code that proves age ≥ 18, generate a Groth16 proof, and understand how this primitive integrates with MST's identity layer. By the end, you will have a working ZK circuit that you can use as the foundation for any privacy-preserving eligibility check - voting, alcohol sales, driving licences, senior citizen discounts, and more.</p>
+</div>
+
+<!-- SECTION 3: BACKGROUND — RANGE PROOFS & AGE VERIFICATION -->
+<div class="section-label">03 &nbsp; Background &amp; Mathematics</div>
+<h2 class="section-title">From Dates to Arithmetic Circuits</h2>
+<p>Age verification is a classic <strong>range proof</strong> problem. You need to prove that a hidden number <em>birthDate</em> (expressed as days since a reference point, e.g., Unix epoch) satisfies the inequality:</p>
+<div class="diagram-wrap">
+  <pre>todayDate − birthDate ≥ 6570 days  (≈ 18 years × 365 days, simplified)</pre>
+</div>
+<p>In a ZK circuit, we cannot directly use inequality (<code>&lt;</code>, <code>&gt;</code>) because they are not natively supported in R1CS (Rank-1 Constraint System). Instead, we perform the subtraction and then prove that the result is less than some maximum bound and that no underflow occurred. The standard approach is to use a <strong>comparator circuit</strong> that decomposes the numbers into bits and checks the subtraction using a <strong>LessThan</strong> template from circomlib.</p>
+
+<div class="callout insight">
+  <div class="callout-label">💡 Why 6570 days?</div>
+  <p>We can choose any reference point, but using a fixed <strong>threshold date</strong> simplifies the circuit. For example, if today is 01-Jan-2026, the threshold for being 18 is 01-Jan-2008. Instead of computing the difference between two dynamic dates, we pre-compute the threshold date and prove that <code>birthDate ≤ thresholdDate</code>. This is a simpler inequality to express in a circuit. However, for generality, we'll build a circuit that takes <code>today</code> and <code>birthDate</code> as inputs and computes the difference, then checks it's ≥ 6570. Both approaches are valid; the fixed-threshold method is more gas-efficient because the threshold can be a hardcoded constant.</p>
+</div>
+
+<h3>3.1 The LessThan Template</h3>
+<p>Circomlib provides a <code>LessThan(n)</code> template that takes two n-bit numbers and outputs 1 if the first is strictly less than the second. Internally, it uses a long subtraction with bit decomposition and a check that the final borrow is 0. You will use this template. For age verification, we need to check that <code>today - birthDate >= 6570</code>. We can compute <code>diff = today - birthDate</code> and then check that <code>6570 - 1 < diff</code> (i.e., <code>diff >= 6570</code>). To avoid negative numbers, we first assert that <code>today >= birthDate</code> using another LessThan call. This is a crucial step: if birthDate is in the future, the proof must fail.</p>
+
+<h3>3.2 Preventing Date Manipulation</h3>
+<p>The circuit's public output is a single bit <code>isAdult</code>. The verifier (the bar's tablet) must be convinced that the proof was generated with the correct <code>today</code>. If the prover can choose an arbitrary <code>today</code>, they could set it to a future date and appear older. The solution is to bind <code>today</code> to a trusted timestamp. In practice, the verifier provides the current date as a public input to the circuit, or the circuit uses the blockchain's <code>block.timestamp</code> (with caveats about miner manipulation). In our exercise, we'll make <code>today</code> a public input that the verifier checks against a recent block timestamp or a trusted server.</p>
+
+<!-- SECTION 4: TECHNICAL DEEP DIVE — BUILDING THE CIRCUIT -->
+<div class="section-label">04 &nbsp; Technical Deep Dive</div>
+<h2 class="section-title">The AgeVerification Circuit in Circom</h2>
+
+<p>Let's write the circuit step-by-step. We'll use a reference point of days since 01-Jan-1970 (Unix epoch). The inputs will be:</p>
+<ul>
+  <li><strong>Private inputs:</strong> <code>birthDay</code> (the user's birthdate as days since epoch).</li>
+  <li><strong>Public inputs:</strong> <code>today</code> (the current date in days since epoch), <code>threshold</code> (the minimum required age in days, e.g., 6570).</li>
+  <li><strong>Output:</strong> <code>isAdult</code> (1 if age ≥ threshold days, else 0).</li>
+</ul>
+<p>The circuit must enforce:</p>
+<ol>
+  <li><code>today >= birthDay</code> (the user cannot be born in the future).</li>
+  <li><code>diff = today - birthDay</code>.</li>
+  <li><code>isAdult = (diff >= threshold) ? 1 : 0</code>.</li>
+</ol>
+
+<div class="code-snippet">
+  <div class="diagram-title">Circom Circuit for Age Verification</div>
+<pre>pragma circom 2.0.0;
+
+include "circomlib/circuits/comparators.circom";
+
+template AgeVerification() {
+    // Private input: user's birthdate (days since epoch)
+    signal input birthDay;
+
+    // Public inputs: current date and age threshold in days
+    signal input today;
+    signal input threshold;
+
+    // Output: 1 if age >= threshold days, else 0
+    signal output isAdult;
+
+    // 1. Ensure today >= birthDay
+    // Using LessThan to check that birthDay < today (strictly) OR equal.
+    // LessThan(32) checks if birthDay < today; if so, out=1.
+    component birthBeforeToday = LessThan(32);
+    birthBeforeToday.in[0] <== birthDay;
+    birthBeforeToday.in[1] <== today;
+    // If birthDay == today, LessThan returns 0. We need to allow equality.
+    // So we add an equality check: birthDay == today → also valid.
+    component isEqual = IsEqual();
+    isEqual.in[0] <== birthDay;
+    isEqual.in[1] <== today;
+    // Valid if birthBeforeToday.out == 1 OR isEqual.out == 1
+    signal validBirth <== birthBeforeToday.out + isEqual.out;
+    validBirth === 1;  // must hold
+
+    // 2. Compute difference
+    signal diff <== today - birthDay;
+
+    // 3. Check diff >= threshold
+    // To prove diff >= threshold, we check that threshold - 1 < diff.
+    // That is, (threshold - 1) is strictly less than diff.
+    // We need to handle threshold=0 case separately (unlikely).
+    signal thresholdMinusOne <== threshold - 1;
+    component ageCheck = LessThan(32);
+    ageCheck.in[0] <== thresholdMinusOne;
+    ageCheck.in[1] <== diff;
+    // If ageCheck.out == 1, then threshold-1 < diff, so diff >= threshold.
+    isAdult <== ageCheck.out;
+}
+
+component main {public [today, threshold]} = AgeVerification();</pre>
+</div>
+
+<h3>4.1 Explanation of Constraints</h3>
+<p><strong>Birthdate validity:</strong> The <code>validBirth</code> signal is the sum of the LessThan output and the equality output. Since both are boolean (0 or 1), their sum is 1 only if exactly one condition holds (or both if birthDay < today and birthDay == today is impossible). Actually if birthDay < today, LessThan gives 1, IsEqual gives 0, sum=1. If birthDay == today, LessThan gives 0, IsEqual gives 1, sum=1. If birthDay > today (future), both give 0, sum=0, and the constraint <code>validBirth === 1</code> fails. Perfect.</p>
+<p><strong>Difference:</strong> The subtraction <code>today - birthDay</code> is safe because we have already proven <code>birthDay <= today</code>, so no underflow.</p>
+<p><strong>Age threshold:</strong> To check <code>diff >= threshold</code>, we use the trick: <code>threshold - 1 < diff</code>. If <code>threshold - 1</code> is strictly less than <code>diff</code>, then <code>diff</code> is at least <code>threshold</code>. The LessThan component outputs 1 if the first input is less than the second. So we set <code>ageCheck.in[0] = thresholdMinusOne</code> and <code>ageCheck.in[1] = diff</code>. If <code>thresholdMinusOne < diff</code>, out=1, and <code>isAdult = 1</code>. If <code>diff == threshold - 1</code>, then thresholdMinusOne is not less, out=0, isAdult=0 - exactly what we want (age is not yet 18 if exactly 17 years and 364 days).</p>
+
+<h3>4.2 Generating the Proof with snarkjs</h3>
+<p>After writing the circuit, you compile it to an R1CS, generate a proving key, and use snarkjs to produce a Groth16 proof. The verifier contract on MST will check the proof with the public inputs <code>today</code> and <code>threshold</code>. The verifier does not see <code>birthDay</code>.</p>
+
+<div class="diagram-wrap">
+  <div class="diagram-title">FIGURE 16.5-A · Full ZK Age Verification Flow</div>
+  <pre>
+  ┌──────────────┐      ┌──────────────┐      ┌──────────────────┐
+  │ User's SARAL  │      │ Verifier App  │      │ MST Verifier     │
+  │ Wallet        │      │ (Bar Tablet)  │      │ Contract (on‑chain)│
+  └──────┬───────┘      └──────┬───────┘      └────────┬─────────┘
+         │                     │                         │
+         │ 1. Request today's  │                         │
+         │    date from verifier│                         │
+         │◄────────────────────│                         │
+         │                     │                         │
+         │ 2. Generate proof:  │                         │
+         │   Private: birthDay │                         │
+         │   Public: today,    │                         │
+         │   threshold=6570    │                         │
+         │                     │                         │
+         │ 3. Send proof +     │                         │
+         │    public inputs    │                         │
+         │─────────────────────▶                         │
+         │                     │ 4. Verify proof on‑chain │
+         │                     │─────────────────────────▶
+         │                     │                         │
+         │                     │ 5. Contract returns      │
+         │                     │    true/false            │
+         │                     │◄─────────────────────────│
+         │                     │                         │
+         │ 6. Access granted   │                         │
+         │   (isAdult == 1)    │                         │
+  </pre>
+  <div class="diagram-caption">The verifier contract only learns the public inputs and the proof. Birthdate remains completely hidden. The contract can be a simple Groth16 verifier, pre-deployed on MST.</div>
+</div>
+
+<!-- SECTION 5: INTEGRATION WITH INDIAN IDENTITY STACK -->
+<div class="section-label">05 &nbsp; Integration with Indian Identity Systems</div>
+<h2 class="section-title">From Aadhaar XML to ZK Proof</h2>
+<p>The circuit above assumes <code>birthDay</code> is already extracted from a trusted credential. In practice, the user's Aadhaar XML (or DigiLocker VC) contains the birthdate in YYYY-MM-DD format. The SARAL wallet can parse this, convert it to days-since-epoch, and feed it into the circuit. Importantly, the user must also prove that the <code>birthDay</code> used in the circuit corresponds to the birthdate in the credential - otherwise they could input any birthdate. This requires a <strong>linked proof</strong>: the circuit also takes as private input the Aadhaar VC and its signature, verifies the signature inside the circuit, and extracts the birthdate. That's more complex, but for simplicity, in this exercise we assume the wallet has already authenticated the credential, and we only prove age from the extracted birthdate. In production, you'd combine the VC verification and age proof into one circuit.</p>
+
+<p>MST's SARAL protocol can store the birthdate VC in the wallet, and the wallet's WASMify module can handle the conversion and proof generation. The verifier contract on MST can be invoked by any dApp (bar, liquor shop, voting booth) with a simple call to <code>verifyAgeProof(proof, pubInputs)</code>.</p>
+
+<!-- SECTION 6: COMMON PITFALLS & BEST PRACTICES -->
+<div class="section-label">06 &nbsp; Common Pitfalls &amp; Best Practices</div>
+<h2 class="section-title">What Can Go Wrong - and How to Avoid It</h2>
+<div class="feature-list">
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Missing equality check</div>
+      <div class="feature-desc">If you only use LessThan to check birthDay < today, a user born exactly at midnight today (age 0) could pass as adult. Always include an equality check or use a combination to allow birthDate <= today.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Using today provided by prover</div>
+      <div class="feature-desc">If the verifier doesn't check that <code>today</code> matches the actual current date, a prover can supply a future date and appear older. Always make <code>today</code> a public input that the verifier provides or checks against a trusted source.</div>
+    </div>
+  </div>
+  <div class="feature-item">
+    <div class="feature-num" style="background: var(--red);">⚠️</div>
+    <div class="feature-content">
+      <div class="feature-title">Integer overflow</div>
+      <div class="feature-desc">Days-since-epoch for a birthdate in 1970 is small, but for safety use 64-bit numbers (the LessThan template parameter). Circom signals are field elements (prime p ~ 2^254), so overflow is not a risk, but bit-width affects constraints.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 7: ASSESSMENT PREPARATION -->
+<div class="section-label">07 &nbsp; Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+<div class="feature-list">
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Range proof:</div><div class="feature-desc">Proving that a hidden number lies within a range without revealing it. Age verification uses a range proof: age ∈ [18, ∞).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">LessThan template:</div><div class="feature-desc">From circomlib, checks a < b for n‑bit numbers. Used to build comparisons. For >=, use (threshold-1) < x.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">Public vs Private inputs:</div><div class="feature-desc">Birthdate is private; today and threshold are public. The verifier must enforce today's value. Public inputs are visible to the verifier but not necessarily to the blockchain (unless output).</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">Groth16 proof:</div><div class="feature-desc">~200 bytes, verification in ~1ms. Requires a trusted setup ceremony. MST's verifier contract uses pre-compiled pairing checks.</div></div></div>
+  <div class="feature-item"><div class="feature-num" style="background: var(--ink-3);">05</div><div class="feature-content"><div class="feature-title">Binding to VC:</div><div class="feature-desc">In production, the circuit also verifies the VC signature to ensure the birthdate is from an authorised issuer (UIDAI). This can be done by hashing the VC and checking against the issuer's public key.</div></div></div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+  <div class="assessment-header">
+    <h2>📝 Sub-Module 16.5 Assessment</h2>
+    <div class="marks-total-badge"><div class="num">25</div><div class="label">Total Marks</div></div>
+  </div>
+  <div class="assessment-body">
+    <!-- SECTION A: MCQ 8 × 1 = 8 marks -->
+    <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">8 Questions · 1 mark each · 8 marks total</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">What does a ZK age verification circuit prove without revealing the birthdate?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>That the person's age is at least a specified threshold (e.g., 18) ✅</li>
+        <li><span class="opt-key">B</span>The exact age of the person in years</li>
+        <li><span class="opt-key">C</span>The person's Aadhaar number</li>
+        <li><span class="opt-key">D</span>That the person is a citizen of India</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The circuit outputs a single bit: 1 if age ≥ threshold, else 0. No other information is revealed.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the Circom circuit, which template is used to compare two numbers?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span><code>LessThan</code> from circomlib ✅</li>
+        <li><span class="opt-key">B</span><code>GreaterThan</code></li>
+        <li><span class="opt-key">C</span><code>Poseidon</code></li>
+        <li><span class="opt-key">D</span><code>MerkleProof</code></li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>circomlib provides <code>LessThan</code> for inequality checks. There's no native <code>GreaterThan</code>; we can build one using LessThan with swapped inputs.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Why must the circuit include a check that <code>today >= birthDay</code>?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>To prevent a user from using a future birthdate to appear older ✅</li>
+        <li><span class="opt-key">B</span>To satisfy the Groth16 trusted setup</li>
+        <li><span class="opt-key">C</span>To reduce gas costs</li>
+        <li><span class="opt-key">D</span>To align with India's DPDPA</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>If a user provides a birthdate in the future, the subtraction <code>today - birthDay</code> would underflow (in a normal system) or produce a negative number. In the field, underflow wraps around, so the result could be a huge positive number, falsely proving age. The check prevents this.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the circuit, to prove <code>diff >= threshold</code>, we check that <code>threshold - 1 < diff</code>. What happens if <code>threshold</code> is 0?</div>
+      <ul class="options">
+        <li><span class="opt-key">A</span>The circuit fails to compile</li>
+        <li class="correct"><span class="opt-key">B</span>It underflows: <code>0 - 1</code> wraps around to the field's maximum value, potentially causing false proofs ✅</li>
+        <li><span class="opt-key">C</span>It works correctly, proving age >= 0</li>
+        <li><span class="opt-key">D</span>The LessThan template automatically handles it</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>In a finite field, <code>threshold - 1</code> when threshold=0 becomes <code>p - 1</code>, a huge number. The check would incorrectly pass. Always ensure threshold > 0, or handle the edge case separately.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q5</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">Which tool is used to generate a Groth16 proof from a compiled Circom circuit?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>snarkjs ✅</li>
+        <li><span class="opt-key">B</span>Hardhat</li>
+        <li><span class="opt-key">C</span>Remix</li>
+        <li><span class="opt-key">D</span>MetaMask</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>snarkjs handles trusted setup, proof generation, and verification for Groth16. Hardhat is for Solidity; Remix is an IDE; MetaMask is a wallet.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q6</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">How does the verifier (bar tablet) ensure the proof was generated with the correct current date?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>It provides <code>today</code> as a public input and checks it against a trusted source ✅</li>
+        <li><span class="opt-key">B</span>The proof includes a timestamp from the user's wallet</li>
+        <li><span class="opt-key">C</span>The circuit hardcodes the date</li>
+        <li><span class="opt-key">D</span>The verifier trusts the user's input</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p><code>today</code> is a public input that the verifier must set and validate. If the verifier accepts any today from the prover, the prover can cheat.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q7</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">In the circuit, why do we use both <code>LessThan</code> and <code>IsEqual</code> to check <code>birthDay <= today</code>?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>Because <code>LessThan</code> alone returns false if the numbers are equal, which would incorrectly reject a user born exactly at midnight ✅</li>
+        <li><span class="opt-key">B</span>To improve gas efficiency</li>
+        <li><span class="opt-key">C</span>To satisfy the R1CS constraint system's requirements</li>
+        <li><span class="opt-key">D</span>To allow the proof to be verified on older versions of Solidity</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p><code>LessThan</code> strictly checks <code>a < b</code>. To allow equality, we need to also check <code>a == b</code> and accept either condition.</p></div>
+    </div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q8</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff hard">Hard</span><span class="q-marks">1 mark</span></div></div>
+      <div class="q-text">If the user's birthdate is 20 years ago, and today is the current date, what is the approximate number of constraints in the LessThan(32) component?</div>
+      <ul class="options">
+        <li class="correct"><span class="opt-key">A</span>About 2500 constraints ✅</li>
+        <li><span class="opt-key">B</span>Exactly 32 constraints</li>
+        <li><span class="opt-key">C</span>Zero constraints (it's a built-in)</li>
+        <li><span class="opt-key">D</span>Depends on the value of the inputs</li>
+      </ul>
+      <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: A</div><p>The LessThan template internally decomposes the numbers into bits and uses a series of comparisons, resulting in approximately O(n) constraints where n is the bit length. For n=32, it's roughly 2500 constraints.</p></div>
+    </div>
+
+    <!-- SECTION B: T/F with Justification 2 marks -->
+    <div class="q-section-header"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question · 2 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q9</div><div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+      <div class="q-text">"In the ZK age verification circuit, the user's birthdate is a public input so that the verifier can confirm it matches the Aadhaar record."</div>
+      <div class="tf-box">
+        <div class="tf-verdict false">FALSE</div>
+        <div class="tf-must-write">📝 Sample Justification:</div>
+        <div class="tf-sample"><strong>FALSE.</strong> The birthdate must be a <strong>private</strong> input to preserve privacy. If it were public, anyone verifying the proof would learn the exact birthdate, defeating the purpose. The verifier only learns the result (isAdult) and the public inputs (today, threshold). The birthdate remains hidden. The verifier does not need to see the birthdate to trust the proof; the cryptographic construction ensures that the proof is valid only if the birthdate satisfies the inequality.</div>
+      </div>
+      <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE.<br><strong>+1 mark:</strong> Explains that birthdate is private to preserve confidentiality, and that the verifier relies on the proof, not direct inspection.</p></div>
+    </div>
+
+    <!-- SECTION C: Descriptive Design 5 marks -->
+    <div class="q-section-header"><div class="q-section-title">Section C - Descriptive Design Question</div><div class="q-section-meta">1 Question · 5 marks</div></div>
+    <div class="question-block">
+      <div class="q-header"><div class="q-badge">Q10</div><div class="q-meta"><span class="q-type">Descriptive Design</span><span class="q-diff hard">Hard</span><span class="q-marks">5 marks</span></div></div>
+      <div class="q-text">Design a complete privacy-preserving age verification system for Indian liquor shops using MST, SARAL, and ZK proofs. Your answer must include:<br>
+        (a) How the user's age is proved without revealing their Aadhaar or birthdate. (2 marks)<br>
+        (b) How the system prevents a minor from using a fake proof or a stolen Aadhaar XML. (2 marks)<br>
+        (c) How the shop's compliance with excise laws can be audited without exposing customer identities. (1 mark)</div>
+      <div class="answer-box">
+        <div class="answer-box-label">📝 Model Answer Outline</div>
+        <p><strong>(a) Proof Generation (2 marks):</strong> The user's SARAL wallet holds a Verifiable Credential (VC) from UIDAI/DigiLocker containing their birthdate. At the shop, the wallet generates a ZK proof using the AgeVerification circuit. The private input is the birthdate (extracted from the VC). The public inputs are today's date (provided by the shop's tablet) and the threshold (18 years). The proof is sent to the shop. The shop's tablet verifies it using an MST on-chain verifier contract or a local Groth16 verifier. The shop sees only the boolean result; no birthdate or Aadhaar number is transmitted.</p>
+        <p><strong>(b) Anti-Fraud Measures (2 marks):</strong> 1. The ZK proof is bound to the user's DID - the circuit also proves that the user knows the private key corresponding to the DID that the VC was issued to. This prevents a stolen Aadhaar XML from being used by a different person, because the prover must sign the proof with their DID's private key. 2. The wallet checks the VC's digital signature (UIDAI's) before feeding the birthdate into the circuit; this happens inside the SARAL secure enclave, preventing tampering. 3. The shop's tablet queries an on-chain revocation registry to ensure the VC hasn't been revoked by UIDAI.</p>
+        <p><strong>(c) Audit Trail (1 mark):</strong> The shop's tablet records an encrypted log entry on MST: {timestamp, proofHash, isAdult, shopDID}. The log entry is encrypted under a threshold key shared among the Excise Department and the Data Protection Authority. The department can run a ZK compliance proof that "all sales had valid age proofs" without decrypting individual logs. Only in a specific investigation would a log be decrypted, preserving privacy while meeting regulatory requirements.</p>
+        <div class="marks-bd"><span>Total 5 marks.</span></div>
+      </div>
+    </div>
+
+    <!-- SECTION D: Coding Challenge 10 marks -->
+    <div class="q-section-header"><div class="q-section-title">Section D - Coding Challenge</div><div class="q-section-meta">1 Question · 10 marks</div></div>
+    <div class="question-block" style="padding-bottom:28px;">
+      <div class="q-header"><div class="q-badge">Q11</div><div class="q-meta"><span class="q-type">Code Completion (Circom) + Explanation</span><span class="q-diff hard">Hard</span><span class="q-marks">10 marks</span></div></div>
+      <div class="q-text">
+        Complete the following Circom circuit for age verification. The circuit must:
+        <br> -  Accept private input: <code>birthDay</code> (days since epoch).
+        <br> -  Accept public inputs: <code>today</code>, <code>threshold</code>.
+        <br> -  Output <code>isAdult</code> = 1 if <code>today - birthDay >= threshold</code>, else 0.
+        <br> -  Ensure <code>birthDay <= today</code> (no future birthdates).
+        <br>Fill in the missing parts marked with <code>// TODO</code>. Then, in a separate written answer (max 200 words), explain how you would modify the circuit to also prove that the <code>birthDay</code> was extracted from a valid Aadhaar-issued VC (i.e., link the birthdate to a signed credential).
+      </div>
+      <div class="code-snippet"><pre>pragma circom 2.0.0;
+include "circomlib/circuits/comparators.circom";
+
+template AgeVerification() {
+    signal input birthDay;
+    signal input today;
+    signal input threshold;
+    signal output isAdult;
+
+    // TODO: Check that birthDay <= today
+    // Use LessThan and IsEqual as described
+    // component birthCheck = LessThan(32);
+    // ...
+    // signal validBirth <== ...;
+    // validBirth === 1;
+
+    // TODO: Compute difference
+    // signal diff <== ...;
+
+    // TODO: Check diff >= threshold
+    // Use LessThan on threshold-1 and diff
+    // isAdult <== ...;
+}
+
+component main {public [today, threshold]} = AgeVerification();</pre></div>
+      <div class="answer-box">
+        <div class="answer-box-label">📊 Marking Rubric (10 marks)</div>
+        <p><strong>Circuit Completion (7 marks):</strong><br>Correctly instantiates LessThan and IsEqual for birthdate check (2 marks).<br>Computes <code>validBirth</code> as sum and constrains to 1 (1 mark).<br>Computes <code>diff = today - birthDay</code> (1 mark).<br>Instantiates LessThan for threshold-1 < diff (1 mark).<br>Sets <code>isAdult</code> to output of that LessThan (1 mark).<br>All signal assignments use <code>&lt;==</code> or <code>===</code> correctly (1 mark).<br><br>
+          <strong>Written Explanation (3 marks):</strong><br>Mentions including the VC's signature verification inside the circuit: e.g., taking the VC as an additional private input, hashing it, and checking the signature against the issuer's public key (retrieved from DID Document). (1 mark)<br>Explains that the birthdate is extracted from the VC's claims and that the circuit constrains that the <code>birthDay</code> used in the age proof equals the birthdate in the verified VC. (1 mark)<br>Optionally mentions using a nullifier to prevent reuse of the same VC. (1 mark)</p>
+        <div class="marks-bd"><span>Total 10 marks.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="score-left">
+      <div class="score-label">Sub-Module 16.5 Assessment Summary</div>
+      <div class="score-row">Section A: 8 × MCQ <span>(1 mark each) = 8 marks</span></div>
+      <div class="score-row">Section B: 1 × True/False with Justification <span>(2 marks) = 2 marks</span></div>
+      <div class="score-row">Section C: 1 × Descriptive Design <span>(5 marks) = 5 marks</span></div>
+      <div class="score-row">Section D: 1 × Coding Challenge <span>(10 marks) = 10 marks</span></div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">25</div>
+      <div class="score-text">Total Marks</div>
+    </div>
+  </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">08 &nbsp; Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 16.5</h2>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="glossary-term">Range Proof</div><div class="glossary-def">A cryptographic proof that a secret number lies within a specific range without revealing the number itself. Age verification is a one-sided range proof (≥ threshold).</div></div>
+  <div class="glossary-item"><div class="glossary-term">LessThan Template</div><div class="glossary-def">A Circom template that proves a < b for two n‑bit numbers. Foundation of inequality checks in ZK circuits.</div></div>
+  <div class="glossary-item"><div class="glossary-term">snarkjs</div><div class="glossary-def">JavaScript/WASM library for trusted setup, proof generation, and verification of Groth16 zk-SNARKs, compatible with Circom outputs.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Public Input</div><div class="glossary-def">A value that is known to both prover and verifier. In age verification, today and threshold are public; birthdate is private.</div></div>
+  <div class="glossary-item"><div class="glossary-term">Groth16</div><div class="glossary-def">A widely used zk-SNARK proving system with very small proofs (~200 bytes) and millisecond verification, requiring a circuit-specific trusted setup.</div></div>
+  <div class="glossary-item"><div class="glossary-term">VC-Binding</div><div class="glossary-def">The technique of proving that a ZK circuit's private inputs are derived from a valid Verifiable Credential, preventing input forgery.</div></div>
+</div>
+
+<div class="page-footer">
+  <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+  <p>Module 16 · Sub-Module <strong>16.5</strong> &nbsp;·&nbsp; End of Module 16 - Congratulations! Next: Module 17 - Post-Quantum Security →</p>
+</div>
+</body>
+</html>

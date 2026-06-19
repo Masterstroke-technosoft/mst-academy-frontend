@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 8.2 - Git & GitHub | Masterstroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+        :root {
+            --brand: #6C3CE2;
+            --brand-light: #EDE9FB;
+            --brand-dark: #3C1FA0;
+            --brand-mid: #8B5CF6;
+            --accent: #F6A623;
+            --accent-light: #FEF4E0;
+            --green: #16A34A;
+            --green-light: #DCFCE7;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --blue: #1D6FD8;
+            --blue-light: #DBEAFE;
+            --ink: #111827;
+            --ink-2: #374151;
+            --ink-3: #6B7280;
+            --ink-4: #9CA3AF;
+            --border: #E5E7EB;
+            --surface: #F9FAFB;
+            --white: #FFFFFF;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+        .module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 900;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight {
+            color: var(--brand);
+        }
+        .module-subtitle {
+            font-size: 17px;
+            color: var(--ink-3);
+            font-weight: 400;
+            margin-bottom: 28px;
+            line-height: 1.65;
+        }
+        .meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 52px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+        .meta-chip.purple {
+            background: var(--brand-light);
+            border-color: #C4B5F5;
+            color: var(--brand-dark);
+        }
+        .meta-chip.green {
+            background: var(--green-light);
+            border-color: #86EFAC;
+            color: #14532D;
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 10px;
+            margin-top: 52px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+        p {
+            color: var(--ink-2);
+            margin-bottom: 16px;
+            font-size: 15.5px;
+            line-height: 1.8;
+        }
+        p strong {
+            color: var(--ink);
+            font-weight: 700;
+        }
+        .callout {
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .callout p {
+            font-size: 15px;
+            margin: 0;
+        }
+        .callout.story {
+            background: #FAFAF5;
+            border-color: var(--accent);
+        }
+        .callout.story .callout-label {
+            color: #92400E;
+        }
+        .callout.key {
+            background: var(--brand-light);
+            border-color: var(--brand);
+        }
+        .callout.key .callout-label {
+            color: var(--brand-dark);
+        }
+        .callout.analogy {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .callout.analogy .callout-label {
+            color: #92400E;
+        }
+        .callout.insight {
+            background: #F0FDF4;
+            border-color: var(--green);
+        }
+        .callout.insight .callout-label {
+            color: var(--green);
+        }
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .feature-content {
+            flex: 1;
+        }
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--ink-2);
+            line-height: 1.6;
+        }
+        .diagram-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ink-2);
+            white-space: pre;
+            margin: 0;
+            background: transparent;
+        }
+        .diagram-caption {
+            font-size: 12px;
+            color: var(--ink-4);
+            text-align: center;
+            margin-top: 16px;
+            font-style: italic;
+        }
+        .code-block-wrap {
+            background: #1e1e1e;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .code-block-wrap pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #d4d4d4;
+            margin: 0;
+            white-space: pre;
+        }
+        details {
+            margin: 16px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        details summary {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--brand-dark);
+            cursor: pointer;
+            background: var(--brand-light);
+            list-style: none;
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary::before {
+            content: '▶ ';
+            font-size: 12px;
+        }
+        details[open] summary::before {
+            content: '▼ ';
+        }
+        details .details-content {
+            padding: 0 18px 16px;
+        }
+        .assessment-section {
+            margin-top: 64px;
+        }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+        }
+        .marks-total-badge {
+            background: white;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .marks-total-badge .num {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .marks-total-badge .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .assessment-body {
+            border: 2px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+        .q-section-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .q-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .q-section-meta {
+            font-size: 12px;
+            color: var(--ink-3);
+        }
+        .question-block {
+            padding: 28px 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            padding-bottom: 28px;
+        }
+        .q-header {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .q-badge {
+            background: var(--brand);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .q-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .q-type {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--ink-3);
+        }
+        .q-diff {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .q-diff.easy {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .q-diff.medium {
+            background: var(--accent-light);
+            color: #92400E;
+        }
+        .q-marks {
+            font-size: 12px;
+            color: var(--ink-3);
+            margin-left: auto;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .q-text {
+            font-size: 15.5px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .options li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.5;
+            cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green);
+            background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-3);
+            flex-shrink: 0;
+            margin-top: 1px;
+            min-width: 18px;
+        }
+        .options li.correct .opt-key {
+            color: var(--green);
+        }
+        .answer-box {
+            background: var(--green-light);
+            border: 1.5px solid #86EFAC;
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .answer-box p {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            margin: 0;
+        }
+        .answer-box .marks-bd {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #86EFAC;
+            font-size: 13px;
+            color: #14532D;
+        }
+        .tf-box {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .tf-verdict.true {
+            background: var(--green-light);
+            color: #14532D;
+        }
+        .tf-verdict.false {
+            background: var(--red-light);
+            color: #7F1D1D;
+        }
+        .tf-must-write {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px;
+            color: var(--ink-2);
+            line-height: 1.7;
+            border-left: 3px solid var(--brand);
+            padding-left: 12px;
+        }
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .score-label {
+            color: #C4B5F5;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .score-row {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .score-badge {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .score-badge .score-num {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--brand);
+            line-height: 1;
+        }
+        .score-badge .score-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink-3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p {
+            font-size: 13px;
+            color: var(--ink-3);
+            margin-bottom: 4px;
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .glossary-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+        .glossary-term {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 13.5px;
+            color: var(--ink-2);
+            line-height: 1.55;
+        }
+        @media(max-width:640px) {
+            body {
+                padding: 28px 18px 72px;
+            }
+            .glossary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="module-badge">🔗 Module 8 &nbsp;·&nbsp; Sub-Module 8.2 of 8</div>
+    <h1 class="module-title">Git & <span class="highlight">GitHub</span></h1>
+    <p class="module-subtitle">The version control lifeline of every developer. How Git tracks every change you make, why GitHub is the center of open-source collaboration, and how to protect your private keys while sharing your code with the world.</p>
+
+    <div class="meta-bar">
+        <div class="meta-chip">⏱ 20 Minutes</div>
+        <div class="meta-chip purple">🎯 5 Marks</div>
+        <div class="meta-chip">📋 3 MCQ + 1 True/False with Justification</div>
+        <div class="meta-chip green">Phase 2 · Development Environment & Solidity</div>
+    </div>
+
+    <!-- 1. LEARNING OBJECTIVES -->
+    <div class="section-label">01 &nbsp; Learning Objectives</div>
+    <h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0;">
+        <div class="feature-item"><div class="feature-num">🗂️</div><div class="feature-content"><strong>Explain why version control is non-negotiable</strong> in software development</div></div>
+        <div class="feature-item"><div class="feature-num">🔧</div><div class="feature-content"><strong>Execute the core Git workflow</strong> - init, add, commit, push, pull, clone</div></div>
+        <div class="feature-item"><div class="feature-num">🌿</div><div class="feature-content"><strong>Create and merge branches</strong> to work on features without breaking the main code</div></div>
+        <div class="feature-item"><div class="feature-num">🛡️</div><div class="feature-content"><strong>Protect sensitive blockchain data</strong> with .gitignore - keeping private keys, .env files, and node_modules out of public repositories</div></div>
+    </div>
+
+    <!-- 2. REAL-WORLD STORY -->
+    <div class="section-label">02 &nbsp; Real-World Story</div>
+    <h2 class="section-title">The Developer Who Pushed His Private Key to GitHub</h2>
+    <div class="callout story">
+        <div class="callout-label">📖 Story</div>
+        <p>It was 2 AM. Ravi had been coding for eight hours straight, building his first DeFi dashboard on MST. The smart contract was finished, the frontend was beautiful, and he wanted to save his work. He opened his terminal, typed <strong>git add .</strong>, then <strong>git commit -m "final version"</strong>, then <strong>git push</strong>. He went to sleep feeling accomplished.</p>
+        <br>
+        <p>When he woke up, his wallet was empty. The 0.5 ETH (about ₹1 lakh) he had in his test account was gone. An attacker had scanned GitHub for committed .env files, found Ravi's private key in plain text, and drained the wallet within hours. Ravi had forgotten one simple thing: a <strong>.gitignore</strong> file that excludes sensitive files from version control.</p>
+        <br>
+        <p>This is not a rare story. Thousands of private keys are leaked on GitHub every year. In blockchain development, where money is code and code is money, version control mistakes can be catastrophic. But Git itself is not the enemy - it's your greatest ally when used correctly. It records every change, allows you to collaborate safely, and can even help you recover from mistakes if you've committed properly. This sub-module will teach you to use Git like a professional, with the blockchain-specific precautions that will keep your funds and your career safe.</p>
+    </div>
+
+    <!-- 3. WHAT IS GIT? DEEP DIVE -->
+    <div class="section-label">03 &nbsp; What Is Git?</div>
+    <h2 class="section-title">Git - The World's Most Powerful Time Machine</h2>
+    <p>Git is a <strong>distributed version control system</strong>. It was created in 2005 by Linus Torvalds, the same person who created the Linux operating system. Before Git, the Linux kernel project used a proprietary version control system called BitKeeper. When the free license for BitKeeper was revoked, Linus decided to build his own tool - one that would be fast, distributed, and capable of handling thousands of contributors. He built Git in a single weekend.</p>
+    <p>At its core, Git is a system that <strong>takes snapshots of your project over time</strong>. Every time you "commit," Git records the exact state of every file in your project. You can travel back to any previous commit, compare changes between versions, and create parallel timelines (branches) where you experiment without affecting the main code. This is not just useful - it is essential for any software project involving more than one person.</p>
+    <p>Git is <strong>distributed</strong>, meaning every developer has a full copy of the project's history on their local machine. There is no central server that can fail and lose everything. Even if GitHub's servers went offline permanently (unlikely, but possible), you would still have the entire project history on your laptop.</p>
+
+    <div class="callout analogy">
+        <div class="callout-label">📸 The Photo Album Analogy</div>
+        <p>Think of Git like a <strong>photo album of your project</strong>. Every commit is a photograph showing exactly what the project looked like at that moment. You can flip back to any photo to see what changed. You can create a new album (branch) to experiment with a new feature. If the experiment fails, you throw away that album - the original photos are untouched. And you can share your album with others, who can add their own photos and merge them with yours.</p>
+    </div>
+
+    <details>
+        <summary>🔬 Click to expand: How Git Stores Data - Blobs, Trees, and Commits</summary>
+        <div class="details-content">
+            <p>Git's internal database is a content-addressable file system. Every file is stored as a <strong>blob</strong> (binary large object). The structure of directories is stored as <strong>tree</strong> objects. A <strong>commit</strong> object points to a tree (the root directory state), has a parent commit (except the first commit), and contains metadata like author, timestamp, and message. All objects are identified by a 40-character SHA-1 hash of their contents. This is why Git can detect corruption - if any bit changes, the hash changes, and Git knows something is wrong.</p>
+        </div>
+    </details>
+
+    <!-- 4. WHY GIT FOR BLOCKCHAIN? -->
+    <div class="section-label">04 &nbsp; Why Git for Blockchain Development?</div>
+    <h2 class="section-title">Why Version Control Is Critical for Smart Contracts</h2>
+    <p>Smart contracts are <strong>immutable</strong>. Once deployed to a blockchain, their code cannot be changed. This makes version control more important for blockchain development than for any other kind of software. When you deploy a contract, you need to know exactly which version of the code was deployed, with which compiler settings, and with which constructor arguments. Git provides this precise audit trail.</p>
+    <p>Additionally, blockchain projects are almost always <strong>open source</strong>. The culture of Web3 values transparency, and most major protocols have their code publicly visible on GitHub. This allows users to verify that the contract does what it claims, security researchers to audit the code, and other developers to learn from it. Your GitHub profile is your resume in the blockchain industry.</p>
+    <p>Furthermore, blockchain development involves <strong>many files beyond Solidity</strong>: deployment scripts, test files, configuration files (hardhat.config.js), environment variables (.env), and frontend code. Managing all these files without version control is a recipe for chaos. Git keeps everything organized and traceable.</p>
+
+    <!-- 5. INSTALLING GIT -->
+    <div class="section-label">05 &nbsp; Installation</div>
+    <h2 class="section-title">Installing Git on Windows, macOS, and Linux</h2>
+    <p>Git is likely already installed if you have been following this course. Verify by opening your terminal and typing <strong>git --version</strong>. If you see something like <strong>git version 2.43.0</strong>, you're ready. If not, follow the instructions below.</p>
+    <p><strong>Windows:</strong> Download the installer from <strong>https://git-scm.com</strong>. Run the .exe file. During installation, choose the default options, but make sure "Git Bash Here" is selected (it gives you a Unix-like terminal on Windows). On the "Adjusting your PATH environment" screen, select "Git from the command line and also from 3rd-party software."</p>
+    <p><strong>macOS:</strong> Install via Homebrew: <strong>brew install git</strong>. Or download the installer from git-scm.com. macOS may prompt you to install Xcode Command Line Tools, which includes Git.</p>
+    <p><strong>Linux (Ubuntu/Debian):</strong> <strong>sudo apt-get install git</strong>. For other distributions, use the appropriate package manager.</p>
+
+    <details>
+        <summary>🔧 Click to expand: Configuring Git - Your Identity</summary>
+        <div class="details-content">
+            <p>After installation, set your name and email. These will be attached to every commit you make:</p>
+            <pre style="font-family:var(--mono); font-size:13px; color:var(--ink-2);">git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"</pre>
+            <p>Verify with <strong>git config --list</strong>. This information is public on GitHub, so use a real email (or GitHub's noreply email for privacy: <strong>username@users.noreply.github.com</strong>).</p>
+        </div>
+    </details>
+
+    <!-- 6. THE CORE WORKFLOW – FLOWCHART -->
+    <div class="section-label">06 &nbsp; The Core Git Workflow</div>
+    <h2 class="section-title">The Four-Stage Journey of a File - From Working Directory to Remote Repository</h2>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.2-A · The Git Workflow - Working Directory → Staging → Commit → Remote</div>
+        <pre>
+┌─────────────────────────┐
+│   WORKING DIRECTORY     │  ← You edit files here (VS Code)
+│   (untracked / modified)│
+└───────────┬─────────────┘
+            │  git add &lt;file&gt;   (or git add .)
+            ▼
+┌─────────────────────────┐
+│   STAGING AREA          │  ← Files are "staged" for the next commit
+│   (index)               │     You review what will be committed
+└───────────┬─────────────┘
+            │  git commit -m "message"
+            ▼
+┌─────────────────────────┐
+│   LOCAL REPOSITORY      │  ← Commit is saved in .git folder
+│   (.git)                │     Complete snapshot of project at this point
+└───────────┬─────────────┘
+            │  git push
+            ▼
+┌─────────────────────────┐
+│   REMOTE REPOSITORY     │  ← GitHub, GitLab, or any server
+│   (origin)              │     Shared with team; backup; deployment source
+└─────────────────────────┘
+
+OTHER COMMANDS:
+  git pull     = git fetch (download changes) + git merge (integrate them)
+  git clone    = Download an entire remote repository to your machine
+  git status   = See which files are modified, staged, or untracked
+  git log      = View the history of commits
+        </pre>
+        <div class="diagram-caption">Files move through four stages. The staging area lets you control exactly which changes go into each commit.</div>
+    </div>
+
+    <p><strong>The Working Directory</strong> is simply the folder on your computer where your project files live. When you edit a file in VS Code, you are modifying files in the working directory. Git tracks these changes but does not save them yet.</p>
+    <p><strong>The Staging Area (Index)</strong> is a preparation zone. When you run <strong>git add &lt;file&gt;</strong> or <strong>git add .</strong> (add all changed files), you are telling Git: "I want these specific changes to be included in the next commit." This is powerful because it allows you to make many changes across multiple files but only commit the ones that are related to a single logical change. You should never blindly use <strong>git add .</strong> without knowing what it includes - especially in blockchain projects where sensitive files might be in the directory.</p>
+    <p><strong>The Local Repository</strong> is where commits are permanently stored. A commit is a snapshot of the entire project at that moment, along with a message describing what changed and why. You can have hundreds of commits on your local machine without ever connecting to the internet.</p>
+    <p><strong>The Remote Repository</strong> is a copy of your project hosted on a server - most commonly GitHub. Pushing your commits to a remote repository serves three purposes: backup (if your laptop dies, the code lives on), collaboration (others can see and contribute to your code), and deployment (services like Vercel can deploy directly from GitHub).</p>
+
+    <!-- 7. BASIC COMMANDS IN DEPTH -->
+    <div class="section-label">07 &nbsp; Essential Commands</div>
+    <h2 class="section-title">The Git Commands You Will Use Every Day - In Detail</h2>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <div class="feature-num">1</div>
+            <div class="feature-content">
+                <div class="feature-title">git init - Starting a New Project</div>
+                <div class="feature-desc">Run <strong>git init</strong> inside any folder to turn it into a Git repository. This creates a hidden <strong>.git</strong> folder that contains all the version control data. For blockchain projects, you typically run this right after <strong>npx hardhat init</strong>. Example: <strong>mkdir my-dapp && cd my-dapp && git init</strong>.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">2</div>
+            <div class="feature-content">
+                <div class="feature-title">git clone - Copying an Existing Project</div>
+                <div class="feature-desc">Run <strong>git clone &lt;url&gt;</strong> to download an entire repository, including its full history. For example, to clone the MST Academy starter template: <strong>git clone https://github.com/mst-academy/starter-kit.git</strong>. This creates a folder with the project and sets up the remote connection automatically.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">3</div>
+            <div class="feature-content">
+                <div class="feature-title">git status - Checking What's Changed</div>
+                <div class="feature-desc">Run <strong>git status</strong> frequently. It shows you which branch you're on, which files have been modified, which are staged for commit, and which are untracked. In blockchain projects, always run this before committing to make sure you're not accidentally including .env or private key files.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">4</div>
+            <div class="feature-content">
+                <div class="feature-title">git add - Staging Changes</div>
+                <div class="feature-desc"><strong>git add &lt;file&gt;</strong> stages a specific file. <strong>git add .</strong> stages all changes in the current directory. For blockchain projects, use specific file names or <strong>git add contracts/ test/ scripts/</strong> to avoid accidentally staging sensitive files. You can also use <strong>git add -p</strong> (patch mode) to review and stage individual chunks of changes interactively - extremely useful for careful commits.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">5</div>
+            <div class="feature-content">
+                <div class="feature-title">git commit - Creating a Snapshot</div>
+                <div class="feature-desc"><strong>git commit -m "message"</strong> creates a commit with all staged changes. Write clear, descriptive messages that explain <strong>why</strong> you made the change, not just what you did. Good: "Add ownership check to withdraw function to prevent reentrancy." Bad: "fix stuff." In blockchain, a good commit message can later help you trace when and why a security-critical change was made.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">6</div>
+            <div class="feature-content">
+                <div class="feature-title">git push - Uploading to Remote</div>
+                <div class="feature-desc"><strong>git push origin main</strong> uploads your commits to the remote repository (typically GitHub). Before pushing, always pull first to integrate any changes from collaborators. For blockchain projects, push frequently to ensure your work is backed up - losing a laptop should not mean losing your smart contracts.</div>
+            </div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-num">7</div>
+            <div class="feature-content">
+                <div class="feature-title">git pull - Downloading and Merging</div>
+                <div class="feature-desc"><strong>git pull</strong> is actually two commands combined: <strong>git fetch</strong> (which downloads changes from the remote) and <strong>git merge</strong> (which integrates those changes into your current branch). Always pull before starting work and before pushing. This prevents merge conflicts and keeps you synchronized with your team.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. BRANCHING AND MERGING -->
+    <div class="section-label">08 &nbsp; Branching & Merging</div>
+    <h2 class="section-title">Branches - Working in Parallel Without Breaking Anything</h2>
+    <p>A <strong>branch</strong> is an independent line of development. The default branch is usually called <strong>main</strong> (or <strong>master</strong> in older projects). When you want to add a new feature, fix a bug, or experiment, you create a new branch. This branch is a copy of the project at that moment. You can make changes, commit them, and even push the branch to GitHub without affecting the main branch at all. When your work is complete and tested, you merge the branch back into main.</p>
+
+    <div class="diagram-wrap">
+        <div class="diagram-title">FIGURE 8.2-B · Branching and Merging Visualized</div>
+        <pre>
+main:     ●────●────●────────────●  (merge commit)
+                │                 │
+feature:        ●────●────●───────┘
+                (create branch)   (git merge feature)
+
+Commands:
+  git branch feature-login       Create a new branch
+  git checkout feature-login     Switch to that branch
+  git checkout -b feature-login  Create AND switch (shortcut)
+  git merge feature-login        Merge feature-login into current branch
+  git branch -d feature-login    Delete branch after merging
+        </pre>
+        <div class="diagram-caption">Branches allow parallel work without conflict. The main branch always contains stable, deployable code.</div>
+    </div>
+
+    <p><strong>Merge Conflicts.</strong> Sometimes Git cannot automatically merge two branches because the same part of the same file was changed differently. This is called a <strong>merge conflict</strong>. Git will mark the conflicting sections in the file with <strong>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</strong>, <strong>=======</strong>, and <strong>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</strong>. You must manually decide which version to keep, remove the markers, and commit the resolved file. In smart contract development, merge conflicts must be resolved with extreme care - a wrong merge could introduce a security vulnerability. Always run the full test suite after resolving a merge conflict in Solidity files.</p>
+
+    <!-- 9. .gitignore – PROTECTING SECRETS -->
+    <div class="section-label">09 &nbsp; .gitignore - The Guardian</div>
+    <h2 class="section-title">Protecting Your Private Keys and Secrets</h2>
+    <p>The <strong>.gitignore</strong> file is the single most important file for blockchain development security. It tells Git which files and folders to <strong>never track</strong>. Any file listed in .gitignore will not appear in git status, will not be added by git add, and will never be pushed to GitHub. This is how you keep your private keys, API secrets, and local configuration safe.</p>
+
+    <div class="callout key">
+        <div class="callout-label">🔑 The Blockchain .gitignore Template</div>
+        <p>Create a file named <strong>.gitignore</strong> at the root of your project and add these lines:</p>
+    </div>
+
+    <div class="code-block-wrap">
+        <pre># Environment variables (contains private keys, API keys, RPC URLs)
+.env
+
+# Node.js dependencies (huge folder, reinstall with npm install)
+node_modules/
+
+# Hardhat artifacts (compiled contracts, cache)
+artifacts/
+cache/
+
+# Coverage reports
+coverage/
+
+# TypeScript build output (if using TypeScript)
+dist/
+typechain-types/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE files (VS Code workspace settings can be shared, but personal settings should not)
+.vscode/settings.json</pre>
+    </div>
+
+    <p>The <strong>.env</strong> file is where you store environment variables like <strong>PRIVATE_KEY=0xabc123...</strong> and <strong>MST_RPC_URL=https://testnetrpc.mstblockchain.com</strong>. This file <strong>must</strong> be in .gitignore. Never, ever commit your private key to Git. Even if you delete it later, it remains in the Git history. If you accidentally commit a private key, consider it compromised and transfer all funds to a new wallet immediately.</p>
+
+    <details>
+        <summary>⚠️ Click to expand: What to Do If You Accidentally Commit a Private Key</summary>
+        <div class="details-content">
+            <p><strong>Step 1:</strong> Do not panic. Do not just delete the file and commit again - the key is still in the Git history.</p>
+            <p><strong>Step 2:</strong> Move all funds from that wallet to a brand-new wallet immediately. The private key is compromised.</p>
+            <p><strong>Step 3:</strong> Use a tool like <strong>git filter-branch</strong> or <strong>BFG Repo-Cleaner</strong> to rewrite the Git history and remove the sensitive file. Force-push the cleaned history to GitHub.</p>
+            <p><strong>Step 4:</strong> Understand that if the repository was public, bots may have already scraped your key. This is why moving funds first is critical.</p>
+        </div>
+    </details>
+
+    <!-- 10. GITHUB DEEP DIVE -->
+    <div class="section-label">10 &nbsp; GitHub</div>
+    <h2 class="section-title">GitHub - The Social Network for Code</h2>
+    <p>GitHub is a web-based platform that hosts Git repositories and adds collaboration features on top: issues, pull requests, code reviews, actions (CI/CD), project boards, and more. While Git is the tool that runs on your laptop, GitHub is the website where you share your Git repositories with the world. It is the home of open-source software and the standard platform for blockchain projects.</p>
+    <p><strong>Creating a Repository on GitHub.</strong> After creating a project locally with <strong>git init</strong>, you can create a repository on GitHub (click the "+" in the top right, select "New repository"), give it a name, and leave it empty (do not initialize with README if you already have a local repo). GitHub will show you the commands to connect your local repo to the remote and push your code.</p>
+
+    <div class="code-block-wrap">
+        <pre># Connect your local repo to GitHub
+git remote add origin https://github.com/yourusername/your-repo.git
+
+# Rename your branch to main (if it's still "master")
+git branch -M main
+
+# Push your code
+git push -u origin main</pre>
+    </div>
+
+    <p><strong>Pull Requests (PRs).</strong> A pull request is a proposal to merge one branch into another - typically a feature branch into main. It's the way team members review each other's code before it becomes part of the project. In blockchain development, every PR should be reviewed by at least one other developer, and all tests must pass before merging. This is how critical bugs are caught before deployment.</p>
+
+    <!-- 11. FULL WORKFLOW EXAMPLE -->
+    <div class="section-label">11 &nbsp; Hands-On Workflow</div>
+    <h2 class="section-title">A Complete Git Session - From Zero to GitHub</h2>
+    <div class="code-block-wrap">
+        <pre># 1. Create project folder and initialize Git
+mkdir my-mst-dapp
+cd my-mst-dapp
+git init
+
+# 2. Create .gitignore BEFORE adding any files
+echo "node_modules/" > .gitignore
+echo ".env" >> .gitignore
+echo "artifacts/" >> .gitignore
+echo "cache/" >> .gitignore
+
+# 3. Initialize Hardhat project
+npx hardhat init
+
+# 4. Check what will be committed
+git status
+
+# 5. Stage and commit the initial project
+git add contracts/ test/ scripts/ hardhat.config.js package.json .gitignore
+git commit -m "Initial Hardhat project setup"
+
+# 6. Create a GitHub repo (on github.com), then connect and push
+git remote add origin https://github.com/yourusername/my-mst-dapp.git
+git branch -M main
+git push -u origin main
+
+# 7. Create a feature branch for your first contract
+git checkout -b feature/hello-world
+
+# 8. Write your contract, test it, then commit
+git add contracts/HelloWorld.sol test/HelloWorld.test.js
+git commit -m "Add HelloWorld contract with tests"
+
+# 9. Push the feature branch
+git push -u origin feature/hello-world
+
+# 10. Create a Pull Request on GitHub, get review, merge into main</pre>
+    </div>
+
+    <!-- 12. ASSESSMENT PREP -->
+    <div class="section-label">12 &nbsp; Assessment Preparation</div>
+    <h2 class="section-title">Top Facts - Know These Cold</h2>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">01</div><div class="feature-content"><div class="feature-title">Git workflow: Working Directory → git add → Staging Area → git commit → Local Repo → git push → Remote Repo.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">02</div><div class="feature-content"><div class="feature-title">Branches allow parallel development. git checkout -b &lt;name&gt; creates and switches. git merge &lt;branch&gt; integrates.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">03</div><div class="feature-content"><div class="feature-title">.gitignore protects secrets. Always include node_modules/, .env, artifacts/, and cache/. Never commit private keys.</div></div></div>
+        <div class="feature-item"><div class="feature-num" style="background:var(--ink-3);">04</div><div class="feature-content"><div class="feature-title">GitHub is the remote hosting platform. Pull Requests enable code review before merging into main.</div></div></div>
+    </div>
+
+    <!-- 13. ASSESSMENT -->
+    <section class="assessment-section">
+        <div class="assessment-header">
+            <h2>📝 Sub-Module 8.2 Assessment</h2>
+            <div class="marks-total-badge"><div class="num">5</div><div class="label">Total Marks</div></div>
+        </div>
+        <div class="assessment-body">
+            <div class="q-section-header"><div class="q-section-title">Section A - Multiple Choice Questions</div><div class="q-section-meta">3 Questions · 1 mark each · 3 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q1</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What is the purpose of the Git staging area?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>It automatically saves all changes every five minutes</li>
+                    <li class="correct"><span class="opt-key">B</span>It lets you select exactly which changes to include in the next commit ✅</li>
+                    <li><span class="opt-key">C</span>It stores your code on GitHub's servers</li>
+                    <li><span class="opt-key">D</span>It runs your smart contract tests before pushing</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The staging area (index) allows you to prepare a commit by selecting specific files or even specific chunks of changes, rather than committing everything that was modified.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q2</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">In a blockchain project, which file must ALWAYS be in .gitignore?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>hardhat.config.js</li>
+                    <li class="correct"><span class="opt-key">B</span>.env (which contains private keys and RPC URLs) ✅</li>
+                    <li><span class="opt-key">C</span>package.json</li>
+                    <li><span class="opt-key">D</span>README.md</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>The .env file contains sensitive information like private keys. If committed to Git, it can be scraped by attackers. It must always be in .gitignore.</p></div>
+            </div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q3</div><div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div></div>
+                <div class="q-text">What is a Pull Request on GitHub?</div>
+                <ul class="options">
+                    <li><span class="opt-key">A</span>A command that downloads the latest code from GitHub</li>
+                    <li class="correct"><span class="opt-key">B</span>A proposal to merge changes from one branch into another, enabling code review before integration ✅</li>
+                    <li><span class="opt-key">C</span>A request to GitHub to increase your repository's storage limit</li>
+                    <li><span class="opt-key">D</span>A way to download someone else's repository without forking it</li>
+                </ul>
+                <div class="answer-box"><div class="answer-box-label">✅ Correct Answer: B</div><p>A Pull Request (PR) is a GitHub feature that asks the repository maintainers to review and merge your branch changes. It enables discussion, code review, and automated tests before code enters the main branch.</p></div>
+            </div>
+
+            <div class="q-section-header" style="margin-top:8px;"><div class="q-section-title">Section B - True / False with Mandatory Justification</div><div class="q-section-meta">1 Question · 2 marks · 2 marks total</div></div>
+
+            <div class="question-block">
+                <div class="q-header"><div class="q-badge">Q4</div><div class="q-meta"><span class="q-type">True / False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div></div>
+                <div class="q-text">"If I accidentally commit my private key to a public GitHub repository, I can simply delete the file and make a new commit - the key is now safe because it's no longer in the latest version of the code."</div>
+                <div class="tf-box">
+                    <div class="tf-verdict false">FALSE</div>
+                    <div class="tf-must-write">📝 Sample Justification:</div>
+                    <div class="tf-sample">This is <strong>FALSE</strong>. Deleting the file and committing again only removes it from the current version. The private key remains in the <strong>Git history</strong>, which is a permanent record of every commit. Anyone can view the history and find the key. The only safe response is to immediately transfer all funds to a new wallet (the key is compromised) and then rewrite the Git history using tools like git filter-branch to purge the sensitive file. Even then, bots may have already scraped the key.</div>
+                </div>
+                <div class="answer-box"><div class="answer-box-label">📊 Marks Breakdown</div><p><strong>1 mark:</strong> Correctly states FALSE and explains that the key remains in Git history.<br><strong>+1 mark:</strong> Mentions that funds must be moved immediately and/or that Git history must be rewritten (not just a new commit).</p></div>
+            </div>
+        </div>
+        <div class="score-summary">
+            <div class="score-left">
+                <div class="score-label">Sub-Module 8.2 Assessment Summary</div>
+                <div class="score-row">Section A: 3 × MCQ (1 mark each) = 3 marks</div>
+                <div class="score-row">Section B: 1 × True/False with Justification (2 marks) = 2 marks</div>
+            </div>
+            <div class="score-badge"><div class="score-num">5</div><div class="score-text">Total Marks</div></div>
+        </div>
+    </section>
+
+    <!-- 14. GLOSSARY -->
+    <div class="section-label" style="margin-top:52px;">13 &nbsp; Glossary</div>
+    <h2 class="section-title">Key Terms - Sub-Module 8.2</h2>
+    <div class="glossary-grid">
+        <div class="glossary-item"><div class="glossary-term">Git</div><div class="glossary-def">A distributed version control system that tracks changes in source code during software development.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Repository (Repo)</div><div class="glossary-def">A directory that contains a project's files and the entire history of changes tracked by Git.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Commit</div><div class="glossary-def">A snapshot of the project at a specific point in time, with a message describing the changes.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Staging Area</div><div class="glossary-def">The intermediate area where changes are prepared before being committed to the repository.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Branch</div><div class="glossary-def">A parallel version of the repository, allowing independent development without affecting the main line.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Merge</div><div class="glossary-def">The operation of integrating changes from one branch into another.</div></div>
+        <div class="glossary-item"><div class="glossary-term">.gitignore</div><div class="glossary-def">A file that specifies intentionally untracked files that Git should ignore (e.g., .env, node_modules).</div></div>
+        <div class="glossary-item"><div class="glossary-term">GitHub</div><div class="glossary-def">A web-based platform for hosting Git repositories with collaboration features like Pull Requests and Issues.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Pull Request (PR)</div><div class="glossary-def">A proposal to merge one branch into another, enabling code review and discussion before integration.</div></div>
+        <div class="glossary-item"><div class="glossary-term">Remote</div><div class="glossary-def">A version of the repository hosted on a server (e.g., GitHub). The default remote is usually named "origin."</div></div>
+    </div>
+
+    <div class="page-footer">
+        <p>Masterstroke Academy - Professional Blockchain Developer Program</p>
+        <p>Module 8 · Sub-Module <strong>8.2</strong> of 8 · Next: Sub-Module 8.3 - Hardhat Framework →</p>
+    </div>
+
+</body>
+</html>

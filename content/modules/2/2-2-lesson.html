@@ -1,0 +1,857 @@
+
+
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 2 · Sub-Module 2 of 6</div>
+<h1 class="module-title">Sub-Module 2.2<br><span class="highlight">Architecture of Centralisation</span></h1>
+<p class="module-subtitle">The PhonePe - Yes Bank collapse taught India what happens when an entire digital payment system depends on one bank's server. Here we dissect exactly how centralised architecture creates dependency - layer by layer, wire by wire.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 30 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 10</div>
+  <div class="meta-chip">📝 7 × MCQ (1 mark each)</div>
+  <div class="meta-chip">📝 1 × True/False (2 marks)</div>
+  <div class="meta-chip">📝 1 × MCQ (1 mark)</div>
+  <div class="meta-chip green">🔰 Module 2 · Phase 1</div>
+</div>
+
+<!-- SECTION 1 -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+  <p>By the end of this sub-module, you will be able to:</p>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="check">✓</div>Explain the client-server architecture model in precise technical detail - layers, components, data flow</div>
+    <div class="objective-item"><div class="check">✓</div>Trace exactly what happened when PhonePe failed due to Yes Bank's RBI moratorium in March 2020</div>
+    <div class="objective-item"><div class="check">✓</div>Identify every layer of dependency in a centralised system and explain what fails when each layer breaks</div>
+    <div class="objective-item"><div class="check">✓</div>Distinguish between technical redundancy (multiple servers) and true architectural decentralisation</div>
+    <div class="objective-item"><div class="check">✓</div>Map the dependency chain: user → app → platform → bank → RBI, and identify each centralised chokepoint</div>
+    <div class="objective-item"><div class="check">✓</div>Explain how blockchain eliminates dependency chains by replacing trusted intermediaries with cryptographic consensus</div>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>The Story - When PhonePe Died for 24 Hours</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Setting: March 5 - 6, 2020 - India's Most Used Payment App Goes Dark</span>
+    <p>It is the evening of March 5, 2020. The RBI has just placed Yes Bank under a moratorium - limiting withdrawals to ₹50,000 per account. The reason: Yes Bank's balance sheet had collapsed under bad loans.</p>
+    <p>PhonePe's 150 million users open their apps. Transactions fail. "Payment declined." "Server error." Some users report their UPI IDs completely unresponsive. <strong>The most downloaded payment app in India is dead.</strong></p>
+    <p>Why? PhonePe's entire UPI payment infrastructure was built on Yes Bank's banking licence. Yes Bank was PhonePe's banking partner - the entity that held the actual bank accounts behind every PhonePe transaction. <strong>When Yes Bank went under RBI moratorium, PhonePe's payments backbone snapped instantly.</strong></p>
+    <p>150 million users could not pay for groceries, petrol, medicines, or auto rickshaws. Small merchants who had gone cashless - trusting the promise of digital India - had no way to receive payment for 24 hours. A single bank's collapse, triggered by the RBI's regulatory action, cascaded through a centralised dependency chain and hit 150 million people in real time.</p>
+    <p>PhonePe eventually migrated to ICICI Bank as their banking partner. But the architectural lesson was permanent: <strong>every layer of dependency in a centralised system is a potential chokepoint.</strong></p>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ The Architecture Question</span>
+    <p>This was not a PhonePe software bug. It was not a hacker attack. It was <strong>architecture working exactly as designed</strong> - a chain of centralised dependencies, where one link breaking cascades through the entire chain. This sub-module teaches you how to read that architecture, find every chokepoint, and understand what blockchain does differently.</p>
+  </div>
+</section>
+
+<!-- SECTION 3 -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">🕰</div>Background - The Layers of a Centralised System</h2>
+
+  <h3 class="sub-title">3.1 - Why Architecture Has Layers</h3>
+  <p>Modern software systems are not single monolithic programs. They are stacked layers - each layer depending on the one below it. When you build a centralised system, you inherit every dependency of every layer below you. The more layers, the more potential points of failure. Understanding these layers is the first skill of any architect - blockchain or otherwise.</p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🏗️ Building Construction Analogy</span>
+    <p>A skyscraper has layers: foundation → structure → walls → electrical → plumbing → interior. If the foundation cracks, every floor above it is compromised - no matter how perfect the interior decoration. Digital systems work identically. PhonePe's beautiful app interface (top layer) was perfectly designed - but the foundation (Yes Bank's licence) cracked and every layer above it failed.</p>
+  </div>
+
+  <h3 class="sub-title">3.2 - The Six Layers of a Typical Centralised App</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🏗️ Six-Layer Architecture of a Centralised Application</div>
+<pre>  LAYER 6: USER INTERFACE (What you see)
+  ─────────────────────────────────────────────────────────
+  The app on your phone. Beautiful design. Fast animations.
+  But this layer does NOTHING without the layers below it.
+  If any lower layer fails, this layer shows errors.
+  ─────────────────────────────────────────────────────────
+
+  LAYER 5: APPLICATION LOGIC (Business rules)
+  ─────────────────────────────────────────────────────────
+  Code that processes your actions: "User wants to pay ₹500"
+  Validates amounts, checks limits, applies business rules.
+  Depends entirely on Layer 4 (servers) to function.
+  ─────────────────────────────────────────────────────────
+
+  LAYER 4: SERVER INFRASTRUCTURE (Where code runs)
+  ─────────────────────────────────────────────────────────
+  AWS / Google Cloud / Azure / company's own data centre.
+  Runs the application logic. Stores session data.
+  A server outage crashes Layer 5 and 6 immediately.
+  ─────────────────────────────────────────────────────────
+
+  LAYER 3: DATABASE (Where all data lives)
+  ─────────────────────────────────────────────────────────
+  MySQL, PostgreSQL, MongoDB — stores all user data,
+  transactions, account balances, configurations.
+  DATABASE is the ultimate centralised control point.
+  Whoever controls the database controls the application.
+  ─────────────────────────────────────────────────────────
+
+  LAYER 2: EXTERNAL DEPENDENCIES (Third-party services)
+  ─────────────────────────────────────────────────────────
+  Banking licence (Yes Bank), payment rails (NPCI/UPI),
+  SMS gateways, KYC providers, identity services.
+  PhonePe's fatal dependency was HERE — Yes Bank.
+  ─────────────────────────────────────────────────────────
+
+  LAYER 1: REGULATORY / LEGAL INFRASTRUCTURE (The foundation)
+  ─────────────────────────────────────────────────────────
+  RBI regulations, government policy, court orders.
+  The deepest layer. Overrides everything above it.
+  RBI placed Yes Bank under moratorium → entire stack above collapsed.
+  ─────────────────────────────────────────────────────────
+
+  KEY INSIGHT:
+  Your experience of "PhonePe not working" was a Layer 6 symptom.
+  The actual failure was at Layer 1 → Layer 2 → cascaded up.
+  Blockchain eliminates Layers 1 and 2 entirely.
+  Math and consensus replace regulatory dependency and trusted third parties.
+</pre>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">🧠</div>Beginner-Friendly Deep Explanation</h2>
+
+  <h3 class="sub-title">4.1 - The PhonePe Dependency Chain: Fully Traced</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔗 PhonePe Complete Dependency Chain - Every Link That Can Break</div>
+<pre>  YOU (₹500 payment to a merchant)
+       │
+       ▼
+  PhonePe App (Layer 6)
+  "User wants to send ₹500"
+       │
+       ▼
+  PhonePe's Servers on AWS Mumbai (Layer 4)
+  "Processing payment request"
+       │
+       ▼
+  PhonePe's Database (Layer 3)
+  "Checking user's account balance and transaction history"
+       │
+       ▼
+  NPCI UPI Rail (Layer 2a)
+  "UPI payment instruction sent"
+  "Source: PhonePe / Yes Bank VPA"
+       │
+       ▼
+  YES BANK (Layer 2b) ← THIS IS WHERE IT BROKE
+  "Verify PhonePe account, debit user funds"
+  March 5, 2020: RBI moratorium applied
+  Yes Bank's systems: FROZEN
+       │
+       ▼
+  MERCHANT'S BANK (Layer 2c)
+  Waiting for credit that never comes
+       │
+       ▼
+  MERCHANT'S PHONE
+  "Payment pending" → "Payment failed"
+
+  ════════════════════════════════════════════════════════════
+  EACH LINK IN THIS CHAIN IS A CENTRALISED DEPENDENCY:
+  ════════════════════════════════════════════════════════════
+  AWS: Amazon can take down the servers (happened in 2021)
+  NPCI: Government can disable UPI (theoretically possible)
+  Yes Bank: Bank can fail (happened in 2020)
+  RBI: Regulator can freeze the bank (happened in 2020)
+
+  ANY ONE OF THESE FAILING = PAYMENT FAILS FOR 150M PEOPLE
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.2 - Why Dependency Chains Are Architecturally Inevitable in Centralised Systems</h3>
+
+  <p>Here is the key insight: centralised systems cannot avoid dependency chains. They are structurally inevitable. Here's why.</p>
+
+  <p>Any company operating a financial service in India must have a banking licence, or partner with a bank that has one. That bank must operate under RBI regulations. Those regulations can change or impose moratoriums. The company's app must run on servers - which are owned by cloud providers who can have outages, change terms, or face government orders. Every layer of regulation, infrastructure, and third-party dependency is a potential chokepoint - and in a centralised system, there is no alternative path when one breaks.</p>
+
+  <div class="callout analogy">
+    <span class="callout-label">🚰 Water Pipeline Analogy</span>
+    <p>Mumbai's water comes from lakes in the hills → large pipes → city pumping stations → local pipes → your tap. If the pumping station fails, your tap runs dry - even if the lake is full and your home's pipes are perfect. You cannot bypass the pumping station. That is a centralised dependency. Blockchain is like having your own borewell - you get water independently of the centralised pipeline. You depend on the water table (consensus mechanism), not on any single company's infrastructure.</p>
+  </div>
+
+  <h3 class="sub-title">4.3 - The Three Types of Centralised Chokepoints</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Chokepoint Type</th>
+          <th>Who Controls It</th>
+          <th>Real Example</th>
+          <th>What Breaks When It Fails</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Infrastructure Chokepoint</td>
+          <td>Cloud provider (AWS, GCP, Azure)</td>
+          <td>AWS us-east-1 outage (Dec 2021): Netflix, Disney+, Slack, Swiggy all down simultaneously</td>
+          <td class="cell-red">Every company using that cloud region loses service - regardless of how well they built their own code</td>
+        </tr>
+        <tr>
+          <td>Financial Chokepoint</td>
+          <td>Banking partner + RBI</td>
+          <td>Yes Bank moratorium (Mar 2020): PhonePe, Google Pay (partial), dozens of fintech apps fail</td>
+          <td class="cell-red">All transactions processed through that bank fail; all apps depending on that banking licence fail</td>
+        </tr>
+        <tr>
+          <td>Regulatory Chokepoint</td>
+          <td>Government / central regulator</td>
+          <td>India's crypto ban announcement (2018): All INR-crypto exchanges forced to shut down bank accounts</td>
+          <td class="cell-red">Entire industry sector can be disabled with one policy order - no technical workaround possible</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">4.4 - How Blockchain Eliminates Each Chokepoint</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">⚡ Blockchain vs Centralised: Chokepoint Elimination</div>
+<pre>  CENTRALISED PAYMENT (PhonePe model):
+  ────────────────────────────────────────────────────────────
+  User → App → AWS Servers → NPCI → Yes Bank → Merchant Bank
+  
+  CHOKEPOINTS:
+  AWS fails?       → All users offline
+  NPCI fails?      → All UPI transactions fail
+  Yes Bank fails?  → PhonePe's payments fail
+  RBI moratorium?  → Yes Bank frozen → PhonePe frozen
+
+  BLOCKCHAIN PAYMENT (MST model):
+  ────────────────────────────────────────────────────────────
+  User → Smart Contract → MST Blockchain (71,000+ validators)
+  → Merchant's Wallet
+  
+  CHOKEPOINTS ELIMINATED:
+  No AWS dependency  → Code runs on 71,000 distributed validators
+  No bank needed     → Smart contract holds and moves value directly
+  No NPCI needed     → Blockchain is the payment rail
+  No RBI moratorium  → Decentralised, no entity to moratorium
+  
+  What remains? The consensus mechanism (71,000 validators).
+  To "moratorium" MST Blockchain: must control 35,500+ validators simultaneously.
+  Computationally and economically impossible.
+  
+  THIS IS THE ARCHITECTURAL ADVANTAGE OF DECENTRALISATION.
+</pre>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">⚙️</div>Technical Deep Dive</h2>
+
+  <h3 class="sub-title">5.1 - Database: The Ultimate Central Control Point</h3>
+
+  <p>In any centralised application, the database is where absolute control lives. Whoever writes to the database controls reality for every user. Understanding this is fundamental to understanding why decentralised databases (blockchains) are architecturally different.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🗄️ Centralised Database Control - The Root of Everything</div>
+<pre>  PHONEPAY'S CENTRALISED DATABASE (Simplified):
+  ─────────────────────────────────────────────────────────────
+
+  USERS TABLE:
+  ┌─────────────┬──────────────┬──────────┬─────────────────┐
+  │ user_id     │ phone        │ balance  │ account_status  │
+  ├─────────────┼──────────────┼──────────┼─────────────────┤
+  │ USR_001     │ 9820000001   │ ₹4,500   │ ACTIVE          │
+  │ USR_002     │ 9820000002   │ ₹12,000  │ ACTIVE          │
+  │ USR_003     │ 9820000003   │ ₹800     │ FROZEN          │ ← One query does this
+  └─────────────┴──────────────┴──────────┴─────────────────┘
+
+  TRANSACTIONS TABLE:
+  ┌────────────┬──────────┬──────────┬──────────┬──────────┐
+  │ txn_id     │ from_usr │ to_usr   │ amount   │ status   │
+  ├────────────┼──────────┼──────────┼──────────┼──────────┤
+  │ TXN_9981   │ USR_001  │ USR_002  │ ₹500     │ PENDING  │
+  │ TXN_9982   │ USR_002  │ USR_003  │ ₹1,200   │ FAILED   │ ← Yes Bank froze
+  └────────────┴──────────┴──────────┴──────────┴──────────┘
+
+  WHO CAN CHANGE THESE RECORDS:
+  ├─ PhonePe engineers (direct DB access)
+  ├─ PhonePe's application servers (API calls)
+  ├─ RBI (through regulatory orders to PhonePe)
+  ├─ Courts (through legal orders)
+  └─ Hackers (if they breach the database)
+
+  WHO CANNOT CHANGE THESE RECORDS:
+  └─ You (the user)
+
+  BLOCKCHAIN EQUIVALENT (MST):
+  ─────────────────────────────────────────────────────────────
+  Every transaction recorded on blockchain:
+  ┌──────────────────────────────────────────────────────────┐
+  │ Block #4829102                                           │
+  │ From: 0x742d35Cc... (your wallet)                       │
+  │ To:   0x8Ba1f109... (merchant wallet)                   │
+  │ Amount: 500 MSTC                                         │
+  │ Signature: valid (only you hold the private key)         │
+  │ Status: CONFIRMED by 71,000+ validators                  │
+  │ Immutable: YES — cannot be changed by anyone             │
+  └──────────────────────────────────────────────────────────┘
+
+  WHO CAN CHANGE THIS: NOBODY (without controlling 51%+ of validators)
+  WHO CONTROLS IT: The math and consensus mechanism
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.2 - API Dependency: How Apps Talk to Each Other (And What Breaks)</h3>
+
+  <p>Modern apps do not work in isolation. They depend on APIs (Application Programming Interfaces) - standardised ways to request services from other systems. Each API dependency is a hidden centralised chokepoint.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🔌 API Dependency Map - Hidden Chokepoints in Every App</div>
+<pre>  WHEN YOU ORDER ON SWIGGY:
+  ─────────────────────────────────────────────────────────────
+
+  Swiggy App calls:
+  ├─ Google Maps API (route calculation)
+  │   └─ If Google Maps API is down → no route shown → order fails
+  │
+  ├─ Payment Gateway API (Razorpay / PayU)
+  │   └─ If Razorpay is down → payment fails → order not placed
+  │
+  ├─ SMS Gateway API (for OTP)
+  │   └─ If SMS provider is down → OTP fails → login fails
+  │
+  ├─ Bank API (for payment processing)
+  │   └─ If your bank's API is down → payment fails
+  │
+  └─ Restaurant's POS API (for order confirmation)
+      └─ If restaurant's system is offline → order not confirmed
+
+  FOR YOUR ORDER TO SUCCEED:
+  ALL of these APIs must be working SIMULTANEOUSLY.
+  Any single one failing = order fails.
+
+  This is why Swiggy sometimes shows "Something went wrong" —
+  not because of a bug, but because one external dependency failed.
+
+  BLOCKCHAIN ALTERNATIVE:
+  Smart contract on MST has NO external API dependencies.
+  Payment logic lives in the contract itself.
+  Order routing logic in the contract.
+  No third-party calls. No external failure points.
+  Contract executes as coded. Every time.
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.3 - Load Balancers and Horizontal Scaling: Why "More Servers" Doesn't Mean Decentralised</h3>
+
+  <p>A common misconception: "Big companies like Google have thousands of servers - doesn't that mean they're decentralised?" The answer is no. Having many servers managed by one entity is called <strong>horizontal scaling</strong> - it improves performance and reliability, but it is still fundamentally centralised because one company controls all the servers.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <div class="compare-card-header">❌ Centralised - Many Servers, One Owner</div>
+      <ul>
+        <li>Google runs 1 million+ servers globally</li>
+        <li>All owned, controlled, and managed by Google</li>
+        <li>One legal order can compel Google to give up all data</li>
+        <li>Google can shut them all down simultaneously</li>
+        <li>Performance benefit: high. Governance risk: unchanged.</li>
+        <li>This is horizontal scaling, not decentralisation</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">✅ Decentralised - Many Validators, Many Owners</div>
+      <ul>
+        <li>MST Blockchain has 71,000+ independent validators</li>
+        <li>Each owned by a different individual or organisation</li>
+        <li>No single legal order can compel all of them</li>
+        <li>No single entity can shut them all down</li>
+        <li>Performance benefit: high. Governance risk: eliminated.</li>
+        <li>This is true architectural decentralisation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🌍</div>Real-World Case Studies</h2>
+
+  <h3 class="sub-title">Case Study 1 - The AWS us-east-1 Outage (December 2021)</h3>
+
+  <p>On December 7, 2021, Amazon Web Services' primary US East Coast region experienced a major outage. The cause: AWS's own internal network, which routes traffic between its services, experienced congestion. The cascading result affected the entire "us-east-1" region - one of the world's most trafficked cloud regions.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">📉 AWS Outage Cascade - One Region, Global Impact</div>
+<pre>  AWS us-east-1 Network Congestion (14:30 UTC, Dec 7, 2021)
+       │
+       ├─→ Netflix (streaming): Video quality degraded globally
+       ├─→ Disney+ (streaming): Login failures
+       ├─→ Amazon.com itself: Product search broken
+       ├─→ Slack (communication): Messages not delivering
+       ├─→ Roomba (robot vacuums): Could not start remotely
+       ├─→ Ring doorbells: Could not view footage
+       ├─→ Swiggy (India): Delivery tracking disrupted
+       └─→ Hundreds of Indian startups on AWS: Partial outages
+
+  Duration: ~7 hours
+  Companies affected: 10,000+
+  Users affected: Hundreds of millions globally
+  Root cause: One network configuration error at AWS
+
+  THE LESSON:
+  Centralised cloud providers are themselves centralised chokepoints.
+  When thousands of companies build on the same cloud provider,
+  that provider's reliability becomes the reliability of the internet.
+  One AWS outage = global disruption.
+
+  MST Blockchain validators run on diverse infrastructure:
+  different cloud providers, different countries, different operators.
+  No single cloud outage can take down a meaningfully distributed validator set.
+</pre>
+  </div>
+
+  <h3 class="sub-title">Case Study 2 - Paytm's Yes Bank Dependency and the Regulatory Chokepoint</h3>
+
+  <p>Similar to PhonePe, Paytm Payments Bank (PPB) faced a different but equally revealing centralised chokepoint in early 2024. The RBI ordered Paytm Payments Bank to stop accepting new deposits and top-ups after February 29, 2024 due to non-compliance with KYC norms. Paytm's 330 million wallet users could not add money to their Paytm wallets.</p>
+
+  <p>This was not a technology failure. It was a regulatory chokepoint - Layer 1 in the architecture stack. The tech worked perfectly. But because Paytm Payments Bank was a centralised entity operating under RBI jurisdiction, one regulatory order from a government body shut down the core banking function for 330 million users. No blockchain - no regulatory body can freeze a decentralised smart contract. The protocol executes consensus, not compliance with a government directive.</p>
+
+  <h3 class="sub-title">Case Study 3 - How Blockchain Payments Would Have Worked Instead</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">💡 Alternative Reality: If PhonePe Had Been Built on MST Blockchain</div>
+<pre>  MARCH 5, 2020: RBI places Yes Bank under moratorium.
+
+  CENTRALISED PHONEPAY (what happened):
+  ─────────────────────────────────────────────────────────────
+  RBI → Yes Bank frozen → PhonePe banking licence void
+  → 150 million users cannot make payments → ₹10,000 crore
+  in commerce disrupted for 24+ hours
+
+  HYPOTHETICAL dPHONEPAY ON MST BLOCKCHAIN:
+  ─────────────────────────────────────────────────────────────
+  User has MST wallet (non-custodial, private key on their phone)
+  Payment = smart contract execution:
+
+  PaymentContract.send(
+    from: user_wallet,
+    to: merchant_wallet,
+    amount: 500_MSTC
+  )
+
+  What does the RBI's Yes Bank moratorium affect?
+  ├─ Yes Bank's systems: FROZEN ✗
+  ├─ PhonePe's banking licence: VOID ✗
+  ├─ MST Blockchain smart contract: UNAFFECTED ✅
+  ├─ User's private key: UNAFFECTED ✅
+  └─ 71,000 validators: UNAFFECTED ✅
+
+  RESULT: Payment succeeds in 3 seconds.
+  No banking licence required. No central bank dependency.
+  Math replaces regulatory infrastructure.
+  Cryptographic signature replaces bank's debit authorisation.
+</pre>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">🔄</div>Step-by-Step: Reading Any App's Centralised Architecture</h2>
+
+  <p>As a blockchain developer, you will frequently be asked to assess existing centralised systems and propose decentralised alternatives. Here is a repeatable methodology for doing this.</p>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Map the User Action to Every System That Processes It</div>
+        <div class="step-desc">Start with: "What does the user want to do?" Then trace every system that processes this action from end to end. For a UPI payment: user's phone → app server → NPCI → sending bank → receiving bank → merchant's phone. Write it as a chain. Every node in the chain is a potential chokepoint.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Identify Who Owns Each Node</div>
+        <div class="step-desc">For each node in the chain, ask: who owns this? Who can turn it off? Who can change its rules? Who can grant or revoke access? A node owned by one entity = one centralised chokepoint. In PhonePe's chain: AWS (Amazon), NPCI (Indian government), Yes Bank (private bank + RBI oversight), Merchant's bank (private bank). Four owners = four chokepoints.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Identify the Regulatory Dependencies at Each Node</div>
+        <div class="step-desc">Every financial node has a regulatory authority above it. Banks have the RBI. Telecoms have TRAI. Investment platforms have SEBI. Data companies have MeitY. Each regulatory authority can impose orders - moratoria, bans, data sharing requirements - that cascade down through every node beneath them. Map these regulatory layers explicitly.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Identify the API Dependencies</div>
+        <div class="step-desc">List every external API the application calls. Each API is a dependency on another centralised system. If that system has an outage, changes its terms, or discontinues the API, your app breaks. Swiggy calls Google Maps API - if Google changes pricing (as it did in 2018, causing many apps to scramble), Swiggy must migrate or pay more. Another chokepoint.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">For Each Chokepoint, Propose the Blockchain Alternative</div>
+        <div class="step-desc">Banking licence → Smart contract on MST (no licence needed). Database → Blockchain ledger (no single owner). API → On-chain data or WASMify (no external dependency). Authentication → DID via SARAL (no central auth server). This is the architectural work of a blockchain developer - not just "use blockchain" but specifically identifying which centralised component is replaced by which decentralised equivalent.</div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="highlight-box">
+    Every centralised system has a chain of dependencies.<br>
+    <span>Blockchain replaces each link in that chain with math.</span>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - Must-Know Facts</h2>
+  <ul class="facts-list">
+    <li><strong>The Six Layers:</strong> User Interface → Application Logic → Server Infrastructure → Database → External Dependencies → Regulatory/Legal. Know this stack. Know what breaks at each layer and what cascades upward.</li>
+    <li><strong>PhonePe - Yes Bank incident (March 2020):</strong> PhonePe's banking infrastructure depended on Yes Bank's licence. RBI moratorium on Yes Bank = PhonePe payments fail for 150 million users. This is a Financial Chokepoint (Layer 2).</li>
+    <li><strong>Three chokepoint types:</strong> Infrastructure (cloud provider), Financial (banking partner), Regulatory (government authority). Each can cascade to end users with no warning.</li>
+    <li><strong>Horizontal scaling ≠ decentralisation:</strong> Google having 1 million servers does not make it decentralised. All servers owned by one entity = still centralised. Decentralisation requires different owners for each node.</li>
+    <li><strong>The database is the ultimate control point:</strong> Whoever writes to the database controls reality. In blockchain, nobody writes - consensus does. This is the fundamental difference.</li>
+    <li><strong>API dependencies are hidden chokepoints:</strong> Every external API call your app makes is a dependency on another centralised system. If Google Maps API fails, all apps using it break simultaneously.</li>
+    <li><strong>Blockchain eliminates banking licence dependency:</strong> Smart contracts on MST can hold and move value without a banking licence. The contract is the bank. The consensus mechanism is the regulator.</li>
+    <li><strong>Regulatory chokepoints override all technical measures:</strong> No amount of technical redundancy protects against a government order. This is why truly decentralised systems (no central entity to serve the order on) are architecturally superior for censorship resistance.</li>
+    <li><strong>MST's 71,000+ validators:</strong> To disrupt MST Blockchain, an attacker must control 35,500+ independent validators simultaneously. This is computationally and economically the highest barrier ever designed into a payment system.</li>
+    <li><strong>SARAL Protocol removes auth dependency:</strong> Traditional apps depend on central auth servers. SARAL generates non-custodial identity on the user's device - no central auth server to fail, no entity to suspend accounts.</li>
+  </ul>
+</section>
+
+<!-- SECTION 9 -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">🔐</div>Security Notes</h2>
+
+  <h3 class="sub-title">9.1 - Centralised Databases Are the World's Most Valuable Hack Target</h3>
+  <p>In a centralised system, all user data sits in one database. This makes it the most valuable and most targeted asset in digital security. When Mobikwik (Indian fintech) was allegedly breached in 2021, 3.5 million KYC documents - Aadhaar cards, PAN cards, bank statements - were reportedly exfiltrated from their centralised database. One breach. Millions of users permanently compromised.</p>
+
+  <div class="callout warning">
+    <span class="callout-label">⚠️ The Architectural Root Cause</span>
+    <p>Centralised databases are breached not because security teams are incompetent, but because the architecture is fundamentally a honey pot. Storing 100 million users' KYC data in one database means a single successful attack yields 100 million records. In a decentralised system with on-chain identity (MST DID), user data is never aggregated in one place - there is no honey pot to breach. An attacker who compromises one node gets one user's data, not millions.</p>
+  </div>
+
+  <h3 class="sub-title">9.2 - The RBI Data Localisation Requirement and Its Centralisation Effect</h3>
+  <p>RBI's 2018 data localisation circular requires all payment data of Indian users to be stored in India. While well-intentioned for national security, this regulation paradoxically increases centralisation risk: all Indian payment data must be stored in Indian data centres - creating specific, known, geographically fixed targets for attackers and a clear point of regulatory control for governments. Blockchain networks are architecturally jurisdiction-agnostic - validators globally distributed, no single national concentration of data.</p>
+</section>
+
+<!-- SECTION 10 -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - India's UPI: The World's Best Centralised Payment Rail - and Its Limits</h3>
+  <p>UPI is genuinely impressive: 10 billion+ transactions per month, near-zero cost, real-time settlement. It is the best centralised payment rail ever built. But it is still centralised - operated by NPCI (National Payments Corporation of India), a non-profit backed by Indian banks and overseen by RBI. One NPCI outage affects all UPI transactions. One government order can disable UPI internationally (India temporarily restricted international UPI usage in 2023 during regulatory reviews). MST Blockchain aims to offer what UPI achieves (fast, cheap, real-time) without its single point of centralised control.</p>
+
+  <h3 class="sub-title">10.2 - The Startup Risk: Building on Centralised APIs</h3>
+  <p>Hundreds of Indian startups have been destroyed not by bad products but by centralised API changes. In 2018, Google Maps changed from free to paid API pricing. Hundreds of startups that had built map-dependent products faced immediate existential crises - their cost structure changed overnight because one company changed its pricing. This is the business-level consequence of architectural dependency. Building on blockchain protocols like MST means your foundational infrastructure cannot change its pricing or terms unilaterally - the protocol is governed by community consensus.</p>
+
+  <h3 class="sub-title">10.3 - The Emerging Career: Decentralised Systems Architect</h3>
+  <p>As Indian enterprises begin adopting blockchain, the most sought-after skill is not writing Solidity - it is the ability to analyse existing centralised systems, map their chokepoints, and design the blockchain migration path. HDFC Bank, Reliance, and the Indian government's NIC (National Informatics Centre) are all exploring blockchain integration. A developer who can walk into a boardroom, show the dependency chain of their current system, identify the three biggest chokepoints, and propose the MST Blockchain alternative for each - that developer is worth ₹50 - 100 LPA. That starts here.</p>
+</section>
+
+<!-- SECTION 11 -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="glossary-term">Dependency Chain</div>
+      <p class="glossary-def">A sequence of systems where each depends on the one below it. If any link breaks, all systems above it in the chain fail. PhonePe → Yes Bank → RBI is a dependency chain.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Chokepoint</div>
+      <p class="glossary-def">A single system whose failure causes cascading failure across all dependent systems. Architectural chokepoints are the primary risk of centralised design.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">API (Application Programming Interface)</div>
+      <p class="glossary-def">A standardised way for software to request services from other software. Every external API call is a dependency on another centralised system.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Horizontal Scaling</div>
+      <p class="glossary-def">Adding more servers to handle more traffic. Improves performance and availability, but does not create decentralisation - all servers still owned by one entity.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Load Balancer</div>
+      <p class="glossary-def">A system that distributes incoming traffic across multiple servers to prevent any one server from being overwhelmed. Improves reliability, not decentralisation.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Banking Licence</div>
+      <p class="glossary-def">Regulatory permission from RBI to operate as a bank. Required for fintech apps to process payments. A centralised chokepoint - one regulator controls access to all financial infrastructure.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Moratorium</div>
+      <p class="glossary-def">A regulatory order that freezes or restricts a bank's operations. When RBI imposed a moratorium on Yes Bank, all apps using Yes Bank's banking licence were simultaneously affected.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Smart Contract as Bank</div>
+      <p class="glossary-def">On MST Blockchain, a smart contract can hold and move value without a banking licence. The contract's rules are code - they execute automatically without regulatory permission at the transaction level.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">NPCI (National Payments Corporation of India)</div>
+      <p class="glossary-def">The non-profit that operates India's UPI payment rail. Government-backed, RBI-overseen. The centralised chokepoint in India's entire digital payment system.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Honey Pot</div>
+      <p class="glossary-def">A centralised store of valuable data that attracts attackers. Centralised databases are honey pots - one successful breach gives access to all users' data simultaneously.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Data Localisation</div>
+      <p class="glossary-def">Requirement that user data be stored within a specific country. RBI mandates Indian payment data stay in India - creating geographically concentrated, identifiable targets for attackers and regulators.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Consensus Mechanism</div>
+      <p class="glossary-def">The process by which a blockchain network agrees on the correct state. In MST, Trika POSA consensus replaces the trusted intermediary (bank) - math confirms transactions, not authority.</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ASSESSMENT -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 2.2 Assessment</h2>
+      <p>Architecture of Centralisation &nbsp;·&nbsp; Complete all questions before checking answers.</p>
+    </div>
+    <div class="marks-badge-big">10 Marks</div>
+  </div>
+
+  <h3 class="sub-title">Section A - Multiple Choice Questions &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(7 × 1 Mark = 7 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">Choose the single best answer. 1 mark each. No negative marking.</p>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 1</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In March 2020, PhonePe's payment service failed for 150 million users. What was the root architectural cause?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>PhonePe's own servers experienced a technical outage</li>
+        <li class="option"><div class="opt-label">B</div>Hackers attacked PhonePe's database and corrupted transaction records</li>
+        <li class="option correct"><div class="opt-label">C</div>PhonePe's banking infrastructure depended on Yes Bank's licence, and RBI's moratorium on Yes Bank severed this dependency</li>
+        <li class="option"><div class="opt-label">D</div>NPCI (National Payments Corporation of India) took UPI offline for maintenance</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> PhonePe had built its entire UPI payment infrastructure using Yes Bank as its banking partner - the entity that held the RBI banking licence enabling PhonePe to process payments. When the RBI placed Yes Bank under a moratorium (restricting all Yes Bank operations), PhonePe's dependency on Yes Bank's licence was severed. PhonePe's own technology worked perfectly - the cascade failure came from a lower architectural layer (the banking/regulatory layer), not from PhonePe's own servers or code. This is a Financial Chokepoint - a dependency on a licensed intermediary that is itself subject to regulatory authority. PhonePe later migrated its banking partnership to ICICI Bank.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 2</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In the six-layer centralised architecture model, which layer holds the most power over all layers above it?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Layer 6 - User Interface, because it is what users interact with</li>
+        <li class="option"><div class="opt-label">B</div>Layer 4 - Server Infrastructure, because it runs all the application code</li>
+        <li class="option"><div class="opt-label">C</div>Layer 3 - Database, because it stores all the application's data</li>
+        <li class="option correct"><div class="opt-label">D</div>Layer 1 - Regulatory/Legal Infrastructure, because it overrides all technical decisions and can freeze any layer above it</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: D</span>
+        <p><strong>Explanation:</strong> While the database (Layer 3) controls data day-to-day, the regulatory layer (Layer 1) has absolute power - it can override any technical measure with a legal order. A government can compel a company to shut down servers, hand over database contents, or freeze accounts - regardless of how well the technology is built. The PhonePe incident proves this: RBI's Layer 1 action (moratorium) froze Yes Bank's Layer 2 operations, which collapsed PhonePe's Layers 3 - 6. No technical solution within PhonePe's control could have prevented this - because the failure originated below the technical layer entirely. Blockchain addresses this by having no single entity (no Layer 1 equivalent) that a government can serve an order to.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 3</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">A startup builds a food delivery app that uses Google Maps API for routing, Razorpay for payments, and AWS for server hosting. Which statement BEST describes the startup's architectural situation?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>The startup has excellent architecture because it uses three separate, reliable services</li>
+        <li class="option correct"><div class="opt-label">B</div>The startup has three hidden centralised chokepoints - if Google Maps, Razorpay, or AWS fail, the entire app fails, regardless of the quality of the startup's own code</li>
+        <li class="option"><div class="opt-label">C</div>Using multiple providers is a form of decentralisation that reduces risk</li>
+        <li class="option"><div class="opt-label">D</div>The startup only needs to worry about its own server code; third-party APIs are always reliable</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> Using multiple third-party services is not decentralisation - it is distributed dependency. The startup now has three separate centralised chokepoints instead of one. If Google Maps has an outage (as it did during the December 2021 AWS outage), routes can't be calculated and orders fail. If Razorpay has payment processing issues, orders can't be paid. If AWS goes down, the app itself can't run. Option C is a common misconception: using multiple providers reduces concentration risk slightly but does not eliminate centralised dependencies - each provider is itself a single entity whose failure affects all apps using it simultaneously. True decentralisation would require on-chain routing logic, smart contract payments, and distributed hosting - none dependent on any single company.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 4</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Why does a company running its application on 10,000 servers across 5 data centres NOT achieve decentralisation?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>10,000 servers are not enough; decentralisation requires at least 100,000 servers</li>
+        <li class="option correct"><div class="opt-label">B</div>All 10,000 servers are owned and controlled by one entity; decentralisation requires different entities owning and controlling different nodes independently</li>
+        <li class="option"><div class="opt-label">C</div>Data centres in only 5 locations are not geographically distributed enough</li>
+        <li class="option"><div class="opt-label">D</div>The company needs to use a different programming language to achieve decentralisation</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> Decentralisation is fundamentally about ownership and control, not about the number of servers or their geographic distribution. A company operating 10,000 servers is performing "horizontal scaling" - a performance and reliability improvement. But one court order, one government directive, or one CEO decision can affect all 10,000 servers simultaneously, because they all obey the same authority. MST Blockchain's 71,000+ validators are owned by thousands of independent individuals and organisations globally. No single entity can compel all of them simultaneously. That is the architectural difference between horizontal scaling (many servers, one owner) and true decentralisation (many nodes, many owners, consensus governs).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 5</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty easy">Easy</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In a centralised application's architecture, which component is described as "whoever controls this, controls reality for every user"?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>The user interface layer</li></ul></div>
+        <li class="option"><div class="opt-label">B</div>The load balancer</li>
+        <li class="option correct"><div class="opt-label">C</div>The centralised database</li>
+        <li class="option"><div class="opt-label">D</div>The API gateway</li>
+      
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> The centralised database is where the ground truth of a system lives - every user's account status, every transaction record, every balance, every permission. Whoever has write access to the database can change any record, which immediately changes reality for every user that record affects. When Google changes a user's account_status from "ACTIVE" to "SUSPENDED" in their database, that user's reality changes instantly - all their content becomes inaccessible, their income stops, their community is severed. In blockchain, there is no centralised database to modify - the ledger is maintained by consensus across thousands of validators. No single entity has write access. This is the deepest architectural difference between centralised and decentralised systems.</p>
+      </div>
+    </div>
+  
+
+  <!-- Q6 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 6</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">The Indian government mandates that all payment data of Indian users must be stored in India (RBI Data Localisation). From a decentralisation perspective, what is the unintended consequence of this well-intentioned regulation?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>It forces companies to use blockchain technology for payment data</li>
+        <li class="option"><div class="opt-label">B</div>It reduces latency for Indian users by keeping data geographically close</li>
+        <li class="option correct"><div class="opt-label">C</div>It concentrates all Indian payment data in known, fixed geographic locations - creating a more identifiable target for attackers and a clearer point of regulatory control</li>
+        <li class="option"><div class="opt-label">D</div>It makes Indian payment systems more decentralised by distributing data across Indian cities</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> Data localisation, while designed to protect Indian citizens' data from foreign surveillance, paradoxically increases centralisation risk in two ways. First, it creates concentrated, geographically known targets: an attacker who wants to breach Indian payment data knows exactly where to look - Indian data centres. Before localisation, data might be distributed across multiple countries, increasing the attack surface but reducing the value of any single breach. Second, it gives the Indian government a clear, compellable point of control: all Indian payment data is in India, within RBI and government jurisdiction, easily accessible via court order. A truly decentralised blockchain network with validators globally distributed has neither of these vulnerabilities - there is no concentrated geographic target and no single jurisdiction that controls all data.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 7</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">You are advising a Mumbai-based fintech startup that processes ₹500 crore per day in payments. They are considering building on either (A) a centralised architecture with four banking partners for redundancy, or (B) a smart contract on MST Blockchain. The CEO says "Option A is safer because having four banking partners means if one fails, the others continue." What is the critical architectural flaw in the CEO's reasoning?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>Four banking partners is too many; two is the industry standard</li>
+        <li class="option"><div class="opt-label">B</div>MST Blockchain cannot handle ₹500 crore per day in transactions</li>
+        <li class="option correct"><div class="opt-label">C</div>All four banks operate under RBI jurisdiction; a single RBI policy change, government order, or systemic banking crisis affects all four simultaneously - redundancy among entities that share the same regulatory authority is not true resilience</li>
+        <li class="option"><div class="opt-label">D</div>Smart contracts are too complex for payment processing at this scale</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: C</span>
+        <p><strong>Explanation:</strong> The CEO's reasoning treats four banking partners as independent failure modes - but they are not architecturally independent. All four banks are Indian licensed banks operating under RBI supervision. A single RBI directive (like the 2020 Yes Bank moratorium or the 2016 demonetisation) affects all Indian banks simultaneously. During the 2008 global financial crisis, multiple banks across the US failed in the same period - redundancy among banks in the same regulatory jurisdiction provides no protection against systemic failures. True resilience for payment infrastructure requires either (1) banking partners in genuinely different jurisdictions with no shared regulatory authority, or (2) a system that doesn't require banking licences at all - which is exactly what MST Blockchain's smart contract payment system provides. MST's 71,000+ validators are owned across different jurisdictions, geographies, and entities - a genuinely diverse failure profile that four Indian banks cannot replicate.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION B — True/False with Justification -->
+  <h3 class="sub-title" style="margin-top:40px;">Section B - True/False with Justification &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 × 2 Marks = 2 Marks)</span></h3>
+  <p style="color:var(--ink-3);font-size:14px;margin-bottom:24px;">State TRUE or FALSE and write 3 - 5 sentences of justification. Verdict alone = 0 marks.</p>
+
+  <!-- TF Q1 -->
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 8</span><span class="q-type">True / False</span>
+      <span class="q-marks">2 Marks</span><span class="difficulty hard">Hard</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">Statement: "India's UPI system, which processes over 10 billion transactions per month with near-zero cost, proves that centralised payment infrastructure is superior to blockchain-based alternatives and therefore blockchain payment systems are unnecessary."</div>
+      <div class="tf-area">
+        <strong>Think carefully:</strong> What does UPI do well? What are its architectural limitations? Is performance the only dimension on which to evaluate payment infrastructure? What can blockchain offer that UPI cannot?
+      </div>
+      <div class="answer-block" style="margin-top:16px;">
+        <div class="tf-verdict false">FALSE</div>
+        <span class="answer-label" style="margin-top:8px;">✅ Model Justification (Full 2 Marks)</span>
+        <p>UPI is technically excellent at what it does - speed, cost, and scale - but "superior" requires evaluating all dimensions, not just performance. UPI is operated by NPCI, a government-backed non-profit overseen by RBI. This means: (1) NPCI can be disabled, regulated, or modified by government order - India temporarily restricted international UPI access in 2023; (2) all UPI transactions are accessible to Indian government authorities; (3) UPI requires Indian bank accounts - the 190 million unbanked Indians and all non-Indian users cannot use UPI regardless of its technical excellence; and (4) UPI's terms, fees, and features can be changed by NPCI without user consent. Blockchain payment systems like MST Blockchain address dimensions UPI cannot: global accessibility without bank accounts, censorship resistance, cryptographic ownership (no bank to freeze your account), programmable money (smart contracts that execute payments automatically based on conditions), and cross-border transactions without correspondent banking relationships. The comparison should not be "UPI vs blockchain" - it should be "which tool fits which use case." For Indian domestic consumer payments, UPI is excellent. For global permissionless programmable payments, blockchain is architecturally superior. Both have a role.</p>
+        <div class="marks-breakdown">
+          <div class="mark-cell"><strong>1 Mark:</strong> Correctly states FALSE and identifies at least two specific architectural limitations of UPI (government control, access restrictions, or modifiable terms)</div>
+          <div class="mark-cell"><strong>+1 Mark:</strong> Articulates specific blockchain advantages (censorship resistance, global access, smart contract programmability, cryptographic ownership) that UPI cannot provide - framing the comparison as complementary rather than competitive</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION C — MCQ 2 mark -->
+  <h3 class="sub-title" style="margin-top:40px;">Section C - MCQ (Higher Value) &nbsp;<span style="font-weight:400;font-size:15px;color:var(--ink-3)">(1 × 1 Mark = 1 Mark)</span></h3>
+
+  <div class="question-card">
+    <div class="question-header">
+      <span class="q-num">Question 9</span><span class="q-type">MCQ</span>
+      <span class="q-marks">1 Mark</span><span class="difficulty medium">Medium</span>
+    </div>
+    <div class="question-body">
+      <div class="question-text">In a blockchain payment system built on MST, which of the following best describes what replaces the "banking licence" (the regulatory permission required to move money in a centralised system)?</div>
+      <ul class="options">
+        <li class="option"><div class="opt-label">A</div>A special government-issued blockchain licence that MST obtained from RBI</li>
+        <li class="option correct"><div class="opt-label">B</div>The smart contract code and the consensus mechanism - the contract holds and moves value according to cryptographic rules verified by 71,000+ validators, requiring no regulatory permission at the transaction level</li>
+        <li class="option"><div class="opt-label">C</div>MST Blockchain's own banking partner that provides the underlying licence</li>
+        <li class="option"><div class="opt-label">D</div>Users must each obtain their own banking licence to participate in blockchain payments</li>
+      </ul>
+      <div class="answer-block">
+        <span class="answer-label">✅ Correct Answer: B</span>
+        <p><strong>Explanation:</strong> This is the fundamental architectural insight about blockchain payments. In centralised fintech, the banking licence is required because you need a trusted intermediary (a bank, regulated by RBI) to verify that funds exist and authorise their transfer. The regulatory framework exists to ensure this intermediary is trustworthy. In blockchain, the smart contract replaces the intermediary - it holds value in escrow and releases it when cryptographic conditions are met. The consensus mechanism (MST's 71,000+ validators) replaces regulatory oversight - instead of the RBI verifying that the bank is honest, the consensus protocol mathematically verifies that the transaction is valid. No single validator can approve a fraudulent transaction; the majority must agree. This is "trustless" in the blockchain sense: you don't need to trust any company or regulator - you trust the mathematics and the consensus protocol.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div style="background: var(--brand); border-radius: var(--radius); padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div style="color: #C4B5F5; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">Sub-Module 2.2 Assessment Summary</div>
+      <div style="color: white; font-size: 16px; font-weight: 700;">Section A: 7 × MCQ = 7 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section B: 1 × True/False with Justification = 2 marks</div>
+      <div style="color: #C4B5F5; font-size: 15px; font-weight: 500; margin-top: 4px;">Section C: 1 × MCQ = 1 mark</div>
+    </div>
+    <div style="background: white; border-radius: 10px; padding: 14px 28px; text-align: center;">
+      <div style="font-size: 42px; font-weight: 900; color: var(--brand); line-height: 1;">10</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--ink-3);">TOTAL MARKS</div>
+    </div>
+  </div>
+</section>
+
+<div style="text-align:center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);">
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size: 13px; color: var(--ink-3);">Module 2 · Sub-Module 2.2 of 6 &nbsp;·&nbsp; Next: Sub-Module 2.3 - Single Points of Failure &amp; Censorship →</div>
+</div>
+
+
+

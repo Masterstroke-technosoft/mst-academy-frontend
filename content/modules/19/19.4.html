@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Module 19.4 - Beyond MST Grants | MasterStroke Academy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand:        #6C3CE2;
+            --brand-light:  #EDE9FB;
+            --brand-dark:   #3C1FA0;
+            --brand-mid:    #8B5CF6;
+            --accent:       #F6A623;
+            --accent-light: #FEF4E0;
+            --green:        #16A34A;
+            --green-light:  #DCFCE7;
+            --red:          #DC2626;
+            --red-light:    #FEE2E2;
+            --blue:         #1D6FD8;
+            --blue-light:   #DBEAFE;
+            --orange:       #EA580C;
+            --orange-light: #FFEDD5;
+            --teal:         #0D9488;
+            --teal-light:   #CCFBF1;
+            --ink:          #111827;
+            --ink-2:        #374151;
+            --ink-3:        #6B7280;
+            --ink-4:        #9CA3AF;
+            --border:       #E5E7EB;
+            --border-2:     #D1D5DB;
+            --surface:      #F9FAFB;
+            --surface-2:    #F3F4F6;
+            --white:        #FFFFFF;
+            --mono:         'JetBrains Mono', monospace;
+            --sans:         'Inter', sans-serif;
+            --radius:       10px;
+            --radius-sm:    6px;
+            --radius-lg:    16px;
+            --radius-xl:    22px;
+            --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md:    0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        body {
+            font-family: var(--sans);
+            color: var(--ink);
+            background: #fff;
+            line-height: 1.75;
+            font-size: 16px;
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 48px 32px 100px;
+        }
+
+        .module-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--brand-light); color: var(--brand-dark);
+            font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+            text-transform: uppercase; padding: 5px 14px; border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .module-title {
+            font-size: clamp(28px, 4vw, 40px); font-weight: 900;
+            line-height: 1.15; color: var(--ink); margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .module-title .highlight { color: var(--brand); }
+        .module-subtitle {
+            font-size: 17px; color: var(--ink-3); font-weight: 400;
+            margin-bottom: 28px; line-height: 1.65; max-width: 680px;
+        }
+        .meta-bar {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 52px; padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+        .meta-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 14px;
+            font-size: 13px; font-weight: 500; color: var(--ink-2);
+        }
+        .meta-chip.purple { background: var(--brand-light); border-color: #C4B5F5; color: var(--brand-dark); }
+        .meta-chip.green  { background: var(--green-light);  border-color: #86EFAC; color: #14532D; }
+        .meta-chip.orange { background: var(--accent-light); border-color: #FCD34D; color: #92400E; }
+        .meta-chip.blue   { background: var(--blue-light); border-color: #93C5FD; color: #1E3A8A; }
+
+        .section-label {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--brand);
+            margin-bottom: 10px; margin-top: 52px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .section-title {
+            font-size: 24px; font-weight: 800; color: var(--ink);
+            margin-bottom: 18px; letter-spacing: -0.01em; line-height: 1.3;
+        }
+
+        p { color: var(--ink-2); margin-bottom: 16px; font-size: 15.5px; line-height: 1.8; }
+        p strong { color: var(--ink); font-weight: 700; }
+
+        .callout {
+            border-radius: var(--radius-lg); padding: 20px 24px;
+            margin: 24px 0; border-left: 4px solid;
+        }
+        .callout-label {
+            font-size: 11px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; margin-bottom: 8px; display: flex;
+            align-items: center; gap: 6px;
+        }
+        .callout p { font-size: 15px; margin: 0; }
+        .callout.story   { background: #FAFAF5; border-color: var(--accent);   }
+        .callout.key     { background: var(--brand-light); border-color: var(--brand);  }
+        .callout.key .callout-label     { color: var(--brand-dark); }
+        .callout.warning { background: var(--red-light);   border-color: var(--red);    }
+        .callout.warning .callout-label { color: var(--red); }
+        .callout.insight { background: var(--teal-light);  border-color: var(--teal);   }
+        .callout.insight .callout-label { color: var(--teal); }
+        .callout.analogy { background: var(--accent-light); border-color: var(--accent); }
+        .callout.analogy .callout-label { color: #92400E; }
+        .callout.story .callout-label   { color: #92400E; }
+
+        .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .obj-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .obj-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+        .obj-text { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+        .obj-text strong { display: block; color: var(--ink); font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+
+        .feature-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .feature-item {
+            display: flex; gap: 14px; align-items: flex-start;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px;
+        }
+        .feature-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--brand); color: white;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .feature-content { flex: 1; }
+        .feature-title { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+        .feature-desc  { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+        .diagram-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 28px 24px; margin: 24px 0;
+            overflow-x: auto;
+        }
+        .diagram-title {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--ink-3); margin-bottom: 20px;
+            text-align: center;
+        }
+        .diagram-wrap pre {
+            font-family: var(--mono); font-size: 13px; line-height: 1.65;
+            color: var(--ink-2); white-space: pre; margin: 0;
+        }
+        .diagram-caption {
+            font-size: 12px; color: var(--ink-4); text-align: center;
+            margin-top: 16px; font-style: italic;
+        }
+
+        .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        .compare-table thead th {
+            padding: 12px 16px; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            text-align: left; border-bottom: 2px solid var(--border);
+        }
+        .compare-table thead th:first-child  { color: var(--ink-3); background: var(--surface); }
+        .compare-table thead th:nth-child(2) { color: var(--red);   background: #FFF5F5; }
+        .compare-table thead th:nth-child(3) { color: var(--green); background: #F0FFF4; }
+        .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+        .compare-table tbody tr:hover td { background: var(--surface); }
+        .compare-table tbody td { padding: 13px 16px; vertical-align: top; color: var(--ink-2); line-height: 1.55; }
+        .compare-table tbody td:first-child { font-weight: 600; color: var(--ink); background: var(--surface); }
+        .compare-table .good { color: var(--green); font-weight: 600; }
+        .compare-table .bad  { color: var(--red);   font-weight: 600; }
+
+        .assessment-section { margin-top: 64px; }
+        .assessment-header {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 24px 32px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .assessment-header h2 { font-size: 20px; font-weight: 800; color: white; }
+        .marks-total-badge {
+            background: white; border-radius: 10px; padding: 10px 20px;
+            text-align: center; flex-shrink: 0;
+        }
+        .marks-total-badge .num { font-size: 32px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .marks-total-badge .label { font-size: 10px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+        .assessment-body {
+            border: 2px solid var(--border); border-top: none;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .q-section-header {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .q-section-title { font-size: 13px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em; }
+        .q-section-meta  { font-size: 12px; color: var(--ink-3); }
+
+        .question-block { padding: 28px 28px 0; border-bottom: 1px solid var(--border); }
+        .question-block:last-child { border-bottom: none; padding-bottom: 28px; }
+
+        .q-header { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+        .q-badge {
+            background: var(--brand); color: white;
+            font-size: 11px; font-weight: 700; padding: 4px 10px;
+            border-radius: 6px; white-space: nowrap; letter-spacing: 0.04em;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .q-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .q-type { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+        .q-diff {
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+        }
+        .q-diff.easy   { background: var(--green-light);  color: #14532D; }
+        .q-diff.medium { background: var(--accent-light); color: #92400E; }
+        .q-diff.hard   { background: var(--red-light);    color: #7F1D1D; }
+        .q-marks { font-size: 12px; color: var(--ink-3); margin-left: auto; font-weight: 500; flex-shrink: 0; }
+
+        .q-text {
+            font-size: 15.5px; font-weight: 600; color: var(--ink);
+            margin-bottom: 18px; line-height: 1.6;
+        }
+
+        .options { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+        .options li {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px 16px; border: 1.5px solid var(--border);
+            border-radius: var(--radius); font-size: 14.5px; color: var(--ink-2);
+            line-height: 1.5; cursor: default;
+        }
+        .options li.correct {
+            border-color: var(--green); background: var(--green-light);
+            color: var(--ink);
+        }
+        .opt-key {
+            font-family: var(--mono); font-size: 12px; font-weight: 700;
+            color: var(--ink-3); flex-shrink: 0; margin-top: 1px; min-width: 18px;
+        }
+        .options li.correct .opt-key { color: var(--green); }
+
+        .answer-box {
+            background: var(--green-light); border: 1.5px solid #86EFAC;
+            border-radius: var(--radius); padding: 18px 20px; margin-bottom: 28px;
+        }
+        .answer-box-label {
+            font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--green); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .answer-box p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; margin: 0; }
+        .answer-box .marks-bd {
+            margin-top: 12px; padding-top: 10px; border-top: 1px solid #86EFAC;
+            font-size: 13px; color: #14532D;
+        }
+        .answer-box .marks-bd span { font-weight: 700; }
+
+        .tf-box {
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+        }
+        .tf-verdict {
+            display: inline-block; font-size: 13px; font-weight: 800;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 6px; margin-bottom: 10px;
+        }
+        .tf-verdict.true  { background: var(--green-light); color: #14532D; }
+        .tf-verdict.false { background: var(--red-light);   color: #7F1D1D; }
+        .tf-must-write {
+            font-size: 11.5px; font-weight: 700; color: var(--brand-dark);
+            text-transform: uppercase; letter-spacing: 0.07em;
+            margin-bottom: 8px;
+        }
+        .tf-sample {
+            font-size: 14.5px; color: var(--ink-2); line-height: 1.7;
+            border-left: 3px solid var(--brand); padding-left: 12px;
+        }
+
+        .score-summary {
+            background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+            border-radius: var(--radius-lg); padding: 28px 32px; margin-top: 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+        }
+        .score-left { }
+        .score-label { color: #C4B5F5; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+        .score-row   { color: white; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .score-row span { color: #C4B5F5; font-weight: 400; }
+        .score-badge {
+            background: white; border-radius: 12px; padding: 16px 28px; text-align: center; flex-shrink: 0;
+        }
+        .score-badge .score-num   { font-size: 44px; font-weight: 900; color: var(--brand); line-height: 1; }
+        .score-badge .score-text  { font-size: 11px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+        .page-footer {
+            text-align: center; margin-top: 64px; padding-top: 32px;
+            border-top: 2px solid var(--border);
+        }
+        .page-footer p { font-size: 13px; color: var(--ink-3); margin-bottom: 4px; }
+
+        .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+        .glossary-item {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 14px 16px;
+        }
+        .glossary-term { font-size: 13px; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+        .glossary-def  { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+        @media (max-width: 640px) {
+            body { padding: 28px 18px 72px; }
+            .obj-grid       { grid-template-columns: 1fr; }
+            .compare-table  { font-size: 12px; }
+            .glossary-grid  { grid-template-columns: 1fr; }
+            .module-title   { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="module-badge">🌍 Module 19 · Sub-Module 19.4 of 4</div>
+<h1 class="module-title">Beyond <span class="highlight">MST Grants</span></h1>
+<p class="module-subtitle">From MST's ecosystem to the global venture capital stage - how to convert your grant traction into a seed round from top Web3 VCs and accelerators like Y Combinator.</p>
+
+<div class="meta-bar">
+    <div class="meta-chip">⏱ 30 Minutes</div>
+    <div class="meta-chip purple">🎯 10 Marks</div>
+    <div class="meta-chip">📋 6 MCQ + 1 T/F+Justification + 1 Descriptive</div>
+    <div class="meta-chip blue">Phase 4 · Entrepreneurship</div>
+</div>
+
+<!-- LEARNING OBJECTIVES -->
+<div class="section-label">01 · Learning Objectives</div>
+<h2 class="section-title">By the end of this sub-module, you will be able to…</h2>
+<div class="obj-grid">
+    <div class="obj-card">
+        <div class="obj-icon">🗺️</div>
+        <div class="obj-text">
+            <strong>Map the Web3 VC landscape</strong>
+            Identify top funds, accelerators (Y Combinator, Alliance DAO), and angel networks that actively invest in blockchain startups.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🔗</div>
+        <div class="obj-text">
+            <strong>Leverage MST grants as traction</strong>
+            Use your MST initGrant, buildGrant, or scaleGrant as a stamp of approval to get warm introductions to external investors.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">📝</div>
+        <div class="obj-text">
+            <strong>Craft a VC-ready application</strong>
+            Adapt your MST grant materials into a Y Combinator application and a one-pager for a16z crypto - highlighting what makes you fundable.
+        </div>
+    </div>
+    <div class="obj-card">
+        <div class="obj-icon">🚀</div>
+        <div class="obj-text">
+            <strong>Build a fundraising roadmap</strong>
+            Plan a sequence: grant → accelerator → seed round → Series A, with clear milestones at each stage.
+        </div>
+    </div>
+</div>
+
+<!-- STORY -->
+<div class="section-label">02 · Real-World Introduction Story</div>
+<h2 class="section-title">The $2 Million Seed Round That Started with a $10,000 Grant</h2>
+<div class="callout story">
+    <div class="callout-label">📖 Story</div>
+    <p>In early 2025, a two-person team from Indore - Priya (smart contract dev) and Arjun (growth) - built <strong>ChitFundFi</strong>, a decentralised chit fund protocol on MST. They received the MST buildGrant ($10,000) in March. By August, they had 3,000 active users on mainnet, a token launch, and a growing community. But $10,000 was running out.</p>
+    <br>
+    <p>Instead of applying for another grant, they decided to aim higher. Priya had heard of <strong>Y Combinator</strong> but never thought they stood a chance. “We're just two people from a tier-3 city. YC is for Stanford grads,” she thought. But their MST grant mentor encouraged them: “The MST grant is your validation. You have real users, real revenue. That’s more than 90% of YC applicants.”</p>
+    <br>
+    <p>They applied to Y Combinator’s S2025 batch. In the application, they listed “MST buildGrant recipient - 3,000 mainnet users” as their top traction metric. They referenced the MST ecosystem, the low-gas advantage, and the WASMify oracle integration. Three weeks later, they received an interview invitation. Two weeks after that, they were in. YC’s $500,000 investment gave them 18 months of runway. Nine months later, they closed a $2 million seed round led by a top Web3 VC.</p>
+    <br>
+    <p><strong>The MST grant did not make them successful. It made them visible.</strong> This sub-module shows you how to use that visibility to unlock capital far beyond the MST ecosystem.</p>
+</div>
+
+<p>Grants are a launchpad, not a destination. The real journey begins when you take your validated product and traction to the global venture capital market. This sub-module is your guide to navigating that world - from warm intros to term sheets.</p>
+
+<!-- SECTION 3: THE WEB3 VC LANDSCAPE -->
+<div class="section-label">03 · The Web3 VC Universe</div>
+<h2 class="section-title">Who’s Writing the Checks? - A Map of Web3 Investors</h2>
+<p>Web3 venture capital has matured into a structured ecosystem. Understanding who invests, at what stage, and for what reasons is the first step to raising capital beyond grants.</p>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">🏦</div>
+        <div class="feature-content">
+            <div class="feature-title">Tier-1 Web3 Funds (Seed to Series A+)</div>
+            <div class="feature-desc"><strong>a16z crypto, Paradigm, Pantera Capital, Polychain Capital, Dragonfly, Multicoin Capital.</strong> These funds lead rounds from $1M to $100M+. They look for strong teams with clear tokenomics, defensible moats, and early traction. A warm intro from a portfolio founder or an MST ecosystem leader can open doors.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--green);">🌱</div>
+        <div class="feature-content">
+            <div class="feature-title">Web3 Accelerators & Incubators</div>
+            <div class="feature-desc"><strong>Y Combinator (YC), Alliance DAO, Outlier Ventures, Binance Labs MVB, Polygon Village, Solana Breakpoint.</strong> These programs provide funding, mentorship, and cohort-based support. YC, though chain-agnostic, has backed many Web3 startups (Coinbase, OpenSea, Worldcoin). Alliance DAO is crypto-native and highly selective. MST grants can serve as a stepping stone into these accelerators.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--accent);">👼</div>
+        <div class="feature-content">
+            <div class="feature-title">Angel Investors & Syndicates</div>
+            <div class="feature-desc"><strong>Balaji Srinivasan, Naval Ravikant, Sandeep Nailwal, Stani Kulechov.</strong> Angel investors often write first checks ($25K-$250K) and provide invaluable intros. Many angels are active on Twitter/X and Farcaster. A well-crafted cold DM that mentions your MST grant and live product can get a reply. Syndicates (like Orange DAO, Shima Capital) pool angel capital and often invest alongside accelerators.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--brand);">🏛️</div>
+        <div class="feature-content">
+            <div class="feature-title">Ecosystem Funds & Grants-to-VC Pathways</div>
+            <div class="feature-desc"><strong>MST Foundation Grants → MST Ecosystem Fund (future).</strong> Many L1 foundations have dedicated venture arms that invest in their ecosystem’s top projects. MST’s grant program is designed to identify and nurture projects that could later receive larger investments from affiliated funds or external VCs. Maintaining a strong relationship with the MST team is a strategic asset.</div>
+        </div>
+    </div>
+</div>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 19.4-A · The Web3 Fundraising Funnel - From Grant to Series A</div>
+    <pre>
+    MST initGrant / buildGrant  →  $1K–$50K
+              │
+              ▼
+    Accelerator (YC, Alliance)  →  $125K–$500K
+              │
+              ▼
+    Seed Round (Web3 VCs)       →  $1M–$3M
+              │
+              ▼
+    Series A (Tier‑1 Funds)     →  $5M–$20M
+    </pre>
+    <div class="diagram-caption">Each stage validates the next. An MST grant is the base layer of social proof that makes the entire funnel possible.</div>
+</div>
+
+<!-- SECTION 4: MST GRANT AS TRACTION -->
+<div class="section-label">04 · Grant as Traction</div>
+<h2 class="section-title">Why VCs Love MST Grant Recipients</h2>
+<p>External investors see an MST grant as a signal of quality. It means your project has passed a technical and business review, has a working testnet/mainnet deployment, and is aligned with a growing ecosystem.</p>
+
+<div class="callout key">
+    <div class="callout-label">🗝️ The Three Things VCs Infer from Your MST Grant</div>
+    <p><strong>1. Validation:</strong> Someone else already believed in you and gave you money - the hardest cold start problem is partially solved.<br>
+    <strong>2. Technical Credibility:</strong> MST’s review process includes smart contract checks. VCs assume your code is not a complete disaster.<br>
+    <strong>3. Ecosystem Lock-in:</strong> You’re building on a specific L1 with unique features (SARAL, WASMify). If the ecosystem grows, you benefit disproportionately - a venture-style bet.</p>
+</div>
+
+<p>In your pitch to external VCs, always lead with the MST grant in your traction slide. Example: <strong>“MST buildGrant recipient - $10,000 awarded. 3,000 mainnet users, $120K volume, 4.8/5 community rating.”</strong> This frames you as a vetted, post-grant startup, not a raw idea.</p>
+
+<!-- SECTION 5: Y COMBINATOR DEEP DIVE -->
+<div class="section-label">05 · Y Combinator</div>
+<h2 class="section-title">Y Combinator & Web3 - How to Get In</h2>
+<p>Y Combinator (YC) is the world’s most prestigious startup accelerator. It has funded 5,000+ companies including Stripe, Airbnb, Coinbase, and OpenSea. Its standard deal: $500,000 for 7% equity (as of 2025). For Web3 startups, YC is chain-agnostic but values traction and technical defensibility.</p>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num">1</div>
+        <div class="feature-content">
+            <div class="feature-title">The YC Application - What Matters</div>
+            <div class="feature-desc">The YC application is a 20-question form. Key questions: <strong>“What are you building?”</strong> (one sentence), <strong>“Who are your competitors, and what do you understand that they don’t?”</strong>, and <strong>“How far along are you?”</strong> For an MST project, you’d answer the last one with: “We’ve received an MST buildGrant, deployed on mainnet, and have 3,000 users.” That’s enough traction to stand out. YC also asks for a 1-minute video - same pitch structure as 19.2.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">2</div>
+        <div class="feature-content">
+            <div class="feature-title">YC Interview - 10 Minutes to Convince</div>
+            <div class="feature-desc">The interview is fast and intense. Expect rapid-fire questions on your product, market, and team. Use the same Q&A framework from 19.3. They will ask: “Why blockchain?” Have a crisp answer tied to MST’s low gas and SARAL. “Why now?” - tie to MST’s mainnet launch and growing ecosystem. Bring your MST grant certificate and a live demo (with fallback).</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num">3</div>
+        <div class="feature-content">
+            <div class="feature-title">YC's Web3 Track Record</div>
+            <div class="feature-desc">YC has backed Coinbase (W12), OpenSea (W18), Worldcoin, Protocol Labs (Filecoin), and dozens of DeFi/NFT projects. They understand tokens and tokenomics. Your MST grant helps because it proves you can ship on a real blockchain, not just write a whitepaper.</div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 6: OTHER ACCELERATORS -->
+<div class="section-label">06 · Other Pathways</div>
+<h2 class="section-title">Beyond YC - Other Web3 Accelerators & Incubators</h2>
+
+<table class="compare-table">
+    <thead>
+        <tr>
+            <th>Program</th>
+            <th>❌ Standard VC (Generalist)</th>
+            <th>✅ Alliance DAO</th>
+            <th>✅ Outlier Ventures</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Focus</td>
+            <td class="bad">General tech, may not understand tokens</td>
+            <td class="good">Crypto-native, token design, community</td>
+            <td class="good">Web3 infrastructure, DeFi, metaverse</td>
+        </tr>
+        <tr>
+            <td>Funding</td>
+            <td class="mid">Varies (often $100K-$250K for 5-7%)</td>
+            <td class="good">Up to $250K, plus token support</td>
+            <td class="good">Up to $100K, plus token advisory</td>
+        </tr>
+        <tr>
+            <td>MST Grant Fit</td>
+            <td class="bad">Needs strong education on MST</td>
+            <td class="good">Excellent - they appreciate L1-specific innovation</td>
+            <td class="good">Good - they value infrastructure and scaling</td>
+        </tr>
+        <tr>
+            <td>Application Tip</td>
+            <td class="bad">Avoid jargon; focus on revenue</td>
+            <td class="good">Emphasize token utility and community growth</td>
+            <td class="good">Highlight tech moat and market size</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout insight">
+    <div class="callout-label">💡 Pro Tip</div>
+    <p>When applying to accelerators, customise your application to their focus. Alliance DAO wants to see tokenomics depth. Outlier Ventures wants infrastructure scalability. YC wants growth and a clear problem. <strong>Your MST grant is a universal credibility badge</strong> - it signals that an L1 foundation has already vetted you.</p>
+</div>
+
+<!-- SECTION 7: BUILDING VC RELATIONSHIPS -->
+<div class="section-label">07 · Relationship Building</div>
+<h2 class="section-title">How to Get a Warm Intro to Any Web3 VC</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">1</div>
+        <div class="feature-content">
+            <div class="feature-title">Leverage Your MST Mentor & Network</div>
+            <div class="feature-desc">Your MST grant mentor is a direct line to the ecosystem. Ask them: “Do you know any VCs who would be interested in our traction?” MST team members often have connections at top funds. A warm intro from the MST Foundation carries weight.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">2</div>
+        <div class="feature-content">
+            <div class="feature-title">Twitter/X - The Web3 VC’s Living Room</div>
+            <div class="feature-desc">Most Web3 VCs are active on X. Follow them, engage with their posts (thoughtfully, not spam), and share your MST milestones publicly. When you’re ready, DM them: “We’re an MST buildGrant project with 3K users and growing 20% MoM. Would love 15 minutes to share what we’re building.” Keep it under 280 characters - respect their time.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">3</div>
+        <div class="feature-content">
+            <div class="feature-title">Attend & Speak at MST Events (and Hackathons)</div>
+            <div class="feature-desc">MST hackathons, demo days, and community calls are where VCs scout for talent. Volunteer to present your project. Winning an MST hackathon or being featured in a community showcase puts you directly in front of investors.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--blue);">4</div>
+        <div class="feature-content">
+            <div class="feature-title">Use AngelList, LinkedIn, and Warm Intros</div>
+            <div class="feature-desc">Platforms like AngelList (WellFound) have Web3 syndicates. LinkedIn is less crypto-native but still useful for finding VCs. A warm intro from a fellow founder (even a non-Web3 one) is gold. Always ask: “Who do you know who invests in blockchain?”</div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 8: PITCHING TO VCS VS GRANTS -->
+<div class="section-label">08 · Pitching VCs vs Grants</div>
+<h2 class="section-title">Key Differences Between Pitching to MST Grants and Pitching to VCs</h2>
+
+<table class="compare-table">
+    <thead>
+        <tr>
+            <th>Aspect</th>
+            <th>🎓 MST Grant Pitch</th>
+            <th>💰 VC Pitch</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Audience</td>
+            <td>Ecosystem builders; care about MST alignment</td>
+            <td>Financial investors; care about return on investment</td>
+        </tr>
+        <tr>
+            <td>Emphasis</td>
+            <td class="good">Technical innovation, MST feature usage</td>
+            <td class="good">Market size, traction, scalable business model</td>
+        </tr>
+        <tr>
+            <td>Tokenomics</td>
+            <td class="good">Utility, alignment with MST ecosystem</td>
+            <td class="good">Value accrual, token distribution, lock-ups</td>
+        </tr>
+        <tr>
+            <td>Team</td>
+            <td class="good">Capability, MST commitment</td>
+            <td class="good">Experience, ability to execute at scale</td>
+        </tr>
+        <tr>
+            <td>Ask</td>
+            <td class="good">Specific MST grant track ($X, deliverables)</td>
+            <td class="good">Equity/token round, valuation, use of funds</td>
+        </tr>
+        <tr>
+            <td>Follow-Up</td>
+            <td class="good">Grant report, milestone updates</td>
+            <td class="good">Investor updates, board meetings, future rounds</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>For VC pitches, you must add <strong>valuation, equity/token structure, and a detailed financial model</strong>. The MST grant deck is an excellent starting point, but you’ll need a few extra slides: a cap table, a competitive landscape (Web2 and Web3), and a detailed go-to-market plan.</p>
+
+<!-- SECTION 9: COMMON MISTAKES -->
+<div class="section-label">09 · Common Mistakes</div>
+<h2 class="section-title">The Top 5 Mistakes Founders Make When Moving from Grant to VC</h2>
+
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">1</div>
+        <div class="feature-content">
+            <div class="feature-title">Relying Only on the Grant as Traction</div>
+            <div class="feature-desc">VCs want to see <strong>user growth, revenue, or clear demand</strong> beyond the grant. Use the grant money to generate independent traction before approaching VCs.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">2</div>
+        <div class="feature-content">
+            <div class="feature-title">Pitching “Blockchain” Instead of “Solution”</div>
+            <div class="feature-desc">VCs invest in businesses, not technologies. Say “We help freelancers keep more of their earnings,” not “We’re a decentralised freelance protocol on MST.”</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">3</div>
+        <div class="feature-content">
+            <div class="feature-title">Not Having a Clear Token/Equity Structure</div>
+            <div class="feature-desc">VCs will ask: “Is this an equity round or a token round? What’s the valuation? What are the lock-ups?” Have answers ready. Ambiguity kills deals.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">4</div>
+        <div class="feature-content">
+            <div class="feature-title">Ignoring Legal & Regulatory Readiness</div>
+            <div class="feature-desc">Before taking VC money, you need a clean legal entity, IP assignment, token legal opinion, and a data room with all documents. (Covered in 19.1.)</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--red);">5</div>
+        <div class="feature-content">
+            <div class="feature-title">Not Timing the Ask</div>
+            <div class="feature-desc">Approach VCs when you have momentum - a new grant award, a spike in users, a feature launch. A “fundraising update” with good news gets replies. A cold email with no news gets ignored.</div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 10: ROADMAP -->
+<div class="section-label">10 · Your Funding Roadmap</div>
+<h2 class="section-title">Sample 12-Month Fundraising Roadmap (From Grant to Seed)</h2>
+
+<div class="diagram-wrap">
+    <div class="diagram-title">FIGURE 19.4-B · 12-Month Post-Grant Fundraising Sequence</div>
+    <pre>
+    Month 0: Receive MST buildGrant ($10K)
+    Month 1‑2: Mainnet launch, target 1K users, start Twitter growth
+    Month 3: Apply to 3 accelerators (YC, Alliance, Outlier)
+    Month 4: If accepted, join accelerator; use funding to scale
+    Month 5‑6: Grow to 5K users, hit $50K monthly volume
+    Month 7: Begin soft outreach to angels and seed VCs
+    Month 8‑9: Secure $500K–$1M seed round (led by a VC, syndicate, or angel)
+    Month 10‑12: Scale to 20K users, prepare for Series A
+    </pre>
+    <div class="diagram-caption">This timeline is aggressive but achievable. The key is to always have a next milestone visible to investors - never let momentum stall.</div>
+</div>
+
+<p>Remember: <strong>MST grants open doors. It’s up to you to walk through them.</strong></p>
+
+<!-- TOP FACTS -->
+<div class="section-label">11 · Assessment Preparation</div>
+<h2 class="section-title">Top Facts - Know These Cold</h2>
+<div class="feature-list">
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">01</div>
+        <div class="feature-content">
+            <div class="feature-title">YC is the world’s top accelerator</div>
+            <div class="feature-desc">Y Combinator accepts ~2% of applicants. A working product with traction (like an MST grant) increases your odds significantly.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">02</div>
+        <div class="feature-content">
+            <div class="feature-title">MST grants are social proof</div>
+            <div class="feature-desc">External VCs view an MST grant as a signal of technical validation and ecosystem commitment. Always lead with it in your traction slide.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">03</div>
+        <div class="feature-content">
+            <div class="feature-title">Warm intros outperform cold emails 10:1</div>
+            <div class="feature-desc">Leverage your MST mentor, fellow grantees, and community leaders to get introductions to VCs. A warm intro from an MST team member is extremely effective.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">04</div>
+        <div class="feature-content">
+            <div class="feature-title">VCs invest in businesses, not technology</div>
+            <div class="feature-desc">In your pitch, emphasise the problem you solve and the market you capture. Blockchain is the enabler, not the product.</div>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-num" style="background: var(--ink-3); font-size:11px;">05</div>
+        <div class="feature-content">
+            <div class="feature-title">Have your data room ready</div>
+            <div class="feature-desc">Before any VC meeting, prepare a folder with: pitch deck, cap table, legal opinion, IP assignments, tokenomics, and financial model. Speed of response signals professionalism.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ASSESSMENT -->
+<section class="assessment-section">
+    <div class="assessment-header">
+        <h2>📝 Sub-Module 19.4 Assessment</h2>
+        <div class="marks-total-badge">
+            <div class="num">10</div>
+            <div class="label">Total Marks</div>
+        </div>
+    </div>
+    <div class="assessment-body">
+
+        <!-- Section A: MCQ -->
+        <div class="q-section-header">
+            <div class="q-section-title">Section A - Multiple Choice Questions</div>
+            <div class="q-section-meta">6 Questions · 1 mark each · 6 marks total</div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q1</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">Which of the following is the most prestigious general-tech accelerator that has funded Web3 startups like Coinbase and OpenSea?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Binance Labs MVB</li>
+                <li class="correct"><span class="opt-key">B</span> Y Combinator ✅</li>
+                <li><span class="opt-key">C</span> Polygon Village</li>
+                <li><span class="opt-key">D</span> Outlier Ventures</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>Y Combinator (YC) is the world's most renowned accelerator, having funded Coinbase, OpenSea, and many other successful blockchain companies.</p>
+            </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q2</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff easy">Easy</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">What is the primary benefit of mentioning your MST grant in a VC pitch?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> It guarantees a term sheet</li>
+                <li class="correct"><span class="opt-key">B</span> It acts as social proof and technical validation ✅</li>
+                <li><span class="opt-key">C</span> It replaces the need for a demo</li>
+                <li><span class="opt-key">D</span> It reduces the equity you need to give away</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>VCs view an MST grant as external validation - someone else has already vetted your project. It’s a trust accelerator.</p>
+            </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q3</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">Which of the following is a key difference between pitching to an MST Grant Committee and pitching to a Web3 VC?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Both are identical</li>
+                <li class="correct"><span class="opt-key">B</span> VCs care more about market size and return on investment, while the grant committee cares about ecosystem alignment ✅</li>
+                <li><span class="opt-key">C</span> VCs don't care about tokenomics</li>
+                <li><span class="opt-key">D</span> The grant committee requires a financial model</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>VCs are financial investors; they want to see a path to a 10x return. Grant committees prioritize technical innovation and ecosystem fit.</p>
+            </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q4</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">According to the sub-module, what is the most effective way to get a warm introduction to a Web3 VC?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Send a cold email with a long deck</li>
+                <li class="correct"><span class="opt-key">B</span> Ask your MST mentor or an ecosystem connection for an introduction ✅</li>
+                <li><span class="opt-key">C</span> Comment on their blog posts</li>
+                <li><span class="opt-key">D</span> Attend a general startup meetup</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>Warm intros from trusted sources (like MST mentors) have a far higher success rate than cold outreach. VCs prioritize referrals.</p>
+            </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q5</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">When is the best time to approach a Web3 VC for funding?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> Immediately after receiving the MST grant</li>
+                <li class="correct"><span class="opt-key">B</span> When you have independent traction (users, revenue) beyond the grant ✅</li>
+                <li><span class="opt-key">C</span> Before launching your testnet</li>
+                <li><span class="opt-key">D</span> Only when you are out of money</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>VCs want to see that you’ve used the grant to generate real momentum - not just build an MVP. Traction makes the ask credible.</p>
+            </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q6</div>
+                <div class="q-meta"><span class="q-type">MCQ</span><span class="q-diff medium">Medium</span><span class="q-marks">1 mark</span></div>
+            </div>
+            <div class="q-text">What is the standard Y Combinator investment deal (as of 2025)?</div>
+            <ul class="options">
+                <li><span class="opt-key">A</span> $10,000 for 1% equity</li>
+                <li class="correct"><span class="opt-key">B</span> $500,000 for 7% equity ✅</li>
+                <li><span class="opt-key">C</span> $1,000,000 for 15% equity</li>
+                <li><span class="opt-key">D</span> $125,000 for 5% equity</li>
+            </ul>
+            <div class="answer-box">
+                <div class="answer-box-label">✅ Correct Answer: B</div>
+                <p>YC’s current standard deal is $500,000 for 7% equity, providing significant runway for early-stage startups.</p>
+            </div>
+        </div>
+
+        <!-- Section B: True/False with Justification -->
+        <div class="q-section-header">
+            <div class="q-section-title">Section B - True / False with Mandatory Justification</div>
+            <div class="q-section-meta">1 Question · 2 marks</div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q7</div>
+                <div class="q-meta"><span class="q-type">True/False + Justification</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div>
+            </div>
+            <div class="q-text">"Once you receive an MST grant, you no longer need to build independent traction before approaching VCs."</div>
+            <div class="tf-box">
+                <div class="tf-verdict false">FALSE</div>
+                <div class="tf-must-write">📝 Sample Justification:</div>
+                <div class="tf-sample">
+                    <strong>FALSE.</strong> While an MST grant is valuable social proof, VCs invest in businesses with user growth and revenue potential. You must use the grant to generate independent traction - such as user numbers, transaction volume, or enterprise LOIs - before approaching VCs. Relying solely on the grant as evidence of success will not convince investors of your commercial viability.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section C: Descriptive -->
+        <div class="q-section-header">
+            <div class="q-section-title">Section C - Descriptive Question</div>
+            <div class="q-section-meta">1 Question · 2 marks</div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="question-block">
+            <div class="q-header">
+                <div class="q-badge">Q8</div>
+                <div class="q-meta"><span class="q-type">Descriptive</span><span class="q-diff medium">Medium</span><span class="q-marks">2 marks</span></div>
+            </div>
+            <div class="q-text">Your MST-based dApp has just received a buildGrant of $10,000 and has 500 testnet users. Outline a 3-step plan for approaching a top-tier Web3 VC over the next 6 months. Mention specific actions you would take to build traction and secure a warm introduction.</div>
+            <div class="answer-box">
+                <div class="answer-box-label">📊 Marks Guide</div>
+                <p><strong>1 mark:</strong> Steps include building independent traction (e.g., mainnet launch, user growth) and leveraging the MST mentor for warm intros.<br><strong>1 mark:</strong> Concrete actions (Twitter engagement, demo day participation, data room preparation).</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCORE SUMMARY -->
+    <div class="score-summary">
+        <div class="score-left">
+            <div class="score-label">Sub-Module 19.4 Assessment Summary</div>
+            <div class="score-row">Section A: 6 × MCQ <span>(1 mark each) = 6 marks</span></div>
+            <div class="score-row">Section B: 1 × T/F with Justification <span>(2 marks) = 2 marks</span></div>
+            <div class="score-row">Section C: 1 × Descriptive <span>(2 marks) = 2 marks</span></div>
+        </div>
+        <div class="score-badge">
+            <div class="score-num">10</div>
+            <div class="score-text">Total Marks</div>
+        </div>
+    </div>
+</section>
+
+<!-- GLOSSARY -->
+<div class="section-label" style="margin-top:52px;">12 · Glossary</div>
+<h2 class="section-title">Key Terms - Sub-Module 19.4</h2>
+<div class="glossary-grid">
+    <div class="glossary-item">
+        <div class="glossary-term">Y Combinator (YC)</div>
+        <div class="glossary-def">A top startup accelerator that invests $500,000 for 7% equity in early-stage companies, including many Web3 unicorns.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Warm Introduction</div>
+        <div class="glossary-def">A referral from a trusted mutual contact to an investor, dramatically increasing the chance of a meeting.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">a16z crypto</div>
+        <div class="glossary-def">The dedicated crypto arm of Andreessen Horowitz, one of the largest and most influential Web3 venture capital firms.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Data Room</div>
+        <div class="glossary-def">A secure folder containing all key startup documents (pitch deck, legal, cap table, financials) shared with serious investors.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Cap Table</div>
+        <div class="glossary-def">A spreadsheet showing the equity ownership of a company, including founders, investors, and option pools.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Seed Round</div>
+        <div class="glossary-def">The first significant round of venture funding (typically $1M-$3M) to scale product and team after initial traction.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Alliance DAO</div>
+        <div class="glossary-def">A leading Web3 accelerator and founder community, known for its deep crypto expertise and selective cohort.</div>
+    </div>
+    <div class="glossary-item">
+        <div class="glossary-term">Social Proof</div>
+        <div class="glossary-def">Evidence that others have validated your product or team - in Web3, a grant, audit, or partnership serves as social proof.</div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+    <p>MasterStroke Academy - Professional Blockchain Developer Program</p>
+    <p>Module 19 · Sub-Module <strong>19.4</strong> of 4 · End of Module 19 · Next: Module 20 - Job & Career Launchpad →</p>
+</div>
+
+</body>
+</html>

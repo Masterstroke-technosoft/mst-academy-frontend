@@ -1,0 +1,877 @@
+
+
+<!-- HEADER -->
+<div class="module-badge">🚀 MasterStroke Academy &nbsp;·&nbsp; Module 2 · Sub-Module 6 of 6</div>
+<h1 class="module-title">Sub-Module 2.6<br><span class="highlight">Distributed Systems as Blockchain Foundation</span></h1>
+<p class="module-subtitle">Email distributes messages. BitTorrent distributes files. The internet distributes routing. For fifty years, distributed systems solved everything except one problem - how do you distribute trust? Blockchain solved it. This sub-module is where distributed systems theory meets blockchain engineering.</p>
+
+<div class="meta-bar">
+  <div class="meta-chip">⏱ Duration: 20 Minutes</div>
+  <div class="meta-chip highlight">📊 Marks: 25</div>
+  <div class="meta-chip orange">📋 Assessment: Short Project Proposal (1-page document)</div>
+  <div class="meta-chip green">✅ Final Sub-Module of Module 2</div>
+  <div class="meta-chip">🔰 Module 2 Capstone Activity</div>
+</div>
+
+
+<!-- SECTION 1 — OBJECTIVES -->
+<section>
+  <div class="section-number">Section 01</div>
+  <h2 class="section-title"><div class="icon">🎯</div>Learning Objectives</h2>
+  <p>By the end of this sub-module, you will be able to:</p>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="check">✓</div>Identify the four distributed systems that laid the groundwork for blockchain - and what each one contributed technically</div>
+    <div class="objective-item"><div class="check">✓</div>Explain the Byzantine Generals Problem - the core challenge of trust in distributed networks - and how blockchain solved it</div>
+    <div class="objective-item"><div class="check">✓</div>Define "trustless consensus" with technical precision: what it means, how it differs from all previous distributed systems</div>
+    <div class="objective-item"><div class="check">✓</div>Explain how MST's Trika POSA mechanism achieves trustless consensus - validator economics, slashing, and finality</div>
+    <div class="objective-item"><div class="check">✓</div>Write a structured 1-page project proposal redesigning a centralised Indian service as a distributed system on MST Blockchain</div>
+    <div class="objective-item"><div class="check">✓</div>Synthesise everything from Module 2 into one coherent mental model: centralisation problems → distributed solutions → blockchain trust</div>
+  </div>
+</section>
+
+
+<!-- SECTION 2 — STORY -->
+<section>
+  <div class="section-number">Section 02</div>
+  <h2 class="section-title"><div class="icon">📖</div>The Story - The Problem No Computer Scientist Could Solve for 30 Years</h2>
+
+  <div class="story-block">
+    <span class="story-label">📍 Computer Science Departments, 1982 - 2008</span>
+    <p>By the 1980s, computer scientists had built extraordinary distributed systems. Email could deliver messages globally without any central server. DNS could resolve domain names across thousands of servers worldwide. BitTorrent would later distribute files to millions of users without any central infrastructure.</p>
+    <p>But there was one problem nobody could solve: <strong>How do you get a group of computers - who have never met, who cannot verify each other's identity, some of whom might be deliberately lying - to agree on a single shared truth about money?</strong></p>
+    <p>This is called the Byzantine Generals Problem. For 30 years, the academic consensus was: <strong>it is unsolvable in an open, permissionless network.</strong> You could have distributed data. You could have distributed messaging. But distributed financial truth required a trusted intermediary - a bank, a government, a central authority - because without trust, anyone could claim "I sent ₹1,000 to Priya" without actually having ₹1,000.</p>
+    <p>Then in October 2008, an anonymous person or group called Satoshi Nakamoto published a nine-page document. The Bitcoin whitepaper proposed a radical solution: <strong>instead of requiring participants to trust each other, make dishonesty economically irrational.</strong> Proof of Work made lying expensive. The truthful chain - the one built by honest validators doing real computational work - would always be longer. Attackers would spend more money lying than they could ever gain from the lie.</p>
+    <p>That single insight created the billion-dollar blockchain industry. <strong>Blockchain is the first distributed system that distributed trust itself.</strong></p>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ This Sub-Module's Purpose</span>
+    <p>You have studied centralisation (2.1 - 2.3) and decentralisation (2.4 - 2.5). This final sub-module connects every distributed system you have learned about to blockchain's core innovation - showing exactly what each system contributed and what problem remained unsolved until Satoshi's 2008 paper. Then you apply it in a project proposal.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 3 — BACKGROUND -->
+<section>
+  <div class="section-number">Section 03</div>
+  <h2 class="section-title"><div class="icon">🕰</div>Background - The Four Distributed Systems That Shaped Blockchain</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Distributed System</th>
+          <th>Year</th>
+          <th>What It Distributed</th>
+          <th>What It Solved</th>
+          <th>What It Still Lacked</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Email (SMTP)</td>
+          <td>1982</td>
+          <td>Messages between mail servers - no central owner, anyone can run a server</td>
+          <td>Communication without a central platform; open protocol anyone could use</td>
+          <td>No way to verify sender identity without trusting the mail server - emails can be forged</td>
+        </tr>
+        <tr>
+          <td>DNS</td>
+          <td>1983</td>
+          <td>Domain name resolution across thousands of servers globally</td>
+          <td>No single name server controls the internet's directory; hierarchical distribution</td>
+          <td>Root DNS servers still centralised; governments can seize top-level domains</td>
+        </tr>
+        <tr>
+          <td>BitTorrent</td>
+          <td>2001</td>
+          <td>File storage and distribution across all peers; content-addressed by hash</td>
+          <td>Files accessible without central server; censorship-resistant; hash verification ensures integrity</td>
+          <td>No economic incentive for seeders (free-rider problem); no way to transfer value for content</td>
+        </tr>
+        <tr>
+          <td>BGP (Internet Routing)</td>
+          <td>1989</td>
+          <td>Routing tables across thousands of autonomous systems globally</td>
+          <td>No central router; packets find their own path; self-healing network routing</td>
+          <td>Trust-based announcements - malicious route announcements possible (BGP hijacking)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ The Common Gap in Every System</span>
+    <p>Every pre-blockchain distributed system distributed data or communication - but none could distribute financial trust. You can distribute a file (BitTorrent). You can distribute a message (Email). You can distribute routing (BGP). But you cannot distribute "Rajan has ₹1,000 and is authorised to send it to Priya" without a trusted intermediary - unless you have trustless consensus. That is blockchain's unique invention.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 4 — BEGINNER EXPLANATION -->
+<section>
+  <div class="section-number">Section 04</div>
+  <h2 class="section-title"><div class="icon">🧠</div>Beginner-Friendly Deep Explanation</h2>
+
+  <h3 class="sub-title">4.1 - The Byzantine Generals Problem: Why Trust is Architecturally Hard</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">⚔️ Byzantine Generals Problem - Explained with Indian Army</div>
+<pre>  THE SETUP:
+  ─────────────────────────────────────────────────────────────
+  Five army generals have surrounded an enemy fort.
+  They MUST all attack simultaneously — if only some attack, they lose.
+  They can only communicate by messenger between camps.
+  Some generals may be traitors — they send different messages
+  to different generals to cause confusion and defeat.
+
+  THE PROBLEM:
+  ─────────────────────────────────────────────────────────────
+  General A sends: "Attack at sunrise" to all four generals.
+  Traitor General D sends: "Retreat" to General E.
+                           "Attack" to Generals B and C.
+
+  General E receives TWO messages:
+  ├─ From A: "Attack at sunrise"
+  └─ From D: "Retreat"
+
+  General E cannot tell who is the traitor.
+  If E attacks (trusts A), and D really retreats, E's forces die.
+  If E retreats (trusts D), and everyone else attacks, they all die.
+  No amount of debate solves this — any message could be forged.
+
+  THE TRADITIONAL SOLUTION (Centralised):
+  ─────────────────────────────────────────────────────────────
+  A Supreme Commander issues ONE authoritative order.
+  Everyone trusts the Commander.
+  Problem: The Commander might BE the traitor.
+           Commander captured = no orders = defeat.
+           Commander is a Single Point of Failure.
+
+  BITCOIN/BLOCKCHAIN SOLUTION (Trustless):
+  ─────────────────────────────────────────────────────────────
+  Each general must PROVE their message cost real work.
+  Proof of Work: "Here is a message + proof I computed
+                 1 billion calculations to generate it."
+  
+  Cost analysis:
+  Honest general sending one message: ₹100 in computation
+  Traitor wanting to deceive 3 of 5 generals simultaneously:
+  Must compute proof for multiple contradictory messages.
+  Cost: ₹500 (5× more expensive than honest participation)
+
+  Result: Lying is economically irrational.
+  No general trusts the others.
+  But honesty is the only affordable choice.
+  TRUSTLESS CONSENSUS ACHIEVED.
+
+  MST TRIKA POSA VERSION:
+  ─────────────────────────────────────────────────────────────
+  Validator submits VALID block → earns MSTC reward
+  Validator submits INVALID block → loses staked MSTC (slashing)
+
+  Honest participation = profit.
+  Dishonest participation = financial loss.
+  No trust needed. Economics enforces honesty.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.2 - What Each System Contributed to Blockchain's DNA</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🧬 Blockchain's DNA - Inherited From Every Distributed System Before It</div>
+<pre>  FROM EMAIL (SMTP):
+  ─────────────────────────────────────────────────────────────
+  Lesson: Anyone can run a node and join the network.
+  No permission from any central authority.
+  Open protocol means no monopoly can form.
+
+  Blockchain inherits: PERMISSIONLESS PARTICIPATION
+  Anyone can run an MST validator — no company permits you.
+  No minimum requirements beyond staking MSTC.
+
+  FROM BITTORRENT:
+  ─────────────────────────────────────────────────────────────
+  Lessons:
+  ├─ P2P topology: Every node both serves and consumes data
+  ├─ Content-addressing: Hash of content = address of content
+  ├─ DHT: Peer discovery without any central server
+  └─ Piece verification: SHA-1 hash catches corrupt data
+
+  Blockchain inherits:
+  ├─ P2P validator network topology
+  ├─ Transaction hashes as content-addressed identifiers
+  ├─ Kademlia DHT for node discovery between validators
+  └─ Block hash verification catching tampered blocks
+
+  FROM DNS:
+  ─────────────────────────────────────────────────────────────
+  Lesson: Hierarchical data structure allows efficient lookup
+  without querying every node — zone delegation.
+
+  Blockchain inherits: MERKLE TREES
+  Hierarchical hash structure: transaction hashes → block hash
+  Allows light clients to verify a transaction is in a block
+  WITHOUT downloading the entire blockchain.
+  Same principle as DNS's hierarchical zone delegation.
+
+  FROM BGP (INTERNET ROUTING):
+  ─────────────────────────────────────────────────────────────
+  Lesson: Autonomous systems propagate route announcements.
+  Network collectively learns the best paths.
+  No central router makes all decisions.
+
+  Blockchain inherits: BLOCK PROPAGATION
+  Validators propagate new blocks to all peers.
+  Network collectively adopts the longest valid chain.
+  Longest chain = most economic work behind it = truth.
+
+  WHAT BLOCKCHAIN ADDS THAT NONE HAD:
+  ─────────────────────────────────────────────────────────────
+  1. CRYPTOGRAPHIC SIGNATURES:
+     Every transaction signed with sender's private key.
+     "Did Rajan send this?" has a MATHEMATICAL answer.
+     Not trusting Rajan — trusting mathematics.
+
+  2. ECONOMIC CONSENSUS (TRUSTLESS):
+     Validators stake MSTC (skin in the game).
+     Valid block → block reward.
+     Invalid block → slashed stake.
+     Honesty is always the economically rational choice.
+
+  3. HASH-CHAINED IMMUTABILITY:
+     Each block contains previous block's hash.
+     Changing block #1000 invalidates blocks #1001–#71000.
+     Attacker must outpace entire honest network.
+     Economically: impossible at MST's scale.
+</pre>
+  </div>
+
+  <h3 class="sub-title">4.3 - Trustless Consensus: The Precise Technical Definition</h3>
+
+  <p>Trustless consensus is the mechanism where a distributed network reaches agreement on a shared truth, without any participant needing to trust any other participant - because:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>What It Means</th>
+          <th>How MST Trika POSA Achieves It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>No trust required</td>
+          <td>Verification is mathematical, not social - you don't need to believe anyone</td>
+          <td>Every transaction carries a cryptographic signature; invalid signatures are rejected automatically</td>
+        </tr>
+        <tr>
+          <td>Correct state emerges from majority</td>
+          <td>When 2/3 + 1 validators agree on a block, that block is finalized - no single entity decides</td>
+          <td>BFT consensus: 47,334+ of 71,000 validators must sign the block for finalization (3-second finality)</td>
+        </tr>
+        <tr>
+          <td>Dishonesty is economically punished</td>
+          <td>Bad-faith validators lose staked tokens - the penalty always exceeds any possible gain</td>
+          <td>Slashing mechanism: submitting invalid block = immediate loss of staked MSTC, removal from validator set</td>
+        </tr>
+        <tr>
+          <td>All honest nodes agree simultaneously</td>
+          <td>No ambiguity about the canonical ledger - one finalized chain, agreed on by all honest validators</td>
+          <td>After BFT finalization, block is irreversible - even if some validators go offline</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout analogy">
+    <span class="callout-label">🏏 Cricket DRS Analogy</span>
+    <p>Imagine a cricket match where instead of one on-field umpire, there are 71,000 independent umpires watching from every angle - cameras, sensors, slow motion - and each umpire has staked ₹1 crore of their own money on making the correct call. A wrong call means they lose their stake. This system produces trustless consensus on "was that LBW?" - no individual umpire is trusted because the collective incentive structure ensures honesty. MST's Trika POSA is this system, but for financial transactions instead of cricket decisions.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 5 — TECHNICAL DEEP DIVE -->
+<section>
+  <div class="section-number">Section 05</div>
+  <h2 class="section-title"><div class="icon">⚙️</div>Technical Deep Dive</h2>
+
+  <h3 class="sub-title">5.1 - MST Trika POSA: Trustless Consensus Step by Step</h3>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">⚡ Full Transaction Lifecycle on MST Blockchain</div>
+<pre>  SCENARIO: Rajan sends 100 MSTC to Priya
+
+  STEP 1 — TRANSACTION SIGNED AND BROADCAST:
+  ─────────────────────────────────────────────────────────────
+  Rajan's wallet creates:
+  ┌─────────────────────────────────────────────────────────┐
+  │ Transaction:                                            │
+  │ From: 0xRajan_Public_Key                               │
+  │ To:   0xPriya_Public_Key                               │
+  │ Amount: 100 MSTC                                       │
+  │ Nonce: 47 (prevents replay attacks)                    │
+  │ Signature: [ECDSA signed with Rajan's PRIVATE key]     │
+  └─────────────────────────────────────────────────────────┘
+
+  Transaction broadcast: P2P to all connected validators.
+  Any validator who receives it shares it with their peers.
+  Propagation: Full network in ~1 second (gossip protocol).
+
+  STEP 2 — MEMPOOL (PENDING TRANSACTION POOL):
+  ─────────────────────────────────────────────────────────────
+  Every validator receives the transaction.
+  Each independently verifies:
+  ├─ Is Rajan's signature valid? (Math check — yes/no)
+  ├─ Does Rajan's wallet have ≥100 MSTC? (Ledger check)
+  ├─ Is nonce 47 correct? (Prevents double-spend)
+  └─ Is gas fee included? (Validator incentive)
+
+  Valid: Added to mempool (pending pool).
+  Invalid: Silently dropped. No response.
+
+  STEP 3 — BLOCK PRODUCTION (ELECTED VALIDATOR):
+  ─────────────────────────────────────────────────────────────
+  Trika POSA rotates among Cabinet validators (top 21 by stake).
+  Elected producer collects transactions from mempool.
+  Assembles block:
+  ┌─────────────────────────────────────────────────────────┐
+  │ Block #2,847,391                                        │
+  │ Previous block hash: 0x8F3a...  (links to chain)       │
+  │ Timestamp: 2024-03-15 14:23:07                         │
+  │ Transactions: [Rajan→Priya 100 MSTC, ...]              │
+  │ Merkle Root: [hash of all transactions in block]        │
+  │ Producer signature: [signed by elected validator]       │
+  └─────────────────────────────────────────────────────────┘
+
+  STEP 4 — VALIDATION BY ALL VALIDATORS:
+  ─────────────────────────────────────────────────────────────
+  Block broadcast to all 71,000 validators.
+  Each independently verifies the block.
+  Each who finds it valid signs it with BLS signature.
+  
+  BLS signatures aggregated: Once 47,334+ (2/3+1) validators
+  have signed, the aggregated signature is tiny but proves
+  majority consent — fast and efficient.
+
+  STEP 5 — FINALIZATION:
+  ─────────────────────────────────────────────────────────────
+  Block with 47,334+ validator signatures = FINALIZED.
+  Time: ~3 seconds from transaction broadcast.
+
+  Effect:
+  ├─ Rajan's balance: -100 MSTC
+  ├─ Priya's balance: +100 MSTC
+  ├─ Block added to canonical chain (all validators update)
+  └─ Transaction IRREVERSIBLE
+
+  STEP 6 — WHAT HAPPENS IF A VALIDATOR LIES:
+  ─────────────────────────────────────────────────────────────
+  Malicious Validator X tries:
+  "Transfer 1,000 MSTC from Priya to me — skip signature check"
+
+  Other 70,999 validators verify Priya's signature independently.
+  It doesn't exist. They ALL reject Validator X's block.
+  Validator X has no block to add, earns no reward.
+  Validator X's malicious behaviour detected → SLASHED:
+  ├─ Staked MSTC reduced (financial penalty)
+  └─ Removed from Cabinet until stake rebuilt
+
+  Economic result: Honesty earns rewards. Dishonesty loses money.
+  Trustless consensus achieved through economics + mathematics.
+</pre>
+  </div>
+
+  <h3 class="sub-title">5.2 - Consensus Evolution: From PoW to Trika POSA</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Consensus Mechanism</th>
+          <th>Used By</th>
+          <th>Speed</th>
+          <th>Energy</th>
+          <th>Finality</th>
+          <th>Participation</th>
+          <th>Key Weakness</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Proof of Work (PoW)</td>
+          <td>Bitcoin</td>
+          <td>7 TPS</td>
+          <td class="cell-red">Enormous</td>
+          <td>Probabilistic (60 min)</td>
+          <td>Mining hardware required</td>
+          <td>Mining pool centralisation risk</td>
+        </tr>
+        <tr>
+          <td>Proof of Stake (PoS)</td>
+          <td>Ethereum 2.0</td>
+          <td>15 - 100 TPS</td>
+          <td class="cell-green">Minimal</td>
+          <td>Improved checkpoints</td>
+          <td>32 ETH minimum (~₹2L)</td>
+          <td>High minimum stake excludes small participants</td>
+        </tr>
+        <tr>
+          <td>Delegated PoS (DPoS)</td>
+          <td>EOS</td>
+          <td>3,000+ TPS</td>
+          <td class="cell-green">Minimal</td>
+          <td>Fast (seconds)</td>
+          <td>Community votes for 21 producers</td>
+          <td>21 block producers = near-oligopoly</td>
+        </tr>
+        <tr>
+          <td>Trika POSA (MST)</td>
+          <td>MST Blockchain</td>
+          <td class="cell-green">4,000+ TPS</td>
+          <td class="cell-green">Minimal</td>
+          <td class="cell-green">Deterministic (3 sec)</td>
+          <td class="cell-green">Any amount - fractional model</td>
+          <td class="cell-green">None critical - BFT + economic slashing + community governance</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">5.3 - The CAP Theorem: Why Perfect Distributed Systems Are Impossible</h3>
+
+  <p>Brewer's Theorem (2000) proved that no distributed system can simultaneously guarantee all three of these properties:</p>
+
+  <div class="compare-grid">
+    <div class="compare-card good">
+      <div class="compare-card-header">🔵 Consistency</div>
+      <ul>
+        <li>Every read returns the most recent write</li>
+        <li>All nodes see identical data simultaneously</li>
+        <li>No stale data returned after any write</li>
+        <li>Critical for: bank balances, ledger states</li>
+      </ul>
+    </div>
+    <div class="compare-card good">
+      <div class="compare-card-header">🟢 Availability</div>
+      <ul>
+        <li>Every request receives a response</li>
+        <li>System always responds - never times out</li>
+        <li>Response may not be the most recent write</li>
+        <li>Critical for: real-time apps, live feeds</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-label">ℹ️ How Blockchain Navigates CAP</span>
+    <p><strong>Partition Tolerance (P)</strong> is always required for distributed systems - the network can split at any time. So the real design choice is between Consistency (C) and Availability (A). Blockchain chooses CP: during a network partition, only the larger partition that can reach BFT threshold continues producing finalised blocks. The smaller partition cannot finalize - it pauses rather than risk inconsistency. MST's Trika POSA takes this further with deterministic finality: once 2/3+ validators sign a block, it is final - no ambiguity, no forking, no "longest chain wins." This is superior to Bitcoin's probabilistic finality where you need multiple block confirmations to be confident the chain won't be rewritten.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 6 — REAL WORLD CASE STUDIES -->
+<section>
+  <div class="section-number">Section 06</div>
+  <h2 class="section-title"><div class="icon">🌍</div>Real-World Case Studies</h2>
+
+  <h3 class="sub-title">Case Study 1 - Email: The Distributed System That Became Centralised Again</h3>
+
+  <p>Email was designed in 1982 as a fully distributed system. Anyone could run an email server. No central authority controlled email. The SMTP protocol was open and permissionless. This was true architectural decentralisation.</p>
+
+  <p>In 2024, email is effectively centralised again. Gmail (Google) has 1.8 billion users. Outlook (Microsoft) has 400 million. Together, three companies handle approximately 70% of all email. Messages between Gmail accounts never leave Google's servers. Spam filtering at these companies determines what reaches your inbox.</p>
+
+  <div class="callout warning">
+    <span class="callout-label">⚠️ Why This Happened - and Why Blockchain is Different</span>
+    <p>Network effects and convenience recentralised email. The open SMTP protocol had no mechanism to prevent monopolisation - no economic incentive to keep servers distributed. Blockchain prevents this through token economics: earning block rewards requires running a validator. The more validators, the more distributed the rewards. A single entity trying to capture majority validators would drive up the cost of MSTC as they buy it - making each additional validator position more expensive until the attack becomes economically self-defeating.</p>
+  </div>
+
+  <h3 class="sub-title">Case Study 2 - BGP Hijacking: When Distributed Routing Lacks Trust</h3>
+
+  <p>Border Gateway Protocol (BGP) is how internet routing works globally - thousands of autonomous systems (ISPs, companies) announce their routing tables to each other. It is distributed. But it is trust-based: routers accept route announcements at face value.</p>
+
+  <div class="diagram-wrap">
+    <div class="diagram-title">🚨 BGP Hijacking - Real Attack on India's Internet Traffic (2010)</div>
+<pre>  NORMAL BGP:
+  ──────────────────────────────────────────────────────────
+  Tata Communications announces: "I have a path to Google"
+  Other routers trust this → Google traffic flows via Tata
+
+  BGP HIJACK — China Telecom (April 8, 2010):
+  ──────────────────────────────────────────────────────────
+  China Telecom announces: "I have BETTER paths to
+  15% of the world's IP addresses"
+
+  These IPs included: US Senate, US Army, Dell, IBM, Microsoft
+  and routing traffic passing through Indian ISPs.
+
+  Routers trusted the announcement — no cryptographic proof required.
+  Result: 18 minutes of traffic routed through China.
+  Traffic: Potentially intercepted, inspected, and released.
+
+  WHY THIS WORKED:
+  BGP is distributed (thousands of autonomous systems)
+  BUT trust-based (route announcements are not signed)
+  AND no economic penalty for false announcements
+
+  This is the EXACT problem Bitcoin's PoW solved for money:
+  ├─ Bitcoin: cryptographic proof required for each block
+  ├─ MST:     economic penalty (slashing) for dishonest validators
+  BGP:         neither. Still exploitable today.
+
+  THE LESSON:
+  Distributed ≠ Trustless.
+  Blockchain adds the trustless layer that BGP never had.
+</pre>
+  </div>
+
+  <h3 class="sub-title">Case Study 3 - UPI: The World's Best Centralised-Distributed Hybrid</h3>
+
+  <p>UPI is architecturally fascinating: it distributes transaction processing across 50+ banks (each maintains their own ledger) but coordinates through NPCI's central switch. Each bank's server is a "node" - but NPCI is the trusted central coordinator. This makes UPI a federated system: partially distributed, partially centralised.</p>
+
+  <p>The result: UPI inherits some resilience benefits (no single bank is a SPOF) but retains centralisation risks (NPCI is a SPOF). India's Central Bank Digital Currency (e-Rupee) pilot is exploring replacing NPCI's central switch with a distributed ledger - where individual bank nodes reach consensus through a blockchain mechanism rather than routing through a central coordinator. This is the direction India's DPI is heading: from federated to truly distributed. MST Blockchain's architecture - multiple banking institutions running validator nodes, reaching consensus via Trika POSA - is the natural technical solution.</p>
+</section>
+
+
+<!-- SECTION 7 — EVOLUTION TIMELINE -->
+<section>
+  <div class="section-number">Section 07</div>
+  <h2 class="section-title"><div class="icon">🔄</div>The Full Evolution: Distributed Systems → Blockchain Foundation</h2>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">1969 - ARPANET: Distributed Routing (The First Lesson)</div>
+        <div class="step-desc">Packet switching. No central hub. Messages reroute around node failures automatically. This first lesson - distributed routing is more resilient than centralised routing - drives every distributed system that follows, including blockchain's P2P validator network.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">1982 - Email (SMTP): Distributed Communication (Open Protocol)</div>
+        <div class="step-desc">Open protocol, permissionless participation, no central owner. Blockchain inherits all three. But email's trust-based sender identity (forged emails possible) shows what happens without cryptographic attribution - the gap blockchain fills with private key signatures.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">1983 - DNS: Distributed Lookup (Hierarchical Data Structure)</div>
+        <div class="step-desc">Hierarchical distribution of authority across thousands of servers. No single server holds all names. Blockchain inherits the Merkle tree - a hierarchical hash structure that allows any node to verify that a specific transaction is in a specific block, without downloading the entire blockchain.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">2001 - BitTorrent: Distributed Storage (P2P + Hash Verification)</div>
+        <div class="step-desc">Peer-to-peer topology, content-addressed by hash, DHT-based peer discovery, economic problem (free-rider). Blockchain inherits: P2P node topology, transaction hashes as content addresses, DHT for node discovery, and token economics to solve the free-rider problem BitTorrent never could.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">2000 - CAP Theorem: The Fundamental Constraint Defined</div>
+        <div class="step-desc">Eric Brewer proves distributed systems face an unavoidable trade-off: Consistency vs Availability during network partitions. Blockchain explicitly chooses Consistency (CP) - deterministic finality on MST means no ambiguity about the canonical chain, even when some validators are offline.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">2008 - Bitcoin: Trustless Consensus (The Missing Piece)</div>
+        <div class="step-desc">Satoshi solves the Byzantine Generals Problem: Proof of Work makes dishonesty economically irrational. For the first time, distributed computers can agree on a shared financial truth without trusting each other. The era of distributed ledgers begins - and every blockchain since is an iteration on this core insight.</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">2024 - MST Trika POSA: Refined Trustless Consensus for Scale and Inclusion</div>
+        <div class="step-desc">Building on Bitcoin's insight: PoS economic security (no energy waste), community governance (DAO), deterministic 3-second finality (not probabilistic like Bitcoin), 4000+ TPS (not 7 like Bitcoin), inclusive participation (no minimum stake via fractional validator model). The most complete realisation of the distributed systems vision to date.</div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="highlight-box">
+    Every distributed system before blockchain distributed INFORMATION.<br>
+    Blockchain was the first to distribute <span>TRUST ITSELF.</span><br>
+    That is the invention that made everything else possible.
+  </div>
+</section>
+
+
+<!-- SECTION 8 — ASSESSMENT PREP -->
+<section>
+  <div class="section-number">Section 08</div>
+  <h2 class="section-title"><div class="icon">📋</div>Assessment Preparation - Must-Know Facts</h2>
+  <ul class="facts-list">
+    <li><strong>The Byzantine Generals Problem:</strong> How do distributed computers agree on truth when some might lie? Pre-blockchain: unsolvable in open networks. Bitcoin's solution: make dishonesty economically irrational (PoW). MST's solution: slashing + block rewards ensure honesty is always the rational economic choice.</li>
+    <li><strong>Trustless consensus - four properties:</strong> (1) No participant trusts another - verification is mathematical. (2) Correct state emerges from honest majority. (3) Dishonesty is economically punished via slashing. (4) All honest nodes agree simultaneously. Unique to blockchain among all distributed systems.</li>
+    <li><strong>Email contribution to blockchain:</strong> Permissionless participation - anyone can run a node. Open protocol. Blockchain's gap-filler: cryptographic signatures (email still has no forged-sender prevention natively).</li>
+    <li><strong>BitTorrent contribution to blockchain:</strong> P2P topology, content-addressing by hash, DHT peer discovery, hash verification. Blockchain's gap-filler: economic incentives (token rewards solve free-rider problem) + value transfer capability.</li>
+    <li><strong>DNS contribution to blockchain:</strong> Hierarchical distributed lookup. Blockchain inherits Merkle trees - allowing light clients to verify specific transactions without downloading the full blockchain.</li>
+    <li><strong>BGP hijacking lesson:</strong> Distributed routing + trust-based = exploitable (China Telecom 2010 hijack). Blockchain's solution: cryptographic signatures on all announcements + economic slashing - dishonest announcements (transactions) are mathematically rejected and economically punished.</li>
+    <li><strong>CAP Theorem:</strong> Consistency + Availability + Partition Tolerance - only 2 guaranteed simultaneously. Blockchain chooses CP. MST's deterministic finality (3 seconds) means no probabilistic ambiguity - once 2/3+ validators sign, the block is final and irreversible.</li>
+    <li><strong>Trika POSA vs PoW:</strong> 4000+ TPS vs 7; 3-second finality vs 60-minute probabilistic; minimal energy vs enormous; inclusive participation vs mining hardware. Retains: trustless consensus through economic incentives (block rewards + slashing).</li>
+    <li><strong>UPI as federated system:</strong> Not truly distributed - NPCI is the central coordinator. E-Rupee (India's CBDC) is exploring replacing NPCI's routing with distributed ledger consensus - MST Blockchain's architecture is the technical solution.</li>
+    <li><strong>Project Proposal requirements (Assessment):</strong> Must include: Problem statement with specific Indian service. Current centralised architecture with named chokepoints. Proposed blockchain architecture. Specific MST features (SARAL, WASMify, Trika POSA, etc.). Quantified benefits. Maximum 1 page. Marks for specificity and technical accuracy - not length.</li>
+  </ul>
+</section>
+
+
+<!-- SECTION 9 — SECURITY -->
+<section>
+  <div class="section-number">Section 09</div>
+  <h2 class="section-title"><div class="icon">🔐</div>Security Notes</h2>
+
+  <h3 class="sub-title">9.1 - The 51% Attack: Blockchain's Remaining Vulnerability</h3>
+  <p>If any single entity gains control of more than 51% of a network's validators (or hash power in PoW), they could selectively include, exclude, or reverse transactions - breaking the trustless consensus model. Small blockchain networks have suffered 51% attacks. Large mature networks are effectively immune due to cost.</p>
+  <p>For MST: acquiring 51% of validator slots requires buying enough MSTC to control 35,500+ positions. As this buying proceeds, MSTC price rises - making each additional validator position increasingly expensive. The attack becomes economically self-defeating: the act of attempting it makes it progressively more expensive until it is irrational to continue.</p>
+
+  <h3 class="sub-title">9.2 - Sybil Attacks: Why Stake Requirements Matter</h3>
+  <p>A Sybil attack in distributed systems means creating many fake identities to gain disproportionate influence. In BitTorrent, you could run thousands of fake peers. In email, you could create thousands of fake servers. In PoW blockchain: creating fake mining nodes costs real electricity. In PoS blockchain (like MST): creating fake validators requires real staked MSTC. The economic requirement for participation is the defence - you cannot fake economic skin in the game.</p>
+
+  <div class="callout key">
+    <span class="callout-label">🗝️ The Universal Security Principle</span>
+    <p>Every distributed system's security level is proportional to the cost of attacking it. BGP: free to announce false routes (no cost). Email: cheap to forge sender identity. BitTorrent: cheap to run fake peers. Bitcoin: expensive (electricity for PoW). MST: very expensive (MSTC purchase for PoS). The progression of distributed systems is a progression of making attacks progressively more expensive - with blockchain being the most expensive to attack yet invented.</p>
+  </div>
+</section>
+
+
+<!-- SECTION 10 — INDUSTRY INSIGHTS -->
+<section>
+  <div class="section-number">Section 10</div>
+  <h2 class="section-title"><div class="icon">💼</div>Industry Insights</h2>
+
+  <h3 class="sub-title">10.1 - India's Next DPI Layer: Where Blockchain Fits</h3>
+  <p>India's Digital Public Infrastructure (DPI) - Aadhaar (identity), UPI (payments), DigiLocker (documents), ONDC (commerce) - is the world's most successful government-led digital transformation. The next evolution explicitly involves distributed ledger technology. RBI's e-Rupee pilot is live. UIDAI has engaged blockchain partners for selective disclosure. ONDC's open-protocol philosophy is architecturally aligned with blockchain. The developer who understands both India's DPI architecture and MST Blockchain's technical capabilities sits at the highest-value intersection in India's digital economy through 2030.</p>
+
+  <h3 class="sub-title">10.2 - Protocol Research: The Academic Frontier</h3>
+  <p>Blockchain consensus research is among the highest-impact areas in computer science today. Questions like "How do we achieve BFT consensus with 100,000 validators efficiently?" or "How do we enable private transactions without sacrificing verifiability?" are unsolved problems with trillion-dollar implications. Indian researchers at IITs, IISc, and TIFR are beginning to publish in consensus mechanism design, zero-knowledge cryptography, and distributed ledger scalability. The academic-to-industry pipeline for blockchain protocol researchers is one of the most lucrative in technology.</p>
+
+  <h3 class="sub-title">10.3 - Module 2 Complete: Your Mental Model is Built</h3>
+  <p>You have completed the intellectual foundation of the entire program. You now possess a systematic understanding that most practitioners - including many senior developers - lack: why specific centralisation problems exist architecturally; how distributed systems evolved before blockchain; what blockchain adds that no previous distributed system had; and how MST Trika POSA represents the current state of the art. Everything that follows in Modules 3 - 21 builds your ability to implement these insights in production code, smart contracts, and real products.</p>
+</section>
+
+
+<!-- SECTION 11 — GLOSSARY -->
+<section>
+  <div class="section-number">Section 11</div>
+  <h2 class="section-title"><div class="icon">📚</div>Glossary / Key Terms</h2>
+  <div class="glossary-grid">
+    <div class="glossary-item">
+      <div class="glossary-term">Byzantine Generals Problem</div>
+      <p class="glossary-def">How distributed computers agree on truth when some participants might be dishonest. Blockchain's solution: make dishonesty economically irrational through PoW or staking + slashing.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Trustless Consensus</div>
+      <p class="glossary-def">Agreement mechanism where no participant trusts another - verification is mathematical and economic. The core innovation of blockchain over all previous distributed systems.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Slashing</div>
+      <p class="glossary-def">Penalty mechanism in PoS blockchains: validators who submit invalid blocks or behave maliciously lose a portion of their staked tokens. Economic deterrence for dishonesty.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">BFT (Byzantine Fault Tolerance)</div>
+      <p class="glossary-def">System property: continues functioning correctly even when up to 1/3 of nodes are malicious. MST Trika POSA provides BFT - up to 1/3 of validators compromised, consensus continues correctly.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">CAP Theorem</div>
+      <p class="glossary-def">Brewer's Theorem (2000): distributed systems can only guarantee 2 of 3 - Consistency, Availability, Partition Tolerance. Blockchain chooses CP. Partition Tolerance always required.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Deterministic Finality</div>
+      <p class="glossary-def">Once a block is finalized, it is irreversible - no ambiguity, no rewriting. MST achieves this in 3 seconds via BFT threshold (2/3+ validator signatures). Opposite of Bitcoin's probabilistic finality.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Probabilistic Finality</div>
+      <p class="glossary-def">Bitcoin's model: the more blocks built on top of a transaction, the less likely it is to be reversed - but never mathematically impossible. Requires ~6 block confirmations (~60 minutes) for confidence.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">BGP Hijacking</div>
+      <p class="glossary-def">Attack exploiting BGP's trust-based route announcements. Malicious AS announces false routes; routers accept them. China Telecom redirected 15% of internet traffic this way in 2010 for 18 minutes.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Trika POSA</div>
+      <p class="glossary-def">MST's consensus: Proof of Staked Authority. Three-tier validator system. Community-elected. 3-second deterministic finality. 4000+ TPS. BLS signature aggregation. Inclusive - no minimum stake via fractional model.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Federated System</div>
+      <p class="glossary-def">Hybrid between centralised and distributed. Multiple nodes, but coordinated by a central authority. UPI is federated (50+ banks + NPCI coordinator). Not truly trustless - central coordinator is still a SPOF.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Sybil Attack</div>
+      <p class="glossary-def">Creating many fake identities to gain disproportionate influence in a distributed system. PoS blockchains defend against this by requiring real economic stake per validator - you cannot fake economic skin in the game.</p>
+    </div>
+    <div class="glossary-item">
+      <div class="glossary-term">Permissionless</div>
+      <p class="glossary-def">Anyone can participate without requiring approval from any authority. Email was permissionless (run your own server). MST Blockchain is permissionless - any person can stake MSTC and become a validator.</p>
+    </div>
+  </div>
+</section>
+
+
+<hr>
+
+
+<!-- ASSESSMENT -->
+<section>
+  <div class="assessment-header">
+    <div>
+      <h2>📝 Sub-Module 2.6 Assessment</h2>
+      <p>Distributed Systems as Blockchain Foundation &nbsp;·&nbsp; Project Proposal submission - 25 marks total.</p>
+    </div>
+    <div class="marks-badge-big">25 Marks</div>
+  </div>
+
+  <div class="callout info" style="margin-bottom:28px;">
+    <span class="callout-label">ℹ️ Assessment Format</span>
+    <p>This is a <strong>Project Proposal Assessment</strong>. You submit a 1-page written document (approximately 400 - 500 words) proposing how to redesign a specific centralised Indian service as a distributed system using MST Blockchain features. The document must be structured, specific, and technically grounded. Vague claims earn zero. Specific architecture earns full marks.</p>
+  </div>
+
+  <div class="project-card">
+    <div class="project-header">
+      <div>
+        <h3>📋 Project Proposal Brief - Module 2 Capstone</h3>
+        <p>Short Project Proposal · 1 Page · 400 - 500 Words · Submitted as PDF or Google Doc</p>
+      </div>
+      <div class="project-badge">25 Marks</div>
+    </div>
+
+    <div class="project-body">
+      <h4 style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px;">The Task</h4>
+      <p style="font-size:14px;color:var(--ink-2);margin-bottom:20px;">Choose ONE of the following centralised Indian services. Write a 1-page project proposal explaining how it should be redesigned as a distributed system using MST Blockchain. Your proposal must follow the five-section structure below.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:#7F1D1D;">🏠 Government Land Records (Patwari System)</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:#7F1D1D;">💳 NPCI / UPI Central Switch</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:#7F1D1D;">🏥 India's Hospital Medical Record System</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:#7F1D1D;">🎓 University Degree Certification (DigiLocker)</div>
+        <div style="background:var(--red-light);border:1.5px solid #FCA5A5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:#7F1D1D;">🌾 MSP Crop Procurement (Govt. food grain records)</div>
+        <div style="background:var(--brand-light);border:1.5px solid #C4B5F5;border-radius:var(--radius-sm);padding:12px;text-align:center;font-size:13px;font-weight:600;color:var(--brand-dark);">✨ Your own choice (with instructor approval)</div>
+      </div>
+
+      <h4 style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px;">Required Five-Section Structure</h4>
+
+      <div class="requirement-item">
+        <div class="req-num">1</div>
+        <div class="req-body"><strong>Problem Statement (50 - 80 words):</strong> Name the service. Describe the specific centralisation problem it creates - with at least one quantified metric (number of disputes, value lost to fraud, percentage of cases involved, etc.). State who is harmed and how.</div>
+      </div>
+      <div class="requirement-item">
+        <div class="req-num">2</div>
+        <div class="req-body"><strong>Current Architecture and Chokepoints (80 - 100 words):</strong> Briefly describe how the current system works. Name the specific centralised chokepoints - who controls them, what happens when they fail or act corruptly. Use the language from Module 2 (SPOF, governance censorship, dependency chain, etc.).</div>
+      </div>
+      <div class="requirement-item">
+        <div class="req-num">3</div>
+        <div class="req-body"><strong>Proposed Blockchain Architecture (100 - 150 words):</strong> Describe your redesigned system. For each chokepoint you identified: name the blockchain component that replaces it. You must reference at least TWO specific MST features from the following list: SARAL Protocol, WASMify, Trika POSA, BridgeKey Wallet, on-chain governance (DAO), IPFS storage, ZK proofs, smart contracts. Explain HOW each feature solves the specific problem.</div>
+      </div>
+      <div class="requirement-item">
+        <div class="req-num">4</div>
+        <div class="req-body"><strong>Quantified Benefits (50 - 80 words):</strong> State at least TWO specific, quantified benefits of your redesign. Use real numbers - from the sub-module content or your own research. Examples: "fraud rate drops from 66% of civil disputes to near-zero" or "settlement time from 3 - 5 days to 3 seconds" or "annual fee savings of ₹62,000 crore."</div>
+      </div>
+      <div class="requirement-item">
+        <div class="req-num">5</div>
+        <div class="req-body"><strong>One Honest Trade-Off (50 - 70 words):</strong> Acknowledge one genuine limitation or challenge your redesigned system would face. Propose how MST Blockchain addresses or mitigates it. This section demonstrates intellectual honesty - proposals that claim zero trade-offs score lower than those that identify and address them.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODEL ANSWER -->
+  <div class="model-answer">
+    <span class="model-label">✅ Model Answer - Full 25 Marks (Land Records Example)</span>
+
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;"><em>The following model proposal uses Indian land records. Your submission should match this level of specificity for your chosen service.</em></p>
+
+    <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">Section 1 - Problem Statement (5 Marks)</p>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">India's land registration system relies on the Patwari (village land officer) as the sole custodian of land records in each district. This single-official centralisation creates systematic corruption: the NCRB estimates 66% of all civil cases in Indian courts involve land disputes. Annual land fraud losses are estimated at ₹70,000 crore. The 800,000+ farmers who lose agricultural land to fraudulent title modifications every year are the direct victims - typically among India's poorest citizens with no legal recourse because the fraudulent record is the official record.</p>
+
+    <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">Section 2 - Current Architecture and Chokepoints (5 Marks)</p>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">The current Patwari system is a Single Point of Failure for both governance and data integrity. Each Patwari maintains physical and digital records accessible only to authorised personnel. Three critical chokepoints: (1) Data access chokepoint - Patwari controls who sees records; bribery grants access to fraudulent modifications. (2) Record integrity chokepoint - physical pages can be removed, digital records altered in private systems with no audit trail. (3) Verification chokepoint - buyers and sellers must trust a single official's certification; no independent verification is possible.</p>
+
+    <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">Section 3 - Proposed Blockchain Architecture (5 Marks)</p>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">The redesigned system deploys land records on MST Blockchain with every district land officer running a validator node. Data access chokepoint → IPFS stores each title document (encrypted); the content hash stored on-chain means any modification is instantly detectable - the hash changes. Record integrity chokepoint → Every title transfer is signed by the transferring owner's private key (created via SARAL Protocol on their phone) plus the Patwari's validator signature; both signatures are required, eliminating single-official fraud. Verification chokepoint → Any citizen can query MSTScan for a property's full title history - no permission, no bribery, instant verification. WASMify enables GPS-verified land survey data to be fed into the on-chain record as ZK-proven measurement - eliminating boundary fraud. On-chain governance (DAO) allows district-level dispute resolution through a multi-signature process requiring sub-district officials to achieve consensus on contested titles.</p>
+
+    <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">Section 4 - Quantified Benefits (5 Marks)</p>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:16px;">Andhra Pradesh's 2017 blockchain land records pilot demonstrated a 90% reduction in land fraud cases within the first year - directly applicable to national rollout. Settlement time for title transfer: current system 45 - 90 days; blockchain system 3 seconds for on-chain confirmation. Annual court burden reduction: if 66% of civil cases (estimated 27 million/year) involve land, a 90% reduction in fraudulent disputes would eliminate approximately 16 million annual cases - freeing courts for other matters and saving approximately ₹4,800 crore in annual legal costs for affected families.</p>
+
+    <p style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;">Section 5 - One Honest Trade-Off (5 Marks)</p>
+    <p style="font-size:14px;color:var(--ink-2);margin-bottom:0;">A genuine challenge: rural Patwaris and farmers often have limited digital literacy. If a farmer loses their private key (created via SARAL), they could lose cryptographic access to their own land records. MST's SARAL Protocol addresses this directly through social recovery - a farmer designates two or three trusted relatives or Gram Panchayat members who, collectively, can initiate account recovery without any central authority. Additionally, SARAL's Google or phone number login eliminates seed phrases entirely for less technical users. Migration of existing paper records to on-chain format requires a one-time verification process with physical presence - a logistical challenge but not an architectural one.</p>
+  </div>
+
+
+  <!-- MARKING RUBRIC -->
+  <h3 class="sub-title" style="margin-top:32px;">Marking Rubric - How 25 Marks Are Distributed</h3>
+
+  <div class="marks-breakdown" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="mark-cell">
+      <strong>Section 1 - Problem Statement (5 marks)</strong>
+      5/5: Named service, specific centralisation problem, quantified metric (real numbers), identified victims clearly.<br>
+      3 - 4: Problem identified but metric vague or missing one element.<br>
+      1 - 2: Service named but problem generic ("corruption exists").
+    </div>
+    <div class="mark-cell">
+      <strong>Section 2 - Chokepoints (5 marks)</strong>
+      5/5: At least 2 - 3 specific chokepoints named; who controls each stated; what fails when each breaks; Module 2 terminology used correctly (SPOF, governance censorship, etc.).<br>
+      3 - 4: Chokepoints identified but mechanism of failure unclear.<br>
+      1 - 2: Only vague statement ("centralised system has problems").
+    </div>
+    <div class="mark-cell">
+      <strong>Section 3 - Blockchain Architecture (5 marks)</strong>
+      5/5: Each chokepoint matched to specific blockchain component; at least 2 MST features (SARAL, WASMify, Trika POSA, DAO, IPFS, ZK proofs) named and explained correctly for why they solve the specific problem.<br>
+      3 - 4: Components named but connection to specific problem unclear.<br>
+      1 - 2: Generic "use blockchain" without specific features.
+    </div>
+    <div class="mark-cell">
+      <strong>Section 4 - Benefits (5 marks)</strong>
+      5/5: At least 2 quantified benefits with real numbers; units specified (%, rupees, seconds, number of cases).<br>
+      3 - 4: Benefits stated but only one quantified, or numbers are vague estimates without basis.<br>
+      1 - 2: Benefits stated as adjectives only ("faster, cheaper, safer").
+    </div>
+    <div class="mark-cell">
+      <strong>Section 5 - Trade-Off (5 marks)</strong>
+      5/5: Genuine limitation identified (not strawman); specific MST mechanism that addresses it named correctly; shows intellectual maturity.<br>
+      3 - 4: Trade-off identified but MST mitigation vague or generic.<br>
+      1 - 2: Trade-off is trivial ("internet required") or missing entirely.
+    </div>
+    <div class="mark-cell" style="background:var(--brand-light);border-color:#C4B5F5;">
+      <strong style="color:var(--brand-dark);">Overall Quality Indicators</strong>
+      Full marks proposals: Are specific throughout. Use real Indian data. Name exact MST features (not just "blockchain"). Acknowledge real trade-offs. Are readable and within word limits.<br><br>
+      Zero marks for: Pure copy-paste from notes. Vague claims without specifics. Generic blockchain arguments not tied to the chosen service.
+    </div>
+  </div>
+
+  <!-- SCORE SUMMARY -->
+  <div style="background: var(--brand); border-radius: var(--radius); padding: 28px 32px; margin-top: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+    <div>
+      <div style="color: #C4B5F5; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;">Sub-Module 2.6 Assessment Summary</div>
+      <div style="color: white; font-size: 16px; font-weight: 700;">Project Proposal - 1 page document, 5 sections</div>
+      <div style="color: #C4B5F5; font-size: 15px; margin-top: 6px;">Section 1: Problem Statement (5) · Section 2: Chokepoints (5) · Section 3: Architecture (5) · Section 4: Benefits (5) · Section 5: Trade-Off (5)</div>
+    </div>
+    <div style="background: white; border-radius: 10px; padding: 14px 28px; text-align: center;">
+      <div style="font-size: 42px; font-weight: 900; color: var(--brand); line-height: 1;">25</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--ink-3);">TOTAL MARKS</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- MODULE 2 COMPLETE BANNER -->
+<div style="background: linear-gradient(135deg, #065F46 0%, #0F6E56 100%); border-radius: var(--radius); padding: 32px; margin-top: 48px; text-align: center;">
+  <div style="font-size: 28px; font-weight: 900; color: white; margin-bottom: 8px;">✅ Module 2 Complete</div>
+  <div style="font-size: 16px; color: #A7F3D0; margin-bottom: 16px;">Centralisation vs Decentralisation - The Power Shift</div>
+  <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div style="text-align:center;"><div style="font-size:24px;font-weight:900;color:white;">6</div><div style="font-size:12px;color:#6EE7B7;font-weight:600;">Sub-Modules</div></div>
+    <div style="text-align:center;"><div style="font-size:24px;font-weight:900;color:white;">100</div><div style="font-size:12px;color:#6EE7B7;font-weight:600;">Total Marks</div></div>
+    <div style="text-align:center;"><div style="font-size:24px;font-weight:900;color:white;">3</div><div style="font-size:12px;color:#6EE7B7;font-weight:600;">Hours</div></div>
+  </div>
+  <div style="font-size: 14px; color: #A7F3D0; line-height: 1.7;">You now understand why centralisation creates specific, quantifiable problems - and how decentralisation and blockchain address each one architecturally. This mental model is the foundation of everything that follows in Modules 3 - 21.</div>
+</div>
+
+
+<!-- FOOTER -->
+<div style="text-align:center; margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--border);">
+  <div style="font-size: 13px; color: var(--ink-3); margin-bottom: 8px;">MasterStroke Academy - Professional Blockchain Developer Program</div>
+  <div style="font-size: 13px; color: var(--ink-3);">Module 2 · Sub-Module 2.6 of 6 &nbsp;·&nbsp; <strong style="color: var(--green);">✅ Module 2 Complete</strong> &nbsp;·&nbsp; Next: Module 3 - Blockchain Fundamentals: The Complete Engineering View →</div>
+</div>
+
+
+
