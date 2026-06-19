@@ -346,12 +346,12 @@ export default function UserManagementPage() {
                           <button
                             onClick={() => setVerifyUserModal(user)}
                             disabled={verifyingId === user.id}
-                            className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 hover:bg-amber-500/20 disabled:opacity-50 transition-colors cursor-pointer"
+                            className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
                           >
                             {verifyingId === user.id ? 'Verifying...' : (user.role === 'validator' ? 'Verify Validator' : 'Verify Student')}
                           </button>
                         ) : (
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'} whitespace-nowrap`}>
                             {user.isStudentVerified ? 'Verified' : 'No'}
                           </span>
                         )}
@@ -363,7 +363,7 @@ export default function UserManagementPage() {
                         <button
                           onClick={() => setConfirmToggle({ userId: user.id, currentStatus: user.isActive !== false, userName: user.fullName || "this user" })}
                           disabled={togglingActiveId === user.id}
-                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 ${user.isActive === false ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20'}`}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap ${user.isActive === false ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                         >
                           {togglingActiveId === user.id ? '...' : (user.isActive === false ? 'Unblock' : 'Block')}
                         </button>
