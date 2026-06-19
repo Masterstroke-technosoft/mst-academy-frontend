@@ -26,6 +26,7 @@ export interface AuthUser {
   updatedAt?: string;
   cvFile?: string;
   cvFileName?: string;
+  transactionId?: string;
 }
 
 export interface RegisterStudentInput {
@@ -37,6 +38,7 @@ export interface RegisterStudentInput {
   collegeOther?: string;
   idCardFile: File;
   referralCode?: string;
+  transactionId?: string;
 }
 
 export interface RegisterValidatorInput {
@@ -47,6 +49,7 @@ export interface RegisterValidatorInput {
   organization?: string;
   idCardFile: File;
   referralCode?: string;
+  transactionId?: string;
 }
 
 export interface RegisterNonValidatorInput {
@@ -56,6 +59,7 @@ export interface RegisterNonValidatorInput {
   password: string;
   blockchainLevel?: BlockchainLevel;
   referralCode?: string;
+  transactionId?: string;
 }
 
 const SESSION_KEY = "mst-academy-session";
@@ -213,6 +217,9 @@ export async function registerStudent(
     if (input.referralCode) {
       formData.append("referralCode", input.referralCode);
     }
+    if (input.transactionId) {
+      formData.append("transactionId", input.transactionId);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
       method: "POST",
@@ -233,6 +240,7 @@ export async function registerStudent(
       phone: studentData.mobileNumber || input.phone,
       college: studentData.collegeName || input.college,
       registeredAt: new Date().toISOString(),
+      transactionId: studentData.transactionId || input.transactionId,
     };
 
     setSession(authUser);
@@ -266,6 +274,9 @@ export async function registerValidator(
     if (input.referralCode) {
       formData.append("referralCode", input.referralCode);
     }
+    if (input.transactionId) {
+      formData.append("transactionId", input.transactionId);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
       method: "POST",
@@ -285,6 +296,7 @@ export async function registerValidator(
       role: validatorData.role || "VALIDATOR",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
+      transactionId: validatorData.transactionId || input.transactionId,
     };
 
     setSession(authUser);
@@ -317,6 +329,7 @@ export async function registerNonValidator(
         email: input.email,
         password: input.password,
         referralCode: input.referralCode,
+        transactionId: input.transactionId,
       }),
     });
 
@@ -333,6 +346,7 @@ export async function registerNonValidator(
       role: registeredUser.role || "COURSE_ONLY",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
+      transactionId: registeredUser.transactionId || input.transactionId,
     };
 
     setSession(authUser);
@@ -358,6 +372,7 @@ export async function registerWorkingProfessional(input: {
   phone: string;
   password: string;
   referralCode?: string;
+  transactionId?: string;
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -369,6 +384,7 @@ export async function registerWorkingProfessional(input: {
         email: input.email,
         password: input.password,
         referralCode: input.referralCode,
+        transactionId: input.transactionId,
       }),
     });
 
@@ -385,6 +401,7 @@ export async function registerWorkingProfessional(input: {
       role: registeredUser.role || "WORKING_PROFESSIONAL",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
+      transactionId: registeredUser.transactionId || input.transactionId,
     };
 
     setSession(authUser);

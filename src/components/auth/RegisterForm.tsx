@@ -133,6 +133,7 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCodeInput, setReferralCodeInput] = useState("");
+  const [transactionId, setTransactionId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -220,6 +221,7 @@ export function RegisterForm() {
         password,
         idCardFile: validatorIdFile,
         referralCode,
+        transactionId: transactionId.trim() || undefined,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -241,6 +243,7 @@ export function RegisterForm() {
         college: college === "Other" ? collegeOther : college,
         idCardFile: studentIdFile,
         referralCode,
+        transactionId: transactionId.trim() || undefined,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -249,14 +252,16 @@ export function RegisterForm() {
         phone,
         password,
         referralCode,
+        transactionId: transactionId.trim() || undefined,
       });
     } else {
       result = await registerNonValidator({
         fullName,
         email,
-        phone,
         password,
+        phone,
         referralCode,
+        transactionId: transactionId.trim() || undefined,
       });
     }
 
@@ -421,10 +426,10 @@ export function RegisterForm() {
           </div>
         </div>
 
-        <div>
+        <div className="space-y-4">
           {/* Plan-specific fields */}
           {plan === "student" && (
-            <>
+            <div className="space-y-4">
               <div>
                 <FieldLabel htmlFor="college" required>
                   College
@@ -483,11 +488,11 @@ export function RegisterForm() {
                   />
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {plan === "validator" && (
-            <>
+            <div className="space-y-4">
               <div>
                 <FieldLabel htmlFor="validatorId" required>
                   Validator ID Card Upload
@@ -526,11 +531,28 @@ export function RegisterForm() {
                   Download Validator ID Card
                 </a>
               </p>
-            </>
+            </div>
           )}
 
           {/* Fee display */}
           <DemoFee amount={selectedPlan.price} />
+        </div>
+
+        {/* Pay Now & QR Code */}
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
+          <FieldLabel required>Pay Now</FieldLabel>
+          <div className="flex flex-col items-center gap-4 text-center">
+
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                  `upi://pay?pa=mstacademy@okicici&pn=MST%20Academy&am=${selectedPlan.price}&cu=INR`
+                )}`}
+                alt="Payment QR Code"
+                className="h-[180px] w-[180px] object-contain"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Referral Code */}
