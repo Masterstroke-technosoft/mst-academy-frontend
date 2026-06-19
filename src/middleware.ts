@@ -29,5 +29,17 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon\\.ico).*)"],
+  matcher: [
+    /*
+     * Run on all request paths except:
+     * - api            (API routes)
+     * - _next/static   (build output / static files)
+     * - _next/image    (image optimization endpoint)
+     * - any path with a static-asset file extension (e.g. /logo.png,
+     *   /file.svg, /favicon.ico). These are served from the public/ folder
+     *   and must stay reachable before login — otherwise the auth check
+     *   redirects them to /login and they fail to load.
+     */
+    "/((?!api|_next/static|_next/image|.*\\.(?:png|jpe?g|gif|svg|webp|avif|ico|css|js|woff2?|ttf|map)$).*)",
+  ],
 };
