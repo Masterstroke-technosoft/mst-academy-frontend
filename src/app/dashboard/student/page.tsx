@@ -261,6 +261,7 @@ export default function StudentDashboardPage({
     description?: string;
     estimatedTime?: string;
     contentFile?: string;
+    contentFileUpload?: File | null;
     index?: number;
     parentId?: string;
   } | null>(null);
@@ -272,6 +273,7 @@ export default function StudentDashboardPage({
     description: string;
     estimatedTime: string;
     contentFile: string;
+    contentFileUpload?: File | null;
   } | null>(null);
 
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -873,18 +875,29 @@ export default function StudentDashboardPage({
           }
         }
 
+        const formData = new FormData();
+        formData.append("moduleId", String(moduleId));
+        formData.append("index", String(subIndex));
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("estimatedTime", estimatedTime);
+        if (curriculumModal.contentFileUpload) {
+          formData.append("contentFile", curriculumModal.contentFileUpload);
+        }
+
+        const uploadHeaders: Record<string, string> = {
+          "Cache-Control": "no-store",
+          "Pragma": "no-cache",
+        };
+        if (token) {
+          uploadHeaders["Authorization"] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${baseURL}/api/submodules/admin`, {
           method: "POST",
           credentials: "include",
-          headers,
-          body: JSON.stringify({
-            title,
-            moduleId,
-            index: subIndex,
-            description,
-            estimatedTime,
-            contentFile
-          })
+          headers: uploadHeaders,
+          body: formData,
         });
         if (response.ok) {
           await fetchCurriculum();
@@ -1172,17 +1185,28 @@ export default function StudentDashboardPage({
           throw new Error(errData.message || response.statusText || "Failed to update module");
         }
       } else if (editingItem.type === "Submodule") {
+        const formData = new FormData();
+        formData.append("title", editingItem.title);
+        formData.append("description", editingItem.description || "");
+        formData.append("estimatedTime", editingItem.estimatedTime || "");
+        formData.append("index", String(editingItem.index ?? 1));
+        if (editingItem.contentFileUpload) {
+          formData.append("contentFile", editingItem.contentFileUpload);
+        }
+
+        const uploadHeaders: Record<string, string> = {
+          "Cache-Control": "no-store",
+          "Pragma": "no-cache",
+        };
+        if (token) {
+          uploadHeaders["Authorization"] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`${baseURL}/api/submodules/admin/${editingItem.subId}`, {
           method: "PATCH",
           credentials: "include",
-          headers,
-          body: JSON.stringify({
-            title: editingItem.title,
-            description: editingItem.description,
-            estimatedTime: editingItem.estimatedTime,
-            contentFile: editingItem.contentFile,
-            index: editingItem.index
-          })
+          headers: uploadHeaders,
+          body: formData,
         });
 
         if (!response.ok) {
@@ -1860,14 +1884,33 @@ export default function StudentDashboardPage({
 
               {editingItem.type === "Submodule" && (
                 <div>
-                  <label className="mb-1.5 block text-sm font-bold text-[var(--text)]">Content File URL / Path</label>
-                  <input
-                    type="text"
-                    value={editingItem.contentFile || ""}
-                    onChange={e => setEditingItem({ ...editingItem, contentFile: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-3 text-sm text-[var(--text)] focus:border-blue-500/50 focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all"
-                    placeholder="e.g., phase1/intro.md"
-                  />
+                  <label className="mb-1.5 block text-sm font-bold text-[var(--text)]">Content HTML File</label>
+                  {editingItem.contentFile && (
+                    <p className="mb-2 text-xs text-[var(--text-muted)] break-all">
+                      Current: {editingItem.contentFile}
+                    </p>
+                  )}
+                  <label className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg)]/50 px-4 py-3 cursor-pointer hover:bg-[var(--border)]/10 hover:border-mst-red/40 transition-all">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mst-red/10 text-mst-red shrink-0">
+                      <Upload className="h-4 w-4" />
+                    </span>
+                    <span className="text-sm text-[var(--text)]">
+                      {editingItem.contentFileUpload
+                        ? `Selected: ${editingItem.contentFileUpload.name}`
+                        : "Upload a new .html file to replace content"}
+                    </span>
+                    <input
+                      type="file"
+                      accept=".html,.htm,.md,.txt"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setEditingItem({ ...editingItem, contentFileUpload: file });
+                        }
+                      }}
+                    />
+                  </label>
                 </div>
               )}
             </div>
@@ -1944,50 +1987,41 @@ export default function StudentDashboardPage({
                   )}
 
                   {curriculumModal.type === "create-submodule" && (
-                    <div>
-                      <label className="mb-1 block text-xs font-bold text-[var(--text-muted)]">Manual File Path</label>
-                      <input
-                        type="text"
-                        value={curriculumModal.contentFile}
-                        onChange={e => setCurriculumModal({ ...curriculumModal, contentFile: e.target.value })}
-                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
-                        placeholder="e.g., variables.md"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {curriculumModal.type === "create-submodule" && (
-                  <div>
-                    <label className="mb-1 block text-xs font-bold text-[var(--text)]">Content File Upload</label>
-                    <div className="flex items-center gap-3">
-                      <label className="flex flex-1 items-center gap-3 rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg)]/50 px-4 py-2.5 text-left cursor-pointer hover:bg-[var(--border)]/10 hover:border-mst-red/40 transition-all">
+                    <div className="col-span-2">
+                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Content HTML File</label>
+                      <label className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg)]/50 px-4 py-2.5 cursor-pointer hover:bg-[var(--border)]/10 hover:border-mst-red/40 transition-all">
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mst-red/10 text-mst-red shrink-0">
                           <Upload className="h-4 w-4" />
                         </span>
                         <div className="min-w-0 flex-1">
                           <span className="block text-xs font-semibold text-[var(--text)] truncate">
-                            {curriculumModal.contentFile ? `Selected: ${curriculumModal.contentFile}` : "Upload file (.md, .html)"}
+                            {curriculumModal.contentFileUpload
+                              ? `Selected: ${curriculumModal.contentFileUpload.name}`
+                              : "Upload lesson HTML (.html)"}
                           </span>
                           <span className="block text-[9px] text-[var(--text-muted)]">
-                            Click to select
+                            Full page with sidebar, styles, and diagrams
                           </span>
                         </div>
                         <input
                           type="file"
-                          accept=".md,.html,.txt,.json"
+                          accept=".html,.htm,.md,.txt"
                           className="hidden"
-                          onChange={e => {
+                          onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              setCurriculumModal({ ...curriculumModal, contentFile: file.name });
+                              setCurriculumModal({
+                                ...curriculumModal,
+                                contentFile: file.name,
+                                contentFileUpload: file,
+                              });
                             }
                           }}
                         />
                       </label>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-[var(--border)] p-4 bg-[var(--bg)]/50">

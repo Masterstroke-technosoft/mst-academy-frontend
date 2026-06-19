@@ -129,8 +129,10 @@ export function setSession(user: AuthUser | null) {
   if (user) {
     const { password: _pw, ...safe } = user;
     localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
+    document.cookie = `mst-session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
   } else {
     localStorage.removeItem(SESSION_KEY);
+    document.cookie = "mst-session=; path=/; max-age=0";
   }
 }
 

@@ -382,7 +382,8 @@ function PhaseSection({
       setLoading(true);
       try {
         //Get single phase
-        const phaseRes = await fetchWithAuth(`${baseURL}/api/phases/${phaseId}`);
+        console.log("Fetching phase details for phase", phaseId);
+        const phaseRes = await fetchWithAuth(`${baseURL}/api/modules/phases/${phaseId}`);
         if (phaseRes.ok) {
           const phaseJson = await phaseRes.json();
         }
