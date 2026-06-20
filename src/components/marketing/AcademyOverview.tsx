@@ -263,40 +263,7 @@ function ModuleSubmodulesList({
     async function fetchSubmodules() {
       setLoading(true);
       try {
-        //Get single module
-        const moduleRes = await fetchWithAuth(`${baseURL}/api/modules/${moduleId}`);
-        if (moduleRes.ok) {
-          const moduleJson = await moduleRes.json();
-        }
-
-        // Get submodules by module
-        const res = await fetchWithAuth(`${baseURL}/api/submodules/module/${moduleId}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data)) {
-            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-
-            //Get single submodule
-            const detailedSubmodules = await Promise.all(
-              sorted.map(async (sub: any) => {
-                try {
-                  const subRes = await fetchWithAuth(`${baseURL}/api/submodules/${sub._id || sub.id}`);
-                  if (subRes.ok) {
-                    const subJson = await subRes.json();
-                    if (subJson && subJson.success && subJson.data) {
-                      return subJson.data;
-                    }
-                  }
-                } catch (e) {
-                  console.error("Error fetching single submodule:", e);
-                }
-                return sub;
-              })
-            );
-
-            setSubmodules(detailedSubmodules);
-          }
-        }
+        // APIs removed as requested
       } catch (err) {
         console.error("Error fetching submodules:", err);
       } finally {
@@ -369,7 +336,7 @@ function PhaseSection({
         }
 
         // Get modules by phase
-        const res = await fetchWithAuth(`${baseURL}/api/modules/phase/${phaseId}`);
+        //  const res = await fetchWithAuth(`${baseURL}/api/modules/phase/${phaseId}`);
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {

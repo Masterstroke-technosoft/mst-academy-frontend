@@ -24,6 +24,8 @@ import {
   PlusCircle,
   AlertCircle,
   CheckCircle2,
+  Menu,
+  X,
 } from "lucide-react";
 
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
@@ -64,6 +66,7 @@ export function DashboardShell({
   const pathname = usePathname();
   const { user, ready, logout, isAdmin } = useAuth();
   const [activeHash, setActiveHash] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [isApprovedPaymentModalOpen, setIsApprovedPaymentModalOpen] = useState(false);
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
@@ -132,6 +135,24 @@ export function DashboardShell({
     }
   };
 
+  const handleRejectPayment = async (requestId: string) => {
+    setApprovingId(requestId);
+    try {
+      showToast("Payment rejected successfully!", "error");
+      setPaymentRequests(prev =>
+        prev.map(req =>
+          (req.id === requestId || req._id === requestId)
+            ? { ...req, status: "REJECTED" }
+            : req
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -169,7 +190,7 @@ export function DashboardShell({
     <>
       <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-[var(--bg)]">
         {/* ---- sidebar (desktop) ---- */}
-        <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
+        <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] md:flex">
           {/* profile */}
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
@@ -254,8 +275,8 @@ export function DashboardShell({
                 }}
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
               >
-                <CheckCircle2 size={16} />
-                Approved Payment
+                <AlertCircle size={16} className="text-amber-500" />
+                Approved Payments
               </button>
             )}
             <button
@@ -285,13 +306,159 @@ export function DashboardShell({
           </div>
         </aside >
 
+        {/* ---- sidebar (mobile drawer) ---- */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            
+            {/* Drawer content */}
+            <aside className="relative flex w-64 max-w-xs flex-1 flex-col border-r border-[var(--border)] bg-[var(--surface)] p-5 animate-in slide-in-from-left duration-200">
+              <div className="absolute right-4 top-4">
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* profile */}
+              <div className="flex items-center gap-3 border-b border-[var(--border)] pb-5 pt-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
+                  {user.fullName.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-[var(--text)]">
+                    {user.fullName}
+                  </p>
+                  <p className="truncate text-xs text-[var(--text-muted)]">
+                    {roleLabel(role)}
+                    {isAdmin && " · Admin"}
+                  </p>
+                </div>
+              </div>
+
+              {/* nav */}
+              <nav className="flex-1 space-y-1 py-4 overflow-y-auto">
+                {getSidebarNav(role, isAdmin).map((item) => {
+                  const Icon = item.icon;
+
+                  const itemHash = item.href.includes('#') ? item.href.substring(item.href.indexOf('#')) : "";
+                  const itemPath = item.href.includes('#') ? item.href.substring(0, item.href.indexOf('#')) || pathname : item.href;
+
+                  const isPathMatch = itemPath === pathname;
+                  const isHashMatch = itemHash === activeHash;
+                  const isActive = isPathMatch && isHashMatch;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        if (item.href.includes('#')) {
+                          setTimeout(() => {
+                            window.dispatchEvent(new HashChangeEvent("hashchange"));
+                          }, 50);
+                        }
+                      }}
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
+                        ? "bg-mst-red/10 text-mst-red"
+                        : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                        }`}
+                    >
+                      <Icon size={16} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+
+                {isAdmin && (
+                  <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
+                    <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                      Admin Dashboards
+                    </p>
+                    {DASHBOARD_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${role === link.role
+                          ? "bg-mst-red/10 text-mst-red"
+                          : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                          }`}
+                      >
+                        <BookOpen size={16} />
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </nav>
+
+              {/* bottom */}
+              <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSidebarOpen(false);
+                      setIsApprovedPaymentModalOpen(true);
+                      fetchPaymentRequests();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
+                  >
+                    <AlertCircle size={16} className="text-amber-500" />
+                    Approved Payments
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+                      await fetch(`${baseURL}/api/auth/logout`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      });
+                    } catch (e) {
+                      console.error(e);
+                    }
+                    logout();
+                    router.push("/login");
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
+              </div>
+            </aside>
+          </div>
+        )}
+
         {/* ---- main content ---- */}
         < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden" >
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
               {/* mobile header */}
-              <div className="mb-6 flex items-center justify-between lg:hidden">
+              <div className="mb-6 flex items-center justify-between md:hidden">
                 <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+                  >
+                    <Menu size={20} />
+                  </button>
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
                     {user.fullName.charAt(0).toUpperCase()}
                   </div>
@@ -348,7 +515,7 @@ export function DashboardShell({
 
               {/* admin nav (mobile) */}
               {isAdmin && (
-                <nav className="mb-6 flex flex-wrap gap-2 lg:hidden">
+                <nav className="mb-6 flex flex-wrap gap-2 md:hidden">
                   {DASHBOARD_LINKS.map((link) => (
                     <Link
                       key={link.href}
@@ -383,7 +550,7 @@ export function DashboardShell({
 
       {isApprovedPaymentModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+          <div className="w-full max-w-6xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
               <div>
                 <h3 className="text-xl font-black text-[var(--text)]">
@@ -403,8 +570,58 @@ export function DashboardShell({
 
             <div className="flex-1 overflow-auto">
               {loadingPayments ? (
-                <div className="flex h-40 items-center justify-center text-[var(--text-muted)]">
-                  Loading payment requests...
+                <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-sm text-[var(--text-muted)] animate-pulse">
+                    <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                      <tr>
+                        <th className="px-2 py-3 whitespace-nowrap">Account Holder</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Category</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Amount</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Date</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Transaction ID</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Method</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Upload Screenshot</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Status</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                      {[...Array(5)].map((_, idx) => (
+                        <tr key={idx} className="transition-colors">
+                          <td className="px-2 py-4 whitespace-nowrap">
+                            <div className="h-4 w-24 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 text-center whitespace-nowrap">
+                            <div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 whitespace-nowrap">
+                            <div className="h-4 w-12 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 whitespace-nowrap">
+                            <div className="h-4 w-16 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 whitespace-nowrap">
+                            <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 whitespace-nowrap">
+                            <div className="h-4 w-10 rounded bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 text-center whitespace-nowrap">
+                            <div className="mx-auto h-7 w-20 rounded-lg bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 text-center whitespace-nowrap">
+                            <div className="mx-auto h-5 w-16 rounded-full bg-[var(--border)]/70"></div>
+                          </td>
+                          <td className="px-2 py-4 text-center whitespace-nowrap">
+                            <div className="inline-flex items-center gap-2">
+                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : paymentRequests.length === 0 ? (
                 <div className="flex h-40 flex-col items-center justify-center text-[var(--text-muted)]">
@@ -412,45 +629,45 @@ export function DashboardShell({
                   <p className="text-sm font-semibold">No payment requests found.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto md:overflow-x-visible rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
                   <table className="w-full text-left text-sm text-[var(--text-muted)]">
                     <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                       <tr>
-                        <th className="px-3 py-3 whitespace-nowrap">Account Holder</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Category</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Amount</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Date</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Transaction ID</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Method</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Upload Screenshot</th>
-                        <th className="px-3 py-3 whitespace-nowrap">Status</th>
-                        <th className="px-3 py-3 whitespace-nowrap text-right">Action</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Account Holder</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Category</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Amount</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Date</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Transaction ID</th>
+                        <th className="px-2 py-3 whitespace-nowrap">Method</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Upload Screenshot</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Status</th>
+                        <th className="px-2 py-3 whitespace-nowrap text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border)]">
                       {paymentRequests.map((req) => (
                         <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
-                          <td className="px-3 py-3 font-semibold text-[var(--text)] whitespace-nowrap">
+                          <td className="px-2 py-3 font-semibold text-[var(--text)] whitespace-nowrap">
                             {req.accountHolderName}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 py-3 text-center whitespace-nowrap">
                             <span className="inline-flex rounded-md bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
                               {req.category}
                             </span>
                           </td>
-                          <td className="px-3 py-3 font-black text-[var(--text)] text-sm whitespace-nowrap">
+                          <td className="px-2 py-3 font-black text-[var(--text)] text-sm whitespace-nowrap">
                             ₹{req.amountPaid}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 py-3 whitespace-nowrap">
                             {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
                           </td>
-                          <td className="px-3 py-3 font-mono text-xs whitespace-nowrap">
+                          <td className="px-2 py-3 font-mono text-xs whitespace-nowrap">
                             {req.transactionId}
                           </td>
-                          <td className="px-3 py-3 font-medium whitespace-nowrap">
+                          <td className="px-2 py-3 font-medium whitespace-nowrap">
                             {req.paymentMethod}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 py-3 text-center whitespace-nowrap">
                             {req.paymentScreenshotUrl ? (
                               <button
                                 type="button"
@@ -460,34 +677,50 @@ export function DashboardShell({
                                     : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
                                   setPreviewScreenshotUrl(fullUrl);
                                 }}
-                                className="inline-flex items-center justify-center gap-1 font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap"
+                                className="inline-flex items-center justify-center font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap w-20 text-center"
                               >
                                 View
                               </button>
                             ) : (
-                              <span className="inline-flex items-center justify-center gap-1 text-xs bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-lg font-medium">No file</span>
+                              <span className="inline-flex items-center justify-center text-xs bg-gray-500/10 text-gray-500 border border-gray-500/20 px-3 py-1.5 rounded-lg font-medium w-20 text-center">
+                                No file
+                              </span>
                             )}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${req.status === "APPROVED"
-                              ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse"
+                          <td className="px-2 py-3 text-center whitespace-nowrap">
+                            <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                              ? "bg-green-600 border border-green-600"
+                              : req.status === "REJECTED"
+                                ? "bg-red-600 border border-red-600"
+                                : "bg-amber-500 border border-amber-500"
                               }`}>
                               {req.status}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-right whitespace-nowrap">
-                            {req.status !== "APPROVED" ? (
-                              <button
-                                type="button"
-                                disabled={approvingId === (req._id || req.id)}
-                                onClick={() => handleApprovePayment(req._id || req.id)}
-                                className="rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
-                              >
-                                Approve
-                              </button>
+                          <td className="px-2 py-3 text-center whitespace-nowrap">
+                            {req.status === "PENDING" ? (
+                              <div className="inline-flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={approvingId === (req._id || req.id)}
+                                  onClick={() => handleApprovePayment(req._id || req.id)}
+                                  className="rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={approvingId === (req._id || req.id)}
+                                  onClick={() => handleRejectPayment(req._id || req.id)}
+                                  className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : req.status === "APPROVED" ? (
+                              <span className="text-green-500 font-bold text-xs inline-flex items-center gap-1 justify-center"><CheckCircle2 size={14} /> Ready</span>
                             ) : (
-                              <span className="text-green-500 font-bold text-xs inline-flex items-center gap-1"><CheckCircle2 size={14} /> Ready</span>
+                              <span className="text-red-500 font-bold text-xs inline-flex items-center gap-1 justify-center"><AlertCircle size={14} /> Rejected</span>
                             )}
                           </td>
                         </tr>

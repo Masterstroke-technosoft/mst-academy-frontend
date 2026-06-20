@@ -274,6 +274,9 @@ export default function StudentDashboardPage({
     estimatedTime: string;
     contentFile: string;
     contentFileUpload?: File | null;
+    index?: number;
+    defaultPhaseId?: string;
+    defaultIndex?: number;
   } | null>(null);
 
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
@@ -744,13 +747,18 @@ export default function StudentDashboardPage({
   };
 
   const handleAddModule = (phaseId: string) => {
+    const parentPhase = phases.find(p => p.id === phaseId);
+    const nextIndex = parentPhase ? (parentPhase.modules || []).length : 0;
     setCurriculumModal({
       type: "create-module",
-      phaseId,
+      phaseId: "",
       title: "",
       description: "",
       estimatedTime: "",
-      contentFile: ""
+      contentFile: "",
+      index: undefined,
+      defaultPhaseId: phaseId,
+      defaultIndex: nextIndex
     });
   };
 
@@ -761,7 +769,7 @@ export default function StudentDashboardPage({
       moduleId,
       title: "",
       description: "",
-      estimatedTime: "30 minutes",
+      estimatedTime: "",
       contentFile: ""
     });
   };
@@ -831,19 +839,18 @@ export default function StudentDashboardPage({
           });
         }
       } else if (type === "create-module") {
-        const parentPhase = phases.find(p => p.id === phaseId);
-        const modIndex = parentPhase ? (parentPhase.modules || []).length + 1 : 1;
-
+        const finalPhaseId = (curriculumModal.phaseId && curriculumModal.phaseId.trim()) || curriculumModal.defaultPhaseId || phaseId;
+        const finalIndex = curriculumModal.index !== undefined ? curriculumModal.index : (curriculumModal.defaultIndex !== undefined ? curriculumModal.defaultIndex : 0);
         const response = await fetch(`${baseURL}/api/modules/admin`, {
           method: "POST",
           credentials: "include",
           headers,
           body: JSON.stringify({
             title,
-            phaseId,
-            index: modIndex,
+            phaseId: finalPhaseId,
+            index: finalIndex,
             description,
-            estimateTime: "12 hours"
+            estimateTime: estimatedTime || "2 hours"
           })
         });
         if (response.ok) {
@@ -1947,6 +1954,33 @@ export default function StudentDashboardPage({
 
             <form onSubmit={handleModalSubmit} noValidate>
               <div className="p-4 sm:p-5 space-y-3">
+                {curriculumModal.type === "create-module" && (
+                  <>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Phase ID</label>
+                      <input
+                        type="text"
+                        required
+                        value={curriculumModal.phaseId || ""}
+                        onChange={e => setCurriculumModal({ ...curriculumModal, phaseId: e.target.value })}
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
+                        placeholder="e.g., 66f5c8a1b2c3d4e5f6g7h8i0"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Index</label>
+                      <input
+                        type="number"
+                        required
+                        value={curriculumModal.index !== undefined ? curriculumModal.index : ""}
+                        onChange={e => setCurriculumModal({ ...curriculumModal, index: e.target.value === "" ? undefined : Number(e.target.value) })}
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
+                        placeholder="e.g., 0"
+                      />
+                    </div>
+                  </>
+                )}
+
                 <div>
                   <label className="mb-1 block text-xs font-bold text-[var(--text)]">Title</label>
                   <input
@@ -1971,57 +2005,55 @@ export default function StudentDashboardPage({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {(curriculumModal.type === "create-phase" || curriculumModal.type === "create-submodule") && (
-                    <div>
-                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Estimated Time</label>
-                      <input
-                        type="text"
-                        required
-                        value={curriculumModal.estimatedTime}
-                        onChange={e => setCurriculumModal({ ...curriculumModal, estimatedTime: e.target.value })}
-                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
-                        placeholder="e.g., 30 minutes"
-                      />
-                    </div>
-                  )}
+                {(curriculumModal.type === "create-phase" || curriculumModal.type === "create-module" || curriculumModal.type === "create-submodule") && (
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-[var(--text)]">Estimated Time</label>
+                    <input
+                      type="text"
+                      required
+                      value={curriculumModal.estimatedTime}
+                      onChange={e => setCurriculumModal({ ...curriculumModal, estimatedTime: e.target.value })}
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
+                      placeholder="e.g., 2 hours"
+                    />
+                  </div>
+                )}
 
-                  {curriculumModal.type === "create-submodule" && (
-                    <div className="col-span-2">
-                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Content HTML File</label>
-                      <label className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg)]/50 px-4 py-2.5 cursor-pointer hover:bg-[var(--border)]/10 hover:border-mst-red/40 transition-all">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mst-red/10 text-mst-red shrink-0">
-                          <Upload className="h-4 w-4" />
+                {curriculumModal.type === "create-submodule" && (
+                  <div>
+                    <label className="mb-1 block text-xs font-bold text-[var(--text)]">Content HTML File</label>
+                    <label className="flex items-center gap-3 rounded-xl border border-dashed border-[var(--border)] bg-[var(--bg)]/50 px-4 py-2.5 cursor-pointer hover:bg-[var(--border)]/10 hover:border-mst-red/40 transition-all">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-mst-red/10 text-mst-red shrink-0">
+                        <Upload className="h-4 w-4" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <span className="block text-xs font-semibold text-[var(--text)] truncate">
+                          {curriculumModal.contentFileUpload
+                            ? `Selected: ${curriculumModal.contentFileUpload.name}`
+                            : "Upload lesson HTML (.html)"}
                         </span>
-                        <div className="min-w-0 flex-1">
-                          <span className="block text-xs font-semibold text-[var(--text)] truncate">
-                            {curriculumModal.contentFileUpload
-                              ? `Selected: ${curriculumModal.contentFileUpload.name}`
-                              : "Upload lesson HTML (.html)"}
-                          </span>
-                          <span className="block text-[9px] text-[var(--text-muted)]">
-                            Full page with sidebar, styles, and diagrams
-                          </span>
-                        </div>
-                        <input
-                          type="file"
-                          accept=".html,.htm,.md,.txt"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setCurriculumModal({
-                                ...curriculumModal,
-                                contentFile: file.name,
-                                contentFileUpload: file,
-                              });
-                            }
-                          }}
-                        />
-                      </label>
-                    </div>
-                  )}
-                </div>
+                        <span className="block text-[9px] text-[var(--text-muted)]">
+                          Full page with sidebar, styles, and diagrams
+                        </span>
+                      </div>
+                      <input
+                        type="file"
+                        accept=".html,.htm,.md,.txt"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setCurriculumModal({
+                              ...curriculumModal,
+                              contentFile: file.name,
+                              contentFileUpload: file,
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 border-t border-[var(--border)] p-4 bg-[var(--bg)]/50">

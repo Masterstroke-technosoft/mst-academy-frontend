@@ -41,7 +41,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           <Link
             href="/academy-overview"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--nav-text)]/70 transition hover:bg-white/10 hover:text-[var(--nav-text)]"
@@ -112,7 +112,7 @@ export function Navbar() {
                   await logout();
                   window.location.href = '/login';
                 }}
-                className="rounded-lg border border-white/10 p-2 text-[var(--nav-text)]/60 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400"
+                className="hidden sm:inline-flex rounded-lg border border-white/10 p-2 text-[var(--nav-text)]/60 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400"
                 title="Sign Out"
               >
                 <LogOut size={16} />
@@ -129,7 +129,7 @@ export function Navbar() {
               </Link>
               <Link
                 href="/register"
-                className="hidden items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10 md:flex"
+                className="hidden items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10 lg:flex"
               >
                 <UserPlus size={14} />
                 Register
@@ -139,7 +139,7 @@ export function Navbar() {
 
           <Link
             href="/learn"
-            className="hidden rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:inline-block"
+            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             Start Learning
           </Link>
@@ -148,7 +148,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="rounded-lg p-2 text-[var(--nav-text)] transition hover:bg-white/10 md:hidden"
+            className="rounded-lg p-2 text-[var(--nav-text)] transition hover:bg-white/10 lg:hidden"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -157,7 +157,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-[var(--nav-bg)] px-4 py-4 md:hidden">
+        <div className="border-t border-white/10 bg-[var(--nav-bg)] px-4 py-4 lg:hidden">
           <nav className="flex flex-col gap-1">
             <Link
               href="/academy-overview"
