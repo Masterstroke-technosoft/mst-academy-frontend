@@ -45,56 +45,10 @@ export function ModuleDetail({
   }, [authReady, isAdmin]);
 
   useEffect(() => {
-    console.log("ModuleDetail received submodulesssssssssss:", mod.submodules);
+    // Submodules already carry hasAssessment / totalMarks from the parent.
+    // The old /api/assignments sync 404s and was a no-op, so it's removed.
     setLocalSubmodules(mod.submodules);
-
-    async function syncAssignments() {
-      try {
-        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
-        const headers: Record<string, string> = {
-          "Cache-Control": "no-store",
-          "Pragma": "no-cache"
-        };
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const res = await fetch(`${baseURL}/api/assignments`, {
-          credentials: "include",
-          headers
-        });
-        if (res.ok) {
-          const assignmentsList = await res.json();
-          const list = Array.isArray(assignmentsList)
-            ? assignmentsList
-            : (assignmentsList.data || assignmentsList.assignments || []);
-
-          const activeSubmoduleIds = new Set<string>();
-          const marksMap = new Map<string, number>();
-          list.forEach((asn: any) => {
-            const subId = asn.submoduleId || asn.subModuleId;
-            if (subId) {
-              activeSubmoduleIds.add(subId);
-              marksMap.set(subId, asn.questions ? asn.questions.length : 0);
-            }
-          });
-
-          setLocalSubmodules(prev => prev.map(sub => {
-            const hasDbAss = activeSubmoduleIds.has(sub.id);
-            const isEnabled = hasDbAss || sub.hasAssessment;
-            return {
-              ...sub,
-              hasAssessment: isEnabled,
-              totalMarks: hasDbAss ? (marksMap.get(sub.id) || sub.totalMarks) : sub.totalMarks
-            };
-          }));
-        }
-      } catch (err) {
-        console.error("Error syncing assignments:", err);
-      }
-    }
-    syncAssignments();
-  }, [mod, authReady]);
+  }, [mod]);
 
   const slugs = localSubmodules.map((s) => s.slug);
   const progress = getModuleProgressPercent(mod.id, slugs);

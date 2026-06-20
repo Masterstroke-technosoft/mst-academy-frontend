@@ -52,7 +52,6 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck,
   BarChart3,
   Users,
   PlusCircle,
@@ -60,7 +59,6 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
-import { AssessmentsTab } from "@/components/dashboard/AssessmentsTab";
 
 function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
   return (
@@ -299,7 +297,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
-      if (hash === "#assessments") return "assessments";
       if (hash === "#progress") return "progress";
       if (hash === "#profile") return "profile";
       if (hash === "#refer") return "refer";
@@ -318,8 +315,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === "#assessments") setActiveTab("assessments");
-      else if (hash === "#progress") setActiveTab("progress");
+      if (hash === "#progress") setActiveTab("progress");
       else if (hash === "#profile") setActiveTab("profile");
       else if (hash === "#refer") setActiveTab("refer");
       else setActiveTab("overview");
@@ -554,7 +550,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             {[
               { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
               { href: "/learn", icon: TreePine, label: "Learning Tree" },
-              { id: "assessments", href: `${basePath}#assessments`, icon: ClipboardCheck, label: "Assessments" },
               { id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" },
               ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
               ...(isAdmin ? [
@@ -680,8 +675,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   successfulReferrals={successfulReferrals}
                   withdrawUnlocked={withdrawUnlocked}
                 />
-              ) : activeTab === 'assessments' ? (
-                <AssessmentsTab />
               ) : activeTab === 'progress' ? (
                 <PlaceholderTab
                   title="Learning Progress"
