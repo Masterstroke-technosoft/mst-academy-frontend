@@ -98,7 +98,12 @@ export function ReferAndEarnTab({
       status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
       eligible: r.status === "verified",
     }))
-    : propReferralRecords;
+    : propReferralRecords.map(r => ({
+      name: r.name || "Anonymous",
+      joinedAt: r.joinedAt,
+      status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
+      eligible: r.status === "verified",
+    }));
 
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
   const withdrawUnlocked = successfulReferrals >= 5;

@@ -178,7 +178,15 @@ export default function ReferralAnalyticsPage() {
             //     };
             //   })
             // );
-            list = apiBankDetails;
+            list = apiBankDetails.map((item: any) => ({
+              ...item,
+              id: item._id || item.id || item.withdrawalRequestId,
+              status: item.withdrawalStatus || item.status || "Pending",
+              referrals: item.referrals?.map((ref: any) => ({
+                ...ref,
+                eligible: ref.status === "verified"
+              })) || []
+            }));
           }
         } catch (err) {
           console.error("Failed to load bank details from API", err);
@@ -257,23 +265,16 @@ export default function ReferralAnalyticsPage() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-[var(--text)]">{req.userName}</span>
-                      <span className="text-xs text-[var(--text-muted)]">({req.email})</span>
-                    </div>
-                    <p className="mt-1 text-xs text-[var(--text-muted)]">Requested on {req.date}</p>
+                    <span className="text-sm font-bold text-[var(--text)]">{req.userName}</span>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl font-black text-[var(--text)]">₹{req.amount}</span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${req.status === "Confirmed"
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${req.status === "Confirmed"
                       ? "bg-green-500/10 text-green-500 border border-green-500/20"
                       : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
                       }`}>
                       {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
                       {req.status}
                     </span>
-                  </div>
                 </div>
 
                 <div className="grid gap-6 mt-6 md:grid-cols-2">
