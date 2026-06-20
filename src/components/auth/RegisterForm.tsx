@@ -49,28 +49,28 @@ const PLAN_OPTIONS: {
       label: "Validator Fellowship",
       emoji: "🔐",
       price: DEMO_FEES.validator,
-      desc: "Validator portal + 1 fraction + 19 years daily MSTC rewards.",
+      desc: "Validator portal + 19 years daily MSTC rewards.",
     },
     {
       id: "student",
       label: "Student Fellowship",
       emoji: "🎓",
       price: DEMO_FEES.student,
-      desc: "Student ID scholarship + paid internship + 1 fraction rewards.",
+      desc: "Student ID scholarship + paid internship",
     },
     {
       id: "normal",
       label: "Working Professional Fellowship",
       emoji: "👤",
       price: DEMO_FEES.normal,
-      desc: "Paid internship + 1 fraction + industry mentor support.",
+      desc: "Paid internship + industry mentor support.",
     },
     {
       id: "courseOnly",
       label: "Course Only",
       emoji: "📚",
       price: DEMO_FEES.courseOnly,
-      desc: "Course only at foundation offer. No fraction. No internship.",
+      desc: "Course only at foundation offer No internship.",
     },
   ];
 
@@ -81,7 +81,6 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
     return (
       <HighlightBox>
         <strong>Validator Fellowship:</strong> Dedicated validator portal + stakeholder access +{" "}
-        <strong>1 fraction with 19 years daily MSTC rewards</strong>. Internship is not included in validator track.
       </HighlightBox>
     );
   }
@@ -90,7 +89,6 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
     return (
       <HighlightBox>
         <strong>Student Fellowship:</strong> Valid student ID unlocks scholarship pricing +{" "}
-        <strong>paid internship</strong> + <strong>1 fraction with 19 years daily MSTC rewards</strong>.
       </HighlightBox>
     );
   }
@@ -99,14 +97,14 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
     return (
       <HighlightBox>
         <strong>Working Professional Fellowship:</strong> Lifetime access to the full course +{" "}
-        <strong>paid internship</strong> + <strong>1 fraction with 19 years daily MSTC rewards</strong> + industry mentor support.
+        <strong>paid internship</strong> + industry mentor support.
       </HighlightBox>
     );
   }
 
   return (
     <HighlightBox>
-      <strong>Course Only:</strong> Lifetime access to the course at <strong>₹4,999</strong>. No fraction.
+      <strong>Course Only:</strong> Lifetime access to the course at <strong>₹4,999</strong>
       No internship. Full lifetime course access only.
     </HighlightBox>
   );

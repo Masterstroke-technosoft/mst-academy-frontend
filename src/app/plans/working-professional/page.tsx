@@ -72,8 +72,8 @@ export default function WorkingProfessionalPlanPage() {
           a: "Original price is Rs 24,999 and current offer price is Rs 19,999.",
         },
         {
-          q: "Will I get fraction and MSTC rewards?",
-          a: "Yes. This plan includes 1 fraction and daily MSTC reward-coin participation.",
+          q: "Will I get MSTC rewards?",
+          a: "Yes. This plan includes daily MSTC reward-coin participation.",
         },
         {
           q: "How much time do I need to commit weekly?",

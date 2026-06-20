@@ -67,8 +67,8 @@ export default function ValidatorPlanPage() {
           a: "No. Validator Fellowship is a dedicated stakeholder and portal track. It is designed for ownership and ecosystem alignment rather than internship execution.",
         },
         {
-          q: "Will I receive fraction and MSTC rewards?",
-          a: "Yes. Validator plan includes 1 fraction with daily MSTC reward-coin participation.",
+          q: "Will I receive MSTC rewards?",
+          a: "Yes. Validator plan includes daily MSTC reward-coin participation.",
         },
         {
           q: "Who should choose this plan?",
