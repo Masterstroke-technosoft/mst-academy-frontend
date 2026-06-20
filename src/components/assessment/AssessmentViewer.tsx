@@ -239,7 +239,7 @@ export default function AssessmentViewer({
       0
     ));
     const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);
-    const passed = percentage >= 75;
+    const passed = percentage >= 70;
 
     return (
       <div className="min-h-screen bg-[var(--bg)] flex justify-center items-start py-8 px-4 overflow-y-auto">
@@ -323,29 +323,35 @@ export default function AssessmentViewer({
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
+<<<<<<< Updated upstream
               href={`/module/${moduleId}/${slug}`}
+=======
+              href="/learn"
+>>>>>>> Stashed changes
               className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
               Back to Submodule
             </Link>
-            {passed && getModule(moduleId + 1) && (
+            {passed && (
               <Link
-                href={`/module/${moduleId + 1}`}
+                href="/learn"
                 className="flex-1 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 text-center"
               >
                 Next Module
               </Link>
             )}
-            <button
-              onClick={() => {
-                setCurrentQuestionIndex(0);
-                setAnswers({});
-                setSubmitted(false);
-              }}
-              className="flex-1 rounded-lg bg-mst-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
-            >
-              Retake Assessment
-            </button>
+            {!passed && (
+              <button
+                onClick={() => {
+                  setCurrentQuestionIndex(0);
+                  setAnswers({});
+                  setSubmitted(false);
+                }}
+                className="flex-1 rounded-lg bg-mst-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+              >
+                Retake Assessment
+              </button>
+            )}
           </div>
         </div>
       </div>
