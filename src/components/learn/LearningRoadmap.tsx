@@ -549,26 +549,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-
-            // Single phase API implementation (fetch details for each phase)
-            const detailedPhases = await Promise.all(
-              sorted.map(async (phase: any) => {
-                try {
-                  const phaseRes = await fetchWithAuth(`${baseURL}/api/phases/${phase._id || phase.id}`);
-                  if (phaseRes.ok) {
-                    const phaseJson = await phaseRes.json();
-                    if (phaseJson && phaseJson.success && phaseJson.data) {
-                      return phaseJson.data;
-                    }
-                  }
-                } catch (e) {
-                  console.error("Error fetching single phase:", e);
-                }
-                return phase;
-              })
-            );
-
-            setFetchedPhases(detailedPhases);
+            // The list endpoint already returns full phase documents, so no
+            // per-phase detail fetch is needed (avoids an N+1 request storm).
+            setFetchedPhases(sorted);
           }
         }
       } catch (err) {
@@ -599,28 +582,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-
-            // Single module API implementation
-            const detailedModules = await Promise.all(
-              sorted.map(async (mod: any) => {
-                try {
-                  const modRes = await fetchWithAuth(`${baseURL}/api/modules/${mod._id || mod.id}`);
-                  if (modRes.ok) {
-                    const modJson = await modRes.json();
-                    if (modJson && modJson.success && modJson.data) {
-                      return modJson.data;
-                    }
-                  }
-                } catch (e) {
-                  console.error("Error fetching single module:", e);
-                }
-                return mod;
-              })
-            );
-
+            // The list endpoint already returns full module documents, so no
+            // per-module detail fetch is needed (avoids an N+1 request storm).
             setFetchedModules((prev) => {
               const filtered = prev.filter((pm) => String(pm.phaseId) !== String(activePhaseDbId));
-              return [...filtered, ...detailedModules];
+              return [...filtered, ...sorted];
             });
           }
         }
@@ -642,61 +608,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-
-            // Single submodule API implementation
-            const detailedSubmodules = await Promise.all(
-              sorted.map(async (sub: any) => {
-                try {
-                  const subRes = await fetchWithAuth(`${baseURL}/api/submodules/${sub._id || sub.id}`);
-                  if (subRes.ok) {
-                    const subJson = await subRes.json();
-                    if (subJson && subJson.success && subJson.data) {
-                      return subJson.data;
-                    }
-                  }
-                } catch (e) {
-                  console.error("Error fetching single submodule:", e);
-                }
-                return sub;
-              })
-            );
-
-            // Sync with DB assignments
-            let assignmentsList: any[] = [];
-            try {
-              const assignRes = await fetchWithAuth(`${baseURL}/api/assignments`);
-              if (assignRes.ok) {
-                const assignData = await assignRes.json();
-                assignmentsList = Array.isArray(assignData)
-                  ? assignData
-                  : (assignData.data || assignData.assignments || []);
-              }
-            } catch (err) {
-              console.error("Error fetching assignments list:", err);
-            }
-
-            const activeSubmoduleIds = new Set<string>();
-            const marksMap = new Map<string, number>();
-            assignmentsList.forEach((asn: any) => {
-              const subId = asn.submoduleId || asn.subModuleId;
-              if (subId) {
-                activeSubmoduleIds.add(subId);
-                marksMap.set(subId, asn.questions ? asn.questions.length : 0);
-              }
-            });
-
-            const syncedSubmodules = detailedSubmodules.map((sub: any) => {
-              const hasDbAss = activeSubmoduleIds.has(sub.id) || activeSubmoduleIds.has(sub._id);
-              return {
-                ...sub,
-                hasAssessment: hasDbAss || sub.hasAssessment,
-                totalMarks: hasDbAss ? (marksMap.get(sub.id) || marksMap.get(sub._id) || sub.totalMarks) : sub.totalMarks
-              };
-            });
-
+            // The list endpoint already returns full submodule documents
+            // (including hasAssessment / totalMarks), so neither a per-submodule
+            // detail fetch nor the assignments sync is needed here. The
+            // /api/assignments call also 404s, so it was a no-op anyway.
             setFetchedSubmodules((prev) => ({
               ...prev,
-              [String(activeModuleId)]: syncedSubmodules,
+              [String(activeModuleId)]: sorted,
             }));
           }
         }

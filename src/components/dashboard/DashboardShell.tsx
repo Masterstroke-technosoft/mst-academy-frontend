@@ -14,7 +14,6 @@ import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import {
   LayoutDashboard,
   TreePine,
-  ClipboardCheck,
   BarChart3,
   LogOut,
   BookOpen,
@@ -38,7 +37,6 @@ const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
 const getSidebarNav = (role: string, isAdmin: boolean) => [
   { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
   { href: "/learn", icon: TreePine, label: "Learning Tree" },
-  { href: `/dashboard/${role}#assessments`, icon: ClipboardCheck, label: "Assessments" },
   { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
   ...(isAdmin
     ? [
@@ -73,6 +71,8 @@ export function DashboardShell({
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [previewScreenshotUrl, setPreviewScreenshotUrl] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectionNote, setRejectionNote] = useState("");
 
   const fetchPaymentRequests = async () => {
     try {
@@ -117,40 +117,72 @@ export function DashboardShell({
     }
   };
 
-  const handleApprovePayment = async (requestId: string) => {
+  const updatePaymentStatus = async (
+    requestId: string,
+    status: "APPROVED" | "REJECTED",
+    note?: string
+  ) => {
     setApprovingId(requestId);
     try {
-      showToast("Payment approved successfully!", "success");
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const body: Record<string, unknown> = { status };
+      if (status === "REJECTED") {
+        body.rejectionNote = note;
+      }
+
+      const res = await fetch(`${baseURL}/api/node-purchase/${requestId}/status`, {
+        method: "PATCH",
+        credentials: "include",
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to update payment status (${res.status})`);
+      }
+
       setPaymentRequests(prev =>
         prev.map(req =>
           (req.id === requestId || req._id === requestId)
-            ? { ...req, status: "APPROVED" }
+            ? { ...req, status, ...(status === "REJECTED" ? { rejectionNote: note } : {}) }
             : req
         )
       );
+      showToast(
+        status === "APPROVED" ? "Payment approved successfully!" : "Payment rejected successfully!",
+        status === "APPROVED" ? "success" : "error"
+      );
     } catch (err) {
       console.error(err);
+      showToast("Failed to update payment status. Please try again.", "error");
     } finally {
       setApprovingId(null);
     }
   };
 
-  const handleRejectPayment = async (requestId: string) => {
-    setApprovingId(requestId);
-    try {
-      showToast("Payment rejected successfully!", "error");
-      setPaymentRequests(prev =>
-        prev.map(req =>
-          (req.id === requestId || req._id === requestId)
-            ? { ...req, status: "REJECTED" }
-            : req
-        )
-      );
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setApprovingId(null);
+  const handleApprovePayment = (requestId: string) => updatePaymentStatus(requestId, "APPROVED");
+
+  // Rejecting requires a note, so open the reject modal to collect it.
+  const handleRejectPayment = (requestId: string) => {
+    setRejectionNote("");
+    setRejectingId(requestId);
+  };
+
+  const confirmRejectPayment = async () => {
+    if (!rejectingId) return;
+    if (!rejectionNote.trim()) {
+      showToast("Please enter a rejection note.", "error");
+      return;
     }
+    await updatePaymentStatus(rejectingId, "REJECTED", rejectionNote.trim());
+    setRejectingId(null);
+    setRejectionNote("");
   };
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -761,6 +793,65 @@ export function DashboardShell({
                 alt="Payment Screenshot Preview"
                 className="max-w-full max-h-[75vh] object-contain rounded-lg"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rejectingId && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between border-b border-[var(--border)] pb-4">
+              <div>
+                <h3 className="text-lg font-black text-[var(--text)]">Reject Payment Request</h3>
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
+                  Please provide a reason. This note will be shared with the user.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setRejectingId(null);
+                  setRejectionNote("");
+                }}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="py-4">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                Rejection Note
+              </label>
+              <textarea
+                value={rejectionNote}
+                onChange={(e) => setRejectionNote(e.target.value)}
+                rows={4}
+                autoFocus
+                placeholder="e.g. Transaction ID does not match the payment screenshot."
+                className="mt-2 w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-[var(--border)] pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setRejectingId(null);
+                  setRejectionNote("");
+                }}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={approvingId === rejectingId || !rejectionNote.trim()}
+                onClick={confirmRejectPayment}
+                className="rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2 text-sm font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                {approvingId === rejectingId ? "Rejecting…" : "Confirm Rejection"}
+              </button>
             </div>
           </div>
         </div>

@@ -319,6 +319,7 @@ export function LessonViewer({
   const [readProgress, setReadProgress] = useState(0);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
+  const [assessmentError, setAssessmentError] = useState<string | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -329,26 +330,38 @@ export function LessonViewer({
   const handleAssessment = useCallback(async () => {
     if (assessmentLoading) return;
     setAssessmentLoading(true);
+    setAssessmentError(null);
     try {
-      console.log("Initiating assessment for submodule IDDDDDDDDDDDDDDD:", submodule);
-      const response = await fetch(`https://mst-academy-backend-production-6ccb.up.railway.app/api/assignments/submodule/${submodule._id}`, {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/assignments/submodule/${submodule._id}`, {
         method: "GET",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
       });
       if (!response.ok) {
-        throw new Error(`Unable to load assessment: ${response.statusText}`);
+        throw new Error(
+          response.status === 401
+            ? "Your session has expired. Please log in again."
+            : `Unable to load assessment (${response.status}).`
+        );
       }
       await response.json();
       router.push(`/module/${moduleId}/${submodule._id}/assessment`);
     } catch (error) {
       console.error(error);
+      setAssessmentError(
+        error instanceof Error ? error.message : "Unable to load assessment."
+      );
     } finally {
       setAssessmentLoading(false);
     }
-  }, [assessmentLoading, moduleId, router, submodule.slug]);
+  }, [assessmentLoading, moduleId, router, submodule._id]);
 
   const getSlugs = useCallback(
     (id: number) => moduleSlugMap?.[id] ?? [],
@@ -603,6 +616,9 @@ export function LessonViewer({
           >
             {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
           </button>
+          {assessmentError && (
+            <p className="w-full text-center text-xs text-red-500">{assessmentError}</p>
+          )}
           {nextSlug ? (
             <Link
               href={`/module/${moduleId}/${nextSlug}`}
@@ -858,6 +874,9 @@ export function LessonViewer({
           >
             {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
           </button>
+          {assessmentError && (
+            <p className="w-full text-center text-xs text-red-500">{assessmentError}</p>
+          )}
           {nextSlug ? (
             <Link
               href={`/module/${moduleId}/${nextSlug}`}
