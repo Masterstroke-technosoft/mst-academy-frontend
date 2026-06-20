@@ -8,7 +8,7 @@ export default function StudentPlanPage() {
       subtitle="Student ID based scholarship + paid internship pathway."
       hero="For college students who want real knowledge, paid internship execution, and a portfolio that stands out in placements and interviews."
       originalPrice={24999}
-      offerPrice={14999}
+      offerPrice={19999}
       discountLabel="Student Scholarship"
       seatsLeft={42}
       internshipIncluded

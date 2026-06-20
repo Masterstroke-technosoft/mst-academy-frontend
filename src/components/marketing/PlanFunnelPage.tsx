@@ -95,9 +95,9 @@ export function PlanFunnelPage({
             <h1 className="mt-5 text-3xl font-black text-[var(--text)] sm:text-5xl">{name}</h1>
             <p className="mt-2 text-sm font-semibold uppercase tracking-wider text-[var(--text-muted)]">{subtitle}</p>
             <p className="mt-6 max-w-3xl text-base leading-relaxed text-[var(--text-muted)] sm:text-lg">{hero}</p>
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-500">
+            {/* <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-amber-500">
               Limited intake: only {seatsLeft} seats left for this batch
-            </div>
+            </div> */}
             <div className="mt-3 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-[var(--border)]">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-500 to-mst-red"
@@ -142,9 +142,9 @@ export function PlanFunnelPage({
                 <p className="text-3xl font-black text-gradient-red">
                   Rs {offerPrice.toLocaleString("en-IN")}
                 </p>
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500">
+                {/* <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500">
                   Save Rs {discountAmount.toLocaleString("en-IN")} ({discountLabel})
-                </span>
+                </span> */}
               </div>
               <p className="mt-3 text-sm text-[var(--text-muted)]">
                 {planId === "student" ? "Student discount is activated after valid student ID verification." : "Offer valid for current enrollment window."}

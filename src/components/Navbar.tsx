@@ -36,7 +36,7 @@ export function Navbar() {
           <img
             src="/Acadmy Logo.png"
             alt="Masterstroke Academy"
-            className="h-24 sm:h-28 w-auto transition-transform group-hover:scale-105"
+            className="h-36 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain"
           />
         </Link>
 

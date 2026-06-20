@@ -7,7 +7,7 @@ export default function CourseOnlyPlanPage() {
       name="MST Course Access Plan"
       subtitle="Focused learning track for deep fundamentals and implementation clarity."
       hero="If your goal is strong blockchain foundations with full syllabus access, this plan gives a complete structured learning experience at a highly accessible offer price."
-      originalPrice={9999}
+      originalPrice={6999}
       offerPrice={4999}
       discountLabel="Foundation Offer"
       seatsLeft={58}

@@ -7,7 +7,7 @@ export default function ValidatorPlanPage() {
       name="MST Validator Fellowship"
       subtitle="Dedicated validator portal + stakeholder journey in MST Blockchain."
       hero="Built for serious builders who want ownership, on-chain credibility, and long-term reward alignment through MST ecosystem participation."
-      originalPrice={14999}
+      originalPrice={24999}
       offerPrice={9999}
       discountLabel="Validator Launch Discount"
       seatsLeft={27}

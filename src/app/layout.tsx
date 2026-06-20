@@ -2,8 +2,27 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import fs from "fs";
+import path from "path";
+
+// Programmatically copy public/1.png to app favicon destinations and clean up default favicon
+try {
+  const publicIconPath = path.join(process.cwd(), "public", "1.png");
+  const appFaviconPath = path.join(process.cwd(), "src", "app", "favicon.ico");
+  const appIconPngPath = path.join(process.cwd(), "src", "app", "icon.png");
+
+  if (fs.existsSync(publicIconPath)) {
+    fs.copyFileSync(publicIconPath, appIconPngPath);
+    if (fs.existsSync(appFaviconPath)) {
+      fs.unlinkSync(appFaviconPath);
+    }
+  }
+} catch (error) {
+  console.error("Failed to automatically setup favicon:", error);
+}
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,6 +57,9 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Masterstroke Academy" }],
   creator: "MST Blockchain",
+  icons: {
+    icon: "/1.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
@@ -65,7 +87,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/1.png" type="image/png" />
         <meta name="theme-color" content="#e31e24" />
       </head>
       <body className="min-h-full flex flex-col antialiased">
@@ -73,6 +95,7 @@ export default function RootLayout({
           <AuthProvider>
             <Navbar />
             <main className="flex-1">{children}</main>
+            <Footer />
           </AuthProvider>
         </ThemeProvider>
       </body>
