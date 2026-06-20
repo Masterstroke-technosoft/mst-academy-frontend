@@ -323,11 +323,7 @@ export default function AssessmentViewer({
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-<<<<<<< Updated upstream
-              href={`/module/${moduleId}/${slug}`}
-=======
               href="/learn"
->>>>>>> Stashed changes
               className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
               Back to Submodule
