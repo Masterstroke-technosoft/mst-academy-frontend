@@ -260,14 +260,6 @@ function ModuleSubmodulesList({
   useEffect(() => {
     if (!isOpen) return;
 
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem(`academy_overview_submodules_${moduleId}`);
-      if (cached) {
-        setSubmodules(JSON.parse(cached));
-        return;
-      }
-    }
-
     async function fetchSubmodules() {
       setLoading(true);
       try {
@@ -303,9 +295,6 @@ function ModuleSubmodulesList({
             );
 
             setSubmodules(detailedSubmodules);
-            if (typeof window !== "undefined") {
-              localStorage.setItem(`academy_overview_submodules_${moduleId}`, JSON.stringify(detailedSubmodules));
-            }
           }
         }
       } catch (err) {
@@ -369,15 +358,6 @@ function PhaseSection({
   useEffect(() => {
     if (!open) return;
 
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem(`academy_overview_modules_${phaseId}`);
-      if (cached) {
-        console.log("Loading modules for phase", phaseId, cached, "from cache");
-        setModules(JSON.parse(cached));
-        return;
-      }
-    }
-
     async function fetchModules() {
       setLoading(true);
       try {
@@ -395,9 +375,6 @@ function PhaseSection({
           if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
             setModules(sorted);
-            if (typeof window !== "undefined") {
-              localStorage.setItem(`academy_overview_modules_${phaseId}`, JSON.stringify(sorted));
-            }
           }
         }
       } catch (err) {
@@ -526,13 +503,6 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
 
   //Get phases by course
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("academy_overview_phases");
-      if (cached) {
-        setPhases(JSON.parse(cached));
-        return;
-      }
-    }
     async function loadPhases() {
       setLoading(true);
       try {
@@ -542,9 +512,6 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
           if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
             setPhases(sorted);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("academy_overview_phases", JSON.stringify(sorted));
-            }
           }
         }
       } catch (err) {

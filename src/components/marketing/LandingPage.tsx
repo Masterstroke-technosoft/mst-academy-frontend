@@ -396,9 +396,8 @@ export function LandingPage({
               Lifetime access + <span className="text-gradient-red">internship + rewards</span>
             </h2>
             <p className="mt-5 text-lg text-[var(--text-muted)]">
-              Choose your track below. Earn <strong>$MSTC coins</strong> daily, build your{" "}
-              <strong>streak</strong>, and compete on the leaderboard for{" "}
-              <strong>PPO opportunities</strong>.
+              Choose your track below. Build your <strong>streak</strong> and
+              compete on the leaderboard for <strong>PPO opportunities</strong>.
             </p>
           </div>
 
@@ -564,7 +563,7 @@ export function LandingPage({
                 <tbody>
                   {[
                     { rank: 1, name: "Aarav K.", done: "18 modules", score: "92%", reward: "₹7,500 bonus" },
-                    { rank: 2, name: "Diya S.", done: "16 modules", score: "88%", reward: "$MSTC coins" },
+                    { rank: 2, name: "Diya S.", done: "16 modules", score: "88%", reward: "Mentor session" },
                     { rank: 3, name: "Rohan P.", done: "15 modules", score: "85%", reward: "Internship Priority" },
                     { rank: 4, name: "Sara M.", done: "14 modules", score: "83%", reward: "PPO Boost" },
                     { rank: 5, name: "Kabir T.", done: "13 modules", score: "80%", reward: "Achievement badge" },

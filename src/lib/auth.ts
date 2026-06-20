@@ -247,15 +247,6 @@ export async function registerStudent(
 
     setSession(authUser);
 
-    if (typeof window !== "undefined") {
-      try {
-        const { addCoins } = await import("./coins");
-        addCoins(25);
-      } catch (e) {
-        console.error("Failed to add coins", e);
-      }
-    }
-
     return { ok: true, user: authUser };
   } catch (err: any) {
     return { ok: false, error: err.message || "Failed to connect to student registration API." };
@@ -303,15 +294,6 @@ export async function registerValidator(
 
     setSession(authUser);
 
-    if (typeof window !== "undefined") {
-      try {
-        const { addCoins } = await import("./coins");
-        addCoins(25);
-      } catch (e) {
-        console.error("Failed to add coins", e);
-      }
-    }
-
     return { ok: true, user: authUser };
   } catch (err: any) {
     return { ok: false, error: err.message || "Failed to connect to validator registration API." };
@@ -352,15 +334,6 @@ export async function registerNonValidator(
     };
 
     setSession(authUser);
-
-    if (typeof window !== "undefined") {
-      try {
-        const { addCoins } = await import("./coins");
-        addCoins(25);
-      } catch (e) {
-        console.error("Failed to add coins", e);
-      }
-    }
 
     return { ok: true, user: authUser };
   } catch (err: any) {
@@ -407,15 +380,6 @@ export async function registerWorkingProfessional(input: {
     };
 
     setSession(authUser);
-
-    if (typeof window !== "undefined") {
-      try {
-        const { addCoins } = await import("./coins");
-        addCoins(25);
-      } catch (e) {
-        console.error("Failed to add coins", e);
-      }
-    }
 
     return { ok: true, user: authUser };
   } catch (err: any) {

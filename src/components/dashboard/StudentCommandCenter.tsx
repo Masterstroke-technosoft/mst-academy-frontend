@@ -797,7 +797,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       { label: "Study Time", value: `${analytics.totalStudyHours}h`, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
                       // { label: "Focus", value: `${analytics.focusScore}%`, icon: Zap, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
                       //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
-                      { label: "Coins", value: "—", icon: Flame, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
                       { label: "Percentile", value: `Top ${analytics.percentile}%`, icon: Trophy, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                     ].map((s, i) => (
                       <GlassCard key={s.label} className="!p-6 flex flex-col gap-3 group cursor-default">

@@ -8,7 +8,6 @@ import {
   getModuleStatus,
   getGlobalActiveModuleId,
 } from "./progress";
-import { getCoinState } from "./coins";
 import { getLeaderboard } from "./leaderboard";
 
 export type SkillKey =
@@ -50,7 +49,6 @@ export interface StudentAnalytics {
   totalModules: number;
   averageScore: number;
   streakDays: number;
-  coinBalance: number;
   totalStudyHours: number;
   weeklyStudyMinutes: number;
   focusScore: number;
@@ -198,8 +196,8 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
   const currentPhaseId = activeModule?.phaseId ?? "phase-1";
   const currentPhase = phases.find((p) => p.id === currentPhaseId);
 
-  const coins = getCoinState();
-  const xp = coins.balance * 2 + modulesCompleted * 50 + scoredCount * 8;
+  const streakDays = 0;
+  const xp = modulesCompleted * 50 + scoredCount * 8;
   let level = 1;
   let remain = xp;
   while (remain >= xpForLevel(level) && level < 50) {
@@ -322,10 +320,8 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
   if (weaknesses[0]) {
     insights.push(`Focus more on ${weaknesses[0]} modules to balance your skill profile.`);
   }
-  if (coins.streak >= 3) {
-    insights.push(`You're on a ${coins.streak}-day coin streak — keep the momentum!`);
-  } else {
-    insights.push("Claim daily coins to build consistency and unlock streak bonuses.");
+  if (streakDays >= 3) {
+    insights.push(`You're on a ${streakDays}-day learning streak — keep the momentum!`);
   }
   insights.push("You study best in evening sessions - block 8-11 PM for deep focus.");
 
@@ -366,7 +362,7 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
 
   const achievements: StudentAnalytics["achievements"] = [
     { id: "first", title: "First Steps", desc: "Complete your first lesson", unlocked: completedSubmodules >= 1, emoji: "🚀" },
-    { id: "streak3", title: "On Fire", desc: "3-day learning streak", unlocked: coins.streak >= 3, emoji: "🔥" },
+    { id: "streak3", title: "On Fire", desc: "3-day learning streak", unlocked: streakDays >= 3, emoji: "🔥" },
     { id: "mod5", title: "Module Master", desc: "Complete 5 modules", unlocked: modulesCompleted >= 5, emoji: "📚" },
     { id: "score80", title: "High Scorer", desc: "Score 80%+ on an assessment", unlocked: avgScore >= 80, emoji: "⭐" },
     { id: "phase1", title: "Foundation Done", desc: "Complete Phase 1", unlocked: false, emoji: "🌐" },
@@ -389,7 +385,6 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     return { phaseId: ph.id, title: ph.title, percent, status };
   });
 
-  const streakDays = coins.streak;
   const totalStudyHours = Math.round((completedSubmodules * 12) / 60 * 10) / 10;
   const weeklyStudyMinutes = dailyStudy.reduce((a, b) => a + b.minutes, 0);
   const focusScore = Math.min(100, Math.round(50 + streakDays * 8 + overallProgress * 0.3));
@@ -401,7 +396,6 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     totalModules: modules.length,
     averageScore: avgScore,
     streakDays,
-    coinBalance: coins.balance,
     totalStudyHours,
     weeklyStudyMinutes,
     focusScore,

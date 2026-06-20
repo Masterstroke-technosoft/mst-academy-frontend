@@ -16,7 +16,8 @@ import { Eye, EyeOff } from "lucide-react";
 export function LoginForm() {
   const searchParams = useSearchParams();
   const { refresh } = useAuth();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
+  const justRegistered = searchParams.get("registered") === "1";
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -109,6 +110,11 @@ export function LoginForm() {
       title="Welcome Back"
       subtitle="Sign in to continue your learning journey."
     >
+      {justRegistered && (
+        <p className="mb-4 rounded-lg bg-green-500/10 px-3 py-2 text-sm font-medium text-green-700 dark:text-green-400">
+          Registration successful! Please sign in to continue.
+        </p>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
         <div>
           <FieldLabel htmlFor="email" required>

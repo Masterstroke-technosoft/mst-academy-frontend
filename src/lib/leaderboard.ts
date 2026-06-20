@@ -53,18 +53,8 @@ export function getCurrentUserEntry(): LeaderboardEntry | null {
 
   const score = modules.length > 0 ? Math.round(totalPct / modules.length) : 0;
 
-  let coins = 0;
-  let streak = 0;
-  try {
-    const raw = localStorage.getItem("mst-academy-coins");
-    if (raw) {
-      const c = JSON.parse(raw) as { balance: number; streak: number };
-      coins = c.balance ?? 0;
-      streak = c.streak ?? 0;
-    }
-  } catch {
-    /* ignore */
-  }
+  const coins = 0;
+  const streak = 0;
 
   return {
     id: user.id,

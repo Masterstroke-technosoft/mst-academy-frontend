@@ -195,18 +195,25 @@ export default function ReferralAnalyticsPage() {
 
   const handleConfirmRequest = async (requestId: string) => {
     const reqObj = requests.find(r => r.id === requestId);
-    const updated = requests.map(req => {
-      if (req.id === requestId) {
-        return { ...req, status: "Confirmed" };
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const res = await fetch(`${baseURL}/api/bank-details/withdrawal/${requestId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Confirmed" }),
+      });
+      if (!res.ok) {
+        throw new Error(`Response Status : ${res.status}`);
       }
-      return req;
-    });
-    setRequests(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(updated));
+      setRequests((prev) =>
+        prev.map((req) => (req.id === requestId ? { ...req, status: "Confirmed" } : req))
+      );
+      setSuccessMessage(`Success! Payout request of ₹${reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (error: any) {
+      console.error("Failed to confirm withdrawal request:", error?.message ?? error);
     }
-    setSuccessMessage(`Success! Payout request of ₹${reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`);
-    setTimeout(() => setSuccessMessage(null), 4000);
   };
 
   if (!mounted) return null;

@@ -10,7 +10,6 @@ import {
   registerStudent,
   registerValidator,
   registerWorkingProfessional,
-  dashboardPath,
 } from "@/lib/auth";
 import {
   isValidIndianMobile,
@@ -115,7 +114,7 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
 export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refresh } = useAuth();
+  const { logout } = useAuth();
 
   const [plan, setPlan] = useState<PlanId>("courseOnly");
   const [error, setError] = useState("");
@@ -271,8 +270,13 @@ export function RegisterForm() {
       return;
     }
 
-    refresh();
-    router.push(dashboardPath(result.user.role as any));
+    // The account is created on the backend, but registration does not log the
+    // user in (no auth token is issued here — only the login flow stores one).
+    // Clear the partial session set during registration and send the user to
+    // /login with their email prefilled so they sign in for real before hitting
+    // any authenticated pages.
+    logout();
+    router.push(`/login?email=${encodeURIComponent(email)}&registered=1`);
   }
 
   return (
@@ -280,9 +284,9 @@ export function RegisterForm() {
       title="Create Account"
       subtitle="Choose your track and price — then enroll."
     >
-      <div className="mb-5">
+      {/* <div className="mb-5">
         <DemoFeeNote />
-      </div>
+      </div> */}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Common fields */}

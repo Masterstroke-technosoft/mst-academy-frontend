@@ -1,7 +1,6 @@
 "use client";
 
 import { isAdminUser } from "./auth";
-import { addCoins, touchStreakOnActivity } from "./coins";
 
 export type ModuleStatus = "locked" | "active" | "completed";
 
@@ -57,10 +56,6 @@ export function markLessonComplete(moduleId: string | number, slug: string) {
     lessonComplete: true,
     completedAt: new Date().toISOString(),
   });
-  if (typeof window !== "undefined") {
-    touchStreakOnActivity();
-    addCoins(5);
-  }
 }
 
 export function markAssessmentComplete(

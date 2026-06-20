@@ -19,7 +19,6 @@ import {
   Users,
   Trophy,
 } from "lucide-react";
-import { NavbarCoinStreak } from "@/components/NavbarCoinStreak";
 
 export function Navbar() {
   const { user, ready, logout, isAdmin } = useAuth();
@@ -77,7 +76,6 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          <NavbarCoinStreak />
           <ThemeToggle />
 
           {ready && user ? (

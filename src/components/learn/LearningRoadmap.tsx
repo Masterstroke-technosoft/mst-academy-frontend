@@ -33,7 +33,6 @@ import { useAuth } from "@/components/AuthProvider";
 import {
   BookOpen,
   ChevronRight,
-  Coins,
   Flame,
   Globe,
   Lock,
@@ -535,29 +534,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
   const courseId = "6a2934912b48a13769669f8e";
 
-  const [fetchedPhases, setFetchedPhases] = useState<any[]>(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("roadmap_phases");
-      if (cached) return JSON.parse(cached);
-    }
-    return [];
-  });
+  const [fetchedPhases, setFetchedPhases] = useState<any[]>([]);
 
-  const [fetchedModules, setFetchedModules] = useState<any[]>(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("roadmap_modules");
-      if (cached) return JSON.parse(cached);
-    }
-    return [];
-  });
+  const [fetchedModules, setFetchedModules] = useState<any[]>([]);
 
-  const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("roadmap_submodules");
-      if (cached) return JSON.parse(cached);
-    }
-    return {};
-  });
+  const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -588,9 +569,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             );
 
             setFetchedPhases(detailedPhases);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("roadmap_phases", JSON.stringify(detailedPhases));
-            }
           }
         }
       } catch (err) {
@@ -642,11 +620,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
             setFetchedModules((prev) => {
               const filtered = prev.filter((pm) => String(pm.phaseId) !== String(activePhaseDbId));
-              const next = [...filtered, ...detailedModules];
-              if (typeof window !== "undefined") {
-                localStorage.setItem("roadmap_modules", JSON.stringify(next));
-              }
-              return next;
+              return [...filtered, ...detailedModules];
             });
           }
         }
@@ -720,13 +694,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               };
             });
 
-            setFetchedSubmodules((prev) => {
-              const next = { ...prev, [String(activeModuleId)]: syncedSubmodules };
-              if (typeof window !== "undefined") {
-                localStorage.setItem("roadmap_submodules", JSON.stringify(next));
-              }
-              return next;
-            });
+            setFetchedSubmodules((prev) => ({
+              ...prev,
+              [String(activeModuleId)]: syncedSubmodules,
+            }));
           }
         }
       } catch (err) {
@@ -1270,7 +1241,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           <div className="hidden items-center gap-2 sm:flex">
             <span className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/70 px-3 py-2 text-xs font-bold text-[var(--text-muted)] backdrop-blur-md">
               <Flame className="h-4 w-4 text-orange-500" />
-              XP + streak coins
+              XP + streak
             </span>
             <Link
               href="/leaderboard"
@@ -1448,7 +1419,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                             Assessment
                           </p>
                           <p className="mt-1 text-sm font-semibold text-[var(--text)] flex items-center gap-2">
-                            <Coins className="h-4 w-4 text-mst-red" />
+                            <Trophy className="h-4 w-4 text-mst-red" />
                             Test & unlock
                           </p>
                         </div>

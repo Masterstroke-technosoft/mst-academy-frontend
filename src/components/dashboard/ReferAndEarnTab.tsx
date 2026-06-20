@@ -104,17 +104,27 @@ export function ReferAndEarnTab({
   const withdrawUnlocked = successfulReferrals >= 5;
 
   useEffect(() => {
-    if (typeof window !== "undefined" && user) {
-      const existing = localStorage.getItem("referral_withdrawal_requests");
-      if (existing) {
-        const list = JSON.parse(existing);
-        const myRequest = list.find((r: any) => r.email === user.email);
-        if (myRequest) {
-          setWithdrawRequested(true);
-          setRequestStatus(myRequest.status);
+    if (!user) return;
+    const fetchWithdrawalStatus = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/bank-details/withdrawal/me`, {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const myRequest = data?.data ?? data;
+          if (myRequest && myRequest.status) {
+            setWithdrawRequested(true);
+            setRequestStatus(myRequest.status);
+          }
         }
+      } catch (error) {
+        console.error("Error fetching withdrawal status:", error);
       }
-    }
+    };
+    fetchWithdrawalStatus();
   }, [user]);
 
   useEffect(() => {
@@ -342,74 +352,51 @@ export function ReferAndEarnTab({
 
                 <form
                   className="space-y-5"
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
+                    if (!user) return;
 
-                    const newRequest = {
-                      id: "req-" + Date.now(),
-                      userName: user?.fullName || "Anonymous",
-                      email: user?.email || "",
-                      amount: successfulReferrals * 500,
-                      status: "Pending",
-                      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-                      bankDetails: {
-                        holderName: bankDetails.accountHolderName,
-                        accountNumber: bankDetails.accountNumber,
-                        ifsc: bankDetails.ifscCode,
-                        branch: bankDetails.branchName,
-                        upi: bankDetails.upiId,
-                      },
-                      referrals: referralRecords.map(r => ({
-                        name: r.name,
-                        status: r.status,
-                        eligible: r.eligible
-                      }))
+                    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+                    const headers = {
+                      "x-user-id": user.id,
+                      "x-user-email": user.email,
+                      "x-user-name": user.fullName,
+                      "Content-Type": "application/json",
                     };
 
-                    if (typeof window !== "undefined" && user) {
-                      const existing = localStorage.getItem("referral_withdrawal_requests");
-                      const list = existing ? JSON.parse(existing) : [];
-
-                      // Remove existing requests for the same user if any, to overwrite with the new one
-                      const filteredList = list.filter((r: any) => r.email !== user?.email);
-                      filteredList.push(newRequest);
-                      localStorage.setItem("referral_withdrawal_requests", JSON.stringify(filteredList));
-
-                      // api
-                      async function BankDetails() {
-                        if (!user) return;
-                        const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-                        try {
-                          const response = await fetch("/api/bank-details", {
-                            method: "POST",
-                            credentials: "include",
-                            headers: {
-                              "x-user-id": user.id,
-                              "x-user-email": user.email,
-                              "x-user-name": user.fullName,
-                              "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                              accountHolderName: bankDetails.accountHolderName,
-                              accountNumber: bankDetails.accountNumber,
-                              ifscCode: bankDetails.ifscCode,
-                              branchName: bankDetails.branchName,
-                              upiId: bankDetails.upiId,
-                            }),
-                          });
-                          if (!response.ok) {
-                            throw new Error(`Response Status : ${response.status}`);
-                          }
-                          let result = await response.json();
-                          console.log("sssssssssssssssssss", result);
-                        } catch (error: any) {
-                          console.error(error?.message ?? error);
-                        }
+                    try {
+                      // Save / refresh the user's bank details
+                      const bankRes = await fetch(`${baseURL}/api/bank-details`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers,
+                        body: JSON.stringify({
+                          accountHolderName: bankDetails.accountHolderName,
+                          accountNumber: bankDetails.accountNumber,
+                          ifscCode: bankDetails.ifscCode,
+                          branchName: bankDetails.branchName,
+                          upiId: bankDetails.upiId,
+                        }),
+                      });
+                      if (!bankRes.ok) {
+                        throw new Error(`Bank details failed: ${bankRes.status}`);
                       }
-                      BankDetails();
+
+                      // Create the withdrawal payout request
+                      const withdrawRes = await fetch(`${baseURL}/api/withdrawals`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers,
+                        body: JSON.stringify({ amount: successfulReferrals * 500 }),
+                      });
+                      if (!withdrawRes.ok) {
+                        throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
+                      }
 
                       setWithdrawRequested(true);
                       setRequestStatus("Pending");
+                    } catch (error: any) {
+                      console.error("Failed to submit withdrawal request:", error?.message ?? error);
                     }
                   }}
                 >

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getLeaderboard, getCurrentUserEntry, type LeaderboardEntry } from "@/lib/leaderboard";
+import { type LeaderboardEntry } from "@/lib/leaderboard";
 
 interface BackendLeaderboardEntry {
   _id: string | null;
@@ -31,7 +31,6 @@ import { MarketingHeroBackground } from "@/components/marketing/MarketingHeroBac
 import { RevealSection } from "@/components/marketing/RevealSection";
 import {
   ArrowRight,
-  Coins,
   Flame,
   Medal,
   Trophy,
@@ -95,11 +94,7 @@ export function LeaderboardView() {
       })
       .then((raw: BackendLeaderboardEntry[]) => {
         const valid = raw.filter((e) => e._id != null && e.name != null);
-        const seed: LeaderboardEntry[] = valid.map(mapBackendEntry);
-        const you = getCurrentUserEntry();
-        const list = you
-          ? [...seed.filter((e) => e.id !== you.id && e.name !== you.name), you]
-          : [...seed];
+        const list: LeaderboardEntry[] = valid.map(mapBackendEntry);
         list.sort((a, b) => {
           if (b.score !== a.score) return b.score - a.score;
           if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
@@ -240,11 +235,6 @@ export function LeaderboardView() {
                       <div className="flex flex-col items-center">
                         <Flame className="h-4 w-4 text-orange-500 mb-0.5" />
                         <span className="text-xs font-bold text-[var(--text)]">{row.streak}d</span>
-                      </div>
-
-                      <div className="flex flex-col items-center">
-                        <Coins className="h-4 w-4 text-amber-500 mb-0.5" />
-                        <span className="text-xs font-bold text-[var(--text)]">{row.coins}</span>
                       </div>
                     </div>
                   </div>
