@@ -254,34 +254,12 @@ function ModuleSubmodulesList({
   color: string;
 }) {
   const moduleId = mod._id || mod.id;
-  const [submodules, setSubmodules] = useState<any[]>(mod.submodules || []);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    async function fetchSubmodules() {
-      setLoading(true);
-      try {
-        // APIs removed as requested
-      } catch (err) {
-        console.error("Error fetching submodules:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSubmodules();
-  }, [isOpen, moduleId, baseURL]);
-
-  if (loading && submodules.length === 0) {
-    return <SubmoduleSkeleton />;
-  }
+  const submodules = mod.submodules || [];
 
   return (
     <>
       <div className="grid gap-3 sm:grid-cols-2">
-        {submodules.map((sub) => (
+        {submodules.map((sub: any) => (
           <SubmoduleCard
             key={sub.slug || sub._id || sub.id}
             mod={mod}
@@ -304,7 +282,7 @@ function ModuleSubmodulesList({
 }
 
 function PhaseSection({
-  phase,
+  phase: initialPhase,
   modules: initialModules,
   index,
   baseURL,
@@ -314,8 +292,9 @@ function PhaseSection({
   index: number;
   baseURL: string;
 }) {
-  const phaseId = phase._id || phase.id;
+  const phaseId = initialPhase._id || initialPhase.id;
   const [open, setOpen] = useState(index === 0);
+  const [phase, setPhase] = useState(initialPhase);
   const [modules, setModules] = useState<any[]>(initialModules);
   const [loading, setLoading] = useState(false);
   const [openModules, setOpenModules] = useState<Set<string | number>>(
@@ -323,29 +302,30 @@ function PhaseSection({
   );
 
   useEffect(() => {
+    setPhase(initialPhase);
+  }, [initialPhase]);
+
+  useEffect(() => {
     if (!open) return;
 
     async function fetchModules() {
       setLoading(true);
       try {
-        //Get single phase
-        console.log("Fetching phase details for phase", phaseId);
-        const phaseRes = await fetchWithAuth(`${baseURL}/api/modules/phases/${phaseId}`);
-        if (phaseRes.ok) {
-          const phaseJson = await phaseRes.json();
-        }
-
-        // Get modules by phase
-        //  const res = await fetchWithAuth(`${baseURL}/api/modules/phase/${phaseId}`);
+        const res = await fetchWithAuth(`${baseURL}/api/phases/full/${phaseId}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data)) {
-            const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-            setModules(sorted);
+          if (json.success) {
+            if (json.phase) {
+              setPhase(json.phase);
+            }
+            if (Array.isArray(json.modules)) {
+              const sorted = [...json.modules].sort((a, b) => (a.index || 0) - (b.index || 0));
+              setModules(sorted);
+            }
           }
         }
       } catch (err) {
-        console.error("Error fetching phase modules:", err);
+        console.error("Error fetching phase full hierarchy:", err);
       } finally {
         setLoading(false);
       }

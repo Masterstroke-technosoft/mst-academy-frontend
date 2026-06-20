@@ -383,7 +383,7 @@ export function ReferAndEarnTab({
                       }
 
                       // Create the withdrawal payout request
-                      const withdrawRes = await fetch(`${baseURL}/api/withdrawals`, {
+                      const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawals`, {
                         method: "POST",
                         credentials: "include",
                         headers,
