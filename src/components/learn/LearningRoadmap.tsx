@@ -640,6 +640,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         id: uiId,
         title: p.description || p.title || `Phase ${idx + 1}`,
         modules: phaseModules.map((m) => m._id || m.id),
+        realmodulecount: p.realmodulecount,
+        moduleCount: p.moduleCount,
       };
     });
 
@@ -695,7 +697,16 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const isTablet = viewportW >= 640 && viewportW < 1024;
 
   const phaseById = useMemo(() => {
-    const map = new Map<string, { id: string; title: string; modules: any[] }>();
+    const map = new Map<
+      string,
+      {
+        id: string;
+        title: string;
+        modules: any[];
+        realmodulecount?: string | number;
+        moduleCount?: number;
+      }
+    >();
     for (const p of curriculum.phases) map.set(p.id, p);
     return map;
   }, [curriculum.phases]);
@@ -845,7 +856,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       const phaseId = phaseOrder[i]!;
       const style = PHASE_STYLE[phaseId as keyof typeof PHASE_STYLE];
       const phase = phaseById.get(phaseId);
-      const modulesCount = phase ? phase.modules.length : 0;
+      const modulesCount = phase ? (Number(phase.realmodulecount) || phase.modules.length || phase.moduleCount || 0) : 0;
 
       const col = isMobile ? 0 : (i === 0 || i === 3 ? 0 : 1);
       const row = isMobile ? i : (i < 2 ? 0 : 1);

@@ -763,10 +763,21 @@ export default function StudentDashboardPage({
   };
 
   const handleAddSubmodule = (phaseId: string, moduleId: string | number) => {
+    let subIndex = 1;
+    for (const p of phases) {
+      if (p.modules) {
+        const m = p.modules.find((mod: any) => mod.id === moduleId);
+        if (m) {
+          subIndex = (m.submodules || []).length + 1;
+          break;
+        }
+      }
+    }
     setCurriculumModal({
       type: "create-submodule",
       phaseId,
-      moduleId,
+      moduleId: "",
+      index: subIndex,
       title: "",
       description: "",
       estimatedTime: "",
@@ -871,20 +882,12 @@ export default function StudentDashboardPage({
           });
         }
       } else if (type === "create-submodule") {
-        let subIndex = 1;
-        for (const p of phases) {
-          if (p.modules) {
-            const m = p.modules.find((mod: any) => mod.id === moduleId);
-            if (m) {
-              subIndex = (m.submodules || []).length + 1;
-              break;
-            }
-          }
-        }
+        const finalModuleId = curriculumModal.moduleId || moduleId;
+        const finalIndex = curriculumModal.index !== undefined ? curriculumModal.index : 1;
 
         const formData = new FormData();
-        formData.append("moduleId", String(moduleId));
-        formData.append("index", String(subIndex));
+        formData.append("moduleId", String(finalModuleId));
+        formData.append("index", String(finalIndex));
         formData.append("title", title);
         formData.append("description", description);
         formData.append("estimatedTime", estimatedTime);
@@ -1963,6 +1966,33 @@ export default function StudentDashboardPage({
                         required
                         value={curriculumModal.phaseId || ""}
                         onChange={e => setCurriculumModal({ ...curriculumModal, phaseId: e.target.value })}
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
+                        placeholder="e.g., 66f5c8a1b2c3d4e5f6g7h8i0"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Index</label>
+                      <input
+                        type="number"
+                        required
+                        value={curriculumModal.index !== undefined ? curriculumModal.index : ""}
+                        onChange={e => setCurriculumModal({ ...curriculumModal, index: e.target.value === "" ? undefined : Number(e.target.value) })}
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
+                        placeholder="e.g., 0"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {curriculumModal.type === "create-submodule" && (
+                  <>
+                    <div>
+                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Module ID</label>
+                      <input
+                        type="text"
+                        required
+                        value={curriculumModal.moduleId || ""}
+                        onChange={e => setCurriculumModal({ ...curriculumModal, moduleId: e.target.value })}
                         className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
                         placeholder="e.g., 66f5c8a1b2c3d4e5f6g7h8i0"
                       />

@@ -530,7 +530,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     <>
       <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden">
         {/* Sidebar attached to left edge */}
-        <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex relative z-20">
+        <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:fixed lg:top-16 lg:left-0 lg:flex z-20">
           {/* profile */}
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
@@ -550,7 +550,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             {[
               { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
               { href: "/learn", icon: TreePine, label: "Learning Tree" },
-              { id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" },
+              ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
               ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
               ...(isAdmin ? [
                 { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -642,7 +642,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         </aside>
 
         {/* Main Wrapper */}
-        <div className="relative flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="relative flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-64">
           {/* Ambient background isolated to main area */}
           <div className="pointer-events-none absolute inset-0 bg-grid opacity-40" aria-hidden />
           <div

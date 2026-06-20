@@ -61,6 +61,8 @@ export interface Phase {
   id: string;
   title: string;
   modules: number[];
+  realmodulecount?: string | number;
+  moduleCount?: number;
 }
 
 export interface Curriculum {

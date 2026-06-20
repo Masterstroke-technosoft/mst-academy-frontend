@@ -37,7 +37,9 @@ const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
 const getSidebarNav = (role: string, isAdmin: boolean) => [
   { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
   { href: "/learn", icon: TreePine, label: "Learning Tree" },
-  { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
+  ...(!isAdmin
+    ? [{ href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" }]
+    : []),
   ...(isAdmin
     ? [
       { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -222,7 +224,7 @@ export function DashboardShell({
     <>
       <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-[var(--bg)]">
         {/* ---- sidebar (desktop) ---- */}
-        <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] md:flex">
+        <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] md:fixed md:top-16 md:left-0 md:flex z-20">
           {/* profile */}
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
@@ -478,7 +480,7 @@ export function DashboardShell({
         )}
 
         {/* ---- main content ---- */}
-        < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden" >
+        < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden md:ml-64" >
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
               {/* mobile header */}

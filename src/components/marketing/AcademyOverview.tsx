@@ -377,7 +377,7 @@ function PhaseSection({
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-semibold">
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
-                {modules.length || phase.moduleCount || 0} modules
+                {modules.length || Number(phase.realmodulecount) || phase.moduleCount || 0} modules
               </span>
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
                 {subCount} submodules

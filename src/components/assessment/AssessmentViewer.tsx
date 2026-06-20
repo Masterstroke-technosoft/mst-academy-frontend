@@ -103,13 +103,34 @@ export default function AssessmentViewer({
   const handleOptionSelect = useCallback(
     (label: string) => {
       if (!submitted) {
-        setAnswers((prev) => ({
-          ...prev,
-          [currentQuestion.questionNumber]: label,
-        }));
+        setAnswers((prev) => {
+          const currentAnswer = prev[currentQuestion.questionNumber] || "";
+          const isMulti = (currentQuestion.questionText || currentQuestion.statement || "")
+            .toLowerCase()
+            .includes("select all");
+
+          let newAnswer = "";
+          if (isMulti) {
+            const selectedOptions = currentAnswer ? currentAnswer.split(", ") : [];
+            if (selectedOptions.includes(label)) {
+              const filtered = selectedOptions.filter((opt) => opt !== label);
+              newAnswer = filtered.sort().join(", ");
+            } else {
+              const added = [...selectedOptions, label];
+              newAnswer = added.sort().join(", ");
+            }
+          } else {
+            newAnswer = label;
+          }
+
+          return {
+            ...prev,
+            [currentQuestion.questionNumber]: newAnswer,
+          };
+        });
       }
     },
-    [currentQuestion.questionNumber, submitted]
+    [currentQuestion, submitted]
   );
 
   const handleNext = useCallback(() => {
@@ -135,6 +156,12 @@ export default function AssessmentViewer({
           questionType: q.type,
           selectedAnswer: answerVal === "True" ? true : answerVal === "False" ? false : "",
           justification: justifications[q.questionNumber] || "",
+        };
+      } else if (q.type === "MULTIPLE_MCQ") {
+        return {
+          questionNumber: q.questionNumber,
+          questionType: q.type,
+          selectedOption: answerVal ? answerVal.split(", ") : [],
         };
       } else {
         return {
@@ -192,9 +219,12 @@ export default function AssessmentViewer({
   if (submitted) {
     const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
+      const answerDisplay = Array.isArray(ans.selectedOption)
+        ? ans.selectedOption.join(", ")
+        : (ans.selectedOption || (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : ""));
       return {
         qNum: idx + 1,
-        answer: ans.selectedOption || (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : ""),
+        answer: answerDisplay,
         isCorrect: ans.isCorrect,
         marks: q.marks || 0
       };
@@ -391,13 +421,13 @@ export default function AssessmentViewer({
         <div className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-4">
-              <Link
+              {/* <Link
                 href={`/module/${slug}`}
                 className="text-sm font-medium text-mst-red hover:underline flex items-center gap-1"
               >
                 <ChevronLeft size={16} />
                 Back to Lesson
-              </Link>
+              </Link> */}
               <div className="flex items-center gap-4 text-sm text-[var(--text-muted)]">
                 <div className="flex items-center gap-1">
                   <Clock size={16} />
@@ -460,41 +490,53 @@ export default function AssessmentViewer({
               </h2>
 
               {/* Options */}
-              {currentQuestion.options && (
-                <div className="space-y-3">
-                  {currentQuestion.options.map((option) => (
-                    <button
-                      key={option.label}
-                      onClick={() => handleOptionSelect(option.label)}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition ${answers[currentQuestion.questionNumber] === option.label
-                        ? "border-mst-red bg-mst-red/5"
-                        : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
-                        }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${answers[currentQuestion.questionNumber] === option.label
-                            ? "border-mst-red bg-mst-red"
-                            : "border-[var(--border)]"
+              {currentQuestion.options && (() => {
+                const isMulti = (currentQuestion.questionText || currentQuestion.statement || "")
+                  .toLowerCase()
+                  .includes("select all");
+                return (
+                  <div className="space-y-3">
+                    {currentQuestion.options.map((option) => {
+                      const answer = answers[currentQuestion.questionNumber];
+                      const isSelected = answer
+                        ? (isMulti ? answer.split(", ").includes(option.label) : answer === option.label)
+                        : false;
+                      return (
+                        <button
+                          key={option.label}
+                          onClick={() => handleOptionSelect(option.label)}
+                          className={`w-full text-left p-4 rounded-lg border-2 transition ${isSelected
+                            ? "border-mst-red bg-mst-red/5"
+                            : "border-[var(--border)] hover:border-mst-red/50 hover:bg-[var(--bg-muted)]"
                             }`}
                         >
-                          {answers[currentQuestion.questionNumber] === option.label && (
-                            <span className="text-xs font-bold text-white">✓</span>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm text-[var(--text)]">
-                            {option.label}
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`flex h-5 w-5 items-center justify-center border-2 ${isMulti ? "rounded-md" : "rounded-full"
+                                } ${isSelected
+                                  ? "border-mst-red bg-mst-red"
+                                  : "border-[var(--border)]"
+                                }`}
+                            >
+                              {isSelected && (
+                                <span className="text-xs font-bold text-white">✓</span>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-semibold text-sm text-[var(--text)]">
+                                {option.label}
+                              </div>
+                              <div className="text-sm text-[var(--text-muted)]">
+                                {option.text}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-[var(--text-muted)]">
-                            {option.text}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
               {/* True/False with Justification */}
               {currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" && (
@@ -590,7 +632,7 @@ export default function AssessmentViewer({
             <h3 className="text-xl font-extrabold text-[var(--text)] mb-3">
               Proctoring Alert
             </h3>
-            
+
             {/* Warning Message Box */}
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-2 text-sm text-left font-medium">
               Warning: {warningCount} proctoring violation{warningCount > 1 ? "s" : ""} detected.
@@ -640,11 +682,10 @@ export default function AssessmentViewer({
             <button
               onClick={() => { if (!isViolationLocked) setShowWarningPopup(false); }}
               disabled={isViolationLocked}
-              className={`w-full py-3 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 ${
-                isViolationLocked
-                  ? "bg-red-300 cursor-not-allowed shadow-red-200/20"
-                  : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
-              }`}
+              className={`w-full py-3 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 ${isViolationLocked
+                ? "bg-red-300 cursor-not-allowed shadow-red-200/20"
+                : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                }`}
             >
               {isViolationLocked ? "Resolve violation to continue" : "I Understand"}
             </button>
