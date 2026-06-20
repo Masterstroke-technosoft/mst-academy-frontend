@@ -123,7 +123,7 @@ export function PlanFunnelPage({
                 { label: "Internship", value: internshipIncluded ? "Included" : "Not included", icon: Briefcase },
                 { label: "Mentor interaction", value: "Weekly", icon: Users },
                 { label: "Project exposure", value: "Real-world", icon: Trophy },
-                { label: "Fraction + MSTC", value: fractionIncluded ? "Included" : "Not included", icon: Zap },
+                { label: "MSTC", value: fractionIncluded ? "Included" : "Not included", icon: Zap },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-4">
                   <item.icon className="h-4 w-4 text-mst-red" />
@@ -197,7 +197,7 @@ export function PlanFunnelPage({
                 {fractionIncluded && (
                   <p className="flex items-start gap-2 text-sm text-[var(--text-muted)]">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mst-red" />
-                    1 fraction allocation with 19 years daily MSTC reward-coin participation.
+                    1 node allocation with 19 years daily MSTC reward-coin participation.
                   </p>
                 )}
                 {validatorPortalAccess && (

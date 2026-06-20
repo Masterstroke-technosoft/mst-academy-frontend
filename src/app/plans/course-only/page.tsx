@@ -66,7 +66,7 @@ export default function CourseOnlyPlanPage() {
           a: "No. This plan is purely course access focused for deep learning fundamentals.",
         },
         {
-          q: "Does this plan include fraction and MSTC rewards?",
+          q: "Does this plan include MSTC rewards?",
           a: "\long-term MSTC reward participation are included in validator, student, and working professional fellowships.",
         },
         {
