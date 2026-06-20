@@ -54,6 +54,7 @@ function setRateLimitData(email: string, attempts: number, resetAt: number): voi
 }
 
 export function getOtpCooldownTime(email: string): number {
+
   const normalized = email.trim().toLowerCase();
   const data = getRateLimitData(normalized);
 
@@ -79,6 +80,8 @@ export async function sendEmailOtp(email: string):
     | { ok: true; demoCode: string }
     | { ok: false; error: string }
   > {
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (typeof window === "undefined") {
     return { ok: false, error: "OTP is only available in the browser." };
   }
@@ -102,7 +105,7 @@ export async function sendEmailOtp(email: string):
   }
 
   try {
-    const response = await fetch("/api/auth/send-otp", {
+    const response = await fetch(`${baseUrl}/api/auth/send-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: normalized }),
@@ -144,6 +147,7 @@ export async function verifyEmailOtp(
   email: string,
   code: string
 ): Promise<boolean> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (typeof window === "undefined") return false;
 
   const normalized = email.trim().toLowerCase();
@@ -151,7 +155,7 @@ export async function verifyEmailOtp(
   if (entered.length !== 6) return false;
 
   try {
-    const response = await fetch("/api/auth/verify-otp", {
+    const response = await fetch(`${baseUrl}/api/auth/verify-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: normalized, otp: entered }),
@@ -193,6 +197,7 @@ export function isEmailVerified(email: string): boolean {
 export function sendOtp(phone: string):
   | { ok: true; demoCode: string }
   | { ok: false; error: string } {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   if (typeof window === "undefined") {
     return { ok: false, error: "OTP is only available in the browser." };
   }
