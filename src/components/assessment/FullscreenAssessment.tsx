@@ -39,6 +39,9 @@ import {
   CameraRequiredNotice,
   type CameraViolationType,
 } from "./AssessmentCameraProctor";
+import {
+  stopCameraMonitoring,
+} from "@/components/proctoring-service/camera-monitor";
 
 function isCodingQuestion(q: AssessmentQuestion): boolean {
   if (["coding", "live_coding"].includes(q.type)) {
@@ -338,6 +341,8 @@ export function FullscreenAssessment({
       if (exitTimerRef.current) {
         window.clearTimeout(exitTimerRef.current);
       }
+      // Cleanup camera when component unmounts
+      stopCameraMonitoring();
     };
   }, []);
 
@@ -438,6 +443,8 @@ export function FullscreenAssessment({
     );
     sessionStorage.removeItem(storageKey);
 
+    // Stop camera and exit fullscreen before navigation
+    stopCameraMonitoring();
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => { });
     }
@@ -627,6 +634,7 @@ export function FullscreenAssessment({
 
   function handleExitAttempt() {
     if (!codingQuestionActive) {
+      stopCameraMonitoring();
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => { });
       }
@@ -644,6 +652,7 @@ export function FullscreenAssessment({
       return;
     }
 
+    stopCameraMonitoring();
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => { });
     }

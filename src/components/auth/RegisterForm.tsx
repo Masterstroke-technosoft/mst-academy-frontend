@@ -20,6 +20,7 @@ import {
   isEmailVerified,
   sendEmailOtp,
   verifyEmailOtp,
+  getOtpCooldownTime,
 } from "@/lib/otp";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -141,6 +142,8 @@ export function RegisterForm() {
   const [demoOtp, setDemoOtp] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [verifyOtpLoading, setVerifyOtpLoading] = useState(false);
+  const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((p) => p.id === plan)!,
@@ -159,10 +162,29 @@ export function RegisterForm() {
     }
   }, [searchParams]);
 
-  function handleSendOtp() {
+  useEffect(() => {
+    if (!email) {
+      setOtpCooldownSeconds(0);
+      return;
+    }
+
+    const checkCooldown = () => {
+      const seconds = getOtpCooldownTime(email);
+      setOtpCooldownSeconds(seconds);
+    };
+
+    checkCooldown();
+
+    if (otpCooldownSeconds > 0) {
+      const interval = setInterval(checkCooldown, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [email, otpCooldownSeconds]);
+
+  async function handleSendOtp() {
     setError("");
     setOtpLoading(true);
-    const result = sendEmailOtp(email);
+    const result = await sendEmailOtp(email);
     setOtpLoading(false);
     if (!result.ok) {
       setError(result.error);
@@ -173,9 +195,12 @@ export function RegisterForm() {
     setEmailVerified(false);
   }
 
-  function handleVerifyOtp() {
+  async function handleVerifyOtp() {
     setError("");
-    if (verifyEmailOtp(email, otpCode)) {
+    setVerifyOtpLoading(true);
+    const isValid = await verifyEmailOtp(email, otpCode);
+    setVerifyOtpLoading(false);
+    if (isValid) {
       setEmailVerified(true);
       setDemoOtp("");
     } else {
@@ -326,16 +351,21 @@ export function RegisterForm() {
               <button
                 type="button"
                 onClick={handleSendOtp}
-                disabled={otpLoading || !isValidEmail(email)}
+                disabled={otpLoading || !isValidEmail(email) || otpCooldownSeconds > 0}
                 className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50"
               >
-                {otpLoading ? "…" : otpSent ? "Resend" : "Send OTP"}
+                {otpLoading ? "…" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
               </button>
             )}
           </div>
           {emailVerified && (
             <p className="mt-2 text-xs font-semibold text-green-600 dark:text-green-400">
               ✓ Email verified
+            </p>
+          )}
+          {!emailVerified && otpCooldownSeconds > 0 && (
+            <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+              ⏱️ Too many requests. Please wait {otpCooldownSeconds}s before sending another OTP.
             </p>
           )}
         </div>
@@ -361,17 +391,12 @@ export function RegisterForm() {
               <button
                 type="button"
                 onClick={handleVerifyOtp}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white"
+                disabled={verifyOtpLoading || !otpCode}
+                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50"
               >
-                Verify
+                {verifyOtpLoading ? "…" : "Verify"}
               </button>
             </div>
-            {demoOtp && (
-              <p className="mt-2 text-xs text-[var(--text-muted)]">
-                Demo OTP (payment gateway pending):{" "}
-                <strong className="font-mono text-mst-red">{demoOtp}</strong>
-              </p>
-            )}
           </div>
         )}
 

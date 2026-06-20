@@ -72,8 +72,8 @@ export default function StudentPlanPage() {
           a: "Yes. Student Fellowship includes paid internship exposure with real project execution.",
         },
         {
-          q: "Does this plan include fraction and rewards?",
-          a: "Yes. Student Fellowship includes 1 fraction and daily MSTC reward-coin participation.",
+          q: "Does this plan include MSTC rewards?",
+          a: "Yes. Student Fellowship includes daily MSTC reward-coin participation.",
         },
         {
           q: "Will I get a certificate after the internship?",
