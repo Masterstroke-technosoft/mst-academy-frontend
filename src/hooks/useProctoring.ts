@@ -89,7 +89,7 @@ export function useProctoring() {
 
     // Try to enter fullscreen
     enterFullscreen(document.documentElement).catch((err) => {
-      console.error("Failed to enter fullscreen:", err);
+      console.warn("Failed to automatically enter fullscreen on mount:", err);
     });
 
     startKeyboardMonitoring(addViolation);

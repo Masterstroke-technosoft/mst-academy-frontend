@@ -47,6 +47,7 @@ export default function AssessmentViewer({
   const [submitted, setSubmitted] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [dbUserId, setDbUserId] = useState<string>("");
+  const [fullscreenBypassed, setFullscreenBypassed] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -323,11 +324,7 @@ export default function AssessmentViewer({
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-<<<<<<< Updated upstream
-              href={`/module/${moduleId}/${slug}`}
-=======
               href="/learn"
->>>>>>> Stashed changes
               className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
               Back to Submodule
@@ -359,7 +356,7 @@ export default function AssessmentViewer({
   }
 
   // Block access until fullscreen is enabled (only during active assessment)
-  if (!isFullscreenEnabled) {
+  if (!isFullscreenEnabled && !fullscreenBypassed) {
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm">
         <div className="relative w-full max-w-md p-8 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl text-center">
@@ -396,9 +393,12 @@ export default function AssessmentViewer({
               try {
                 if (document.documentElement.requestFullscreen) {
                   await document.documentElement.requestFullscreen();
+                } else {
+                  setFullscreenBypassed(true);
                 }
               } catch (err) {
-                console.error("Failed to enter fullscreen:", err);
+                console.warn("Failed to enter fullscreen (bypassing):", err);
+                setFullscreenBypassed(true);
               }
             }}
             className="w-full py-3 bg-gradient-to-r from-mst-red to-red-600 hover:from-red-700 hover:to-red-700 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 shadow-red-600/20"
