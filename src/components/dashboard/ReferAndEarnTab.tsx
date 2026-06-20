@@ -294,7 +294,36 @@ export function ReferAndEarnTab({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowWithdrawForm(true)}
+                  onClick={async () => {
+                    const amount = successfulReferrals * 500;
+                    if (amount === 0) {
+                      alert("You have no successful referrals to withdraw. Complete at least 5 successful referrals first.");
+                      return;
+                    }
+                    try {
+                      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+                      const res = await fetch(`${baseURL}/api/bank-details/me`, {
+                        credentials: "include",
+                        headers: { "Content-Type": "application/json" },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        const existing = data?.data ?? data;
+                        if (existing && (existing._id || existing.accountNumber)) {
+                          setBankDetails({
+                            accountHolderName: existing.accountHolderName || "",
+                            accountNumber: existing.accountNumber || "",
+                            ifscCode: existing.ifscCode || "",
+                            branchName: existing.branchName || "",
+                            upiId: existing.upiId || "",
+                          });
+                        }
+                      }
+                    } catch (error) {
+                      console.error("Error fetching bank details:", error);
+                    }
+                    setShowWithdrawForm(true);
+                  }}
                   // disabled={!withdrawUnlocked}
                   className="relative z-10 shrink-0 group inline-flex items-center gap-2.5 rounded-2xl bg-[#e31e24] px-8 py-4 text-sm font-black text-white shadow-xl shadow-[#e31e24]/20 transition-all hover:scale-[1.02] hover:bg-red-600 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-xl"
                 >
@@ -337,6 +366,10 @@ export function ReferAndEarnTab({
                   <div>
                     <h3 className="text-2xl font-black tracking-tight text-[var(--text)]">Withdrawal Details</h3>
                     <p className="mt-1 text-sm text-[var(--text-muted)]">Securely enter your banking information below.</p>
+                    <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
+                      <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
+                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{successfulReferrals * 500}</p>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -365,25 +398,44 @@ export function ReferAndEarnTab({
                     };
 
                     try {
-                      // Save / refresh the user's bank details
-                      const bankRes = await fetch(`${baseURL}/api/bank-details`, {
-                        method: "POST",
-                        credentials: "include",
-                        headers,
-                        body: JSON.stringify({
-                          accountHolderName: bankDetails.accountHolderName,
-                          accountNumber: bankDetails.accountNumber,
-                          ifscCode: bankDetails.ifscCode,
-                          branchName: bankDetails.branchName,
-                          upiId: bankDetails.upiId,
-                        }),
-                      });
-                      if (!bankRes.ok) {
-                        throw new Error(`Bank details failed: ${bankRes.status}`);
+                      // Check if the user already has bank details saved
+                      let hasBankDetails = false;
+                      try {
+                        const meRes = await fetch(`${baseURL}/api/bank-details/me`, {
+                          method: "GET",
+                          credentials: "include",
+                          headers,
+                        });
+                        if (meRes.ok) {
+                          const meData = await meRes.json();
+                          const existing = meData?.data ?? meData;
+                          hasBankDetails = !!(existing && (existing._id || existing.accountNumber));
+                        }
+                      } catch (checkError) {
+                        console.error("Failed to check existing bank details:", checkError);
+                      }
+
+                      // Only add bank details if they have not been saved yet
+                      if (!hasBankDetails) {
+                        const bankRes = await fetch(`${baseURL}/api/bank-details`, {
+                          method: "POST",
+                          credentials: "include",
+                          headers,
+                          body: JSON.stringify({
+                            accountHolderName: bankDetails.accountHolderName,
+                            accountNumber: bankDetails.accountNumber,
+                            ifscCode: bankDetails.ifscCode,
+                            branchName: bankDetails.branchName,
+                            upiId: bankDetails.upiId,
+                          }),
+                        });
+                        if (!bankRes.ok) {
+                          throw new Error(`Bank details failed: ${bankRes.status}`);
+                        }
                       }
 
                       // Create the withdrawal payout request
-                      const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawals`, {
+                      const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
                         method: "POST",
                         credentials: "include",
                         headers,
@@ -395,6 +447,7 @@ export function ReferAndEarnTab({
 
                       setWithdrawRequested(true);
                       setRequestStatus("Pending");
+                      setShowWithdrawForm(false);
                     } catch (error: any) {
                       console.error("Failed to submit withdrawal request:", error?.message ?? error);
                     }
