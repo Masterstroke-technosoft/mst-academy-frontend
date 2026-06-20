@@ -141,7 +141,7 @@ export function AssessmentResults({
               {data.percentage}%
             </p>
             <p className="mt-1 text-[11px] font-semibold text-[var(--text-muted)]">
-              Threshold: 75% to Pass
+              Threshold: 70% to Pass
             </p>
           </div>
 

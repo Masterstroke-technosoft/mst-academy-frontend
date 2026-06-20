@@ -34,3 +34,9 @@ export const enterFullscreen = async (
 ) => {
   await element.requestFullscreen();
 };
+
+export const exitFullscreen = async () => {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+  }
+};

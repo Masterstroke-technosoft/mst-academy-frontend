@@ -67,7 +67,7 @@ export default function CourseOnlyPlanPage() {
         },
         {
           q: "Does this plan include fraction and MSTC rewards?",
-          a: "No. Fraction and long-term MSTC reward participation are included in validator, student, and working professional fellowships.",
+          a: "\long-term MSTC reward participation are included in validator, student, and working professional fellowships.",
         },
         {
           q: "What is the current offer price?",

@@ -71,7 +71,7 @@ export default function AssessmentViewer({
     fetchUserProfile();
   }, []);
 
-  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring } = useProctoring();
+  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring, isFullscreenEnabled } = useProctoring();
   const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
 
@@ -323,10 +323,10 @@ export default function AssessmentViewer({
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href={`/module/${moduleId}`}
+              href={`/module/${moduleId}/${slug}`}
               className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
-              Back to Module
+              Back to Submodule
             </Link>
             {passed && getModule(moduleId + 1) && (
               <Link
@@ -347,6 +347,62 @@ export default function AssessmentViewer({
               Retake Assessment
             </button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Block access until fullscreen is enabled (only during active assessment)
+  if (!isFullscreenEnabled) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <div className="relative w-full max-w-md p-8 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl text-center">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-6 bg-red-100 rounded-full dark:bg-red-900/30">
+            <svg
+              className="w-10 h-10 text-red-600 dark:text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </div>
+
+          <h2 className="text-2xl font-black text-[var(--text)] mb-3">
+            Fullscreen Required
+          </h2>
+
+          <p className="text-[var(--text-muted)] mb-6 text-sm leading-relaxed">
+            This assessment requires fullscreen mode for proctoring purposes. Please enable fullscreen to continue.
+          </p>
+
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm font-medium">
+            ⚠️ You cannot proceed without enabling fullscreen mode.
+          </div>
+
+          <button
+            onClick={async () => {
+              try {
+                if (document.documentElement.requestFullscreen) {
+                  await document.documentElement.requestFullscreen();
+                }
+              } catch (err) {
+                console.error("Failed to enter fullscreen:", err);
+              }
+            }}
+            className="w-full py-3 bg-gradient-to-r from-mst-red to-red-600 hover:from-red-700 hover:to-red-700 text-white font-bold rounded-xl transition duration-200 shadow-lg active:scale-95 shadow-red-600/20"
+          >
+            Enable Fullscreen
+          </button>
+
+          <p className="text-xs text-[var(--text-muted)] mt-4">
+            Press F11 or use your browser's fullscreen option if the button doesn't work.
+          </p>
         </div>
       </div>
     );

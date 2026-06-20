@@ -15,6 +15,7 @@ interface Assessment {
 }
 
 export default function AssessmentPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
   const params = useParams();
 
   const moduleId = params.id as string;
@@ -27,7 +28,7 @@ export default function AssessmentPage() {
   useEffect(() => {
     const fetchAssessment = async () => {
       try {
-        const response = await fetch(`https://mst-academy-backend-production-6ccb.up.railway.app/api/assignments/submodule/${slug}`, {
+        const response = await fetch(`${baseUrl}/api/assignments/submodule/${slug}`, {
           method: "GET",
           credentials: "include",
         });

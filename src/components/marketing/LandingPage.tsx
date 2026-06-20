@@ -700,7 +700,7 @@ export function LandingPage({
                 {[
                   {
                     icon: Shield,
-                    title: "75% pass rule",
+                    title: "70% pass rule",
                     desc: "Unlock the next lesson only when you truly understand the material.",
                   },
                   {

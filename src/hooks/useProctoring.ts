@@ -15,7 +15,8 @@ import {
 import {
   startFullscreenMonitoring,
   stopFullscreenMonitoring,
-  enterFullscreen
+  enterFullscreen,
+  exitFullscreen
 } from "@/components/proctoring-service/fullscreen-monitor";
 
 import {
@@ -47,6 +48,7 @@ export function useProctoring() {
   const [violations, setViolations] = useState<any[]>([]);
   const [activeViolations, setActiveViolations] = useState<Set<string>>(new Set());
   const [autoSubmitTriggered, setAutoSubmitTriggered] = useState(false);
+  const [isFullscreenEnabled, setIsFullscreenEnabled] = useState(false);
 
   const violationCountRef = useRef(0);
   const activeViolationsRef = useRef<Set<string>>(new Set());
@@ -78,28 +80,36 @@ export function useProctoring() {
   }, []);
 
   useEffect(() => {
+    // Monitor fullscreen state
+    const handleFullscreenChange = () => {
+      setIsFullscreenEnabled(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    // Try to enter fullscreen
+    enterFullscreen(document.documentElement).catch((err) => {
+      console.error("Failed to enter fullscreen:", err);
+    });
+
     startKeyboardMonitoring(addViolation);
-
-    enterFullscreen(document.documentElement).catch(console.error);
-
     startTabMonitoring(addViolation, resolveViolation);
-
     startFullscreenMonitoring(addViolation, resolveViolation);
-
     startCameraMonitoring(addViolation, resolveViolation);
-
     startMicrophoneMonitoring(addViolation, resolveViolation);
-
     startBlurCameraMonitoring(addViolation, resolveViolation);
 
     return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
       stopKeyboardMonitoring();
       stopTabMonitoring();
+      stopFullscreenMonitoring();
       stopCameraMonitoring();
       stopMicrophoneMonitoring();
       stopBlurCameraMonitoring();
+      exitFullscreen().catch(console.error);
     };
-  }, []);
+  }, [addViolation, resolveViolation]);
 
   const stopProctoring = useCallback(() => {
     stopKeyboardMonitoring();
@@ -108,6 +118,7 @@ export function useProctoring() {
     stopCameraMonitoring();
     stopMicrophoneMonitoring();
     stopBlurCameraMonitoring();
+    exitFullscreen().catch(console.error);
   }, []);
 
   return {
@@ -116,5 +127,6 @@ export function useProctoring() {
     warningCount: violations.length,
     autoSubmitTriggered,
     stopProctoring,
+    isFullscreenEnabled,
   };
 }
