@@ -211,11 +211,11 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
-    if (!emailVerified && !isEmailVerified(email)) {
-      setLoading(false);
-      setError("Please verify your email address with OTP first.");
-      return;
-    }
+    // if (!emailVerified && !isEmailVerified(email)) {
+    //   setLoading(false);
+    //   setError("Please verify your email address with OTP first.");
+    //   return;
+    // }
 
     if (password !== confirmPassword) {
       setLoading(false);

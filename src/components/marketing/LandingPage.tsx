@@ -10,6 +10,31 @@ import { RevealSection } from "@/components/marketing/RevealSection";
 import { MarketingHeroBackground } from "@/components/marketing/MarketingHeroBackground";
 import type { Phase } from "@/lib/types";
 import { PHASE_HOURS } from "@/lib/academy-overview";
+import { type LeaderboardEntry } from "@/lib/leaderboard";
+
+interface BackendLeaderboardEntry {
+  _id: string | null;
+  name: string | null;
+  score?: number;
+  modulesDone?: number;
+  totalModules?: number;
+  streak?: number;
+  coins?: number;
+  rank?: number;
+}
+
+function mapBackendEntry(e: BackendLeaderboardEntry): LeaderboardEntry {
+  return {
+    id: e._id ?? "",
+    name: e.name ?? "Unknown",
+    score: e.score ?? 0,
+    modulesDone: e.modulesDone ?? 0,
+    totalModules: e.totalModules ?? 21,
+    streak: e.streak ?? 0,
+    coins: e.coins ?? 0,
+    rank: e.rank,
+  };
+}
 import {
   TreePine,
   Monitor,
@@ -119,6 +144,36 @@ export function LandingPage({
   const [expandedPhaseDetails, setExpandedPhaseDetails] = useState<any>(null);
   const [isLoadingPhase, setIsLoadingPhase] = useState(false);
   const [courseDetails, setCourseDetails] = useState<any>(null);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [fetchError, setFetchError] = useState(false);
+  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
+
+  useEffect(() => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    fetch(`${baseUrl}/api/leaderboard`, {
+      method: "GET",
+      credentials: "include"
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Leaderboard request failed: ${r.status}`);
+        return r.json();
+      })
+      .then((raw: BackendLeaderboardEntry[]) => {
+        const valid = raw.filter((e) => e._id != null && e.name != null);
+        const list: LeaderboardEntry[] = valid.map(mapBackendEntry);
+        list.sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
+          return (a.rank ?? 999) - (b.rank ?? 999);
+        });
+        setLeaderboardEntries(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load leaderboard:", err);
+        setFetchError(true);
+      })
+      .finally(() => setIsLeaderboardLoading(false));
+  }, []);
 
   useEffect(() => {
     const fetchCoursePhases = async () => {
@@ -561,34 +616,51 @@ export function LandingPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { rank: 1, name: "Aarav K.", done: "18 modules", score: "92%", reward: "₹7,500 bonus" },
-                    { rank: 2, name: "Diya S.", done: "16 modules", score: "88%", reward: "Mentor session" },
-                    { rank: 3, name: "Rohan P.", done: "15 modules", score: "85%", reward: "Internship Priority" },
-                    { rank: 4, name: "Sara M.", done: "14 modules", score: "83%", reward: "PPO Boost" },
-                    { rank: 5, name: "Kabir T.", done: "13 modules", score: "80%", reward: "Achievement badge" },
-                  ].map((row) => (
-                    <tr
-                      key={row.rank}
-                      className="border-b border-[var(--border)]/60 last:border-b-0"
-                    >
-                      <td className="py-3 pr-3 font-bold text-mst-red">
-                        #{row.rank}
-                      </td>
-                      <td className="py-3 pr-3 font-semibold text-[var(--text)]">
-                        {row.name}
-                      </td>
-                      <td className="py-3 pr-3 text-[var(--text-muted)]">
-                        {row.done}
-                      </td>
-                      <td className="py-3 pr-3 text-[var(--text-muted)]">
-                        {row.score}
-                      </td>
-                      <td className="py-3 pr-3 text-[var(--text-muted)]">
-                        {row.reward}
+                  {isLeaderboardLoading ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center">
+                        <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-[var(--border)] border-t-mst-red" />
                       </td>
                     </tr>
-                  ))}
+                  ) : fetchError || leaderboardEntries.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-sm text-[var(--text-muted)]">
+                        Failed to load leaderboard data.
+                      </td>
+                    </tr>
+                  ) : (
+                    leaderboardEntries.slice(0, 5).map((row, index) => {
+                      const rank = index + 1;
+                      const reward =
+                        rank === 1 ? "₹7,500 bonus" :
+                        rank === 2 ? "Mentor session" :
+                        rank === 3 ? "Internship Priority" :
+                        rank === 4 ? "PPO Boost" :
+                        "Achievement badge";
+                      return (
+                        <tr
+                          key={row.id || index}
+                          className="border-b border-[var(--border)]/60 last:border-b-0"
+                        >
+                          <td className="py-3 pr-3 font-bold text-mst-red">
+                            #{rank}
+                          </td>
+                          <td className="py-3 pr-3 font-semibold text-[var(--text)]">
+                            {row.name}
+                          </td>
+                          <td className="py-3 pr-3 text-[var(--text-muted)]">
+                            {row.modulesDone} modules
+                          </td>
+                          <td className="py-3 pr-3 text-[var(--text-muted)]">
+                            {row.score}%
+                          </td>
+                          <td className="py-3 pr-3 text-[var(--text-muted)]">
+                            {reward}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>

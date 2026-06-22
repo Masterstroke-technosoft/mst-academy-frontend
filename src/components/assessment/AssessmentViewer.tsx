@@ -162,13 +162,13 @@ export default function AssessmentViewer({
         return {
           questionNumber: q.questionNumber,
           questionType: q.type,
-          selectedOption: answerVal ? answerVal.split(", ") : [],
+          selectedAnswer: answerVal ? answerVal.split(", ") : [],
         };
       } else {
         return {
           questionNumber: q.questionNumber,
           questionType: q.type,
-          selectedOption: answerVal || "",
+          selectedAnswer: answerVal || "",
         };
       }
     });
@@ -220,9 +220,9 @@ export default function AssessmentViewer({
   if (submitted) {
     const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
-      const answerDisplay = Array.isArray(ans.selectedOption)
-        ? ans.selectedOption.join(", ")
-        : (ans.selectedOption || (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : ""));
+      const answerDisplay = Array.isArray(ans.selectedAnswer)
+        ? ans.selectedAnswer.join(", ")
+        : (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : (ans.selectedAnswer || ""));
       return {
         qNum: idx + 1,
         answer: answerDisplay,
@@ -323,7 +323,8 @@ export default function AssessmentViewer({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link
+            <
+              Link
               href="/learn"
               className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--bg-muted)] text-center"
             >
