@@ -633,10 +633,10 @@ export function LandingPage({
                       const rank = index + 1;
                       const reward =
                         rank === 1 ? "₹7,500 bonus" :
-                        rank === 2 ? "Mentor session" :
-                        rank === 3 ? "Internship Priority" :
-                        rank === 4 ? "PPO Boost" :
-                        "Achievement badge";
+                          rank === 2 ? "Mentor session" :
+                            rank === 3 ? "Internship Priority" :
+                              rank === 4 ? "PPO Boost" :
+                                "Achievement badge";
                       return (
                         <tr
                           key={row.id || index}
@@ -679,7 +679,7 @@ export function LandingPage({
           {[
             { end: 4, suffix: "", label: "Phases" },
             { end: moduleCount, suffix: "", label: "Modules" },
-            { end: submoduleCount, suffix: "+", label: "Submodules" },
+            { end: 122, submoduleCount, suffix: "", label: "Submodules" },
             { end: 130, suffix: "+", label: "Hours" },
           ].map((stat, i) => (
             <div

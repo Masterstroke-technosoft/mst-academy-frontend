@@ -87,8 +87,8 @@ export const BLOCKCHAIN_LEVELS: BlockchainLevel[] = [
 export const DEMO_FEES = {
   // Fellowship track pricing
   validator: 9999,
-  student: 14999,
-  normal: 19999,
+  student: 19999,
+  normal: 24999,
   // Course-only plan (no fraction / no internship)
   courseOnly: 4999,
 } as const;

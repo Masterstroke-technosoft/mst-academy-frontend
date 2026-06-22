@@ -105,14 +105,14 @@ export async function sendEmailOtp(email: string):
   }
 
   try {
-    const response = await fetch(`${baseUrl}/api/auth/send-otp`, {
+    const response = await fetch(`${baseUrl}/api/otp/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: normalized }),
     });
 
-    if (!response.ok) {
-      const data = await response.json();
+    const data = await response.json();
+    if (!response.ok || !data.success) {
       return { ok: false, error: data.message || "Failed to send OTP" };
     }
 
@@ -155,7 +155,7 @@ export async function verifyEmailOtp(
   if (entered.length !== 6) return false;
 
   try {
-    const response = await fetch(`${baseUrl}/api/auth/verify-otp`, {
+    const response = await fetch(`${baseUrl}/api/otp/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: normalized, otp: entered }),

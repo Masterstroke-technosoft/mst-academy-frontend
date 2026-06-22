@@ -300,11 +300,6 @@ export function ReferAndEarnTab({
                 <button
                   type="button"
                   onClick={async () => {
-                    const amount = successfulReferrals * 500;
-                    if (amount === 0) {
-                      alert("You have no successful referrals to withdraw. Complete at least 5 successful referrals first.");
-                      return;
-                    }
                     try {
                       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
                       const res = await fetch(`${baseURL}/api/bank-details/me`, {

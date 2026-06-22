@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from './nodemailer-shim';
 import { NextRequest, NextResponse } from 'next/server';
 
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
