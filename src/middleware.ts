@@ -7,6 +7,7 @@ const PUBLIC_PATHS = [
   "/register",
   "/plans",
   "/academy-overview",
+  "/forgot-password",
 ];
 
 export function middleware(request: NextRequest) {

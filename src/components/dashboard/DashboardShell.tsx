@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
+import { Footer } from "@/components/Footer";
 import {
   LayoutDashboard,
   TreePine,
@@ -481,8 +482,8 @@ export function DashboardShell({
 
         {/* ---- main content ---- */}
         < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden md:ml-64" >
-          <main className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          <main className="flex-1 overflow-y-auto flex flex-col justify-between">
+            <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
               {/* mobile header */}
               <div className="mb-6 flex items-center justify-between md:hidden">
                 <div className="flex items-center gap-3">
@@ -576,6 +577,7 @@ export function DashboardShell({
                 )}
               </div>
             </div>
+            <Footer forceShow />
           </main>
         </div >
       </div >

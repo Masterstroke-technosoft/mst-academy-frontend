@@ -17,6 +17,12 @@ interface Question {
   correctAnswer?: string;
   explanation?: string;
   statement?: string;
+  instructions?: {
+    requirements?: string[];
+    submission_checklist?: string[];
+    evaluation_rubric?: Record<string, string>;
+    expected_learning_outcomes?: string[];
+  };
 }
 
 interface Assessment {
@@ -48,6 +54,7 @@ export default function AssessmentViewer({
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [dbUserId, setDbUserId] = useState<string>("");
   const [fullscreenBypassed, setFullscreenBypassed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -147,6 +154,7 @@ export default function AssessmentViewer({
   }, [currentQuestionIndex]);
 
   const handleSubmit = useCallback(async () => {
+    setSubmitting(true);
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const formattedAnswers = assessment.questions.map((q, idx) => {
       const isTrueFalse = q.type === "TRUE_FALSE_WITH_JUSTIFICATION";
@@ -206,6 +214,7 @@ export default function AssessmentViewer({
       JSON.stringify({ answers, assessment })
     );
     setSubmitted(true);
+    setSubmitting(false);
   }, [answers, assessment, moduleId, slug, user, justifications, dbUserId, violations]);
 
   useEffect(() => {
@@ -216,6 +225,20 @@ export default function AssessmentViewer({
 
   const isAnswered = answers[currentQuestion.questionNumber];
   const answeredCount = Object.keys(answers).length;
+
+  if (submitting) {
+    return (
+      <div className="min-h-screen bg-[var(--bg)] flex justify-center items-center py-8 px-4">
+        <div className="max-w-md w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-2xl flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mst-red mb-4"></div>
+          <h2 className="text-xl font-black text-[var(--text)] mb-2">Submitting Assessment</h2>
+          <p className="text-sm text-[var(--text-muted)]">
+            Please wait while we evaluate your answers and generate your results...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
@@ -552,6 +575,85 @@ export default function AssessmentViewer({
                 {currentQuestion.questionText || currentQuestion.statement}
               </h2>
 
+              {currentQuestion.type === "PRACTICAL" && currentQuestion.instructions && (
+                <div className="mt-4 mb-6 p-5 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 space-y-6">
+                  <h3 className="text-lg font-bold text-[var(--text)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
+                    📋 Instructions & Guidelines
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Requirements */}
+                    {currentQuestion.instructions.requirements && currentQuestion.instructions.requirements.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-mst-red uppercase tracking-wider">
+                          Requirements
+                        </h4>
+                        <ul className="list-disc pl-5 text-sm text-[var(--text-muted)] space-y-1">
+                          {currentQuestion.instructions.requirements.map((req, idx) => (
+                            <li key={idx}>{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Submission Checklist */}
+                    {currentQuestion.instructions.submission_checklist && currentQuestion.instructions.submission_checklist.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-green-500 uppercase tracking-wider">
+                          Submission Checklist
+                        </h4>
+                        <ul className="list-disc pl-5 text-sm text-[var(--text-muted)] space-y-1">
+                          {currentQuestion.instructions.submission_checklist.map((item, idx) => (
+                            <li key={idx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Expected Learning Outcomes */}
+                    {currentQuestion.instructions.expected_learning_outcomes && currentQuestion.instructions.expected_learning_outcomes.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-blue-500 uppercase tracking-wider">
+                          Expected Learning Outcomes
+                        </h4>
+                        <ul className="list-disc pl-5 text-sm text-[var(--text-muted)] space-y-1">
+                          {currentQuestion.instructions.expected_learning_outcomes.map((outcome, idx) => (
+                            <li key={idx}>{outcome}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Evaluation Rubric */}
+                    {currentQuestion.instructions.evaluation_rubric && Object.keys(currentQuestion.instructions.evaluation_rubric).length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-bold text-yellow-500 uppercase tracking-wider">
+                          Evaluation Rubric
+                        </h4>
+                        <div className="border border-[var(--border)] rounded-lg overflow-hidden bg-[var(--surface)] text-sm">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-[var(--bg-muted)] border-b border-[var(--border)]">
+                                <th className="p-2 font-semibold text-[var(--text)]">Criteria</th>
+                                <th className="p-2 font-semibold text-[var(--text)] text-right">Marks</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(currentQuestion.instructions.evaluation_rubric).map(([criteria, marks], idx) => (
+                                <tr key={idx} className="border-b border-[var(--border)] last:border-b-0">
+                                  <td className="p-2 text-[var(--text-muted)]">{criteria}</td>
+                                  <td className="p-2 text-right font-medium text-[var(--text)]">{marks}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Options */}
               {currentQuestion.options && (() => {
                 const isMulti = (currentQuestion.questionText || currentQuestion.statement || "")
@@ -630,6 +732,25 @@ export default function AssessmentViewer({
                       }
                     }}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                  />
+                </div>
+              )}
+
+              {/* Descriptive Question */}
+              {(!currentQuestion.options && currentQuestion.type !== "TRUE_FALSE_WITH_JUSTIFICATION") && (
+                <div className="space-y-4">
+                  <textarea
+                    placeholder="Justify your answer..."
+                    value={answers[currentQuestion.questionNumber] || ""}
+                    onChange={(e) => {
+                      if (!submitted) {
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [currentQuestion.questionNumber]: e.target.value,
+                        }));
+                      }
+                    }}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none min-h-[150px]"
                   />
                 </div>
               )}

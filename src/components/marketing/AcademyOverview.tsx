@@ -23,6 +23,7 @@ import {
   Blocks,
   ChevronDown,
   ChevronRight,
+  Circle,
   Clock,
   Code2,
   Cpu,
@@ -521,7 +522,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             </h1>
 
             <p className="animate-slide-up stagger-2 mx-auto mt-2 max-w-2xl text-xl leading-relaxed text-[var(--text-muted)] sm:text-2xl">
-              Every phase, module, and submodule — from internet foundations to
+              Every phase, module, and submodule from internet foundations to
               capstone deployment, security audits, and Demo Day.
             </p>
 
@@ -554,7 +555,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             {[
               { end: PROGRAMME_STATS.phases, suffix: "", label: "Phases" },
               { end: PROGRAMME_STATS.modules, suffix: "", label: "Modules" },
-              { end: totalSubmodules, suffix: "+", label: "Submodules" },
+              { end: totalSubmodules, suffix: "", label: "Submodules" },
               { end: PROGRAMME_STATS.hours, suffix: "+", label: "Hours" },
             ].map((stat, i) => (
               <div
@@ -670,7 +671,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               </h2>
               <p className="mt-3 max-w-xl text-[var(--text-muted)]">
                 Expand phases and modules to explore every lesson with its
-                focus description — click any card to start learning.
+                focus description - click any card to start learning.
               </p>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold shadow-sm">
@@ -736,7 +737,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
                     key={item}
                     className="flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text-muted)]"
                   >
-                    <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-mst-red" />
+                    <Circle className="mt-1.5 h-2 w-2 shrink-0 fill-mst-red text-mst-red" />
                     {item}
                   </li>
                 ))}
@@ -787,7 +788,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               {
                 icon: Award,
                 title: "On-Chain Credential",
-                desc: "Complete all phases, pass every assessment, and submit your capstone to receive a verifiable certificate recorded on MST Blockchain — proof of job-ready Web3 skills.",
+                desc: "Complete all phases, pass every assessment, and submit your capstone to receive a verifiable certificate recorded on MST Blockchain - proof of job-ready Web3 skills.",
                 gradient: "from-amber-500/10 to-mst-red/10",
               },
               {
@@ -797,15 +798,15 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
                 gradient: "from-purple-500/10 to-cyan-500/10",
               },
             ].map((card, i) => (
-              <RevealSection key={card.title} delay={i * 100}>
+              <RevealSection key={card.title} delay={i * 100} className="h-full">
                 <div
-                  className={`relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br ${card.gradient} p-8 transition hover:-translate-y-1 hover:shadow-xl`}
+                  className={`relative overflow-hidden rounded-2xl border border-[var(--border)] bg-gradient-to-br ${card.gradient} p-8 transition hover:-translate-y-1 hover:shadow-xl h-full flex flex-col`}
                 >
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-mst-red/10 text-mst-red ring-1 ring-mst-red/20">
                     <card.icon className="h-6 w-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[var(--text)]">{card.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+                  <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)] flex-1">
                     {card.desc}
                   </p>
                 </div>

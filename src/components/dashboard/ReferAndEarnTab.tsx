@@ -435,14 +435,17 @@ export function ReferAndEarnTab({
                       }
 
                       // Create the withdrawal payout request
-                      const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
-                        method: "POST",
-                        credentials: "include",
-                        headers,
-                        body: JSON.stringify({ amount: successfulReferrals * 500 }),
-                      });
-                      if (!withdrawRes.ok) {
-                        throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
+                      const amount = successfulReferrals * 500;
+                      if (amount > 0) {
+                        const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
+                          method: "POST",
+                          credentials: "include",
+                          headers,
+                          body: JSON.stringify({ amount }),
+                        });
+                        if (!withdrawRes.ok) {
+                          throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
+                        }
                       }
 
                       setWithdrawRequested(true);

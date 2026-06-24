@@ -131,9 +131,17 @@ export function LoginForm() {
           />
         </div>
         <div>
-          <FieldLabel htmlFor="password" required>
-            Password
-          </FieldLabel>
+          <div className="flex items-center justify-between">
+            <FieldLabel htmlFor="password" required>
+              Password
+            </FieldLabel>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-semibold text-mst-red hover:underline mb-1.5"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <div className="relative">
             <TextInput
               id="password"

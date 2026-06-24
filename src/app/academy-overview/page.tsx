@@ -5,7 +5,7 @@ import { AcademyOverview } from "@/components/marketing/AcademyOverview";
 export const metadata: Metadata = {
   title: "Curriculum Overview | Masterstroke Academy",
   description:
-    "Explore the full Masterstroke Academy programme — 4 phases, 21 modules, 122+ submodules, and 130+ hours of structured Web3 learning.",
+    "Explore the full Masterstroke Academy programme — 4 phases, 21 modules, 122 submodules, and 130+ hours of structured Web3 learning.",
 };
 
 export default async function AcademyOverviewPage() {
@@ -28,8 +28,8 @@ export default async function AcademyOverviewPage() {
     console.error("Failed to fetch academy overview:", error?.message ?? error);
   }
 
-  const curriculum = (result && result.success !== false && (Array.isArray(result) || typeof result === "object")) 
-    ? (Array.isArray(result) ? result[0] : result) 
+  const curriculum = (result && result.success !== false && (Array.isArray(result) || typeof result === "object"))
+    ? (Array.isArray(result) ? result[0] : result)
     : null;
   return <AcademyOverview curriculum={curriculum ?? getCurriculum()} />;
 }
