@@ -150,9 +150,16 @@ export function LandingPage({
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     fetch(`${baseUrl}/api/leaderboard`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
+      headers
     })
       .then((r) => {
         if (!r.ok) throw new Error(`Leaderboard request failed: ${r.status}`);

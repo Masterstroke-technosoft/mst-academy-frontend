@@ -44,7 +44,7 @@ const SUSTAINED_TYPES = new Set([
   "FULLSCREEN_EXIT",
 ]);
 
-export function useProctoring() {
+export function useProctoring(disabled: boolean = false) {
   const [violations, setViolations] = useState<any[]>([]);
   const [activeViolations, setActiveViolations] = useState<Set<string>>(new Set());
   const [autoSubmitTriggered, setAutoSubmitTriggered] = useState(false);
@@ -54,6 +54,7 @@ export function useProctoring() {
   const activeViolationsRef = useRef<Set<string>>(new Set());
 
   const addViolation = useCallback((type: string, message: string) => {
+    if (disabled) return;
     const isSustained = SUSTAINED_TYPES.has(type);
 
     if (isSustained && activeViolationsRef.current.has(type)) return;
@@ -71,15 +72,21 @@ export function useProctoring() {
     if (violationCountRef.current >= 3) {
       setAutoSubmitTriggered(true);
     }
-  }, []);
+  }, [disabled]);
 
   const resolveViolation = useCallback((type: string) => {
+    if (disabled) return;
     if (!activeViolationsRef.current.has(type)) return;
     activeViolationsRef.current.delete(type);
     setActiveViolations(new Set(activeViolationsRef.current));
-  }, []);
+  }, [disabled]);
 
   useEffect(() => {
+    if (disabled) {
+      setIsFullscreenEnabled(true);
+      return;
+    }
+
     // Monitor fullscreen state
     const handleFullscreenChange = () => {
       setIsFullscreenEnabled(!!document.fullscreenElement);
@@ -109,7 +116,7 @@ export function useProctoring() {
       stopBlurCameraMonitoring();
       exitFullscreen().catch(console.error);
     };
-  }, [addViolation, resolveViolation]);
+  }, [addViolation, resolveViolation, disabled]);
 
   const stopProctoring = useCallback(() => {
     stopKeyboardMonitoring();

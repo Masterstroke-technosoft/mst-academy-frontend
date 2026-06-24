@@ -776,7 +776,7 @@ export default function StudentDashboardPage({
     setCurriculumModal({
       type: "create-submodule",
       phaseId,
-      moduleId: "",
+      moduleId: String(moduleId),
       index: subIndex,
       title: "",
       description: "",
@@ -1988,14 +1988,39 @@ export default function StudentDashboardPage({
                   <>
                     <div>
                       <label className="mb-1 block text-xs font-bold text-[var(--text)]">Module ID</label>
-                      <input
-                        type="text"
+                      <select
                         required
                         value={curriculumModal.moduleId || ""}
-                        onChange={e => setCurriculumModal({ ...curriculumModal, moduleId: e.target.value })}
+                        onChange={e => {
+                          const selectedModId = e.target.value;
+                          let subIndex = 1;
+                          let foundPhaseId = curriculumModal.phaseId;
+                          for (const p of phases) {
+                            if (p.modules) {
+                              const m = p.modules.find((mod: any) => mod.id === selectedModId);
+                              if (m) {
+                                subIndex = (m.submodules || []).length + 1;
+                                foundPhaseId = p.id;
+                                break;
+                              }
+                            }
+                          }
+                          setCurriculumModal({
+                            ...curriculumModal,
+                            moduleId: selectedModId,
+                            phaseId: foundPhaseId,
+                            index: subIndex
+                          });
+                        }}
                         className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
-                        placeholder="e.g., 66f5c8a1b2c3d4e5f6g7h8i0"
-                      />
+                      >
+                        <option value="">Select a Module</option>
+                        {phases.flatMap(p => p.modules || []).map((mod: any) => (
+                          <option key={mod.id} value={mod.id}>
+                            {mod.title} ({mod.id})
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="mb-1 block text-xs font-bold text-[var(--text)]">Index</label>

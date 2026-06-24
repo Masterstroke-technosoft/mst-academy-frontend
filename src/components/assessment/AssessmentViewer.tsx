@@ -79,11 +79,24 @@ export default function AssessmentViewer({
     fetchUserProfile();
   }, []);
 
-  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring, isFullscreenEnabled } = useProctoring();
+  useEffect(() => {
+    if (assessment && assessment._id && typeof window !== "undefined") {
+      localStorage.setItem("all-assignment-ids", JSON.stringify([assessment._id]));
+      localStorage.setItem("assignment-id", assessment._id);
+    }
+  }, [assessment]);
+
+
+  const currentQuestion = assessment.questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
+  const isPractical = currentQuestion?.type === "PRACTICAL";
+
+  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring, isFullscreenEnabled } = useProctoring(isPractical);
   const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
 
-  const isViolationLocked = activeViolations.size > 0;
+  const isViolationLocked = !isPractical && activeViolations.size > 0;
 
   useEffect(() => {
     if (submitted && stopProctoring) {
@@ -92,11 +105,11 @@ export default function AssessmentViewer({
   }, [submitted, stopProctoring]);
 
   useEffect(() => {
-    if (warningCount > lastSeenWarningCount) {
+    if (!isPractical && warningCount > lastSeenWarningCount) {
       setShowWarningPopup(true);
       setLastSeenWarningCount(warningCount);
     }
-  }, [warningCount, lastSeenWarningCount]);
+  }, [warningCount, lastSeenWarningCount, isPractical]);
 
   useEffect(() => {
     if (isViolationLocked) {
@@ -104,9 +117,11 @@ export default function AssessmentViewer({
     }
   }, [isViolationLocked]);
 
-  const currentQuestion = assessment.questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === assessment.questions.length - 1;
-  const isFirstQuestion = currentQuestionIndex === 0;
+  useEffect(() => {
+    if (isPractical) {
+      setShowWarningPopup(false);
+    }
+  }, [isPractical]);
 
   const handleOptionSelect = useCallback(
     (label: string) => {
@@ -205,6 +220,10 @@ export default function AssessmentViewer({
       const result = await response.json();
       console.log(result)
       setSubmissionResult(result.submission || result);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("assignment-id");
+        localStorage.removeItem("all-assignment-ids");
+      }
     } catch (error: any) {
       console.error(error?.message ?? error);
     }
@@ -218,10 +237,10 @@ export default function AssessmentViewer({
   }, [answers, assessment, moduleId, slug, user, justifications, dbUserId, violations]);
 
   useEffect(() => {
-    if (autoSubmitTriggered && !submitted) {
+    if (!isPractical && autoSubmitTriggered && !submitted) {
       handleSubmit();
     }
-  }, [autoSubmitTriggered]);
+  }, [autoSubmitTriggered, isPractical]);
 
   const isAnswered = answers[currentQuestion.questionNumber];
   const answeredCount = Object.keys(answers).length;
@@ -241,6 +260,38 @@ export default function AssessmentViewer({
   }
 
   if (submitted) {
+    const hasPractical = assessment.questions.some((q) => q.type === "PRACTICAL");
+
+    if (hasPractical) {
+      return (
+        <div className="min-h-screen bg-[var(--bg)] flex justify-center items-start py-8 px-4 overflow-y-auto">
+          <div className="max-w-2xl w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 text-center my-auto">
+            <div className="mb-6">
+              <div className="text-6xl mb-4">✅</div>
+              <h2 className="text-3xl font-black text-green-500 mb-2">
+                Assessment Submitted Successfully!
+              </h2>
+            </div>
+
+            <div className="bg-[var(--bg-muted)] rounded-xl p-6 mb-8">
+              <p className="text-[var(--text)] text-base font-medium">
+                Your practical submission has been received. Our team will review your work and get back to you soon.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/learn"
+                className="rounded-lg bg-mst-red px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700 text-center inline-block min-w-[200px]"
+              >
+                Back to Submodule
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
       const answerDisplay = Array.isArray(ans.selectedAnswer)
@@ -364,9 +415,7 @@ export default function AssessmentViewer({
             {!passed && (
               <button
                 onClick={() => {
-                  setCurrentQuestionIndex(0);
-                  setAnswers({});
-                  setSubmitted(false);
+                  window.location.reload();
                 }}
                 className="flex-1 rounded-lg bg-mst-red px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
               >
@@ -380,7 +429,7 @@ export default function AssessmentViewer({
   }
 
   // Block access until fullscreen is enabled (only during active assessment)
-  if (!isFullscreenEnabled && !fullscreenBypassed) {
+  if (!isPractical && !isFullscreenEnabled && !fullscreenBypassed) {
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm">
         <div className="relative w-full max-w-md p-8 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-2xl text-center">
@@ -539,7 +588,7 @@ export default function AssessmentViewer({
               />
             </div>
             {/* Violation Banner */}
-            {warningCount > 0 && (
+            {!isPractical && warningCount > 0 && (
               <div className="bg-red-500/10 border-b border-red-500/30 px-4 py-2">
                 <div className="max-w-4xl mx-auto text-sm text-red-500 font-medium">
                   ⚠️ Proctoring alert: {violations[0]?.message}

@@ -28,13 +28,29 @@ export default function AssessmentPage() {
   useEffect(() => {
     const fetchAssessment = async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/assignments/submodule/${slug}`, {
-          method: "GET",
-          credentials: "include",
-        });
+        const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
+        let response;
+        if (savedAssignmentId) {
+          response = await fetch(`${baseUrl}/api/assignments/student/${savedAssignmentId}`, {
+            method: "GET",
+            credentials: "include",
+          });
+        }
+
+        if (!response || !response.ok) {
+          response = await fetch(`${baseUrl}/api/assignments/submodule/${slug}`, {
+            method: "GET",
+            credentials: "include",
+          });
+        }
+
         if (!response.ok) throw new Error("Failed to fetch assessment");
         const data = await response.json();
         setAssessment(data);
+        if (data && data._id && typeof window !== "undefined") {
+          localStorage.setItem("all-assignment-ids", JSON.stringify([data._id]));
+          localStorage.setItem("assignment-id", data._id);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
       } finally {

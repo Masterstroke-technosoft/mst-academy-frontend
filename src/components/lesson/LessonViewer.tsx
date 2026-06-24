@@ -339,11 +339,24 @@ export function LessonViewer({
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${baseURL}/api/assignments/submodule/${submodule._id}`, {
-        method: "GET",
-        credentials: "include",
-        headers,
-      });
+      const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
+      let response;
+      if (savedAssignmentId) {
+        response = await fetch(`${baseURL}/api/assignments/student/${savedAssignmentId}`, {
+          method: "GET",
+          credentials: "include",
+          headers,
+        });
+      }
+
+      if (!response || !response.ok) {
+        response = await fetch(`${baseURL}/api/assignments/submodule/${submodule._id}`, {
+          method: "GET",
+          credentials: "include",
+          headers,
+        });
+      }
+
       if (!response.ok) {
         throw new Error(
           response.status === 401
@@ -351,7 +364,11 @@ export function LessonViewer({
             : `Unable to load assessment (${response.status}).`
         );
       }
-      await response.json();
+      const data = await response.json();
+      if (data && data._id && typeof window !== "undefined") {
+        localStorage.setItem("all-assignment-ids", JSON.stringify([data._id]));
+        localStorage.setItem("assignment-id", data._id);
+      }
       router.push(`/module/${moduleId}/${submodule._id}/assessment`);
     } catch (error) {
       console.error(error);
