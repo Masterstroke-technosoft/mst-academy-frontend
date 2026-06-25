@@ -632,8 +632,8 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             {OUTCOMES.map((o, i) => {
               const Icon = OUTCOME_ICONS[o.icon as keyof typeof OUTCOME_ICONS];
               return (
-                <RevealSection key={o.title} delay={i * 60}>
-                  <div className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-mst-red/30 hover:shadow-xl">
+                <RevealSection key={o.title} delay={i * 60} className="h-full">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-mst-red/30 hover:shadow-xl">
                     <div
                       className={`absolute inset-0 bg-gradient-to-br ${OUTCOME_GRADIENTS[i]} opacity-0 transition group-hover:opacity-100`}
                     />
