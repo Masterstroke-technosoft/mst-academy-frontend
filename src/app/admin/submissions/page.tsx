@@ -47,7 +47,7 @@ export default function SubmissionReviewPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"pending" | "all">("pending");
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "all">("pending");
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionItem | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -177,7 +177,7 @@ export default function SubmissionReviewPage() {
                           submoduleTitle: tempMap[subId]?.title || `Submodule (${subId.substring(0, 8)}...)`,
                           questionNumber: ans.questionNumber || 1,
                           selectedAnswer: ans.selectedAnswer || "",
-                          isCorrect: ans.isCorrect || false,
+                          isCorrect: ans.isCorrect || submission.evaluated || false,
                           rawSubmission: submission,
                           submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt)
                         });
@@ -204,31 +204,61 @@ export default function SubmissionReviewPage() {
     fetchAllData();
   }, []);
 
-  const handleGradeLocal = (item: SubmissionItem, isCorrect: boolean) => {
-    showToast(`Submission successfully marked as ${isCorrect ? "Correct" : "Incorrect"}`, "success");
-    
-    setSubmissions(prev => 
-      prev.map(sub => {
-        if (sub.submissionId === item.submissionId && sub.questionNumber === item.questionNumber) {
-          return {
-            ...sub,
-            isCorrect: isCorrect
-          };
-        }
-        return sub;
-      })
-    );
+  const handleGrade = async (item: SubmissionItem, isCorrect: boolean) => {
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
-    if (selectedSubmission?.submissionId === item.submissionId && selectedSubmission?.questionNumber === item.questionNumber) {
-      setSelectedSubmission(prev => prev ? { ...prev, isCorrect: isCorrect } : null);
+      const res = await fetch(`${baseURL}/api/assignment-submissions/evaluate/${item.submissionId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers,
+        body: JSON.stringify({
+          score: isCorrect ? 10 : 0
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to evaluate submission: ${res.statusText}`);
+      }
+
+      const resData = await res.json();
+      const updatedSubmission = resData.submission || resData;
+
+      showToast(resData.message || `Submission successfully marked as ${isCorrect ? "Correct" : "Incorrect"}`, "success");
+      
+      setSubmissions(prev => 
+        prev.map(sub => {
+          if (sub.submissionId === item.submissionId && sub.questionNumber === item.questionNumber) {
+            return {
+              ...sub,
+              isCorrect: isCorrect,
+              rawSubmission: updatedSubmission
+            };
+          }
+          return sub;
+        })
+      );
+
+      if (selectedSubmission?.submissionId === item.submissionId && selectedSubmission?.questionNumber === item.questionNumber) {
+        setSelectedSubmission(prev => prev ? { ...prev, isCorrect: isCorrect, rawSubmission: updatedSubmission } : null);
+      }
+    } catch (err: any) {
+      showToast(err.message || "Failed to update submission status", "error");
+      console.error("Error evaluating submission:", err);
     }
   };
 
   // Filter and search logic
   const filteredSubmissions = useMemo(() => {
     return submissions.filter(item => {
-      // Filter by Tab (if pending, show only those with score 0 / isCorrect false)
+      // Filter by Tab
       if (activeTab === "pending" && item.isCorrect) return false;
+      if (activeTab === "approved" && !item.isCorrect) return false;
       
       // Filter by Search Query
       if (searchQuery.trim() !== "") {
@@ -312,6 +342,16 @@ export default function SubmissionReviewPage() {
               Pending Reviews ({stats.pending})
             </button>
             <button
+              onClick={() => setActiveTab("approved")}
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
+                activeTab === "approved" 
+                  ? "bg-mst-red/15 text-mst-red" 
+                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
+              }`}
+            >
+              Approved ({stats.approved})
+            </button>
+            <button
               onClick={() => setActiveTab("all")}
               className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
                 activeTab === "all" 
@@ -356,6 +396,8 @@ export default function SubmissionReviewPage() {
               <p className="text-sm text-[var(--text-muted)] mt-1">
                 {activeTab === "pending" 
                   ? "Hooray! No practical assessments are currently pending review." 
+                  : activeTab === "approved"
+                  ? "No approved submissions have been found in the system."
                   : "No submissions have been found in the system."}
               </p>
             </div>
@@ -435,14 +477,14 @@ export default function SubmissionReviewPage() {
 
                           {!item.isCorrect ? (
                             <button
-                              onClick={() => handleGradeLocal(item, true)}
+                              onClick={() => handleGrade(item, true)}
                               className="px-2.5 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold transition-colors cursor-pointer shadow-sm"
                             >
                               Approve
                             </button>
                           ) : (
                             <button
-                              onClick={() => handleGradeLocal(item, false)}
+                              onClick={() => handleGrade(item, false)}
                               className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 text-[10px] font-bold hover:bg-red-600/10 hover:text-red-500 hover:border-red-500/20 transition-colors cursor-pointer"
                             >
                               Approved
@@ -568,7 +610,7 @@ export default function SubmissionReviewPage() {
                     onClick={() => {
                       const item = selectedSubmission;
                       setSelectedSubmission(null);
-                      handleGradeLocal(item, true);
+                      handleGrade(item, true);
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-green-600 hover:bg-green-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-green-600/10"
                   >
@@ -580,7 +622,7 @@ export default function SubmissionReviewPage() {
                     onClick={() => {
                       const item = selectedSubmission;
                       setSelectedSubmission(null);
-                      handleGradeLocal(item, false);
+                      handleGrade(item, false);
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-red-600/10"
                   >

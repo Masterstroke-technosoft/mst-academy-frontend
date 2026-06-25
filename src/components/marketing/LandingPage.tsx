@@ -12,6 +12,8 @@ import type { Phase } from "@/lib/types";
 import { PHASE_HOURS } from "@/lib/academy-overview";
 import { type LeaderboardEntry } from "@/lib/leaderboard";
 
+import { getSession } from "@/lib/auth";
+
 interface BackendLeaderboardEntry {
   _id: string | null;
   name: string | null;
@@ -21,18 +23,27 @@ interface BackendLeaderboardEntry {
   streak?: number;
   coins?: number;
   rank?: number;
+  currentStreak?: number;
+  progressPercentage?: number;
+  email?: string;
 }
 
 function mapBackendEntry(e: BackendLeaderboardEntry): LeaderboardEntry {
+  const user = getSession();
+  const isCurrentUser = user && (e._id === user.id || e._id === (user as any)._id || (e.email && e.email === user.email));
+  const scoreVal = e.progressPercentage ?? e.score ?? 0;
+  const totalMods = e.totalModules ?? 21;
+  const modulesDoneVal = e.modulesDone ?? Math.round((scoreVal / 100) * totalMods);
   return {
     id: e._id ?? "",
     name: e.name ?? "Unknown",
-    score: e.score ?? 0,
-    modulesDone: e.modulesDone ?? 0,
-    totalModules: e.totalModules ?? 21,
-    streak: e.streak ?? 0,
+    score: scoreVal,
+    modulesDone: modulesDoneVal,
+    totalModules: totalMods,
+    streak: e.currentStreak ?? e.streak ?? 0,
     coins: e.coins ?? 0,
     rank: e.rank,
+    isYou: !!isCurrentUser,
   };
 }
 import {
