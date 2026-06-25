@@ -318,7 +318,7 @@ export function LandingPage({
               {[
                 { v: "4", l: "Phases" },
                 { v: String(moduleCount), l: "Modules" },
-                { v: `${submoduleCount}+`, l: "Lessons" },
+                { v: "122", l: "SubModules" },
                 { v: "130+", l: "Hours" },
               ].map((pill) => (
                 <span
