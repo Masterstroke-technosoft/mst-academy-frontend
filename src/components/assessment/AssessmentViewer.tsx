@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Award } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
@@ -55,6 +55,7 @@ export default function AssessmentViewer({
   const [dbUserId, setDbUserId] = useState<string>("");
   const [fullscreenBypassed, setFullscreenBypassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -223,6 +224,7 @@ export default function AssessmentViewer({
       if (typeof window !== "undefined") {
         localStorage.removeItem("assignment-id");
         localStorage.removeItem("all-assignment-ids");
+        sessionStorage.removeItem(`assessment-endtime-${assessment._id || assessment.submoduleId}`);
       }
     } catch (error: any) {
       console.error(error?.message ?? error);
@@ -235,6 +237,54 @@ export default function AssessmentViewer({
     setSubmitted(true);
     setSubmitting(false);
   }, [answers, assessment, moduleId, slug, user, justifications, dbUserId, violations]);
+
+  const handleSubmitRef = useRef(handleSubmit);
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
+  useEffect(() => {
+    if (!assessment || submitted) return;
+
+    const timerKey = `assessment-endtime-${assessment._id || assessment.submoduleId}`;
+    const estimatedSeconds = (assessment.estimatedTime || 20) * 60;
+    const now = Date.now();
+
+    let endTime = sessionStorage.getItem(timerKey);
+    let targetTime: number;
+
+    if (endTime) {
+      targetTime = parseInt(endTime, 10);
+    } else {
+      targetTime = now + estimatedSeconds * 1000;
+      sessionStorage.setItem(timerKey, targetTime.toString());
+    }
+
+    const calculateTimeLeft = () => {
+      const diff = Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
+      setTimeLeft(diff);
+      if (diff <= 0) {
+        clearInterval(interval);
+        if (!submitted) {
+          handleSubmitRef.current();
+        }
+      }
+    };
+
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [assessment, submitted]);
+
+  const formatTime = (seconds: number | null) => {
+    if (seconds === null) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   useEffect(() => {
     if (!isPractical && autoSubmitTriggered && !submitted) {
@@ -564,9 +614,9 @@ export default function AssessmentViewer({
                 Back to Lesson
               </Link> */}
               <div className="flex items-center gap-4 text-sm text-[var(--text-muted)]">
-                <div className="flex items-center gap-1">
-                  <Clock size={16} />
-                  {assessment.estimatedTime} min
+                <div className="flex items-center gap-1.5 font-bold text-mst-red bg-mst-red/10 px-3 py-1 rounded-full border border-mst-red/20">
+                  <Clock size={16} className="animate-pulse" />
+                  <span>Time Left: {formatTime(timeLeft)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Award size={16} />

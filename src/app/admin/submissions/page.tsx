@@ -51,6 +51,13 @@ export default function SubmissionReviewPage() {
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionItem | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const [promptSubmission, setPromptSubmission] = useState<SubmissionItem | null>(null);
+  const [promptScore, setPromptScore] = useState<string>("10");
+  const [evaluationScore, setEvaluationScore] = useState<number>(10);
+
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
@@ -66,6 +73,16 @@ export default function SubmissionReviewPage() {
     } catch (e) {}
     return "N/A";
   };
+
+  useEffect(() => {
+    if (selectedSubmission) {
+      setEvaluationScore(selectedSubmission.rawSubmission?.score ?? selectedSubmission.rawSubmission?.partialScore ?? 10);
+    }
+  }, [selectedSubmission]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -204,7 +221,7 @@ export default function SubmissionReviewPage() {
     fetchAllData();
   }, []);
 
-  const handleGrade = async (item: SubmissionItem, isCorrect: boolean) => {
+  const handleGrade = async (item: SubmissionItem, isCorrect: boolean, customScore?: number) => {
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
       const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
@@ -213,12 +230,19 @@ export default function SubmissionReviewPage() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
+      let scoreVal = isCorrect ? 10 : 0;
+      if (isCorrect) {
+        if (customScore !== undefined) {
+          scoreVal = customScore;
+        }
+      }
+
       const res = await fetch(`${baseURL}/api/assignment-submissions/evaluate/${item.submissionId}`, {
         method: "PATCH",
         credentials: "include",
         headers,
         body: JSON.stringify({
-          score: isCorrect ? 10 : 0
+          score: scoreVal
         })
       });
 
@@ -229,7 +253,7 @@ export default function SubmissionReviewPage() {
       const resData = await res.json();
       const updatedSubmission = resData.submission || resData;
 
-      showToast(resData.message || `Submission successfully marked as ${isCorrect ? "Correct" : "Incorrect"}`, "success");
+      showToast(resData.message || `Submission successfully marked as ${isCorrect ? "Correct" : "Incorrect"} with score ${scoreVal}`, "success");
       
       setSubmissions(prev => 
         prev.map(sub => {
@@ -269,9 +293,17 @@ export default function SubmissionReviewPage() {
         return matchesUser || matchesSubmodule || matchesAnswer;
       }
       
+      // Display score value too
       return true;
     });
   }, [submissions, activeTab, searchQuery]);
+
+  const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
+  
+  const paginatedSubmissions = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredSubmissions.slice(start, start + itemsPerPage);
+  }, [filteredSubmissions, currentPage, itemsPerPage]);
 
   const stats = useMemo(() => {
     const total = submissions.length;
@@ -290,6 +322,40 @@ export default function SubmissionReviewPage() {
     }
     return val;
   };
+
+  const TableSkeleton = () => (
+    <tbody className="divide-y divide-[var(--border)]">
+      {[...Array(5)].map((_, idx) => (
+        <tr key={idx} className="animate-pulse">
+          <td className="px-3 py-4">
+            <div className="space-y-2">
+              <div className="h-4 bg-[var(--border)] rounded w-32"></div>
+              <div className="h-3 bg-[var(--border)] rounded w-24"></div>
+              <div className="h-3 bg-[var(--border)] rounded w-12"></div>
+            </div>
+          </td>
+          <td className="px-3 py-4">
+            <div className="h-4 bg-[var(--border)] rounded w-40"></div>
+          </td>
+          <td className="px-3 py-4">
+            <div className="h-4 bg-[var(--border)] rounded w-28"></div>
+          </td>
+          <td className="px-3 py-4">
+            <div className="h-4 bg-[var(--border)] rounded w-20"></div>
+          </td>
+          <td className="px-3 py-4 text-center">
+            <div className="h-6 bg-[var(--border)] rounded-full w-20 mx-auto"></div>
+          </td>
+          <td className="px-3 py-4 text-right">
+            <div className="flex justify-end gap-2">
+              <div className="h-8 w-8 bg-[var(--border)] rounded-lg"></div>
+              <div className="h-8 w-16 bg-[var(--border)] rounded-lg"></div>
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  );
 
   return (
     <DashboardShell role="admin" title="Submission Review">
@@ -385,9 +451,20 @@ export default function SubmissionReviewPage() {
 
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <Loader2 className="h-10 w-10 animate-spin text-mst-red mb-3" />
-              <p className="text-sm font-semibold text-[var(--text-muted)]">Loading submissions review queue...</p>
+            <div className="overflow-hidden">
+              <table className="w-full text-left text-sm text-[var(--text-muted)] border-collapse">
+                <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                  <tr>
+                    <th className="px-3 py-3 w-[22%]">User</th>
+                    <th className="px-3 py-3 w-[22%]">Submodule</th>
+                    <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[15%]">Submitted At</th>
+                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[7%] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <TableSkeleton />
+              </table>
             </div>
           ) : filteredSubmissions.length === 0 ? (
             <div className="text-center py-20">
@@ -410,12 +487,12 @@ export default function SubmissionReviewPage() {
                     <th className="px-3 py-3 w-[22%]">Submodule</th>
                     <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
                     <th className="px-3 py-3 w-[15%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[10%] text-center">Status</th>
+                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
                     <th className="px-3 py-3 w-[7%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
-                  {filteredSubmissions.map((item) => (
+                  {paginatedSubmissions.map((item) => (
                     <tr key={`${item.submissionId}-${item.questionNumber}`} className="transition-colors hover:bg-[var(--bg-muted)]/40">
                       <td className="px-3 py-3 max-w-[200px]">
                         <div>
@@ -457,13 +534,20 @@ export default function SubmissionReviewPage() {
                         </span>
                       </td>
                       <td className="px-3 py-3 text-center">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold whitespace-nowrap ${
-                          item.isCorrect 
-                            ? "bg-green-500/10 text-green-500 border border-green-500/20" 
-                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                        }`}>
-                          {item.isCorrect ? "Approved" : "Pending Review"}
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold whitespace-nowrap ${
+                            item.isCorrect 
+                              ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                              : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          }`}>
+                            {item.isCorrect ? "Approved" : "Pending Review"}
+                          </span>
+                          {item.isCorrect && (
+                            <span className="text-xs font-bold text-[var(--text)]">
+                              Score: {item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? 0}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -477,7 +561,10 @@ export default function SubmissionReviewPage() {
 
                           {!item.isCorrect ? (
                             <button
-                              onClick={() => handleGrade(item, true)}
+                              onClick={() => {
+                                setPromptSubmission(item);
+                                setPromptScore(String(item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? 10));
+                              }}
                               className="px-2.5 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold transition-colors cursor-pointer shadow-sm"
                             >
                               Approve
@@ -496,6 +583,74 @@ export default function SubmissionReviewPage() {
                   ))}
                 </tbody>
               </table>
+
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--bg-muted)]/30 px-4 py-3 sm:px-6">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-50 transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-50 transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs text-[var(--text-muted)] font-medium">
+                        Showing <span className="font-bold text-[var(--text)]">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+                        <span className="font-bold text-[var(--text)]">
+                          {Math.min(currentPage * itemsPerPage, filteredSubmissions.length)}
+                        </span>{" "}
+                        of <span className="font-bold text-[var(--text)]">{filteredSubmissions.length}</span> results
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center rounded-l-md border border-[var(--border)] bg-[var(--surface)] px-2 py-2 text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--bg-muted)] disabled:opacity-50 transition-colors"
+                        >
+                          Previous
+                        </button>
+                        {[...Array(totalPages)].map((_, index) => {
+                          const pageNum = index + 1;
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              aria-current={currentPage === pageNum ? "page" : undefined}
+                              className={`relative inline-flex items-center px-4 py-2 text-sm font-bold border border-[var(--border)] transition-colors ${
+                                currentPage === pageNum
+                                  ? "z-10 bg-mst-red text-white border-mst-red"
+                                  : "bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--bg-muted)]"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="relative inline-flex items-center rounded-r-md border border-[var(--border)] bg-[var(--surface)] px-2 py-2 text-sm font-medium text-[var(--text-muted)] hover:bg-[var(--bg-muted)] disabled:opacity-50 transition-colors"
+                        >
+                          Next
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -593,6 +748,21 @@ export default function SubmissionReviewPage() {
                   )}
                 </div>
               </div>
+
+              {/* Evaluation Score Input */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">Evaluation Score</h4>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    value={evaluationScore}
+                    onChange={(e) => setEvaluationScore(Number(e.target.value))}
+                    className="w-24 px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] text-sm text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                  />
+                  <span className="text-xs text-[var(--text-muted)] font-medium">Set the score decided by the admin for this student.</span>
+                </div>
+              </div>
             </div>
 
             {/* Modal actions */}
@@ -610,7 +780,7 @@ export default function SubmissionReviewPage() {
                     onClick={() => {
                       const item = selectedSubmission;
                       setSelectedSubmission(null);
-                      handleGrade(item, true);
+                      handleGrade(item, true, evaluationScore);
                     }}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-green-600 hover:bg-green-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-green-600/10"
                   >
@@ -618,21 +788,80 @@ export default function SubmissionReviewPage() {
                     Approve Submission
                   </button>
                 ) : (
-                  <button
-                    onClick={() => {
-                      const item = selectedSubmission;
-                      setSelectedSubmission(null);
-                      handleGrade(item, false);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-red-600/10"
-                  >
-                    <X size={16} />
-                    Reject Submission
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        const item = selectedSubmission;
+                        setSelectedSubmission(null);
+                        handleGrade(item, true, evaluationScore);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-blue-600/10"
+                    >
+                      Update Score
+                    </button>
+                    <button
+                      onClick={() => {
+                        const item = selectedSubmission;
+                        setSelectedSubmission(null);
+                        handleGrade(item, false);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-sm font-bold text-white transition-colors cursor-pointer shadow-md shadow-red-600/10"
+                    >
+                      <X size={16} />
+                      Reject Submission
+                    </button>
+                  </>
                 )}
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Quick Approve Modal */}
+      {promptSubmission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Approve Submission
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mb-4 font-semibold">
+              Enter the evaluation score for <strong className="text-[var(--text)]">{promptSubmission.userName}</strong>:
+            </p>
+            <div className="space-y-4">
+              <input
+                type="number"
+                min="0"
+                value={promptScore}
+                onChange={(e) => setPromptScore(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] text-sm text-[var(--text)] outline-none focus:border-mst-red transition-all font-bold"
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setPromptSubmission(null)}
+                  className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-xs font-bold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const parsed = parseInt(promptScore, 10);
+                    if (isNaN(parsed)) {
+                      showToast("Please enter a valid number for the score.", "error");
+                      return;
+                    }
+                    const item = promptSubmission;
+                    setPromptSubmission(null);
+                    handleGrade(item, true, parsed);
+                  }}
+                  className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-md shadow-green-600/10"
+                >
+                  Confirm Approval
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

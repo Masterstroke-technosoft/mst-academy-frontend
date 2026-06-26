@@ -150,7 +150,7 @@ function VoiceReader({ articleRef }: { articleRef: React.RefObject<HTMLDivElemen
   const activeRef = useRef(false);
 
   useEffect(() => {
-     
+
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     setSupported(true);
 
@@ -313,10 +313,12 @@ export function LessonViewer({
   contentFile,
 }: LessonViewerProps) {
   const articleRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const [validToc, setValidToc] = useState<{ id: string; title: string }[]>(submodule.toc || []);
   const [tocOpen, setTocOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
+  const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
@@ -324,6 +326,59 @@ export function LessonViewer({
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const readTime = estimateReadTime(html);
+
+  const handleScroll = useCallback((e?: Event) => {
+    const getScrollElement = (): HTMLElement => {
+      if (document.documentElement.scrollHeight > document.documentElement.clientHeight + 100) {
+        return document.documentElement;
+      }
+      if (document.body.scrollHeight > document.body.clientHeight + 100) {
+        return document.body;
+      }
+      const elements = document.querySelectorAll("main, div");
+      for (let i = 0; i < elements.length; i++) {
+        const el = elements[i] as HTMLElement;
+        const style = window.getComputedStyle(el);
+        const overflow = style.overflowY || style.overflow;
+        if (
+          (overflow === "auto" || overflow === "scroll") &&
+          el.scrollHeight > el.clientHeight + 100
+        ) {
+          return el;
+        }
+      }
+      return document.documentElement;
+    };
+
+    let scrollEl: HTMLElement = getScrollElement();
+    if (e && e.target && e.target !== document) {
+      const target = e.target as HTMLElement;
+      if (target.scrollHeight > target.clientHeight + 10) {
+        scrollEl = target;
+      }
+    }
+
+    const scrollTop = scrollEl.scrollTop;
+    const scrollHeight = scrollEl.scrollHeight;
+    const clientHeight = scrollEl.clientHeight;
+    const scrollMax = scrollHeight - clientHeight;
+
+    const pct = scrollMax > 10 ? Math.min(100, Math.round((scrollTop / scrollMax) * 100)) : 0;
+    setReadProgress(pct);
+
+    if (scrollMax <= 50 || pct >= 90) {
+      setHasReachedBottom(true);
+    } else {
+      setHasReachedBottom(false);
+    }
+  }, []);
+
+  const handleIframeLoad = useCallback(() => {
+    // Re-evaluate scroll after iframe content loads and lays out
+    setTimeout(() => {
+      handleScroll();
+    }, 200);
+  }, [handleScroll]);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -459,15 +514,62 @@ export function LessonViewer({
   }, [handleAssessment]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollMax = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const getScrollElement = (): HTMLElement => {
+      if (document.documentElement.scrollHeight > document.documentElement.clientHeight + 100) {
+        return document.documentElement;
+      }
+      if (document.body.scrollHeight > document.body.clientHeight + 100) {
+        return document.body;
+      }
+      const elements = document.querySelectorAll("main, div");
+      for (let i = 0; i < elements.length; i++) {
+        const el = elements[i] as HTMLElement;
+        const style = window.getComputedStyle(el);
+        const overflow = style.overflowY || style.overflow;
+        if (
+          (overflow === "auto" || overflow === "scroll") &&
+          el.scrollHeight > el.clientHeight + 100
+        ) {
+          return el;
+        }
+      }
+      return document.documentElement;
+    };
+
+    const handleScroll = (e?: Event) => {
+      let scrollEl: HTMLElement = getScrollElement();
+      if (e && e.target && e.target !== document) {
+        const target = e.target as HTMLElement;
+        if (target.scrollHeight > target.clientHeight + 10) {
+          scrollEl = target;
+        }
+      }
+
+      const scrollTop = scrollEl.scrollTop;
+      const scrollHeight = scrollEl.scrollHeight;
+      const clientHeight = scrollEl.clientHeight;
+      const scrollMax = scrollHeight - clientHeight;
+
       const pct = scrollMax > 10 ? Math.min(100, Math.round((scrollTop / scrollMax) * 100)) : 0;
       setReadProgress(pct);
+
+      if (scrollMax <= 50 || pct >= 90) {
+        setHasReachedBottom(true);
+      } else {
+        setHasReachedBottom(false);
+      }
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
+    const timeoutId = setTimeout(() => handleScroll(), 150);
+
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    window.addEventListener("resize", () => handleScroll(), { passive: true });
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("scroll", handleScroll, { capture: true });
+      window.removeEventListener("resize", () => handleScroll());
+    };
+  }, [submodule._id, html]);
 
   useEffect(() => {
     if (contentFile) {
@@ -603,9 +705,11 @@ export function LessonViewer({
     return (
       <div className="flex h-[calc(100vh-4rem)] flex-col bg-[var(--bg)]" suppressHydrationWarning>
         <iframe
+          ref={iframeRef}
           key={contentUrl}
           src={contentUrl}
           title={lessonTitle}
+          onLoad={handleIframeLoad}
           className="w-full flex-1 min-h-0 border-0 bg-white"
         />
 
@@ -625,14 +729,18 @@ export function LessonViewer({
               <ChevronLeft size={16} /> Back to Module
             </Link>
           )}
-          <button
-            type="button"
-            onClick={handleAssessment}
-            disabled={assessmentLoading}
-            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
-          </button>
+          {hasReachedBottom ? (
+            <button
+              type="button"
+              onClick={handleAssessment}
+              disabled={assessmentLoading}
+              className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
+            </button>
+          ) : (
+            <div className="w-[180px]" />
+          )}
           {assessmentError && (
             <p className="w-full text-center text-xs text-red-500">{assessmentError}</p>
           )}
@@ -850,6 +958,9 @@ export function LessonViewer({
             )}
           </div>
 
+          {/* Bottom sentinel to detect content read completion */}
+          <div id="bottom-sentinel" className="h-1 w-full" />
+
           {/* Scroll to top */}
           {readProgress > 20 && (
             <button
@@ -883,14 +994,18 @@ export function LessonViewer({
               Continue to Assessment
             </span>
           </Link> */}
-          <button
-            type="button"
-            onClick={handleAssessment}
-            disabled={assessmentLoading}
-            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
-          </button>
+          {hasReachedBottom ? (
+            <button
+              type="button"
+              onClick={handleAssessment}
+              disabled={assessmentLoading}
+              className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {assessmentLoading ? "Loading assessment..." : "Continue to Assessment"}
+            </button>
+          ) : (
+            <div className="w-[180px]" />
+          )}
           {assessmentError && (
             <p className="w-full text-center text-xs text-red-500">{assessmentError}</p>
           )}
