@@ -9,7 +9,7 @@ export const PHASE_HOURS: Record<string, { hours: number; label: string }> = {
 export const PROGRAMME_STATS = {
   phases: 4,
   modules: 21,
-  submodules: 122,
+  submodules: 124,
   hours: 130,
   passThreshold: 75,
 };

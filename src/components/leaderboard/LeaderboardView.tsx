@@ -218,7 +218,7 @@ export function LeaderboardView() {
                     {/* Left: Rank Box & Info */}
                     <div className="flex items-center gap-4">
                       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors ${row.isYou ? "border-[#e31e24]/30 bg-[#e31e24]/5 text-[#e31e24]" : ""}`}>
-                        #{row.rank ?? idx + 1}
+                        #{idx + 1}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">

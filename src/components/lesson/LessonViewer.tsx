@@ -322,12 +322,54 @@ export function LessonViewer({
   const [leftTocOpen, setLeftTocOpen] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
+  const [iframeHtml, setIframeHtml] = useState<string>("");
   const navRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const readTime = estimateReadTime(html);
 
+  useEffect(() => {
+    if (!contentFile) return;
+    const contentUrl = resolveContentFileUrl(contentFile);
+    fetch(contentUrl)
+      .then((res) => res.text())
+      .then((data) => {
+        setIframeHtml(data);
+      })
+      .catch((err) => console.error("Error loading HTML content file:", err));
+  }, [contentFile]);
+
   const handleScroll = useCallback((e?: Event) => {
+    if (iframeRef.current) {
+      try {
+        const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+        if (iframeDoc) {
+          const scrollEl = iframeDoc.documentElement || iframeDoc.body;
+          if (scrollEl && scrollEl.scrollHeight > 0) {
+            const scrollTop = scrollEl.scrollTop;
+            const scrollHeight = scrollEl.scrollHeight;
+            const clientHeight = scrollEl.clientHeight;
+            const scrollMax = scrollHeight - clientHeight;
+
+            const pct = scrollMax > 10 ? Math.min(100, Math.round((scrollTop / scrollMax) * 100)) : 0;
+            setReadProgress(pct);
+
+            const reachedBottom = scrollMax <= 10 || pct >= 99;
+
+
+            if (reachedBottom) {
+              setHasReachedBottom(true);
+            } else {
+              setHasReachedBottom(false);
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Error reading iframe scroll position:", err);
+      }
+    }
+
     const getScrollElement = (): HTMLElement => {
       if (document.documentElement.scrollHeight > document.documentElement.clientHeight + 100) {
         return document.documentElement;
@@ -366,7 +408,10 @@ export function LessonViewer({
     const pct = scrollMax > 10 ? Math.min(100, Math.round((scrollTop / scrollMax) * 100)) : 0;
     setReadProgress(pct);
 
-    if (scrollMax <= 50 || pct >= 90) {
+    const reachedBottom = scrollMax <= 50 || pct >= 90;
+
+
+    if (reachedBottom) {
       setHasReachedBottom(true);
     } else {
       setHasReachedBottom(false);
@@ -378,6 +423,18 @@ export function LessonViewer({
     setTimeout(() => {
       handleScroll();
     }, 200);
+
+    try {
+      const iframe = iframeRef.current;
+      if (iframe && iframe.contentWindow) {
+        const handleIframeScroll = () => {
+          handleScroll();
+        };
+        iframe.contentWindow.addEventListener("scroll", handleIframeScroll, { passive: true });
+      }
+    } catch (err) {
+      console.warn("Could not attach scroll listener to iframe contentWindow:", err);
+    }
   }, [handleScroll]);
 
   useEffect(() => { setMounted(true); }, []);
@@ -553,7 +610,9 @@ export function LessonViewer({
       const pct = scrollMax > 10 ? Math.min(100, Math.round((scrollTop / scrollMax) * 100)) : 0;
       setReadProgress(pct);
 
-      if (scrollMax <= 50 || pct >= 90) {
+      const reachedBottom = scrollMax <= 10 || pct >= 99;
+
+      if (reachedBottom) {
         setHasReachedBottom(true);
       } else {
         setHasReachedBottom(false);
@@ -707,7 +766,7 @@ export function LessonViewer({
         <iframe
           ref={iframeRef}
           key={contentUrl}
-          src={contentUrl}
+          srcDoc={iframeHtml}
           title={lessonTitle}
           onLoad={handleIframeLoad}
           className="w-full flex-1 min-h-0 border-0 bg-white"

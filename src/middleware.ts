@@ -8,6 +8,11 @@ const PUBLIC_PATHS = [
   "/plans",
   "/academy-overview",
   "/forgot-password",
+  "/privacy-policy",
+  "/refund-policy",
+  "/terms-conditions",
+  "/contact-us",
+  "/legal",
 ];
 
 export function middleware(request: NextRequest) {

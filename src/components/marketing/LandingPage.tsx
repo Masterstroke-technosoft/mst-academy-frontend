@@ -270,10 +270,10 @@ export function LandingPage({
 
         <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-4 sm:px-6 z-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
-            <p className="animate-fade-in inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg shadow-mst-red/10 backdrop-blur-md">
+            {/* <p className="animate-fade-in inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg shadow-mst-red/10 backdrop-blur-md">
               <Sparkles className="h-4 w-4 animate-pulse-subtle" />
               Masterstroke Academy
-            </p>
+            </p> */}
 
             <div className="mt-4 sm:mt-6 min-h-[110px] sm:min-h-[130px] flex flex-col justify-center">
               <h1 className="animate-slide-up font-black text-[var(--text)] text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1]">
@@ -318,7 +318,7 @@ export function LandingPage({
               {[
                 { v: "4", l: "Phases" },
                 { v: String(moduleCount), l: "Modules" },
-                { v: "122", l: "SubModules" },
+                { v: "124", l: "SubModules" },
                 { v: "130+", l: "Hours" },
               ].map((pill) => (
                 <span
@@ -697,7 +697,7 @@ export function LandingPage({
           {[
             { end: 4, suffix: "", label: "Phases" },
             { end: moduleCount, suffix: "", label: "Modules" },
-            { end: 122, submoduleCount, suffix: "", label: "Submodules" },
+            { end: 124, submoduleCount, suffix: "", label: "Submodules" },
             { end: 130, suffix: "+", label: "Hours" },
           ].map((stat, i) => (
             <div

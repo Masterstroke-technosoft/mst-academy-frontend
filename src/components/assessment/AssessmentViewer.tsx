@@ -260,11 +260,13 @@ export default function AssessmentViewer({
       sessionStorage.setItem(timerKey, targetTime.toString());
     }
 
+    let interval: any;
+
     const calculateTimeLeft = () => {
       const diff = Math.max(0, Math.floor((targetTime - Date.now()) / 1000));
       setTimeLeft(diff);
       if (diff <= 0) {
-        clearInterval(interval);
+        if (interval) clearInterval(interval);
         if (!submitted) {
           handleSubmitRef.current();
         }
@@ -272,10 +274,10 @@ export default function AssessmentViewer({
     };
 
     calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 1000);
+    interval = setInterval(calculateTimeLeft, 1000);
 
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
   }, [assessment, submitted]);
 
@@ -342,7 +344,15 @@ export default function AssessmentViewer({
       );
     }
 
-    const results: { qNum: number; answer: string; isCorrect: boolean; marks: number }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
+    const results: {
+      qNum: number;
+      answer: string;
+      isCorrect: boolean;
+      marks: number;
+      awardedMarks?: number;
+      evaluationReason?: string;
+      questionType?: string;
+    }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
       const answerDisplay = Array.isArray(ans.selectedAnswer)
         ? ans.selectedAnswer.join(", ")
@@ -351,12 +361,22 @@ export default function AssessmentViewer({
         qNum: idx + 1,
         answer: answerDisplay,
         isCorrect: ans.isCorrect,
-        marks: q.marks || 0
+        marks: q.marks || 0,
+        awardedMarks: ans.awardedMarks !== undefined ? ans.awardedMarks : (ans.isCorrect ? (q.marks || 0) : 0),
+        evaluationReason: ans.evaluationReason,
+        questionType: ans.questionType || q.type,
       };
     }) : assessment.questions.map((q, idx) => {
       const answer = answers[q.questionNumber];
       const isCorrect = answer === q.correctAnswer;
-      return { qNum: idx + 1, answer: answer || "", isCorrect, marks: q.marks };
+      return {
+        qNum: idx + 1,
+        answer: answer || "",
+        isCorrect,
+        marks: q.marks,
+        awardedMarks: isCorrect ? q.marks : 0,
+        questionType: q.type,
+      };
     });
 
     const totalEarned = submissionResult?.score !== undefined ? submissionResult.score : (submissionResult?.partialScore !== undefined ? submissionResult.partialScore : results.reduce(
@@ -417,33 +437,55 @@ export default function AssessmentViewer({
             </div>
           </div>
 
-          <div className="space-y-2 mb-8">
-            {results.map((result) => (
-              <div
-                key={result.qNum}
-                className={`flex items-center justify-between p-3 rounded-lg ${result.isCorrect
+          <div className="space-y-2 mb-8 text-left">
+            {results.map((result) => {
+              const isPartial = result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" && 
+                                result.awardedMarks !== undefined && 
+                                result.awardedMarks > 0 && 
+                                result.awardedMarks < result.marks;
+
+              const containerColorClass = isPartial
+                ? "bg-yellow-500/10 border border-yellow-500/20"
+                : result.isCorrect
                   ? "bg-green-500/10 border border-green-500/20"
-                  : "bg-red-500/10 border border-red-500/20"
-                  }`}
-              >
-                <span className="text-sm">
-                  Question {result.qNum}:{" "}
-                  <span
-                    className={
-                      result.isCorrect ? "text-green-500" : "text-red-500"
-                    }
-                  >
-                    {result.isCorrect ? "✓ Correct" : "✗ Incorrect"}
-                  </span>
-                </span>
-                <span
-                  className={`font-semibold ${result.isCorrect ? "text-green-500" : "text-red-500"
-                    }`}
+                  : "bg-red-500/10 border border-red-500/20";
+
+              const textColorClass = isPartial
+                ? "text-yellow-600 dark:text-yellow-400"
+                : result.isCorrect
+                  ? "text-green-500"
+                  : "text-red-500";
+
+              const statusText = isPartial
+                ? "✓ Partially Correct"
+                : result.isCorrect
+                  ? "✓ Correct"
+                  : "✗ Incorrect";
+
+              return (
+                <div
+                  key={result.qNum}
+                  className={`flex flex-col p-3 rounded-lg ${containerColorClass}`}
                 >
-                  {result.isCorrect ? result.marks : 0}/{result.marks}
-                </span>
-              </div>
-            ))}
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-sm font-medium">
+                      Question {result.qNum}:{" "}
+                      <span className={textColorClass}>
+                        {statusText}
+                      </span>
+                    </span>
+                    <span className={`font-semibold ${textColorClass}`}>
+                      {result.awardedMarks !== undefined ? result.awardedMarks : (result.isCorrect ? result.marks : 0)}/{result.marks}
+                    </span>
+                  </div>
+                  {(result.questionType === "DESCRIPTIVE" || result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION") && result.evaluationReason && (
+                    <div className="mt-2 text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
+                      <span className="font-semibold text-[var(--text)]">Evaluation:</span> {result.evaluationReason}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">

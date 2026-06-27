@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     siteName: "Masterstroke Academy",
     title: "Masterstroke Academy | Professional Blockchain Developer Program",
     description:
-      "21 modules, 4 phases, 122+ lessons. The most comprehensive blockchain developer program with interactive assessments and live code execution.",
+      "21 modules, 4 phases, 124+ lessons. The most comprehensive blockchain developer program with interactive assessments and live code execution.",
   },
   twitter: {
     card: "summary_large_image",

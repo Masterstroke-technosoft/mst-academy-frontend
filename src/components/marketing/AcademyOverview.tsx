@@ -356,27 +356,27 @@ function PhaseSection({
         onToggle={() => setOpen((v) => !v)}
         accent={color}
         header={
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-start gap-4">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 w-full">
+            <div className="flex flex-1 min-w-0 items-start gap-4">
               <div
                 className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:flex"
                 style={{ backgroundColor: `${color}22` }}
               >
                 <PhaseIcon className="h-6 w-6" style={{ color }} />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <p
                   className="text-xs font-bold uppercase tracking-widest"
                   style={{ color }}
                 >
                   Phase {index + 1}
                 </p>
-                <h3 className="text-lg font-bold text-[var(--text)] sm:text-xl">
+                <h3 className="text-lg font-bold text-[var(--text)] sm:text-xl break-words">
                   {phase.title} {phase.description ? `: ${phase.description}` : ""}
                 </h3>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs font-semibold">
+            <div className="flex shrink-0 flex-wrap gap-2 text-xs font-semibold">
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
                 {modules.length || Number(phase.realmodulecount) || phase.moduleCount || 0} modules
               </span>
@@ -501,10 +501,10 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
 
         <div className="relative mx-auto max-w-7xl px-4 pt-8 sm:px-6 sm:pt-10 lg:pt-12">
           <div className="mx-auto max-w-4xl text-center animate-fade-in">
-            <p className="inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg backdrop-blur-md">
+            {/* <p className="inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-5 py-2 text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg backdrop-blur-md">
               <Sparkles className="h-4 w-4 animate-pulse-subtle" />
               Programme Overview
-            </p>
+            </p> */}
 
             <h1 className="text-display mt-4 font-black text-[var(--text)] sm:whitespace-nowrap">
               Full{" "}
@@ -555,7 +555,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
             {[
               { end: PROGRAMME_STATS.phases, suffix: "", label: "Phases" },
               { end: PROGRAMME_STATS.modules, suffix: "", label: "Modules" },
-              { end: totalSubmodules, suffix: "", label: "Submodules" },
+              { end: PROGRAMME_STATS.submodules, suffix: "", label: "Submodules" },
               { end: PROGRAMME_STATS.hours, suffix: "+", label: "Hours" },
             ].map((stat, i) => (
               <div

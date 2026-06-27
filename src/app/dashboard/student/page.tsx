@@ -1960,17 +1960,6 @@ export default function StudentDashboardPage({
                 {curriculumModal.type === "create-module" && (
                   <>
                     <div>
-                      <label className="mb-1 block text-xs font-bold text-[var(--text)]">Phase ID</label>
-                      <input
-                        type="text"
-                        required
-                        value={curriculumModal.phaseId || ""}
-                        onChange={e => setCurriculumModal({ ...curriculumModal, phaseId: e.target.value })}
-                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-2.5 text-xs text-[var(--text)] focus:border-mst-red/50 focus:outline-none focus:ring-4 focus:ring-mst-red/10 transition-all"
-                        placeholder="e.g., 66f5c8a1b2c3d4e5f6g7h8i0"
-                      />
-                    </div>
-                    <div>
                       <label className="mb-1 block text-xs font-bold text-[var(--text)]">Index</label>
                       <input
                         type="number"
