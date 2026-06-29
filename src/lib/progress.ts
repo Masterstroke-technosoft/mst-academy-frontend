@@ -126,7 +126,7 @@ export function getModuleStatus(
   const activeId = getGlobalActiveModuleId(allModuleIds, getSlugs);
   if (isModuleFullyComplete(moduleId, submoduleSlugs)) return "completed";
   if (String(moduleId) === String(activeId)) return "active";
-  
+
   const idxModule = allModuleIds.findIndex(id => String(id) === String(moduleId));
   const idxActive = allModuleIds.findIndex(id => String(id) === String(activeId));
   if (idxModule !== -1 && idxActive !== -1 && idxModule < idxActive) return "completed";

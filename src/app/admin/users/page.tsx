@@ -47,6 +47,12 @@ export default function UserManagementPage() {
         const mappedUsers = rawUsers.map((u: any, index: number) => {
           let roleStr = String(u.role || "student").toLowerCase().trim();
           if (roleStr === "user") roleStr = "non-validator";
+          if (roleStr === "working-professional" || roleStr === "working professional" || roleStr === "workingprofessional") {
+            roleStr = "working_professional";
+          }
+          if (roleStr === "course-only" || roleStr === "course only" || roleStr === "courseonly") {
+            roleStr = "course_only";
+          }
 
           return {
             ...u,
@@ -241,7 +247,8 @@ export default function UserManagementPage() {
               <option value="all">All Users</option>
               <option value="student">Students</option>
               <option value="validator">Validators</option>
-              <option value="non-validator">General Users</option>
+              <option value="course_only">Course Only</option>
+              <option value="working_professional">Working Professional</option>
               <option value="admin">Admin</option>
             </select>
           </div>

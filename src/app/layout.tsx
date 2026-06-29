@@ -89,6 +89,33 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/1.png" type="image/png" />
         <meta name="theme-color" content="#e31e24" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.addEventListener('copy', function(e) {
+                const target = e.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                  return;
+                }
+                e.preventDefault();
+              });
+              document.addEventListener('cut', function(e) {
+                const target = e.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                  return;
+                }
+                e.preventDefault();
+              });
+              document.addEventListener('dragstart', function(e) {
+                const target = e.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                  return;
+                }
+                e.preventDefault();
+              });
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col antialiased">
         <ThemeProvider>

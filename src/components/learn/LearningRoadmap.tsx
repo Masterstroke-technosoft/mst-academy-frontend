@@ -771,11 +771,26 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         draggable: false,
       });
 
+      let lastUnlockedIndex = -1;
+      mod.submodules.forEach((sub, i) => {
+        const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
+        if (!locked) {
+          lastUnlockedIndex = i;
+        }
+      });
+
       mod.submodules.forEach((sub, i) => {
         const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
         const active = activeSubmoduleSlug === sub.slug;
         const dimmed = activeSubmoduleSlug != null && activeSubmoduleSlug !== sub.slug;
-        const progressPct = computeProgressPctForSubmodule(mod.id, sub.slug);
+        let progressPct = 0;
+        if (!locked) {
+          if (i < lastUnlockedIndex) {
+            progressPct = 100;
+          } else {
+            progressPct = 0;
+          }
+        }
         const subId = `sub-${mod.id}-${sub.slug}`;
 
         nodes.push({
@@ -986,11 +1001,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const moduleTitle = activeModule?.title;
   const subTitle = activeSubmodule ? getCardSubmoduleTitle(activeSubmodule.title) : undefined;
 
-  const subProgressPct =
-    activeModule && activeSubmodule
-      ? computeProgressPctForSubmodule(activeModule.id, activeSubmodule.slug)
-      : 0;
-
   const activeSubIndex =
     activeModule && activeSubmodule
       ? activeModule.submodules.findIndex((s) => s.slug === activeSubmodule.slug)
@@ -1006,6 +1016,21 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     : null;
 
   const moduleLocked = activeModuleStatus === "locked";
+
+  const lastUnlockedIndex = useMemo(() => {
+    if (!activeModule) return -1;
+    let lastIdx = -1;
+    activeModule.submodules.forEach((sub, i) => {
+      const locked = isSubmoduleLocked(moduleLocked, i, activeModule.id, activeModule.submodules);
+      if (!locked) {
+        lastIdx = i;
+      }
+    });
+    return lastIdx;
+  }, [activeModule, moduleLocked]);
+
+  const subProgressPct =
+    activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? 100 : 0;
 
   const subLocked =
     activeModule && activeSubmodule
@@ -1288,7 +1313,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                             Lessons
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {getSubmoduleProgress(activeModule.id, activeSubmodule.slug).lessonComplete ? "Done" : "Pending"}
+                            {activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? "Done" : "Pending"}
                           </p>
                         </div>
                         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
@@ -1296,7 +1321,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                             Assessment
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {getSubmoduleProgress(activeModule.id, activeSubmodule.slug).assessmentComplete ? "Passed" : "Not yet"}
+                            {activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? "Passed" : "Not yet"}
                           </p>
                         </div>
                       </div>

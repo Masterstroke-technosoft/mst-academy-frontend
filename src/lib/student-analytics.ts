@@ -292,12 +292,12 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     const key = d.toISOString().slice(0, 10);
     const dayName = d.toLocaleString('en-US', { weekday: 'short' });
     const dayDate = d.getDate();
-    
+
     let minutes = baseWeeklyMinutes[i];
     if (activityByDate.get(key) || 0 > 0) {
       minutes += 120;
     }
-    
+
     return {
       day: `${dayName} ${dayDate}`,
       minutes,

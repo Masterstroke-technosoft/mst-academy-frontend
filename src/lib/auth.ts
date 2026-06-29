@@ -1,6 +1,6 @@
 "use client";
 
-export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional";
+export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional" | "course_only" | "working_professional";
 
 export type BlockchainLevel = "Beginner" | "Intermediate" | "Expert";
 
@@ -438,8 +438,11 @@ export function roleLabel(role: UserRole | string): string {
     case "VALIDATOR":
       return "Validator";
     case "non-validator":
-    case "COURSE_ONLY":
       return "Web3 Enthusiast";
+    case "course_only":
+    case "COURSE_ONLY":
+      return "Course Only";
+    case "working_professional":
     case "working-professional":
     case "WORKING_PROFESSIONAL":
       return "Working Professional";

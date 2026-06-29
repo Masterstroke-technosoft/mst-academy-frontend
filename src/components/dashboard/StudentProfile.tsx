@@ -160,9 +160,33 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-mst-red/10 blur-3xl" />
 
       <div className="relative">
-        <h2 className="text-2xl font-black text-[var(--text)] sm:text-3xl mb-6">
-          Your Profile
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-black text-[var(--text)] sm:text-3xl">
+            Your Profile
+          </h2>
+          
+          {/* Verification Badges */}
+          {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator") && (
+            <div className="flex flex-wrap items-center gap-2">
+              {formData.isStudentVerified ? (
+                <>
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>Verified {formData.role?.toLowerCase() === "validator" ? "Validator" : "Student"}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>Payment Verified</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-black text-amber-500">
+                  <span>Verification Pending</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSave} className="space-y-8">
           {/* Photo Section */}
@@ -350,15 +374,48 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             {/* Student Verified Status */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
-                Student Verified
+                {formData.role?.toLowerCase() === "validator" ? "Validator Verification" : "Student Verification"}
               </label>
-              <input
-                type="text"
-                value={formData.isStudentVerified ? "Verified" : "Not Verified"}
-                disabled
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
-              />
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={formData.isStudentVerified ? "Verified" : "Not Verified"}
+                  disabled
+                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${
+                    formData.isStudentVerified
+                      ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                      : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
+                  }`}
+                />
+                {formData.isStudentVerified && (
+                  <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
+                )}
+              </div>
             </div>
+
+            {/* Payment Verified Status */}
+            {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator") && (
+              <div>
+                <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                  Payment Status
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={formData.isStudentVerified ? "Verified" : "Pending Verification"}
+                    disabled
+                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${
+                      formData.isStudentVerified
+                        ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                        : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
+                    }`}
+                  />
+                  {formData.isStudentVerified && (
+                    <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Referred By */}
             <div>

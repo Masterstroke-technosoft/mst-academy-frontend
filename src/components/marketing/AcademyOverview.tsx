@@ -155,6 +155,10 @@ function SubmoduleCard({
   return (
     <Link
       href={`/module/${moduleId}/${subSlug}`}
+      onClick={(e) => {
+        // Comment out or prevent click navigation if needed:
+        e.preventDefault();
+      }}
       className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-mst-red/40 hover:shadow-md"
     >
       <div

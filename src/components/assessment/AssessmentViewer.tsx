@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Clock, Award } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Award, ShieldAlert, Monitor, EyeOff, Lock, AlertTriangle, BatteryCharging, Wifi, Video, VideoOff, Copy } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useProctoring } from "@/hooks/useProctoring";
 import { getModule } from "@/lib/curriculum";
@@ -56,6 +56,35 @@ export default function AssessmentViewer({
   const [fullscreenBypassed, setFullscreenBypassed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showRules, setShowRules] = useState(true);
+  const [cameraPermission, setCameraPermission] = useState<boolean>(false);
+  const [agreed, setAgreed] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+
+  const requestCameraAccess = async () => {
+    try {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn("Camera mediaDevices not supported in this browser context.");
+        setCameraPermission(true);
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setCameraPermission(true);
+      setCameraStream(stream);
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      alert("Camera access was denied or is not available. However, you can proceed with the assessment for now.");
+      setCameraPermission(true);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -93,7 +122,7 @@ export default function AssessmentViewer({
   const isFirstQuestion = currentQuestionIndex === 0;
   const isPractical = currentQuestion?.type === "PRACTICAL";
 
-  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring, isFullscreenEnabled } = useProctoring(isPractical);
+  const { violations, warningCount, activeViolations, autoSubmitTriggered, stopProctoring, isFullscreenEnabled } = useProctoring(isPractical || showRules);
   const [lastSeenWarningCount, setLastSeenWarningCount] = useState(0);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
 
@@ -244,7 +273,7 @@ export default function AssessmentViewer({
   }, [handleSubmit]);
 
   useEffect(() => {
-    if (!assessment || submitted) return;
+    if (!assessment || submitted || showRules) return;
 
     const timerKey = `assessment-endtime-${assessment._id || assessment.submoduleId}`;
     const estimatedSeconds = (assessment.estimatedTime || 20) * 60;
@@ -279,7 +308,7 @@ export default function AssessmentViewer({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [assessment, submitted]);
+  }, [assessment, submitted, showRules]);
 
   const formatTime = (seconds: number | null) => {
     if (seconds === null) return "--:--";
@@ -439,10 +468,10 @@ export default function AssessmentViewer({
 
           <div className="space-y-2 mb-8 text-left">
             {results.map((result) => {
-              const isPartial = result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" && 
-                                result.awardedMarks !== undefined && 
-                                result.awardedMarks > 0 && 
-                                result.awardedMarks < result.marks;
+              const isPartial = result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" &&
+                result.awardedMarks !== undefined &&
+                result.awardedMarks > 0 &&
+                result.awardedMarks < result.marks;
 
               const containerColorClass = isPartial
                 ? "bg-yellow-500/10 border border-yellow-500/20"
@@ -515,6 +544,193 @@ export default function AssessmentViewer({
               </button>
             )}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showRules) {
+    return (
+      <div className="h-full w-full flex justify-center items-start py-8 px-4 bg-[var(--bg)] overflow-y-auto no-scrollbar">
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+          }
+        `}} />
+        <div className="max-w-xl w-full rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-10 shadow-2xl text-center flex flex-col items-center my-auto">
+
+          {/* Shield Icon Header */}
+          <div className="flex items-center justify-center w-20 h-20 mb-6 bg-red-50 rounded-full dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
+            <ShieldAlert className="w-10 h-10 text-red-500" />
+          </div>
+
+          {/* Titles */}
+          <h2 className="text-3xl font-black text-[var(--text)] tracking-tight mb-2">
+            Assessment Rules
+          </h2>
+          <p className="text-sm text-[var(--text-muted)] font-medium mb-8">
+            {assessment.title}
+          </p>
+
+          {/* Quick Info Grid */}
+          <div className="grid grid-cols-3 gap-3 w-full mb-8">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] p-4 flex flex-col items-center justify-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text)]">
+                {assessment.questions.length}
+              </span>
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mt-1 tracking-wider">
+                Questions
+              </span>
+            </div>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] p-4 flex flex-col items-center justify-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text)]">
+                {assessment.totalMarks}
+              </span>
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mt-1 tracking-wider">
+                Total Marks
+              </span>
+            </div>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] p-4 flex flex-col items-center justify-center">
+              <span className="text-xl sm:text-2xl font-black text-[var(--text)]">
+                {assessment.estimatedTime}m
+              </span>
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase mt-1 tracking-wider">
+                Time Limit
+              </span>
+            </div>
+          </div>
+
+          {/* Rules List */}
+          <div className="w-full text-left space-y-4 mb-8">
+            <div className="flex items-start gap-3">
+              <Monitor className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Fullscreen mode is required throughout the assessment
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <EyeOff className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Tab switching is not allowed — violations are logged
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Copy className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Copy, paste, and cut are disabled
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Clock className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Assessment is timed — auto-submits when time runs out
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Lock className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Right-click and developer tools are blocked
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Camera must stay ON — cheating triggers violation
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                3 violations = assessment violated & auto-submitted
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <BatteryCharging className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Make sure your laptop is fully charged
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Wifi className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                Must be connected to a stable internet connection
+              </p>
+            </div>
+          </div>
+
+          {/* Camera Access Alert Box */}
+          {!cameraPermission && (
+            <div className="w-full bg-[#fef7e0] dark:bg-amber-950/10 border border-[#fce8b2] dark:border-amber-900/30 rounded-2xl p-4 flex items-center justify-between gap-3 mb-4 shrink-0">
+              <div className="flex items-center gap-3 text-[#b06000] dark:text-amber-400">
+                <VideoOff className="w-5 h-5 shrink-0 text-[#b06000] dark:text-amber-400" />
+                <span className="text-sm font-semibold text-left">
+                  Camera access is required. Allow camera in your browser to continue.
+                </span>
+              </div>
+              <AlertTriangle className="w-5 h-5 shrink-0 text-[#b06000] dark:text-amber-400" />
+            </div>
+          )}
+
+          {/* Camera Button */}
+          {!cameraPermission ? (
+            <button
+              type="button"
+              onClick={requestCameraAccess}
+              className="w-full py-3.5 bg-[#e6f4ea] dark:bg-emerald-950/20 border border-[#34a853] dark:border-emerald-900/30 text-[#137333] dark:text-emerald-400 font-bold rounded-2xl transition duration-150 active:scale-98 text-sm mb-6 flex items-center justify-center"
+            >
+              Enable camera to continue
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={requestCameraAccess}
+              className="w-full py-3.5 bg-[#e6f4ea] dark:bg-emerald-950/20 border border-[#34a853] dark:border-emerald-900/30 text-[#137333] dark:text-emerald-400 font-bold rounded-2xl transition duration-150 active:scale-98 text-sm mb-6 flex items-center justify-center gap-2"
+            >
+              <Video className="w-4 h-4 shrink-0" />
+              Camera is verified
+            </button>
+          )}
+
+          {/* Agree Checkbox */}
+          <label className="w-full flex items-start gap-3 border border-[var(--border)] rounded-2xl p-4 bg-[var(--surface-elevated)] cursor-pointer select-none mb-6 text-left">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-mst-red focus:ring-mst-red shrink-0"
+            />
+            <span className="text-xs font-semibold text-[var(--text-muted)] leading-relaxed">
+              I understand and agree to follow these rules. I acknowledge that violations will be recorded and may result in automatic submission.
+            </span>
+          </label>
+
+          {/* Begin Assessment Button */}
+          <button
+            type="button"
+            disabled={!agreed || !cameraPermission}
+            onClick={async () => {
+              if (cameraStream) {
+                cameraStream.getTracks().forEach((track) => track.stop());
+                setCameraStream(null);
+              }
+              try {
+                if (document.documentElement.requestFullscreen) {
+                  await document.documentElement.requestFullscreen();
+                }
+              } catch (err) {
+                console.warn("Fullscreen permission request failed:", err);
+              }
+              setShowRules(false);
+            }}
+            className="w-full py-3.5 bg-gradient-to-r from-mst-red to-red-600 hover:from-red-700 hover:to-red-700 disabled:from-red-300 disabled:to-red-400 disabled:opacity-50 text-white font-bold rounded-2xl transition duration-200 shadow-lg shadow-red-600/20 text-base"
+          >
+            Begin Assessment
+          </button>
         </div>
       </div>
     );
@@ -721,7 +937,7 @@ export default function AssessmentViewer({
                   <h3 className="text-lg font-bold text-[var(--text)] border-b border-[var(--border)] pb-2 flex items-center gap-2">
                     📋 Instructions & Guidelines
                   </h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Requirements */}
                     {currentQuestion.instructions.requirements && currentQuestion.instructions.requirements.length > 0 && (
