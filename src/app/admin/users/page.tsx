@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -14,6 +14,15 @@ export default function UserManagementPage() {
   const [debugRaw, setDebugRaw] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     setMounted(true);
@@ -22,7 +31,7 @@ export default function UserManagementPage() {
       try {
         setLoading(true);
         let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10`, {
+        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -79,7 +88,7 @@ export default function UserManagementPage() {
     };
 
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage, debouncedSearch]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
@@ -190,9 +199,20 @@ export default function UserManagementPage() {
   };
 
   const filteredUsers = useMemo(() => {
-    if (filterRole === "all") return users;
-    return users.filter(u => u.role === filterRole);
-  }, [users, filterRole]);
+    let result = users;
+    if (filterRole !== "all") {
+      result = result.filter(u => u.role === filterRole);
+    }
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(u => 
+        (u.fullName || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
+        (u.id || "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [users, filterRole, searchQuery]);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -237,20 +257,35 @@ export default function UserManagementPage() {
               <p className="text-sm text-[var(--text-muted)]">View and filter all registered users</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Filter size={16} className="text-[var(--text-muted)]" />
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as any)}
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red"
-            >
-              <option value="all">All Users</option>
-              <option value="student">Students</option>
-              <option value="validator">Validators</option>
-              <option value="course_only">Course Only</option>
-              <option value="working_professional">Working Professional</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-initial">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+              <input
+                type="text"
+                placeholder="Search by name, email, ID..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full sm:w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-9 pr-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-[var(--text-muted)]" />
+              <select
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value as any)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red"
+              >
+                <option value="all">All Users</option>
+                <option value="student">Students</option>
+                <option value="validator">Validators</option>
+                <option value="course_only">Course Only</option>
+                <option value="working_professional">Working Professional</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
         </div>
 

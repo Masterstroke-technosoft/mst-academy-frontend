@@ -76,8 +76,12 @@ export function DashboardShell({
   const [previewScreenshotUrl, setPreviewScreenshotUrl] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectionNote, setRejectionNote] = useState("");
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
 
   const fetchPaymentRequests = async () => {
+    setPaymentSearch("");
+    setPaymentStatusFilter("all");
     try {
       setLoadingPayments(true);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -212,6 +216,21 @@ export function DashboardShell({
       router.replace("/login");
     }
   }, [ready, user, role, router]);
+
+  const filteredPayments = paymentRequests.filter((req) => {
+    const matchesSearch =
+      paymentSearch.trim() === "" ||
+      req.accountHolderName?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+      req.transactionId?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+      req.category?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+      req.paymentMethod?.toLowerCase().includes(paymentSearch.toLowerCase());
+
+    const matchesStatus =
+      paymentStatusFilter === "all" ||
+      req.status === paymentStatusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   if (!ready || !user) {
     return (
@@ -604,6 +623,36 @@ export function DashboardShell({
               </button>
             </div>
 
+            {/* Search and Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 shrink-0">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search by name, transaction ID, category, method..."
+                  value={paymentSearch}
+                  onChange={(e) => setPaymentSearch(e.target.value)}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 pl-10 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors border-[var(--border)]"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="w-full sm:w-48">
+                <select
+                  value={paymentStatusFilter}
+                  onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors cursor-pointer"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="APPROVED">Approved</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
+            </div>
+
             <div className="flex-1 overflow-auto">
               {loadingPayments ? (
                 <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
@@ -659,10 +708,12 @@ export function DashboardShell({
                     </tbody>
                   </table>
                 </div>
-              ) : paymentRequests.length === 0 ? (
+              ) : filteredPayments.length === 0 ? (
                 <div className="flex h-40 flex-col items-center justify-center text-[var(--text-muted)]">
                   <AlertCircle className="mb-2 h-8 w-8 opacity-50 text-[var(--text-muted)]" />
-                  <p className="text-sm font-semibold">No payment requests found.</p>
+                  <p className="text-sm font-semibold">
+                    {paymentRequests.length === 0 ? "No payment requests found." : "No matching payment requests found."}
+                  </p>
                 </div>
               ) : (
                 <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
@@ -681,7 +732,7 @@ export function DashboardShell({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border)]">
-                      {paymentRequests.map((req) => (
+                      {filteredPayments.map((req) => (
                         <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
                           <td className="px-2 py-3 font-semibold text-[var(--text)] whitespace-nowrap">
                             {req.accountHolderName}

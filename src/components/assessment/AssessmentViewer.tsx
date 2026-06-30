@@ -1133,7 +1133,7 @@ export default function AssessmentViewer({
                 disabled={answeredCount === 0}
                 className="ml-auto rounded-lg bg-gradient-to-r from-mst-red to-red-600 px-6 py-3 text-sm font-bold text-white transition hover:shadow-lg hover:shadow-mst-red/30 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Submitttttt Assessment
+                Submit Assessment
               </button>
             ) : (
               <button

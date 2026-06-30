@@ -192,6 +192,10 @@ export async function login(
     return { ok: false, error: "No account found. Please register first." };
   }
 
+  if (found.isActive === false) {
+    return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
+  }
+
   if (found.password !== password) {
     return { ok: false, error: "Incorrect password." };
   }

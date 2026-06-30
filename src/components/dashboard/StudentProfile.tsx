@@ -42,8 +42,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPaymentVerified, setIsPaymentVerified] = useState(false);
+  const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 
   useEffect(() => {
+    let profilePaymentVerified = false;
+
     const fetchProfile = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -82,6 +86,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             if (data.user.profilePhoto) {
               setPhoto(data.user.profilePhoto);
             }
+            if (data.user.isPaymentVerified || data.user.paymentVerified) {
+              profilePaymentVerified = true;
+              setIsPaymentVerified(true);
+            }
           }
         }
       } catch (error) {
@@ -89,7 +97,52 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       }
     };
 
-    fetchProfile();
+    const checkPaymentStatus = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const response = await fetch(`${baseURL}/api/node-purchase`, {
+          credentials: "include",
+          headers,
+        });
+        if (response.ok) {
+          const data = await response.json();
+          let list: any[] = [];
+          if (Array.isArray(data)) {
+            list = data;
+          } else if (data?.purchase) {
+            list = [data.purchase];
+          } else if (data?.data) {
+            list = Array.isArray(data.data) ? data.data : [];
+          } else if (data?.purchases) {
+            list = Array.isArray(data.purchases) ? data.purchases : [];
+          }
+          if (list.length > 0) {
+            setHasSubmittedPayment(true);
+            const isApproved = list.some(item => item.status === "APPROVED");
+            setIsPaymentVerified(isApproved || profilePaymentVerified);
+          } else {
+            setHasSubmittedPayment(false);
+            setIsPaymentVerified(profilePaymentVerified);
+          }
+        } else {
+          setIsPaymentVerified(profilePaymentVerified);
+        }
+      } catch (error) {
+        console.error("Error fetching payment status:", error);
+        setIsPaymentVerified(profilePaymentVerified);
+      }
+    };
+
+    const loadAll = async () => {
+      await fetchProfile();
+      await checkPaymentStatus();
+    };
+    loadAll();
   }, []);
 
   const referralCode = formData.referralCode || (safeUser.id ? `MST-${safeUser.id.slice(-6).toUpperCase()}` : "");
@@ -169,19 +222,23 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator") && (
             <div className="flex flex-wrap items-center gap-2">
               {formData.isStudentVerified ? (
-                <>
-                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>Verified {formData.role?.toLowerCase() === "validator" ? "Validator" : "Student"}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>Payment Verified</span>
-                  </div>
-                </>
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>Verified {formData.role?.toLowerCase() === "validator" ? "Validator" : "Student"}</span>
+                </div>
               ) : (
                 <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-black text-amber-500">
                   <span>Verification Pending</span>
+                </div>
+              )}
+              {isPaymentVerified ? (
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>Payment Verified</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-black text-amber-500">
+                  <span>Payment Pending</span>
                 </div>
               )}
             </div>
@@ -402,15 +459,15 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 <div className="relative flex items-center">
                   <input
                     type="text"
-                    value={formData.isStudentVerified ? "Verified" : "Pending Verification"}
+                    value={isPaymentVerified ? "Verified" : "Pending Verification"}
                     disabled
                     className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${
-                      formData.isStudentVerified
+                      isPaymentVerified
                         ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
                         : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
                     }`}
                   />
-                  {formData.isStudentVerified && (
+                  {isPaymentVerified && (
                     <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
                   )}
                 </div>

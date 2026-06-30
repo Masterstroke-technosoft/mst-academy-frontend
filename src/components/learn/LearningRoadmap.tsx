@@ -31,6 +31,8 @@ import {
 } from "@/lib/progress";
 import { useAuth } from "@/components/AuthProvider";
 import {
+  AlertCircle,
+  Clock,
   BookOpen,
   ChevronRight,
   Flame,
@@ -533,6 +535,70 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
   const courseId = "6a2934912b48a13769669f8e";
+
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
+  const [isPaymentVerified, setIsPaymentVerified] = useState(false);
+
+  useEffect(() => {
+    let profilePaymentVerified = false;
+
+    async function fetchProfile() {
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/users/profile`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            setUserProfile(data.user);
+            if (data.user.isPaymentVerified || data.user.paymentVerified) {
+              profilePaymentVerified = true;
+              setIsPaymentVerified(true);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    }
+    async function checkPaymentStatus() {
+      try {
+        const res = await fetchWithAuth(`${baseURL}/api/node-purchase`);
+        if (res.ok) {
+          const data = await res.json();
+          let list: any[] = [];
+          if (Array.isArray(data)) {
+            list = data;
+          } else if (data?.purchase) {
+            list = [data.purchase];
+          } else if (data?.data) {
+            list = Array.isArray(data.data) ? data.data : [];
+          } else if (data?.purchases) {
+            list = Array.isArray(data.purchases) ? data.purchases : [];
+          }
+          if (list.length > 0) {
+            setHasSubmittedPayment(true);
+            const isApproved = list.some(item => item.status === "APPROVED");
+            setIsPaymentVerified(isApproved || profilePaymentVerified);
+          } else {
+            setHasSubmittedPayment(false);
+            setIsPaymentVerified(profilePaymentVerified);
+          }
+        } else {
+          setIsPaymentVerified(profilePaymentVerified);
+        }
+      } catch (err) {
+        console.error("Error checking payment status:", err);
+        setIsPaymentVerified(profilePaymentVerified);
+      }
+    }
+    async function loadData() {
+      if (user) {
+        await fetchProfile();
+        await checkPaymentStatus();
+      }
+    }
+    loadData();
+  }, [user, baseURL]);
 
   const [fetchedPhases, setFetchedPhases] = useState<any[]>([]);
 
@@ -1207,6 +1273,39 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           </div>
         </div>
       </div>
+
+      {/* Payment / Verification Status Alert */}
+      {userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !isPaymentVerified) && (
+        <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
+          {!isPaymentVerified ? (
+            (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
+              <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                <div>
+                  <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
+                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                <div>
+                  <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
+                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                </div>
+              </div>
+            )
+          ) : !userProfile.isStudentVerified ? (
+            <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+              <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+              <div>
+                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {/* Graph — viewport height so less scrolling */}
       <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">

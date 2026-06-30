@@ -57,6 +57,10 @@ export function LoginForm() {
         }
 
         const apiUser = data?.user || data?.data?.user || data?.data || {};
+        if (apiUser?.isActive === false) {
+          return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
+        }
+
         const loggedInUser: AuthUser = {
           id: apiUser?.id || `user-${Date.now()}`,
           email: apiUser?.email || email,
@@ -68,6 +72,21 @@ export function LoginForm() {
 
         setSession(loggedInUser);
         return { ok: true, user: loggedInUser };
+      } else {
+        try {
+          const errorData = await response.json();
+          const errorMsg = errorData?.message || errorData?.error || "";
+          if (
+            errorMsg.toLowerCase().includes("block") ||
+            errorMsg.toLowerCase().includes("deactive") ||
+            errorMsg.toLowerCase().includes("deactivate") ||
+            errorMsg.toLowerCase().includes("support")
+          ) {
+            return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
       }
     } catch (err) {
       console.error("Login API error, falling back to localStorage:", err);
@@ -79,6 +98,10 @@ export function LoginForm() {
 
     if (!found) {
       return { ok: false, error: "Invalid credentials or server unavailable." };
+    }
+
+    if (found.isActive === false) {
+      return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
     }
 
     if (found.password !== password) {
