@@ -202,14 +202,21 @@ export default function AssessmentViewer({
     setSubmitting(true);
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
     const formattedAnswers = assessment.questions.map((q, idx) => {
-      const isTrueFalse = q.type === "TRUE_FALSE_WITH_JUSTIFICATION";
+      const isTrueFalseWithJustification = q.type === "TRUE_FALSE_WITH_JUSTIFICATION" || q.type === "true_false_justification";
+      const isTrueFalseOnly = q.type === "TRUE_FALSE" || q.type === "true_false";
       const answerVal = answers[q.questionNumber];
-      if (isTrueFalse) {
+      if (isTrueFalseWithJustification) {
         return {
           questionNumber: q.questionNumber,
           questionType: q.type,
           selectedAnswer: answerVal === "True" ? true : answerVal === "False" ? false : "",
           justification: justifications[q.questionNumber] || "",
+        };
+      } else if (isTrueFalseOnly) {
+        return {
+          questionNumber: q.questionNumber,
+          questionType: q.type,
+          selectedAnswer: answerVal === "True" ? true : answerVal === "False" ? false : "",
         };
       } else if (q.type === "MULTIPLE_MCQ") {
         return {
@@ -381,6 +388,7 @@ export default function AssessmentViewer({
       awardedMarks?: number;
       evaluationReason?: string;
       questionType?: string;
+      explanation?: string;
     }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
       const q = assessment.questions[idx] || {};
       const answerDisplay = Array.isArray(ans.selectedAnswer)
@@ -394,6 +402,7 @@ export default function AssessmentViewer({
         awardedMarks: ans.awardedMarks !== undefined ? ans.awardedMarks : (ans.isCorrect ? (q.marks || 0) : 0),
         evaluationReason: ans.evaluationReason,
         questionType: ans.questionType || q.type,
+        explanation: ans.explanation || q.explanation,
       };
     }) : assessment.questions.map((q, idx) => {
       const answer = answers[q.questionNumber];
@@ -405,6 +414,7 @@ export default function AssessmentViewer({
         marks: q.marks,
         awardedMarks: isCorrect ? q.marks : 0,
         questionType: q.type,
+        explanation: q.explanation,
       };
     });
 
@@ -468,7 +478,7 @@ export default function AssessmentViewer({
 
           <div className="space-y-2 mb-8 text-left">
             {results.map((result) => {
-              const isPartial = result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" &&
+              const isPartial = (result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" || result.questionType === "true_false_justification") &&
                 result.awardedMarks !== undefined &&
                 result.awardedMarks > 0 &&
                 result.awardedMarks < result.marks;
@@ -507,10 +517,16 @@ export default function AssessmentViewer({
                       {result.awardedMarks !== undefined ? result.awardedMarks : (result.isCorrect ? result.marks : 0)}/{result.marks}
                     </span>
                   </div>
-                  {(result.questionType === "DESCRIPTIVE" || result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION") && result.evaluationReason && (
+                  {(result.questionType === "DESCRIPTIVE" || result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" || result.questionType === "true_false_justification") && result.evaluationReason ? (
                     <div className="mt-2 text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
                       <span className="font-semibold text-[var(--text)]">Evaluation:</span> {result.evaluationReason}
                     </div>
+                  ) : (
+                    result.explanation && (
+                      <div className="mt-2 text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
+                        <span className="font-semibold text-[var(--text)]">Explanation:</span> {result.explanation}
+                      </div>
+                    )
                   )}
                 </div>
               );
@@ -1060,8 +1076,11 @@ export default function AssessmentViewer({
                 );
               })()}
 
-              {/* True/False with Justification */}
-              {currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" && (
+              {/* True/False (with or without Justification) */}
+              {(currentQuestion.type === "TRUE_FALSE" ||
+                currentQuestion.type === "true_false" ||
+                currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" ||
+                currentQuestion.type === "true_false_justification") && (
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     {["True", "False"].map((val) => (
@@ -1077,24 +1096,31 @@ export default function AssessmentViewer({
                       </button>
                     ))}
                   </div>
-                  <textarea
-                    placeholder="Justify your answer..."
-                    value={justifications[currentQuestion.questionNumber] || ""}
-                    onChange={(e) => {
-                      if (!submitted) {
-                        setJustifications((prev) => ({
-                          ...prev,
-                          [currentQuestion.questionNumber]: e.target.value,
-                        }));
-                      }
-                    }}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
-                  />
+                  {(currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" ||
+                    currentQuestion.type === "true_false_justification") && (
+                    <textarea
+                      placeholder="Justify your answer..."
+                      value={justifications[currentQuestion.questionNumber] || ""}
+                      onChange={(e) => {
+                        if (!submitted) {
+                          setJustifications((prev) => ({
+                            ...prev,
+                            [currentQuestion.questionNumber]: e.target.value,
+                          }));
+                        }
+                      }}
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                    />
+                  )}
                 </div>
               )}
 
               {/* Descriptive Question */}
-              {(!currentQuestion.options && currentQuestion.type !== "TRUE_FALSE_WITH_JUSTIFICATION") && (
+              {(!currentQuestion.options &&
+                currentQuestion.type !== "TRUE_FALSE_WITH_JUSTIFICATION" &&
+                currentQuestion.type !== "true_false_justification" &&
+                currentQuestion.type !== "TRUE_FALSE" &&
+                currentQuestion.type !== "true_false") && (
                 <div className="space-y-4">
                   <textarea
                     placeholder="Justify your answer..."
