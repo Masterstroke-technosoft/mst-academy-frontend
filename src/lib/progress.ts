@@ -1,6 +1,7 @@
 "use client";
 
 import { isAdminUser } from "./auth";
+import { getSubmodule } from "./curriculum";
 
 export type ModuleStatus = "locked" | "active" | "completed";
 
@@ -91,7 +92,12 @@ export function isModuleFullyComplete(
   if (!submoduleSlugs.length) return false;
   return submoduleSlugs.every((slug) => {
     const p = getSubmoduleProgress(moduleId, slug);
-    return p.lessonComplete && p.assessmentComplete;
+    const sub = getSubmodule(moduleId, slug);
+    const hasAssessment = sub?.hasAssessment ?? false;
+    if (hasAssessment) {
+      return p.lessonComplete && p.assessmentComplete;
+    }
+    return p.lessonComplete;
   });
 }
 
@@ -151,11 +157,14 @@ export function isSubmoduleLocked(
   if (adminBypass()) return false;
   if (moduleLocked) return true;
   if (subIndex === 0) return false;
-  const prev = getSubmoduleProgress(
-    moduleId,
-    submodules[subIndex - 1].slug
-  );
-  return !prev.assessmentComplete;
+  const prevSlug = submodules[subIndex - 1].slug;
+  const prevProgress = getSubmoduleProgress(moduleId, prevSlug);
+  const prevSub = getSubmodule(moduleId, prevSlug);
+  const prevHasAssessment = prevSub?.hasAssessment ?? false;
+  if (prevHasAssessment) {
+    return !prevProgress.assessmentComplete;
+  }
+  return !prevProgress.lessonComplete;
 }
 
 export function getModuleProgressPercent(
@@ -166,8 +175,14 @@ export function getModuleProgressPercent(
   let done = 0;
   for (const slug of submoduleSlugs) {
     const p = getSubmoduleProgress(moduleId, slug);
-    if (p.lessonComplete) done += 0.5;
-    if (p.assessmentComplete) done += 0.5;
+    const sub = getSubmodule(moduleId, slug);
+    const hasAssessment = sub?.hasAssessment ?? false;
+    if (hasAssessment) {
+      if (p.lessonComplete) done += 0.5;
+      if (p.assessmentComplete) done += 0.5;
+    } else {
+      if (p.lessonComplete) done += 1.0;
+    }
   }
   return Math.round((done / submoduleSlugs.length) * 100);
 }

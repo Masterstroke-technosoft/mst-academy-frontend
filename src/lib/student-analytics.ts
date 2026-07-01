@@ -9,6 +9,7 @@ import {
   getGlobalActiveModuleId,
 } from "./progress";
 import { getLeaderboard } from "./leaderboard";
+import { getSubmodule } from "./curriculum";
 
 export type SkillKey =
   | "Blockchain"
@@ -166,8 +167,14 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     for (const sub of mod.submodules) {
       totalSubmodules++;
       const p = getSubmoduleProgress(mod.id, sub.slug);
-      if (p.lessonComplete) completedSubmodules += 0.5;
-      if (p.assessmentComplete) completedSubmodules += 0.5;
+      const subInfo = getSubmodule(mod.id, sub.slug);
+      const hasAssessment = subInfo?.hasAssessment ?? false;
+      if (hasAssessment) {
+        if (p.lessonComplete) completedSubmodules += 0.5;
+        if (p.assessmentComplete) completedSubmodules += 0.5;
+      } else {
+        if (p.lessonComplete) completedSubmodules += 1.0;
+      }
 
       if (p.completedAt) {
         const d = p.completedAt.slice(0, 10);

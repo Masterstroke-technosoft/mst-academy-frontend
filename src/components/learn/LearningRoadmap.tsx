@@ -22,6 +22,7 @@ import type { ModuleStatus } from "@/lib/progress";
 import { useTheme } from "@/components/ThemeProvider";
 import { useRoadmapStore } from "@/components/learn/roadmap/roadmapStore";
 import { getCardSubmoduleTitle } from "@/lib/display-titles";
+import { getSubmodule, registerSubmoduleMetadata } from "@/lib/curriculum";
 import {
   getModuleProgressPercent,
   getSubmoduleProgress,
@@ -230,7 +231,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
       <Handle type="target" position={Position.Left} id="left-target" className="opacity-0" />
       <Handle type="source" position={Position.Right} id="right-source" className="opacity-0" />
       <div
-        className={`w-[min(100vw-3rem,480px)] max-w-[480px] rounded-3xl border bg-[var(--surface)]/80 backdrop-blur-md p-6 shadow-md transition-all duration-300 ${active
+        className={`w-[min(100vw-3rem,480px)] max-w-[480px] min-h-[175px] flex flex-col justify-between rounded-3xl border bg-[var(--surface)]/80 backdrop-blur-md p-6 shadow-md transition-all duration-300 ${active
           ? "border-[var(--border-strong)]"
           : locked
             ? "border-[var(--border)] opacity-80"
@@ -241,10 +242,10 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
           boxShadow: active ? `0 18px 60px ${color}33` : undefined,
         }}
       >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
             <span
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl mt-0.5"
               style={{
                 background: `linear-gradient(135deg, ${color}22, transparent 60%)`,
                 border: `1px solid ${tint(color, "55")}`,
@@ -261,7 +262,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
               </h4>
             </div>
           </div>
-          <div className="shrink-0">
+          <div className="shrink-0 mt-0.5">
             {status === "locked" ? (
               <Lock className="h-4 w-4 text-[var(--text-muted)]/70" />
             ) : (
@@ -275,11 +276,8 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="flex items-center justify-between gap-3 text-xs">
-            <span className="font-semibold text-[var(--text-muted)]">
-              {subCount} lessons
-            </span>
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-end gap-3 text-xs">
             <span className="font-bold" style={{ color }}>
               {progress}%
             </span>
@@ -372,7 +370,7 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
         </div>
 
         <div className="mt-3 flex items-center justify-between text-[10px] font-semibold text-[var(--text-muted)]">
-          <span>Progress</span>
+          <span>{progressPct === 100 ? "Completed" : "Progress"}</span>
           <span style={{ color }}>{progressPct}%</span>
         </div>
         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--border)]" aria-hidden>
@@ -424,6 +422,11 @@ async function fetchWithAuth(url: string) {
 
 function computeProgressPctForSubmodule(moduleId: string | number, slug: string) {
   const p = getSubmoduleProgress(moduleId, slug);
+  const sub = getSubmodule(moduleId, slug);
+  const hasAssessment = sub?.hasAssessment ?? false;
+  if (!hasAssessment) {
+    return p.lessonComplete ? 100 : 0;
+  }
   const base = (p.lessonComplete ? 50 : 0) + (p.assessmentComplete ? 50 : 0);
   return Math.min(100, Math.round(base));
 }
@@ -714,22 +717,28 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     const modules = fetchedModules.map((m) => {
       const phaseIdx = sortedPhases.findIndex((p) => String(p._id || p.id) === String(m.phaseId));
       const uiPhaseId = phaseIdx !== -1 ? `phase-${phaseIdx + 1}` : m.phaseId;
+      const moduleId = m._id || m.id;
 
-      const subList = fetchedSubmodules[m._id || m.id] || [];
-      const submodules = subList.map((s: any) => ({
-        id: s.id || s._id,
-        slug: s.slug || s._id || s.id,
-        filename: s.contentFile || "",
-        title: s.title || "",
-        subtitle: s.description || s.subtitle || "",
-        hasAssessment: s.hasAssessment || false,
-        totalMarks: s.totalMarks || 0,
-        toc: s.toc || [],
-      }));
+      const subList = fetchedSubmodules[moduleId] || [];
+      const submodules = subList.map((s: any) => {
+        const staticSub = getSubmodule(m.index, s.slug || s.id);
+        const subObj = {
+          id: s.id || s._id,
+          slug: s.slug || s._id || s.id,
+          filename: s.contentFile || "",
+          title: s.title || "",
+          subtitle: s.description || s.subtitle || "",
+          hasAssessment: s.hasAssessment || staticSub?.hasAssessment || false,
+          totalMarks: s.totalMarks || staticSub?.totalMarks || 0,
+          toc: s.toc || [],
+        };
+        registerSubmoduleMetadata(moduleId, subObj);
+        return subObj;
+      });
 
       return {
-        id: m._id || m.id,
-        slug: m.slug || String(m._id || m.id),
+        id: moduleId,
+        slug: m.slug || String(moduleId),
         title: m.title || "",
         phaseId: uiPhaseId,
         description: m.description || "",
@@ -849,14 +858,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
         const active = activeSubmoduleSlug === sub.slug;
         const dimmed = activeSubmoduleSlug != null && activeSubmoduleSlug !== sub.slug;
-        let progressPct = 0;
-        if (!locked) {
-          if (i < lastUnlockedIndex) {
-            progressPct = 100;
-          } else {
-            progressPct = 0;
-          }
-        }
+        const progressPct = computeProgressPctForSubmodule(mod.id, sub.slug);
         const subId = `sub-${mod.id}-${sub.slug}`;
 
         nodes.push({
@@ -1096,7 +1098,14 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   }, [activeModule, moduleLocked]);
 
   const subProgressPct =
-    activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? 100 : 0;
+    activeModule && activeSubmodule
+      ? computeProgressPctForSubmodule(activeModule.id, activeSubmodule.slug)
+      : 0;
+
+  const activeSubProgress = useMemo(() => {
+    if (!activeModule || !activeSubmodule) return null;
+    return getSubmoduleProgress(activeModule.id, activeSubmodule.slug);
+  }, [activeModule, activeSubmodule]);
 
   const subLocked =
     activeModule && activeSubmodule
@@ -1413,7 +1422,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-[var(--text)]">
-                        Progress
+                        {subProgressPct === 100 ? "Completed" : "Progress"}
                       </p>
                       <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Completion unlocks the next lesson once assessments are passed.
@@ -1425,7 +1434,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                             Lessons
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? "Done" : "Pending"}
+                            {activeSubProgress?.lessonComplete ? "Done" : "Pending"}
                           </p>
                         </div>
                         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
@@ -1433,7 +1442,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                             Assessment
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {activeSubIndex !== -1 && activeSubIndex < lastUnlockedIndex ? "Passed" : "Not yet"}
+                            {activeSubProgress?.assessmentComplete
+                              ? "Passed"
+                              : (activeSubmodule?.hasAssessment === false ? "Not Required" : "Not yet")}
                           </p>
                         </div>
                       </div>
