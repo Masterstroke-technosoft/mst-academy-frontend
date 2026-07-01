@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { AuthUser } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
-import { motion } from "framer-motion";
-import { Camera, CheckCircle2, Copy, Save, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Camera, CheckCircle2, Copy, Save, User, AlertCircle } from "lucide-react";
 
 export function StudentProfile({ user }: { user: AuthUser | null }) {
   const { updateProfile } = useAuth();
@@ -29,6 +29,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     role: "",
     isActive: false,
     isStudentVerified: false,
+    studentVerificationStatus: safeUser.studentVerificationStatus || "",
+    studentRejectionNote: safeUser.studentRejectionNote || "",
     referredBy: null as string | null,
     referrals: [] as any[],
     createdAt: "",
@@ -44,6 +46,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   useEffect(() => {
     let profilePaymentVerified = false;
@@ -60,6 +68,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         if (response.ok) {
           const data = await response.json();
           if (data?.user) {
+            const rejectionNote = data.user.studentRejectionNote || data.user.rejectionNote || "";
+            const isActuallyVerified = rejectionNote ? false : !!data.user.isStudentVerified;
+
             setFormData(prev => ({
               ...prev,
               fullName: data.user.fullName || data.user.name || prev.fullName,
@@ -73,7 +84,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               email: data.user.email || prev.email,
               role: data.user.role || prev.role,
               isActive: data.user.isActive !== undefined ? data.user.isActive : prev.isActive,
-              isStudentVerified: data.user.isStudentVerified !== undefined ? data.user.isStudentVerified : prev.isStudentVerified,
+              isStudentVerified: isActuallyVerified,
+              studentVerificationStatus: data.user.studentVerificationStatus || prev.studentVerificationStatus,
+              studentRejectionNote: rejectionNote,
               referredBy: data.user.referredBy !== undefined ? data.user.referredBy : prev.referredBy,
               referrals: data.user.referrals || prev.referrals,
               createdAt: data.user.createdAt || prev.createdAt,
@@ -90,6 +103,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               profilePaymentVerified = true;
               setIsPaymentVerified(true);
             }
+            // Update auth provider user state with latest info
+            updateProfile({
+              isStudentVerified: isActuallyVerified,
+              studentRejectionNote: rejectionNote,
+            });
           }
         }
       } catch (error) {
@@ -179,6 +197,55 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     }
   };
 
+  const handleIdCardReupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const formDataToSend = new FormData();
+        formDataToSend.append("idCardImage", file);
+        formDataToSend.append("studentRejectionNote", "");
+        formDataToSend.append("isStudentVerified", "false");
+
+        const response = await fetch(`${baseURL}/api/users/profile`, {
+          method: "PATCH",
+          body: formDataToSend,
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          await fetch(`${baseURL}/api/users/profile`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              studentRejectionNote: "",
+              isStudentVerified: false
+            }),
+            credentials: "include",
+          });
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          isStudentVerified: false,
+          studentRejectionNote: "",
+        }));
+
+        updateProfile({
+          isStudentVerified: false,
+          studentRejectionNote: "",
+        });
+
+        showToast("ID Card re-uploaded successfully. Verification status is now pending.", "success");
+      } catch (error) {
+        console.error("Error re-uploading ID card:", error);
+        showToast("Failed to re-upload ID card. Please try again.", "error");
+      }
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -217,14 +284,18 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           <h2 className="text-2xl font-black text-[var(--text)] sm:text-3xl">
             Your Profile
           </h2>
-          
+
           {/* Verification Badges */}
           {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator") && (
             <div className="flex flex-wrap items-center gap-2">
-              {formData.isStudentVerified ? (
+              {formData.isStudentVerified && !formData.studentRejectionNote ? (
                 <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs font-black text-emerald-500">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   <span>Verified {formData.role?.toLowerCase() === "validator" ? "Validator" : "Student"}</span>
+                </div>
+              ) : formData.studentRejectionNote ? (
+                <div className="flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/20 px-3 py-1 text-xs font-black text-red-500">
+                  <span>Verification Rejected</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-xs font-black text-amber-500">
@@ -246,6 +317,38 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         </div>
 
         <form onSubmit={handleSave} className="space-y-8">
+          {/* Rejection Banner */}
+          {formData.studentRejectionNote && (
+            <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-5 text-sm text-red-500 backdrop-blur-md shadow-lg shadow-red-500/5">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+                <span className="font-extrabold text-base">Verification Rejected</span>
+              </div>
+              <p className="text-red-400 mb-3 font-medium">
+                Your verification request was rejected with the following note:
+              </p>
+              <div className="rounded-xl bg-red-950/20 border border-red-500/15 p-4 mb-4 text-[var(--text)] font-semibold leading-relaxed">
+                {formData.studentRejectionNote}
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("idCardReuploadInputTop")?.click()}
+                  className="rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer shadow-md shadow-red-600/10"
+                >
+                  Reverify
+                </button>
+                <input
+                  id="idCardReuploadInputTop"
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={handleIdCardReupload}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Photo Section */}
           <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
             <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full border-4 border-[var(--border)] bg-gradient-to-br from-mst-red to-orange-500 shadow-lg shadow-mst-red/20">
@@ -436,18 +539,39 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <div className="relative flex items-center">
                 <input
                   type="text"
-                  value={formData.isStudentVerified ? "Verified" : "Not Verified"}
+                  value={formData.isStudentVerified && !formData.studentRejectionNote ? "Verified" : formData.studentRejectionNote ? "Rejected" : "Not Verified"}
                   disabled
-                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${
-                    formData.isStudentVerified
+                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${formData.isStudentVerified && !formData.studentRejectionNote
                       ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
-                      : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
-                  }`}
+                      : formData.studentRejectionNote
+                        ? "border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400"
+                        : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
+                    }`}
                 />
-                {formData.isStudentVerified && (
+                {formData.isStudentVerified && !formData.studentRejectionNote && (
                   <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
                 )}
               </div>
+              {formData.studentRejectionNote && (
+                <div className="relative group mt-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-500 transition-all hover:bg-red-500/10">
+                  <span className="font-extrabold block mb-1">Rejection Reason:</span>
+                  <p className="mb-3">{formData.studentRejectionNote}</p>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("idCardReuploadInput")?.click()}
+                    className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer"
+                  >
+                    Re-upload ID Card
+                  </button>
+                  <input
+                    id="idCardReuploadInput"
+                    type="file"
+                    accept="image/*,.pdf"
+                    className="hidden"
+                    onChange={handleIdCardReupload}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Payment Verified Status */}
@@ -461,11 +585,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                     type="text"
                     value={isPaymentVerified ? "Verified" : "Pending Verification"}
                     disabled
-                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${
-                      isPaymentVerified
+                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${isPaymentVerified
                         ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
                         : "border-[var(--border)] bg-[var(--border)]/30 text-[var(--text-muted)]"
-                    }`}
+                      }`}
                   />
                   {isPaymentVerified && (
                     <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
@@ -587,6 +710,29 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           </div>
         </form>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className={`fixed top-6 right-6 z-[9999] flex items-center gap-3 rounded-2xl border px-5 py-3.5 shadow-2xl backdrop-blur-md transition-all ${
+              toast.type === "success"
+                ? "border-emerald-500/25 bg-emerald-950/80 text-emerald-400"
+                : "border-red-500/25 bg-red-950/80 text-red-400"
+            }`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
+            )}
+            <span className="text-sm font-bold text-white">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.section>
   );
 }

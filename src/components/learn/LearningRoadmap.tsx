@@ -1274,8 +1274,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {/* Payment / Verification Status Alert */}
-      {userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !isPaymentVerified) && (
+      {userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
@@ -1295,13 +1294,27 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 </div>
               </div>
             )
-          ) : !userProfile.isStudentVerified ? (
+          ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
             <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-              <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-              <div>
-                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
-                <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
-              </div>
+              {userProfile.studentRejectionNote ? (
+                <>
+                  <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                  <div>
+                    <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
+                    <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>
+                      Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                  <div>
+                    <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                    <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
+                  </div>
+                </>
+              )}
             </div>
           ) : null}
         </div>

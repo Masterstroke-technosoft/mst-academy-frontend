@@ -22,6 +22,8 @@ export interface AuthUser {
   registeredAt?: string;
   isActive?: boolean;
   isStudentVerified?: boolean;
+  studentVerificationStatus?: string;
+  studentRejectionNote?: string;
   createdAt?: string;
   updatedAt?: string;
   cvFile?: string;
