@@ -451,8 +451,8 @@ export default function SubmissionReviewPage() {
 
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           {loading ? (
-            <div className="overflow-hidden">
-              <table className="w-full text-left text-sm text-[var(--text-muted)] border-collapse">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
                     <th className="px-3 py-3 w-[22%]">User</th>
@@ -479,8 +479,8 @@ export default function SubmissionReviewPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden">
-              <table className="w-full text-left text-sm text-[var(--text-muted)] border-collapse">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
                     <th className="px-3 py-3 w-[22%]">User</th>

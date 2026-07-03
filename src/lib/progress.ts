@@ -1,7 +1,7 @@
 "use client";
 
 import { isAdminUser } from "./auth";
-import { getSubmodule } from "./curriculum";
+import { getModule, getSubmodule } from "./curriculum";
 
 export type ModuleStatus = "locked" | "active" | "completed";
 
@@ -32,9 +32,44 @@ export function getSubmoduleProgress(
     return { lessonComplete: false, assessmentComplete: false };
   }
   try {
-    const raw = localStorage.getItem(key(`sub-${moduleId}-${slug}`));
-    if (!raw) return { lessonComplete: false, assessmentComplete: false };
-    return JSON.parse(raw) as SubmoduleProgress;
+    let p1: SubmoduleProgress = { lessonComplete: false, assessmentComplete: false };
+
+    // 1. Try directly with the provided moduleId
+    const raw1 = localStorage.getItem(key(`sub-${moduleId}-${slug}`));
+    if (raw1) {
+      p1 = JSON.parse(raw1) as SubmoduleProgress;
+    }
+
+    // 2. Scan localStorage for any keys matching "mst-academy-sub-*-<slug>"
+    // This handles any module ID mismatches (e.g. static index vs MongoDB ID vs parsed integer vs NaN)
+    const suffix = "-" + slug;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(PREFIX + "sub-") && k.endsWith(suffix)) {
+        // Prevent partial matches (e.g. slug "3" matching key suffix "-1-3")
+        const beforeSuffixIndex = k.length - suffix.length;
+        if (beforeSuffixIndex > 0 && k.charAt(beforeSuffixIndex - 1) === "-") {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            try {
+              const p = JSON.parse(raw) as SubmoduleProgress;
+              p1 = {
+                lessonComplete: p1.lessonComplete || p.lessonComplete,
+                assessmentComplete: p1.assessmentComplete || p.assessmentComplete,
+                score: p1.score !== undefined ? p1.score : p.score,
+                maxScore: p1.maxScore !== undefined ? p1.maxScore : p.maxScore,
+                passed: p1.passed !== undefined ? p1.passed : p.passed,
+                completedAt: p1.completedAt || p.completedAt,
+              };
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+    }
+
+    return p1;
   } catch {
     return { lessonComplete: false, assessmentComplete: false };
   }
@@ -125,20 +160,21 @@ export function getModuleStatus(
   submoduleSlugs: string[],
   getSlugs: (id: any) => string[]
 ): ModuleStatus {
+  const complete = isModuleFullyComplete(moduleId, submoduleSlugs);
+  if (complete) return "completed";
+
   if (adminBypass()) {
-    if (isModuleCompletePlaceholder(moduleId, submoduleSlugs)) return "completed";
     return "active";
   }
   const activeId = getGlobalActiveModuleId(allModuleIds, getSlugs);
-  if (isModuleFullyComplete(moduleId, submoduleSlugs)) return "completed";
   if (String(moduleId) === String(activeId)) return "active";
 
   const idxModule = allModuleIds.findIndex(id => String(id) === String(moduleId));
   const idxActive = allModuleIds.findIndex(id => String(id) === String(activeId));
-  if (idxModule !== -1 && idxActive !== -1 && idxModule < idxActive) return "completed";
+  if (idxModule !== -1 && idxActive !== -1 && idxModule < idxActive) return "active";
 
   if (typeof moduleId === "number" && typeof activeId === "number") {
-    if (moduleId < activeId) return "completed";
+    if (moduleId < activeId) return "active";
   }
   return "locked";
 }

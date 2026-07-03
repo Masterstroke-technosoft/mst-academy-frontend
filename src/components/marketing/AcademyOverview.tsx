@@ -154,7 +154,7 @@ function SubmoduleCard({
 
   return (
     <Link
-      href={`/module/${moduleId}/${subSlug}`}
+      href='#'
       onClick={(e) => {
         // Comment out or prevent click navigation if needed:
         e.preventDefault();
@@ -182,10 +182,10 @@ function SubmoduleCard({
           <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-[var(--text-muted)]">
             {desc}
           </p>
-          <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-mst-red opacity-0 transition group-hover:opacity-100">
+          {/* <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-mst-red opacity-0 transition group-hover:opacity-100">
             <PlayCircle className="h-3.5 w-3.5" />
             Open lesson
-          </span>
+          </span> */}
         </div>
       </div>
     </Link>
@@ -496,7 +496,6 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
   }, []);
 
   const isVisible = mounted;
-
   return (
     <div className="overflow-hidden bg-[var(--bg)]">
       {/* Hero */}

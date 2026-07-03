@@ -67,7 +67,7 @@ function getQuestionTimeLimit(q: AssessmentQuestion): number {
     }
   }
 
-  const type = q.type;
+  const type = q.type as string;
   const diff = (q.difficulty || "medium").toLowerCase();
 
   if (
@@ -843,11 +843,10 @@ export function FullscreenAssessment({
                 </ul>
               )}
 
-              {/* True/False with potential justification */}
-              {(current.type === "true_false" ||
-                current.type === "TRUE_FALSE" ||
-                current.type === "true_false_justification" ||
-                current.type === "TRUE_FALSE_WITH_JUSTIFICATION") && (
+              {((current.type as string) === "true_false" ||
+                (current.type as string) === "TRUE_FALSE" ||
+                (current.type as string) === "true_false_justification" ||
+                (current.type as string) === "TRUE_FALSE_WITH_JUSTIFICATION") && (
                   <div className="space-y-4">
                     <div className="flex gap-4">
                       {["TRUE", "FALSE"].map((v) => {
@@ -862,8 +861,8 @@ export function FullscreenAssessment({
                                 (currentAnswer?.value || "").split("\n---\n")[1] ||
                                 "";
                               const isJustification =
-                                current.type === "true_false_justification" ||
-                                current.type === "TRUE_FALSE_WITH_JUSTIFICATION";
+                                (current.type as string) === "true_false_justification" ||
+                                (current.type as string) === "TRUE_FALSE_WITH_JUSTIFICATION";
                               setAnswer(
                                 current,
                                 isJustification
@@ -882,8 +881,8 @@ export function FullscreenAssessment({
                         );
                       })}
                     </div>
-                    {(current.type === "true_false_justification" ||
-                      current.type === "TRUE_FALSE_WITH_JUSTIFICATION") && (
+                    {((current.type as string) === "true_false_justification" ||
+                      (current.type as string) === "TRUE_FALSE_WITH_JUSTIFICATION") && (
                       <textarea
                         rows={5}
                         placeholder="Mandatory justification (at least 40 characters)…"

@@ -90,7 +90,7 @@ export default function AssessmentViewer({
     const fetchUserProfile = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const response = await fetch(`${baseURL}/api/users/profile`, {
+        const response = await fetch(`${baseURL}/api/me`, {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
@@ -383,32 +383,34 @@ export default function AssessmentViewer({
     const results: {
       qNum: number;
       answer: string;
+      rawAnswer?: any;
       isCorrect: boolean;
       marks: number;
       awardedMarks?: number;
       evaluationReason?: string;
       questionType?: string;
       explanation?: string;
-      questionText?: string;
-      correctAnswer?: string;
+      correctAnswer?: any;
       options?: Array<{ label: string; text: string }>;
+      questionText?: string;
     }[] = submissionResult?.answers ? submissionResult.answers.map((ans: any, idx: number) => {
-      const q = assessment.questions[idx] || {};
+      const q: any = assessment.questions.find((quest) => quest.questionNumber === ans.questionNumber) || {};
       const answerDisplay = Array.isArray(ans.selectedAnswer)
         ? ans.selectedAnswer.join(", ")
         : (ans.selectedAnswer === true ? "True" : ans.selectedAnswer === false ? "False" : (ans.selectedAnswer || ""));
       return {
         qNum: idx + 1,
         answer: answerDisplay,
+        rawAnswer: ans.selectedAnswer,
         isCorrect: ans.isCorrect,
         marks: q.marks || 0,
         awardedMarks: ans.awardedMarks !== undefined ? ans.awardedMarks : (ans.isCorrect ? (q.marks || 0) : 0),
         evaluationReason: ans.evaluationReason,
         questionType: ans.questionType || q.type,
         explanation: ans.explanation || q.explanation,
-        questionText: ans.questionText || q.questionText || q.statement,
         correctAnswer: ans.correctAnswer || q.correctAnswer,
         options: ans.options || q.options,
+        questionText: ans.questionText || q.questionText || q.statement,
       };
     }) : assessment.questions.map((q, idx) => {
       const answer = answers[q.questionNumber];
@@ -416,14 +418,15 @@ export default function AssessmentViewer({
       return {
         qNum: idx + 1,
         answer: answer || "",
+        rawAnswer: answer,
         isCorrect,
         marks: q.marks,
         awardedMarks: isCorrect ? q.marks : 0,
         questionType: q.type,
         explanation: q.explanation,
-        questionText: q.questionText || q.statement,
         correctAnswer: q.correctAnswer,
         options: q.options,
+        questionText: q.questionText || q.statement,
       };
     });
 
@@ -485,7 +488,7 @@ export default function AssessmentViewer({
             </div>
           </div>
 
-          <div className="space-y-4 mb-8 text-left">
+          <div className="space-y-2 mb-8 text-left">
             {results.map((result) => {
               const isPartial = (result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" || result.questionType === "true_false_justification") &&
                 result.awardedMarks !== undefined &&
@@ -493,10 +496,10 @@ export default function AssessmentViewer({
                 result.awardedMarks < result.marks;
 
               const containerColorClass = isPartial
-                ? "bg-yellow-500/5 border border-yellow-500/20"
+                ? "bg-yellow-500/10 border border-yellow-500/20"
                 : result.isCorrect
-                  ? "bg-green-500/5 border border-green-500/20"
-                  : "bg-red-500/5 border border-red-500/20";
+                  ? "bg-green-500/10 border border-green-500/20"
+                  : "bg-red-500/10 border border-red-500/20";
 
               const textColorClass = isPartial
                 ? "text-yellow-600 dark:text-yellow-400"
@@ -510,107 +513,75 @@ export default function AssessmentViewer({
                   ? "✓ Correct"
                   : "✗ Incorrect";
 
-              // Determine options to render
-              let optionsToRender = result.options;
-              let isTF = false;
-              let tfCorrectVal = "";
-              if (!optionsToRender && (
-                result.questionType === "TRUE_FALSE" ||
-                result.questionType === "true_false" ||
-                result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" ||
-                result.questionType === "true_false_justification"
-              )) {
-                isTF = true;
-                optionsToRender = [
-                  { label: "True", text: "True" },
-                  { label: "False", text: "False" }
-                ];
-                tfCorrectVal = result.correctAnswer === true || String(result.correctAnswer).toLowerCase() === "true" ? "True" : "False";
-              }
-
               return (
                 <div
                   key={result.qNum}
                   className={`flex flex-col p-4 rounded-xl space-y-3 ${containerColorClass}`}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-full pb-2 border-b border-[var(--border)]/20">
                     <span className="text-sm font-bold">
                       Question {result.qNum}:{" "}
                       <span className={textColorClass}>
                         {statusText}
                       </span>
                     </span>
-                    <span className={`font-semibold ${textColorClass}`}>
+                    <span className={`font-bold ${textColorClass}`}>
                       {result.awardedMarks !== undefined ? result.awardedMarks : (result.isCorrect ? result.marks : 0)}/{result.marks}
                     </span>
                   </div>
 
-                  {/* Question Text */}
                   {result.questionText && (
-                    <div className="text-sm font-semibold text-[var(--text)] mt-1">
+                    <div className="text-sm font-semibold text-[var(--text)] leading-relaxed">
                       {result.questionText}
                     </div>
                   )}
 
-                  {/* Options with correctness highlights */}
-                  {optionsToRender && optionsToRender.length > 0 && (
-                    <div className="space-y-2 mt-2">
-                      {optionsToRender.map((opt) => {
-                        const isSelected = isTF 
-                          ? (result.answer === opt.label)
-                          : (result.answer && typeof result.answer === "string" ? result.answer.split(", ").includes(opt.label) : false);
+                  {result.options && result.options.length > 0 && (
+                    <div className="space-y-2 mt-1">
+                      {result.options.map((option) => {
+                        const isCorrectOption = Array.isArray(result.correctAnswer)
+                          ? result.correctAnswer.includes(option.label)
+                          : option.label === result.correctAnswer;
 
-                        const isCorrectOption = isTF
-                          ? (tfCorrectVal === opt.label)
-                          : (result.correctAnswer !== undefined && result.correctAnswer !== null
-                            ? (typeof result.correctAnswer === "string"
-                              ? result.correctAnswer.split(", ").includes(opt.label)
-                              : Array.isArray(result.correctAnswer)
-                                ? result.correctAnswer.includes(opt.label)
-                                : String(result.correctAnswer) === opt.label)
-                            : false);
+                        const isUserSelected = Array.isArray(result.rawAnswer)
+                          ? result.rawAnswer.includes(option.label)
+                          : (result.answer ? result.answer.split(", ").includes(option.label) : false);
 
-                        let optClass = "border border-[var(--border)] bg-[var(--surface-elevated)]/50 text-[var(--text-muted)]";
+                        let optionBgClass = "bg-[var(--bg-muted)]/50 border-[var(--border)] text-[var(--text-muted)]";
+                        let optionTextClass = "text-[var(--text-muted)]";
+                        let badge = null;
+
                         if (isCorrectOption) {
-                          optClass = "border-2 border-green-500 bg-green-500/10 text-green-700 dark:text-green-400 font-semibold";
-                        } else if (isSelected) {
-                          optClass = "border-2 border-red-500 bg-red-500/10 text-red-700 dark:text-red-400 font-semibold";
+                          optionBgClass = "bg-green-500/10 border-2 border-green-500/30 text-green-600 dark:text-green-400 font-semibold";
+                          optionTextClass = "text-green-700 dark:text-green-300";
+                          badge = <span className="ml-auto text-[9px] font-black uppercase tracking-wider bg-green-500/20 text-green-700 px-2 py-0.5 rounded">Correct Answer</span>;
+                        } else if (isUserSelected) {
+                          optionBgClass = "bg-red-500/10 border-2 border-red-500/30 text-red-600 dark:text-red-400 font-semibold";
+                          optionTextClass = "text-red-700 dark:text-red-300";
+                          badge = <span className="ml-auto text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-700 px-2 py-0.5 rounded">Your Selection</span>;
                         }
 
                         return (
                           <div
-                            key={opt.label}
-                            className={`p-3 rounded-lg text-xs flex items-start gap-2.5 ${optClass}`}
+                            key={option.label}
+                            className={`flex items-center gap-3 p-3 rounded-lg border text-xs transition duration-150 ${optionBgClass}`}
                           >
-                            <span className="font-bold uppercase min-w-[16px]">{opt.label}.</span>
-                            <span className="flex-1">{opt.text}</span>
-                            <span className="ml-auto text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
-                              {isCorrectOption && isSelected && "✓ Correct Answer"}
-                              {isCorrectOption && !isSelected && "✓ Correct Option"}
-                              {!isCorrectOption && isSelected && "✗ Selected Incorrect"}
-                            </span>
+                            <span className="font-bold">{option.label}.</span>
+                            <span className={optionTextClass}>{option.text}</span>
+                            {badge}
                           </div>
                         );
                       })}
                     </div>
                   )}
 
-                  {/* Descriptive answer (if not MCQ / TF) */}
-                  {!optionsToRender && result.answer && (
-                    <div className="mt-2 text-xs text-[var(--text-muted)] bg-[var(--surface-elevated)]/30 p-2.5 rounded-lg border border-[var(--border)]/20">
-                      <span className="font-semibold text-[var(--text)] block mb-1">Your Answer:</span>
-                      <p className="whitespace-pre-wrap">{result.answer}</p>
-                    </div>
-                  )}
-
-                  {/* Evaluation or Explanation */}
                   {(result.questionType === "DESCRIPTIVE" || result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" || result.questionType === "true_false_justification") && result.evaluationReason ? (
-                    <div className="mt-2 text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
+                    <div className="text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
                       <span className="font-semibold text-[var(--text)]">Evaluation:</span> {result.evaluationReason}
                     </div>
                   ) : (
                     result.explanation && (
-                      <div className="mt-2 text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
+                      <div className="text-xs text-[var(--text-muted)] border-t border-[var(--border)]/20 pt-2 w-full">
                         <span className="font-semibold text-[var(--text)]">Explanation:</span> {result.explanation}
                       </div>
                     )
@@ -1168,39 +1139,39 @@ export default function AssessmentViewer({
                 currentQuestion.type === "true_false" ||
                 currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" ||
                 currentQuestion.type === "true_false_justification") && (
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    {["True", "False"].map((val) => (
-                      <button
-                        key={val}
-                        onClick={() => handleOptionSelect(val)}
-                        className={`flex-1 py-3 px-4 rounded-lg border-2 font-semibold transition ${answers[currentQuestion.questionNumber] === val
-                          ? "border-mst-red bg-mst-red text-white"
-                          : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
-                          }`}
-                      >
-                        {val}
-                      </button>
-                    ))}
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      {["True", "False"].map((val) => (
+                        <button
+                          key={val}
+                          onClick={() => handleOptionSelect(val)}
+                          className={`flex-1 py-3 px-4 rounded-lg border-2 font-semibold transition ${answers[currentQuestion.questionNumber] === val
+                            ? "border-mst-red bg-mst-red text-white"
+                            : "border-[var(--border)] text-[var(--text)] hover:border-mst-red/50"
+                            }`}
+                        >
+                          {val}
+                        </button>
+                      ))}
+                    </div>
+                    {(currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" ||
+                      currentQuestion.type === "true_false_justification") && (
+                        <textarea
+                          placeholder="Justify your answer..."
+                          value={justifications[currentQuestion.questionNumber] || ""}
+                          onChange={(e) => {
+                            if (!submitted) {
+                              setJustifications((prev) => ({
+                                ...prev,
+                                [currentQuestion.questionNumber]: e.target.value,
+                              }));
+                            }
+                          }}
+                          className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                        />
+                      )}
                   </div>
-                  {(currentQuestion.type === "TRUE_FALSE_WITH_JUSTIFICATION" ||
-                    currentQuestion.type === "true_false_justification") && (
-                    <textarea
-                      placeholder="Justify your answer..."
-                      value={justifications[currentQuestion.questionNumber] || ""}
-                      onChange={(e) => {
-                        if (!submitted) {
-                          setJustifications((prev) => ({
-                            ...prev,
-                            [currentQuestion.questionNumber]: e.target.value,
-                          }));
-                        }
-                      }}
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none"
-                    />
-                  )}
-                </div>
-              )}
+                )}
 
               {/* Descriptive Question */}
               {(!currentQuestion.options &&
@@ -1208,22 +1179,22 @@ export default function AssessmentViewer({
                 currentQuestion.type !== "true_false_justification" &&
                 currentQuestion.type !== "TRUE_FALSE" &&
                 currentQuestion.type !== "true_false") && (
-                <div className="space-y-4">
-                  <textarea
-                    placeholder="Justify your answer..."
-                    value={answers[currentQuestion.questionNumber] || ""}
-                    onChange={(e) => {
-                      if (!submitted) {
-                        setAnswers((prev) => ({
-                          ...prev,
-                          [currentQuestion.questionNumber]: e.target.value,
-                        }));
-                      }
-                    }}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none min-h-[150px]"
-                  />
-                </div>
-              )}
+                  <div className="space-y-4">
+                    <textarea
+                      placeholder="Justify your answer..."
+                      value={answers[currentQuestion.questionNumber] || ""}
+                      onChange={(e) => {
+                        if (!submitted) {
+                          setAnswers((prev) => ({
+                            ...prev,
+                            [currentQuestion.questionNumber]: e.target.value,
+                          }));
+                        }
+                      }}
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-sm text-[var(--text)] placeholder-[var(--text-muted)] focus:border-mst-red focus:outline-none min-h-[150px]"
+                    />
+                  </div>
+                )}
             </div>
           </div>
         </div>

@@ -22,7 +22,7 @@ import type { ModuleStatus } from "@/lib/progress";
 import { useTheme } from "@/components/ThemeProvider";
 import { useRoadmapStore } from "@/components/learn/roadmap/roadmapStore";
 import { getCardSubmoduleTitle } from "@/lib/display-titles";
-import { getSubmodule, registerSubmoduleMetadata } from "@/lib/curriculum";
+import { getModule, getSubmodule, registerSubmoduleMetadata, registerModuleIdMapping } from "@/lib/curriculum";
 import {
   getModuleProgressPercent,
   getSubmoduleProgress,
@@ -43,6 +43,7 @@ import {
   Star,
   Trophy,
   Zap,
+  Monitor,
 } from "lucide-react";
 import { playExpand, playNavigate, playSelect } from "@/lib/sounds";
 
@@ -277,7 +278,10 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
         </div>
 
         <div className="mt-auto pt-4">
-          <div className="flex items-center justify-end gap-3 text-xs">
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="text-[var(--text-muted)] font-medium">
+              {subCount} lessons
+            </span>
             <span className="font-bold" style={{ color }}>
               {progress}%
             </span>
@@ -523,6 +527,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const { user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
+  const [showMobileWarningPopup, setShowMobileWarningPopup] = useState(false);
 
   const {
     activePhaseId,
@@ -548,7 +553,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
     async function fetchProfile() {
       try {
-        const res = await fetchWithAuth(`${baseURL}/api/users/profile`);
+        const res = await fetchWithAuth(`${baseURL}/api/me`);
         if (res.ok) {
           const data = await res.json();
           if (data?.user) {
@@ -564,6 +569,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       }
     }
     async function checkPaymentStatus() {
+      const isAdmin = user?.role === "admin" || user?.role === "ADMIN";
+      if (!isAdmin) {
+        setIsPaymentVerified(profilePaymentVerified);
+        setHasSubmittedPayment(profilePaymentVerified);
+        return;
+      }
       try {
         const res = await fetchWithAuth(`${baseURL}/api/node-purchase`);
         if (res.ok) {
@@ -608,6 +619,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const [fetchedModules, setFetchedModules] = useState<any[]>([]);
 
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
+  const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -719,16 +731,23 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       const uiPhaseId = phaseIdx !== -1 ? `phase-${phaseIdx + 1}` : m.phaseId;
       const moduleId = m._id || m.id;
 
-      const subList = fetchedSubmodules[moduleId] || [];
-      const submodules = subList.map((s: any) => {
-        const staticSub = getSubmodule(m.index, s.slug || s.id);
+      registerModuleIdMapping(moduleId, m.index);
+
+      const staticMod = getModule(m.index);
+      const hasFetched = fetchedSubmodules[moduleId] !== undefined;
+      const subList = hasFetched
+        ? fetchedSubmodules[moduleId]
+        : (String(moduleId) === String(activeModuleId) ? [] : (staticMod?.submodules || []));
+
+      const submodules = subList.map((s: any, sIdx: number) => {
+        const staticSub = staticMod?.submodules[sIdx];
         const subObj = {
           id: s.id || s._id,
           slug: s.slug || s._id || s.id,
-          filename: s.contentFile || "",
+          filename: s.filename || s.contentFile || "",
           title: s.title || "",
-          subtitle: s.description || s.subtitle || "",
-          hasAssessment: s.hasAssessment || staticSub?.hasAssessment || false,
+          subtitle: s.subtitle || s.description || "",
+          hasAssessment: s.hasAssessment !== undefined ? s.hasAssessment : (staticSub?.hasAssessment || false),
           totalMarks: s.totalMarks || staticSub?.totalMarks || 0,
           toc: s.toc || [],
         };
@@ -874,7 +893,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             active,
             dimmed,
             onSelect: () => {
-              if (!locked) setSubmodule(sub.slug);
+              if (viewportW <= 1024) {
+                setShowMobileWarningPopup(true);
+              } else if (!locked) {
+                setSubmodule(sub.slug);
+              }
             },
             progressPct,
           } satisfies SubmoduleNodeVisual,
@@ -919,7 +942,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             active: false,
             dimmed: false,
             onSelect: () => {
-              if (!locked) setModule(mod.id);
+              if (viewportW <= 1024) {
+                setShowMobileWarningPopup(true);
+              } else if (!locked) {
+                setModule(mod.id);
+              }
             },
           } satisfies ModuleNodeVisual,
           draggable: false,
@@ -1329,301 +1356,355 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       )}
 
-      {/* Graph — viewport height so less scrolling */}
-      <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
-        <div
-          className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-hidden"
-          style={{
-            height: activePhaseId === "phase-3" && !activeModuleId
-              ? (isMobile ? "72vh" : "calc(100vh - 280px)")
-              : (isMobile
-                ? `min(72vh, ${graphHeight}px)`
-                : `min(calc(100vh - 280px), ${Math.max(graphHeight, 420)}px)`),
-          }}
-        >
+      {/* Interactive Content (Blurred on mobile when warning popup is active) */}
+      <div
+        className="assignment-content"
+        style={{
+          filter: showMobileWarningPopup ? "blur(8px)" : "none",
+          transition: "filter 0.3s ease",
+          pointerEvents: showMobileWarningPopup ? "none" : "auto",
+        }}
+      >
+        {/* Graph — viewport height so less scrolling */}
+        <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
           <div
-            className="pointer-events-none absolute inset-0 opacity-60"
+            className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-hidden"
             style={{
-              background:
-                "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.12), transparent 70%)",
+              height: activePhaseId === "phase-3" && !activeModuleId
+                ? (isMobile ? "72vh" : "calc(100vh - 280px)")
+                : (isMobile
+                  ? `min(72vh, ${graphHeight}px)`
+                  : `min(calc(100vh - 280px), ${Math.max(graphHeight, 420)}px)`),
             }}
-          />
-          <div style={{ height: graphHeight, width: "100%" }}>
+          >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-60"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.12), transparent 70%)",
+              }}
+            />
+            <div style={{ height: graphHeight, width: "100%" }}>
+              {isFetchingSubmodules ? (
+                <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
+                    <p className="text-sm font-semibold text-[var(--text-muted)] animate-pulse">
+                      Loading module content…
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <ReactFlow
+                  nodes={nodes}
+                  edges={edges}
+                  nodeTypes={nodeTypes}
+                  nodesDraggable={false}
+                  panOnDrag={true}
+                  panOnScroll={true}
+                  zoomOnScroll={false}
+                  zoomOnPinch={false}
+                  zoomOnDoubleClick={false}
+                  preventScrolling={false}
+                  fitView={false}
+                  proOptions={{ hideAttribution: true }}
+                  minZoom={isMobile ? 0.5 : 0.25}
+                  maxZoom={1.4}
+                  defaultViewport={{ x: isMobile ? 8 : 40, y: 20, zoom: isMobile ? 0.85 : 0.95 }}
+                >
+                  <Background
+                    color={isLight ? "#d1d5db" : "#1f2937"}
+                    gap={28}
+                    variant={BackgroundVariant.Dots}
+                  />
+                  <Controls
+                    className="!bg-white/70 !border-black/10 dark:!bg-[#111] !shadow-lg"
+                    showInteractive={false}
+                  />
 
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              nodesDraggable={false}
-              panOnDrag={true}
-              panOnScroll={true}
-              zoomOnScroll={false}
-              zoomOnPinch={false}
-              zoomOnDoubleClick={false}
-              preventScrolling={false}
-              fitView={false}
-              proOptions={{ hideAttribution: true }}
-              minZoom={isMobile ? 0.5 : 0.25}
-              maxZoom={1.4}
-              defaultViewport={{ x: isMobile ? 8 : 40, y: 20, zoom: isMobile ? 0.85 : 0.95 }}
-            >
-              <Background
-                color={isLight ? "#d1d5db" : "#1f2937"}
-                gap={28}
-                variant={BackgroundVariant.Dots}
-              />
-              <Controls
-                className="!bg-white/70 !border-black/10 dark:!bg-[#111] !shadow-lg"
-                showInteractive={false}
-              />
 
-
-              <CameraController targetNodeIds={targetFitIds} />
-            </ReactFlow>
+                  <CameraController targetNodeIds={targetFitIds} />
+                </ReactFlow>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Detail panel */}
-      <AnimatePresence>
-        {activeModule && activeSubmodule && (
-          <>
-            <motion.aside
-              key="detail"
-              initial={{ opacity: 0, x: 30, y: 10 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              exit={{ opacity: 0, x: 30, y: 10 }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
-              className="fixed right-4 top-[6.5rem] z-[60] hidden h-[calc(100vh-8.5rem)] w-[390px] rounded-3xl border border-[var(--border)] bg-[var(--surface)]/75 backdrop-blur-md shadow-2xl sm:block"
-            >
-              <div className="flex h-full flex-col">
-                <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                      {activeModule?.index || 1}.{activeSubIndex + 1}
-                    </p>
-                    <h3 className="mt-1 truncate text-lg font-black text-[var(--text)]">
-                      {getCardSubmoduleTitle(activeSubmodule.title)}
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={backToModule}
-                    className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-xs font-bold text-[var(--text-muted)] transition hover:border-mst-red/40 hover:text-mst-red"
-                  >
-                    Back
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-auto px-5 py-4">
-                  <div className="flex items-start gap-4">
-                    <div className="mt-1">
-                      <ProgressRing value={subProgressPct} />
-                    </div>
+        {/* Detail panel */}
+        <AnimatePresence>
+          {activeModule && activeSubmodule && (
+            <>
+              <motion.aside
+                key="detail"
+                initial={{ opacity: 0, x: 30, y: 10 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0, x: 30, y: 10 }}
+                transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                className="fixed right-4 top-[6.5rem] z-[60] hidden h-[calc(100vh-8.5rem)] w-[390px] rounded-3xl border border-[var(--border)] bg-[var(--surface)]/75 backdrop-blur-md shadow-2xl sm:block"
+              >
+                <div className="flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-4">
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-[var(--text)]">
-                        {subProgressPct === 100 ? "Completed" : "Progress"}
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                        {activeModule?.index || 1}.{activeSubIndex + 1}
                       </p>
-                      <p className="mt-1 text-sm text-[var(--text-muted)]">
-                        Completion unlocks the next lesson once assessments are passed.
-                      </p>
+                      <h3 className="mt-1 truncate text-lg font-black text-[var(--text)]">
+                        {getCardSubmoduleTitle(activeSubmodule.title)}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={backToModule}
+                      className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-xs font-bold text-[var(--text-muted)] transition hover:border-mst-red/40 hover:text-mst-red"
+                    >
+                      Back
+                    </button>
+                  </div>
 
-                      <div className="mt-3 grid grid-cols-2 gap-2">
-                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
+                  <div className="flex-1 overflow-auto px-5 py-4">
+                    <div className="flex items-start gap-4">
+                      <div className="mt-1">
+                        <ProgressRing value={subProgressPct} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-[var(--text)]">
+                          {subProgressPct === 100 ? "Completed" : "Progress"}
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--text-muted)]">
+                          Completion unlocks the next lesson once assessments are passed.
+                        </p>
+
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                              Lessons
+                            </p>
+                            <p className="mt-1 text-sm font-black text-[var(--text)]">
+                              {activeSubProgress?.lessonComplete ? "Done" : "Pending"}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                              Assessment
+                            </p>
+                            <p className="mt-1 text-sm font-black text-[var(--text)]">
+                              {activeSubProgress?.assessmentComplete
+                                ? "Passed"
+                                : (activeSubmodule?.hasAssessment === false ? "Not Required" : "Not yet")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                      <p className="text-sm font-bold text-[var(--text)]">Description</p>
+                      <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
+                        {activeSubmodule.subtitle?.trim()
+                          ? activeSubmodule.subtitle
+                          : "Focus lesson for this module. Open to see structured sections and complete the assessment."}
+                      </p>
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-3">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                            Lessons
+                            Duration
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {activeSubProgress?.lessonComplete ? "Done" : "Pending"}
+                            ~30–45 mins
                           </p>
                         </div>
-                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/60 p-3">
+                        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-3">
                           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                            Assessment
+                            Pass Rule
                           </p>
                           <p className="mt-1 text-sm font-black text-[var(--text)]">
-                            {activeSubProgress?.assessmentComplete
-                              ? "Passed"
-                              : (activeSubmodule?.hasAssessment === false ? "Not Required" : "Not yet")}
+                            {PASS_THRESHOLD}%+
                           </p>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
-                    <p className="text-sm font-bold text-[var(--text)]">Description</p>
-                    <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
-                      {activeSubmodule.subtitle?.trim()
-                        ? activeSubmodule.subtitle
-                        : "Focus lesson for this module. Open to see structured sections and complete the assessment."}
-                    </p>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                          Duration
-                        </p>
-                        <p className="mt-1 text-sm font-black text-[var(--text)]">
-                          ~30–45 mins
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/70 p-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                          Pass Rule
-                        </p>
-                        <p className="mt-1 text-sm font-black text-[var(--text)]">
-                          {PASS_THRESHOLD}%+
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-5">
-                    <p className="text-sm font-bold text-[var(--text)]">Resources</p>
-                    <div className="mt-3 flex flex-col gap-2">
-                      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-3">
-                        <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                          Lesson
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-[var(--text)] flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-mst-red" />
-                          Open content
-                        </p>
-                      </div>
-                      {activeSubmodule.hasAssessment && (
+                    <div className="mt-5">
+                      <p className="text-sm font-bold text-[var(--text)]">Resources</p>
+                      <div className="mt-3 flex flex-col gap-2">
                         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-3">
                           <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                            Assessment
+                            Lesson
                           </p>
                           <p className="mt-1 text-sm font-semibold text-[var(--text)] flex items-center gap-2">
-                            <Trophy className="h-4 w-4 text-mst-red" />
-                            Test & unlock
+                            <BookOpen className="h-4 w-4 text-mst-red" />
+                            Open content
                           </p>
                         </div>
+                        {activeSubmodule.hasAssessment && (
+                          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-3">
+                            <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                              Assessment
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-[var(--text)] flex items-center gap-2">
+                              <Trophy className="h-4 w-4 text-mst-red" />
+                              Test & unlock
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[var(--border)] px-5 py-4">
+                    <div className="flex flex-col gap-3">
+                      <Link
+                        href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
+                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
+                          ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                          : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
+                          }`}
+                        aria-disabled={subLocked}
+                        onClick={(e) => {
+                          if (subLocked) e.preventDefault();
+                        }}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        {subLocked ? "Locked" : "Open Lesson"}
+                      </Link>
+                      {detailCta?.hasAssessment && (
+                        <Link
+                          href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
+                          className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
+                            ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
+                            : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
+                            }`}
+                          aria-disabled={subLocked}
+                          onClick={(e) => {
+                            if (subLocked) e.preventDefault();
+                          }}
+                        >
+                          <Zap className="h-4 w-4" />
+                          Start Assessment
+                        </Link>
                       )}
                     </div>
                   </div>
                 </div>
-
-                <div className="border-t border-[var(--border)] px-5 py-4">
-                  <div className="flex flex-col gap-3">
-                    <Link
-                      href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
-                      className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
-                        ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                        : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
-                        }`}
-                      aria-disabled={subLocked}
-                      onClick={(e) => {
-                        if (subLocked) e.preventDefault();
-                      }}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      {subLocked ? "Locked" : "Open Lesson"}
-                    </Link>
-                    {detailCta?.hasAssessment && (
-                      <Link
-                        href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
-                        className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
-                          ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
-                          : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
-                          }`}
-                        aria-disabled={subLocked}
-                        onClick={(e) => {
-                          if (subLocked) e.preventDefault();
-                        }}
-                      >
-                        <Zap className="h-4 w-4" />
-                        Start Assessment
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.aside>
-            <motion.aside
-              key="detail-mobile"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 24 }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
-              className="fixed inset-x-4 bottom-4 z-[60] sm:hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-md shadow-2xl"
-            >
-              <div className="flex flex-col">
-                <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                      {activeModule?.index || 1}.{activeSubIndex + 1}
-                    </p>
-                    <h3 className="mt-1 truncate text-base font-black text-[var(--text)]">
-                      {getCardSubmoduleTitle(activeSubmodule.title)}
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={backToModule}
-                    className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-[11px] font-bold text-[var(--text-muted)] transition hover:border-mst-red/40 hover:text-mst-red"
-                  >
-                    Back
-                  </button>
-                </div>
-
-                <div className="max-h-[52vh] overflow-auto px-4 py-3">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <ProgressRing value={subProgressPct} />
-                    </div>
+              </motion.aside>
+              <motion.aside
+                key="detail-mobile"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 24 }}
+                transition={{ type: "spring", stiffness: 260, damping: 28 }}
+                className="fixed inset-x-4 bottom-4 z-[60] sm:hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-md shadow-2xl"
+              >
+                <div className="flex flex-col">
+                  <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-4 py-3">
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-[var(--text)]">Description</p>
-                      <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
-                        {activeSubmodule.subtitle?.trim()
-                          ? activeSubmodule.subtitle
-                          : "Focus lesson for this module. Complete it to unlock the next node."}
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+                        {activeModule?.index || 1}.{activeSubIndex + 1}
                       </p>
-                      <p className="mt-2 text-xs font-bold text-[var(--text-muted)]">
-                        Duration: ~30–45 mins · Pass rule: {PASS_THRESHOLD}%+
-                      </p>
+                      <h3 className="mt-1 truncate text-base font-black text-[var(--text)]">
+                        {getCardSubmoduleTitle(activeSubmodule.title)}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={backToModule}
+                      className="rounded-xl border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-[11px] font-bold text-[var(--text-muted)] transition hover:border-mst-red/40 hover:text-mst-red"
+                    >
+                      Back
+                    </button>
+                  </div>
+
+                  <div className="max-h-[52vh] overflow-auto px-4 py-3">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <ProgressRing value={subProgressPct} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-[var(--text)]">Description</p>
+                        <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">
+                          {activeSubmodule.subtitle?.trim()
+                            ? activeSubmodule.subtitle
+                            : "Focus lesson for this module. Complete it to unlock the next node."}
+                        </p>
+                        <p className="mt-2 text-xs font-bold text-[var(--text-muted)]">
+                          Duration: ~30–45 mins · Pass rule: {PASS_THRESHOLD}%+
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="border-t border-[var(--border)] px-4 py-3">
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <Link
-                      href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
-                      className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
-                        ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
-                        : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
-                        }`}
-                      aria-disabled={subLocked}
-                      onClick={(e) => {
-                        if (subLocked) e.preventDefault();
-                      }}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      {subLocked ? "Locked" : "Open"}
-                    </Link>
-                    {activeSubmodule.hasAssessment && (
+                  <div className="border-t border-[var(--border)] px-4 py-3">
+                    <div className="grid gap-2 sm:grid-cols-2">
                       <Link
-                        href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
-                        className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
-                          ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
-                          : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
+                        href={`/module/${activeModule.id}/${activeSubmodule.slug}`}
+                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${subLocked
+                          ? "cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                          : "bg-gradient-to-r from-mst-red to-red-600 text-white shadow-lg shadow-mst-red/20 hover:brightness-110"
                           }`}
                         aria-disabled={subLocked}
                         onClick={(e) => {
                           if (subLocked) e.preventDefault();
                         }}
                       >
-                        <Zap className="h-4 w-4" />
-                        Test
+                        <BookOpen className="h-4 w-4" />
+                        {subLocked ? "Locked" : "Open"}
                       </Link>
-                    )}
+                      {activeSubmodule.hasAssessment && (
+                        <Link
+                          href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
+                          className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
+                            ? "cursor-not-allowed border-[var(--border)] text-[var(--text-muted)]"
+                            : "border-mst-red/30 text-mst-red hover:bg-mst-red/10"
+                            }`}
+                          aria-disabled={subLocked}
+                          onClick={(e) => {
+                            if (subLocked) e.preventDefault();
+                          }}
+                        >
+                          <Zap className="h-4 w-4" />
+                          Test
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Mobile Warning Popup Modal */}
+      <AnimatePresence>
+        {showMobileWarningPopup && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45 backdrop-blur-[2px]">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/90 p-8 shadow-2xl backdrop-blur-md text-center"
+            >
+              <div className="flex flex-col items-center">
+                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-mst-red/10 border border-mst-red/20 mb-6 animate-pulse">
+                  <Monitor className="h-8 w-8 text-mst-red" />
+                </div>
+                <h3 className="text-lg font-black text-[var(--text)]">
+                  Desktop Only Feature
+                </h3>
+                <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">
+                  The Interactive Learning Tree features and lesson workspaces are optimized for larger displays. Please open this page on a desktop computer to continue.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowMobileWarningPopup(false)}
+                  className="mt-6 w-full rounded-2xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white shadow-lg shadow-mst-red/20 hover:brightness-110 active:scale-[0.98] transition-all"
+                >
+                  Got it
+                </button>
               </div>
-            </motion.aside>
-          </>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

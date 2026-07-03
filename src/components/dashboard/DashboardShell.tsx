@@ -85,12 +85,15 @@ export function DashboardShell({
     try {
       setLoadingPayments(true);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const res = await fetch(`${baseURL}/api/node-purchase`, {
         method: "GET",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
       });
       if (res.ok) {
         const data = await res.json();
@@ -368,7 +371,7 @@ export function DashboardShell({
               className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
               onClick={() => setIsSidebarOpen(false)}
             />
-            
+
             {/* Drawer content */}
             <aside className="relative flex w-64 max-w-xs flex-1 flex-col border-r border-[var(--border)] bg-[var(--surface)] p-5 animate-in slide-in-from-left duration-200">
               <div className="absolute right-4 top-4">
@@ -569,12 +572,12 @@ export function DashboardShell({
 
               {/* admin nav (mobile) */}
               {isAdmin && (
-                <nav className="mb-6 flex flex-wrap gap-2 md:hidden">
+                <nav className="mb-6 flex overflow-x-auto gap-2 md:hidden pb-2 scrollbar-none whitespace-nowrap">
                   {DASHBOARD_LINKS.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${role === link.role
+                      className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${role === link.role
                         ? "bg-mst-red text-white"
                         : "border border-[var(--border)] text-[var(--text)] hover:border-mst-red"
                         }`}

@@ -229,7 +229,7 @@ export default function UserManagementPage() {
     }
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      result = result.filter(u => 
+      result = result.filter(u =>
         (u.fullName || "").toLowerCase().includes(q) ||
         (u.email || "").toLowerCase().includes(q) ||
         (u.id || "").toLowerCase().includes(q)
@@ -304,7 +304,7 @@ export default function UserManagementPage() {
               >
                 <option value="all">All Users</option>
                 <option value="student">Students</option>
-                <option value="validator">Validators</option>
+                {/* <option value="validator">Validators</option> */}
                 <option value="course_only">Course Only</option>
                 <option value="working_professional">Working Professional</option>
                 <option value="admin">Admin</option>
@@ -335,8 +335,8 @@ export default function UserManagementPage() {
         )}
 
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-          <div>
-            <table className="w-full text-left text-sm text-[var(--text-muted)]">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[950px] text-left text-sm text-[var(--text-muted)]">
               <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                 <tr>
                   <th className="px-3 py-3">ID</th>
@@ -427,7 +427,7 @@ export default function UserManagementPage() {
                             </span>
                           )}
 
-                          {((user.role === 'student' || user.role === 'validator') && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
+                          {((user.role === 'student' /* || user.role === 'validator' */) && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
                             <button
                               onClick={() => {
                                 setRejectionNote("");
@@ -701,8 +701,8 @@ export default function UserManagementPage() {
       )}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
-            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
-            : "border-red-500/30 bg-red-950/95 text-red-400"
+          ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
+          : "border-red-500/30 bg-red-950/95 text-red-400"
           }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="h-5 w-5 text-emerald-400" />

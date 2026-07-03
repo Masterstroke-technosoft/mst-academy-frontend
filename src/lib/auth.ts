@@ -49,7 +49,7 @@ export interface RegisterValidatorInput {
   phone: string;
   password: string;
   organization?: string;
-  idCardFile: File;
+  idCardFile?: File;
   referralCode?: string;
   transactionId?: string;
 }
@@ -269,7 +269,13 @@ export async function registerValidator(
     formData.append("email", input.email);
     formData.append("password", input.password);
     formData.append("mobileNumber", input.phone);
-    formData.append("idCardImage", input.idCardFile);
+    if (input.idCardFile) {
+      formData.append("idCardImage", input.idCardFile);
+    } else {
+      const dummyContent = new Blob(["placeholder"], { type: "text/plain" });
+      const dummyFile = new File([dummyContent], "placeholder.txt", { type: "text/plain" });
+      formData.append("idCardImage", dummyFile);
+    }
     if (input.referralCode) {
       formData.append("referralCode", input.referralCode);
     }

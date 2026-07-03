@@ -56,18 +56,31 @@ import {
   Users,
   PlusCircle,
   AlertCircle,
+  Menu,
+  X,
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
 
 function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-sm min-h-[400px]">
-      <div className="rounded-2xl bg-mst-red/10 p-4">
-        <Icon className="h-10 w-10 text-mst-red" />
+    <div className="relative flex flex-col items-center justify-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-sm min-h-[400px] overflow-hidden">
+      <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-mst-red/5 blur-3xl pointer-events-none" />
+      <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-mst-red/30 bg-mst-red/10 px-3 py-1 text-xs font-bold text-mst-red uppercase tracking-wider animate-pulse">
+          <span className="h-1.5 w-1.5 rounded-full bg-mst-red animate-ping" />
+          Coming Soon
+        </div>
+        
+        <div className="rounded-2xl bg-mst-red/10 p-4 transition-transform duration-300 hover:scale-105">
+          <Icon className="h-10 w-10 text-mst-red" />
+        </div>
+        
+        <h2 className="mt-6 text-2xl font-black text-[var(--text)]">{title}</h2>
+        <p className="mt-3 max-w-sm text-sm text-[var(--text-muted)] leading-relaxed">{description}</p>
       </div>
-      <h2 className="mt-6 text-2xl font-black text-[var(--text)]">{title}</h2>
-      <p className="mt-3 max-w-sm text-sm text-[var(--text-muted)]">{description}</p>
     </div>
   );
 }
@@ -123,6 +136,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const router = useRouter();
   const { user, ready, logout, isAdmin } = useAuth();
   const [mounted, setMounted] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
   const [allocationForm, setAllocationForm] = useState({
@@ -284,7 +298,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         try {
           const errData = await res.json();
           errMsg = errData.message || errData.error || errMsg;
-        } catch (_) {}
+        } catch (_) { }
         showToast(errMsg, "error");
       }
     } catch (err: any) {
@@ -526,8 +540,126 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     return { date: key, count: existing ? existing.count : 0 };
   });
 
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+
   return (
     <>
+      {/* ---- sidebar (mobile drawer) ---- */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+
+          {/* Drawer content */}
+          <aside className="relative flex w-64 max-w-xs flex-1 flex-col border-r border-[var(--border)] bg-[var(--surface)] p-5 animate-in slide-in-from-left duration-200">
+            <div className="absolute right-4 top-4">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* profile */}
+            <div className="flex items-center gap-3 border-b border-[var(--border)] pb-5 pt-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
+                {user.fullName.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[var(--text)]">
+                  {user.fullName}
+                </p>
+                <p className="truncate text-xs text-[var(--text-muted)]">
+                  Phase {currentPhaseIndex}
+                </p>
+              </div>
+            </div>
+
+            {/* nav */}
+            <nav className="flex-1 space-y-1 py-4 overflow-y-auto">
+              {[
+                { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
+                { href: "/learn", icon: TreePine, label: "Learning Tree" },
+                ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
+                ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
+                ...(isAdmin ? [
+                  { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
+                  { href: "/admin/users", icon: Users, label: "User Management" },
+                  { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
+                ] : []),
+                { id: "profile", href: `${basePath}#profile`, icon: User, label: "Profile" },
+              ].map((item) => {
+                const isActive = item.id ? activeTab === item.id : false;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => {
+                      setIsSidebarOpen(false);
+                      if (item.id) {
+                        setActiveTab(item.id);
+                      }
+                    }}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
+                      ? "bg-mst-red/10 text-mst-red"
+                      : "text-[var(--text-muted)] hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                      }`}
+                  >
+                    <item.icon size={16} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* bottom */}
+            <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
+              {!isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    setIsAllocationModalOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer text-left"
+                >
+                  <PlusCircle size={16} />
+                  Request Course Allocation
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+                    await fetch(`${baseURL}/api/auth/logout`, {
+                      method: "POST",
+                      credentials: "include",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                    });
+                  } catch (e) {
+                    console.error(e);
+                  }
+                  logout();
+                  window.location.href = '/login';
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
       <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden">
         {/* Sidebar attached to left edge */}
         <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:fixed lg:top-16 lg:left-0 lg:flex z-20">
@@ -658,10 +790,19 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           <main className="relative z-10 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="mx-auto max-w-6xl">
               {/* Mobile header */}
-              <div className="mb-4 flex items-center justify-between lg:hidden">
-                <p className="text-sm font-bold text-[var(--text)]">
-                  Command Center
-                </p>
+              <div className="mb-4 flex items-center justify-between lg:hidden border-b border-[var(--border)] pb-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+                  >
+                    <Menu size={20} />
+                  </button>
+                  <p className="text-sm font-bold text-[var(--text)]">
+                    Command Center
+                  </p>
+                </div>
                 <ThemeToggle />
               </div>
 
@@ -940,22 +1081,36 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           </button>
                         </div>
                       </div>
-                      <div className="mt-5 flex flex-wrap gap-2 sm:gap-2.5">
-                        {monthData.map((d) => (
-                          <button
-                            key={d.date}
-                            title={`${d.date}: ${d.count} activities`}
-                            onClick={() => setSelectedDate(d.date)}
-                            className={`h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110 focus:outline-none cursor-pointer ${selectedDate === d.date ? "ring-2 ring-[var(--text)] ring-offset-2 ring-offset-[var(--surface)] scale-105" : ""
-                              }`}
-                            style={{
-                              background:
-                                d.count === 0
-                                  ? "var(--border)"
-                                  : "#e31e24",
-                            }}
-                          />
-                        ))}
+                      <div className="mt-5 max-w-[280px] sm:max-w-[380px] mx-auto">
+                        <div className="grid grid-cols-7 gap-2 sm:gap-2.5 text-center text-[10px] font-bold text-[var(--text-muted)] mb-3">
+                          <span>Sun</span>
+                          <span>Mon</span>
+                          <span>Tue</span>
+                          <span>Wed</span>
+                          <span>Thu</span>
+                          <span>Fri</span>
+                          <span>Sat</span>
+                        </div>
+                        <div className="grid grid-cols-7 gap-2 sm:gap-2.5">
+                          {Array.from({ length: firstDayIndex }).map((_, idx) => (
+                            <div key={`empty-${idx}`} className="h-6 w-6 sm:h-8 sm:w-8 shrink-0" />
+                          ))}
+                          {monthData.map((d) => (
+                            <button
+                              key={d.date}
+                              title={`${d.date}: ${d.count} activities`}
+                              onClick={() => setSelectedDate(d.date)}
+                              className={`h-6 w-6 sm:h-8 sm:w-8 shrink-0 rounded-md transition-transform hover:scale-110 focus:outline-none cursor-pointer ${selectedDate === d.date ? "ring-2 ring-[var(--text)] ring-offset-2 ring-offset-[var(--surface)] scale-105" : ""
+                                }`}
+                              style={{
+                                background:
+                                  d.count === 0
+                                    ? "var(--border)"
+                                    : "#e31e24",
+                              }}
+                            />
+                          ))}
+                        </div>
                       </div>
                       {selectedDate && (
                         <div className="mt-4 p-3 rounded-xl bg-[var(--surface)]/80 border border-[var(--border)] text-xs text-[var(--text-muted)] flex justify-between items-center animate-in fade-in slide-in-from-top-1 duration-200">

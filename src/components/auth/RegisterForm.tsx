@@ -45,6 +45,13 @@ const PLAN_OPTIONS: {
   desc: string;
 }[] = [
     {
+      id: "courseOnly",
+      label: "Course Only",
+      emoji: "📚",
+      price: DEMO_FEES.courseOnly,
+      desc: "Course only at foundation offer No internship.",
+    },
+    {
       id: "validator",
       label: "Validator Fellowship",
       emoji: "🔐",
@@ -64,13 +71,6 @@ const PLAN_OPTIONS: {
       emoji: "👤",
       price: DEMO_FEES.normal,
       desc: "Paid internship + industry mentor support.",
-    },
-    {
-      id: "courseOnly",
-      label: "Course Only",
-      emoji: "📚",
-      price: DEMO_FEES.courseOnly,
-      desc: "Course only at foundation offer No internship.",
     },
   ];
 
@@ -104,11 +104,15 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
 
   return (
     <HighlightBox>
-      <strong>Course Only:</strong> Lifetime access to the course at <strong>₹4,999</strong>
+      <strong>Course Only:</strong> Lifetime access to the course at <strong>₹4,999 </strong>
       No internship. Full lifetime course access only.
     </HighlightBox>
   );
 }
+
+const isPasswordValid = (p: string) => {
+  return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p) && /[^A-Za-z0-9]/.test(p);
+};
 
 export function RegisterForm() {
   const router = useRouter();
@@ -181,6 +185,10 @@ export function RegisterForm() {
 
   async function handleSendOtp() {
     setError("");
+    if (!email.endsWith("@gmail.com")) {
+      setError("Email must be a @gmail.com address.");
+      return;
+    }
     setOtpLoading(true);
     const result = await sendEmailOtp(email);
     setOtpLoading(false);
@@ -211,9 +219,33 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
+    if (/\d/.test(fullName)) {
+      setLoading(false);
+      setError("Full name must not contain numbers.");
+      return;
+    }
+
+    if (!email.endsWith("@gmail.com")) {
+      setLoading(false);
+      setError("Email must be a @gmail.com address.");
+      return;
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      setLoading(false);
+      setError("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
     if (!emailVerified && !isEmailVerified(email)) {
       setLoading(false);
       setError("Please verify your email address with OTP first.");
+      return;
+    }
+
+    if (!isPasswordValid(password)) {
+      setLoading(false);
+      setError("Password must be at least 8 characters long, contain 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.");
       return;
     }
 
@@ -230,18 +262,18 @@ export function RegisterForm() {
       | { ok: false; error: string };
 
     if (plan === "validator") {
-      if (!validatorIdFile) {
+      /* if (!validatorIdFile) {
         setLoading(false);
         setError("Validator ID card upload is required.");
         return;
-      }
+      } */
 
       result = await registerValidator({
         fullName,
         email,
         phone,
         password,
-        idCardFile: validatorIdFile,
+        idCardFile: validatorIdFile || undefined,
         referralCode,
         transactionId: transactionId.trim() || undefined,
       });
@@ -323,7 +355,13 @@ export function RegisterForm() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Your full name"
+            className={/\d/.test(fullName) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}
           />
+          {/\d/.test(fullName) && (
+            <p className="mt-1 text-xs text-red-500 font-medium">
+              Full name must not contain numbers.
+            </p>
+          )}
         </div>
 
         <div>
@@ -342,7 +380,7 @@ export function RegisterForm() {
                 setOtpSent(false);
               }}
               placeholder="you@example.com"
-              className="flex-1"
+              className={`flex-1 ${email.length > 0 && !email.endsWith("@gmail.com") ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
               disabled={emailVerified}
             />
             {!emailVerified && (
@@ -356,6 +394,11 @@ export function RegisterForm() {
               </button>
             )}
           </div>
+          {email.length > 0 && !email.endsWith("@gmail.com") && (
+            <p className="mt-1 text-xs text-red-500 font-medium">
+              Email must be a @gmail.com address.
+            </p>
+          )}
           {emailVerified && (
             <p className="mt-2 text-xs font-semibold text-green-600 dark:text-green-400">
               ✓ Email verified
@@ -409,7 +452,13 @@ export function RegisterForm() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="10-digit mobile number"
+            className={phone.length > 0 && !/^\d{10}$/.test(phone) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}
           />
+          {phone.length > 0 && !/^\d{10}$/.test(phone) && (
+            <p className="mt-1 text-xs text-red-500 font-medium">
+              Mobile number must be exactly 10 digits.
+            </p>
+          )}
         </div>
 
         {/* Plan toggle */}
@@ -518,7 +567,7 @@ export function RegisterForm() {
             </div>
           )}
 
-          {plan === "validator" && (
+          {/* {plan === "validator" && (
             <div className="space-y-4">
               <div>
                 <FieldLabel htmlFor="validatorId" required>
@@ -559,7 +608,7 @@ export function RegisterForm() {
                 </a>
               </p>
             </div>
-          )}
+          )} */}
 
           {/* Fee display */}
           <DemoFee amount={selectedPlan.price} />
@@ -604,11 +653,11 @@ export function RegisterForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               required
-              minLength={6}
+              minLength={8}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pr-10"
+              className={`pr-10 ${password.length > 0 && !isPasswordValid(password) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
             />
             <button
               type="button"
@@ -618,6 +667,11 @@ export function RegisterForm() {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          {password.length > 0 && !isPasswordValid(password) && (
+            <p className="mt-1 text-xs text-red-500 font-medium">
+              Password must be at least 8 characters, and contain 1 uppercase, 1 lowercase, 1 number, and 1 special character.
+            </p>
+          )}
         </div>
 
         <div>

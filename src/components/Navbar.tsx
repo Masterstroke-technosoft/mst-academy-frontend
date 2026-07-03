@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
 import { dashboardPath } from "@/lib/auth";
@@ -23,10 +23,17 @@ import {
 export function Navbar() {
   const { user, ready, logout, isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const dashboardHref = user
     ? (dashboardPath(user.role) || "/dashboard/non-validator")
     : "/login";
+
+  const showUserNav = mounted && ready && user;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
@@ -63,7 +70,7 @@ export function Navbar() {
             <BookOpen size={16} />
             Learning Tree
           </Link>
-          {ready && user && (
+          {showUserNav && (
             <Link
               href={dashboardHref}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--nav-text)]/70 transition hover:bg-white/10 hover:text-[var(--nav-text)]"
@@ -78,7 +85,7 @@ export function Navbar() {
         <div className="flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
 
-          {ready && user ? (
+          {showUserNav ? (
             <div className="flex items-center gap-2">
               <Link
                 href={`${dashboardHref}#profile`}
@@ -157,7 +164,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-[var(--nav-bg)] px-4 py-4 lg:hidden">
+        <div className="absolute left-0 right-0 top-full z-50 border-b border-white/10 bg-[var(--nav-bg)] px-4 py-4 shadow-2xl backdrop-blur-xl lg:hidden animate-in fade-in slide-in-from-top-4 duration-200">
           <nav className="flex flex-col gap-1">
             <Link
               href="/academy-overview"
@@ -183,7 +190,7 @@ export function Navbar() {
               <BookOpen size={18} />
               Learning Tree
             </Link>
-            {ready && user && (
+            {showUserNav && (
               <Link
                 href={dashboardHref}
                 onClick={() => setMobileOpen(false)}
@@ -194,7 +201,7 @@ export function Navbar() {
               </Link>
             )}
             <div className="my-2 border-t border-white/10" />
-            {ready && user ? (
+            {showUserNav ? (
               <>
                 <Link
                   href={`${dashboardHref}#profile`}
