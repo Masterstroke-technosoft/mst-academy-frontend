@@ -48,7 +48,7 @@ export default function ContactUsPage() {
           <div className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-xl p-6">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
-              <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
+              <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
             </p>
 
             <div className="space-y-3">
@@ -259,7 +259,7 @@ export default function ContactUsPage() {
           <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-6">
-              <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
+              <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
             </p>
 
             <div className="space-y-6">
@@ -301,7 +301,7 @@ export default function ContactUsPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

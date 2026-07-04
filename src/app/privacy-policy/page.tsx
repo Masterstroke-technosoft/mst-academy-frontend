@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed mb-4">
             <span className="font-semibold">Masterstroke Academy</span> ("Academy", "we", "our", or "us") is
-            a product of <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span>
+            a product of <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span>
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             This Privacy Policy explains how we collect, use, store, process, disclose, and protect
@@ -553,7 +553,7 @@ export default function PrivacyPolicyPage() {
                 },
                 {
                   title: "Business Transfers",
-                  desc: "If Masterstroke Technosoft Pvt. Ltd. undergoes a merger, acquisition, restructuring, or asset transfer, user information may be transferred as part of that transaction.",
+                  desc: "If Innoversity Innovation Pvt. Ltd. undergoes a merger, acquisition, restructuring, or asset transfer, user information may be transferred as part of that transaction.",
                 },
               ].map((section, idx) => (
                 <div key={idx} className="bg-[var(--bg-muted)] rounded-lg p-4 border border-[var(--border)]">
@@ -809,7 +809,7 @@ export default function PrivacyPolicyPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

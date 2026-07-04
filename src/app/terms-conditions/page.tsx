@@ -34,7 +34,7 @@ export default function TermsConditionsPage() {
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             Masterstroke Academy ("Academy", "Platform", "we", "our", or "us") is a product of{" "}
-            <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span>
+            <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span>
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             These Terms & Conditions ("Terms") govern your access to and use of Masterstroke Academy, MST
@@ -64,7 +64,7 @@ export default function TermsConditionsPage() {
             <div className="space-y-3">
               {[
                 { term: "Academy", def: "refers to Masterstroke Academy." },
-                { term: "Company", def: "refers to Masterstroke Technosoft Pvt. Ltd." },
+                { term: "Company", def: "refers to Innoversity Innovation Pvt. Ltd." },
                 { term: "User", def: "refers to any individual accessing or using the Services." },
                 { term: "BridgeKey Wallet", def: "refers to the wallet solution used within the MST ecosystem." },
                 { term: "MST Blockchain", def: "refers to the public EVM-compatible blockchain ecosystem operated and supported by the Masterstroke ecosystem." },
@@ -513,7 +513,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    All materials available through the Services remain the exclusive property of Masterstroke Technosoft Pvt. Ltd.
+                    All materials available through the Services remain the exclusive property of Innoversity Innovation Pvt. Ltd.
                     or its licensors.
                   </p>
                   <div className="bg-[var(--bg-muted)] rounded-lg p-4 border border-[var(--border)]">
@@ -713,7 +713,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    To the fullest extent permitted by law, Masterstroke Technosoft Pvt. Ltd., its directors, employees, affiliates,
+                    To the fullest extent permitted by law, Innoversity Innovation Pvt. Ltd., its directors, employees, affiliates,
                     contractors, and partners shall not be liable for:
                   </p>
                   <ul className="grid md:grid-cols-2 gap-2 mb-4">
@@ -748,7 +748,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    Users agree to indemnify and hold harmless Masterstroke Technosoft Pvt. Ltd. from claims, liabilities, losses,
+                    Users agree to indemnify and hold harmless Innoversity Innovation Pvt. Ltd. from claims, liabilities, losses,
                     damages, costs, and expenses arising from:
                   </p>
                   <ul className="space-y-2">
@@ -868,7 +868,7 @@ export default function TermsConditionsPage() {
             <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
               <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
               <p className="text-sm text-[var(--text-muted)] mb-4">
-                <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
+                <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
               </p>
 
               <div className="space-y-4">
@@ -904,7 +904,7 @@ export default function TermsConditionsPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

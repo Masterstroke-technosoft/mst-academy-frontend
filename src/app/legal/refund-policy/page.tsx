@@ -31,7 +31,7 @@ export default function RefundPolicyPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed mb-4">
             Masterstroke Academy is a digital education platform operated by{" "}
-            <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span> Through the Academy,
+            <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span> Through the Academy,
             users gain access to educational content, assessments, blockchain certifications, ecosystem
             participation opportunities, validator learning pathways, rewards programs, and related digital
             services.
@@ -124,7 +124,7 @@ export default function RefundPolicyPage() {
             </h2>
             <ul className="space-y-3">
               {[
-                "All purchases made through Masterstroke Academy are generally final.",
+                "All purchases made through Innoversity Innovation Pvt. Ltd. for Innoversity Innovation Pvt. Ltd. are generally final.",
                 "Due to the nature of digital educational products, learning resources, certifications, assessments, and platform access, refunds shall not be provided once access to the purchased service has been granted.",
                 "Users are encouraged to review course descriptions, eligibility requirements, and program details carefully before making a purchase.",
               ].map((item, idx) => (
@@ -513,7 +513,7 @@ export default function RefundPolicyPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: January 2025</p>
-          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>
