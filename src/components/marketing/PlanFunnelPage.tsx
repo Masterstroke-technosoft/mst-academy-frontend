@@ -23,7 +23,7 @@ interface PlanFunnelPageProps {
   name: string;
   subtitle: string;
   hero: string;
-  originalPrice: number;
+  originalPrice?: number;
   offerPrice: number;
   discountLabel: string;
   seatsLeft: number;
@@ -64,7 +64,10 @@ export function PlanFunnelPage({
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showStickyBar, setShowStickyBar] = useState(false);
-  const discountAmount = useMemo(() => originalPrice - offerPrice, [originalPrice, offerPrice]);
+  const discountAmount = useMemo(() => {
+    if (originalPrice === undefined) return 0;
+    return originalPrice - offerPrice;
+  }, [originalPrice, offerPrice]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -117,7 +120,7 @@ export function PlanFunnelPage({
                 className="text-gradient-red"
               />
             </p>
-
+ 
             <div className="mt-8 grid gap-4 sm:grid-cols-4">
               {[
                 { label: "Internship", value: internshipIncluded ? "Included" : "Not included", icon: Briefcase },
@@ -132,13 +135,17 @@ export function PlanFunnelPage({
                 </div>
               ))}
             </div>
-
+ 
             <div className="mt-6 rounded-2xl border border-mst-red/30 bg-mst-red/5 p-5">
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Special pricing</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                {originalPrice && originalPrice !== offerPrice ? "Special pricing" : "Pricing"}
+              </p>
               <div className="mt-2 flex flex-wrap items-center gap-3">
-                <p className="text-sm font-semibold text-[var(--text-muted)] line-through">
-                  Rs {originalPrice.toLocaleString("en-IN")}
-                </p>
+                {originalPrice && originalPrice !== offerPrice && (
+                  <p className="text-sm font-semibold text-[var(--text-muted)] line-through">
+                    Rs {originalPrice.toLocaleString("en-IN")}
+                  </p>
+                )}
                 <p className="text-3xl font-black text-gradient-red">
                   Rs {offerPrice.toLocaleString("en-IN")}
                 </p>
@@ -341,8 +348,10 @@ export function PlanFunnelPage({
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{name}</p>
               <p className="text-sm text-[var(--text)]">
-                <span className="line-through text-[var(--text-muted)]">Rs {originalPrice.toLocaleString("en-IN")}</span>{" "}
-                <span className="ml-2 font-black text-mst-red">Rs {offerPrice.toLocaleString("en-IN")}</span>
+                {originalPrice && originalPrice !== offerPrice && (
+                  <span className="line-through text-[var(--text-muted)] mr-2">Rs {originalPrice.toLocaleString("en-IN")}</span>
+                )}
+                <span className="font-black text-mst-red">Rs {offerPrice.toLocaleString("en-IN")}</span>
               </p>
             </div>
             <Link

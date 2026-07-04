@@ -402,7 +402,9 @@ export default function AssessmentViewer({
         qNum: idx + 1,
         answer: answerDisplay,
         rawAnswer: ans.selectedAnswer,
-        isCorrect: ans.isCorrect,
+        isCorrect: typeof ans.isCorrect === "boolean"
+          ? ans.isCorrect
+          : (ans.awardedMarks !== undefined ? ans.awardedMarks === (q.marks || 0) : false),
         marks: q.marks || 0,
         awardedMarks: ans.awardedMarks !== undefined ? ans.awardedMarks : (ans.isCorrect ? (q.marks || 0) : 0),
         evaluationReason: ans.evaluationReason,
@@ -431,7 +433,7 @@ export default function AssessmentViewer({
     });
 
     const totalEarned = submissionResult?.score !== undefined ? submissionResult.score : (submissionResult?.partialScore !== undefined ? submissionResult.partialScore : results.reduce(
-      (sum: number, r: { isCorrect: boolean; marks: number }) => sum + (r.isCorrect ? r.marks : 0),
+      (sum: number, r: { isCorrect: boolean; marks: number; awardedMarks?: number }) => sum + (r.awardedMarks !== undefined ? r.awardedMarks : (r.isCorrect ? r.marks : 0)),
       0
     ));
     const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);
@@ -490,8 +492,7 @@ export default function AssessmentViewer({
 
           <div className="space-y-2 mb-8 text-left">
             {results.map((result) => {
-              const isPartial = (result.questionType === "TRUE_FALSE_WITH_JUSTIFICATION" || result.questionType === "true_false_justification") &&
-                result.awardedMarks !== undefined &&
+              const isPartial = result.awardedMarks !== undefined &&
                 result.awardedMarks > 0 &&
                 result.awardedMarks < result.marks;
 

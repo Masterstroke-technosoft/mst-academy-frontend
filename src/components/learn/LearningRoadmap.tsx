@@ -202,7 +202,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
 
   const badge =
     status === "completed"
-      ? "Done"
+      ? "Completed"
       : status === "active"
         ? "In Progress"
         : "Locked";
@@ -280,7 +280,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between gap-3 text-xs">
             <span className="text-[var(--text-muted)] font-medium">
-              {subCount} lessons
+              {progress === 100 ? "Completed" : "Progress"}
             </span>
             <span className="font-bold" style={{ color }}>
               {progress}%

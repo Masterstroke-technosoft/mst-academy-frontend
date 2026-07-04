@@ -95,6 +95,7 @@ export function TextInput(
 ) {
   return (
     <input
+      suppressHydrationWarning
       {...props}
       className={`w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition placeholder:text-[var(--text-muted)]/50 focus:border-mst-red focus:ring-2 focus:ring-mst-red/20 ${props.className ?? ""}`}
     />
@@ -106,6 +107,7 @@ export function SelectInput(
 ) {
   return (
     <select
+      suppressHydrationWarning
       {...props}
       className={`w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-2 focus:ring-mst-red/20 ${props.className ?? ""}`}
     />
@@ -121,6 +123,7 @@ export function SubmitButton({
 }) {
   return (
     <button
+      suppressHydrationWarning
       type="submit"
       disabled={disabled}
       className="w-full rounded-xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]"
@@ -141,6 +144,7 @@ export function TabButton({
 }) {
   return (
     <button
+      suppressHydrationWarning
       type="button"
       onClick={onClick}
       className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-bold transition ${

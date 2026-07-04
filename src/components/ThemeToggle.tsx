@@ -8,6 +8,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 
   return (
     <button
+      suppressHydrationWarning
       type="button"
       onClick={toggleTheme}
       className={`inline-flex items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--text-muted)] transition hover:border-mst-red hover:text-mst-red ${className}`}

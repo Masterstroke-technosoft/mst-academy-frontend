@@ -231,6 +231,9 @@ export function ModuleDetail({
                             Score: {scoreText}
                           </span>
                         )}
+                        <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${done ? "bg-green-500/10 text-green-600" : "bg-amber-500/10 text-amber-600"}`}>
+                          {done ? "✅ 100% Completed" : `⏳ Progress (${(hasAssessment ? ((p.lessonComplete ? 50 : 0) + (p.assessmentComplete ? 50 : 0)) : (p.lessonComplete ? 100 : 0)) || 0}%)`}
+                        </span>
                       </div>
                     </div>
                   </div>

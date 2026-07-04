@@ -177,7 +177,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   }, []);
 
   const referralCode = formData.referralCode || (safeUser.id ? `MST-${safeUser.id.slice(-6).toUpperCase()}` : "");
-  const referralLink = `Comming Soon`;
+  const referralLink = referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}` : "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -433,11 +433,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${
-                  /\d/.test(formData.fullName)
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${/\d/.test(formData.fullName)
                     ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
-                }`}
+                  }`}
               />
               {/\d/.test(formData.fullName) && (
                 <p className="mt-1 text-xs text-red-500 font-medium">
@@ -470,11 +469,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-digit mobile number"
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${
-                  formData.phone && !/^\d{10}$/.test(formData.phone)
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${formData.phone && !/^\d{10}$/.test(formData.phone)
                     ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
-                }`}
+                  }`}
               />
               {formData.phone && !/^\d{10}$/.test(formData.phone) && (
                 <p className="mt-1 text-xs text-red-500 font-medium">
@@ -544,7 +542,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
 
             {/* User ID */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 User ID
               </label>
@@ -554,7 +552,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Role */}
             <div>
@@ -649,7 +647,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             )}
 
             {/* Referred By */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Referred By
               </label>
@@ -659,10 +657,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Referrals Count */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Total Referrals
               </label>
@@ -672,10 +670,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Created At */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Created At
               </label>
@@ -685,10 +683,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Updated At */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Updated At
               </label>
@@ -698,17 +696,17 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Upload CV */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Upload CV
               </label>
-              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-2.5 opacity-70">
                 <label
                   htmlFor="cvUploadInput"
-                  className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                  className="cursor-not-allowed rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition-all shrink-0 shadow-sm"
                 >
                   Choose File
                 </label>
@@ -720,6 +718,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   type="file"
                   accept="image/*,.pdf,.doc,.docx"
                   className="hidden"
+                  disabled
                   onChange={handleCvUpload}
                 />
               </div>
@@ -739,9 +738,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               />
               <button
                 type="button"
-                disabled
+                disabled={!referralLink}
                 onClick={copyReferral}
-                className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600"
+                className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                 {copied ? "Copied!" : "Copy"}
