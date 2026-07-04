@@ -7,7 +7,7 @@ export default function WorkingProfessionalPlanPage() {
       name="MST Working Professional Fellowship"
       subtitle="Career transition track with paid internship and mentor execution."
       hero="Designed for working professionals who want a high-confidence transition into blockchain with real project outcomes, internship execution, and mentor-led direction."
-      originalPrice={24999}
+      // originalPrice={24999}
       offerPrice={24999}
       discountLabel="Career Transition Offer"
       seatsLeft={33}

@@ -78,12 +78,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
             setFormData(prev => ({
               ...prev,
-              fullName: data.user.fullName || data.user.name || prev.fullName,
-              phone: data.user.phone || prev.phone,
-              linkedin: data.user.linkedin || prev.linkedin,
-              github: data.user.github || prev.github,
+              fullName: data.user.name || data.user.fullName || prev.fullName,
+              phone: data.user.mobileNumber || data.user.phone || prev.phone,
+              linkedin: data.user.linkedinProfile || data.user.linkedin || prev.linkedin,
+              github: data.user.githubProfile || data.user.github || prev.github,
               walletAddress: data.user.walletAddress || prev.walletAddress,
-              portfolio: data.user.portfolio || prev.portfolio,
+              portfolio: data.user.portfolioWebsite || data.user.portfolio || prev.portfolio,
               _id: data.user._id || prev._id,
               name: data.user.name || prev.name,
               email: data.user.email || prev.email,
@@ -177,7 +177,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   }, []);
 
   const referralCode = formData.referralCode || (safeUser.id ? `MST-${safeUser.id.slice(-6).toUpperCase()}` : "");
-  const referralLink = `Comming Soon`;
+  const referralLink = referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}` : "";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -280,19 +280,73 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       showToast("Full name must not contain numbers.", "error");
       return;
     }
+    if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
+      showToast("Mobile number must be exactly 10 digits.", "error");
+      return;
+    }
     setSaving(true);
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    updateProfile({
-      fullName: formData.fullName,
-      phone: formData.phone,
-      linkedin: formData.linkedin,
-      github: formData.github,
-      walletAddress: formData.walletAddress,
-      portfolio: formData.portfolio,
-      profilePhoto: photo || undefined,
-    });
-    setSaving(false);
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/me`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          mobileNumber: formData.phone,
+          githubProfile: formData.github,
+          linkedinProfile: formData.linkedin,
+          portfolioWebsite: formData.portfolio,
+          walletAddress: formData.walletAddress,
+        }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        let errorMsg = "Failed to update profile";
+        try {
+          const errData = await response.json();
+          errorMsg = errData.message || errData.error || errorMsg;
+        } catch (_) {}
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
+      if (data?.user) {
+        setFormData(prev => ({
+          ...prev,
+          fullName: data.user.name || data.user.fullName || prev.fullName,
+          phone: data.user.mobileNumber || data.user.phone || prev.phone,
+          linkedin: data.user.linkedinProfile || data.user.linkedin || prev.linkedin,
+          github: data.user.githubProfile || data.user.github || prev.github,
+          walletAddress: data.user.walletAddress || prev.walletAddress,
+          portfolio: data.user.portfolioWebsite || data.user.portfolio || prev.portfolio,
+        }));
+      }
+
+      updateProfile({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        linkedin: formData.linkedin,
+        github: formData.github,
+        walletAddress: formData.walletAddress,
+        portfolio: formData.portfolio,
+        profilePhoto: photo || undefined,
+      });
+
+      showToast("Profile updated successfully", "success");
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      showToast(error.message || "Failed to save profile. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const copyReferral = () => {
@@ -433,11 +487,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.fullName}
                 onChange={handleChange}
                 required
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${
-                  /\d/.test(formData.fullName)
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${/\d/.test(formData.fullName)
                     ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
-                }`}
+                  }`}
               />
               {/\d/.test(formData.fullName) && (
                 <p className="mt-1 text-xs text-red-500 font-medium">
@@ -470,11 +523,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-digit mobile number"
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${
-                  formData.phone && !/^\d{10}$/.test(formData.phone)
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${formData.phone && !/^\d{10}$/.test(formData.phone)
                     ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                     : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
-                }`}
+                  }`}
               />
               {formData.phone && !/^\d{10}$/.test(formData.phone) && (
                 <p className="mt-1 text-xs text-red-500 font-medium">
@@ -544,7 +596,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
 
             {/* User ID */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 User ID
               </label>
@@ -554,7 +606,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Role */}
             <div>
@@ -649,7 +701,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             )}
 
             {/* Referred By */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Referred By
               </label>
@@ -659,10 +711,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Referrals Count */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Total Referrals
               </label>
@@ -672,10 +724,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Created At */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Created At
               </label>
@@ -685,10 +737,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Updated At */}
-            <div>
+            {/* <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Updated At
               </label>
@@ -698,17 +750,17 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 disabled
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-            </div>
+            </div> */}
 
             {/* Upload CV */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Upload CV
               </label>
-              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-2.5 opacity-70">
                 <label
                   htmlFor="cvUploadInput"
-                  className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                  className="cursor-not-allowed rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition-all shrink-0 shadow-sm"
                 >
                   Choose File
                 </label>
@@ -720,6 +772,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   type="file"
                   accept="image/*,.pdf,.doc,.docx"
                   className="hidden"
+                  disabled
                   onChange={handleCvUpload}
                 />
               </div>
@@ -739,9 +792,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               />
               <button
                 type="button"
-                disabled
+                disabled={!referralLink}
                 onClick={copyReferral}
-                className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600"
+                className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                 {copied ? "Copied!" : "Copy"}

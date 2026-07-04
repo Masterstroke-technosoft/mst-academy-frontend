@@ -263,51 +263,45 @@ export async function registerValidator(
   input: RegisterValidatorInput
 ): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
-    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-    const formData = new FormData();
-    formData.append("name", input.fullName);
-    formData.append("email", input.email);
-    formData.append("password", input.password);
-    formData.append("mobileNumber", input.phone);
-    if (input.idCardFile) {
-      formData.append("idCardImage", input.idCardFile);
-    } else {
-      const dummyContent = new Blob(["placeholder"], { type: "text/plain" });
-      const dummyFile = new File([dummyContent], "placeholder.txt", { type: "text/plain" });
-      formData.append("idCardImage", dummyFile);
-    }
-    if (input.referralCode) {
-      formData.append("referralCode", input.referralCode);
-    }
-    if (input.transactionId) {
-      formData.append("transactionId", input.transactionId);
-    }
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
 
-    const response = await fetch(`${baseURL}/api/auth/register-validator`, {
-      method: "POST",
-      body: formData,
-    });
+  const payload = {
+    name: input.fullName,
+    email: input.email,
+    password: input.password,
+    mobileNumber: input.phone,
+    ...(input.referralCode ? { referralCode: input.referralCode } : {}),
+    ...(input.transactionId ? { transactionId: input.transactionId } : {}),
+  };
 
-    const data = await response.json();
-    if (!response.ok) {
-      return { ok: false, error: data.message || "Validator registration failed" };
-    }
+  const response = await fetch(`${baseURL}/api/auth/register-validator`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
-    const validatorData = data.admin || data.validator || data.user || data;
-    const authUser: AuthUser = {
-      id: validatorData.id || validatorData._id || `user-${Date.now()}`,
-      email: validatorData.email || input.email,
-      fullName: validatorData.name || input.fullName,
-      role: validatorData.role || "VALIDATOR",
-      phone: input.phone,
-      registeredAt: new Date().toISOString(),
-      transactionId: validatorData.transactionId || input.transactionId,
-    };
+  const data = await response.json();
+  if (!response.ok) {
+    return { ok: false, error: data.message || "Validator registration failed" };
+  }
 
-    setSession(authUser);
+  const validatorData = data.admin || data.validator || data.user || data;
+  const authUser: AuthUser = {
+    id: validatorData.id || validatorData._id || `user-${Date.now()}`,
+    email: validatorData.email || input.email,
+    fullName: validatorData.name || input.fullName,
+    role: validatorData.role || "VALIDATOR",
+    phone: input.phone,
+    registeredAt: new Date().toISOString(),
+    transactionId: validatorData.transactionId || input.transactionId,
+  };
 
-    return { ok: true, user: authUser };
-  } catch (err: any) {
+  setSession(authUser);
+
+  return { ok: true, user: authUser };
+} catch (err: any) {
     return { ok: false, error: err.message || "Failed to connect to validator registration API." };
   }
 }

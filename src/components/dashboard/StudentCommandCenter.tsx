@@ -504,7 +504,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   const firstName = user.fullName.split(" ")[0];
   const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
-  const referralLink = "Comming Soon"
+  const referralLink = referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}` : "";
 
   // Custom referrals based on validator2 vs another user
   const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");

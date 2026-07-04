@@ -519,7 +519,8 @@ export function LandingPage({
                 const detailHref = plan.detailHref || plan.link || getDetailHref(role);
                 const tag = plan.tag || plan.description || getDefaultTag(role);
                 const price = formatPrice(plan.price);
-                const original = formatPrice(plan.originalPrice || plan.discountedFrom || plan.original) || "Rs --";
+                const originalPriceVal = plan.originalPrice || plan.discountedFrom || plan.original;
+                const original = (originalPriceVal && originalPriceVal !== plan.price) ? formatPrice(originalPriceVal) : "";
 
                 return {
                   id: role.toLowerCase(),
@@ -555,10 +556,12 @@ export function LandingPage({
                           </div>
                           <div className="mt-2 border-b border-[var(--border)] pb-4">
                             <div className="flex items-end justify-between">
-                              <p className="text-xs font-semibold text-[var(--text-muted)] line-through">
-                                {apiOriginal}
-                              </p>
-                              <div className="text-right">
+                              {apiOriginal && (
+                                <p className="text-xs font-semibold text-[var(--text-muted)] line-through">
+                                  {apiOriginal}
+                                </p>
+                              )}
+                              <div className="text-right ml-auto">
                                 <p className="text-2xl font-black text-gradient-red leading-none">
                                   {apiPrice}
                                 </p>

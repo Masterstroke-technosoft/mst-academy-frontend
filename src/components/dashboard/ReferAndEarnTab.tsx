@@ -232,7 +232,7 @@ export function ReferAndEarnTab({
                   <thead>
                     <tr className="border-b border-[var(--border)] bg-[var(--surface)]/50 text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
                       <th className="py-4 pl-5 pr-3 font-black">Referee</th>
-                      <th className="py-4 pr-3 font-black">Joined</th>
+                      {/* <th className="py-4 pr-3 font-black">Joined</th> */}
                       <th className="py-4 pr-3 font-black">Status</th>
                       <th className="py-4 pr-5 font-black text-right">Reward</th>
                     </tr>
@@ -241,7 +241,7 @@ export function ReferAndEarnTab({
                     {referralRecords.map((record) => (
                       <tr key={`${record.name}-${record.joinedAt}`} className="group transition-colors hover:bg-[var(--surface)]">
                         <td className="py-4 pl-5 pr-3 font-bold text-[var(--text)]">{record.name}</td>
-                        <td className="py-4 pr-3 text-[var(--text-muted)] font-medium">{record.joinedAt}</td>
+                        {/* <td className="py-4 pr-3 text-[var(--text-muted)] font-medium">{record.joinedAt}</td> */}
                         <td className="py-4 pr-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider shadow-sm ${record.eligible ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-[#e31e24]/10 text-[#e31e24] border border-[#e31e24]/20"}`}>
                             {record.eligible ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}

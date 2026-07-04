@@ -437,13 +437,13 @@ export default function UserManagementPage() {
                               disabled={verifyingId === user.id}
                               className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
                             >
-                              {verifyingId === user.id ? 'Verifying...' : (
-                                user.studentRejectionNote ? (
-                                  user.role === 'validator' ? 'Reverify Validator' : 'Reverify Student'
-                                ) : (
-                                  user.role === 'validator' ? 'Verify Validator' : 'Verify Student'
-                                )
-                              )}
+                                {verifyingId === user.id ? 'Verifying...' : (
+                                  user.studentRejectionNote ? (
+                                    (user.role as string) === 'validator' ? 'Reverify Validator' : 'Reverify Student'
+                                  ) : (
+                                    (user.role as string) === 'validator' ? 'Verify Validator' : 'Verify Student'
+                                  )
+                                )}
                             </button>
                           )}
                         </div>
