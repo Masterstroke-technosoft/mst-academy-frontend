@@ -78,12 +78,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
             setFormData(prev => ({
               ...prev,
-              fullName: data.user.fullName || data.user.name || prev.fullName,
-              phone: data.user.phone || prev.phone,
-              linkedin: data.user.linkedin || prev.linkedin,
-              github: data.user.github || prev.github,
+              fullName: data.user.name || data.user.fullName || prev.fullName,
+              phone: data.user.mobileNumber || data.user.phone || prev.phone,
+              linkedin: data.user.linkedinProfile || data.user.linkedin || prev.linkedin,
+              github: data.user.githubProfile || data.user.github || prev.github,
               walletAddress: data.user.walletAddress || prev.walletAddress,
-              portfolio: data.user.portfolio || prev.portfolio,
+              portfolio: data.user.portfolioWebsite || data.user.portfolio || prev.portfolio,
               _id: data.user._id || prev._id,
               name: data.user.name || prev.name,
               email: data.user.email || prev.email,
@@ -280,19 +280,73 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       showToast("Full name must not contain numbers.", "error");
       return;
     }
+    if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
+      showToast("Mobile number must be exactly 10 digits.", "error");
+      return;
+    }
     setSaving(true);
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    updateProfile({
-      fullName: formData.fullName,
-      phone: formData.phone,
-      linkedin: formData.linkedin,
-      github: formData.github,
-      walletAddress: formData.walletAddress,
-      portfolio: formData.portfolio,
-      profilePhoto: photo || undefined,
-    });
-    setSaving(false);
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/me`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          mobileNumber: formData.phone,
+          githubProfile: formData.github,
+          linkedinProfile: formData.linkedin,
+          portfolioWebsite: formData.portfolio,
+          walletAddress: formData.walletAddress,
+        }),
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        let errorMsg = "Failed to update profile";
+        try {
+          const errData = await response.json();
+          errorMsg = errData.message || errData.error || errorMsg;
+        } catch (_) {}
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
+      if (data?.user) {
+        setFormData(prev => ({
+          ...prev,
+          fullName: data.user.name || data.user.fullName || prev.fullName,
+          phone: data.user.mobileNumber || data.user.phone || prev.phone,
+          linkedin: data.user.linkedinProfile || data.user.linkedin || prev.linkedin,
+          github: data.user.githubProfile || data.user.github || prev.github,
+          walletAddress: data.user.walletAddress || prev.walletAddress,
+          portfolio: data.user.portfolioWebsite || data.user.portfolio || prev.portfolio,
+        }));
+      }
+
+      updateProfile({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        linkedin: formData.linkedin,
+        github: formData.github,
+        walletAddress: formData.walletAddress,
+        portfolio: formData.portfolio,
+        profilePhoto: photo || undefined,
+      });
+
+      showToast("Profile updated successfully", "success");
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      showToast(error.message || "Failed to save profile. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const copyReferral = () => {
