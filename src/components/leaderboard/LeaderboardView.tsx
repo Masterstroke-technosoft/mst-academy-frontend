@@ -53,9 +53,10 @@ const PODIUM_STYLES = [
   {
     // left — 2nd place (silver)
     order: "order-1 sm:order-1",
-    height: "h-20 sm:h-24",
-    medal: "text-gray-400",
-    bg: "from-gray-200/50 to-gray-100/20",
+    height: "h-24 sm:h-28",
+    medal: "text-slate-400",
+    bg: "from-slate-500/15 via-slate-500/5 to-transparent",
+    border: "border border-slate-500/20 border-b-0",
     label: "2nd",
     rankBg: "bg-gradient-to-br from-slate-300 to-slate-500 shadow-slate-400/30",
     rankText: "2",
@@ -63,9 +64,10 @@ const PODIUM_STYLES = [
   {
     // center — 1st place (gold)
     order: "order-2 sm:order-2",
-    height: "h-24 sm:h-32",
+    height: "h-32 sm:h-36",
     medal: "text-amber-500",
-    bg: "from-amber-200/50 to-amber-100/20",
+    bg: "from-amber-500/20 via-amber-500/5 to-transparent",
+    border: "border border-amber-500/30 border-b-0",
     label: "1st",
     rankBg: "bg-gradient-to-br from-amber-300 to-amber-500 shadow-amber-400/40",
     rankText: "1",
@@ -73,9 +75,10 @@ const PODIUM_STYLES = [
   {
     // right — 3rd place (bronze)
     order: "order-3 sm:order-3",
-    height: "h-16 sm:h-20",
+    height: "h-20 sm:h-24",
     medal: "text-orange-500",
-    bg: "from-red-200/50 to-red-100/20",
+    bg: "from-orange-500/15 via-orange-500/5 to-transparent",
+    border: "border border-orange-500/20 border-b-0",
     label: "3rd",
     rankBg: "bg-gradient-to-br from-orange-400 to-orange-700 shadow-orange-500/30",
     rankText: "3",
@@ -182,13 +185,13 @@ export function LeaderboardView() {
                         <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-[1.25rem] text-2xl font-black text-white shadow-lg border border-white/20 ${style.rankBg}`}>
                           {style.rankText}
                         </div>
-                        <p className="text-xs font-bold text-[var(--text)]">
+                        <p className="text-xs font-bold text-[var(--text)] truncate max-w-full px-1 text-center">
                           {entry.name}
                         </p>
                         <p className="mt-1 text-lg font-black text-[#e31e24]">
                           {entry.score}%
                         </p>
-                        <div className={`mt-3 flex w-full flex-col items-center justify-end rounded-t-3xl bg-gradient-to-t pb-5 ${style.bg} ${style.height}`}>
+                        <div className={`mt-3 flex w-full flex-col items-center justify-end rounded-t-3xl bg-gradient-to-b pb-5 ${style.bg} ${style.height} ${style.border || ""}`}>
                           <Medal className={`h-10 w-10 ${style.medal}`} />
                         </div>
                       </div>
@@ -213,31 +216,31 @@ export function LeaderboardView() {
                 {entries.map((row, idx) => (
                   <div
                     key={row.id}
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5 transition-all hover:border-[var(--border-strong)]"
+                    className="group flex items-center justify-between gap-3 rounded-[1.5rem] border border-[var(--border)] bg-[var(--surface)] p-4 transition-all hover:border-[var(--border-strong)]"
                   >
                     {/* Left: Rank Box & Info */}
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors ${row.isYou ? "border-[#e31e24]/30 bg-[#e31e24]/5 text-[#e31e24]" : ""}`}>
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-base sm:text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors ${row.isYou ? "border-[#e31e24]/30 bg-[#e31e24]/5 text-[#e31e24]" : ""}`}>
                         #{idx + 1}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-[var(--text)]">{row.name}</h3>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="text-sm sm:text-base font-bold text-[var(--text)] truncate">{row.name}</h3>
                           {row.isYou && (
-                            <span className="rounded-full bg-[#e31e24]/10 px-2 py-0.5 text-[10px] font-bold text-[#e31e24]">
+                            <span className="rounded-full bg-[#e31e24]/10 px-2 py-0.5 text-[9px] font-bold text-[#e31e24] shrink-0">
                               You
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                        <p className="text-[10px] sm:text-xs text-[var(--text-muted)] mt-0.5">
                           {row.modulesDone} / {row.totalModules} modules
                         </p>
                       </div>
                     </div>
 
                     {/* Right: Stats */}
-                    <div className="flex items-center gap-6 sm:gap-8 border-t border-[var(--border)] sm:border-0 pt-4 sm:pt-0">
-                      <div className="flex-1 sm:flex-none sm:w-28 text-right hidden sm:block">
+                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                      <div className="hidden sm:block sm:w-28 text-right">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[var(--text-muted)]">Progress</span>
                           <span className="text-xs font-black text-[var(--text)]">{row.score}%</span>
@@ -250,9 +253,15 @@ export function LeaderboardView() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center">
+                      {/* Mobile progress text */}
+                      <div className="sm:hidden text-right">
+                        <span className="text-xs font-black text-[var(--text)]">{row.score}%</span>
+                        <p className="text-[8px] font-black uppercase tracking-[0.1em] text-[var(--text-muted)]">Progress</p>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center bg-orange-500/10 dark:bg-orange-500/20 rounded-xl px-2.5 py-1.5 min-w-[3rem]">
                         <Flame className="h-4 w-4 text-orange-500 mb-0.5" />
-                        <span className="text-xs font-bold text-[var(--text)]">{row.streak}d</span>
+                        <span className="text-[10px] sm:text-xs font-black text-[var(--text)]">{row.streak}d</span>
                       </div>
                     </div>
                   </div>

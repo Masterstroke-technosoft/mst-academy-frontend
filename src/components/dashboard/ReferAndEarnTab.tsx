@@ -64,7 +64,7 @@ export function ReferAndEarnTab({
     const fetchProfile = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const response = await fetch(`${baseURL}/api/users/profile`, {
+        const response = await fetch(`${baseURL}/api/me`, {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

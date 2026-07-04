@@ -21,6 +21,7 @@ import {
   isSubmoduleLocked,
 } from "@/lib/progress";
 import { getCardSubmoduleTitle } from "@/lib/display-titles";
+import { registerSubmoduleMetadata } from "@/lib/curriculum";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -48,6 +49,9 @@ export function ModuleDetail({
     // Submodules already carry hasAssessment / totalMarks from the parent.
     // The old /api/assignments sync 404s and was a no-op, so it's removed.
     setLocalSubmodules(mod.submodules);
+    mod.submodules.forEach((sub) => {
+      registerSubmoduleMetadata(mod.id, sub);
+    });
   }, [mod]);
 
   const slugs = localSubmodules.map((s) => s.slug);
@@ -58,7 +62,8 @@ export function ModuleDetail({
 
   const completedCount = localSubmodules.filter((sub) => {
     const p = getSubmoduleProgress(mod.id, sub.slug);
-    return p.lessonComplete && p.assessmentComplete;
+    const hasAssessment = sub.hasAssessment || false;
+    return hasAssessment ? (p.lessonComplete && p.assessmentComplete) : p.lessonComplete;
   }).length;
 
   const totalMarks = localSubmodules.reduce((sum, sub) => sum + sub.totalMarks, 0);
@@ -171,7 +176,8 @@ export function ModuleDetail({
         <div className="mt-6 space-y-3">
           {localSubmodules.map((sub, i) => {
             const p = getSubmoduleProgress(mod.id, sub.slug);
-            const done = p.lessonComplete && p.assessmentComplete;
+            const hasAssessment = sub.hasAssessment || false;
+            const done = hasAssessment ? (p.lessonComplete && p.assessmentComplete) : p.lessonComplete;
             const subLocked = isSubmoduleLocked(locked, i, mod.id, localSubmodules);
             const scoreText = p.score !== undefined && p.maxScore
               ? `${p.score}/${p.maxScore} (${Math.round((p.score / p.maxScore) * 100)}%)`

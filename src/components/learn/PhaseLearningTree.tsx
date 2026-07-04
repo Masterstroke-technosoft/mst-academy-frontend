@@ -67,15 +67,14 @@ const ModuleCard = memo(function ModuleCard({
 
   const card = (
     <div
-      className={`relative min-w-[260px] max-w-[300px] rounded-2xl border-2 p-6 transition-all duration-300 ${gradientBg} ${
-        status === "active"
+      className={`relative min-w-[260px] max-w-[300px] rounded-2xl border-2 p-6 transition-all duration-300 ${gradientBg} ${status === "active"
           ? "border-mst-red shadow-[0_6px_40px_rgba(227,30,36,0.25)]"
           : status === "completed"
             ? "border-green-500/50 shadow-[0_6px_32px_rgba(34,197,94,0.15)]"
             : isLight
               ? "border-gray-200/80 opacity-65"
               : "border-white/10 opacity-55"
-      } ${locked ? "cursor-pointer" : "hover:shadow-2xl hover:-translate-y-1.5 hover:scale-[1.03]"}`}
+        } ${locked ? "cursor-pointer" : "hover:shadow-2xl hover:-translate-y-1.5 hover:scale-[1.03]"}`}
     >
       <Handle type="target" position={Position.Top} style={handleStyle} />
       <Handle type="source" position={Position.Bottom} style={handleStyle} />
@@ -127,11 +126,10 @@ const ModuleCard = memo(function ModuleCard({
           className={`h-2 overflow-hidden rounded-full ${isLight ? "bg-gray-200/60" : "bg-white/10"}`}
         >
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              status === "completed"
+            className={`h-full rounded-full transition-all duration-500 ${status === "completed"
                 ? "bg-gradient-to-r from-green-400 to-emerald-500"
                 : "bg-gradient-to-r from-mst-red to-orange-500"
-            }`}
+              }`}
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -236,15 +234,14 @@ export function MobileModuleList({
 
         const card = (
           <div
-            className={`relative rounded-2xl border-2 p-5 transition-all duration-300 ${gradientBg} ${
-              status === "active"
+            className={`relative rounded-2xl border-2 p-5 transition-all duration-300 ${gradientBg} ${status === "active"
                 ? "border-mst-red shadow-lg"
                 : status === "completed"
                   ? "border-green-500/50 shadow-md"
                   : isLight
                     ? "border-gray-200/80 opacity-65"
                     : "border-white/10 opacity-55"
-            } ${locked ? "pointer-events-none cursor-not-allowed" : "active:scale-[0.98]"}`}
+              } ${locked ? "pointer-events-none cursor-not-allowed" : "active:scale-[0.98]"}`}
           >
             {i > 0 && (
               <div
@@ -278,11 +275,10 @@ export function MobileModuleList({
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  status === "completed"
+                className={`h-full rounded-full transition-all duration-500 ${status === "completed"
                     ? "bg-gradient-to-r from-green-400 to-emerald-500"
                     : "bg-gradient-to-r from-mst-red to-orange-500"
-                }`}
+                  }`}
                 style={{ width: `${progress}%` }}
               />
             </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -14,6 +14,15 @@ export default function UserManagementPage() {
   const [debugRaw, setDebugRaw] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     setMounted(true);
@@ -22,7 +31,7 @@ export default function UserManagementPage() {
       try {
         setLoading(true);
         let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10`, {
+        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -61,7 +70,9 @@ export default function UserManagementPage() {
             fullName: u.fullName || u.name || "Unknown",
             role: roleStr,
             isActive: u.isActive,
-            isStudentVerified: u.isStudentVerified,
+            isStudentVerified: u.studentRejectionNote ? false : u.isStudentVerified,
+            studentVerificationStatus: u.studentVerificationStatus,
+            studentRejectionNote: u.studentRejectionNote,
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
             registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
@@ -79,20 +90,22 @@ export default function UserManagementPage() {
     };
 
     fetchUsers();
-  }, [currentPage]);
+  }, [currentPage, debouncedSearch]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
   const [togglingActiveId, setTogglingActiveId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [confirmToggle, setConfirmToggle] = useState<{ userId: string; currentStatus: boolean; userName: string } | null>(null);
+  const [rejectionNote, setRejectionNote] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
 
-  const handleVerifyStudent = async (studentId: string) => {
+  const handleVerifyStudent = async (studentId: string, status: string = "Completed", studentRejectionNote?: string) => {
     try {
       setVerifyingId(studentId);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -101,7 +114,11 @@ export default function UserManagementPage() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
+        body: JSON.stringify({
+          status,
+          ...(studentRejectionNote ? { studentRejectionNote } : {})
+        })
       });
 
       if (!response.ok) {
@@ -109,14 +126,20 @@ export default function UserManagementPage() {
       }
 
       const data = await response.json();
+      const updatedStudent = data.student || data.user || data.data;
 
       setUsers(prevUsers =>
         prevUsers.map(u =>
-          u.id === studentId ? { ...u, isStudentVerified: true } : u
+          u.id === studentId ? {
+            ...u,
+            isStudentVerified: studentRejectionNote ? false : (updatedStudent ? updatedStudent.isStudentVerified : (status === "Completed" && !studentRejectionNote)),
+            studentVerificationStatus: updatedStudent ? updatedStudent.studentVerificationStatus : status,
+            studentRejectionNote: updatedStudent ? updatedStudent.studentRejectionNote : studentRejectionNote
+          } : u
         )
       );
 
-      showToast(data.message || "Student verified successfully", "success");
+      showToast(data.message || "Student status updated successfully", "success");
     } catch (error: any) {
       showToast(error.message || "An error occurred during verification", "error");
     } finally {
@@ -124,7 +147,7 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleVerifyValidator = async (validatorId: string) => {
+  const handleVerifyValidator = async (validatorId: string, status: string = "Completed", studentRejectionNote?: string) => {
     try {
       setVerifyingId(validatorId);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -133,7 +156,11 @@ export default function UserManagementPage() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-        }
+        },
+        body: JSON.stringify({
+          status,
+          ...(studentRejectionNote ? { studentRejectionNote } : {})
+        })
       });
 
       if (!response.ok) {
@@ -141,14 +168,20 @@ export default function UserManagementPage() {
       }
 
       const data = await response.json();
+      const updatedValidator = data.student || data.user || data.data;
 
       setUsers(prevUsers =>
         prevUsers.map(u =>
-          u.id === validatorId ? { ...u, isStudentVerified: true } : u
+          u.id === validatorId ? {
+            ...u,
+            isStudentVerified: studentRejectionNote ? false : (updatedValidator ? updatedValidator.isStudentVerified : (status === "Completed" && !studentRejectionNote)),
+            studentVerificationStatus: updatedValidator ? updatedValidator.studentVerificationStatus : status,
+            studentRejectionNote: updatedValidator ? updatedValidator.studentRejectionNote : studentRejectionNote
+          } : u
         )
       );
 
-      showToast(data.message || "Validator verified successfully", "success");
+      showToast(data.message || "Validator status updated successfully", "success");
     } catch (error: any) {
       showToast(error.message || "An error occurred during verification", "error");
     } finally {
@@ -190,9 +223,20 @@ export default function UserManagementPage() {
   };
 
   const filteredUsers = useMemo(() => {
-    if (filterRole === "all") return users;
-    return users.filter(u => u.role === filterRole);
-  }, [users, filterRole]);
+    let result = users;
+    if (filterRole !== "all") {
+      result = result.filter(u => u.role === filterRole);
+    }
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(u =>
+        (u.fullName || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
+        (u.id || "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [users, filterRole, searchQuery]);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -237,20 +281,35 @@ export default function UserManagementPage() {
               <p className="text-sm text-[var(--text-muted)]">View and filter all registered users</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Filter size={16} className="text-[var(--text-muted)]" />
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value as any)}
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red"
-            >
-              <option value="all">All Users</option>
-              <option value="student">Students</option>
-              <option value="validator">Validators</option>
-              <option value="course_only">Course Only</option>
-              <option value="working_professional">Working Professional</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-initial">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+              <input
+                type="text"
+                placeholder="Search by name, email, ID..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full sm:w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-9 pr-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-[var(--text-muted)]" />
+              <select
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value as any)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red"
+              >
+                <option value="all">All Users</option>
+                <option value="student">Students</option>
+                {/* <option value="validator">Validators</option> */}
+                <option value="course_only">Course Only</option>
+                <option value="working_professional">Working Professional</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -276,8 +335,8 @@ export default function UserManagementPage() {
         )}
 
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-          <div>
-            <table className="w-full text-left text-sm text-[var(--text-muted)]">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[950px] text-left text-sm text-[var(--text-muted)]">
               <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                 <tr>
                   <th className="px-3 py-3">ID</th>
@@ -349,19 +408,45 @@ export default function UserManagementPage() {
                         </span>
                       </td>
                       <td className="px-3 py-3">
-                        {((user.role === 'student' || user.role === 'validator') && !user.isStudentVerified) ? (
-                          <button
-                            onClick={() => setVerifyUserModal(user)}
-                            disabled={verifyingId === user.id}
-                            className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
-                          >
-                            {verifyingId === user.id ? 'Verifying...' : (user.role === 'validator' ? 'Verify Validator' : 'Verify Student')}
-                          </button>
-                        ) : (
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isStudentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'} whitespace-nowrap`}>
-                            {user.isStudentVerified ? 'Verified' : 'No'}
-                          </span>
-                        )}
+                        <div className="flex flex-col gap-2 items-start">
+                          {user.isStudentVerified && !user.studentRejectionNote ? (
+                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
+                              Verified
+                            </span>
+                          ) : user.studentRejectionNote ? (
+                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
+                              Rejected
+                            </span>
+                          ) : (user.role === 'student' || user.role === 'validator') ? (
+                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
+                              Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 whitespace-nowrap">
+                              No
+                            </span>
+                          )}
+
+                          {((user.role === 'student' /* || user.role === 'validator' */) && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
+                            <button
+                              onClick={() => {
+                                setRejectionNote("");
+                                setIsRejecting(false);
+                                setVerifyUserModal(user);
+                              }}
+                              disabled={verifyingId === user.id}
+                              className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
+                            >
+                              {verifyingId === user.id ? 'Verifying...' : (
+                                user.studentRejectionNote ? (
+                                  user.role === 'validator' ? 'Reverify Validator' : 'Reverify Student'
+                                ) : (
+                                  user.role === 'validator' ? 'Verify Validator' : 'Verify Student'
+                                )
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-3 py-3">
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
@@ -534,37 +619,90 @@ export default function UserManagementPage() {
               })()}
             </div>
 
+            {isRejecting && (
+              <div className="mb-4 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <label className="mb-1.5 block text-xs font-bold text-[var(--text)]">
+                  Student Rejection Note
+                </label>
+                <textarea
+                  value={rejectionNote}
+                  onChange={(e) => setRejectionNote(e.target.value)}
+                  placeholder="The uploaded student ID is blurred. Please upload a clear image showing your name and college."
+                  rows={3}
+                  className="w-full rounded-xl border border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-[var(--text)] outline-none focus:border-red-500 transition-all placeholder:text-[var(--text-muted)]/40"
+                  required
+                />
+              </div>
+            )}
+
             <div className="flex justify-end gap-3 shrink-0">
-              <button
-                onClick={() => setVerifyUserModal(null)}
-                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  const userId = verifyUserModal.id;
-                  const role = verifyUserModal.role?.toLowerCase();
-                  setVerifyUserModal(null);
-                  if (role === "validator") {
-                    await handleVerifyValidator(userId);
-                  } else {
-                    await handleVerifyStudent(userId);
-                  }
-                }}
-                disabled={verifyingId === verifyUserModal.id}
-                className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {verifyingId === verifyUserModal.id ? 'Verifying...' : 'Verify'}
-              </button>
+              {isRejecting ? (
+                <>
+                  <button
+                    onClick={() => setIsRejecting(false)}
+                    className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const userId = verifyUserModal.id;
+                      const role = verifyUserModal.role?.toLowerCase();
+                      setVerifyUserModal(null);
+                      if (role === "validator") {
+                        await handleVerifyValidator(userId, "Rejected", rejectionNote);
+                      } else {
+                        await handleVerifyStudent(userId, "Rejected", rejectionNote);
+                      }
+                      setRejectionNote("");
+                      setIsRejecting(false);
+                    }}
+                    disabled={verifyingId === verifyUserModal.id || !rejectionNote.trim()}
+                    className="rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {verifyingId === verifyUserModal.id ? 'Submitting...' : 'Submit Rejection'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setVerifyUserModal(null)}
+                    className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setIsRejecting(true)}
+                    className="rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const userId = verifyUserModal.id;
+                      const role = verifyUserModal.role?.toLowerCase();
+                      setVerifyUserModal(null);
+                      if (role === "validator") {
+                        await handleVerifyValidator(userId, "Completed");
+                      } else {
+                        await handleVerifyStudent(userId, "Completed");
+                      }
+                    }}
+                    disabled={verifyingId === verifyUserModal.id}
+                    className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {verifyingId === verifyUserModal.id ? 'Approving...' : 'Approve'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
-            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
-            : "border-red-500/30 bg-red-950/95 text-red-400"
+          ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
+          : "border-red-500/30 bg-red-950/95 text-red-400"
           }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="h-5 w-5 text-emerald-400" />

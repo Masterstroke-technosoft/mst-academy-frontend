@@ -59,7 +59,8 @@ export default function StudentDashboardPage({
         if (!response.ok) {
           throw new Error(`Response Status : ${response.status}`);
         }
-        const result = await response.json();
+        const text = await response.text();
+        const result = text ? JSON.parse(text) : null;
         setUserBankDetails(result);
         console.log("sssssssssssssssssss", result);
       } catch (error: any) {
@@ -237,6 +238,46 @@ export default function StudentDashboardPage({
   } | null>(null);
 
   const [activeDropdownSubmoduleId, setActiveDropdownSubmoduleId] = useState<string | null>(null);
+  const [submoduleSets, setSubmoduleSets] = useState<Record<string, { setNumber: number; questionCount: number }[]>>({});
+  const [loadingSets, setLoadingSets] = useState<Record<string, boolean>>({});
+
+  const fetchSubmoduleSets = async (submoduleId: string) => {
+    try {
+      setLoadingSets(prev => ({ ...prev, [submoduleId]: true }));
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/assignments/admin/submodule/${submoduleId}`, {
+        method: "GET",
+        credentials: "include",
+        headers
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const sets = data.map((a: any) => ({
+            setNumber: a.setNumber || 1,
+            questionCount: Array.isArray(a.questions) ? a.questions.length : 0
+          })).sort((a, b) => a.setNumber - b.setNumber);
+          setSubmoduleSets(prev => ({ ...prev, [submoduleId]: sets }));
+        } else {
+          setSubmoduleSets(prev => ({ ...prev, [submoduleId]: [] }));
+        }
+      } else {
+        setSubmoduleSets(prev => ({ ...prev, [submoduleId]: [] }));
+      }
+    } catch (error) {
+      console.error("Error fetching sets:", error);
+      setSubmoduleSets(prev => ({ ...prev, [submoduleId]: [] }));
+    } finally {
+      setLoadingSets(prev => ({ ...prev, [submoduleId]: false }));
+    }
+  };
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -358,10 +399,20 @@ export default function StudentDashboardPage({
                 });
               }
 
-              const correctLetter = q.correctAnswer || q.correct_answer || "A";
-              const letterCode = correctLetter.charCodeAt(0) - 65;
-              if (letterCode >= 0 && letterCode < 4) {
-                correctOptionIndex = letterCode;
+              const rawCorrect = q.correctAnswer !== undefined ? q.correctAnswer : (q.correct_answer !== undefined ? q.correct_answer : null);
+              if (rawCorrect !== null && rawCorrect !== "") {
+                let correctLetter = "A";
+                if (typeof rawCorrect === "string") {
+                  correctLetter = rawCorrect;
+                } else if (typeof rawCorrect === "number") {
+                  correctLetter = String.fromCharCode(65 + rawCorrect);
+                } else {
+                  correctLetter = String(rawCorrect);
+                }
+                const letterCode = correctLetter.charCodeAt(0) - 65;
+                if (letterCode >= 0 && letterCode < 4) {
+                  correctOptionIndex = letterCode;
+                }
               }
 
               return {
@@ -1386,7 +1437,7 @@ export default function StudentDashboardPage({
 
             <div className="space-y-4">
               {phases.map(phase => (
-                <div key={`assess-phase-${phase.id}`} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-md overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_rgba(227,30,36,0.05)]">
+                <div key={`assess-phase-${phase.id}`} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-md transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_rgba(227,30,36,0.05)]">
                   <div
                     className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--border)]/30 transition-colors"
                     onClick={() => togglePhase(`assess-${phase.id}`)}
@@ -1406,7 +1457,7 @@ export default function StudentDashboardPage({
                         <p className="text-sm font-medium text-[var(--text-muted)] pl-[4.25rem] py-2">No modules available.</p>
                       ) : (
                         phase.modules.map((mod: any) => (
-                          <div key={`assess-mod-${mod.id}`} className="ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm overflow-hidden transition-all hover:border-[var(--border)]">
+                          <div key={`assess-mod-${mod.id}`} className="ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm transition-all hover:border-[var(--border)]">
                             <div
                               className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-[var(--border)]/20 transition-colors"
                               onClick={() => toggleModule(`assess-${mod.id}`)}
@@ -1423,64 +1474,122 @@ export default function StudentDashboardPage({
                                 {mod.submodules.length === 0 ? (
                                   <p className="text-xs font-medium text-[var(--text-muted)] py-2">No submodules added.</p>
                                 ) : (
-                                  mod.submodules.map((sub: any) => (
-                                    <div key={`assess-sub-${sub.id}`} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl p-3 sm:p-4 bg-[var(--surface)] border border-[var(--border)]/60 hover:border-purple-500/40 hover:shadow-md hover:shadow-purple-500/5 transition-all">
-                                      <div className="flex items-start gap-3">
-                                        <div className="mt-0.5 rounded-lg bg-emerald-500/10 p-2">
-                                          <FileText className="h-4 w-4 text-emerald-500" />
+                                  mod.submodules.map((sub: any) => {
+                                    const sets = submoduleSets[sub.id] || [];
+                                    const nextSetNum = sets.length > 0 ? Math.max(...sets.map(s => s.setNumber)) + 1 : 1;
+                                    return (
+                                      <div key={`assess-sub-${sub.id}`} className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl p-3 sm:p-4 bg-[var(--surface)] border border-[var(--border)]/60 hover:border-purple-500/40 hover:shadow-md hover:shadow-purple-500/5 transition-all">
+                                        <div className="flex items-start gap-3">
+                                          <div className="mt-0.5 rounded-lg bg-emerald-500/10 p-2">
+                                            <FileText className="h-4 w-4 text-emerald-500" />
+                                          </div>
+                                          <div>
+                                            <span className="block text-sm font-bold text-[var(--text)]">{sub.title}</span>
+                                          </div>
                                         </div>
-                                        <div>
-                                          <span className="block text-sm font-bold text-[var(--text)]">{sub.title}</span>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-2 self-end sm:self-auto">
-                                        <div className="relative add-question-container">
+                                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                                          <div className="relative add-question-container">
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                const isOpening = activeDropdownSubmoduleId !== sub.id;
+                                                setActiveDropdownSubmoduleId(isOpening ? sub.id : null);
+                                                if (isOpening) {
+                                                  fetchSubmoduleSets(sub.id);
+                                                }
+                                              }}
+                                              className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
+                                            >
+                                              <Plus className="h-3.5 w-3.5" /> Add Question
+                                            </button>
+                                            {activeDropdownSubmoduleId === sub.id && (
+                                              <div className="absolute right-0 mt-1.5 z-50 min-w-[10rem] rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl py-1 text-xs text-[var(--text)]">
+                                                {loadingSets[sub.id] ? (
+                                                  <div className="px-3 py-2 text-xs text-[var(--text-muted)] font-medium">
+                                                    Loading sets...
+                                                  </div>
+                                                ) : (
+                                                  <>
+                                                    {sets.map((set) => (
+                                                      <button
+                                                        key={set.setNumber}
+                                                        onClick={async (e) => {
+                                                          e.stopPropagation();
+                                                          setActiveDropdownSubmoduleId(null);
+                                                          await handleOpenAssessment(sub.id, sub.title, true, set.setNumber);
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 hover:bg-[var(--border)]/30 font-semibold transition-colors text-[var(--text)] flex justify-between items-center"
+                                                      >
+                                                        <span>Set {set.setNumber}</span>
+                                                        <span className="text-[10px] text-[var(--text-muted)] bg-[var(--border)]/40 px-1.5 py-0.5 rounded-full">
+                                                          {set.questionCount} Qs
+                                                        </span>
+                                                      </button>
+                                                    ))}
+                                                    {sets.length > 0 && <div className="border-t border-[var(--border)]/40 my-1" />}
+                                                    <button
+                                                      onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        setActiveDropdownSubmoduleId(null);
+                                                        try {
+                                                          const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+                                                          const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+                                                          const headers: Record<string, string> = { "Content-Type": "application/json" };
+                                                          if (token) {
+                                                            headers["Authorization"] = `Bearer ${token}`;
+                                                          }
+                                                          const response = await fetch(`${baseURL}/api/assignments`, {
+                                                            method: "POST",
+                                                            credentials: "include",
+                                                            headers,
+                                                            body: JSON.stringify({
+                                                              submoduleId: sub.id,
+                                                              setNumber: nextSetNum,
+                                                              title: `${sub.title} Assignment Set ${nextSetNum}`,
+                                                              estimatedTime: 30,
+                                                              questions: [{}]
+                                                            })
+                                                          });
+                                                          if (response.ok) {
+                                                            await fetchSubmoduleSets(sub.id);
+                                                            await handleOpenAssessment(sub.id, sub.title, true, nextSetNum);
+                                                          } else {
+                                                            const errData = await response.json().catch(() => ({}));
+                                                            setStatusMessage({
+                                                              type: "error",
+                                                              title: "Failed to Create Set",
+                                                              message: errData.message || response.statusText || "Failed to create new set"
+                                                            });
+                                                          }
+                                                        } catch (error: any) {
+                                                          console.error("Error creating assessment set:", error);
+                                                          setStatusMessage({
+                                                            type: "error",
+                                                            title: "Error",
+                                                            message: error.message || String(error)
+                                                          });
+                                                        }
+                                                      }}
+                                                      className="w-full text-left px-3 py-2 hover:bg-emerald-500/10 text-emerald-500 font-bold transition-colors flex items-center gap-1"
+                                                    >
+                                                      <Plus className="h-3 w-3" /> Create New Set 
+                                                    </button>
+                                                  </>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
                                           <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setActiveDropdownSubmoduleId(activeDropdownSubmoduleId === sub.id ? null : sub.id);
-                                            }}
+                                            onClick={() => handleDeleteAssessmentFromList(sub.id, sub.title)}
                                             className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
+                                            title="Delete Assessment"
                                           >
-                                            <Plus className="h-3.5 w-3.5" /> Add Question
+                                            <Trash2 className="h-3.5 w-3.5" /> Delete
                                           </button>
-                                          {activeDropdownSubmoduleId === sub.id && (
-                                            <div className="absolute right-0 mt-1.5 z-50 w-32 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl py-1 text-xs text-[var(--text)] overflow-hidden">
-                                              {[...Array(10)].map((_, i) => {
-                                                const setNum = i + 1;
-                                                return (
-                                                  <button
-                                                    key={setNum}
-                                                    onClick={async (e) => {
-                                                      e.stopPropagation();
-                                                      setActiveDropdownSubmoduleId(null);
-                                                      await handleOpenAssessment(sub.id, sub.title, true, setNum);
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 hover:bg-[var(--border)]/30 font-semibold transition-colors text-[var(--text)]"
-                                                  >
-                                                    Set {setNum}
-                                                  </button>
-                                                );
-                                              })}
-                                            </div>
-                                          )}
                                         </div>
-                                        {/* <button
-                                          onClick={() => handleOpenAssessment(sub.id, sub.title, false)}
-                                          className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
-                                        >
-                                          <Edit2 className="h-3.5 w-3.5" /> Edit
-                                        </button> */}
-                                        <button
-                                          onClick={() => handleDeleteAssessmentFromList(sub.id, sub.title)}
-                                          className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-[var(--surface)] px-3 py-1.5 text-xs font-bold text-black hover:border-mst-red/30 hover:bg-mst-red/10 hover:text-mst-red transition-all shadow-sm"
-                                          title="Delete Assessment"
-                                        >
-                                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                                        </button>
                                       </div>
-                                    </div>
-                                  ))
+                                    );
+                                  })
                                 )}
                               </div>
                             )}

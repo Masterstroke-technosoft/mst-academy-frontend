@@ -22,6 +22,8 @@ export interface AuthUser {
   registeredAt?: string;
   isActive?: boolean;
   isStudentVerified?: boolean;
+  studentVerificationStatus?: string;
+  studentRejectionNote?: string;
   createdAt?: string;
   updatedAt?: string;
   cvFile?: string;
@@ -47,7 +49,7 @@ export interface RegisterValidatorInput {
   phone: string;
   password: string;
   organization?: string;
-  idCardFile: File;
+  idCardFile?: File;
   referralCode?: string;
   transactionId?: string;
 }
@@ -192,6 +194,10 @@ export async function login(
     return { ok: false, error: "No account found. Please register first." };
   }
 
+  if (found.isActive === false) {
+    return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
+  }
+
   if (found.password !== password) {
     return { ok: false, error: "Incorrect password." };
   }
@@ -263,7 +269,13 @@ export async function registerValidator(
     formData.append("email", input.email);
     formData.append("password", input.password);
     formData.append("mobileNumber", input.phone);
-    formData.append("idCardImage", input.idCardFile);
+    if (input.idCardFile) {
+      formData.append("idCardImage", input.idCardFile);
+    } else {
+      const dummyContent = new Blob(["placeholder"], { type: "text/plain" });
+      const dummyFile = new File([dummyContent], "placeholder.txt", { type: "text/plain" });
+      formData.append("idCardImage", dummyFile);
+    }
     if (input.referralCode) {
       formData.append("referralCode", input.referralCode);
     }

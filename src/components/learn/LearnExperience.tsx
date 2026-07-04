@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Curriculum } from "@/lib/types";
+import { registerSubmoduleMetadata } from "@/lib/curriculum";
 import {
   getModuleStatus,
   getModuleProgressPercent,
@@ -60,6 +61,11 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
 
   useEffect(() => {
     setMounted(true);
+    curriculum.modules.forEach((mod) => {
+      mod.submodules.forEach((sub) => {
+        registerSubmoduleMetadata(mod.id, sub);
+      });
+    });
     const firstActive = curriculum.phases.find((p) => {
       const mods = curriculum.modules.filter((m) => m.phaseId === p.id);
       return mods.some((mod) => {
@@ -78,7 +84,7 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
     } else {
       setExpandedPhases(new Set(["phase-1"]));
     }
-  }, []);
+  }, [curriculum]);
 
   if (!mounted) {
     return (
@@ -269,7 +275,8 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
                                 const sp = getSubmoduleProgress(mod.id, sub.slug);
                                 const lessonDone = sp.lessonComplete;
                                 const assessDone = sp.assessmentComplete;
-                                const allDone = lessonDone && assessDone;
+                                const hasAssessment = sub.hasAssessment || false;
+                                const allDone = hasAssessment ? (lessonDone && assessDone) : lessonDone;
 
                                 return (
                                   <div key={sub.slug} className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${subLocked
