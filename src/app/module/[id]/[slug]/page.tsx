@@ -21,7 +21,7 @@ export async function generateMetadata({
     if (!mod || !submodule) return { title: "Lesson Not Found" };
 
     return {
-      title: `${submodule.id}: ${submodule.title} — Module ${mod.id}`,
+      title: `${submodule.id}: ${submodule.title} - Module ${mod.id}`,
       description: submodule.subtitle || `Lesson ${submodule.id} of Module ${mod.id}: ${mod.title}. Part of the Masterstroke Academy blockchain developer program.`,
     };
   } else {
@@ -40,7 +40,7 @@ export async function generateMetadata({
       if (!dbMod || !dbSub) return { title: "Lesson Not Found" };
 
       return {
-        title: `${dbSub.title} — Module ${dbMod.title}`,
+        title: `${dbSub.title} - Module ${dbMod.title}`,
         description: dbSub.description || dbSub.subtitle || `Lesson of Module: ${dbMod.title}.`,
       };
     } catch {

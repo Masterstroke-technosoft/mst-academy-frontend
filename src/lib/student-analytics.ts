@@ -328,7 +328,7 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     insights.push(`Focus more on ${weaknesses[0]} modules to balance your skill profile.`);
   }
   if (streakDays >= 3) {
-    insights.push(`You're on a ${streakDays}-day learning streak — keep the momentum!`);
+    insights.push(`You're on a ${streakDays}-day learning streak - keep the momentum!`);
   }
   insights.push("You study best in evening sessions - block 8-11 PM for deep focus.");
 

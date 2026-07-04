@@ -691,7 +691,7 @@ export default function AssessmentViewer({
             <div className="flex items-start gap-3">
               <EyeOff className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <p className="text-sm font-medium text-[var(--text-muted)]">
-                Tab switching is not allowed — violations are logged
+                Tab switching is not allowed - violations are logged
               </p>
             </div>
             <div className="flex items-start gap-3">
@@ -703,7 +703,7 @@ export default function AssessmentViewer({
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <p className="text-sm font-medium text-[var(--text-muted)]">
-                Assessment is timed — auto-submits when time runs out
+                Assessment is timed - auto-submits when time runs out
               </p>
             </div>
             <div className="flex items-start gap-3">
@@ -715,7 +715,7 @@ export default function AssessmentViewer({
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <p className="text-sm font-medium text-[var(--text-muted)]">
-                Camera must stay ON — cheating triggers violation
+                Camera must stay ON - cheating triggers violation
               </p>
             </div>
             <div className="flex items-start gap-3">
@@ -1271,12 +1271,12 @@ export default function AssessmentViewer({
                   <p key={type}>
                     {
                       {
-                        CAMERA_OFF: "Camera is blocked — please allow camera access to continue.",
-                        CAMERA_BLACK: "Camera appears covered or dark — uncover your camera to continue.",
-                        CAMERA_BLUR: "Camera feed is blurry or obstructed — fix your camera to continue.",
-                        TAB_SWITCH: "You switched tabs — return focus to continue.",
-                        MIC_OFF: "Microphone is blocked — please allow microphone access to continue.",
-                        FULLSCREEN_EXIT: "You exited fullscreen — re-enter fullscreen to continue.",
+                        CAMERA_OFF: "Camera is blocked - please allow camera access to continue.",
+                        CAMERA_BLACK: "Camera appears covered or dark - uncover your camera to continue.",
+                        CAMERA_BLUR: "Camera feed is blurry or obstructed - fix your camera to continue.",
+                        TAB_SWITCH: "You switched tabs - return focus to continue.",
+                        MIC_OFF: "Microphone is blocked - please allow microphone access to continue.",
+                        FULLSCREEN_EXIT: "You exited fullscreen - re-enter fullscreen to continue.",
                       }[type] ?? `Active violation: ${type}`
                     }
                   </p>

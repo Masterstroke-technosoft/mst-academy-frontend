@@ -48,7 +48,7 @@ export const OUTCOMES = [
   {
     title: "Web3 Entrepreneur",
     description:
-      "Learn tokenomics, DAO governance, DeFi mechanics, and RWA tokenisation — the full product stack.",
+      "Learn tokenomics, DAO governance, DeFi mechanics, and RWA tokenisation - the full product stack.",
     icon: "globe",
   },
 ];

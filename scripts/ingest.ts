@@ -24,12 +24,12 @@ const PHASES = [
   },
   {
     id: "phase-3",
-    title: "Core Project Starts — Building Your Startup MVP",
+    title: "Core Project Starts - Building Your Startup MVP",
     modules: [9, 10, 11, 12, 13, 14, 15, 16, 17],
   },
   {
     id: "phase-4",
-    title: "From Developer to Funded Founder/Intern — Grants, Pitch & Career",
+    title: "From Developer to Funded Founder/Intern - Grants, Pitch & Career",
     modules: [18, 19, 20, 21],
   },
 ];

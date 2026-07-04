@@ -43,7 +43,7 @@ export const config = {
      * - _next/image    (image optimization endpoint)
      * - any path with a static-asset file extension (e.g. /logo.png,
      *   /file.svg, /favicon.ico). These are served from the public/ folder
-     *   and must stay reachable before login — otherwise the auth check
+     *   and must stay reachable before login - otherwise the auth check
      *   redirects them to /login and they fail to load.
      */
     "/((?!api|_next/static|_next/image|.*\\.(?:png|jpe?g|gif|svg|webp|avif|ico|css|js|woff2?|ttf|map)$).*)",

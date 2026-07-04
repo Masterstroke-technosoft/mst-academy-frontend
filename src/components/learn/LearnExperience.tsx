@@ -291,7 +291,7 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <p className={`text-xs font-semibold truncate ${subLocked ? "text-[var(--text-muted)]" : "text-[var(--text)]"}`}>
-                                        {sub.title.replace(/^Sub[-\s]?Module\s+\d+\.\d+\s*[–—-]?\s*/i, "").replace(/^\d+\.\d+\s*[–—-]?\s*/, "")}
+                                        {sub.title.replace(/^Sub[-\s]?Module\s+\d+\.\d+\s*[–--]?\s*/i, "").replace(/^\d+\.\d+\s*[–--]?\s*/, "")}
                                       </p>
                                       <div className="flex items-center gap-2 mt-0.5">
                                         {lessonDone && <span className="text-[9px] text-green-600 font-bold">📖 Read</span>}

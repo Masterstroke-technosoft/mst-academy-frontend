@@ -67,17 +67,17 @@ function PlaceholderTab({ title, icon: Icon, description }: { title: string; ico
     <div className="relative flex flex-col items-center justify-center rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-sm min-h-[400px] overflow-hidden">
       <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-mst-red/5 blur-3xl pointer-events-none" />
       <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-orange-500/5 blur-3xl pointer-events-none" />
-      
+
       <div className="relative z-10 flex flex-col items-center">
         <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-mst-red/30 bg-mst-red/10 px-3 py-1 text-xs font-bold text-mst-red uppercase tracking-wider animate-pulse">
           <span className="h-1.5 w-1.5 rounded-full bg-mst-red animate-ping" />
           Coming Soon
         </div>
-        
+
         <div className="rounded-2xl bg-mst-red/10 p-4 transition-transform duration-300 hover:scale-105">
           <Icon className="h-10 w-10 text-mst-red" />
         </div>
-        
+
         <h2 className="mt-6 text-2xl font-black text-[var(--text)]">{title}</h2>
         <p className="mt-3 max-w-sm text-sm text-[var(--text-muted)] leading-relaxed">{description}</p>
       </div>
@@ -927,7 +927,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     {[
                       { label: "Completion", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                       { label: "Modules", value: `${analytics.modulesCompleted}/${analytics.totalModules}`, icon: BookOpen, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
-                      { label: "Avg Score", value: analytics.averageScore > 0 ? `${analytics.averageScore}%` : "—", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
+                      { label: "Avg Score", value: analytics.averageScore > 0 ? `${analytics.averageScore}%` : "-", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
                       { label: "Study Time", value: `${analytics.totalStudyHours}h`, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
                       // { label: "Focus", value: `${analytics.focusScore}%`, icon: Zap, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
                       //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
@@ -1052,7 +1052,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       <h3 className="text-sm font-black text-[var(--text)]">Module Performance</h3>
                       <div className="mt-4 h-48">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={analytics.moduleScores.length ? analytics.moduleScores : [{ name: "—", score: 0, moduleId: 0 }]}>
+                          <BarChart data={analytics.moduleScores.length ? analytics.moduleScores : [{ name: "-", score: 0, moduleId: 0 }]}>
                             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
                             <YAxis domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -1166,7 +1166,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     <GlassCard>
                       <p className="text-xs font-bold uppercase tracking-wider text-orange-500">Improve</p>
                       <p className="mt-2 text-sm font-semibold text-[var(--text)]">
-                        {analytics.weaknesses.length ? analytics.weaknesses.join(" · ") : "Keep learning — weaknesses will appear here"}
+                        {analytics.weaknesses.length ? analytics.weaknesses.join(" · ") : "Keep learning - weaknesses will appear here"}
                       </p>
                     </GlassCard>
                   </div>
@@ -1248,7 +1248,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         </p>
                         <p className="flex justify-between">
                           <span className="text-[var(--text-muted)]">Coin balance</span>
-                          <span className="font-bold text-amber-500">— $MSTC</span>
+                          <span className="font-bold text-amber-500">- $MSTC</span>
                         </p>
                         <p className="flex justify-between">
                           <span className="text-[var(--text-muted)]">Current module</span>

@@ -1,11 +1,11 @@
 import { stripHyphens, stripEmojis } from "./text";
 
-/** Card/list titles: badge shows id — strip duplicate numbering from heading text. */
+/** Card/list titles: badge shows id - strip duplicate numbering from heading text. */
 export function getCardSubmoduleTitle(title: string): string {
   let t = title.replace(/^Sub-Module\s*/i, "").trim();
   t = t.replace(/^\d+\.\d+\s*/, "");
   t = t.replace(/^([\d+\.\d+])(?=[A-Za-z])/, "");
-  t = t.replace(/^[–—-]\s*/, "").trim();
+  t = t.replace(/^[–--]\s*/, "").trim();
   t = stripHyphens(t);
   t = stripEmojis(t);
   return t;

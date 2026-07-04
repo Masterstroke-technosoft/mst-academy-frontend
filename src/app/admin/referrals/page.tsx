@@ -91,7 +91,7 @@ const INITIAL_REQUESTS: WithdrawalRequest[] = [
 export default function ReferralAnalyticsPage() {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [mounted, setMounted] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "warning" | "error" } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -180,7 +180,7 @@ export default function ReferralAnalyticsPage() {
             // );
             list = apiBankDetails.map((item: any) => ({
               ...item,
-              id: item._id || item.id || item.withdrawalRequestId,
+              id: item.withdrawalRequestId || item._id || item.id,
               status: item.withdrawalStatus || item.status || "Pending",
               referrals: item.referrals?.map((ref: any) => ({
                 ...ref,
@@ -203,6 +203,21 @@ export default function ReferralAnalyticsPage() {
 
   const handleConfirmRequest = async (requestId: string) => {
     const reqObj = requests.find(r => r.id === requestId);
+    if (!reqObj) return;
+
+    const referrals = reqObj.referrals || [];
+    const hasVerified = referrals.some(r => r.status === "verified" || r.eligible);
+    const hasNonVerified = referrals.some(r => r.status !== "verified" && !r.eligible);
+
+    if (hasVerified && hasNonVerified) {
+      setToast({
+        message: "Cannot confirm request. One referral is verified and one is non-verified.",
+        type: "warning"
+      });
+      setTimeout(() => setToast(null), 4000);
+      return;
+    }
+
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
       const res = await fetch(`${baseURL}/api/bank-details/withdrawal/${requestId}`, {
@@ -211,16 +226,43 @@ export default function ReferralAnalyticsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Confirmed" }),
       });
+
       if (!res.ok) {
-        throw new Error(`Response Status : ${res.status}`);
+        const errorText = await res.text();
+        console.error("PATCH API error response:", errorText);
+        let displayMessage = errorText;
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed && parsed.message) {
+            displayMessage = parsed.message;
+          }
+        } catch (e) {
+          // fallback to raw text if not JSON
+        }
+        setToast({
+          message: displayMessage || res.statusText || String(res.status),
+          type: "error"
+        });
+        setTimeout(() => setToast(null), 5000);
+        return;
       }
+
       setRequests((prev) =>
         prev.map((req) => (req.id === requestId ? { ...req, status: "Confirmed" } : req))
       );
-      setSuccessMessage(`Success! Payout request of ₹${reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`);
-      setTimeout(() => setSuccessMessage(null), 4000);
+      setToast({
+        message: `Success! Payout request of ₹${reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`,
+        type: "success"
+      });
+      setTimeout(() => setToast(null), 4000);
+
     } catch (error: any) {
-      console.error("Failed to confirm withdrawal request:", error?.message ?? error);
+      console.error("Failed to confirm withdrawal request via API:", error?.message ?? error);
+      setToast({
+        message: error.message || "Failed to confirm withdrawal request.",
+        type: "error"
+      });
+      setTimeout(() => setToast(null), 4000);
     }
   };
 
@@ -229,10 +271,22 @@ export default function ReferralAnalyticsPage() {
   return (
     <DashboardShell role="admin" title="Referral Analytics">
       {/* Toast Notification */}
-      {successMessage && (
-        <div className="fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border border-green-500/30 bg-emerald-950/95 p-4 text-emerald-400 shadow-2xl backdrop-blur-md transition-all duration-300">
-          <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-          <span className="text-sm font-extrabold">{successMessage}</span>
+      {toast && (
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${
+          toast.type === "success"
+            ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
+            : toast.type === "warning"
+            ? "border-amber-500/30 bg-amber-950/95 text-amber-400"
+            : "border-red-500/30 bg-red-950/95 text-red-400"
+        }`}>
+          {toast.type === "success" ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+          ) : toast.type === "warning" ? (
+            <AlertCircle className="h-5 w-5 text-amber-400" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-red-400" />
+          )}
+          <span className="text-sm font-extrabold">{toast.message}</span>
         </div>
       )}
       <div className="space-y-6">
@@ -269,12 +323,12 @@ export default function ReferralAnalyticsPage() {
                   </div>
 
                   <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${req.status === "Confirmed"
-                      ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                      : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
-                      }`}>
-                      {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-                      {req.status}
-                    </span>
+                    ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                    : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
+                    }`}>
+                    {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                    {req.status}
+                  </span>
                 </div>
 
                 <div className="grid gap-6 mt-6 md:grid-cols-2">

@@ -120,7 +120,7 @@ export function PlanFunnelPage({
                 className="text-gradient-red"
               />
             </p>
- 
+
             <div className="mt-8 grid gap-4 sm:grid-cols-4">
               {[
                 { label: "Internship", value: internshipIncluded ? "Included" : "Not included", icon: Briefcase },
@@ -135,7 +135,7 @@ export function PlanFunnelPage({
                 </div>
               ))}
             </div>
- 
+
             <div className="mt-6 rounded-2xl border border-mst-red/30 bg-mst-red/5 p-5">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 {originalPrice && originalPrice !== offerPrice ? "Special pricing" : "Pricing"}
@@ -159,13 +159,13 @@ export function PlanFunnelPage({
             </div>
 
             <div className="mt-8">
-              <Link
+              {/* <Link
                 href={`/register?plan=${planId}`}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-6 py-3 text-sm font-bold text-white shadow-xl shadow-mst-red/20 transition hover:brightness-110"
               >
                 Buy Course Now
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </Link> */}
             </div>
           </div>
         </RevealSection>
@@ -326,17 +326,17 @@ export function PlanFunnelPage({
 
         <RevealSection className="mt-8">
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
-            <p className="text-sm text-[var(--text-muted)]">
+            {/* <p className="text-sm text-[var(--text-muted)]">
               Start now and unlock guided learning, practical execution, and mentorship-driven outcomes.
-            </p>
+            </p> */}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-              <Link
+              {/* <Link
                 href={`/register?plan=${planId}`}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red via-red-600 to-mst-red px-7 py-3 text-sm font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
               >
                 Buy Course Now
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </Link> */}
             </div>
           </div>
         </RevealSection>
@@ -354,13 +354,13 @@ export function PlanFunnelPage({
                 <span className="font-black text-mst-red">Rs {offerPrice.toLocaleString("en-IN")}</span>
               </p>
             </div>
-            <Link
+            {/* <Link
               href={`/register?plan=${planId}`}
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-5 py-2.5 text-xs font-bold text-white"
             >
               Buy Course Now
               <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            </Link> */}
           </div>
         </div>
       )}
