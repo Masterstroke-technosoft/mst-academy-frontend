@@ -4,7 +4,7 @@ import { LeaderboardView } from "@/components/leaderboard/LeaderboardView";
 export const metadata: Metadata = {
   title: "Leaderboard",
   description:
-    "See top performers in the Masterstroke Academy — progress, streaks, and $MSTC coin rewards.",
+    "See top performers in the Masterstroke Academy - progress, streaks, and $MSTC coin rewards.",
 };
 
 export default function LeaderboardPage() {

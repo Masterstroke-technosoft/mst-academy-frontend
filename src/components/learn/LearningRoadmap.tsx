@@ -1365,7 +1365,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           pointerEvents: showMobileWarningPopup ? "none" : "auto",
         }}
       >
-        {/* Graph — viewport height so less scrolling */}
+        {/* Graph - viewport height so less scrolling */}
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
           <div
             className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-hidden"
@@ -1386,14 +1386,62 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             />
             <div style={{ height: graphHeight, width: "100%" }}>
               {isFetchingSubmodules ? (
-                <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
-                    <p className="text-sm font-semibold text-[var(--text-muted)] animate-pulse">
-                      Loading module content…
-                    </p>
+                userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) ? (
+                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
+                    <div className="max-w-md w-full shadow-lg rounded-2xl">
+                      {!isPaymentVerified ? (
+                        (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
+                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                            <div>
+                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
+                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                            <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                            <div>
+                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
+                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                            </div>
+                          </div>
+                        )
+                      ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          {userProfile.studentRejectionNote ? (
+                            <>
+                              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                              <div>
+                                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
+                                <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
+                                  Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                              <div>
+                                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                                <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
+                      <p className="text-sm font-semibold text-[var(--text-muted)] animate-pulse">
+                        Loading module content…
+                      </p>
+                    </div>
+                  </div>
+                )
               ) : (
                 <ReactFlow
                   nodes={nodes}

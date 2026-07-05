@@ -200,11 +200,11 @@ function EntryConfirmationScreen({
 
   const rules = [
     { icon: Monitor, text: "Fullscreen mode is required throughout the assessment" },
-    { icon: EyeOff, text: "Tab switching is not allowed — violations are logged" },
+    { icon: EyeOff, text: "Tab switching is not allowed - violations are logged" },
     { icon: Clipboard, text: "Copy, paste, and cut are disabled" },
-    { icon: Timer, text: "Assessment is timed — auto-submits when time runs out" },
+    { icon: Timer, text: "Assessment is timed - auto-submits when time runs out" },
     { icon: Lock, text: "Right-click and developer tools are blocked" },
-    { icon: AlertTriangle, text: "Camera must stay ON — cheating triggers violation" },
+    { icon: AlertTriangle, text: "Camera must stay ON - cheating triggers violation" },
     { icon: ShieldAlert, text: "3 violations = assessment violated & auto-submitted" },
   ];
 
@@ -883,22 +883,22 @@ export function FullscreenAssessment({
                     </div>
                     {((current.type as string) === "true_false_justification" ||
                       (current.type as string) === "TRUE_FALSE_WITH_JUSTIFICATION") && (
-                      <textarea
-                        rows={5}
-                        placeholder="Mandatory justification (at least 40 characters)…"
-                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:border-mst-red focus:outline-none"
-                        style={{ userSelect: "text", WebkitUserSelect: "text" } as React.CSSProperties}
-                        value={
-                          (currentAnswer?.value || "").split("\n---\n")[1] || ""
-                        }
-                        onChange={(e) => {
-                          const verdict =
-                            (currentAnswer?.value || "").split("\n---\n")[0] ||
-                            "";
-                          setAnswer(current, `${verdict}\n---\n${e.target.value}`);
-                        }}
-                      />
-                    )}
+                        <textarea
+                          rows={5}
+                          placeholder="Mandatory justification (at least 40 characters)…"
+                          className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] focus:border-mst-red focus:outline-none"
+                          style={{ userSelect: "text", WebkitUserSelect: "text" } as React.CSSProperties}
+                          value={
+                            (currentAnswer?.value || "").split("\n---\n")[1] || ""
+                          }
+                          onChange={(e) => {
+                            const verdict =
+                              (currentAnswer?.value || "").split("\n---\n")[0] ||
+                              "";
+                            setAnswer(current, `${verdict}\n---\n${e.target.value}`);
+                          }}
+                        />
+                      )}
                   </div>
                 )}
 

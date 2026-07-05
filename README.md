@@ -15,13 +15,13 @@ Open **http://localhost:3000** → **Open Learning Tree**
 
 ## Theme
 
-- **Default**: light (white) — matches MST Blockchain website
+- **Default**: light (white) - matches MST Blockchain website
 - **Toggle**: moon/sun icon in the navbar → dark mode
 - Preference saved in `localStorage`
 
 ## Interaction model (Avax-style)
 
-- **Left sidebar**: 4 phase buttons — only **one phase tree** visible at a time
+- **Left sidebar**: 4 phase buttons - only **one phase tree** visible at a time
 - Click a phase → tree reloads, camera centers, fade transition
 - **Module cards**: locked / active / completed with progress bar
 - **Pan & zoom** on the tree (React Flow)

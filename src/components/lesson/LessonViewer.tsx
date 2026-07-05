@@ -81,11 +81,11 @@ import { sanitizeHtml } from "@/lib/text";
 function cleanHtml(html: string): string {
   const s = sanitizeHtml(html);
   return s
-    .replace(/<p>\s*[-–—]\s+/g, "<p>• ")
-    .replace(/<li>\s*[-–—]\s+/g, "<li>")
+    .replace(/<p>\s*[-–-]\s+/g, "<p>• ")
+    .replace(/<li>\s*[-–-]\s+/g, "<li>")
     .replace(/>\s*-\s{2,}/g, "> ")
-    .replace(/<p>\s*[-–—]\s*/g, "<p>")
-    .replace(/<br\s*\/?>\s*[-–—]\s+/g, "<br>• ");
+    .replace(/<p>\s*[-–-]\s*/g, "<p>")
+    .replace(/<br\s*\/?>\s*[-–-]\s+/g, "<br>• ");
 }
 
 function LessonContent({ html }: { html: string }) {

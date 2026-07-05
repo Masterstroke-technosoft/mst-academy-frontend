@@ -76,7 +76,7 @@ export function AssessmentResults({
 
   const mins = Math.floor(data.durationSec / 60);
   const secs = data.durationSec % 60;
-  
+
   // Recalculate stats if missing in older session storage payloads
   const totalQuestions = data.questions.length;
   const attemptedCount = data.attempted ?? data.answers.filter(a => a.value.trim().length > 0 || a.selectedKey).length;
@@ -84,7 +84,7 @@ export function AssessmentResults({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto bg-[var(--bg)] text-[var(--text)] transition-colors duration-250">
-      
+
       {/* Auto-redirect banner for passed assessments */}
       {data.passed && (
         <div className="border-b border-green-500/20 bg-green-500/10 px-6 py-3 text-center">
@@ -123,7 +123,7 @@ export function AssessmentResults({
 
         {/* SUMMARY CARD PANEL */}
         <div className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          
+
           {/* SCORE */}
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-5 text-center shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Total Score</p>
@@ -149,13 +149,12 @@ export function AssessmentResults({
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-5 text-center shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Status</p>
             <p
-              className={`mt-2 text-3xl font-black ${
-                data.violated
+              className={`mt-2 text-3xl font-black ${data.violated
                   ? "text-red-500"
                   : data.passed
                     ? "text-green-500"
                     : "text-amber-500"
-              }`}
+                }`}
             >
               {data.violated ? "VIOLATED" : data.passed ? "PASSED" : "REVIEWED"}
             </p>
@@ -241,7 +240,7 @@ export function AssessmentResults({
             const q = data.questions.find((x) => x.id === r.questionId);
             const isQuestionCoding = q && ["coding", "live_coding", "coding_project"].includes(q.type);
             const isCorrectAnswer = r.earned === r.max && r.max > 0;
-            
+
             return (
               <article
                 key={r.questionId}
@@ -252,20 +251,19 @@ export function AssessmentResults({
                   <span className="font-black text-sm text-[var(--text)]">
                     Question {i + 1} <span className="text-xs font-normal text-[var(--text-muted)]">({q?.type.replace(/_/g, " ")})</span>
                   </span>
-                  <span className={`rounded-full px-3 py-0.5 text-xs font-bold border ${
-                    isCorrectAnswer
+                  <span className={`rounded-full px-3 py-0.5 text-xs font-bold border ${isCorrectAnswer
                       ? "bg-green-500/10 text-green-500 border-green-500/25"
                       : r.earned > 0
                         ? "bg-orange-500/10 text-orange-500 border-orange-500/25"
                         : "bg-red-500/10 text-red-500 border-red-500/25"
-                  }`}>
+                    }`}>
                     {r.earned} / {r.max} marks
                   </span>
                 </div>
 
                 {/* Card Body */}
                 <div className="p-6">
-                  
+
                   {/* Question Text */}
                   {q && (
                     <div
@@ -280,17 +278,16 @@ export function AssessmentResults({
                       {q.options.map((opt) => {
                         const isUserSel = r.userAnswer === opt.text || r.userAnswer === opt.key;
                         const isCorrectOpt = opt.isCorrect;
-                        
+
                         return (
-                          <div 
+                          <div
                             key={opt.key}
-                            className={`flex items-center gap-3 rounded-xl border p-3 text-xs ${
-                              isCorrectOpt 
+                            className={`flex items-center gap-3 rounded-xl border p-3 text-xs ${isCorrectOpt
                                 ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400 font-semibold"
                                 : isUserSel
                                   ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 font-semibold"
                                   : "bg-[var(--bg-muted)] border-[var(--border)] text-[var(--text-muted)]"
-                            }`}
+                              }`}
                           >
                             <span className="font-bold">{opt.key}.</span>
                             <span>{opt.text}</span>
@@ -304,7 +301,7 @@ export function AssessmentResults({
 
                   {/* Answers Comparison Grid */}
                   <div className="grid gap-4 md:grid-cols-2">
-                    
+
                     {/* User Answer Column */}
                     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4 flex flex-col justify-between">
                       <div>
@@ -329,7 +326,7 @@ export function AssessmentResults({
                         <p className="text-[10px] font-bold uppercase tracking-wider text-green-500">
                           Correct / Reference Solution
                         </p>
-                        
+
                         {isQuestionCoding ? (
                           <div className="mt-3">
                             <p className="text-xs text-[var(--text-muted)] leading-relaxed">
@@ -366,17 +363,16 @@ export function AssessmentResults({
                           Passed: {r.codingResults.passed} | Failed: {r.codingResults.failed}
                         </span>
                       </div>
-                      
+
                       {r.codingResults.testCases && r.codingResults.testCases.length > 0 ? (
                         <div className="space-y-3">
                           {r.codingResults.testCases.map((tc: any, tcIdx: number) => (
-                            <div 
+                            <div
                               key={tcIdx}
-                              className={`rounded-lg border p-3 text-xs bg-[var(--bg)] ${
-                                tc.pass 
-                                  ? "border-green-500/25" 
+                              className={`rounded-lg border p-3 text-xs bg-[var(--bg)] ${tc.pass
+                                  ? "border-green-500/25"
                                   : "border-red-500/25"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2 font-bold mb-2">
                                 {tc.pass ? (
@@ -436,7 +432,7 @@ export function AssessmentResults({
                     <p className="mt-3 text-[10px] font-semibold text-[var(--text-muted)]">
                       {r.isAutoGraded
                         ? "Graded Automatically (System Verifications)"
-                        : "Requires manual evaluation — compare details with rubric guidelines above"}
+                        : "Requires manual evaluation - compare details with rubric guidelines above"}
                     </p>
                   )}
                 </div>

@@ -51,7 +51,7 @@ import {
 // Styles correspond to left, center, right positions (2nd, 1st, 3rd)
 const PODIUM_STYLES = [
   {
-    // left — 2nd place (silver)
+    // left - 2nd place (silver)
     order: "order-1 sm:order-1",
     height: "h-24 sm:h-28",
     medal: "text-slate-400",
@@ -62,7 +62,7 @@ const PODIUM_STYLES = [
     rankText: "2",
   },
   {
-    // center — 1st place (gold)
+    // center - 1st place (gold)
     order: "order-2 sm:order-2",
     height: "h-32 sm:h-36",
     medal: "text-amber-500",
@@ -73,7 +73,7 @@ const PODIUM_STYLES = [
     rankText: "1",
   },
   {
-    // right — 3rd place (bronze)
+    // right - 3rd place (bronze)
     order: "order-3 sm:order-3",
     height: "h-20 sm:h-24",
     medal: "text-orange-500",

@@ -1,6 +1,6 @@
 // Utility helpers for sanitising UI text: remove hyphens and emojis where desired
 export function stripHyphens(s: string): string {
-  return s.replace(/[‐‑‒–—−]/g, " ").replace(/\s+/g, " ").trim();
+  return s.replace(/[‐‑‒–-−]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 // Remove common emoji/unicode pictographs
@@ -11,13 +11,13 @@ export function stripEmojis(s: string): string {
 export function sanitizeHtml(html: string): string {
   if (!html) return html;
   // Remove emojis and replace hyphens with spaces in text nodes
-  // Basic approach: operate on raw HTML string — good for demo purposes
+  // Basic approach: operate on raw HTML string - good for demo purposes
   let out = html;
   out = stripEmojis(out);
   out = out.replace(/\bSub-Module\b/gi, "Submodule");
   out = out.replace(/\bSub-Modules\b/gi, "Submodules");
   // Replace various hyphen/dash characters with space
-  out = out.replace(/[‐‑‒–—−]/g, " ");
+  out = out.replace(/[‐‑‒–-−]/g, " ");
   // Collapse multiple spaces
   out = out.replace(/\s{2,}/g, " ");
   return out;

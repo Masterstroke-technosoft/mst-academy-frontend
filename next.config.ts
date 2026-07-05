@@ -10,24 +10,24 @@ try {
     if (raw.charCodeAt(0) === 0xFEFF) {
       raw = raw.slice(1);
     }
-    raw = raw.replace(/\u0097/g, "—")
-             .replace(/\u0092/g, "'")
-             .replace(/\u0093/g, '"')
-             .replace(/\u0094/g, '"')
-             .replace(/ΓÇö/g, "—")
-             .replace(/≡ƒò░/g, "⌛")
-             .replace(/≡ƒÄ»/g, "🎯")
-             .replace(/≡ƒôû/g, "📖")
-             .replace(/≡ƒºá/g, "🧠")
-             .replace(/ΓÜÖ∩╕Å/g, "⚙️")
-             .replace(/≡ƒôà/g, "📅")
-             .replace(/≡ƒîì/g, "🌍")
-             .replace(/≡ƒöÉ/g, "🔒")
-             .replace(/≡ƒÆ╝/g, "💼")
-             .replace(/≡ƒö║/g, "🔺")
-             .replace(/≡ƒÆ⌐ΓÇì≡ƒÆ╗/g, "👩‍💻")
-             .replace(/≡ƒôö/g, "📓")
-             .replace(/≡ƒÆ░/g, "💰");
+    raw = raw.replace(/\u0097/g, "-")
+      .replace(/\u0092/g, "'")
+      .replace(/\u0093/g, '"')
+      .replace(/\u0094/g, '"')
+      .replace(/ΓÇö/g, "-")
+      .replace(/≡ƒò░/g, "⌛")
+      .replace(/≡ƒÄ»/g, "🎯")
+      .replace(/≡ƒôû/g, "📖")
+      .replace(/≡ƒºá/g, "🧠")
+      .replace(/ΓÜÖ∩╕Å/g, "⚙️")
+      .replace(/≡ƒôà/g, "📅")
+      .replace(/≡ƒîì/g, "🌍")
+      .replace(/≡ƒöÉ/g, "🔒")
+      .replace(/≡ƒÆ╝/g, "💼")
+      .replace(/≡ƒö║/g, "🔺")
+      .replace(/≡ƒÆ⌐ΓÇì≡ƒÆ╗/g, "👩‍💻")
+      .replace(/≡ƒôö/g, "📓")
+      .replace(/≡ƒÆ░/g, "💰");
     const parsed = JSON.parse(raw);
     fs.writeFileSync(newPath, JSON.stringify(parsed, null, 2), "utf-8");
     console.log("Successfully cleaned and updated src/data/curriculum.json");

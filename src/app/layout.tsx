@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Masterstroke Academy",
-    description: "Professional Blockchain Developer Program — Learn. Build. Launch.",
+    description: "Professional Blockchain Developer Program - Learn. Build. Launch.",
   },
   robots: {
     index: true,

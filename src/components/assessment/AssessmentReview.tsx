@@ -38,8 +38,8 @@ export function AssessmentReview({
   if (!data) {
     return (
       <div className="flex h-full items-center justify-center bg-[var(--bg)] text-[var(--text)] transition-colors duration-250">
-        <Link 
-          href={`/module/${moduleId}/${subSlug}/assessment`} 
+        <Link
+          href={`/module/${moduleId}/${subSlug}/assessment`}
           className="text-mst-red font-bold hover:underline"
         >
           Complete assessment first
@@ -50,7 +50,7 @@ export function AssessmentReview({
 
   return (
     <div className="h-full overflow-y-auto bg-[var(--bg)] text-[var(--text)] transition-colors duration-250">
-      
+
       {/* STICKY TOP HEADER */}
       <header className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur px-6 py-5 flex items-center justify-between">
         <div>
@@ -71,7 +71,7 @@ export function AssessmentReview({
           const q = data.questions.find((x) => x.id === r.questionId);
           const isQuestionCoding = q && ["coding", "live_coding", "coding_project"].includes(q.type);
           const isCorrectAnswer = r.earned === r.max && r.max > 0;
-          
+
           return (
             <article
               key={r.questionId}
@@ -82,20 +82,19 @@ export function AssessmentReview({
                 <span className="font-black text-sm">
                   Question {i + 1} <span className="text-xs font-normal text-[var(--text-muted)]">({q?.type.replace(/_/g, " ")})</span>
                 </span>
-                <span className={`rounded-full px-3 py-0.5 text-xs font-bold border ${
-                  isCorrectAnswer
+                <span className={`rounded-full px-3 py-0.5 text-xs font-bold border ${isCorrectAnswer
                     ? "bg-green-500/10 text-green-500 border-green-500/25"
                     : r.earned > 0
                       ? "bg-orange-500/10 text-orange-500 border-orange-500/25"
                       : "bg-red-500/10 text-red-500 border-red-500/25"
-                }`}>
+                  }`}>
                   {r.earned} / {r.max} marks
                 </span>
               </div>
 
               {/* Review Card Content */}
               <div className="p-6">
-                
+
                 {/* Question HTML */}
                 {q && (
                   <div
@@ -110,17 +109,16 @@ export function AssessmentReview({
                     {q.options.map((opt) => {
                       const isUserSel = r.userAnswer === opt.text || r.userAnswer === opt.key;
                       const isCorrectOpt = opt.isCorrect;
-                      
+
                       return (
-                        <div 
+                        <div
                           key={opt.key}
-                          className={`flex items-center gap-3 rounded-xl border p-3 text-xs ${
-                            isCorrectOpt 
+                          className={`flex items-center gap-3 rounded-xl border p-3 text-xs ${isCorrectOpt
                               ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400 font-semibold"
                               : isUserSel
                                 ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 font-semibold"
                                 : "bg-[var(--bg-muted)] border-[var(--border)] text-[var(--text-muted)]"
-                          }`}
+                            }`}
                         >
                           <span className="font-bold">{opt.key}.</span>
                           <span>{opt.text}</span>
@@ -153,7 +151,7 @@ export function AssessmentReview({
                     <p className="text-[10px] font-bold uppercase tracking-wider text-green-500">
                       Correct Answer
                     </p>
-                    
+
                     {isQuestionCoding ? (
                       <div className="mt-3">
                         <p className="text-xs text-[var(--text-muted)] leading-relaxed">
@@ -190,11 +188,10 @@ export function AssessmentReview({
                       </span>
                     </div>
                     {r.codingResults.testCases && r.codingResults.testCases.map((tc: any, tcIdx: number) => (
-                      <div 
+                      <div
                         key={tcIdx}
-                        className={`rounded-lg border p-3 text-xs bg-[var(--bg)] mb-2.5 last:mb-0 ${
-                          tc.pass ? "border-green-500/25" : "border-red-500/25"
-                        }`}
+                        className={`rounded-lg border p-3 text-xs bg-[var(--bg)] mb-2.5 last:mb-0 ${tc.pass ? "border-green-500/25" : "border-red-500/25"
+                          }`}
                       >
                         <div className="flex items-center gap-2 font-bold mb-2">
                           {tc.pass ? (
@@ -250,7 +247,7 @@ export function AssessmentReview({
                   <p className="mt-3 text-[10px] font-semibold text-[var(--text-muted)]">
                     {r.isAutoGraded
                       ? "Graded Automatically"
-                      : "Manually reviewed criteria — compare with model answer guidelines above"}
+                      : "Manually reviewed criteria - compare with model answer guidelines above"}
                   </p>
                 )}
               </div>

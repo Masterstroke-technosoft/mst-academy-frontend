@@ -108,7 +108,7 @@ function stripAssessmentContent(html: string): string {
   //    strip from that point to end-of-document, but keep the glossary
   //    section (and anything after it) if one exists.
   const assessmentStart = html.search(
-    /<div[^>]*class="[^"]*assessment-header[^"]*"[^>]*>|<div[^>]*class="[^"]*question-card[^"]*"[^>]*>|<h[1-6][^>]*>[^<]*(?:Assessment\s+Preparation|Section\s+[A-Z]\s*[-—–])/i
+    /<div[^>]*class="[^"]*assessment-header[^"]*"[^>]*>|<div[^>]*class="[^"]*question-card[^"]*"[^>]*>|<h[1-6][^>]*>[^<]*(?:Assessment\s+Preparation|Section\s+[A-Z]\s*[--–])/i
   );
 
   if (assessmentStart !== -1) {
@@ -145,7 +145,7 @@ function stripAssessmentContent(html: string): string {
     ""
   );
   html = html.replace(
-    /<h[1-6][^>]*>[^<]*(?:Assessment\s+Preparation|Section\s+[A-Z]\s*[-—–])[^<]*<\/h[1-6]>/gi,
+    /<h[1-6][^>]*>[^<]*(?:Assessment\s+Preparation|Section\s+[A-Z]\s*[--–])[^<]*<\/h[1-6]>/gi,
     ""
   );
 

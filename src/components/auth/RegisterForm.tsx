@@ -185,8 +185,8 @@ export function RegisterForm() {
 
   async function handleSendOtp() {
     setError("");
-    if (!email.endsWith("@gmail.com")) {
-      setError("Email must be a @gmail.com address.");
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     setOtpLoading(true);
@@ -225,9 +225,9 @@ export function RegisterForm() {
       return;
     }
 
-    if (!email.endsWith("@gmail.com")) {
+    if (!isValidEmail(email)) {
       setLoading(false);
-      setError("Email must be a @gmail.com address.");
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -326,7 +326,7 @@ export function RegisterForm() {
     }
 
     // The account is created on the backend, but registration does not log the
-    // user in (no auth token is issued here — only the login flow stores one).
+    // user in (no auth token is issued here - only the login flow stores one).
     // Clear the partial session set during registration and send the user to
     // /login with their email prefilled so they sign in for real before hitting
     // any authenticated pages.
@@ -337,7 +337,7 @@ export function RegisterForm() {
   return (
     <AuthShell
       title="Create Account"
-      subtitle="Choose your track and price — then enroll."
+      subtitle="Choose your track and price - then enroll."
     >
       {/* <div className="mb-5">
         <DemoFeeNote />
@@ -380,7 +380,7 @@ export function RegisterForm() {
                 setOtpSent(false);
               }}
               placeholder="you@example.com"
-              className={`flex-1 ${email.length > 0 && !email.endsWith("@gmail.com") ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
+              className={`flex-1 ${email.length > 0 && !isValidEmail(email) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
               disabled={emailVerified}
             />
             {!emailVerified && (
@@ -394,9 +394,9 @@ export function RegisterForm() {
               </button>
             )}
           </div>
-          {email.length > 0 && !email.endsWith("@gmail.com") && (
+          {email.length > 0 && !isValidEmail(email) && (
             <p className="mt-1 text-xs text-red-500 font-medium">
-              Email must be a @gmail.com address.
+              Please enter a valid email address.
             </p>
           )}
           {emailVerified && (
@@ -449,8 +449,9 @@ export function RegisterForm() {
             id="phone"
             type="tel"
             required
+            maxLength={10}
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
             placeholder="10-digit mobile number"
             className={phone.length > 0 && !/^\d{10}$/.test(phone) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}
           />
