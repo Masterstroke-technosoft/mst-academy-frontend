@@ -258,7 +258,7 @@ export function ReferAndEarnTab({
               </div>
             </GlassCard>
 
-            {withdrawRequested ? (
+            {withdrawRequested && requestStatus !== "Confirmed" ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -269,33 +269,29 @@ export function ReferAndEarnTab({
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-black text-[var(--text)]">
-                  {requestStatus === "Confirmed" ? "Withdrawal Confirmed" : "Withdrawal Requested"}
+                  Withdrawal Requested
                 </h3>
                 <p className="text-sm text-[var(--text-muted)] max-w-sm">
-                  {requestStatus === "Confirmed"
-                    ? "Your request has been verified and confirmed by the administrator. The reward of ₹1,500 has been successfully sent!"
-                    : "We have received your bank details securely. The amount will be processed and credited to your account within 3-5 business days."}
+                  We have received your bank details securely. The amount will be processed and credited to your account within 3-5 business days.
                 </p>
-                {requestStatus !== "Confirmed" && (
-                  <button
-                    type="button"
-                    onClick={() => setShowUpdateForm(true)}
-                    className="mt-4 relative z-10 shrink-0 group inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-[var(--text)] transition hover:bg-[var(--border)] hover:scale-[1.02] active:scale-95"
-                  >
-                    Update Bank Details
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setShowUpdateForm(true)}
+                  className="mt-4 relative z-10 shrink-0 group inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-[var(--text)] transition hover:bg-[var(--border)] hover:scale-[1.02] active:scale-95"
+                >
+                  Update Bank Details
+                </button>
               </motion.div>
             ) : (
               <div className="relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 rounded-3xl border border-[var(--border)] bg-gradient-to-r from-[var(--bg-muted)] to-[var(--surface)] p-6 shadow-sm sm:p-8">
                 <div className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-emerald-500/5 to-transparent pointer-events-none" />
                 <div className="relative z-10 text-center sm:text-left">
                   <p className="text-lg font-black text-[var(--text)]">Ready to Cash Out?</p>
-                  {/* <p className="mt-1 text-sm text-[var(--text-muted)]">
-                    {withdrawUnlocked
-                      ? "You have successfully unlocked your withdrawal."
-                      : `Complete ${5 - successfulReferrals} more successful referral(s) to unlock withdrawal.`}
-                  </p> */}
+                  {requestStatus === "Confirmed" && (
+                    <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                      Your previous payout was confirmed. You can submit a new withdrawal request anytime.
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
