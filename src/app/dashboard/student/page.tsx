@@ -93,6 +93,7 @@ export default function StudentDashboardPage({
         headers["Authorization"] = `Bearer ${token}`;
       }
 
+
       const fullRes = await fetch(`${baseURL}/api/phases/full/${phaseId}`, {
         method: "GET",
         credentials: "include",
@@ -139,6 +140,7 @@ export default function StudentDashboardPage({
           return p;
         }));
       }
+
     } catch (err) {
       console.error(`Error fetching full hierarchy for phase ${phaseId}:`, err);
     }
@@ -1572,7 +1574,7 @@ export default function StudentDashboardPage({
                                                       }}
                                                       className="w-full text-left px-3 py-2 hover:bg-emerald-500/10 text-emerald-500 font-bold transition-colors flex items-center gap-1"
                                                     >
-                                                      <Plus className="h-3 w-3" /> Create New Set 
+                                                      <Plus className="h-3 w-3" /> Create New Set
                                                     </button>
                                                   </>
                                                 )}

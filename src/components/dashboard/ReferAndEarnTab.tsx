@@ -218,12 +218,12 @@ export function ReferAndEarnTab({
                     Referral Records
                   </p>
                   <p className="mt-2 text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
-                    Withdrawal unlocks after <strong className="text-[var(--text)]">5 successful referrals</strong> where each referee completes the full course.
+                    Withdrawal unlocks after each referee purchase the full course.
                   </p>
                 </div>
                 <div className="shrink-0 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3 text-center shadow-inner">
                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/80 dark:text-emerald-400/80">Successful</p>
-                  <p className="mt-1 text-xl font-black text-emerald-600 dark:text-emerald-400">{successfulReferrals} <span className="text-sm opacity-60">/ 5</span></p>
+                  <p className="mt-1 text-xl font-black text-emerald-600 dark:text-emerald-400">{successfulReferrals}</p>
                 </div>
               </div>
 

@@ -39,7 +39,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center group relative z-10">
+        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden">
           <img
             src="/Acadmy Logo.png"
             alt="Masterstroke Academy"
