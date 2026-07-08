@@ -304,7 +304,8 @@ export function ReferAndEarnTab({
                         headers: { "Content-Type": "application/json" },
                       });
                       if (res.ok) {
-                        const data = await res.json();
+                        const text = await res.text();
+                        const data = text ? JSON.parse(text) : null;
                         const existing = data?.data ?? data;
                         if (existing && (existing._id || existing.accountNumber)) {
                           setBankDetails({
@@ -429,7 +430,8 @@ export function ReferAndEarnTab({
                           headers,
                         });
                         if (meRes.ok) {
-                          const meData = await meRes.json();
+                          const meText = await meRes.text();
+                          const meData = meText ? JSON.parse(meText) : null;
                           const existing = meData?.data ?? meData;
                           hasBankDetails = !!(existing && (existing._id || existing.accountNumber));
                         }
