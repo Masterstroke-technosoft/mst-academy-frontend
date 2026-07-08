@@ -84,9 +84,13 @@ export function LoginForm() {
           ) {
             return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
           }
+          if (errorMsg) {
+            return { ok: false, error: errorMsg };
+          }
         } catch (e) {
           // ignore parsing error
         }
+        return { ok: false, error: "Invalid credentials." };
       }
     } catch (err) {
       console.error("Login API error, falling back to localStorage:", err);
