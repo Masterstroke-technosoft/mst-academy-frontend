@@ -184,7 +184,7 @@ export default function ReferralAnalyticsPage() {
               status: item.withdrawalStatus || item.status || "Pending",
               referrals: item.referrals?.map((ref: any) => ({
                 ...ref,
-                eligible: ref.status === "verified"
+                eligible: ref.status === "verified" || ref.status === "Verified"
               })) || []
             }));
           }
@@ -206,8 +206,8 @@ export default function ReferralAnalyticsPage() {
     if (!reqObj) return;
 
     const referrals = reqObj.referrals || [];
-    const hasVerified = referrals.some(r => r.status === "verified" || r.eligible);
-    const hasNonVerified = referrals.some(r => r.status !== "verified" && !r.eligible);
+    const hasVerified = referrals.some(r => r.status === "verified" || r.status === "Verified" || r.eligible);
+    const hasNonVerified = referrals.some(r => r.status !== "verified" && r.status !== "Verified" && !r.eligible);
 
     if (hasVerified && hasNonVerified) {
       setToast({
@@ -220,11 +220,21 @@ export default function ReferralAnalyticsPage() {
 
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const payloadReferrals = referrals.map((r: any) => ({
+        userId: r.userId || reqObj.userId,
+        name: r.name,
+        payout: r.payout || r.amount || 500,
+        status: (r.status === "verified" || r.status === "Verified" || r.eligible) ? "Verified" : r.status
+      }));
+
       const res = await fetch(`${baseURL}/api/bank-details/withdrawal/${requestId}`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Confirmed" }),
+        body: JSON.stringify({
+          status: "Confirmed",
+          referrals: payloadReferrals
+        }),
       });
 
       if (!res.ok) {
@@ -247,9 +257,27 @@ export default function ReferralAnalyticsPage() {
         return;
       }
 
+      const responseData = await res.json();
+      const updatedItem = responseData.data || responseData;
+
       setRequests((prev) =>
-        prev.map((req) => (req.id === requestId ? { ...req, status: "Confirmed" } : req))
+        prev.map((req) => {
+          if (req.id === requestId) {
+            return {
+              ...req,
+              ...updatedItem,
+              id: updatedItem.withdrawalRequestId || updatedItem._id || updatedItem.id || req.id,
+              status: updatedItem.withdrawalStatus || updatedItem.status || "Confirmed",
+              referrals: updatedItem.referrals?.map((ref: any) => ({
+                ...ref,
+                eligible: ref.status === "verified" || ref.status === "Verified"
+              })) || req.referrals || []
+            };
+          }
+          return req;
+        })
       );
+
       setToast({
         message: `Success! Payout request of ₹${reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`,
         type: "success"

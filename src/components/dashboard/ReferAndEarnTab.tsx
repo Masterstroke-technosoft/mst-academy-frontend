@@ -49,6 +49,7 @@ export function ReferAndEarnTab({
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [withdrawRequested, setWithdrawRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState("Pending");
+  const [error, setError] = useState<string | null>(null);
   const [bankDetails, setBankDetails] = useState({
     accountHolderName: "",
     accountNumber: "",
@@ -318,6 +319,7 @@ export function ReferAndEarnTab({
                     } catch (error) {
                       console.error("Error fetching bank details:", error);
                     }
+                    setError(null);
                     setShowWithdrawForm(true);
                   }}
                   // disabled={!withdrawUnlocked}
@@ -344,7 +346,10 @@ export function ReferAndEarnTab({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
-              onClick={() => setShowWithdrawForm(false)}
+              onClick={() => {
+                setShowWithdrawForm(false);
+                setError(null);
+              }}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -362,6 +367,18 @@ export function ReferAndEarnTab({
                   <div>
                     <h3 className="text-2xl font-black tracking-tight text-[var(--text)]">Withdrawal Details</h3>
                     <p className="mt-1 text-sm text-[var(--text-muted)]">Securely enter your banking information below.</p>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex items-center gap-2.5 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs font-semibold text-red-600 dark:text-red-400"
+                      >
+                        <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
                     <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
                       <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
                       <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{successfulReferrals * 500}</p>
@@ -369,7 +386,10 @@ export function ReferAndEarnTab({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowWithdrawForm(false)}
+                    onClick={() => {
+                      setShowWithdrawForm(false);
+                      setError(null);
+                    }}
                     className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--text-muted)] transition-colors hover:bg-[var(--border)] hover:text-[var(--text)]"
                   >
                     <span className="sr-only">Close</span>
@@ -384,6 +404,12 @@ export function ReferAndEarnTab({
                   onSubmit={async (e) => {
                     e.preventDefault();
                     if (!user) return;
+
+                    const amount = successfulReferrals * 500;
+                    if (amount <= 0) {
+                      setError("Withdrawal amount is 0. Cannot proceed with withdrawal.");
+                      return;
+                    }
 
                     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
                     const headers = {
