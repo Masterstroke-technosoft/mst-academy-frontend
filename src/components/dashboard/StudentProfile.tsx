@@ -372,7 +372,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           </h2>
 
           {/* Verification Badges */}
-          {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator" || formData.role?.toLowerCase() === "user" || !formData.role) && (
+          {formData.role?.toLowerCase() === "student" && (
             <div className="flex flex-wrap items-center gap-2">
 
               {formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed" ? (

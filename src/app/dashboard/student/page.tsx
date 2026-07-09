@@ -62,7 +62,6 @@ export default function StudentDashboardPage({
         const text = await response.text();
         const result = text ? JSON.parse(text) : null;
         setUserBankDetails(result);
-        console.log("sssssssssssssssssss", result);
       } catch (error: any) {
         console.error(error?.message ?? error);
       }
@@ -1572,7 +1571,7 @@ export default function StudentDashboardPage({
                                                       }}
                                                       className="w-full text-left px-3 py-2 hover:bg-emerald-500/10 text-emerald-500 font-bold transition-colors flex items-center gap-1"
                                                     >
-                                                      <Plus className="h-3 w-3" /> Create New Set 
+                                                      <Plus className="h-3 w-3" /> Create New Set
                                                     </button>
                                                   </>
                                                 )}
