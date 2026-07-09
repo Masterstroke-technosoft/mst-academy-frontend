@@ -71,12 +71,17 @@ export const DEMO_ADMIN_EMAIL = "abc@gmail.com";
 export const DEMO_ADMIN_PASSWORD = "ABC123";
 
 export const COLLEGES = [
-  "MIT WPU",
-  "DY Patil University",
-  "PCCOE",
-  "VIIT",
-  "Sinhgad College",
-  "MIT ADT University",
+  "MIT World Peace University, Pune",
+  "D. Y. Patil College of Engineering, Akurdi, Pune",
+  "Pimpri Chinchwad College of Engineering, Pune",
+  "Vishwakarma Institute and University, Pune",
+  "Nutan Maharashtra Institute of Engineering and Technology, Pune",
+  "MIT Art, Design and Technology University, Pune",
+  "B. M. S. College of Engineering (BMSCE), Bengaluru",
+  "Vidyashilp University, Bengaluru",
+  "REVA University, Bengaluru",
+  "Jain University Global Campus, Kanakapura",
+  "Vidyavardhaka College of Engineering, Mysuru",
   "Other",
 ] as const;
 
@@ -263,45 +268,45 @@ export async function registerValidator(
   input: RegisterValidatorInput
 ): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
 
-  const payload = {
-    name: input.fullName,
-    email: input.email,
-    password: input.password,
-    mobileNumber: input.phone,
-    ...(input.referralCode ? { referralCode: input.referralCode } : {}),
-    ...(input.transactionId ? { transactionId: input.transactionId } : {}),
-  };
+    const payload = {
+      name: input.fullName,
+      email: input.email,
+      password: input.password,
+      mobileNumber: input.phone,
+      ...(input.referralCode ? { referralCode: input.referralCode } : {}),
+      ...(input.transactionId ? { transactionId: input.transactionId } : {}),
+    };
 
-  const response = await fetch(`${baseURL}/api/auth/register-validator`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+    const response = await fetch(`${baseURL}/api/auth/register-validator`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-  const data = await response.json();
-  if (!response.ok) {
-    return { ok: false, error: data.message || "Validator registration failed" };
-  }
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.message || "Validator registration failed" };
+    }
 
-  const validatorData = data.admin || data.validator || data.user || data;
-  const authUser: AuthUser = {
-    id: validatorData.id || validatorData._id || `user-${Date.now()}`,
-    email: validatorData.email || input.email,
-    fullName: validatorData.name || input.fullName,
-    role: validatorData.role || "VALIDATOR",
-    phone: input.phone,
-    registeredAt: new Date().toISOString(),
-    transactionId: validatorData.transactionId || input.transactionId,
-  };
+    const validatorData = data.admin || data.validator || data.user || data;
+    const authUser: AuthUser = {
+      id: validatorData.id || validatorData._id || `user-${Date.now()}`,
+      email: validatorData.email || input.email,
+      fullName: validatorData.name || input.fullName,
+      role: validatorData.role || "VALIDATOR",
+      phone: input.phone,
+      registeredAt: new Date().toISOString(),
+      transactionId: validatorData.transactionId || input.transactionId,
+    };
 
-  setSession(authUser);
+    setSession(authUser);
 
-  return { ok: true, user: authUser };
-} catch (err: any) {
+    return { ok: true, user: authUser };
+  } catch (err: any) {
     return { ok: false, error: err.message || "Failed to connect to validator registration API." };
   }
 }

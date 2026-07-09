@@ -1218,20 +1218,27 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   <section className="mt-8 grid gap-4 lg:grid-cols-2">
                     <div>
                       <h2 className="mb-4 text-lg font-black text-[var(--text)]">Achievements</h2>
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {analytics.achievements.map((a) => (
-                          <div
-                            key={a.id}
-                            className={`rounded-2xl border p-4 text-center transition ${a.unlocked
-                              ? "border-amber-500/40 bg-amber-500/5 shadow-lg shadow-amber-500/10"
-                              : "border-[var(--border)] bg-[var(--surface)]/50 opacity-50 grayscale"
-                              }`}
-                          >
-                            <span className="text-2xl">{a.emoji}</span>
-                            <p className="mt-2 text-xs font-black text-[var(--text)]">{a.title}</p>
-                            <p className="mt-1 text-[10px] text-[var(--text-muted)]">{a.desc}</p>
-                          </div>
-                        ))}
+                      <div className="relative">
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 opacity-40 select-none pointer-events-none">
+                          {analytics.achievements.map((a) => (
+                            <div
+                              key={a.id}
+                              className={`rounded-2xl border p-4 text-center transition ${a.unlocked
+                                ? "border-amber-500/40 bg-amber-500/5 shadow-lg shadow-amber-500/10"
+                                : "border-[var(--border)] bg-[var(--surface)]/50 opacity-50 grayscale"
+                                }`}
+                            >
+                              <span className="text-2xl">{a.emoji}</span>
+                              <p className="mt-2 text-xs font-black text-[var(--text)]">{a.title}</p>
+                              <p className="mt-1 text-[10px] text-[var(--text-muted)]">{a.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="rounded-full bg-mst-red/10 border border-mst-red/35 px-6 py-2.5 text-sm sm:text-base font-black uppercase tracking-widest text-mst-red shadow-lg backdrop-blur-md">
+                            Coming Soon
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -1246,10 +1253,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <span className="text-[var(--text-muted)]">Modules completed</span>
                           <span className="font-bold">{analytics.modulesCompleted}/{analytics.totalModules}</span>
                         </p>
-                        <p className="flex justify-between">
+                        {/* <p className="flex justify-between">
                           <span className="text-[var(--text-muted)]">Coin balance</span>
                           <span className="font-bold text-amber-500">- $MSTC</span>
-                        </p>
+                        </p> */}
                         <p className="flex justify-between">
                           <span className="text-[var(--text-muted)]">Current module</span>
                           <span className="font-bold truncate max-w-[160px]">{analytics.activeModuleTitle}</span>

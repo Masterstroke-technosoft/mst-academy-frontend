@@ -608,7 +608,7 @@ export function DashboardShell({
 
       {isApprovedPaymentModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-6xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
               <div>
                 <h3 className="text-xl font-black text-[var(--text)]">
@@ -658,19 +658,19 @@ export function DashboardShell({
 
             <div className="flex-1 overflow-auto">
               {loadingPayments ? (
-                <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-sm text-[var(--text-muted)] animate-pulse">
-                    <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                       <tr>
-                        <th className="px-2 py-3 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Transaction ID</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Upload Screenshot</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Action</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border)]">
@@ -719,45 +719,45 @@ export function DashboardShell({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto lg:overflow-x-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-sm text-[var(--text-muted)]">
-                    <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)]">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                       <tr>
-                        <th className="px-2 py-3 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Transaction ID</th>
-                        <th className="px-2 py-3 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Upload Screenshot</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-3 whitespace-nowrap text-center">Action</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--border)]">
                       {filteredPayments.map((req) => (
                         <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
-                          <td className="px-2 py-3 font-semibold text-[var(--text)] whitespace-nowrap">
+                          <td className="px-2 py-2.5 font-semibold text-[var(--text)] whitespace-nowrap">
                             {req.accountHolderName}
                           </td>
-                          <td className="px-2 py-3 text-center whitespace-nowrap">
-                            <span className="inline-flex rounded-md bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                            <span className="inline-flex rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
                               {req.category}
                             </span>
                           </td>
-                          <td className="px-2 py-3 font-black text-[var(--text)] text-sm whitespace-nowrap">
+                          <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
                             ₹{req.amountPaid}
                           </td>
-                          <td className="px-2 py-3 whitespace-nowrap">
+                          <td className="px-2 py-2.5 whitespace-nowrap">
                             {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
                           </td>
-                          <td className="px-2 py-3 font-mono text-xs whitespace-nowrap">
+                          <td className="px-2 py-2.5 font-mono text-[11px] whitespace-nowrap">
                             {req.transactionId}
                           </td>
-                          <td className="px-2 py-3 font-medium whitespace-nowrap">
+                          <td className="px-2 py-2.5 font-medium whitespace-nowrap">
                             {req.paymentMethod}
                           </td>
-                          <td className="px-2 py-3 text-center whitespace-nowrap">
+                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
                             {req.paymentScreenshotUrl ? (
                               <button
                                 type="button"
@@ -767,18 +767,18 @@ export function DashboardShell({
                                     : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
                                   setPreviewScreenshotUrl(fullUrl);
                                 }}
-                                className="inline-flex items-center justify-center font-bold text-xs bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-all cursor-pointer shadow-sm whitespace-nowrap w-20 text-center"
+                                className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm whitespace-nowrap w-16 text-center"
                               >
                                 View
                               </button>
                             ) : (
-                              <span className="inline-flex items-center justify-center text-xs bg-gray-500/10 text-gray-500 border border-gray-500/20 px-3 py-1.5 rounded-lg font-medium w-20 text-center">
+                              <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-md font-medium w-16 text-center">
                                 No file
                               </span>
                             )}
                           </td>
-                          <td className="px-2 py-3 text-center whitespace-nowrap">
-                            <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-sm ${req.status === "APPROVED"
                               ? "bg-green-600 border border-green-600"
                               : req.status === "REJECTED"
                                 ? "bg-red-600 border border-red-600"
@@ -787,14 +787,14 @@ export function DashboardShell({
                               {req.status}
                             </span>
                           </td>
-                          <td className="px-2 py-3 text-center whitespace-nowrap">
+                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
                             {req.status === "PENDING" ? (
-                              <div className="inline-flex items-center gap-2">
+                              <div className="inline-flex items-center gap-1.5">
                                 <button
                                   type="button"
                                   disabled={approvingId === (req._id || req.id)}
                                   onClick={() => handleApprovePayment(req._id || req.id)}
-                                  className="rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                                 >
                                   Approve
                                 </button>
@@ -802,15 +802,15 @@ export function DashboardShell({
                                   type="button"
                                   disabled={approvingId === (req._id || req.id)}
                                   onClick={() => handleRejectPayment(req._id || req.id)}
-                                  className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  className="rounded bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                                 >
                                   Reject
                                 </button>
                               </div>
                             ) : req.status === "APPROVED" ? (
-                              <span className="text-green-500 font-bold text-xs inline-flex items-center gap-1 justify-center"><CheckCircle2 size={14} /> Ready</span>
+                              <span className="text-green-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><CheckCircle2 size={12} /> Ready</span>
                             ) : (
-                              <span className="text-red-500 font-bold text-xs inline-flex items-center gap-1 justify-center"><AlertCircle size={14} /> Rejected</span>
+                              <span className="text-red-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><AlertCircle size={12} /> Rejected</span>
                             )}
                           </td>
                         </tr>

@@ -324,22 +324,22 @@ export function PlanFunnelPage({
           </div>
         </RevealSection>
 
-        <RevealSection className="mt-8">
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center">
-            {/* <p className="text-sm text-[var(--text-muted)]">
+        {/* <RevealSection className="mt-8">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center"> */}
+        {/* <p className="text-sm text-[var(--text-muted)]">
               Start now and unlock guided learning, practical execution, and mentorship-driven outcomes.
             </p> */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-              {/* <Link
+        {/* <div className="mt-4 flex flex-wrap items-center justify-center gap-3"> */}
+        {/* <Link
                 href={`/register?plan=${planId}`}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red via-red-600 to-mst-red px-7 py-3 text-sm font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
               >
                 Buy Course Now
                 <ArrowRight className="h-4 w-4" />
               </Link> */}
-            </div>
+        {/* </div>
           </div>
-        </RevealSection>
+        </RevealSection> */}
       </div>
 
       {showStickyBar && (
