@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { dashboardPath, setSession, type AuthUser, type UserRole } from "@/lib/auth";
+import { dashboardPath, setSession, logout, type AuthUser, type UserRole } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
 import {
   AuthShell,
@@ -22,6 +22,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   function normalizeEmail(email: string) {
     return email.trim().toLowerCase();
@@ -116,6 +117,26 @@ export function LoginForm() {
     return { ok: true, user: found };
   }
 
+  async function handleLogout() {
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      await fetch(`${baseURL}/api/auth/clear-session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    logout();
+    setShowLogoutModal(false);
+    setError("");
+    refresh();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -124,6 +145,9 @@ export function LoginForm() {
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
+      if (result.error.toLowerCase().includes("active session")) {
+        setShowLogoutModal(true);
+      }
       return;
     }
     refresh();
@@ -205,6 +229,38 @@ export function LoginForm() {
           Create an account
         </Link>
       </p>
+
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-[var(--surface)] border border-[var(--border)] p-6 text-left align-middle shadow-xl transition-all">
+            <h3 className="text-lg font-bold leading-6 text-[var(--text)]">
+              Active Session Detected
+            </h3>
+            <div className="mt-2">
+              <p className="text-sm text-[var(--text-muted)]">
+                User already has an active session. Please logout first.
+              </p>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                className="inline-flex justify-center rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors"
+                onClick={() => setShowLogoutModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="inline-flex justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors shadow-sm"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthShell>
   );
 }
