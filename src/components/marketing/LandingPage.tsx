@@ -64,6 +64,7 @@ import {
   Shield,
   Cpu,
   ChevronDown,
+  Flame,
 } from "lucide-react";
 
 const features = [
@@ -632,8 +633,8 @@ export function LandingPage({
                     <th className="py-3 pr-3">Rank</th>
                     <th className="py-3 pr-3">Learner</th>
                     <th className="py-3 pr-3">Completed</th>
-                    <th className="py-3 pr-3">Score</th>
-                    <th className="py-3 pr-3">Reward</th>
+                    <th className="py-3 pr-3">Progress</th>
+                    <th className="py-3 pr-3">Streak</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -652,12 +653,6 @@ export function LandingPage({
                   ) : (
                     leaderboardEntries.slice(0, 5).map((row, index) => {
                       const rank = index + 1;
-                      const reward =
-                        rank === 1 ? "₹7,500 bonus" :
-                          rank === 2 ? "Mentor session" :
-                            rank === 3 ? "Internship Priority" :
-                              rank === 4 ? "PPO Boost" :
-                                "Achievement badge";
                       return (
                         <tr
                           key={row.id || index}
@@ -675,8 +670,11 @@ export function LandingPage({
                           <td className="py-3 pr-3 text-[var(--text-muted)]">
                             {row.score}%
                           </td>
-                          <td className="py-3 pr-3 text-[var(--text-muted)]">
-                            {reward}
+                          <td className="py-3 pr-3">
+                            <div className="inline-flex flex-col items-center justify-center bg-orange-500/10 dark:bg-orange-500/20 rounded-xl px-2.5 py-1.5 min-w-[3rem] w-fit">
+                              <Flame className="h-4 w-4 text-orange-500 mb-0.5" />
+                              <span className="text-[10px] sm:text-xs font-black text-[var(--text)]">{row.streak}d</span>
+                            </div>
                           </td>
                         </tr>
                       );

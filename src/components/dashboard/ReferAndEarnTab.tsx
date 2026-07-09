@@ -49,6 +49,7 @@ export function ReferAndEarnTab({
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [withdrawRequested, setWithdrawRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState("Pending");
+  const [error, setError] = useState<string | null>(null);
   const [bankDetails, setBankDetails] = useState({
     accountHolderName: "",
     accountNumber: "",
@@ -218,12 +219,12 @@ export function ReferAndEarnTab({
                     Referral Records
                   </p>
                   <p className="mt-2 text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
-                    Withdrawal unlocks after <strong className="text-[var(--text)]">5 successful referrals</strong> where each referee completes the full course.
+                    Withdrawal unlocks after each referee purchase the full course.
                   </p>
                 </div>
                 <div className="shrink-0 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3 text-center shadow-inner">
                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600/80 dark:text-emerald-400/80">Successful</p>
-                  <p className="mt-1 text-xl font-black text-emerald-600 dark:text-emerald-400">{successfulReferrals} <span className="text-sm opacity-60">/ 5</span></p>
+                  <p className="mt-1 text-xl font-black text-emerald-600 dark:text-emerald-400">{successfulReferrals}</p>
                 </div>
               </div>
 
@@ -258,7 +259,7 @@ export function ReferAndEarnTab({
               </div>
             </GlassCard>
 
-            {withdrawRequested ? (
+            {withdrawRequested && requestStatus !== "Confirmed" ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -269,33 +270,29 @@ export function ReferAndEarnTab({
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-black text-[var(--text)]">
-                  {requestStatus === "Confirmed" ? "Withdrawal Confirmed" : "Withdrawal Requested"}
+                  Withdrawal Requested
                 </h3>
                 <p className="text-sm text-[var(--text-muted)] max-w-sm">
-                  {requestStatus === "Confirmed"
-                    ? "Your request has been verified and confirmed by the administrator. The reward of ₹1,500 has been successfully sent!"
-                    : "We have received your bank details securely. The amount will be processed and credited to your account within 3-5 business days."}
+                  We have received your bank details securely. The amount will be processed and credited to your account within 3-5 business days.
                 </p>
-                {requestStatus !== "Confirmed" && (
-                  <button
-                    type="button"
-                    onClick={() => setShowUpdateForm(true)}
-                    className="mt-4 relative z-10 shrink-0 group inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-[var(--text)] transition hover:bg-[var(--border)] hover:scale-[1.02] active:scale-95"
-                  >
-                    Update Bank Details
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setShowUpdateForm(true)}
+                  className="mt-4 relative z-10 shrink-0 group inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-[var(--text)] transition hover:bg-[var(--border)] hover:scale-[1.02] active:scale-95"
+                >
+                  Update Bank Details
+                </button>
               </motion.div>
             ) : (
               <div className="relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6 rounded-3xl border border-[var(--border)] bg-gradient-to-r from-[var(--bg-muted)] to-[var(--surface)] p-6 shadow-sm sm:p-8">
                 <div className="absolute top-0 right-0 h-full w-1/2 bg-gradient-to-l from-emerald-500/5 to-transparent pointer-events-none" />
                 <div className="relative z-10 text-center sm:text-left">
                   <p className="text-lg font-black text-[var(--text)]">Ready to Cash Out?</p>
-                  {/* <p className="mt-1 text-sm text-[var(--text-muted)]">
-                    {withdrawUnlocked
-                      ? "You have successfully unlocked your withdrawal."
-                      : `Complete ${5 - successfulReferrals} more successful referral(s) to unlock withdrawal.`}
-                  </p> */}
+                  {requestStatus === "Confirmed" && (
+                    <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                      Your previous payout was confirmed. You can submit a new withdrawal request anytime.
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -307,7 +304,8 @@ export function ReferAndEarnTab({
                         headers: { "Content-Type": "application/json" },
                       });
                       if (res.ok) {
-                        const data = await res.json();
+                        const text = await res.text();
+                        const data = text ? JSON.parse(text) : null;
                         const existing = data?.data ?? data;
                         if (existing && (existing._id || existing.accountNumber)) {
                           setBankDetails({
@@ -322,6 +320,7 @@ export function ReferAndEarnTab({
                     } catch (error) {
                       console.error("Error fetching bank details:", error);
                     }
+                    setError(null);
                     setShowWithdrawForm(true);
                   }}
                   // disabled={!withdrawUnlocked}
@@ -348,7 +347,10 @@ export function ReferAndEarnTab({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
-              onClick={() => setShowWithdrawForm(false)}
+              onClick={() => {
+                setShowWithdrawForm(false);
+                setError(null);
+              }}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -366,6 +368,18 @@ export function ReferAndEarnTab({
                   <div>
                     <h3 className="text-2xl font-black tracking-tight text-[var(--text)]">Withdrawal Details</h3>
                     <p className="mt-1 text-sm text-[var(--text-muted)]">Securely enter your banking information below.</p>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex items-center gap-2.5 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs font-semibold text-red-600 dark:text-red-400"
+                      >
+                        <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
                     <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
                       <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
                       <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{successfulReferrals * 500}</p>
@@ -373,7 +387,10 @@ export function ReferAndEarnTab({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowWithdrawForm(false)}
+                    onClick={() => {
+                      setShowWithdrawForm(false);
+                      setError(null);
+                    }}
                     className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--text-muted)] transition-colors hover:bg-[var(--border)] hover:text-[var(--text)]"
                   >
                     <span className="sr-only">Close</span>
@@ -388,6 +405,12 @@ export function ReferAndEarnTab({
                   onSubmit={async (e) => {
                     e.preventDefault();
                     if (!user) return;
+
+                    const amount = successfulReferrals * 500;
+                    if (amount <= 0) {
+                      setError("Withdrawal amount is 0. Cannot proceed with withdrawal.");
+                      return;
+                    }
 
                     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
                     const headers = {
@@ -407,7 +430,8 @@ export function ReferAndEarnTab({
                           headers,
                         });
                         if (meRes.ok) {
-                          const meData = await meRes.json();
+                          const meText = await meRes.text();
+                          const meData = meText ? JSON.parse(meText) : null;
                           const existing = meData?.data ?? meData;
                           hasBankDetails = !!(existing && (existing._id || existing.accountNumber));
                         }

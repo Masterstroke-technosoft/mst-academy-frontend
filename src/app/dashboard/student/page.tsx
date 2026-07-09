@@ -92,6 +92,7 @@ export default function StudentDashboardPage({
         headers["Authorization"] = `Bearer ${token}`;
       }
 
+
       const fullRes = await fetch(`${baseURL}/api/phases/full/${phaseId}`, {
         method: "GET",
         credentials: "include",
@@ -138,6 +139,7 @@ export default function StudentDashboardPage({
           return p;
         }));
       }
+
     } catch (err) {
       console.error(`Error fetching full hierarchy for phase ${phaseId}:`, err);
     }
