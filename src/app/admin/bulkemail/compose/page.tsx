@@ -12,10 +12,12 @@ const TipTapEditor = dynamic(() => import("@/components/bulkemail/TipTapEditor")
 
 // Define sanitize options once
 const sanitizeOptions = {
-  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'span']),
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
-    img: ['src', 'alt', 'style', 'width', 'height']
+    img: ['src', 'alt', 'style', 'width', 'height'],
+    a: ['href', 'target', 'rel'],
+    '*': ['style', 'class']
   },
   allowedSchemesByTag: {
     img: ['data', 'http', 'https'],
@@ -371,7 +373,53 @@ export default function ComposeEmailPage() {
             </div>
 
             {/* Email body */}
-            <div style={{ padding: "20px 24px", lineHeight: "1.6", fontSize: "14px", color: "#374151" }}>
+            <div className="email-preview-content" style={{ padding: "20px 24px", lineHeight: "1.6", fontSize: "14px", color: "#374151" }}>
+              <style dangerouslySetInnerHTML={{ __html: `
+                .email-preview-content h1 {
+                  font-size: 2.25rem !important;
+                  font-weight: 800 !important;
+                  line-height: 1.25 !important;
+                  margin-top: 1.5rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content h2 {
+                  font-size: 1.875rem !important;
+                  font-weight: 700 !important;
+                  line-height: 1.3 !important;
+                  margin-top: 1.25rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content h3 {
+                  font-size: 1.5rem !important;
+                  font-weight: 600 !important;
+                  line-height: 1.35 !important;
+                  margin-top: 1rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content p {
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.5rem;
+                }
+                .email-preview-content ul {
+                  list-style-type: disc !important;
+                  padding-left: 1.5rem !important;
+                }
+                .email-preview-content ol {
+                  list-style-type: decimal !important;
+                  padding-left: 1.5rem !important;
+                }
+                .email-preview-content li {
+                  display: list-item !important;
+                }
+                .email-preview-content a {
+                  color: #3b82f6 !important;
+                  text-decoration: underline !important;
+                  cursor: pointer !important;
+                }
+                .email-preview-content a:hover {
+                  color: #1d4ed8 !important;
+                }
+              `}} />
               {form.body ? (
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(form.body, sanitizeOptions) }} />
               ) : (
