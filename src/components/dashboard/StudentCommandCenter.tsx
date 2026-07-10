@@ -355,6 +355,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   const [apiData, setApiData] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -370,6 +371,54 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
+      }
+
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${baseURL}/api/leaderboard`, {
+          method: "GET",
+          credentials: "include",
+          headers
+        });
+        if (res.ok) {
+          const raw = await res.json();
+          const valid = raw.filter((e: any) => e._id != null && e.name != null);
+          const mapped = valid.map((e: any) => {
+            const isCurrentUser = e._id === user.id || e._id === (user as any)._id || (e.email && e.email === user.email);
+            const scoreVal = e.progressPercentage ?? e.score ?? 0;
+            const totalMods = e.totalModules ?? 21;
+            const modulesDoneVal = e.modulesDone ?? Math.round((scoreVal / 100) * totalMods);
+            return {
+              id: e._id ?? "",
+              name: e.name ?? "Unknown",
+              score: scoreVal,
+              modulesDone: modulesDoneVal,
+              totalModules: totalMods,
+              streak: e.currentStreak ?? e.streak ?? 0,
+              coins: e.coins ?? 0,
+              rank: e.rank,
+              isYou: !!isCurrentUser,
+            };
+          });
+
+          mapped.sort((a: any, b: any) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
+            return (a.rank ?? 999) - (b.rank ?? 999);
+          });
+
+          const userIdx = mapped.findIndex((e: any) => e.isYou);
+          if (userIdx !== -1) {
+            setLeaderboardRank(userIdx + 1);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch leaderboard for rank:", error);
       }
     };
     fetchDashboardData();
@@ -854,7 +903,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                             Phase: {analytics.currentPhaseTitle.slice(0, 28)}
                           </span>
                           <span className="flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-3.5 py-1.5 text-xs font-bold text-blue-400 shadow-sm backdrop-blur-sm transition hover:bg-blue-500/20">
-                            Rank #{analytics.rank}
+                            Rank #{leaderboardRank ?? analytics.rank}
                           </span>
                         </div>
                       </div>
@@ -1244,7 +1293,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
                     <GlassCard glow="rgba(227,30,36,0.1)">
                       <h3 className="text-sm font-black text-[var(--text)]">Community Ranking</h3>
-                      <p className="mt-4 text-4xl font-black text-gradient-red">#{analytics.rank}</p>
+                      <p className="mt-4 text-4xl font-black text-gradient-red">#{leaderboardRank ?? analytics.rank}</p>
                       <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Top {analytics.percentile}% of academy learners
                       </p>
