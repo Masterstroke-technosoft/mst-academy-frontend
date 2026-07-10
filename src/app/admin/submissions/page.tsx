@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { 
-  BookOpen, 
-  Users, 
-  CheckCircle2, 
-  AlertCircle, 
-  ExternalLink, 
-  Search, 
-  X, 
-  Eye, 
+import {
+  BookOpen,
+  Users,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Search,
+  X,
+  Eye,
   Loader2,
   GitBranch,
   Inbox,
@@ -70,7 +70,7 @@ export default function SubmissionReviewPage() {
         const timestamp = parseInt(id.substring(0, 8), 16) * 1000;
         return new Date(timestamp).toLocaleString();
       }
-    } catch (e) {}
+    } catch (e) { }
     return "N/A";
   };
 
@@ -103,12 +103,12 @@ export default function SubmissionReviewPage() {
           credentials: "include",
           headers
         });
-        
+
         let tempMap: Record<string, { title: string; index: string }> = {};
         if (curriculumRes.ok) {
           const resData = await curriculumRes.json();
           const rawPhases = resData.data || resData || [];
-          
+
           await Promise.all(
             rawPhases.map(async (phase: any) => {
               try {
@@ -152,10 +152,10 @@ export default function SubmissionReviewPage() {
         }
 
         const usersResult = await usersResponse.json();
-        const rawUsers = Array.isArray(usersResult) 
-          ? usersResult 
+        const rawUsers = Array.isArray(usersResult)
+          ? usersResult
           : (usersResult?.data?.users || usersResult?.users || usersResult?.data || []);
-        
+
         setUsers(rawUsers);
 
         // 3. Fetch all practical submissions directly
@@ -249,8 +249,8 @@ export default function SubmissionReviewPage() {
       const updatedSubmission = resData.submission || resData;
 
       showToast(resData.message || `Submission successfully marked as ${isCorrect ? "Correct" : "Incorrect"} with score ${scoreVal}`, "success");
-      
-      setSubmissions(prev => 
+
+      setSubmissions(prev =>
         prev.map(sub => {
           if (sub.submissionId === item.submissionId && sub.questionNumber === item.questionNumber) {
             return {
@@ -278,7 +278,7 @@ export default function SubmissionReviewPage() {
       // Filter by Tab
       if (activeTab === "pending" && item.isCorrect) return false;
       if (activeTab === "approved" && !item.isCorrect) return false;
-      
+
       // Filter by Search Query
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase();
@@ -287,14 +287,14 @@ export default function SubmissionReviewPage() {
         const matchesAnswer = item.selectedAnswer.toLowerCase().includes(query);
         return matchesUser || matchesSubmodule || matchesAnswer;
       }
-      
+
       // Display score value too
       return true;
     });
   }, [submissions, activeTab, searchQuery]);
 
   const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
-  
+
   const paginatedSubmissions = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredSubmissions.slice(start, start + itemsPerPage);
@@ -355,7 +355,7 @@ export default function SubmissionReviewPage() {
   return (
     <DashboardShell role="admin" title="Submission Review">
       <div className="space-y-6">
-        
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm flex items-center gap-4">
@@ -394,31 +394,28 @@ export default function SubmissionReviewPage() {
           <div className="flex items-center gap-2 border-b border-[var(--border)] sm:border-0 pb-3 sm:pb-0">
             <button
               onClick={() => setActiveTab("pending")}
-              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
-                activeTab === "pending" 
-                  ? "bg-mst-red/15 text-mst-red" 
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "pending"
+                  ? "bg-mst-red/15 text-mst-red"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
+                }`}
             >
               Pending Reviews ({stats.pending})
             </button>
             <button
               onClick={() => setActiveTab("approved")}
-              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
-                activeTab === "approved" 
-                  ? "bg-mst-red/15 text-mst-red" 
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "approved"
+                  ? "bg-mst-red/15 text-mst-red"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
+                }`}
             >
               Approved ({stats.approved})
             </button>
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
-                activeTab === "all" 
-                  ? "bg-mst-red/15 text-mst-red" 
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-colors ${activeTab === "all"
+                  ? "bg-mst-red/15 text-mst-red"
                   : "text-[var(--text-muted)] hover:text-[var(--text)]"
-              }`}
+                }`}
             >
               All Submissions ({stats.total})
             </button>
@@ -466,11 +463,11 @@ export default function SubmissionReviewPage() {
               <Inbox size={48} className="mx-auto text-[var(--text-muted)] opacity-50 mb-3" />
               <h3 className="font-bold text-lg text-[var(--text)]">No submissions found</h3>
               <p className="text-sm text-[var(--text-muted)] mt-1">
-                {activeTab === "pending" 
-                  ? "Hooray! No practical assessments are currently pending review." 
+                {activeTab === "pending"
+                  ? "Hooray! No practical assessments are currently pending review."
                   : activeTab === "approved"
-                  ? "No approved submissions have been found in the system."
-                  : "No submissions have been found in the system."}
+                    ? "No approved submissions have been found in the system."
+                    : "No submissions have been found in the system."}
               </p>
             </div>
           ) : (
@@ -530,11 +527,10 @@ export default function SubmissionReviewPage() {
                       </td>
                       <td className="px-3 py-3 text-center">
                         <div className="flex flex-col items-center gap-1">
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold whitespace-nowrap ${
-                            item.isCorrect 
-                              ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold whitespace-nowrap ${item.isCorrect
+                              ? "bg-green-500/10 text-green-500 border border-green-500/20"
                               : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                          }`}>
+                            }`}>
                             {item.isCorrect ? "Approved" : "Pending Review"}
                           </span>
                           {item.isCorrect && (
@@ -624,11 +620,10 @@ export default function SubmissionReviewPage() {
                               key={pageNum}
                               onClick={() => setCurrentPage(pageNum)}
                               aria-current={currentPage === pageNum ? "page" : undefined}
-                              className={`relative inline-flex items-center px-4 py-2 text-sm font-bold border border-[var(--border)] transition-colors ${
-                                currentPage === pageNum
+                              className={`relative inline-flex items-center px-4 py-2 text-sm font-bold border border-[var(--border)] transition-colors ${currentPage === pageNum
                                   ? "z-10 bg-mst-red text-white border-mst-red"
                                   : "bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--bg-muted)]"
-                              }`}
+                                }`}
                             >
                               {pageNum}
                             </button>
@@ -655,7 +650,7 @@ export default function SubmissionReviewPage() {
       {selectedSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            
+
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 shrink-0">
               <h3 className="text-lg font-bold text-[var(--text)]">
                 Review Practical Submission
@@ -685,11 +680,10 @@ export default function SubmissionReviewPage() {
                 </div>
                 <div>
                   <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider block font-bold">Status</span>
-                  <span className={`inline-block mt-0.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                    selectedSubmission.isCorrect 
-                      ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                  <span className={`inline-block mt-0.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${selectedSubmission.isCorrect
+                      ? "bg-green-500/10 text-green-500 border border-green-500/20"
                       : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                  }`}>
+                    }`}>
                     {selectedSubmission.isCorrect ? "Approved" : "Pending Review"}
                   </span>
                 </div>
@@ -863,11 +857,10 @@ export default function SubmissionReviewPage() {
 
       {/* Floating Toast Notification */}
       {toast && (
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${
-          toast.type === "success"
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
             ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
             : "border-red-500/30 bg-red-950/95 text-red-400"
-        }`}>
+          }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="h-5 w-5 text-emerald-400" />
           ) : (

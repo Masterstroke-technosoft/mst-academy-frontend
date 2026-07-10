@@ -39,6 +39,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refresh();
     setReady(true);
+
+    if (typeof window !== "undefined") {
+      const originalFetch = window.fetch;
+      window.fetch = async function (input, init) {
+        const response = await originalFetch(input, init);
+        if (response.status === 401) {
+          try {
+            const clone = response.clone();
+            const data = await clone.json();
+            if (data && data.message === "Session expired. You have logged in from another session.") {
+              authLogout();
+              window.location.href = "/login";
+            }
+          } catch (e) {
+            // Ignore JSON parse errors or other stream reading issues
+          }
+        }
+        return response;
+      };
+
+      return () => {
+        window.fetch = originalFetch;
+      };
+    }
   }, [refresh]);
 
   const logout = useCallback(() => {
