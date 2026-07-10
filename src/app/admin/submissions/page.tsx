@@ -158,56 +158,51 @@ export default function SubmissionReviewPage() {
         
         setUsers(rawUsers);
 
-        // 3. For each student/non-admin user, fetch practical submissions
+        // 3. Fetch all practical submissions directly
         const allSubmissionItems: SubmissionItem[] = [];
-        const nonAdminUsers = rawUsers.filter((u: any) => {
-          const roleStr = String(u.role || "").toLowerCase();
-          return roleStr !== "admin";
-        });
+        try {
+          const subRes = await fetch(`${baseURL}/api/assignment-submissions/practical`, {
+            method: "GET",
+            credentials: "include",
+            headers
+          });
 
-        await Promise.all(
-          nonAdminUsers.map(async (user: any) => {
-            const uId = user.id || user._id;
-            try {
-              const subRes = await fetch(`${baseURL}/api/assignment-submissions/user/${uId}/practical`, {
-                method: "GET",
-                credentials: "include",
-                headers
-              });
+          if (subRes.ok) {
+            const data = await subRes.json();
+            const rawSubmissions = Array.isArray(data) ? data : (data?.data || []);
+            rawSubmissions.forEach((submission: any) => {
+              const answers = submission.answers || [];
+              answers.forEach((ans: any) => {
+                if (ans.questionType === "PRACTICAL") {
+                  const subId = submission.submodule || submission.submoduleId || "";
+                  const userObj = submission.user;
+                  const uId = userObj ? (userObj._id || userObj.id || "") : "";
+                  const uName = userObj ? (userObj.fullName || userObj.name || "Unknown User") : "Unknown User";
+                  const uEmail = userObj ? (userObj.email || "No Email") : "No Email";
+                  const uRole = userObj ? (userObj.role || "student") : "student";
 
-              if (subRes.ok) {
-                const data = await subRes.json();
-                if (Array.isArray(data)) {
-                  data.forEach((submission: any) => {
-                    const answers = submission.answers || [];
-                    answers.forEach((ans: any) => {
-                      if (ans.questionType === "PRACTICAL") {
-                        const subId = submission.submoduleId || "";
-                        allSubmissionItems.push({
-                          submissionId: submission._id || submission.id,
-                          userId: uId,
-                          userName: user.fullName || user.name || "Unknown User",
-                          userEmail: user.email || "No Email",
-                          userRole: user.role || "student",
-                          assignmentId: submission.assignmentId || "",
-                          submoduleId: subId,
-                          submoduleTitle: tempMap[subId]?.title || `Submodule (${subId.substring(0, 8)}...)`,
-                          questionNumber: ans.questionNumber || 1,
-                          selectedAnswer: ans.selectedAnswer || "",
-                          isCorrect: ans.isCorrect || submission.evaluated || false,
-                          rawSubmission: submission,
-                          submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt)
-                        });
-                      }
-                    });
+                  allSubmissionItems.push({
+                    submissionId: submission._id || submission.id,
+                    userId: uId,
+                    userName: uName,
+                    userEmail: uEmail,
+                    userRole: uRole,
+                    assignmentId: submission.assignment || submission.assignmentId || "",
+                    submoduleId: subId,
+                    submoduleTitle: tempMap[subId]?.title || `Submodule (${subId.substring(0, 8)}...)`,
+                    questionNumber: ans.questionNumber || 1,
+                    selectedAnswer: ans.selectedAnswer || ans.submission || "",
+                    isCorrect: submission.evaluated || false,
+                    rawSubmission: submission,
+                    submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt)
                   });
                 }
-              }
-            } catch (err) {
-              console.error(`Error fetching practical submissions for user ${uId}:`, err);
-            }
-          })
-        );
+              });
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching practical submissions:", err);
+        }
 
         setSubmissions(allSubmissionItems);
       } catch (err: any) {
