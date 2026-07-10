@@ -363,7 +363,7 @@ export default function ComposeEmailPage() {
           >
             {/* Email client header */}
             <div style={{ padding: "12px 16px", borderBottom: "1px solid #e5e7eb", backgroundColor: "#f9fafb" }}>
-              <div style={{ fontSize: "13px", color: "#6b7280", marginBottom: "4px" }}>From: MasterStroke Academy &lt;noreply@masterstrokeacademy.com&gt;</div>
+              <div style={{ fontSize: "13px", color: "#6b7280", marginBottom: "4px" }}>From: MasterStroke Academy &lt;noreply@masterstroke.academy&gt;</div>
               <div style={{ fontSize: "13px", color: "#6b7280", marginBottom: "8px" }}>To: recipient@example.com</div>
               {form.subject && (
                 <div style={{ fontSize: "16px", fontWeight: "bold", color: "#111827" }}>{form.subject}</div>
