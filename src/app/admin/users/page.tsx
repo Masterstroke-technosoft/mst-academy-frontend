@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -268,10 +268,12 @@ export default function UserManagementPage() {
 
   if (!mounted) return null;
 
+  const showCollege = filterRole === "student" || filterRole === "all";
+
   return (
     <DashboardShell role="admin" title="User Management">
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-mst-red/10 p-2.5">
               <Users size={22} className="text-mst-red" />
@@ -281,8 +283,8 @@ export default function UserManagementPage() {
               <p className="text-sm text-[var(--text-muted)]">View and filter all registered users</p>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-            <div className="relative flex-1 sm:flex-initial">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 lg:flex-initial w-full lg:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
               <input
                 type="text"
@@ -292,23 +294,26 @@ export default function UserManagementPage() {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full sm:w-64 rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-9 pr-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-9 pr-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Filter size={16} className="text-[var(--text-muted)]" />
-              <select
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value as any)}
-                className="rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red"
-              >
-                <option value="all">All Users</option>
-                <option value="student">Students</option>
-                {/* <option value="validator">Validators</option> */}
-                <option value="course_only">Course Only</option>
-                <option value="working_professional">Working Professional</option>
-                <option value="admin">Admin</option>
-              </select>
+            <div className="flex items-center gap-2 flex-1 lg:flex-initial w-full lg:w-auto min-w-[150px]">
+              <Filter size={16} className="text-[var(--text-muted)] shrink-0" />
+              <div className="relative flex-1 lg:w-48">
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value as any)}
+                  className="w-full appearance-none rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-3 pr-10 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
+                >
+                  <option value="all">All Users</option>
+                  <option value="student">Students</option>
+                  {/* <option value="validator">Validators</option> */}
+                  <option value="course_only">Course Only</option>
+                  <option value="working_professional">Working Professional</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
@@ -342,6 +347,7 @@ export default function UserManagementPage() {
                   <th className="px-3 py-3">ID</th>
                   <th className="px-3 py-3">Name</th>
                   <th className="px-3 py-3 ">Email</th>
+                  {showCollege && <th className="px-3 py-3">College</th>}
                   <th className="pl-3 pr-1 py-3 w-0 text-center">Role</th>
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
                   <th className="px-3 py-3">Verified</th>
@@ -362,6 +368,11 @@ export default function UserManagementPage() {
                       <td className="px-3 py-4">
                         <div className="h-4 w-40 rounded bg-[var(--bg-muted)]" />
                       </td>
+                      {showCollege && (
+                        <td className="px-3 py-4">
+                          <div className="h-4 w-32 rounded bg-[var(--bg-muted)]" />
+                        </td>
+                      )}
                       <td className="pl-3 pr-1 py-4 text-center">
                         <div className="mx-auto h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
                       </td>
@@ -381,7 +392,7 @@ export default function UserManagementPage() {
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={showCollege ? 9 : 8} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
@@ -393,6 +404,9 @@ export default function UserManagementPage() {
                         {user.fullName || (user as any).name || "Unknown"}
                       </td>
                       <td className="px-3 py-3 break-all">{user.email}</td>
+                      {showCollege && (
+                        <td className="px-3 py-3">{(user as any).collegeName || user.college || "N/A"}</td>
+                      )}
                       <td className="pl-3 pr-1 py-3 w-0 text-center">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.role === 'student' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
                           user.role === 'validator' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' :
@@ -404,7 +418,7 @@ export default function UserManagementPage() {
                       </td>
                       <td className="pl-1 pr-3 py-3 w-0 text-center">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isActive === false ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-500 border border-green-500/20'}`}>
-                          {user.isActive === false ? 'No' : 'Yes'}
+                           {user.isActive === false ? 'No' : 'Yes'}
                         </span>
                       </td>
                       <td className="px-3 py-3">
