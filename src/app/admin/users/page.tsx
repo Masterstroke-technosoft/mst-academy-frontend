@@ -431,7 +431,7 @@ export default function UserManagementPage() {
                             <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
                               Rejected
                             </span>
-                          ) : (user.role === 'student' || user.role === 'validator') ? (
+                          ) : user.role === 'student' ? (
                             <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
                               Pending
                             </span>

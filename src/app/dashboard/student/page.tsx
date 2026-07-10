@@ -62,7 +62,6 @@ export default function StudentDashboardPage({
         const text = await response.text();
         const result = text ? JSON.parse(text) : null;
         setUserBankDetails(result);
-        console.log("sssssssssssssssssss", result);
       } catch (error: any) {
         console.error(error?.message ?? error);
       }

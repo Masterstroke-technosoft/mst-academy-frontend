@@ -46,6 +46,7 @@ const getSidebarNav = (role: string, isAdmin: boolean) => [
       { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
       { href: "/admin/users", icon: Users, label: "User Management" },
       { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
+      { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
     ]
     : []),
   ...(!isAdmin && role !== "admin"
