@@ -12,9 +12,11 @@ import {
   TextInput,
 } from "./AuthShell";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { refresh } = useAuth();
   const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
   const justRegistered = searchParams.get("registered") === "1";
@@ -134,7 +136,8 @@ export function LoginForm() {
     logout();
     setShowLogoutModal(false);
     setError("");
-    refresh();
+    router.push('/login');
+    //refresh();
   }
 
   async function handleSubmit(e: React.FormEvent) {
