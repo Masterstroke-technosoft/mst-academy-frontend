@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { Typewriter } from "@/components/marketing/Typewriter";
 import { RevealSection } from "@/components/marketing/RevealSection";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import { convertINRtoUSD } from "@/lib/currency";
 
 interface PlanFunnelPageProps {
   planId: "validator" | "student" | "normal" | "courseOnly";
@@ -64,6 +66,7 @@ export function PlanFunnelPage({
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const { rate: usdRate } = useCurrencyRate();
   const discountAmount = useMemo(() => {
     if (originalPrice === undefined) return 0;
     return originalPrice - offerPrice;
@@ -143,11 +146,11 @@ export function PlanFunnelPage({
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 {originalPrice && originalPrice !== offerPrice && (
                   <p className="text-sm font-semibold text-[var(--text-muted)] line-through">
-                    Rs {originalPrice.toLocaleString("en-IN")}
+                    {usdRate ? `Rs ${originalPrice.toLocaleString("en-IN")} / $${convertINRtoUSD(originalPrice, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `Rs ${originalPrice.toLocaleString("en-IN")}`}
                   </p>
                 )}
                 <p className="text-3xl font-black text-gradient-red">
-                  Rs {offerPrice.toLocaleString("en-IN")}
+                  {usdRate ? `Rs ${offerPrice.toLocaleString("en-IN")} / $${convertINRtoUSD(offerPrice, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `Rs ${offerPrice.toLocaleString("en-IN")}`}
                 </p>
                 {/* <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500">
                   Save Rs {discountAmount.toLocaleString("en-IN")} ({discountLabel})
@@ -349,9 +352,9 @@ export function PlanFunnelPage({
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{name}</p>
               <p className="text-sm text-[var(--text)]">
                 {originalPrice && originalPrice !== offerPrice && (
-                  <span className="line-through text-[var(--text-muted)] mr-2">Rs {originalPrice.toLocaleString("en-IN")}</span>
+                  <span className="line-through text-[var(--text-muted)] mr-2">{usdRate ? `Rs ${originalPrice.toLocaleString("en-IN")} / $${convertINRtoUSD(originalPrice, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `Rs ${originalPrice.toLocaleString("en-IN")}`}</span>
                 )}
-                <span className="font-black text-mst-red">Rs {offerPrice.toLocaleString("en-IN")}</span>
+                <span className="font-black text-mst-red">{usdRate ? `Rs ${offerPrice.toLocaleString("en-IN")} / $${convertINRtoUSD(offerPrice, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `Rs ${offerPrice.toLocaleString("en-IN")}`}</span>
               </p>
             </div>
             {/* <Link
