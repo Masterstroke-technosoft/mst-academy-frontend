@@ -58,6 +58,7 @@ import {
   AlertCircle,
   Menu,
   X,
+  Lock,
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
@@ -308,6 +309,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       setIsSubmittingAllocation(false);
     }
   };
+
+  const handleClaimCertificate = () => {
+    if (certEligibility?.isCertificateEligible) {
+      setIsClaimModalOpen(true);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
       const hash = window.location.hash;
@@ -356,6 +364,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [apiData, setApiData] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
+  const [certEligibility, setCertEligibility] = useState<{
+    isCertificateEligible: boolean;
+    completedSubmodules: number;
+    totalSubmodules: number;
+    remainingSubmodules: number;
+  } | null>(null);
+  const [loadingCert, setLoadingCert] = useState(true);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -371,6 +387,21 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
+      }
+
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/dashboard/certificate-eligibility`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCertEligibility(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch certificate eligibility:", error);
+      } finally {
+        setLoadingCert(false);
       }
 
       try {
@@ -433,7 +464,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         local.modulesCompleted = apiData.courseProgress.completedModules || 0;
         local.totalModules = apiData.courseProgress.totalModules || local.totalModules;
 
-        // Recalculate completionDonut dynamically using completed, in progress and locked modules
         const completed = local.modulesCompleted;
         const unlockedIds = apiData.courseProgress.unlockedModuleIds || [];
         const inProgress = Math.max(0, unlockedIds.length - completed);
@@ -468,7 +498,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         }));
       }
 
-      // Recompute activityHeatmap based on apiData.activityDates
       if (apiData.activityDates && Array.isArray(apiData.activityDates)) {
         const activeDatesMap = new Map<string, number>();
         apiData.activityDates.forEach((d: any) => {
@@ -496,7 +525,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           count: activeDatesMap.has(item.date) ? activeDatesMap.get(item.date) || 0 : 0,
         }));
 
-        // Recompute dailyStudy based on activeDatesMap and selectedDate
         const totalActivityCount = apiData.activityDates.reduce((sum: number, d: any) => {
           let count = 0;
           if (typeof d === "string") count = 1;
@@ -515,7 +543,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
           let logins = activeDatesMap.has(key) ? 1 : 0;
           if (key === selectedDate) {
-            logins = 2; // Increase logins when selected
+            logins = 2; 
           }
 
           let minutes = 0;
@@ -524,12 +552,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             if (totalStudyMinutes > 0) {
               minutes = Math.round((count / totalActivityCount) * totalStudyMinutes);
             } else {
-              minutes = count * 30; // fallback: 30 mins per activity
+              minutes = count * 30; 
             }
           }
 
           if (key === selectedDate) {
-            minutes = Math.round(minutes * 1.5) + 15; // Increase graph study time for selected date
+            minutes = Math.round(minutes * 1.5) + 15; 
           }
 
           return {
@@ -555,17 +583,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
   const referralLink = referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}` : "";
 
-  // Custom referrals based on validator2 vs another user
   const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");
 
   const referralRecords: { name: string; joinedAt: string; status: string; eligible: boolean }[] = isAnotherUser ? [
-    //   { name: "Suresh M.", joinedAt: "22 May 2026", status: "Registered", eligible: false },
   ] : [
-    //   { name: "Riya S.", joinedAt: "12 May 2026", status: "Purchased course", eligible: true },
-    //   { name: "Aman K.", joinedAt: "14 May 2026", status: "Purchased course", eligible: true },
-    //   { name: "Neha P.", joinedAt: "16 May 2026", status: "Registered", eligible: false },
-    //   { name: "Vikram T.", joinedAt: "18 May 2026", status: "Purchased course", eligible: true },
-    //   { name: "Priya M.", joinedAt: "21 May 2026", status: "Registered", eligible: false },
   ];
 
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
@@ -593,16 +614,15 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   return (
     <>
-      {/* ---- sidebar (mobile drawer) ---- */}
+
+
       {isSidebarOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsSidebarOpen(false)}
           />
 
-          {/* Drawer content */}
           <aside className="relative flex w-64 max-w-xs flex-1 flex-col border-r border-[var(--border)] bg-[var(--surface)] p-5 animate-in slide-in-from-left duration-200">
             <div className="absolute right-4 top-4">
               <button
@@ -614,7 +634,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </button>
             </div>
 
-            {/* profile */}
             <div className="flex items-center gap-3 border-b border-[var(--border)] pb-5 pt-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
                 {user.fullName.charAt(0).toUpperCase()}
@@ -629,7 +648,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </div>
             </div>
 
-            {/* nav */}
             <nav className="flex-1 space-y-1 py-4 overflow-y-auto">
               {[
                 { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
@@ -666,7 +684,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               })}
             </nav>
 
-            {/* bottom */}
             <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
               {!isAdmin && (
                 <button
@@ -710,9 +727,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       )}
 
       <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden">
-        {/* Sidebar attached to left edge */}
         <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:fixed lg:top-16 lg:left-0 lg:flex z-20">
-          {/* profile */}
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
               {user.fullName.charAt(0).toUpperCase()}
@@ -726,7 +741,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </p>
             </div>
           </div>
-          {/* nav */}
           <nav className="flex-1 space-y-1 px-3 py-4">
             {[
               { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
@@ -805,7 +819,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     credentials: "include",
                     headers: {
                       "Content-Type": "application/json",
-
                     },
                   });
                 } catch (e) {
@@ -822,9 +835,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           </div>
         </aside>
 
-        {/* Main Wrapper */}
         <div className="relative flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-64">
-          {/* Ambient background isolated to main area */}
           <div className="pointer-events-none absolute inset-0 bg-grid opacity-40" aria-hidden />
           <div
             className="pointer-events-none absolute inset-0"
@@ -835,10 +846,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             aria-hidden
           />
 
-          {/* Main */}
           <main className="relative z-10 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="mx-auto max-w-6xl">
-              {/* Mobile header */}
               <div className="mb-4 flex items-center justify-between lg:hidden border-b border-[var(--border)] pb-3">
                 <div className="flex items-center gap-3">
                   <button
@@ -873,7 +882,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 />
               ) : (
                 <>
-                  {/* Hero */}
                   <motion.section
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -958,20 +966,77 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         </div>
                       </div>
                     </div>
-
-                    {/* <div className="relative mt-8 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-transparent p-5 backdrop-blur-sm transition-all duration-300 hover:border-purple-500/50 hover:from-purple-500/15">
-                    <div className="absolute -left-px top-1/2 h-1/2 w-[3px] -translate-y-1/2 rounded-full bg-purple-500" />
-                    <p className="flex items-start gap-3 text-sm text-[var(--text-muted)]">
-                      <Sparkles className="mt-0.5 h-5 w-5 shrink-0 animate-pulse text-purple-400" />
-                      <span className="leading-relaxed">
-                        <strong className="font-extrabold tracking-wide text-[var(--text)]">AI Mentor:</strong>{" "}
-                        {analytics.insights[0] ?? "Start your first lesson to unlock personalized insights."}
-                      </span>
-                    </p>
-                  </div> */}
                   </motion.section>
 
-                  {/* Stats grid */}
+                  {certEligibility && (
+                    <motion.section
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6"
+                    >
+                      <GlassCard className="relative overflow-hidden border-mst-red/20 bg-gradient-to-br from-[var(--surface)] to-[var(--surface)]/40 p-6 backdrop-blur-3xl shadow-[0_20px_50px_rgba(227,30,36,0.05)]">
+                        <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-mst-red/10 blur-2xl pointer-events-none" />
+                        <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-purple-500/10 blur-2xl pointer-events-none" />
+                        
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2.5">
+                              <div className="rounded-xl bg-mst-red/15 p-2 text-mst-red animate-pulse">
+                                <Award className="h-5 w-5" />
+                              </div>
+                              <div>
+                                <h3 className="text-base font-black tracking-tight text-[var(--text)]">Academy Course Certificate</h3>
+                                <p className="text-xs text-[var(--text-muted)]">Complete all submodules of your curriculum to unlock your official certification.</p>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-5">
+                              <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] mb-2">
+                                <span>Submodule Completion Progress</span>
+                                <span className="text-[var(--text)]">
+                                  {certEligibility.completedSubmodules} / {certEligibility.totalSubmodules} ({Math.round((certEligibility.completedSubmodules / Math.max(1, certEligibility.totalSubmodules)) * 100)}%)
+                                </span>
+                              </div>
+                              <div className="h-2.5 overflow-hidden rounded-full bg-[var(--border)]/50 shadow-inner">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-mst-red via-purple-500 to-emerald-500 transition-all duration-1000"
+                                  style={{ width: `${Math.min(100, (certEligibility.completedSubmodules / Math.max(1, certEligibility.totalSubmodules)) * 100)}%` }}
+                                />
+                              </div>
+                              <p className="mt-2 text-[11px] text-[var(--text-muted)] flex items-center gap-1.5">
+                                {certEligibility.isCertificateEligible ? (
+                                  <span className="text-emerald-500 font-bold flex items-center gap-1">
+                                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" /> All requirements met! You can now claim your certificate.
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1">
+                                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-mst-red" />
+                                    {certEligibility.remainingSubmodules} submodules remaining to unlock.
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex shrink-0 items-center justify-start md:justify-end">
+                            <button
+                              disabled={!certEligibility.isCertificateEligible}
+                              onClick={handleClaimCertificate}
+                              className={`group relative flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-extrabold transition-all duration-300 ${
+                                certEligibility.isCertificateEligible
+                                  ? "bg-gradient-to-r from-mst-red to-purple-600 text-white shadow-lg shadow-mst-red/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer hover:shadow-purple-500/25"
+                                  : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] cursor-not-allowed opacity-60"
+                              }`}
+                            >
+                              {!certEligibility.isCertificateEligible && <Lock className="h-4 w-4 text-[var(--text-muted)]" />}
+                              Claim Certificate
+                            </button>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    </motion.section>
+                  )}
+
                   <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                     {[
                       { label: "Completion", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
@@ -1338,6 +1403,106 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           </main>
         </div>
       </div>
+
+      {isClaimModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl border border-amber-500/35 bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl pointer-events-none animate-pulse" />
+            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl pointer-events-none animate-pulse" />
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="mb-4 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500 uppercase tracking-wider animate-bounce">
+                <Trophy className="h-4.5 w-4.5 text-amber-500 mr-1" />
+                Certified Graduate
+              </div>
+
+              <div className="rounded-full bg-amber-500/10 border border-amber-500/20 p-5 mb-4 animate-pulse">
+                <Award className="h-16 w-16 text-amber-500 animate-pulse" />
+              </div>
+
+              <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">Congratulations, {firstName}!</h3>
+              <p className="mt-3 text-sm text-[var(--text-muted)] leading-relaxed">
+                You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
+              </p>
+
+              <div className="mt-6 w-full space-y-2">
+                <button
+                  onClick={() => {
+                    showToast("Downloading your certificate...", "success");
+                    // Mock file download
+                    const link = document.createElement("a");
+                    link.href = "#";
+                    link.setAttribute("download", `Masterstroke_Certificate_${firstName}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-5 py-3.5 text-sm font-extrabold text-white transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02] cursor-pointer"
+                >
+                  Download PDF Certificate
+                </button>
+                
+                <button
+                  onClick={() => setIsClaimModalOpen(false)}
+                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] px-5 py-3 text-sm font-bold text-[var(--text)] transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isClaimModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-md rounded-3xl border border-amber-500/35 bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl pointer-events-none animate-pulse" />
+            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl pointer-events-none animate-pulse" />
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="mb-4 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500 uppercase tracking-wider animate-bounce">
+                <Trophy className="h-4.5 w-4.5 text-amber-500 mr-1" />
+                Certified Graduate
+              </div>
+
+              <div className="rounded-full bg-amber-500/10 border border-amber-500/20 p-5 mb-4 animate-pulse">
+                <Award className="h-16 w-16 text-amber-500 animate-pulse" />
+              </div>
+
+              <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">Congratulations, {firstName}!</h3>
+              <p className="mt-3 text-sm text-[var(--text-muted)] leading-relaxed">
+                You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
+              </p>
+
+              <div className="mt-6 w-full space-y-2">
+                <button
+                  onClick={() => {
+                    showToast("Downloading your certificate...", "success");
+                    // Mock file download
+                    const link = document.createElement("a");
+                    link.href = "#";
+                    link.setAttribute("download", `Masterstroke_Certificate_${firstName}.pdf`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-5 py-3.5 text-sm font-extrabold text-white transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02] cursor-pointer"
+                >
+                  Download PDF Certificate
+                </button>
+                
+                <button
+                  onClick={() => setIsClaimModalOpen(false)}
+                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] px-5 py-3 text-sm font-bold text-[var(--text)] transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isAllocationModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
