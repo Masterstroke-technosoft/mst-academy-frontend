@@ -40,13 +40,21 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     cvFile: safeUser.cvFile || "",
     cvFileName: safeUser.cvFileName || "",
   });
-  const [photo, setPhoto] = useState<string | null>(safeUser.profilePhoto || null);
+  const [photo, setPhoto] = useState<string | null>(safeUser.profileImageUrl || safeUser.profileImage || safeUser.profilePhoto || null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [initialData, setInitialData] = useState({
+    phone: "",
+    linkedin: "",
+    github: "",
+    portfolio: "",
+    walletAddress: "",
+  });
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -101,8 +109,16 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               cvFile: data.user.cvFile || prev.cvFile,
               cvFileName: data.user.cvFileName || prev.cvFileName,
             }));
-            if (data.user.profilePhoto) {
-              setPhoto(data.user.profilePhoto);
+            setInitialData({
+              phone: data.user.mobileNumber || data.user.phone || "",
+              linkedin: data.user.linkedinProfile || data.user.linkedin || "",
+              github: data.user.githubProfile || data.user.github || "",
+              portfolio: data.user.portfolioWebsite || data.user.portfolio || "",
+              walletAddress: data.user.walletAddress || "",
+            });
+            const pic = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto;
+            if (pic) {
+              setPhoto(pic);
             }
             if (data.user.isPaymentVerified || data.user.paymentVerified) {
               profilePaymentVerified = true;
@@ -187,6 +203,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhoto(reader.result as string);
@@ -288,25 +305,56 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
       const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+
+      const bodyData: Record<string, any> = {};
+      if (formData.phone !== initialData.phone) bodyData.mobileNumber = formData.phone;
+      if (formData.github !== initialData.github) bodyData.githubProfile = formData.github;
+      if (formData.linkedin !== initialData.linkedin) bodyData.linkedinProfile = formData.linkedin;
+      if (formData.portfolio !== initialData.portfolio) bodyData.portfolioWebsite = formData.portfolio;
+      if (formData.walletAddress !== initialData.walletAddress) bodyData.walletAddress = formData.walletAddress;
+
+      if (Object.keys(bodyData).length === 0 && !photoFile) {
+        showToast("Profile updated successfully", "success");
+        setSaving(false);
+        return;
       }
 
-      const response = await fetch(`${baseURL}/api/me`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({
-          mobileNumber: formData.phone,
-          githubProfile: formData.github,
-          linkedinProfile: formData.linkedin,
-          portfolioWebsite: formData.portfolio,
-          walletAddress: formData.walletAddress,
-        }),
-        credentials: "include",
-      });
+      let response;
+      if (photoFile) {
+        const formDataToSend = new FormData();
+        formDataToSend.append("profileImage", photoFile);
+        if (bodyData.mobileNumber) formDataToSend.append("mobileNumber", bodyData.mobileNumber);
+        if (bodyData.githubProfile) formDataToSend.append("githubProfile", bodyData.githubProfile);
+        if (bodyData.linkedinProfile) formDataToSend.append("linkedinProfile", bodyData.linkedinProfile);
+        if (bodyData.portfolioWebsite) formDataToSend.append("portfolioWebsite", bodyData.portfolioWebsite);
+        if (bodyData.walletAddress) formDataToSend.append("walletAddress", bodyData.walletAddress);
+
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        response = await fetch(`${baseURL}/api/me`, {
+          method: "PATCH",
+          headers,
+          body: formDataToSend,
+          credentials: "include",
+        });
+      } else {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        response = await fetch(`${baseURL}/api/me`, {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify(bodyData),
+          credentials: "include",
+        });
+      }
 
       if (!response.ok) {
         let errorMsg = "Failed to update profile";
@@ -318,16 +366,38 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       }
 
       const data = await response.json();
+      let finalPhoto = photo;
       if (data?.user) {
+        const updatedPhone = data.user.mobileNumber || data.user.phone || "";
+        const updatedLinkedin = data.user.linkedinProfile || data.user.linkedin || "";
+        const updatedGithub = data.user.githubProfile || data.user.github || "";
+        const updatedPortfolio = data.user.portfolioWebsite || data.user.portfolio || "";
+        const updatedWalletAddress = data.user.walletAddress || "";
+        const updatedPhoto = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo;
+        finalPhoto = updatedPhoto;
+
         setFormData(prev => ({
           ...prev,
           fullName: data.user.name || data.user.fullName || prev.fullName,
-          phone: data.user.mobileNumber || data.user.phone || prev.phone,
-          linkedin: data.user.linkedinProfile || data.user.linkedin || prev.linkedin,
-          github: data.user.githubProfile || data.user.github || prev.github,
-          walletAddress: data.user.walletAddress || prev.walletAddress,
-          portfolio: data.user.portfolioWebsite || data.user.portfolio || prev.portfolio,
+          phone: updatedPhone,
+          linkedin: updatedLinkedin,
+          github: updatedGithub,
+          walletAddress: updatedWalletAddress,
+          portfolio: updatedPortfolio,
         }));
+
+        setInitialData({
+          phone: updatedPhone,
+          linkedin: updatedLinkedin,
+          github: updatedGithub,
+          portfolio: updatedPortfolio,
+          walletAddress: updatedWalletAddress,
+        });
+
+        if (updatedPhoto) {
+          setPhoto(updatedPhoto);
+        }
+        setPhotoFile(null);
       }
 
       updateProfile({
@@ -337,7 +407,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         github: formData.github,
         walletAddress: formData.walletAddress,
         portfolio: formData.portfolio,
-        profilePhoto: photo || undefined,
+        profilePhoto: finalPhoto || undefined,
+        profileImage: finalPhoto || undefined,
+        profileImageUrl: finalPhoto || undefined,
       });
 
       showToast("Profile updated successfully", "success");

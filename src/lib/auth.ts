@@ -19,6 +19,8 @@ export interface AuthUser {
   walletAddress?: string;
   portfolio?: string;
   profilePhoto?: string;
+  profileImage?: string;
+  profileImageUrl?: string;
   registeredAt?: string;
   isActive?: boolean;
   isStudentVerified?: boolean;

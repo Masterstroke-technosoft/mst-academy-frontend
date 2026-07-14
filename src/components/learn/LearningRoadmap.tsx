@@ -1271,7 +1271,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <span className="text-gradient-red">4 Phases</span> · 21 Modules · Your Path
                 </h1>
                 <p className="mt-1 text-xs text-[var(--text-muted)] sm:text-sm">
-                  Tap a phase → pick a module → open lessons. Everything fits on screen - no clutter.
+                  Tap a phase → pick a module → open lessons.
                 </p>
               </div>
             </div>
