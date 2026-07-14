@@ -313,7 +313,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         try {
           const errData = await response.json();
           errorMsg = errData.message || errData.error || errorMsg;
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(errorMsg);
       }
 
@@ -470,7 +470,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 onClick={() => fileInputRef.current?.click()}
                 className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--border)]"
               >
-                Change Photo
+                Upload Photo
               </button>
             </div>
           </div>
@@ -488,8 +488,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 onChange={handleChange}
                 required
                 className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${/\d/.test(formData.fullName)
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
                   }`}
               />
               {/\d/.test(formData.fullName) && (
@@ -524,8 +524,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 onChange={handleChange}
                 placeholder="10-digit mobile number"
                 className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${formData.phone && !/^\d{10}$/.test(formData.phone)
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
                   }`}
               />
               {formData.phone && !/^\d{10}$/.test(formData.phone) && (

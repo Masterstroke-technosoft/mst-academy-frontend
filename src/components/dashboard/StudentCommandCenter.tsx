@@ -310,9 +310,107 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     }
   };
 
-  const handleClaimCertificate = () => {
-    if (certEligibility?.isCertificateEligible) {
-      setIsClaimModalOpen(true);
+  const handleClaimCertificate = async () => {
+    if (isClaiming) return;
+    setIsClaiming(true);
+    showToast("Generating and claiming your certificate...", "success");
+
+    try {
+      const image = new Image();
+      image.src = "/Base_image/Certificate_of_Completion_.webp";
+      image.onload = async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth || 800;
+        canvas.height = image.naturalHeight || 560;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(image, 0, 0);
+          const displayName = user?.fullName || (user as any)?.name || (user as any)?.fullName || "Student";
+          const fontSize = Math.round(canvas.height * 0.055);
+          ctx.font = `bold ${fontSize}px 'Outfit', 'Inter', Arial, Helvetica, sans-serif`;
+          ctx.fillStyle = "#1e1b4b";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          // Draw the exact registered name from profile
+          ctx.fillText(displayName, canvas.width / 2, canvas.height * 0.445);
+
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              const formData = new FormData();
+              formData.append("certificate", blob, `${displayName.replace(/\s+/g, '_')}_certificate.webp`);
+
+              try {
+                const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+                const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+                const headers: Record<string, string> = {};
+                if (token) {
+                  headers["Authorization"] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${baseURL}/api/me/certificate`, {
+                  method: "PATCH",
+                  headers,
+                  body: formData,
+                  credentials: "include",
+                });
+
+                if (response.ok) {
+                  const data = await response.json();
+                  setClaimedCertificate(data.certificateImage);
+                  showToast("Certificate generated successfully!", "success");
+                  setIsClaimModalOpen(true);
+                } else {
+                  console.error("Failed to upload certificate");
+                  showToast("Failed to save certificate on server", "error");
+                }
+              } catch (error) {
+                console.error("Error uploading certificate:", error);
+                showToast("Server connection error while claiming certificate", "error");
+              } finally {
+                setIsClaiming(false);
+              }
+            } else {
+              showToast("Failed to generate certificate image content", "error");
+              setIsClaiming(false);
+            }
+          }, "image/webp");
+        } else {
+          showToast("Failed to configure certificate generator context", "error");
+          setIsClaiming(false);
+        }
+      };
+      image.onerror = () => {
+        showToast("Failed to load certificate template image", "error");
+        setIsClaiming(false);
+      };
+    } catch (err) {
+      console.error("Claim certificate error:", err);
+      showToast("An unexpected error occurred", "error");
+      setIsClaiming(false);
+    }
+  };
+
+  const handleDownloadCertificate = async (certPath: string) => {
+    try {
+      showToast("Downloading your certificate...", "success");
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const url = `${baseURL}/${certPath}`;
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      const baseName = certPath.split("/").pop() || "certificate.webp";
+      link.setAttribute("download", baseName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Failed to download certificate:", err);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      window.open(`${baseURL}/${certPath}`, "_blank");
     }
   };
 
@@ -372,6 +470,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   } | null>(null);
   const [loadingCert, setLoadingCert] = useState(true);
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const [claimedCertificate, setClaimedCertificate] = useState<string | null>(null);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -400,6 +500,26 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         }
       } catch (error) {
         console.error("Failed to fetch certificate eligibility:", error);
+      }
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(`${baseURL}/api/me`, {
+          credentials: "include",
+          headers,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user?.certificateImage) {
+            setClaimedCertificate(data.user.certificateImage);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile for certificate:", error);
       } finally {
         setLoadingCert(false);
       }
@@ -474,6 +594,44 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           { name: "In Progress", value: inProgress, color: "#f97316" },
           { name: "Locked", value: locked, color: "#64748b" },
         ];
+
+        // Recalculate phase progress percentages and statuses based on modulesCompleted
+        let remainingCompleted = local.modulesCompleted;
+        const completedModuleIds = apiData.courseProgress.completedModuleIds || [];
+        const updatedPhaseJourney: typeof local.phaseJourney = [];
+
+        curriculum.phases.forEach((ph, idx) => {
+          const phaseModules = curriculum.modules.filter((m) => m.phaseId === ph.id);
+          const totalInPhase = phaseModules.length;
+
+          let completedInPhase = 0;
+          if (completedModuleIds.length > 0) {
+            completedInPhase = phaseModules.filter(m => completedModuleIds.includes(m.id)).length;
+          } else {
+            completedInPhase = Math.min(remainingCompleted, totalInPhase);
+            remainingCompleted = Math.max(0, remainingCompleted - completedInPhase);
+          }
+
+          const percent = totalInPhase > 0 ? Math.round((completedInPhase / totalInPhase) * 100) : 0;
+
+          let status: "completed" | "active" | "locked" = "locked";
+          if (percent >= 100) {
+            status = "completed";
+          } else if (ph.id === local.currentPhaseId || (idx > 0 && updatedPhaseJourney[idx - 1]?.status === "completed") || (idx > 0 && completedInPhase > 0)) {
+            status = "active";
+          } else if (idx === 0) {
+            status = "active";
+          }
+
+          updatedPhaseJourney.push({
+            phaseId: ph.id,
+            title: ph.title,
+            percent,
+            status,
+          });
+        });
+
+        local.phaseJourney = updatedPhaseJourney;
       }
       if (apiData.averageScore !== undefined && apiData.averageScore !== null) {
         local.averageScore = apiData.averageScore;
@@ -543,7 +701,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
           let logins = activeDatesMap.has(key) ? 1 : 0;
           if (key === selectedDate) {
-            logins = 2; 
+            logins = 2;
           }
 
           let minutes = 0;
@@ -552,12 +710,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             if (totalStudyMinutes > 0) {
               minutes = Math.round((count / totalActivityCount) * totalStudyMinutes);
             } else {
-              minutes = count * 30; 
+              minutes = count * 30;
             }
           }
 
           if (key === selectedDate) {
-            minutes = Math.round(minutes * 1.5) + 15; 
+            minutes = Math.round(minutes * 1.5) + 15;
           }
 
           return {
@@ -977,7 +1135,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       <GlassCard className="relative overflow-hidden border-mst-red/20 bg-gradient-to-br from-[var(--surface)] to-[var(--surface)]/40 p-6 backdrop-blur-3xl shadow-[0_20px_50px_rgba(227,30,36,0.05)]">
                         <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full bg-mst-red/10 blur-2xl pointer-events-none" />
                         <div className="absolute -left-16 -bottom-16 h-36 w-36 rounded-full bg-purple-500/10 blur-2xl pointer-events-none" />
-                        
+
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                           <div className="flex-1">
                             <div className="flex items-center gap-2.5">
@@ -989,7 +1147,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                                 <p className="text-xs text-[var(--text-muted)]">Complete all submodules of your curriculum to unlock your official certification.</p>
                               </div>
                             </div>
-                            
+
                             <div className="mt-5">
                               <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] mb-2">
                                 <span>Submodule Completion Progress</span>
@@ -1017,20 +1175,29 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                               </p>
                             </div>
                           </div>
-                          
+
                           <div className="flex shrink-0 items-center justify-start md:justify-end">
-                            <button
-                              disabled={!certEligibility.isCertificateEligible}
-                              onClick={handleClaimCertificate}
-                              className={`group relative flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-extrabold transition-all duration-300 ${
-                                certEligibility.isCertificateEligible
-                                  ? "bg-gradient-to-r from-mst-red to-purple-600 text-white shadow-lg shadow-mst-red/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer hover:shadow-purple-500/25"
-                                  : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] cursor-not-allowed opacity-60"
-                              }`}
-                            >
-                              {!certEligibility.isCertificateEligible && <Lock className="h-4 w-4 text-[var(--text-muted)]" />}
-                              Claim Certificate
-                            </button>
+                            {claimedCertificate && certEligibility?.isCertificateEligible ? (
+                              <button
+                                onClick={() => setIsClaimModalOpen(true)}
+                                className="group relative flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer px-6 py-3.5 text-sm font-extrabold transition-all duration-300"
+                              >
+                                View Certificate
+                              </button>
+                            ) : (
+                              <button
+                                disabled={!certEligibility?.isCertificateEligible}
+                                onClick={handleClaimCertificate}
+                                className={`group relative flex items-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-extrabold transition-all duration-300 ${
+                                  certEligibility?.isCertificateEligible
+                                    ? "bg-gradient-to-r from-mst-red to-purple-600 text-white shadow-lg shadow-mst-red/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer hover:shadow-purple-500/25"
+                                    : "border border-[var(--border)] bg-[var(--surface)] text-[var(--text-muted)] cursor-not-allowed opacity-60"
+                                }`}
+                              >
+                                {!certEligibility?.isCertificateEligible && <Lock className="h-4 w-4 text-[var(--text-muted)]" />}
+                                Claim Certificate
+                              </button>
+                            )}
                           </div>
                         </div>
                       </GlassCard>
@@ -1406,95 +1573,48 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       {isClaimModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-md rounded-3xl border border-amber-500/35 bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl pointer-events-none animate-pulse" />
-            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl pointer-events-none animate-pulse" />
+          <div className="w-full max-w-2xl rounded-3xl border border-amber-500/35 bg-[var(--surface)] p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl pointer-events-none animate-pulse" />
+            <div className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl pointer-events-none animate-pulse" />
 
             <div className="relative z-10 flex flex-col items-center">
-              <div className="mb-4 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500 uppercase tracking-wider animate-bounce">
-                <Trophy className="h-4.5 w-4.5 text-amber-500 mr-1" />
+              <div className="mb-4 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-bold text-amber-500 uppercase tracking-wider animate-bounce">
+                <Trophy className="h-4 w-4 mr-1 text-amber-500" />
                 Certified Graduate
               </div>
 
-              <div className="rounded-full bg-amber-500/10 border border-amber-500/20 p-5 mb-4 animate-pulse">
-                <Award className="h-16 w-16 text-amber-500 animate-pulse" />
-              </div>
-
-              <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">Congratulations, {firstName}!</h3>
-              <p className="mt-3 text-sm text-[var(--text-muted)] leading-relaxed">
+              <h3 className="text-3xl font-black text-[var(--text)] tracking-tight">Congratulations, {user.fullName}!</h3>
+              <p className="mt-2 text-sm text-[var(--text-muted)] max-w-lg leading-relaxed">
                 You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
               </p>
 
-              <div className="mt-6 w-full space-y-2">
+              {claimedCertificate && (
+                <div className="mt-6 w-full transition-transform duration-300 hover:scale-[1.01] flex justify-center">
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL || ""}/${claimedCertificate}`}
+                    alt="Certificate Preview"
+                    className="w-full max-w-lg h-auto block shadow-md border border-[var(--border)]"
+                  />
+                </div>
+              )}
+
+              <div className="mt-8 w-full max-w-md flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => {
-                    showToast("Downloading your certificate...", "success");
-                    // Mock file download
-                    const link = document.createElement("a");
-                    link.href = "#";
-                    link.setAttribute("download", `Masterstroke_Certificate_${firstName}.pdf`);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    if (claimedCertificate) {
+                      handleDownloadCertificate(claimedCertificate);
+                    } else {
+                      showToast("Certificate URL not found", "error");
+                    }
                   }}
-                  className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-5 py-3.5 text-sm font-extrabold text-white transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02] cursor-pointer"
+                  className="flex-1 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-6 py-4 text-sm font-extrabold text-white transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02] cursor-pointer"
                 >
-                  Download PDF Certificate
+                  Download Certificate
                 </button>
-                
+
                 <button
                   onClick={() => setIsClaimModalOpen(false)}
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] px-5 py-3 text-sm font-bold text-[var(--text)] transition-colors cursor-pointer"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isClaimModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-md rounded-3xl border border-amber-500/35 bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 text-center relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl pointer-events-none animate-pulse" />
-            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-purple-500/10 blur-2xl pointer-events-none animate-pulse" />
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="mb-4 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500 uppercase tracking-wider animate-bounce">
-                <Trophy className="h-4.5 w-4.5 text-amber-500 mr-1" />
-                Certified Graduate
-              </div>
-
-              <div className="rounded-full bg-amber-500/10 border border-amber-500/20 p-5 mb-4 animate-pulse">
-                <Award className="h-16 w-16 text-amber-500 animate-pulse" />
-              </div>
-
-              <h3 className="text-2xl font-black text-[var(--text)] tracking-tight">Congratulations, {firstName}!</h3>
-              <p className="mt-3 text-sm text-[var(--text-muted)] leading-relaxed">
-                You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
-              </p>
-
-              <div className="mt-6 w-full space-y-2">
-                <button
-                  onClick={() => {
-                    showToast("Downloading your certificate...", "success");
-                    // Mock file download
-                    const link = document.createElement("a");
-                    link.href = "#";
-                    link.setAttribute("download", `Masterstroke_Certificate_${firstName}.pdf`);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
-                  className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-5 py-3.5 text-sm font-extrabold text-white transition-all shadow-lg shadow-orange-500/20 hover:scale-[1.02] cursor-pointer"
-                >
-                  Download PDF Certificate
-                </button>
-                
-                <button
-                  onClick={() => setIsClaimModalOpen(false)}
-                  className="w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] px-5 py-3 text-sm font-bold text-[var(--text)] transition-colors cursor-pointer"
+                  className="flex-1 rounded-2xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] px-6 py-4 text-sm font-bold text-[var(--text)] transition-colors cursor-pointer"
                 >
                   Close
                 </button>
