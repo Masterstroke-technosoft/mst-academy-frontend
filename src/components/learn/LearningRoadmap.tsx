@@ -614,6 +614,174 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     loadData();
   }, [user, baseURL]);
 
+  // Payment proof submission (same form + API as the dashboard's "Request Course Allocation").
+  const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
+  const [allocationForm, setAllocationForm] = useState({
+    accountHolderName: "",
+    category: "",
+    amountPaid: "",
+    paymentDate: "",
+    transactionId: "",
+    paymentMethod: "",
+    paymentScreenshotUrl: "",
+    additionalNotes: "",
+  });
+  const [screenshotFileName, setScreenshotFileName] = useState("");
+  const [allocationErrors, setAllocationErrors] = useState<Record<string, string>>({});
+  const [isSubmittingAllocation, setIsSubmittingAllocation] = useState(false);
+  const [paymentToast, setPaymentToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showPaymentToast = (message: string, type: "success" | "error" = "success") => {
+    setPaymentToast({ message, type });
+    setTimeout(() => setPaymentToast(null), 4000);
+  };
+
+  const openPaymentModal = () => {
+    const categoryByRole: Record<string, string> = {
+      student: "STUDENT",
+      validator: "VALIDATOR",
+      "working-professional": "WORKING_PROFESSIONAL",
+      working_professional: "WORKING_PROFESSIONAL",
+      "non-validator": "NON_VALIDATOR",
+      course_only: "NON_VALIDATOR",
+    };
+    setAllocationForm((prev) => ({
+      ...prev,
+      accountHolderName: prev.accountHolderName || user?.fullName || "",
+      category: prev.category || (user?.role ? categoryByRole[user.role.toLowerCase()] : "") || "",
+    }));
+    setIsAllocationModalOpen(true);
+  };
+
+  const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+        } else {
+          resolve(base64Str);
+        }
+      };
+      img.onerror = () => {
+        resolve(base64Str);
+      };
+    });
+  };
+
+  const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const rawBase64 = reader.result as string;
+        try {
+          const compressedBase64 = await compressImage(rawBase64);
+          setAllocationForm((prev) => ({ ...prev, paymentScreenshotUrl: compressedBase64 }));
+          setScreenshotFileName(file.name);
+        } catch (err) {
+          console.error("Compression failed, using raw base64:", err);
+          setAllocationForm((prev) => ({ ...prev, paymentScreenshotUrl: rawBase64 }));
+          setScreenshotFileName(file.name);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAllocationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors: Record<string, string> = {};
+    if (!allocationForm.accountHolderName.trim()) errors.accountHolderName = "Account holder name is required";
+    if (!allocationForm.category) errors.category = "Category is required";
+    if (!allocationForm.amountPaid || isNaN(Number(allocationForm.amountPaid)) || Number(allocationForm.amountPaid) <= 0) {
+      errors.amountPaid = "Amount paid is required and must be greater than 0";
+    }
+    if (!allocationForm.paymentDate) errors.paymentDate = "Payment date is required";
+    if (!allocationForm.transactionId.trim()) errors.transactionId = "Transaction ID is required";
+    if (!allocationForm.paymentMethod) errors.paymentMethod = "Payment method is required";
+    if (!allocationForm.paymentScreenshotUrl.trim()) errors.paymentScreenshotUrl = "Payment screenshot is required";
+
+    if (Object.keys(errors).length > 0) {
+      setAllocationErrors(errors);
+      return;
+    }
+
+    setAllocationErrors({});
+    setIsSubmittingAllocation(true);
+
+    try {
+      const payload = {
+        accountHolderName: allocationForm.accountHolderName,
+        category: allocationForm.category,
+        amountPaid: Number(allocationForm.amountPaid),
+        paymentDate: new Date(allocationForm.paymentDate).toISOString(),
+        transactionId: allocationForm.transactionId,
+        paymentMethod: allocationForm.paymentMethod,
+        paymentScreenshotUrl: allocationForm.paymentScreenshotUrl,
+        additionalNotes: allocationForm.additionalNotes.trim() || undefined,
+      };
+
+      const res = await fetch(`${baseURL}/api/node-purchase`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        showPaymentToast("Payment request submitted successfully!", "success");
+        setIsAllocationModalOpen(false);
+        setHasSubmittedPayment(true);
+        setAllocationForm({
+          accountHolderName: "",
+          category: "",
+          amountPaid: "",
+          paymentDate: "",
+          transactionId: "",
+          paymentMethod: "",
+          paymentScreenshotUrl: "",
+          additionalNotes: "",
+        });
+        setScreenshotFileName("");
+      } else {
+        let errMsg = "Failed to submit payment request";
+        try {
+          const errData = await res.json();
+          errMsg = errData.message || errData.error || errMsg;
+        } catch { }
+        showPaymentToast(errMsg, "error");
+      }
+    } catch (err: any) {
+      console.error("API Error:", err);
+      showPaymentToast(err?.message || "Failed to submit payment request", "error");
+    } finally {
+      setIsSubmittingAllocation(false);
+    }
+  };
+
   const [fetchedPhases, setFetchedPhases] = useState<any[]>([]);
 
   const [fetchedModules, setFetchedModules] = useState<any[]>([]);
@@ -1196,6 +1364,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     );
   }
 
+  // Student ID verification only applies to the student/validator tracks, but
+  // payment verification gates every paid plan (course-only, working professional, etc).
+  const isStudentOrValidatorRole =
+    userProfile?.role?.toLowerCase() === "student" || userProfile?.role?.toLowerCase() === "validator";
+
   return (
     <div
       className="relative min-h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden"
@@ -1310,15 +1483,22 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) && (
+      {userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
               <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                <div>
+                <div className="flex-1">
                   <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
                   <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                  <button
+                    type="button"
+                    onClick={openPaymentModal}
+                    className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                  >
+                    Pay Now
+                  </button>
                 </div>
               </div>
             ) : (
@@ -1386,16 +1566,23 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             />
             <div style={{ height: graphHeight, width: "100%" }}>
               {isFetchingSubmodules ? (
-                userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) ? (
+                userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) ? (
                   <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
                     <div className="max-w-md w-full shadow-lg rounded-2xl">
                       {!isPaymentVerified ? (
                         (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
                           <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
                             <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                            <div>
+                            <div className="flex-1">
                               <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
                               <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                              <button
+                                type="button"
+                                onClick={openPaymentModal}
+                                className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                              >
+                                Pay Now
+                              </button>
                             </div>
                           </div>
                         ) : (
@@ -1755,6 +1942,220 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           </div>
         )}
       </AnimatePresence>
+
+      {isAllocationModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4 shrink-0">
+              <h3 className="text-lg font-black text-[var(--text)]">
+                Request Course Allocation
+              </h3>
+              <button
+                onClick={() => setIsAllocationModalOpen(false)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
+              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                <img
+                  src="/MasterstrokePaymentQRCode.jpg"
+                  alt="Payment QR Code"
+                  className="h-[140px] w-[140px] object-contain"
+                />
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)]">
+                Already paid? Fill in the transaction details below so we can verify it.
+              </p>
+            </div>
+
+            <form onSubmit={handleAllocationSubmit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Account Holder Name <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.accountHolderName}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, accountHolderName: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.accountHolderName ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="Enter account holder name"
+                  />
+                  {allocationErrors.accountHolderName && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.accountHolderName}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Category <span className="text-mst-red">*</span>
+                  </label>
+                  <select
+                    value={allocationForm.category}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, category: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]"
+                  >
+                    <option value="">Select Category</option>
+                    <option value="STUDENT">STUDENT</option>
+                    <option value="VALIDATOR">VALIDATOR</option>
+                    <option value="WORKING_PROFESSIONAL">WORKING PROFESSIONAL</option>
+                    <option value="NON_VALIDATOR">NON VALIDATOR</option>
+                  </select>
+                  {allocationErrors.category && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.category}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Amount Paid <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={allocationForm.amountPaid}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, amountPaid: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.amountPaid ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="2999"
+                  />
+                  {allocationErrors.amountPaid && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.amountPaid}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Payment Date <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={allocationForm.paymentDate}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, paymentDate: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
+                  />
+                  {allocationErrors.paymentDate && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentDate}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Transaction ID <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.transactionId}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, transactionId: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.transactionId ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="UTR123456789"
+                  />
+                  {allocationErrors.transactionId && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.transactionId}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Payment Method <span className="text-mst-red">*</span>
+                  </label>
+                  <select
+                    value={allocationForm.paymentMethod}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, paymentMethod: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]"
+                  >
+                    <option value="">Select Method</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Net Banking">Net Banking</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                  </select>
+                  {allocationErrors.paymentMethod && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Upload payment screenshot <span className="text-mst-red">*</span>
+                  </label>
+                  <div className={`flex items-center gap-3 w-full rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
+                    <label
+                      htmlFor="learnScreenshotUploadInput"
+                      className="cursor-pointer rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-[10px] font-bold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
+                    >
+                      Choose File
+                    </label>
+                    <span className="text-[10px] text-[var(--text-muted)] truncate">
+                      {screenshotFileName ? screenshotFileName : "No file chosen"}
+                    </span>
+                    <input
+                      id="learnScreenshotUploadInput"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleScreenshotUpload}
+                    />
+                  </div>
+                  {allocationErrors.paymentScreenshotUrl && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentScreenshotUrl}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Additional Notes (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.additionalNotes}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, additionalNotes: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
+                    placeholder="Payment completed successfully"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)] shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAllocationModalOpen(false)}
+                  className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingAllocation}
+                  className="rounded-xl bg-mst-red hover:bg-red-700 px-5 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingAllocation ? 'Submitting...' : 'Request Allocation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {paymentToast && (
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${paymentToast.type === "success"
+          ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
+          : "border-red-500/30 bg-red-950/95 text-red-400"
+          }`}>
+          <AlertCircle className="h-5 w-5" />
+          <span className="text-sm font-extrabold">{paymentToast.message}</span>
+        </div>
+      )}
     </div>
   );
 }

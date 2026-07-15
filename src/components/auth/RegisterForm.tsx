@@ -114,6 +114,7 @@ const isPasswordValid = (p: string) => {
   return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p) && /[^A-Za-z0-9]/.test(p);
 };
 
+
 export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -146,6 +147,9 @@ export function RegisterForm() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [verifyOtpLoading, setVerifyOtpLoading] = useState(false);
   const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
+
+  // Step 2: optional payment, shown only after registration succeeds.
+  const [step, setStep] = useState<"form" | "payment">("form");
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((p) => p.id === plan)!,
@@ -258,7 +262,7 @@ export function RegisterForm() {
     const referralCode = referralCodeInput.trim() || undefined;
 
     let result:
-      | { ok: true; user: { role: string } }
+      | { ok: true; user: { id: string; role: string } }
       | { ok: false; error: string };
 
     if (plan === "validator") {
@@ -325,13 +329,66 @@ export function RegisterForm() {
       return;
     }
 
-    // The account is created on the backend, but registration does not log the
-    // user in (no auth token is issued here - only the login flow stores one).
-    // Clear the partial session set during registration and send the user to
-    // /login with their email prefilled so they sign in for real before hitting
-    // any authenticated pages.
+    // Account is created; move to the optional payment step instead of
+    // signing the user in. The registration API does not issue an auth
+    // token, so the user still has to sign in for real afterwards.
+    setStep("payment");
+  }
+
+  // Sends the user to /login once registration (and optionally payment) is done.
+  function finishRegistration(paymentStatus?: "submitted") {
     logout();
-    router.push(`/login?email=${encodeURIComponent(email)}&registered=1`);
+    const params = new URLSearchParams({ email, registered: "1" });
+    if (paymentStatus) params.set("payment", paymentStatus);
+    router.push(`/login?${params.toString()}`);
+  }
+
+  if (step === "payment") {
+    return (
+      <AuthShell
+        title="Complete Payment"
+        subtitle="Optional - activate your plan now, or do it later from your dashboard."
+      >
+        <div className="mb-5 rounded-xl bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400">
+          Account created! Complete your payment below to activate {selectedPlan.label}, or skip and pay later.
+        </div>
+
+        <div className="space-y-4">
+          <DemoFee amount={selectedPlan.price} />
+
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
+            <FieldLabel>Scan to Pay</FieldLabel>
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
+                <img
+                  src="./MasterstrokePaymentQRCode.jpg"
+                  alt="Payment QR Code"
+                  className="h-[180px] w-[180px] object-contain"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => finishRegistration("submitted")}
+              className="w-full rounded-xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.99]"
+            >
+              Submit Payment
+            </button>
+
+            <button
+              type="button"
+              onClick={() => finishRegistration()}
+              className="w-full rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] py-3.5 text-sm font-semibold text-[var(--text)] transition hover:border-mst-red"
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      </AuthShell>
+    );
   }
 
   return (
@@ -613,21 +670,6 @@ export function RegisterForm() {
 
           {/* Fee display */}
           <DemoFee amount={selectedPlan.price} />
-        </div>
-
-        {/* Pay Now & QR Code */}
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
-          <FieldLabel required>Pay Now</FieldLabel>
-          <div className="flex flex-col items-center gap-4 text-center">
-
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
-              <img
-                src="./MasterstrokePaymentQRCode.jpg"
-                alt="Payment QR Code"
-                className="h-[180px] w-[180px] object-contain"
-              />
-            </div>
-          </div>
         </div>
 
         {/* Referral Code */}
