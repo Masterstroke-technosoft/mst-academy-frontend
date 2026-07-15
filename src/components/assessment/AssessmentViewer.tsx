@@ -112,7 +112,28 @@ export default function AssessmentViewer({
   useEffect(() => {
     if (assessment && assessment._id && typeof window !== "undefined") {
       localStorage.setItem("all-assignment-ids", JSON.stringify([assessment._id]));
-      localStorage.setItem("assignment-id", assessment._id);
+      // localStorage.setItem("assignment-id", assessment._id);
+      // localStorage.setItem("submodule-id", assessment.submoduleId);
+      
+      let existingList: any[] = [];
+      const existingStr = localStorage.getItem("assignment-submodule-ids");
+      if (existingStr) {
+        try {
+          const parsed = JSON.parse(existingStr);
+          if (Array.isArray(parsed)) {
+            if (parsed.length === 2 && !Array.isArray(parsed[0])) {
+              existingList = [parsed];
+            } else {
+              existingList = parsed.filter((item: any) => Array.isArray(item));
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      existingList = existingList.filter((item) => item[1] !== assessment.submoduleId);
+      existingList.push([assessment._id, assessment.submoduleId]);
+      localStorage.setItem("assignment-submodule-ids", JSON.stringify(existingList));
     }
   }, [assessment]);
 
@@ -256,10 +277,63 @@ export default function AssessmentViewer({
       }
       const result = await response.json();
       console.log(result)
-      setSubmissionResult(result.submission || result);
-      if (typeof window !== "undefined") {
+      const submissionData = result.submission || result;
+      setSubmissionResult(submissionData);
+
+      const submissionAnswers = submissionData?.answers || [];
+      const resultsForScore = submissionAnswers.length > 0 ? submissionAnswers.map((ans: any) => {
+        const q: any = assessment.questions.find((quest) => quest.questionNumber === ans.questionNumber) || {};
+        return {
+          isCorrect: typeof ans.isCorrect === "boolean"
+            ? ans.isCorrect
+            : (ans.awardedMarks !== undefined ? ans.awardedMarks === (q.marks || 0) : false),
+          marks: q.marks || 0,
+          awardedMarks: ans.awardedMarks !== undefined ? ans.awardedMarks : (ans.isCorrect ? (q.marks || 0) : 0),
+        };
+      }) : assessment.questions.map((q) => {
+        const answer = answers[q.questionNumber];
+        const isCorrect = answer === q.correctAnswer;
+        return {
+          isCorrect,
+          marks: q.marks,
+          awardedMarks: isCorrect ? q.marks : 0,
+        };
+      });
+
+      const totalEarned = submissionData?.score !== undefined ? submissionData.score : (submissionData?.partialScore !== undefined ? submissionData.partialScore : resultsForScore.reduce(
+        (sum: number, r: { isCorrect: boolean; marks: number; awardedMarks?: number }) => sum + (r.awardedMarks !== undefined ? r.awardedMarks : (r.isCorrect ? r.marks : 0)),
+        0
+      ));
+      const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);
+      const passed = percentage >= 70;
+
+      if (typeof window !== "undefined" && passed) {
         localStorage.removeItem("assignment-id");
         localStorage.removeItem("all-assignment-ids");
+        localStorage.removeItem("submodule-id");
+        
+        let existingList: any[] = [];
+        const existingStr = localStorage.getItem("assignment-submodule-ids");
+        if (existingStr) {
+          try {
+            const parsed = JSON.parse(existingStr);
+            if (Array.isArray(parsed)) {
+              if (parsed.length === 2 && !Array.isArray(parsed[0])) {
+                existingList = [parsed];
+              } else {
+                existingList = parsed.filter((item: any) => Array.isArray(item));
+              }
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        existingList = existingList.filter((item) => item[1] !== assessment.submoduleId);
+        if (existingList.length > 0) {
+          localStorage.setItem("assignment-submodule-ids", JSON.stringify(existingList));
+        } else {
+          localStorage.removeItem("assignment-submodule-ids");
+        }
         sessionStorage.removeItem(`assessment-endtime-${assessment._id || assessment.submoduleId}`);
       }
     } catch (error: any) {

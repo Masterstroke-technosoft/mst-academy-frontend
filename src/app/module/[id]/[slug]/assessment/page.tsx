@@ -26,18 +26,52 @@ export default function AssessmentPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setAssessment(null);
+    setError(null);
     const fetchAssessment = async () => {
       try {
-        const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
+        // const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
+        // let response;
+        // if (savedAssignmentId) {
+        //   response = await fetch(`${baseUrl}/api/assignments/student/${savedAssignmentId}`, {
+        //     method: "GET",
+        //     credentials: "include",
+        //   });
+        // }
+        // const savedSubmoduleId = typeof window !== "undefined" ? localStorage.getItem("submodule-id") : null;
+        // const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
+        const savedIdsStr = typeof window !== "undefined" ? localStorage.getItem("assignment-submodule-ids") : null;
+        let savedAssignmentId = null;
+        let savedSubmoduleId = null;
+        if (savedIdsStr) {
+          try {
+            const parsed = JSON.parse(savedIdsStr);
+            if (Array.isArray(parsed)) {
+              if (parsed.length === 2 && !Array.isArray(parsed[0])) {
+                if (parsed[1] === slug) {
+                  savedAssignmentId = parsed[0];
+                  savedSubmoduleId = parsed[1];
+                }
+              } else {
+                const match = parsed.find((item: any) => Array.isArray(item) && item[1] === slug);
+                if (match) {
+                  savedAssignmentId = match[0];
+                  savedSubmoduleId = match[1];
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing assignment-submodule-ids", e);
+          }
+        }
         let response;
-        if (savedAssignmentId) {
-          response = await fetch(`${baseUrl}/api/assignments/student/${savedAssignmentId}`, {
+        if (savedSubmoduleId && savedSubmoduleId === slug) {
+          response = await fetch(`${baseUrl}/api/assignments/submodule/assignment/${savedSubmoduleId}/${savedAssignmentId}`, {
             method: "GET",
             credentials: "include",
           });
-        }
-
-        if (!response || !response.ok) {
+        } else {
           response = await fetch(`${baseUrl}/api/assignments/submodule/${slug}`, {
             method: "GET",
             credentials: "include",
@@ -49,7 +83,27 @@ export default function AssessmentPage() {
         setAssessment(data);
         if (data && data._id && typeof window !== "undefined") {
           localStorage.setItem("all-assignment-ids", JSON.stringify([data._id]));
-          localStorage.setItem("assignment-id", data._id);
+          
+          let existingList: any[] = [];
+          const existingStr = localStorage.getItem("assignment-submodule-ids");
+          if (existingStr) {
+            try {
+              const parsed = JSON.parse(existingStr);
+              if (Array.isArray(parsed)) {
+                if (parsed.length === 2 && !Array.isArray(parsed[0])) {
+                  existingList = [parsed];
+                } else {
+                  existingList = parsed.filter((item: any) => Array.isArray(item));
+                }
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          const activeSubmoduleId = data.submoduleId || slug;
+          existingList = existingList.filter((item) => item[1] !== activeSubmoduleId);
+          existingList.push([data._id, activeSubmoduleId]);
+          localStorage.setItem("assignment-submodule-ids", JSON.stringify(existingList));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -82,5 +136,5 @@ export default function AssessmentPage() {
     );
   }
 
-  return <AssessmentViewer assessment={assessment} moduleId={parseInt(moduleId)} slug={slug} />;
+  return <AssessmentViewer key={slug} assessment={assessment} moduleId={parseInt(moduleId)} slug={slug} />;
 }
