@@ -1271,7 +1271,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <span className="text-gradient-red">4 Phases</span> · 21 Modules · Your Path
                 </h1>
                 <p className="mt-1 text-xs text-[var(--text-muted)] sm:text-sm">
-                  Tap a phase → pick a module → open lessons. Everything fits on screen - no clutter.
+                  Tap a phase → pick a module → open lessons.
                 </p>
               </div>
             </div>
@@ -1615,7 +1615,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                         <BookOpen className="h-4 w-4" />
                         {subLocked ? "Locked" : "Open Lesson"}
                       </Link>
-                      {detailCta?.hasAssessment && (
+                      {/* {detailCta?.hasAssessment && (
                         <Link
                           href={`/module/${activeModule.id}/${activeSubmodule.slug}/assessment`}
                           className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${subLocked
@@ -1630,7 +1630,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                           <Zap className="h-4 w-4" />
                           Start Assessment
                         </Link>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>

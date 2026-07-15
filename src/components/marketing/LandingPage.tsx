@@ -319,7 +319,7 @@ export function LandingPage({
               {[
                 { v: "4", l: "Phases" },
                 { v: String(moduleCount), l: "Modules" },
-                { v: "124", l: "SubModules" },
+                { v: "123", l: "SubModules" },
                 { v: "130+", l: "Hours" },
               ].map((pill) => (
                 <span
@@ -698,7 +698,7 @@ export function LandingPage({
           {[
             { end: 4, suffix: "", label: "Phases" },
             { end: moduleCount, suffix: "", label: "Modules" },
-            { end: 124, submoduleCount, suffix: "", label: "Submodules" },
+            { end: 123, submoduleCount, suffix: "", label: "Submodules" },
             { end: 130, suffix: "+", label: "Hours" },
           ].map((stat, i) => (
             <div
