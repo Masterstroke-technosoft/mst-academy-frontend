@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LessonViewer } from "./LessonViewer";
 import { normalizeContentFilePath } from "@/lib/content-file";
+import { Lock } from "lucide-react";
 
 interface DynamicLessonLoaderProps {
   id: string;
@@ -76,6 +77,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
   const [mockSubmodule, setMockSubmodule] = useState<any>(null);
   const [prevSlug, setPrevSlug] = useState<string | undefined>();
   const [nextSlug, setNextSlug] = useState<string | undefined>();
+  const [showLockModal, setShowLockModal] = useState(false);
 
   useEffect(() => {
     async function loadHtml() {
@@ -91,6 +93,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
         });
 
         if (!subRes.ok) {
+          setShowLockModal(true);
           throw new Error("Unable to load lesson details.");
         }
 
@@ -166,6 +169,33 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
 
     loadHtml();
   }, [id, slug]);
+
+  if (showLockModal) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="w-full max-w-md transform overflow-hidden rounded-3xl border border-[var(--border-strong)] bg-[var(--surface)] p-8 shadow-2xl transition-all">
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 text-mst-red border border-mst-red/20 shadow-inner">
+              <Lock size={32} className="animate-pulse" />
+            </div>
+            <h3 className="text-2xl font-black tracking-tight text-[var(--text)]">Lesson Locked</h3>
+            <p className="mt-4 text-sm text-[var(--text-muted)] leading-relaxed font-medium">
+              You cannot proceed to the next submodule or module until you have successfully completed and passed the assessment for the current lesson.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/learn";
+              }}
+              className="mt-8 w-full rounded-2xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition-all hover:shadow-mst-red/40 hover:scale-[1.01]"
+            >
+              Go to Learning Tree
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

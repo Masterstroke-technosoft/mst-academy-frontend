@@ -369,14 +369,44 @@ export function RegisterForm() {
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
             <FieldLabel>Scan to Pay</FieldLabel>
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
-                <img
-                  src="./MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[180px] w-[180px] object-contain"
-                />
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-left">
+              <div className="flex flex-col items-center gap-2 text-center shrink-0">
+                <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
+                  <img
+                    src="./MasterstrokePaymentQRCode.jpg"
+                    alt="Payment QR Code"
+                    className="h-[140px] w-[140px] object-contain"
+                  />
+                </div>
               </div>
+
+              {(() => {
+                const base = selectedPlan.price;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                      Plan: {selectedPlan.label}
+                    </h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">Role Amount:</span>
+                        <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">18% GST:</span>
+                        <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span className="font-black text-[var(--text)]">Total Amount (Incl. GST):</span>
+                        <span className="font-black text-mst-red text-sm">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 

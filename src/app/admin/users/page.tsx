@@ -238,6 +238,13 @@ export default function UserManagementPage() {
     return result;
   }, [users, filterRole, searchQuery]);
 
+  const displayedTotalPages = useMemo(() => {
+    if (filterRole !== "all" || searchQuery.trim() !== "") {
+      return Math.max(1, Math.ceil(filteredUsers.length / 10));
+    }
+    return totalPages;
+  }, [filteredUsers, totalPages, filterRole, searchQuery]);
+
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const siblingCount = 1;
@@ -245,7 +252,7 @@ export default function UserManagementPage() {
     pages.push(1);
 
     const startRange = Math.max(2, currentPage - siblingCount);
-    const endRange = Math.min(totalPages - 1, currentPage + siblingCount);
+    const endRange = Math.min(displayedTotalPages - 1, currentPage + siblingCount);
 
     if (startRange > 2) {
       pages.push("...");
@@ -255,12 +262,12 @@ export default function UserManagementPage() {
       pages.push(i);
     }
 
-    if (endRange < totalPages - 1) {
+    if (endRange < displayedTotalPages - 1) {
       pages.push("...");
     }
 
-    if (totalPages > 1) {
-      pages.push(totalPages);
+    if (displayedTotalPages > 1) {
+      pages.push(displayedTotalPages);
     }
 
     return pages;
@@ -302,7 +309,10 @@ export default function UserManagementPage() {
               <div className="relative flex-1 lg:w-48">
                 <select
                   value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value as any)}
+                  onChange={(e) => {
+                    setFilterRole(e.target.value as any);
+                    setCurrentPage(1);
+                  }}
                   className="w-full appearance-none rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-3 pr-10 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
                 >
                   <option value="all">All Users</option>
@@ -483,7 +493,7 @@ export default function UserManagementPage() {
           <div className="flex items-center justify-between border-t border-[var(--border)] bg-[var(--surface)] px-6 py-4">
             <div className="text-sm text-[var(--text-muted)]">
               Page <span className="font-semibold text-[var(--text)]">{currentPage}</span> of{" "}
-              <span className="font-semibold text-[var(--text)]">{totalPages}</span>
+              <span className="font-semibold text-[var(--text)]">{displayedTotalPages}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -521,8 +531,8 @@ export default function UserManagementPage() {
               })}
 
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages || loading}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, displayedTotalPages))}
+                disabled={currentPage === displayedTotalPages || loading}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--text)] disabled:opacity-50 disabled:hover:bg-transparent"
               >
                 <ChevronRight size={16} />

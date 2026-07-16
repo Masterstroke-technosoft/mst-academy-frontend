@@ -834,7 +834,7 @@ export function LessonViewer({
             </Link>
           ) : (
             <Link
-              href={`/module/${moduleId}`}
+              href="/learn"
               className="inline-flex items-center gap-2 text-sm font-medium text-mst-red hover:underline"
             >
               <ChevronLeft size={16} /> Back to Module
@@ -1129,7 +1129,7 @@ export function LessonViewer({
             </Link>
           ) : (
             <Link
-              href={`/module/${moduleId}`}
+              href="/learn"
               className="text-sm font-medium text-mst-red hover:underline"
             >
               Back to Module

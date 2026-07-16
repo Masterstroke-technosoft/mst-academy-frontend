@@ -1659,6 +1659,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               )}
             </div>
           </div>
+          
         </div>
 
         {/* Detail panel */}
@@ -1956,18 +1957,62 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               </button>
             </div>
 
-            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
-              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
-              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
-                <img
-                  src="/MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[140px] w-[140px] object-contain"
-                />
+            <div className="mb-4 flex flex-col md:flex-row items-center justify-center gap-6 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-5 shrink-0 text-left">
+              <div className="flex flex-col items-center gap-2 text-center shrink-0">
+                <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+                <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                  <img
+                    src="/MasterstrokePaymentQRCode.jpg"
+                    alt="Payment QR Code"
+                    className="h-[140px] w-[140px] object-contain"
+                  />
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  Already paid? Fill in the transaction details below so we can verify it.
+                </p>
               </div>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Already paid? Fill in the transaction details below so we can verify it.
-              </p>
+
+              {(() => {
+                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                let pricing = null;
+                if (roleStr === "courseonly" || roleStr === "ojt") {
+                  pricing = { name: "OJT", base: 4999 };
+                } else if (roleStr === "workingprofessional" || roleStr === "web3enthusiast" || roleStr === "normal") {
+                  pricing = { name: "Working Professional - Web3 Enthusiast", base: 24999 };
+                } else if (roleStr === "validator") {
+                  pricing = { name: "Validator", base: 9999 };
+                } else if (roleStr === "student") {
+                  pricing = { name: "Student", base: 19999 };
+                }
+
+                if (!pricing) return null;
+
+                const base = pricing.base;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                      Plan: {pricing.name}
+                    </h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">Role Amount:</span>
+                        <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">18% GST:</span>
+                        <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span className="font-black text-[var(--text)]">Total Amount (Incl. GST):</span>
+                        <span className="font-black text-mst-red text-sm">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <form onSubmit={handleAllocationSubmit} className="space-y-3">

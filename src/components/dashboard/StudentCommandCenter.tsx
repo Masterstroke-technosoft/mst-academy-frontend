@@ -61,6 +61,8 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
+import { SubmissionProgressTab } from "@/components/dashboard/SubmissionProgressTab";
+
 
 function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
   return (
@@ -513,6 +515,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (hash === "#progress") return "progress";
       if (hash === "#profile") return "profile";
       if (hash === "#refer") return "refer";
+      if (hash === "#submissions") return "submissions";
     }
     return "overview";
   });
@@ -531,6 +534,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (hash === "#progress") setActiveTab("progress");
       else if (hash === "#profile") setActiveTab("profile");
       else if (hash === "#refer") setActiveTab("refer");
+      else if (hash === "#submissions") setActiveTab("submissions");
       else setActiveTab("overview");
     };
 
@@ -970,6 +974,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
                 { href: "/learn", icon: TreePine, label: "Learning Tree" },
                 ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
+                ...(!isAdmin ? [{ id: "submissions", href: `${basePath}#submissions`, icon: BookOpen, label: "Submission Progress" }] : []),
                 ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
                 ...(isAdmin ? [
                   { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -1085,6 +1090,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
               { href: "/learn", icon: TreePine, label: "Learning Tree" },
               ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
+              ...(!isAdmin ? [{ id: "submissions", href: `${basePath}#submissions`, icon: BookOpen, label: "Submission Progress" }] : []),
               ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
               ...(isAdmin ? [
                 { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -1235,6 +1241,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   successfulReferrals={successfulReferrals}
                   withdrawUnlocked={withdrawUnlocked}
                 />
+              ) : activeTab === 'submissions' ? (
+                <SubmissionProgressTab user={user} curriculum={curriculum} />
               ) : activeTab === 'progress' ? (
                 <PlaceholderTab
                   title="Learning Progress"
@@ -1411,6 +1419,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       { label: "Completion", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                       { label: "Modules", value: `${analytics.modulesCompleted}/${analytics.totalModules}`, icon: BookOpen, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
                       { label: "Avg Score", value: analytics.averageScore > 0 ? `${analytics.averageScore}%` : "-", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
+                      { label: "Total Score", value: apiData?.totalScore !== undefined && apiData?.totalScore !== null ? `${apiData.totalScore}/2100` : "-", icon: Brain, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
                       { label: "Study Time", value: `${analytics.totalStudyHours}h`, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
                       // { label: "Focus", value: `${analytics.focusScore}%`, icon: Zap, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
                       //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
@@ -1843,18 +1852,62 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </button>
             </div>
 
-            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
-              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
-              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
-                <img
-                  src="/MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[140px] w-[140px] object-contain"
-                />
+            <div className="mb-4 flex flex-col md:flex-row items-center justify-center gap-6 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-5 shrink-0 text-left">
+              <div className="flex flex-col items-center gap-2 text-center shrink-0">
+                <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+                <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                  <img
+                    src="/MasterstrokePaymentQRCode.jpg"
+                    alt="Payment QR Code"
+                    className="h-[140px] w-[140px] object-contain"
+                  />
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  Already paid? Fill in the transaction details below so we can verify it.
+                </p>
               </div>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Already paid? Fill in the transaction details below so we can verify it.
-              </p>
+
+              {(() => {
+                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                let pricing = null;
+                if (roleStr === "courseonly" || roleStr === "ojt") {
+                  pricing = { name: "OJT", base: 4999 };
+                } else if (roleStr === "workingprofessional" || roleStr === "web3enthusiast" || roleStr === "normal") {
+                  pricing = { name: "Working Professional - Web3 Enthusiast", base: 24999 };
+                } else if (roleStr === "validator") {
+                  pricing = { name: "Validator", base: 9999 };
+                } else if (roleStr === "student") {
+                  pricing = { name: "Student", base: 19999 };
+                }
+
+                if (!pricing) return null;
+
+                const base = pricing.base;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                      Plan: {pricing.name}
+                    </h4>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">Role Amount:</span>
+                        <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                        <span className="text-[var(--text-muted)]">18% GST:</span>
+                        <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span className="font-black text-[var(--text)]">Total Amount (Incl. GST):</span>
+                        <span className="font-black text-mst-red text-sm">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <form onSubmit={handleAllocationSubmit} className="space-y-3">

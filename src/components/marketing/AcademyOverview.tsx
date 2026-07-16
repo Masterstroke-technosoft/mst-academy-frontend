@@ -733,9 +733,9 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "Submodule quizzes after each lesson",
+                  "Submodule assessments after each lesson",
                   "Module-end comprehensive tests",
-                  "Coding challenges with testnet deployment",
+                  // "Coding challenges with testnet deployment",
                   "Capstone project + Demo Day pitch",
                 ].map((item) => (
                   <li

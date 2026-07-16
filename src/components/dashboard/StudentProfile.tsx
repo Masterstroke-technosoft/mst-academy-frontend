@@ -548,7 +548,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            {/* Full Name */}
+            {/* Full Name (Read-only) */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Full Name
@@ -557,18 +557,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 type="text"
                 name="fullName"
                 value={formData.fullName}
-                onChange={handleChange}
-                required
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${/\d/.test(formData.fullName)
-                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
-                  }`}
+                disabled
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-3 text-sm text-[var(--text-muted)] outline-none opacity-70 cursor-not-allowed"
               />
-              {/\d/.test(formData.fullName) && (
-                <p className="mt-1 text-xs text-red-500 font-medium">
-                  Full name must not contain numbers.
-                </p>
-              )}
             </div>
 
             {/* Email (Read-only) */}
