@@ -23,6 +23,8 @@ import {
   getOtpCooldownTime,
 } from "@/lib/otp";
 import { useAuth } from "@/components/AuthProvider";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import { convertINRtoUSD } from "@/lib/currency";
 import {
   AuthShell,
   DemoFee,
@@ -119,6 +121,7 @@ export function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { logout } = useAuth();
+  const { rate: usdRate } = useCurrencyRate();
 
   const [plan, setPlan] = useState<PlanId>("courseOnly");
   const [error, setError] = useState("");
@@ -544,7 +547,7 @@ export function RegisterForm() {
                   {p.id === "courseOnly" ? "Course Only" : p.label.split(" ")[0]}
                 </span>
                 <span className="text-[10px] font-semibold leading-tight text-[var(--text-muted)]">
-                  ₹{p.price.toLocaleString("en-IN")}
+                  {usdRate ? `₹${p.price.toLocaleString("en-IN")} / $${convertINRtoUSD(p.price, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `₹${p.price.toLocaleString("en-IN")}`}
                 </span>
                 {plan === p.id && (
                   <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-mst-red text-[8px] text-white">

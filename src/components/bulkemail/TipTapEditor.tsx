@@ -33,7 +33,6 @@ const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(
       extensions: [
         StarterKit.configure({
           heading: { levels: [1, 2, 3] },
-          horizontalRule: false,
           link: false,
           underline: false,
         }),
@@ -43,7 +42,13 @@ const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(
         FontSize,
         Color,
         Highlight.configure({ multicolor: true }),
-        Link.configure({ openOnClick: false }),
+        Link.configure({
+          openOnClick: true,
+          HTMLAttributes: {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          },
+        }),
         ResizableImage,
         TaskList,
         TaskItem.configure({ nested: true }),
@@ -96,7 +101,56 @@ const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(
     );
 
     return (
-      <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", overflow: "hidden", backgroundColor: "white" }}>
+      <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", overflow: "visible", backgroundColor: "white", position: "relative" }}>
+        <style dangerouslySetInnerHTML={{ __html: `
+          .ProseMirror {
+            outline: none;
+          }
+          .ProseMirror h1 {
+            font-size: 2.25rem !important;
+            font-weight: 800 !important;
+            line-height: 1.25 !important;
+            margin-top: 1.5rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          .ProseMirror h2 {
+            font-size: 1.875rem !important;
+            font-weight: 700 !important;
+            line-height: 1.3 !important;
+            margin-top: 1.25rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          .ProseMirror h3 {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            line-height: 1.35 !important;
+            margin-top: 1rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          .ProseMirror p {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+          }
+          .ProseMirror ul {
+            list-style-type: disc !important;
+            padding-left: 1.5rem !important;
+          }
+          .ProseMirror ol {
+            list-style-type: decimal !important;
+            padding-left: 1.5rem !important;
+          }
+          .ProseMirror li {
+            display: list-item !important;
+          }
+          .ProseMirror a {
+            color: #3b82f6 !important;
+            text-decoration: underline !important;
+            cursor: pointer !important;
+          }
+          .ProseMirror a:hover {
+            color: #1d4ed8 !important;
+          }
+        `}} />
         <TipTapToolbar editor={editor} onImageUpload={handleImageUpload} />
         <div style={{ minHeight: "200px" }}>
           <EditorContent editor={editor} />
