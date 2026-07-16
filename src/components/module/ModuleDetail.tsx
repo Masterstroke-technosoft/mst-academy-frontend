@@ -1,150 +1,5 @@
 // "use client";
 
-<<<<<<< Updated upstream
-import Link from "next/link";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Lock,
-  PlayCircle,
-  ChevronRight,
-  ClipboardCheck,
-  Clock,
-  BookOpen,
-  Trophy,
-  ArrowLeft,
-  Zap,
-} from "lucide-react";
-import type { ModuleMeta, Phase } from "@/lib/types";
-import {
-  getSubmoduleProgress,
-  getModuleProgressPercent,
-  getModuleStatus,
-  isSubmoduleLocked,
-} from "@/lib/progress";
-import { getCardSubmoduleTitle } from "@/lib/display-titles";
-import { registerSubmoduleMetadata } from "@/lib/curriculum";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
-
-async function fetchWithAuth(url: string) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  return fetch(url, {
-    credentials: "include",
-    headers,
-  });
-}
-
-export function ModuleDetail({
-  mod,
-  phase,
-  allModuleIds,
-  moduleSlugMap,
-}: {
-  mod: ModuleMeta;
-  phase?: Phase;
-  allModuleIds: number[];
-  moduleSlugMap: Record<number, string[]>;
-}) {
-  const getSlugs = (id: number) => moduleSlugMap[id] ?? [];
-  const { user, isAdmin, ready: authReady } = useAuth();
-  const [, setRefresh] = useState(0);
-  const [localSubmodules, setLocalSubmodules] = useState(mod.submodules);
-
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [isPaymentVerified, setIsPaymentVerified] = useState(false);
-  const [verificationChecked, setVerificationChecked] = useState(false);
-
-  useEffect(() => {
-    if (authReady) setRefresh((n) => n + 1);
-  }, [authReady, isAdmin]);
-
-  // Gate lesson content behind payment/verification status, same rules as
-  // the /learn roadmap - this page is reachable directly by URL so it must
-  // not expose curriculum content to unverified/unpaid users on its own.
-  useEffect(() => {
-    if (!authReady) return;
-    let cancelled = false;
-    let profilePaymentVerified = false;
-
-    async function fetchProfile() {
-      try {
-        const res = await fetchWithAuth(`${baseURL}/api/me`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user) {
-            if (!cancelled) setUserProfile(data.user);
-            if (data.user.isPaymentVerified || data.user.paymentVerified) {
-              profilePaymentVerified = true;
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching user profile:", err);
-      }
-    }
-
-    async function checkPaymentStatus() {
-      const userIsAdmin = user?.role === "admin" || user?.role === "ADMIN";
-      if (!userIsAdmin) {
-        if (!cancelled) setIsPaymentVerified(profilePaymentVerified);
-        return;
-      }
-      try {
-        const res = await fetchWithAuth(`${baseURL}/api/node-purchase`);
-        if (res.ok) {
-          const data = await res.json();
-          let list: any[] = [];
-          if (Array.isArray(data)) list = data;
-          else if (data?.purchase) list = [data.purchase];
-          else if (data?.data) list = Array.isArray(data.data) ? data.data : [];
-          else if (data?.purchases) list = Array.isArray(data.purchases) ? data.purchases : [];
-          const isApproved = list.some((item) => item.status === "APPROVED");
-          if (!cancelled) setIsPaymentVerified(isApproved || profilePaymentVerified);
-        } else if (!cancelled) {
-          setIsPaymentVerified(profilePaymentVerified);
-        }
-      } catch (err) {
-        console.error("Error checking payment status:", err);
-        if (!cancelled) setIsPaymentVerified(profilePaymentVerified);
-      }
-    }
-
-    async function run() {
-      if (user) {
-        await fetchProfile();
-        await checkPaymentStatus();
-      }
-      if (!cancelled) setVerificationChecked(true);
-    }
-    run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authReady, user, baseURL]);
-
-  const isStudentOrValidatorRole =
-    userProfile?.role?.toLowerCase() === "student" || userProfile?.role?.toLowerCase() === "validator";
-  const needsVerification =
-    !!userProfile &&
-    (!isPaymentVerified ||
-      (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
-
-  useEffect(() => {
-    // Submodules already carry hasAssessment / totalMarks from the parent.
-    // The old /api/assignments sync 404s and was a no-op, so it's removed.
-    setLocalSubmodules(mod.submodules);
-    mod.submodules.forEach((sub) => {
-      registerSubmoduleMetadata(mod.id, sub);
-    });
-  }, [mod]);
-=======
 // import Link from "next/link";
 // import {
 //   CheckCircle2,
@@ -198,7 +53,6 @@ export function ModuleDetail({
 //       registerSubmoduleMetadata(mod.id, sub);
 //     });
 //   }, [mod]);
->>>>>>> Stashed changes
 
 //   const slugs = localSubmodules.map((s) => s.slug);
 //   const progress = getModuleProgressPercent(mod.id, slugs);
@@ -218,66 +72,6 @@ export function ModuleDetail({
 //     return sum + (p.score || 0);
 //   }, 0);
 
-<<<<<<< Updated upstream
-  // Default-deny: don't reveal lesson content until we've confirmed the
-  // viewer is payment/identity verified, or until we know they don't need
-  // to be (this route is reachable directly by URL, bypassing /learn's gate).
-  if (!authReady || !verificationChecked) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
-      </div>
-    );
-  }
-
-  if (needsVerification) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-sm font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-          {!isPaymentVerified ? (
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-          ) : (
-            <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-          )}
-          <div>
-            <p className="font-bold" style={{ color: '#e31e24' }}>
-              {!isPaymentVerified ? "Payment Verification Required" : "Student Verification Pending"}
-            </p>
-            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
-              {!isPaymentVerified
-                ? "Please complete your payment and wait for verification before accessing this module."
-                : "Please wait some time. Once admin student verification is complete, this module will be unlocked."}
-            </p>
-            <Link
-              href="/learn"
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700"
-            >
-              Go to Learning Tree
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      {/* Hero section */}
-      <div className="border-b border-[var(--border)] bg-gradient-to-br from-[var(--surface)] to-[var(--bg-muted)]">
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm">
-            <Link
-              href="/learn"
-              className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-mst-red transition"
-            >
-              <ArrowLeft size={14} />
-              Learning Tree
-            </Link>
-            <ChevronRight size={14} className="text-[var(--text-muted)]" />
-            <span className="font-semibold text-mst-red">Module {mod.id}</span>
-          </nav>
-=======
 //   return (
 //     <div className="min-h-screen bg-[var(--bg)]">
 //       {/* Hero section */}
@@ -295,7 +89,6 @@ export function ModuleDetail({
 //             <ChevronRight size={14} className="text-[var(--text-muted)]" />
 //             <span className="font-semibold text-mst-red">Module {mod.id}</span>
 //           </nav>
->>>>>>> Stashed changes
 
 //           <div className="mt-6 flex flex-wrap items-start justify-between gap-6">
 //             <div className="max-w-2xl">
