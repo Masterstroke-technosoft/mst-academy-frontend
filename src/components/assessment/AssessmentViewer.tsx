@@ -307,7 +307,7 @@ export default function AssessmentViewer({
       const percentage = Math.round((totalEarned / assessment.totalMarks) * 100);
       const passed = percentage >= 70;
 
-      if (typeof window !== "undefined" && passed) {
+      if (typeof window !== "undefined") {
         localStorage.removeItem("assignment-id");
         localStorage.removeItem("all-assignment-ids");
         localStorage.removeItem("submodule-id");

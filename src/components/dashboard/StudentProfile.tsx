@@ -854,7 +854,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           {/* Referral Section */}
           <div className="rounded-xl border border-dashed border-[var(--border)] p-4 bg-mst-red/5">
             <h3 className="mb-1 text-sm font-bold text-[var(--text)]">Your Referral Link</h3>
-            <p className="mb-3 text-xs text-[var(--text-muted)]">Share this link with friends. You both get rewards!</p>
+            <p className="mb-3 text-xs text-[var(--text-muted)]">Share this link with friends & get rewarded!</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"

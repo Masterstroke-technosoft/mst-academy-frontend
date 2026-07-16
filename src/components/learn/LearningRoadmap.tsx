@@ -788,7 +788,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
-  const needsVerification = !!userProfile && (!isPaymentVerified || ((userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
+  const needsVerification = !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -1362,10 +1362,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     );
   }
 
-  // Student ID verification only applies to the student/validator tracks, but
-  // payment verification gates every paid plan (course-only, working professional, etc).
+  // Student ID verification only applies to the student track, but
+  // payment verification gates every paid plan (course-only, validator, web3 enthusiast, etc).
   const isStudentOrValidatorRole =
-    userProfile?.role?.toLowerCase() === "student" || userProfile?.role?.toLowerCase() === "validator";
+    userProfile?.role?.toLowerCase() === "student";
 
   return (
     <div
@@ -1481,7 +1481,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) && (
+      {needsVerification && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
@@ -1508,7 +1508,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 </div>
               </div>
             )
-          ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
+          ) : (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || userProfile.studentRejectionNote)) ? (
             <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
               {userProfile.studentRejectionNote ? (
                 <>
@@ -1565,6 +1565,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               }}
             />
             <div style={{ height: graphHeight, width: "100%" }}>
+<<<<<<< Updated upstream
               {isFetchingSubmodules ? (
                 userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) ? (
                   <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
@@ -1596,6 +1597,57 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                         )
                       ) : null}
                     </div>
+=======
+              {needsVerification ? (
+                <div className="flex h-full items-start justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6 pt-20">
+                  <div className="max-w-md w-full shadow-lg rounded-2xl">
+                    {!isPaymentVerified ? (
+                      (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div className="flex-1">
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                            <button
+                              type="button"
+                              onClick={openPaymentModal}
+                              className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                            >
+                              Pay Now
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                          </div>
+                        </div>
+                      )
+                    ) : (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)) ? (
+                      userProfile.studentRejectionNote ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
+                              Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
+                          </div>
+                        </div>
+                      )
+                    ) : null}
+>>>>>>> Stashed changes
                   </div>
                 ) : null
               ) : isFetchingSubmodules ? (
@@ -2052,9 +2104,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   >
                     <option value="">Select Method</option>
                     <option value="UPI">UPI</option>
-                    <option value="Card">Card</option>
-                    <option value="Net Banking">Net Banking</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Online">Online</option>
+                    {/* <option value="Net Banking">Net Banking</option>
+                    <option value="Bank Transfer">Bank Transfer</option> */}
                   </select>
                   {allocationErrors.paymentMethod && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
