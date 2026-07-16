@@ -27,7 +27,7 @@ const ROLES = [
   { value: 'STUDENT', label: 'Student' },
   { value: 'VALIDATOR', label: 'Validator' },
   { value: 'COURSE_ONLY', label: 'Course Only' },
-  { value: 'WORKING_PROFESSIONAL', label: 'Working Professional' },
+  { value: 'WORKING_PROFESSIONAL', label: 'Web3 Enthusiast' },
   { value: 'ADMIN', label: 'Admin' },
   { value: 'All', label: 'All (non-admin)' },
 ];

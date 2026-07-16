@@ -707,70 +707,70 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
 
             {/* Student Verified Status */}
-            <div>
-              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
-                {formData.role?.toLowerCase() === "validator" ? "Validator Verification" : "Student Verification"}
-              </label>
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed" ? (formData.role?.toLowerCase() === "validator" ? "Validator Verified" : "Student Verified") : (formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED") ? "Rejected" : "Pending Verification"}
-                  disabled
-                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed"
-                    ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
-                    : (formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED")
-                      ? "border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400"
-                      : "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400"
-                    }`}
-                />
-                {formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed" && (
-                  <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
-                )}
-              </div>
-              {(formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED") && (
-                <div className="relative group mt-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-500 transition-all hover:bg-red-500/10">
-                  <span className="font-extrabold block mb-1">Rejection Reason:</span>
-                  <p className="mb-3">{formData.studentRejectionNote}</p>
-                  <button
-                    type="button"
-                    onClick={() => document.getElementById("idCardReuploadInput")?.click()}
-                    className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer"
-                  >
-                    Re-upload ID Card
-                  </button>
-                  <input
-                    id="idCardReuploadInput"
-                    type="file"
-                    accept="image/*,.pdf"
-                    className="hidden"
-                    onChange={handleIdCardReupload}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Payment Verified Status */}
-            {(formData.role?.toLowerCase() === "student" || formData.role?.toLowerCase() === "validator") && (
+            {formData.role?.toLowerCase() === "student" && (
               <div>
                 <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
-                  Payment Status
+                  {formData.role?.toLowerCase() === "validator" ? "Validator Verification" : "Student Verification"}
                 </label>
                 <div className="relative flex items-center">
                   <input
                     type="text"
-                    value={isPaymentVerified ? "Payment Verified" : "Pending Verification"}
+                    value={formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed" ? (formData.role?.toLowerCase() === "validator" ? "Validator Verified" : "Student Verified") : (formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED") ? "Rejected" : "Pending Verification"}
                     disabled
-                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${isPaymentVerified
+                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed"
                       ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
-                      : "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400"
+                      : (formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED")
+                        ? "border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400"
+                        : "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400"
                       }`}
                   />
-                  {isPaymentVerified && (
+                  {formData.isStudentVerified && !formData.studentRejectionNote && formData.studentVerificationStatus === "Completed" && (
                     <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
                   )}
                 </div>
+                {(formData.studentRejectionNote || formData.studentVerificationStatus === "Rejected" || formData.studentVerificationStatus === "REJECTED") && (
+                  <div className="relative group mt-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-500 transition-all hover:bg-red-500/10">
+                    <span className="font-extrabold block mb-1">Rejection Reason:</span>
+                    <p className="mb-3">{formData.studentRejectionNote}</p>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("idCardReuploadInput")?.click()}
+                      className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer"
+                    >
+                      Re-upload ID Card
+                    </button>
+                    <input
+                      id="idCardReuploadInput"
+                      type="file"
+                      accept="image/*,.pdf"
+                      className="hidden"
+                      onChange={handleIdCardReupload}
+                    />
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Payment Verified Status */}
+            <div>
+              <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
+                Payment Status
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={isPaymentVerified ? "Payment Verified" : "Pending Verification"}
+                  disabled
+                  className={`w-full rounded-xl border px-4 py-3 text-sm outline-none opacity-70 cursor-not-allowed ${isPaymentVerified
+                    ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                    : "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400"
+                    }`}
+                />
+                {isPaymentVerified && (
+                  <CheckCircle2 className="absolute right-4 h-5 w-5 text-emerald-500" />
+                )}
+              </div>
+            </div>
 
             {/* Referred By */}
             {/* <div>

@@ -620,6 +620,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
+  const needsVerification = !!userProfile && (!isPaymentVerified || ((userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -687,24 +688,46 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         const res = await fetchWithAuth(`${baseURL}/api/submodules/module/${activeModuleId}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data)) {
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
-            // The list endpoint already returns full submodule documents
-            // (including hasAssessment / totalMarks), so neither a per-submodule
-            // detail fetch nor the assignments sync is needed here. The
-            // /api/assignments call also 404s, so it was a no-op anyway.
             setFetchedSubmodules((prev) => ({
               ...prev,
               [String(activeModuleId)]: sorted,
             }));
+            return;
           }
         }
       } catch (err) {
         console.error("Error fetching submodules by module:", err);
       }
+
+      // FALLBACK: If API fails, populate with local static curriculum submodules so they aren't stuck loading
+      const currentModule = fetchedModules.find(m => String(m._id || m.id) === String(activeModuleId));
+      if (currentModule) {
+        const staticMod = getModule(currentModule.index);
+        if (staticMod && Array.isArray(staticMod.submodules)) {
+          const fallbackData = staticMod.submodules.map((sub: any, idx: number) => ({
+            _id: sub.slug || `${activeModuleId}-${idx + 1}`,
+            moduleId: String(activeModuleId),
+            index: idx + 1,
+            title: sub.title || "",
+            description: sub.subtitle || "",
+            estimatedTime: "30 minutes",
+            contentFile: sub.filename || "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            __v: 0,
+            status: "unlocked"
+          }));
+          setFetchedSubmodules((prev) => ({
+            ...prev,
+            [String(activeModuleId)]: fallbackData,
+          }));
+        }
+      }
     }
     loadSubmodules();
-  }, [baseURL, activeModuleId]);
+  }, [baseURL, activeModuleId, fetchedModules]);
 
   // Build the dynamic curriculum object
   const curriculum = useMemo(() => {
@@ -1310,7 +1333,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) && (
+      {userProfile && (!isPaymentVerified || ((userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
@@ -1370,11 +1393,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           <div
             className="roadmap-graph-shell relative rounded-3xl border border-[var(--border)] bg-[var(--surface)]/30 backdrop-blur-md overflow-hidden"
             style={{
-              height: activePhaseId === "phase-3" && !activeModuleId
-                ? (isMobile ? "72vh" : "calc(100vh - 280px)")
-                : (isMobile
-                  ? `min(72vh, ${graphHeight}px)`
-                  : `min(calc(100vh - 280px), ${Math.max(graphHeight, 420)}px)`),
+              height: needsVerification
+                ? "auto"
+                : (activePhaseId === "phase-3" && !activeModuleId
+                  ? (isMobile ? "72vh" : "calc(100vh - 280px)")
+                  : (isMobile
+                    ? `min(72vh, ${graphHeight}px)`
+                    : `min(calc(100vh - 280px), ${Math.max(graphHeight, 420)}px)`)),
             }}
           >
             <div
@@ -1384,64 +1409,62 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.12), transparent 70%)",
               }}
             />
-            <div style={{ height: graphHeight, width: "100%" }}>
-              {isFetchingSubmodules ? (
-                userProfile && (userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote || !isPaymentVerified) ? (
-                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
-                    <div className="max-w-md w-full shadow-lg rounded-2xl">
-                      {!isPaymentVerified ? (
-                        (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
-                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+            <div style={{ height: needsVerification ? "auto" : graphHeight, width: "100%" }}>
+              {needsVerification ? (
+                <div className="flex w-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6 py-10">
+                  <div className="max-w-md w-full shadow-lg rounded-2xl">
+                    {!isPaymentVerified ? (
+                      (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                          </div>
+                        </div>
+                      )
+                    ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
+                      <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                        {userProfile.studentRejectionNote ? (
+                          <>
                             <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
                             <div>
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
+                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
+                                Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
+                              </p>
                             </div>
-                          </div>
+                          </>
                         ) : (
-                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <>
                             <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
                             <div>
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
                             </div>
-                          </div>
-                        )
-                      ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
-                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-                          {userProfile.studentRejectionNote ? (
-                            <>
-                              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                              <div>
-                                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
-                                <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
-                                  Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
-                                </p>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                              <div>
-                                <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
-                                <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ) : null}
-                    </div>
+                          </>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
-                      <p className="text-sm font-semibold text-[var(--text-muted)] animate-pulse">
-                        Loading module content…
-                      </p>
-                    </div>
+                </div>
+              ) : isFetchingSubmodules ? (
+                <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
+                    <p className="text-sm font-semibold text-[var(--text-muted)] animate-pulse">
+                      Loading module content…
+                    </p>
                   </div>
-                )
+                </div>
               ) : (
                 <ReactFlow
                   nodes={nodes}

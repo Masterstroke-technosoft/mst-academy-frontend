@@ -122,12 +122,20 @@ export function PlanFunnelPage({
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-4">
-              {[
-                { label: "Internship", value: internshipIncluded ? "Included" : "Not included", icon: Briefcase },
-                { label: "Mentor interaction", value: "Weekly", icon: Users },
-                { label: "Project exposure", value: "Real-world", icon: Trophy },
-                { label: "MSTC", value: fractionIncluded ? "Included" : "Not included", icon: Zap },
-              ].map((item) => (
+              {(planId === "courseOnly"
+                ? [
+                    { label: "OJT", value: "Included", icon: Briefcase },
+                    { label: "Mentor Interaction", value: "Industry Mentors", icon: Users },
+                    { label: "Project Exposure", value: "Industry-Oriented Projects", icon: Trophy },
+                    { label: "Certification", value: "NEP 2020 OJT Certificate", icon: BadgeCheck },
+                  ]
+                : [
+                    { label: "Internship", value: internshipIncluded ? "Included" : "Not included", icon: Briefcase },
+                    { label: "Mentor interaction", value: "Weekly", icon: Users },
+                    { label: "Project exposure", value: "Real-world", icon: Trophy },
+                    { label: "MSTC", value: fractionIncluded ? "Included" : "Not included", icon: Zap },
+                  ]
+              ).map((item) => (
                 <div key={item.label} className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-4">
                   <item.icon className="h-4 w-4 text-mst-red" />
                   <p className="mt-2 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{item.label}</p>
@@ -248,10 +256,10 @@ export function PlanFunnelPage({
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
               <h3 className="flex items-center gap-2 text-base font-black text-[var(--text)]">
                 <Briefcase className="h-4 w-4 text-mst-red" />
-                Paid Internship Track
+                {planId === "courseOnly" ? "On Job Training (OJT)" : "Paid Internship Track"}
               </h3>
               <div className="mt-3 space-y-2">
-                {internshipIncluded ? (
+                {internshipIncluded || planId === "courseOnly" ? (
                   internshipTrack.map((item) => (
                     <p key={item} className="text-sm text-[var(--text-muted)]">• {item}</p>
                   ))

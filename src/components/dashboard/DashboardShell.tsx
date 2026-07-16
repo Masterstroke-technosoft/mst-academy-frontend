@@ -31,7 +31,7 @@ import {
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
   { role: "student", href: "/dashboard/student", label: "Student" },
   { role: "validator", href: "/dashboard/validator", label: "Validator" },
-  { role: "working-professional", href: "/dashboard/working-professional", label: "Working Professional" },
+  { role: "working-professional", href: "/dashboard/working-professional", label: "Web3 Enthusiast" },
   { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
 ];
 

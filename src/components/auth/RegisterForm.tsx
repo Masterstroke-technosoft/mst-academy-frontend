@@ -67,7 +67,7 @@ const PLAN_OPTIONS: {
     },
     {
       id: "normal",
-      label: "Working Professional Fellowship",
+      label: "Web3 Enthusiast Fellowship",
       emoji: "👤",
       price: DEMO_FEES.normal,
       desc: "Paid internship + industry mentor support.",
@@ -96,7 +96,7 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
   if (plan === "normal") {
     return (
       <HighlightBox>
-        <strong>Working Professional Fellowship:</strong> Lifetime access to the full course +{" "}
+        <strong>Web3 Enthusiast Fellowship:</strong> Lifetime access to the full course +{" "}
         <strong>paid internship</strong> + industry mentor support.
       </HighlightBox>
     );
@@ -127,7 +127,7 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  const [college, setCollege] = useState<string>(COLLEGES[0]);
+  const [college, setCollege] = useState<string>("");
   const [collegeOther, setCollegeOther] = useState("");
   const [studentIdFile, setStudentIdFile] = useState<File | null>(null);
   const [validatorIdFile, setValidatorIdFile] = useState<File | null>(null);
@@ -281,11 +281,19 @@ export function RegisterForm() {
       if (!studentIdFile) {
         setLoading(false);
         setError("Student ID card upload is required.");
+        document.getElementById("studentId")?.parentElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      if (!college) {
+        setLoading(false);
+        setError("Please select your college.");
+        document.getElementById("college")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
       if (college === "Other" && !collegeOther.trim()) {
         setLoading(false);
         setError("Please enter your college name.");
+        document.getElementById("collegeOther")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
 
@@ -516,6 +524,7 @@ export function RegisterForm() {
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
                 >
+                  <option value="" disabled>--Please select your college--</option>
                   {COLLEGES.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -557,7 +566,6 @@ export function RegisterForm() {
                     id="studentId"
                     type="file"
                     accept="image/*,.pdf"
-                    required
                     className="hidden"
                     onChange={(e) =>
                       setStudentIdFile(e.target.files?.[0] ?? null)
