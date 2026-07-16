@@ -489,12 +489,12 @@ export function LandingPage({
                 // Format role name dynamically (e.g. VALIDATOR -> Validator Fellowship)
                 const formatRoleToTitle = (r: string) => {
                   if (!r) return "";
-                  const words = r.toLowerCase().split("_");
+                  const words = r.split("_");
                   const titleCased = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
                   if (titleCased.toLowerCase().includes("only")) {
                     return titleCased;
                   }
-                  return `${titleCased} Fellowship`;
+                  return `${titleCased}`;
                 };
 
                 // Generate detail links dynamically based on role
@@ -539,15 +539,6 @@ export function LandingPage({
                   tag,
                   bullets: plan.perks || [],
                 };
-              });
-
-              const sortOrder = ["course_only", "non_validator", "courseonly", "validator", "student", "working_professional", "professional"];
-              cardsToRender.sort((a: any, b: any) => {
-                const indexA = sortOrder.findIndex(o => a.id.includes(o));
-                const indexB = sortOrder.findIndex(o => b.id.includes(o));
-                const posA = indexA === -1 ? 999 : indexA;
-                const posB = indexB === -1 ? 999 : indexB;
-                return posA - posB;
               });
 
               return cardsToRender.map((card: any, i: number) => {

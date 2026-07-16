@@ -868,34 +868,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       } catch (err) {
         console.error("Error fetching submodules by module:", err);
       }
-
-      // FALLBACK: If API fails, populate with local static curriculum submodules so they aren't stuck loading
-      const currentModule = fetchedModules.find(m => String(m._id || m.id) === String(activeModuleId));
-      if (currentModule) {
-        const staticMod = getModule(currentModule.index);
-        if (staticMod && Array.isArray(staticMod.submodules)) {
-          const fallbackData = staticMod.submodules.map((sub: any, idx: number) => ({
-            _id: sub.slug || `${activeModuleId}-${idx + 1}`,
-            moduleId: String(activeModuleId),
-            index: idx + 1,
-            title: sub.title || "",
-            description: sub.subtitle || "",
-            estimatedTime: "30 minutes",
-            contentFile: sub.filename || "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            __v: 0,
-            status: "unlocked"
-          }));
-          setFetchedSubmodules((prev) => ({
-            ...prev,
-            [String(activeModuleId)]: fallbackData,
-          }));
-        }
-      }
     }
     loadSubmodules();
-  }, [baseURL, activeModuleId, fetchedModules]);
+  }, [baseURL, activeModuleId]);
 
   // Build the dynamic curriculum object
   const curriculum = useMemo(() => {
