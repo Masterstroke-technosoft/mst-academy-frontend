@@ -2155,4 +2155,3 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     </div>
   );
 }
-

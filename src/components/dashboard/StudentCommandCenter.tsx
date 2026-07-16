@@ -383,7 +383,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       // user only has to fix whatever caused the rejection.
       setAllocationForm({
         accountHolderName: allocationStatus.accountHolderName || user.fullName,
-        category: allocationStatus.category || categoryByRole[user.role?.toLowerCase()] || "",
+        category: allocationStatus.category || categoryByRole[(user.backendRole || user.role || "").toLowerCase()] || "",
         amountPaid: allocationStatus.amountPaid != null ? String(allocationStatus.amountPaid) : "",
         paymentDate: allocationStatus.paymentDate ? allocationStatus.paymentDate.slice(0, 10) : "",
         transactionId: allocationStatus.transactionId || "",
@@ -397,7 +397,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       setAllocationForm((prev) => ({
         ...prev,
         accountHolderName: prev.accountHolderName || user.fullName,
-        category: prev.category || categoryByRole[user.role?.toLowerCase()] || "",
+        category: prev.category || categoryByRole[(user.backendRole || user.role || "").toLowerCase()] || "",
       }));
     }
     setIsAllocationModalOpen(true);

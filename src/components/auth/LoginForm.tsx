@@ -65,12 +65,14 @@ export function LoginForm() {
           return { ok: false, error: "Your account has been blocked. Please coordinate with support." };
         }
 
+        const rawRole = apiUser?.role || data?.role || data?.data?.role || "";
         const loggedInUser: AuthUser = {
           id: apiUser?.id || `user-${Date.now()}`,
           email: apiUser?.email || email,
           password,
           fullName: apiUser?.fullName || apiUser?.name || email.split("@")[0],
-          role: normalizeRole(apiUser?.role || data?.role || data?.data?.role),
+          role: normalizeRole(rawRole),
+          backendRole: rawRole,
           registeredAt: apiUser?.registeredAt || new Date().toISOString(),
         };
 

@@ -10,6 +10,7 @@ export interface AuthUser {
   password?: string;
   fullName: string;
   role: UserRole;
+  backendRole?: string;
   phone?: string;
   college?: string;
   collegeOther?: string;
