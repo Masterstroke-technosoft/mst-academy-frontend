@@ -1609,7 +1609,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                                 Pay Now
                               </button>
                             </div>
-                          </>
+                          </div>
                         ) : (
                           <>
                             <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
@@ -1618,11 +1618,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                               <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
                             </div>
                           </>
-                        )}
-                      </div>
-                    ) : null}
+                        )
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                ) : null
               ) : isFetchingSubmodules ? (
                 <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-4">
