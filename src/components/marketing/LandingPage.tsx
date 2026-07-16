@@ -541,6 +541,15 @@ export function LandingPage({
                 };
               });
 
+              const sortOrder = ["course_only", "non_validator", "courseonly", "validator", "student", "working_professional", "professional"];
+              cardsToRender.sort((a: any, b: any) => {
+                const indexA = sortOrder.findIndex(o => a.id.includes(o));
+                const indexB = sortOrder.findIndex(o => b.id.includes(o));
+                const posA = indexA === -1 ? 999 : indexA;
+                const posB = indexB === -1 ? 999 : indexB;
+                return posA - posB;
+              });
+
               return cardsToRender.map((card: any, i: number) => {
                 const apiPrice = card.price;
                 const apiOriginal = card.original;
@@ -586,7 +595,7 @@ export function LandingPage({
                               key={b}
                               className="flex items-start gap-2 text-sm text-[var(--text-muted)]"
                             >
-                              <span className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-mst-red" />
+                              <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-mst-red" />
                               <span>{b}</span>
                             </div>
                           ))}

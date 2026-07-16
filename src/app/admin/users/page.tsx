@@ -56,7 +56,7 @@ export default function UserManagementPage() {
         const mappedUsers = rawUsers.map((u: any, index: number) => {
           let roleStr = String(u.role || "student").toLowerCase().trim();
           if (roleStr === "user") roleStr = "non-validator";
-          if (roleStr === "working-professional" || roleStr === "working professional" || roleStr === "workingprofessional") {
+          if (roleStr === "working-professional" || roleStr === "Web3 Enthusiast" || roleStr === "workingprofessional") {
             roleStr = "working_professional";
           }
           if (roleStr === "course-only" || roleStr === "course only" || roleStr === "courseonly") {
@@ -309,7 +309,7 @@ export default function UserManagementPage() {
                   <option value="student">Students</option>
                   {/* <option value="validator">Validators</option> */}
                   <option value="course_only">Course Only</option>
-                  <option value="working_professional">Working Professional</option>
+                  <option value="working_professional">Web3 Enthusiast</option>
                   <option value="admin">Admin</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
@@ -418,7 +418,7 @@ export default function UserManagementPage() {
                       </td>
                       <td className="pl-1 pr-3 py-3 w-0 text-center">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isActive === false ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-500 border border-green-500/20'}`}>
-                           {user.isActive === false ? 'No' : 'Yes'}
+                          {user.isActive === false ? 'No' : 'Yes'}
                         </span>
                       </td>
                       <td className="px-3 py-3">
@@ -451,13 +451,13 @@ export default function UserManagementPage() {
                               disabled={verifyingId === user.id}
                               className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
                             >
-                                {verifyingId === user.id ? 'Verifying...' : (
-                                  user.studentRejectionNote ? (
-                                    (user.role as string) === 'validator' ? 'Reverify Validator' : 'Reverify Student'
-                                  ) : (
-                                    (user.role as string) === 'validator' ? 'Verify Validator' : 'Verify Student'
-                                  )
-                                )}
+                              {verifyingId === user.id ? 'Verifying...' : (
+                                user.studentRejectionNote ? (
+                                  (user.role as string) === 'validator' ? 'Reverify Validator' : 'Reverify Student'
+                                ) : (
+                                  (user.role as string) === 'validator' ? 'Verify Validator' : 'Verify Student'
+                                )
+                              )}
                             </button>
                           )}
                         </div>

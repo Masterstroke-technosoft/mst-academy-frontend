@@ -4,9 +4,9 @@ export default function CourseOnlyPlanPage() {
   return (
     <PlanFunnelPage
       planId="courseOnly"
-      name="MST Course Access Plan"
-      subtitle="Focused learning track for deep fundamentals and implementation clarity."
-      hero="If your goal is strong blockchain foundations with full syllabus access, this plan gives a complete structured learning experience at a highly accessible offer price."
+      name="MST On Job Training (OJT) Program"
+      subtitle="LEARN. BUILD. EXPERIENCE."
+      hero="Gain practical industry experience by learning through real-world projects under expert mentorship. Complete your training and earn an On Job Training (OJT) Certificate aligned with the National Education Policy (NEP) 2020."
       originalPrice={6999}
       offerPrice={4999}
       discountLabel="Foundation Offer"
@@ -14,34 +14,43 @@ export default function CourseOnlyPlanPage() {
       internshipIncluded={false}
       fractionIncluded={false}
       highlights={[
-        "Complete course access across all modules and phases",
-        "Assessment-driven learning for real understanding",
-        "Structured roadmap from basics to advanced concepts",
-        "Progress tracking to maintain learning consistency",
+        "Complete access to the Blockchain Developer Curriculum",
+        "2 Months of On Job Training (OJT)",
+        "Work on real industry-oriented projects",
+        "Continuous mentor guidance throughout the program",
+        "Skill-based assessments and milestone tracking",
+        "OJT Certificate upon successful completion",
       ]}
       outcomes={[
-        "You build strong conceptual clarity and confidence",
-        "You complete a guided roadmap with measurable progress",
-        "You prepare yourself for advanced execution opportunities",
+        "Strong blockchain development fundamentals",
+        "Practical experience through industry-oriented projects",
+        "Professional workflow and project execution experience",
+        "Industry-ready portfolio and practical skills",
+        "NEP 2020 compliant OJT certification",
       ]}
       transformation={[
-        "From scattered tutorials to a guided curriculum path",
-        "From confusion to strong foundational confidence",
-        "From passive watching to active milestone learning",
+        "Learn blockchain fundamentals through a structured curriculum",
+        "Apply your knowledge by working on real industry-oriented projects",
+        "Build practical development experience",
+        "Complete your OJT with confidence and industry exposure",
       ]}
       internshipTrack={[
-        "Internship is not included in this plan",
+        "2 Months of structured On Job Training",
+        "Guided execution of real-world industry projects",
+        "Weekly mentor reviews and performance feedback",
+        "Practical learning in a professional development environment",
       ]}
       mentorSupport={[
-        "Milestone-based guidance to maintain direction",
-        "Performance insights from your assessment trends",
-        "Preparation support for next-level execution tracks",
+        "Dedicated guidance from experienced industry mentors",
+        "Regular project reviews and milestone tracking",
+        "Technical doubt-solving sessions",
+        "Continuous performance feedback throughout the OJT program",
       ]}
       workflow={[
-        "Enroll at foundation offer pricing",
-        "Complete phase-based learning milestones",
-        "Track assessments and concept confidence",
-        "Advance toward higher fellowship tracks",
+        "Enroll in the OJT Program",
+        "Complete the Blockchain Learning Curriculum",
+        "Work on Industry-Oriented Projects with Mentor Guidance",
+        "Receive Your NEP 2020 Compliant OJT Certificate",
       ]}
       testimonials={[
         {
@@ -67,7 +76,7 @@ export default function CourseOnlyPlanPage() {
         },
         {
           q: "Does this plan include MSTC rewards?",
-          a: "\long-term MSTC reward participation are included in validator, student, and working professional fellowships.",
+          a: "\long-term MSTC reward participation are included in validator, student, and Web3 Enthusiast fellowships.",
         },
         {
           q: "What is the current offer price?",

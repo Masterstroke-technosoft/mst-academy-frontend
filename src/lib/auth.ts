@@ -458,7 +458,7 @@ export function roleLabel(role: UserRole | string): string {
     case "working_professional":
     case "working-professional":
     case "WORKING_PROFESSIONAL":
-      return "Working Professional";
+      return "Web3 Enthusiast";
     case "admin":
     case "ADMIN":
       return "Admin";

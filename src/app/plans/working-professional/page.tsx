@@ -4,9 +4,9 @@ export default function WorkingProfessionalPlanPage() {
   return (
     <PlanFunnelPage
       planId="normal"
-      name="MST Working Professional Fellowship"
+      name="MST Web3 Enthusiast Fellowship"
       subtitle="Career transition track with paid internship and mentor execution."
-      hero="Designed for working professionals who want a high-confidence transition into blockchain with real project outcomes, internship execution, and mentor-led direction."
+      hero="Designed for Web3 Enthusiasts who want a high-confidence transition into blockchain with real project outcomes, internship execution, and mentor-led direction."
       // originalPrice={24999}
       offerPrice={24999}
       discountLabel="Career Transition Offer"
@@ -64,7 +64,7 @@ export default function WorkingProfessionalPlanPage() {
       ]}
       faqs={[
         {
-          q: "Is internship included for working professionals?",
+          q: "Is internship included for Web3 Enthusiasts?",
           a: "Yes. This plan includes paid internship-aligned practical execution.",
         },
         {
