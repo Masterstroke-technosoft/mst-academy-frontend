@@ -1565,39 +1565,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               }}
             />
             <div style={{ height: graphHeight, width: "100%" }}>
-<<<<<<< Updated upstream
-              {isFetchingSubmodules ? (
-                userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) ? (
-                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
-                    <div className="max-w-md w-full shadow-lg rounded-2xl">
-                      {!isPaymentVerified ? (
-                        (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
-                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-                            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                            <div className="flex-1">
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
-                              <button
-                                type="button"
-                                onClick={openPaymentModal}
-                                className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
-                              >
-                                Pay Now
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                            <div>
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
-                            </div>
-                          </>
-                        )
-                      ) : null}
-                    </div>
-=======
               {needsVerification ? (
                 <div className="flex h-full items-start justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6 pt-20">
                   <div className="max-w-md w-full shadow-lg rounded-2xl">
@@ -1647,9 +1614,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                         </div>
                       )
                     ) : null}
->>>>>>> Stashed changes
                   </div>
-                ) : null
+                </div>
               ) : isFetchingSubmodules ? (
                 <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-4">

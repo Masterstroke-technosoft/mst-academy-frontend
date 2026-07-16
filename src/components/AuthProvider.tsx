@@ -28,6 +28,33 @@ const AuthContext = createContext<AuthContextValue>({
   updateProfile: () => { },
 });
 
+// Installed at module-evaluation time (not inside a useEffect) so it is in
+// place before any descendant component's mount-time effects fire — React
+// runs child effects before parent effects, so patching fetch from inside
+// AuthProvider's own useEffect would miss requests fired by children on
+// initial mount.
+if (typeof window !== "undefined" && !(window as any).__mstFetchPatched) {
+  (window as any).__mstFetchPatched = true;
+  const originalFetch = window.fetch;
+  window.fetch = async function (input, init) {
+    const response = await originalFetch(input, init);
+    if (response.status === 401) {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof Request
+            ? input.url
+            : input.toString();
+      const isAuthFlowEndpoint = /\/api\/auth\/(login|register|forgot-password|clear-session)/.test(url);
+      if (!isAuthFlowEndpoint && window.location.pathname !== "/login") {
+        authLogout();
+        window.location.href = "/login";
+      }
+    }
+    return response;
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [ready, setReady] = useState(false);
@@ -39,30 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refresh();
     setReady(true);
-
-    if (typeof window !== "undefined") {
-      const originalFetch = window.fetch;
-      window.fetch = async function (input, init) {
-        const response = await originalFetch(input, init);
-        if (response.status === 401) {
-          try {
-            const clone = response.clone();
-            const data = await clone.json();
-            if (data && data.message === "Session expired. You have logged in from another session.") {
-              authLogout();
-              window.location.href = "/login";
-            }
-          } catch (e) {
-            // Ignore JSON parse errors or other stream reading issues
-          }
-        }
-        return response;
-      };
-
-      return () => {
-        window.fetch = originalFetch;
-      };
-    }
   }, [refresh]);
 
   const logout = useCallback(() => {
