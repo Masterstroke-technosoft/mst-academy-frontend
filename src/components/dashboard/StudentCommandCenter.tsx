@@ -54,7 +54,6 @@ import {
   ChevronRight,
   BarChart3,
   Users,
-  PlusCircle,
   AlertCircle,
   Menu,
   X,
@@ -201,6 +200,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setPaymentScreenshotFile(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
         const rawBase64 = reader.result as string;
@@ -226,6 +226,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   const handleAllocationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const isResubmit = allocationStatus?.status === "REJECTED" && !!allocationStatus.id;
+
     const errors: Record<string, string> = {};
     if (!allocationForm.accountHolderName.trim()) {
       errors.accountHolderName = "Account holder name is required";
@@ -261,7 +263,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     if (!allocationForm.paymentMethod) {
       errors.paymentMethod = "Payment method is required";
     }
-    if (!allocationForm.paymentScreenshotUrl.trim()) {
+    // On resubmit, keeping the previously uploaded screenshot is fine - the backend
+    // falls back to the existing one when no new file is attached.
+    const hasExistingScreenshot = isResubmit && !!allocationStatus?.paymentScreenshotUrl;
+    if (!paymentScreenshotFile && !hasExistingScreenshot && !allocationForm.paymentScreenshotUrl.trim()) {
       errors.paymentScreenshotUrl = "Payment screenshot is required";
     }
 
@@ -275,29 +280,58 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-      const payload = {
-        accountHolderName: allocationForm.accountHolderName,
-        category: resolvedCategory,
-        amountPaid: Number(allocationForm.amountPaid),
-        paymentDate: new Date(allocationForm.paymentDate).toISOString(),
-        transactionId: allocationForm.transactionId,
-        paymentMethod: allocationForm.paymentMethod,
-        paymentScreenshotUrl: allocationForm.paymentScreenshotUrl,
-        additionalNotes: allocationForm.additionalNotes.trim() || undefined,
-      };
+      let res: Response;
 
-      const res = await fetch(`${baseURL}/api/node-purchase`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      if (isResubmit) {
+        const formData = new FormData();
+        formData.append("accountHolderName", allocationForm.accountHolderName);
+        formData.append("category", allocationForm.category);
+        formData.append("amountPaid", String(Number(allocationForm.amountPaid)));
+        formData.append("paymentDate", new Date(allocationForm.paymentDate).toISOString());
+        formData.append("transactionId", allocationForm.transactionId);
+        formData.append("paymentMethod", allocationForm.paymentMethod);
+        if (allocationForm.additionalNotes.trim()) {
+          formData.append("additionalNotes", allocationForm.additionalNotes.trim());
+        }
+        if (paymentScreenshotFile) {
+          formData.append("paymentScreenshot", paymentScreenshotFile);
+        }
+
+        res = await fetch(`${baseURL}/api/node-purchase/${allocationStatus!.id}/resubmit`, {
+          method: "PATCH",
+          credentials: "include",
+          body: formData,
+        });
+      } else {
+        const payload = {
+          accountHolderName: allocationForm.accountHolderName,
+          category: allocationForm.category,
+          amountPaid: Number(allocationForm.amountPaid),
+          paymentDate: new Date(allocationForm.paymentDate).toISOString(),
+          transactionId: allocationForm.transactionId,
+          paymentMethod: allocationForm.paymentMethod,
+          paymentScreenshotUrl: allocationForm.paymentScreenshotUrl,
+          additionalNotes: allocationForm.additionalNotes.trim() || undefined,
+        };
+
+        res = await fetch(`${baseURL}/api/node-purchase`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (res.ok) {
-        showToast("Course allocation request submitted successfully!", "success");
-        // No need to fetch payment requests here; the admin dashboard handles its own data refresh
+        showToast(
+          isResubmit ? "Payment resubmitted for review!" : "Course allocation request submitted successfully!",
+          "success"
+        );
+        if (isResubmit) {
+          setAllocationStatus((prev) => (prev ? { ...prev, status: "PENDING", rejectionNote: null } : prev));
+        }
         setIsAllocationModalOpen(false);
         setAllocationForm({
           accountHolderName: "",
@@ -310,8 +344,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           additionalNotes: "",
         });
         setScreenshotFileName("");
+        setPaymentScreenshotFile(null);
       } else {
-        let errMsg = "Failed to submit course allocation request";
+        let errMsg = isResubmit ? "Failed to resubmit payment" : "Failed to submit course allocation request";
+        if (res.status === 400) errMsg = "This payment has already been approved and can no longer be edited.";
+        else if (res.status === 403) errMsg = "You don't have permission to resubmit this payment.";
+        else if (res.status === 404) errMsg = "This payment request could not be found.";
         try {
           const errData = await res.json();
           errMsg = errData.message || errData.error || errMsg;
@@ -320,10 +358,49 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       }
     } catch (err: any) {
       console.error("API Error:", err);
-      showToast(err?.message || "Failed to submit course allocation request", "error");
+      showToast(err?.message || "Failed to submit request", "error");
     } finally {
       setIsSubmittingAllocation(false);
     }
+  };
+
+  const openPaymentModal = () => {
+    if (!user) {
+      setIsAllocationModalOpen(true);
+      return;
+    }
+    const categoryByRole: Record<string, string> = {
+      student: "STUDENT",
+      validator: "VALIDATOR",
+      "working-professional": "WORKING_PROFESSIONAL",
+      working_professional: "WORKING_PROFESSIONAL",
+      "non-validator": "NON_VALIDATOR",
+      course_only: "NON_VALIDATOR",
+    };
+
+    if (allocationStatus?.status === "REJECTED") {
+      // Resubmitting: prefill with the rejected request's own details so the
+      // user only has to fix whatever caused the rejection.
+      setAllocationForm({
+        accountHolderName: allocationStatus.accountHolderName || user.fullName,
+        category: allocationStatus.category || categoryByRole[user.role?.toLowerCase()] || "",
+        amountPaid: allocationStatus.amountPaid != null ? String(allocationStatus.amountPaid) : "",
+        paymentDate: allocationStatus.paymentDate ? allocationStatus.paymentDate.slice(0, 10) : "",
+        transactionId: allocationStatus.transactionId || "",
+        paymentMethod: allocationStatus.paymentMethod || "",
+        paymentScreenshotUrl: allocationStatus.paymentScreenshotUrl || "",
+        additionalNotes: allocationStatus.additionalNotes || "",
+      });
+      setScreenshotFileName(allocationStatus.paymentScreenshotUrl ? "Existing screenshot on file" : "");
+      setPaymentScreenshotFile(null);
+    } else {
+      setAllocationForm((prev) => ({
+        ...prev,
+        accountHolderName: prev.accountHolderName || user.fullName,
+        category: prev.category || categoryByRole[user.role?.toLowerCase()] || "",
+      }));
+    }
+    setIsAllocationModalOpen(true);
   };
 
   const handleClaimCertificate = async () => {
@@ -488,6 +565,24 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [claimedCertificate, setClaimedCertificate] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [paymentProfile, setPaymentProfile] = useState<{
+    isPaymentVerified: boolean;
+    hasTransactionId: boolean;
+  } | null>(null);
+  const [allocationStatus, setAllocationStatus] = useState<{
+    id: string;
+    status: string;
+    rejectionNote?: string | null;
+    accountHolderName?: string;
+    category?: string;
+    amountPaid?: number;
+    paymentDate?: string;
+    transactionId?: string;
+    paymentMethod?: string;
+    additionalNotes?: string;
+    paymentScreenshotUrl?: string;
+  } | null>(null);
+  const [paymentScreenshotFile, setPaymentScreenshotFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -533,11 +628,59 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           if (data?.user?.certificateImage) {
             setClaimedCertificate(data.user.certificateImage);
           }
+          if (data?.user) {
+            setPaymentProfile({
+              isPaymentVerified: !!(data.user.isPaymentVerified || data.user.paymentVerified),
+              hasTransactionId: !!(data.user.transactionId && data.user.transactionId.trim()),
+            });
+          }
         }
       } catch (error) {
         console.error("Failed to fetch user profile for certificate:", error);
       } finally {
         setLoadingCert(false);
+      }
+
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/node-purchase/me?id=${user.id}`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          let list: any[] = [];
+          if (Array.isArray(data)) list = data;
+          else if (Array.isArray(data?.data)) list = data.data;
+          else if (Array.isArray(data?.purchases)) list = data.purchases;
+          else if (data?.purchase) list = [data.purchase];
+          else if (data?.data) list = [data.data];
+          else if (data?.status) list = [data];
+
+          if (list.length > 0) {
+            const latest = [...list].sort((a, b) => {
+              const ta = new Date(a.updatedAt || a.createdAt || 0).getTime();
+              const tb = new Date(b.updatedAt || b.createdAt || 0).getTime();
+              return tb - ta;
+            })[0];
+            setAllocationStatus({
+              id: latest._id || latest.id,
+              status: latest.status,
+              rejectionNote: latest.rejectionNote,
+              accountHolderName: latest.accountHolderName,
+              category: latest.category,
+              amountPaid: latest.amountPaid,
+              paymentDate: latest.paymentDate,
+              transactionId: latest.transactionId,
+              paymentMethod: latest.paymentMethod,
+              additionalNotes: latest.additionalNotes,
+              paymentScreenshotUrl: latest.paymentScreenshotUrl,
+            });
+          } else {
+            setAllocationStatus(null);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch course allocation status:", error);
       }
 
       try {
@@ -859,18 +1002,40 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             </nav>
 
             <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
-              {!isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSidebarOpen(false);
-                    setIsAllocationModalOpen(true);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer text-left"
-                >
-                  <PlusCircle size={16} />
-                  Request Course Allocation
-                </button>
+              {!isAdmin && paymentProfile && !paymentProfile.isPaymentVerified && (
+                <div className="mb-3 rounded-lg border p-3 text-xs font-semibold" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                  <div className="flex items-center gap-1.5" style={{ color: '#e31e24' }}>
+                    <AlertCircle size={14} className="shrink-0" />
+                    <span className="font-bold">
+                      {allocationStatus?.status === "REJECTED"
+                        ? "Payment Rejected"
+                        : allocationStatus?.status === "PENDING"
+                          ? "Payment Verification Pending"
+                          : "Payment Pending"}
+                    </span>
+                  </div>
+                  <p className="mt-1 leading-snug" style={{ color: '#e31e24' }}>
+                    {allocationStatus?.status === "REJECTED"
+                      ? allocationStatus.rejectionNote
+                        ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
+                        : "Your payment could not be verified. Please resubmit with correct details."
+                      : allocationStatus?.status === "PENDING"
+                        ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                        : "Complete your payment to unlock the full curriculum."}
+                  </p>
+                  {allocationStatus?.status !== "PENDING" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        openPaymentModal();
+                      }}
+                      className="mt-2 w-full rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                    >
+                      {allocationStatus?.status === "REJECTED" ? "Resubmit Payment" : "Pay Now"}
+                    </button>
+                  )}
+                </div>
               )}
               <button
                 type="button"
@@ -973,15 +1138,37 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             )}
           </nav>
           <div className="mt-auto border-t border-[var(--border)] px-3 py-4 space-y-1">
-            {!isAdmin && (
-              <button
-                type="button"
-                onClick={() => setIsAllocationModalOpen(true)}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
-              >
-                <PlusCircle size={16} />
-                Request Course Allocation
-              </button>
+            {!isAdmin && paymentProfile && !paymentProfile.isPaymentVerified && (
+              <div className="mb-3 rounded-lg border p-3 text-xs font-semibold" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                <div className="flex items-center gap-1.5" style={{ color: '#e31e24' }}>
+                  <AlertCircle size={14} className="shrink-0" />
+                  <span className="font-bold">
+                    {allocationStatus?.status === "REJECTED"
+                      ? "Payment Rejected"
+                      : allocationStatus?.status === "PENDING"
+                        ? "Payment Verification Pending"
+                        : "Payment Pending"}
+                  </span>
+                </div>
+                <p className="mt-1 leading-snug" style={{ color: '#e31e24' }}>
+                  {allocationStatus?.status === "REJECTED"
+                    ? allocationStatus.rejectionNote
+                      ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
+                      : "Your payment could not be verified. Please resubmit with correct details."
+                    : allocationStatus?.status === "PENDING"
+                      ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                      : "Complete your payment to unlock the full curriculum."}
+                </p>
+                {allocationStatus?.status !== "PENDING" && (
+                  <button
+                    type="button"
+                    onClick={openPaymentModal}
+                    className="mt-2 w-full rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                  >
+                    {allocationStatus?.status === "REJECTED" ? "Resubmit Payment" : "Pay Now"}
+                  </button>
+                )}
+              </div>
             )}
             <button
               type="button"
@@ -1641,10 +1828,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       {isAllocationModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+          <div className="w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4 shrink-0">
               <h3 className="text-lg font-black text-[var(--text)]">
-                Request Course Allocation
+                {allocationStatus?.status === "REJECTED" ? "Resubmit Payment" : "Request Course Allocation"}
               </h3>
               <button
                 onClick={() => setIsAllocationModalOpen(false)}
@@ -1654,6 +1841,20 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+
+            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
+              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                <img
+                  src="/MasterstrokePaymentQRCode.jpg"
+                  alt="Payment QR Code"
+                  className="h-[140px] w-[140px] object-contain"
+                />
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)]">
+                Already paid? Fill in the transaction details below so we can verify it.
+              </p>
             </div>
 
             <form onSubmit={handleAllocationSubmit} className="space-y-3">
@@ -1754,7 +1955,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
-                    Upload payment screenshot <span className="text-mst-red">*</span>
+                    Upload payment screenshot{" "}
+                    {allocationStatus?.status === "REJECTED" && allocationStatus.paymentScreenshotUrl ? null : (
+                      <span className="text-mst-red">*</span>
+                    )}
                   </label>
                   <div className={`flex items-center gap-3 w-full rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
                     <label
@@ -1774,6 +1978,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       onChange={handleScreenshotUpload}
                     />
                   </div>
+                  {allocationStatus?.status === "REJECTED" && allocationStatus.paymentScreenshotUrl && !allocationErrors.paymentScreenshotUrl && (
+                    <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Leave empty to keep your previous screenshot.</p>
+                  )}
                   {allocationErrors.paymentScreenshotUrl && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentScreenshotUrl}</p>
                   )}
@@ -1806,7 +2013,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   disabled={isSubmittingAllocation}
                   className="rounded-xl bg-mst-red hover:bg-red-700 px-5 py-2 text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {isSubmittingAllocation ? 'Submitting...' : 'Request Allocation'}
+                  {isSubmittingAllocation
+                    ? (allocationStatus?.status === "REJECTED" ? 'Resubmitting...' : 'Submitting...')
+                    : (allocationStatus?.status === "REJECTED" ? 'Resubmit Payment' : 'Request Allocation')}
                 </button>
               </div>
             </form>

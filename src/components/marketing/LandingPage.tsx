@@ -13,6 +13,8 @@ import { PHASE_HOURS } from "@/lib/academy-overview";
 import { type LeaderboardEntry } from "@/lib/leaderboard";
 
 import { getSession } from "@/lib/auth";
+import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import { convertINRtoUSD } from "@/lib/currency";
 
 interface BackendLeaderboardEntry {
   _id: string | null;
@@ -159,6 +161,7 @@ export function LandingPage({
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
   const [fetchError, setFetchError] = useState(false);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
+  const { rate: usdRate } = useCurrencyRate();
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -512,8 +515,11 @@ export function LandingPage({
                 // Format price number or string to display standard currency symbol
                 const formatPrice = (p: any) => {
                   if (p === undefined || p === null) return "";
-                  if (typeof p === "number") return `Rs ${p.toLocaleString()}`;
-                  return p.toString().startsWith("Rs") ? p : `Rs ${p}`;
+                  const numVal = typeof p === "number" ? p : parseInt(String(p).replace(/[^0-9]/g, ""), 10);
+                  const inrStr = typeof p === "number" ? `Rs ${p.toLocaleString()}` : (p.toString().startsWith("Rs") ? p : `Rs ${p}`);
+                  if (!usdRate || isNaN(numVal)) return inrStr;
+                  const usd = convertINRtoUSD(numVal, usdRate);
+                  return `${inrStr} / $${usd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 };
 
                 const title = plan.title || plan.name || formatRoleToTitle(role);

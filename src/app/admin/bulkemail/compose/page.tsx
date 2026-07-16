@@ -12,10 +12,12 @@ const TipTapEditor = dynamic(() => import("@/components/bulkemail/TipTapEditor")
 
 // Define sanitize options once
 const sanitizeOptions = {
-  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'span']),
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
-    img: ['src', 'alt', 'style', 'width', 'height']
+    img: ['src', 'alt', 'style', 'width', 'height'],
+    a: ['href', 'target', 'rel'],
+    '*': ['style', 'class']
   },
   allowedSchemesByTag: {
     img: ['data', 'http', 'https'],
@@ -39,6 +41,7 @@ export default function ComposeEmailPage() {
     setBody,
     setRecipientMode,
     setTestEmails,
+    setCsvEmails,
     resetForm,
   } = useBulkEmailStore();
 
@@ -46,6 +49,8 @@ export default function ComposeEmailPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [testEmailsInput, setTestEmailsInput] = useState("");
+  const [csvErrors, setCsvErrors] = useState<string | null>(null);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +99,9 @@ export default function ComposeEmailPage() {
 
   // Calculate recipient count based on selected roles
   const recipientCount = useMemo(() => {
+    if (form.recipientMode === 'csv') {
+      return form.csvEmails.length;
+    }
     if (selectedRoles.includes('All')) {
       return users.filter(u => u.role !== 'ADMIN' && u.role !== 'S_ADMIN').length;
     }
@@ -103,7 +111,7 @@ export default function ComposeEmailPage() {
       }
       return selectedRoles.includes(u.role);
     }).length;
-  }, [users, selectedRoles]);
+  }, [users, selectedRoles, form.recipientMode, form.csvEmails]);
 
   const parseTestEmails = (input: string): string[] => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,6 +166,50 @@ export default function ComposeEmailPage() {
     }
   };
 
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const parsedEmails = text
+        .split(/[\n,\r]+/)
+        .map((email) => email.trim())
+        .filter((email) => email.length > 0);
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const validEmails: string[] = [];
+      let invalidCount = 0;
+
+      parsedEmails.forEach((email) => {
+        if (emailRegex.test(email)) {
+          validEmails.push(email);
+        } else {
+          invalidCount++;
+        }
+      });
+
+      const uniqueEmails = Array.from(new Set(validEmails));
+
+      setCsvEmails(uniqueEmails);
+      if (invalidCount > 0) {
+        setCsvErrors(`${invalidCount} invalid email(s) were skipped`);
+      } else {
+        setCsvErrors(null);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleRemoveCsv = () => {
+    setCsvEmails([]);
+    setCsvErrors(null);
+    setCsvFileName(null);
+  };
+
   const handleSendBulk = async () => {
     if (!form.subject.trim()) {
       setError("Please enter a subject");
@@ -175,11 +227,17 @@ export default function ComposeEmailPage() {
 
     try {
       const formData = buildFormData();
-      formData.append("roles", JSON.stringify(selectedRoles));
+      if (form.recipientMode === 'csv') {
+        formData.append("emails", JSON.stringify(form.csvEmails));
+      } else {
+        formData.append("roles", JSON.stringify(selectedRoles));
+      }
       await sendBulkEmail(formData);
       setSuccess(`Bulk email sending started for ${recipientCount} recipient(s)! Please check backend logs for progress.`);
       resetForm();
       setTestEmailsInput("");
+      setCsvErrors(null);
+      setCsvFileName(null);
     } catch (err) {
       console.error('[Compose Page] Failed to send bulk email:', err);
       setError(err instanceof Error ? err.message : "Failed to send bulk email");
@@ -227,6 +285,16 @@ export default function ComposeEmailPage() {
               />
               Send to Selected Roles
             </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <input
+                type="radio"
+                name="recipientMode"
+                value="csv"
+                checked={form.recipientMode === "csv"}
+                onChange={() => setRecipientMode("csv")}
+              />
+              CSV Upload
+            </label>
           </div>
         </div>
 
@@ -252,6 +320,59 @@ export default function ComposeEmailPage() {
                 Parsed {form.testEmails.length} valid email(s)
               </div>
             )}
+          </div>
+        )}
+
+        {form.recipientMode === "csv" && (
+          <div>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Upload CSV File</label>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <label style={{
+                padding: "4px 12px",
+                backgroundColor: "#f3f4f6",
+                border: "1px solid #e5e7eb",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+                display: "inline-block",
+              }}>
+                Choose File
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCsvUpload}
+                  style={{ display: "none" }}
+                />
+              </label>
+              <span style={{ fontSize: "14px", color: csvFileName ? "#374151" : "#6b7280" }}>
+                {csvFileName || "No file chosen"}
+              </span>
+              {form.csvEmails.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRemoveCsv}
+                  style={{
+                    padding: "4px 12px",
+                    backgroundColor: "#fee2e2",
+                    color: "#dc2626",
+                    border: "1px solid #fca5a5",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                  }}
+                >
+                  Remove CSV
+                </button>
+              )}
+            </div>
+            {csvErrors && (
+              <div style={{ marginTop: "4px", fontSize: "12px", color: "#dc2626" }}>
+                {csvErrors}
+              </div>
+            )}
+            <div style={{ marginTop: "8px", fontSize: "14px" }}>
+              <span>Estimated recipients: <strong>{recipientCount}</strong></span>
+            </div>
           </div>
         )}
 
@@ -371,7 +492,53 @@ export default function ComposeEmailPage() {
             </div>
 
             {/* Email body */}
-            <div style={{ padding: "20px 24px", lineHeight: "1.6", fontSize: "14px", color: "#374151" }}>
+            <div className="email-preview-content" style={{ padding: "20px 24px", lineHeight: "1.6", fontSize: "14px", color: "#374151" }}>
+              <style dangerouslySetInnerHTML={{ __html: `
+                .email-preview-content h1 {
+                  font-size: 2.25rem !important;
+                  font-weight: 800 !important;
+                  line-height: 1.25 !important;
+                  margin-top: 1.5rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content h2 {
+                  font-size: 1.875rem !important;
+                  font-weight: 700 !important;
+                  line-height: 1.3 !important;
+                  margin-top: 1.25rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content h3 {
+                  font-size: 1.5rem !important;
+                  font-weight: 600 !important;
+                  line-height: 1.35 !important;
+                  margin-top: 1rem !important;
+                  margin-bottom: 0.5rem !important;
+                }
+                .email-preview-content p {
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.5rem;
+                }
+                .email-preview-content ul {
+                  list-style-type: disc !important;
+                  padding-left: 1.5rem !important;
+                }
+                .email-preview-content ol {
+                  list-style-type: decimal !important;
+                  padding-left: 1.5rem !important;
+                }
+                .email-preview-content li {
+                  display: list-item !important;
+                }
+                .email-preview-content a {
+                  color: #3b82f6 !important;
+                  text-decoration: underline !important;
+                  cursor: pointer !important;
+                }
+                .email-preview-content a:hover {
+                  color: #1d4ed8 !important;
+                }
+              `}} />
               {form.body ? (
                 <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(form.body, sanitizeOptions) }} />
               ) : (
@@ -403,19 +570,19 @@ export default function ComposeEmailPage() {
           >
             {loading ? "Sending..." : "Send Test"}
           </button>
-          {form.recipientMode === "all" && (
+          {(form.recipientMode === "all" || form.recipientMode === "csv") && (
             <button
               type="button"
               onClick={() => setShowConfirmModal(true)}
-              disabled={loading || selectedRoles.length === 0}
+              disabled={loading || (form.recipientMode === "all" ? selectedRoles.length === 0 : form.csvEmails.length === 0)}
               style={{
                 padding: "8px 16px",
                 backgroundColor: "#ef4444",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
-                cursor: selectedRoles.length > 0 ? "pointer" : "not-allowed",
-                opacity: loading || selectedRoles.length === 0 ? 0.5 : 1,
+                cursor: (form.recipientMode === "all" ? selectedRoles.length > 0 : form.csvEmails.length > 0) ? "pointer" : "not-allowed",
+                opacity: loading || (form.recipientMode === "all" ? selectedRoles.length === 0 : form.csvEmails.length === 0) ? 0.5 : 1,
               }}
             >
               {loading ? "Sending..." : "Send to All"}

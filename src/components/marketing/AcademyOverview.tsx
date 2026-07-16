@@ -9,6 +9,7 @@ import { AnimatedCounter } from "@/components/marketing/AnimatedCounter";
 import { useInView } from "@/components/marketing/useInView";
 import { RevealSection } from "@/components/marketing/RevealSection";
 import { MarketingHeroBackground } from "@/components/marketing/MarketingHeroBackground";
+import { useAuth } from "@/components/AuthProvider";
 import {
   ASSESSMENT_TYPES,
   OUTCOMES,
@@ -447,6 +448,7 @@ function PhaseSection({
 }
 
 export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
+  const { user } = useAuth();
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
   const courseId = "6a2934912b48a13769669f8e";
 
@@ -872,13 +874,15 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               live code execution.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/register"
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
-              >
-                Create Account
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+              {!user && (
+                <Link
+                  href="/register"
+                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
+                >
+                  Create Account
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              )}
               <Link
                 href="/"
                 className="inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-8 py-3.5 font-semibold text-[var(--text)] transition hover:border-mst-red"

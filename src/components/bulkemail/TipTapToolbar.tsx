@@ -50,7 +50,25 @@ export default function TipTapToolbar({ editor, onImageUpload }: ToolbarProps) {
 
   const setLink = useCallback(() => {
     if (!editor || !linkUrl) return;
-    editor.chain().focus().setLink({ href: linkUrl }).run();
+
+    // Normalize: prepend https:// if no protocol is present
+    const normalizedUrl = /^https?:\/\//i.test(linkUrl)
+      ? linkUrl
+      : `https://${linkUrl}`;
+
+    const { from, to } = editor.state.selection;
+    const isSelectionEmpty = from === to;
+
+    if (isSelectionEmpty) {
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<a href="${normalizedUrl}" target="_blank" rel="noopener noreferrer">${linkUrl}</a>`)
+        .run();
+    } else {
+      editor.chain().focus().setLink({ href: normalizedUrl, target: '_blank', rel: 'noopener noreferrer' }).run();
+    }
+
     setLinkUrl("");
     setShowLinkInput(false);
   }, [editor, linkUrl]);
@@ -527,14 +545,14 @@ export default function TipTapToolbar({ editor, onImageUpload }: ToolbarProps) {
           <div
             style={{
               position: "absolute",
-              top: "100%",
-              left: 0,
-              marginTop: "4px",
+              bottom: "100%",
+              right: 0,
+              marginBottom: "8px",
               backgroundColor: "white",
               border: "1px solid #e5e7eb",
               borderRadius: "8px",
               padding: "8px",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              boxShadow: "0 -4px 12px rgba(0,0,0,0.1)",
               zIndex: 50,
               display: "flex",
               gap: "4px",
