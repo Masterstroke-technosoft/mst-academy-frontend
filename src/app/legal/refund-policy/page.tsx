@@ -483,7 +483,7 @@ export default function RefundPolicyPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">sarthaknimje.mst@gmail.com</p>
+                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
                 </div>
 
                 <div>

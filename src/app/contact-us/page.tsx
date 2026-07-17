@@ -83,10 +83,10 @@ export default function ContactUsPage() {
               <div className="flex-1">
                 <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
                 <a
-                  href="mailto:sarthaknimje.mst@gmail.com"
+                  href="mailto:support@masterstroke.academy"
                   className="text-mst-red font-medium hover:underline text-lg"
                 >
-                  sarthaknimje.mst@gmail.com
+                  support@masterstroke.academy
                 </a>
               </div>
             </div>
@@ -266,10 +266,10 @@ export default function ContactUsPage() {
               <div>
                 <p className="text-sm font-semibold text-[var(--text-muted)] mb-2">Email:</p>
                 <a
-                  href="mailto:sarthaknimje.mst@gmail.com"
+                  href="mailto:support@masterstroke.academy"
                   className="text-mst-red font-medium hover:underline text-lg"
                 >
-                  sarthaknimje.mst@gmail.com
+                  support@masterstroke.academy
                 </a>
               </div>
 
