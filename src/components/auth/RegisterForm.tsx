@@ -652,7 +652,7 @@ export function RegisterForm() {
 
               <div>
                 <FieldLabel htmlFor="studentId" required>
-                  Student ID Card Upload
+                  Student ID Card Upload (Max 5MB)
                 </FieldLabel>
                 <div className="flex items-center gap-3">
                   <label
@@ -669,9 +669,16 @@ export function RegisterForm() {
                     type="file"
                     accept="image/*,.pdf"
                     className="hidden"
-                    onChange={(e) =>
-                      setStudentIdFile(e.target.files?.[0] ?? null)
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                        e.target.value = "";
+                        setStudentIdFile(null);
+                      } else {
+                        setStudentIdFile(file);
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -682,7 +689,7 @@ export function RegisterForm() {
             <div className="space-y-4">
               <div>
                 <FieldLabel htmlFor="validatorId" required>
-                  Validator ID Card Upload
+                  Validator ID Card Upload (Max 5MB)
                 </FieldLabel>
                 <div className="flex items-center gap-3">
                   <label
@@ -700,9 +707,16 @@ export function RegisterForm() {
                     accept="image/*,.pdf"
                     required
                     className="hidden"
-                    onChange={(e) =>
-                      setValidatorIdFile(e.target.files?.[0] ?? null)
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                        e.target.value = "";
+                        setValidatorIdFile(null);
+                      } else {
+                        setValidatorIdFile(file);
+                      }
+                    }}
                   />
                 </div>
               </div>
