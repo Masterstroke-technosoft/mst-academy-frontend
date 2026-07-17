@@ -1980,7 +1980,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               </div>
 
               {(() => {
-                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                const roleStr = (userProfile?.role || user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
                 let pricing = null;
                 if (roleStr === "courseonly" || roleStr === "ojt") {
                   pricing = { name: "OJT", base: 4999 };
