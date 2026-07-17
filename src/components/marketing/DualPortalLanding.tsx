@@ -47,7 +47,11 @@ export function DualPortalLanding() {
   const eventsLayerOpacity = bothActive ? 1 : academyActive ? 0.08 : eventsActive ? 1 : 0.45;
   const academyScale = bothActive || academyActive ? 1 : 0.94;
   const eventsScale = bothActive || eventsActive ? 1 : 0.94;
-  const academyTextColor = !bothActive && eventsActive ? "rgba(255,255,255,0.28)" : "#0f172a";
+  const academyTextColor = bothActive
+    ? "var(--mst-red)"
+    : eventsActive
+      ? "rgba(255,255,255,0.28)"
+      : "#0f172a";
   const eventsTextColor = !bothActive && academyActive ? "rgba(15,23,42,0.28)" : "#f3f0ff";
 
   let knobTransform = "translateX(0px)";
@@ -95,12 +99,12 @@ export function DualPortalLanding() {
       />
 
       {/* Header logo pill */}
-      <div className="absolute left-1/2 top-6 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-[#0b0b0f] px-4 py-2 shadow-lg shadow-black/40 sm:top-7 sm:px-[18px] sm:py-2.5">
-        <img src="/mst-portal-icon.png" alt="" aria-hidden className="h-5 w-auto object-contain" />
-        <span className="text-xs font-bold tracking-[0.02em] text-mst-red sm:text-sm">
+      <div className="absolute left-1/2 top-6 z-30 flex max-w-[90vw] -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-white/10 bg-[#0b0b0f] px-3 py-1.5 shadow-lg shadow-black/40 sm:top-7 sm:gap-2 sm:px-[18px] sm:py-2.5">
+        <img src="/mst-portal-icon.png" alt="" aria-hidden className="h-4 w-auto shrink-0 object-contain sm:h-5" />
+        <span className="text-[10px] font-bold tracking-[0.02em] text-mst-red sm:text-sm">
           MASTERSTROKE
         </span>
-        <span className="text-xs font-bold tracking-[0.14em] text-[#f5f5f5] sm:text-sm">
+        <span className="text-[10px] font-bold tracking-[0.06em] text-[#f5f5f5] sm:text-sm sm:tracking-[0.14em]">
           ACADEMY
         </span>
       </div>
