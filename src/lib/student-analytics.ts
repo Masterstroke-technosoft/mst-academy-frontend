@@ -337,7 +337,7 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     const firstSub = activeModule.submodules[0];
     nextActions.push({
       label: `Continue Module ${activeModule.id}`,
-      href: firstSub ? `/module/${activeModule.id}/${firstSub.slug}` : "/learn",
+      href: firstSub ? '/learn' : '/learn',
       icon: "play",
       priority: "high",
     });

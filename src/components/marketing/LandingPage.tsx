@@ -499,7 +499,7 @@ export function LandingPage({
 
                 // Generate detail links dynamically based on role
                 const getDetailHref = (r: string) => {
-                  const slug = r.toLowerCase().replace(/_/g, "-");
+                  const slug = r.trim().toLowerCase().replace(/[\s_]+/g, "-");
                   return `/plans/${slug}`;
                 };
 
