@@ -48,10 +48,10 @@ const PLAN_OPTIONS: {
 }[] = [
     {
       id: "courseOnly",
-      label: "Course Only",
+      label: "OJT",
       emoji: "📚",
       price: DEMO_FEES.courseOnly,
-      desc: "Course only at foundation offer No internship.",
+      desc: "On Job Training (OJT) program with structured learning and practical experience.",
     },
     {
       id: "validator",
@@ -82,7 +82,7 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
   if (plan === "validator") {
     return (
       <HighlightBox>
-        <strong>Validator Fellowship:</strong> Dedicated validator portal + stakeholder access +{" "}
+        <strong>Validator Fellowship:</strong> Dedicated validator portal + stakeholder access
       </HighlightBox>
     );
   }
@@ -90,7 +90,7 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
   if (plan === "student") {
     return (
       <HighlightBox>
-        <strong>Student Fellowship:</strong> Valid student ID unlocks scholarship pricing +{" "}
+        <strong>Student Fellowship:</strong> Valid student ID unlocks scholarship pricing
       </HighlightBox>
     );
   }
@@ -106,8 +106,7 @@ function PlanHighlight({ plan }: { plan: PlanId }) {
 
   return (
     <HighlightBox>
-      <strong>Course Only:</strong> Lifetime access to the course at <strong>₹4,999 </strong>
-      No internship. Full lifetime course access only.
+      <strong>OJT:</strong> On Job Training (OJT) program with structured learning and practical experience.
     </HighlightBox>
   );
 }
@@ -594,7 +593,7 @@ export function RegisterForm() {
                   className={`text-[10px] font-bold uppercase tracking-wider ${plan === p.id ? "text-mst-red" : "text-[var(--text)]"
                     }`}
                 >
-                  {p.id === "courseOnly" ? "Course Only" : p.label.split(" ")[0]}
+                  {p.id === "courseOnly" ? "OJT" : p.label.split(" ")[0]}
                 </span>
                 <span className="text-[10px] font-semibold leading-tight text-[var(--text-muted)]">
                   {usdRate ? `₹${p.price.toLocaleString("en-IN")} / $${convertINRtoUSD(p.price, usdRate).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `₹${p.price.toLocaleString("en-IN")}`}

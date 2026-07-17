@@ -629,6 +629,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     isPaymentVerified: boolean;
     hasTransactionId: boolean;
   } | null>(null);
+  const [liveRole, setLiveRole] = useState<string | null>(null);
   const [allocationStatus, setAllocationStatus] = useState<{
     id: string;
     status: string;
@@ -693,6 +694,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               isPaymentVerified: !!(data.user.isPaymentVerified || data.user.paymentVerified),
               hasTransactionId: !!(data.user.transactionId && data.user.transactionId.trim()),
             });
+            if (data.user.role) {
+              setLiveRole(data.user.role);
+            }
           }
         }
       } catch (error) {
@@ -1926,7 +1930,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </div>
 
               {(() => {
-                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                const roleStr = (liveRole || user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
                 let pricing = null;
                 if (roleStr === "courseonly" || roleStr === "ojt") {
                   pricing = { name: "OJT", base: 4999 };
