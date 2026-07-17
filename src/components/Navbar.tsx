@@ -55,13 +55,13 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2.5 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden">
+        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0">
           <img
             src="/Acadmy Logo.png"
             alt="Masterstroke Academy"
-            className="h-36 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain"
+            className="h-32 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain"
           />
         </Link>
 
@@ -164,7 +164,7 @@ export function Navbar() {
 
           <Link
             href="/learn"
-            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             Start Learning
           </Link>
@@ -172,9 +172,9 @@ export function Navbar() {
           <button
             type="button"
             onClick={switchPortal}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
-            <ArrowLeftRight size={14} />
+            <ArrowLeftRight size={10} className="sm:w-3.5 sm:h-3.5" />
             Events
           </button>
 
@@ -182,9 +182,9 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="rounded-lg p-2 text-[var(--nav-text)] transition hover:bg-white/10 lg:hidden"
+            className="rounded-lg p-1.5 text-[var(--nav-text)] transition hover:bg-white/10 lg:hidden"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
@@ -217,6 +217,17 @@ export function Navbar() {
               <BookOpen size={18} />
               Learning Tree
             </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+                switchPortal();
+              }}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[var(--nav-text)] transition hover:bg-white/10 text-left"
+            >
+              <ArrowLeftRight size={18} />
+              Events
+            </button>
             {showUserNav && (
               <Link
                 href={dashboardHref}
