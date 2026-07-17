@@ -139,6 +139,7 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCodeInput, setReferralCodeInput] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -263,6 +264,7 @@ export function RegisterForm() {
     }
 
     const referralCode = referralCodeInput.trim() || undefined;
+    const gst = gstNumber.trim() || undefined;
 
     let result:
       | { ok: true; user: { id: string; role: string } }
@@ -283,6 +285,7 @@ export function RegisterForm() {
         idCardFile: validatorIdFile || undefined,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -313,6 +316,7 @@ export function RegisterForm() {
         idCardFile: studentIdFile,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -322,6 +326,7 @@ export function RegisterForm() {
         password,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else {
       result = await registerNonValidator({
@@ -331,6 +336,7 @@ export function RegisterForm() {
         phone,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     }
 
@@ -349,6 +355,9 @@ export function RegisterForm() {
   // Sends the user to /login once registration (and optionally payment) is done.
   function finishRegistration(paymentStatus?: "submitted") {
     logout();
+    if (typeof window !== "undefined") {
+      localStorage.setItem("justRegisteredCompleted", "true");
+    }
     const params = new URLSearchParams({ email, registered: "1" });
     if (paymentStatus) params.set("payment", paymentStatus);
     router.push(`/login?${params.toString()}`);
@@ -714,6 +723,17 @@ export function RegisterForm() {
 
           {/* Fee display */}
           <DemoFee amount={selectedPlan.price} />
+        </div>
+
+        {/* GSTIN */}
+        <div>
+          <FieldLabel htmlFor="gstNumber">GSTIN (if required)</FieldLabel>
+          <TextInput
+            id="gstNumber"
+            value={gstNumber}
+            onChange={(e) => setGstNumber(e.target.value)}
+            placeholder="Enter GSTIN (optional)"
+          />
         </div>
 
         {/* Referral Code */}

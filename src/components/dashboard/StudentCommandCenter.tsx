@@ -155,6 +155,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [allocationErrors, setAllocationErrors] = useState<Record<string, string>>({});
   const [isSubmittingAllocation, setIsSubmittingAllocation] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [showRegPopup, setShowRegPopup] = useState(false);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -234,7 +235,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     if (!allocationForm.accountHolderName.trim()) {
       errors.accountHolderName = "Account holder name is required";
     }
-    
+
     // Determine category automatically based on logged-in user's role
     const userRole = user?.role?.toLowerCase() || "";
     let resolvedCategory = "NON_VALIDATOR";
@@ -243,9 +244,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     } else if (userRole === "validator") {
       resolvedCategory = "VALIDATOR";
     } else if (
-      userRole === "working_professional" || 
-      userRole === "working professional" || 
-      userRole === "normal" || 
+      userRole === "working_professional" ||
+      userRole === "working professional" ||
+      userRole === "normal" ||
       userRole === "workingprofessional"
     ) {
       resolvedCategory = "WORKING_PROFESSIONAL";
@@ -333,7 +334,42 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         );
         if (isResubmit) {
           setAllocationStatus((prev) => (prev ? { ...prev, status: "PENDING", rejectionNote: null } : prev));
+        } else {
+          try {
+            const resData = await res.json();
+            const latest = resData.purchase || resData.data || resData;
+            if (latest) {
+              setAllocationStatus({
+                id: latest._id || latest.id,
+                status: latest.status || "PENDING",
+                rejectionNote: latest.rejectionNote,
+                accountHolderName: latest.accountHolderName,
+                category: latest.category,
+                amountPaid: latest.amountPaid,
+                paymentDate: latest.paymentDate,
+                transactionId: latest.transactionId,
+                paymentMethod: latest.paymentMethod,
+                additionalNotes: latest.additionalNotes,
+                paymentScreenshotUrl: latest.paymentScreenshotUrl,
+              });
+            } else {
+              setAllocationStatus({
+                id: "",
+                status: "PENDING",
+              });
+            }
+          } catch (e) {
+            console.error("Failed to parse node-purchase response:", e);
+            setAllocationStatus({
+              id: "",
+              status: "PENDING",
+            });
+          }
         }
+        setPaymentProfile({
+          isPaymentVerified: false,
+          hasTransactionId: true,
+        });
         setIsAllocationModalOpen(false);
         setAllocationForm({
           accountHolderName: "",
@@ -408,7 +444,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const handleClaimCertificate = async () => {
     if (isClaiming) return;
     setIsClaiming(true);
-    showToast("Generating and claiming your certificate...", "success");
 
     try {
       const image = new Image();
@@ -452,7 +487,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 if (response.ok) {
                   const data = await response.json();
                   setClaimedCertificate(data.certificateImage);
-                  showToast("Certificate generated successfully!", "success");
+                  showToast("Certificate claimed successfully and sent to your email!", "success");
                   setIsClaimModalOpen(true);
                 } else {
                   console.error("Failed to upload certificate");
@@ -544,6 +579,22 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   }, []);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isNewReg = localStorage.getItem("justRegisteredCompleted");
+      if (isNewReg === "true") {
+        setShowRegPopup(true);
+      }
+    }
+  }, []);
+
+  const handleCompleteProfileClick = () => {
+    localStorage.removeItem("justRegisteredCompleted");
+    setShowRegPopup(false);
+    setActiveTab("profile");
+    window.location.hash = "#profile";
+  };
 
   useEffect(() => {
     if (!ready) return;
@@ -1025,7 +1076,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                         : "Your payment could not be verified. Please resubmit with correct details."
                       : allocationStatus?.status === "PENDING"
-                        ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                        ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
                         : "Complete your payment to unlock the full curriculum."}
                   </p>
                   {allocationStatus?.status !== "PENDING" && (
@@ -1162,7 +1213,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                       : "Your payment could not be verified. Please resubmit with correct details."
                     : allocationStatus?.status === "PENDING"
-                      ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                      ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
                       : "Complete your payment to unlock the full curriculum."}
                 </p>
                 {allocationStatus?.status !== "PENDING" && (
@@ -1796,7 +1847,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
               <h3 className="text-3xl font-black text-[var(--text)] tracking-tight">Congratulations, {user.fullName}!</h3>
               <p className="mt-2 text-sm text-[var(--text-muted)] max-w-lg leading-relaxed">
-                You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
+                You have successfully completed all submodules in the academy program. Your official graduation certificate has been claimed successfully and sent to your email!
               </p>
 
               {claimedCertificate && (
@@ -1999,9 +2050,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   >
                     <option value="">Select Method</option>
                     <option value="UPI">UPI</option>
-                    <option value="Card">Card</option>
-                    <option value="Net Banking">Net Banking</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Online">Online</option>
                   </select>
                   {allocationErrors.paymentMethod && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
@@ -2076,6 +2125,46 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showRegPopup && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center shadow-2xl relative">
+            <button
+              onClick={() => {
+                localStorage.removeItem("justRegisteredCompleted");
+                setShowRegPopup(false);
+              }}
+              className="absolute right-4 top-4 rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--border)]/50 transition"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mst-red/10 text-mst-red mb-4">
+              <User size={32} />
+            </div>
+            <h3 className="text-xl font-black text-[var(--text)]">Complete Your Profile</h3>
+            <p className="text-sm text-[var(--text-muted)] mt-2 leading-relaxed">
+              Registration complete! Please fill in your mobile number, social links, and other details to complete your profile setup.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                onClick={handleCompleteProfileClick}
+                className="w-full rounded-2xl bg-mst-red py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 hover:brightness-110 transition-all"
+              >
+                Complete Profile
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("justRegisteredCompleted");
+                  setShowRegPopup(false);
+                }}
+                className="w-full rounded-2xl border border-[var(--border)] py-3 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-muted)] transition"
+              >
+                Decide Later
+              </button>
+            </div>
           </div>
         </div>
       )}

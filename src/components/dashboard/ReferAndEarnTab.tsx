@@ -50,6 +50,8 @@ export function ReferAndEarnTab({
   const [withdrawRequested, setWithdrawRequested] = useState(false);
   const [requestStatus, setRequestStatus] = useState("Pending");
   const [error, setError] = useState<string | null>(null);
+  const [holderNameError, setHolderNameError] = useState<string | null>(null);
+  const [accountNumError, setAccountNumError] = useState<string | null>(null);
   const [bankDetails, setBankDetails] = useState({
     accountHolderName: "",
     accountNumber: "",
@@ -488,11 +490,26 @@ export function ReferAndEarnTab({
                       <input
                         type="text"
                         required
+                        pattern="[a-zA-Z\s]+"
+                        title="Account holder name must contain only alphabets and spaces"
                         value={bankDetails.accountHolderName}
-                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountHolderName: e.target.value }))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/\d/.test(val)) {
+                            setHolderNameError("Numbers/digits are not allowed in account holder name.");
+                          } else {
+                            setHolderNameError(null);
+                          }
+                          setBankDetails(prev => ({ ...prev, accountHolderName: val.replace(/[^a-zA-Z\s]/g, "") }));
+                        }}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10"
                         placeholder="e.g. John Doe"
                       />
+                      {holderNameError && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">
+                          {holderNameError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
@@ -501,11 +518,26 @@ export function ReferAndEarnTab({
                       <input
                         type="text"
                         required
+                        pattern="[0-9]+"
+                        title="Bank account number must contain only numbers"
                         value={bankDetails.accountNumber}
-                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/[^0-9]/.test(val)) {
+                            setAccountNumError("Only numbers/digits are allowed in bank account number.");
+                          } else {
+                            setAccountNumError(null);
+                          }
+                          setBankDetails(prev => ({ ...prev, accountNumber: val.replace(/[^0-9]/g, "") }));
+                        }}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10"
                         placeholder="e.g. 1234567890"
                       />
+                      {accountNumError && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">
+                          {accountNumError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
@@ -644,11 +676,26 @@ export function ReferAndEarnTab({
                       <input
                         type="text"
                         required
+                        pattern="[a-zA-Z\s]+"
+                        title="Account holder name must contain only alphabets and spaces"
                         value={bankDetails.accountHolderName}
-                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountHolderName: e.target.value }))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/\d/.test(val)) {
+                            setHolderNameError("Numbers/digits are not allowed in account holder name.");
+                          } else {
+                            setHolderNameError(null);
+                          }
+                          setBankDetails(prev => ({ ...prev, accountHolderName: val.replace(/[^a-zA-Z\s]/g, "") }));
+                        }}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10"
                         placeholder="e.g. John Doe"
                       />
+                      {holderNameError && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">
+                          {holderNameError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
@@ -657,11 +704,26 @@ export function ReferAndEarnTab({
                       <input
                         type="text"
                         required
+                        pattern="[0-9]+"
+                        title="Bank account number must contain only numbers"
                         value={bankDetails.accountNumber}
-                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/[^0-9]/.test(val)) {
+                            setAccountNumError("Only numbers/digits are allowed in bank account number.");
+                          } else {
+                            setAccountNumError(null);
+                          }
+                          setBankDetails(prev => ({ ...prev, accountNumber: val.replace(/[^0-9]/g, "") }));
+                        }}
                         className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10"
                         placeholder="e.g. 1234567890"
                       />
+                      {accountNumError && (
+                        <p className="mt-1 text-xs text-red-500 font-medium">
+                          {accountNumError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">

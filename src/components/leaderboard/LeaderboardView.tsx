@@ -232,9 +232,6 @@ export function LeaderboardView() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] sm:text-xs text-[var(--text-muted)] mt-0.5">
-                          {row.modulesDone} / {row.totalModules} modules
-                        </p>
                       </div>
                     </div>
 

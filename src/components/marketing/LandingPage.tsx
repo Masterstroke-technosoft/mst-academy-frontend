@@ -600,6 +600,11 @@ export function LandingPage({
                             Explore this plan
                             <ChevronRight className="h-4 w-4" />
                           </Link>
+                          <div className="mt-2 text-right">
+                            <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                              * Exclusive of GST
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
