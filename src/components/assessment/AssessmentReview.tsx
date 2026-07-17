@@ -110,20 +110,60 @@ export function AssessmentReview({
                       const isUserSel = r.userAnswer === opt.text || r.userAnswer === opt.key;
                       const isCorrectOpt = opt.isCorrect;
 
+                      let optionBgClass = "bg-[var(--bg-muted)] border-[var(--border)] text-[var(--text-muted)]";
+                      let optionStyle: React.CSSProperties = {};
+                      let textStyle: React.CSSProperties = {};
+                      let badge = null;
+
+                      if (isCorrectOpt) {
+                        optionBgClass = "border";
+                        optionStyle = {
+                          backgroundColor: "var(--tip-bg)",
+                          borderColor: "var(--tip-border)",
+                          color: "var(--tip-text)",
+                          fontWeight: "600",
+                        };
+                        textStyle = {
+                          color: "var(--tip-text)",
+                        };
+                        badge = (
+                          <span
+                            className="ml-auto font-bold text-[10px] uppercase px-2 py-0.5 rounded"
+                            style={{ backgroundColor: "var(--tip-border)", color: "var(--bg)" }}
+                          >
+                            Correct Option
+                          </span>
+                        );
+                      } else if (isUserSel) {
+                        optionBgClass = "border";
+                        optionStyle = {
+                          backgroundColor: "var(--danger-bg)",
+                          borderColor: "var(--danger-border)",
+                          color: "var(--danger-text)",
+                          fontWeight: "600",
+                        };
+                        textStyle = {
+                          color: "var(--danger-text)",
+                        };
+                        badge = (
+                          <span
+                            className="ml-auto font-bold text-[10px] uppercase px-2 py-0.5 rounded"
+                            style={{ backgroundColor: "var(--danger-border)", color: "var(--bg)" }}
+                          >
+                            Your Choice
+                          </span>
+                        );
+                      }
+
                       return (
                         <div
                           key={opt.key}
-                          className={`flex items-center gap-3 rounded-xl border p-3 text-xs ${isCorrectOpt
-                              ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400 font-semibold"
-                              : isUserSel
-                                ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 font-semibold"
-                                : "bg-[var(--bg-muted)] border-[var(--border)] text-[var(--text-muted)]"
-                            }`}
+                          className={`flex items-center gap-3 rounded-xl p-3 text-xs ${optionBgClass}`}
+                          style={optionStyle}
                         >
                           <span className="font-bold">{opt.key}.</span>
-                          <span>{opt.text}</span>
-                          {isCorrectOpt && <span className="ml-auto font-bold text-[10px] uppercase text-green-500">Correct Option</span>}
-                          {!isCorrectOpt && isUserSel && <span className="ml-auto font-bold text-[10px] uppercase text-red-500">Your Choice</span>}
+                          <span style={textStyle}>{opt.text}</span>
+                          {badge}
                         </div>
                       );
                     })}

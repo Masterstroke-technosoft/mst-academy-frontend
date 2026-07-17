@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { Curriculum } from "@/lib/types";
+import { getCardSubmoduleTitle } from "@/lib/display-titles";
 
 interface SubmissionProgressTabProps {
   user: any;
@@ -82,11 +83,75 @@ export function SubmissionProgressTab({ user, curriculum }: SubmissionProgressTa
           headers["Authorization"] = `Bearer ${token}`;
         }
 
-        let res = await fetch(`${baseURL}/api/assignment-submissions`, {
+        // Fetch curriculum from database to map database submodule IDs to their index numbers
+        const dbSubmodulesMap: Record<string, { title: string; index: string }> = {};
+        try {
+          const courseId = "6a2934912b48a13769669f8e";
+          const curriculumRes = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
+            method: "GET",
+            credentials: "include",
+            headers
+          });
+          if (curriculumRes.ok) {
+            const resData = await curriculumRes.json();
+            const rawPhases = resData.data || resData || [];
+            await Promise.all(
+              rawPhases.map(async (phase: any) => {
+                try {
+                  const fullRes = await fetch(`${baseURL}/api/phases/full/${phase._id || phase.id}`, {
+                    method: "GET",
+                    credentials: "include",
+                    headers
+                  });
+                  if (fullRes.ok) {
+                    const fullData = await fullRes.json();
+                    const fullPhaseObj = fullData.data || fullData;
+                    const rawModules = fullPhaseObj.modules || [];
+                    rawModules.forEach((mod: any) => {
+                      const rawSubmodules = mod.submodules || [];
+                      rawSubmodules.forEach((sub: any) => {
+                        const dbId = sub._id || sub.id;
+                        const customId = sub.id;
+                        const formattedIndex = customId || (mod.index && sub.index ? `${mod.index}.${sub.index}` : "");
+                        if (dbId) {
+                          dbSubmodulesMap[dbId] = {
+                            title: sub.title,
+                            index: formattedIndex
+                          };
+                        }
+                        if (sub._id) {
+                          dbSubmodulesMap[sub._id] = {
+                            title: sub.title,
+                            index: formattedIndex
+                          };
+                        }
+                      });
+                    });
+                  }
+                } catch (err) {
+                  console.error("Error fetching full phase hierarchy:", err);
+                }
+              })
+            );
+          }
+        } catch (err) {
+          console.error("Error loading curriculum hierarchy from database:", err);
+        }
+
+        let res = await fetch(`${baseURL}/api/assignment-submissions/my-practical`, {
           method: "GET",
           credentials: "include",
           headers,
         });
+
+        if (!res.ok) {
+          // Fallback to general list
+          res = await fetch(`${baseURL}/api/assignment-submissions`, {
+            method: "GET",
+            credentials: "include",
+            headers,
+          });
+        }
 
         if (!res.ok) {
           // Try user-specific endpoint if general list is not accessible
@@ -121,7 +186,9 @@ export function SubmissionProgressTab({ user, curriculum }: SubmissionProgressTa
           const subUserId = subUser ? (subUser._id || subUser.id) : sub.userId;
           const subUserEmail = subUser?.email || sub.userEmail;
 
+          // If we explicitly fetched from my-practical, it's ours. Otherwise, apply user checks.
           const isMySubmission = 
+            res.url.includes("my-practical") ||
             (subUserId && subUserId === user.id) || 
             (subUserEmail && subUserEmail.toLowerCase() === user.email.toLowerCase());
 
@@ -133,15 +200,32 @@ export function SubmissionProgressTab({ user, curriculum }: SubmissionProgressTa
                 const evaluated = sub.evaluated || false;
                 const scoreVal = sub.score ?? sub.partialScore ?? 0;
                 
-                // Assuming standard assignment total marks is 10, or falls back to custom marks
-                const maxScoreVal = sub.totalMarks || 10;
+                // Prioritize totalMarks from the submission object, then ans.marks, falling back to 10
+                const maxScoreVal = sub.totalMarks || ans.marks || 10;
                 const percentage = Math.round((scoreVal / maxScoreVal) * 100);
                 const passed = percentage >= 70;
+
+                const dbInfo = dbSubmodulesMap[subId];
+                const submoduleIndex = dbInfo?.index || "";
+                // Prioritize submoduleTitle from the submission object, then dbInfo or local curriculum mapping
+                const rawTitle = sub.submoduleTitle || dbInfo?.title || submodulesMap[subId] || "";
+                const cleanTitle = rawTitle ? getCardSubmoduleTitle(rawTitle) : "";
+                
+                let submoduleTitle = "";
+                if (submoduleIndex && cleanTitle) {
+                  submoduleTitle = `Submodule ${submoduleIndex} - ${cleanTitle}`;
+                } else if (submoduleIndex) {
+                  submoduleTitle = `Submodule ${submoduleIndex}`;
+                } else if (cleanTitle) {
+                  submoduleTitle = cleanTitle;
+                } else {
+                  submoduleTitle = `Submodule (${subId.substring(0, 8)})`;
+                }
 
                 filteredList.push({
                   submissionId: sub._id || sub.id,
                   submoduleId: subId,
-                  submoduleTitle: submodulesMap[subId] || sub.submoduleTitle || `Submodule (${subId.substring(0, 8)})`,
+                  submoduleTitle: submoduleTitle,
                   selectedAnswer: ans.selectedAnswer || ans.submission || "",
                   isCorrect: evaluated,
                   score: scoreVal,
@@ -265,7 +349,7 @@ export function SubmissionProgressTab({ user, curriculum }: SubmissionProgressTa
                       <Calendar size={11} />
                       Submitted on {item.submittedAt}
                     </span>
-                    <h4 className="text-base sm:text-lg font-black text-[var(--text)] group-hover:text-mst-red transition-colors">
+                    <h4 className="text-base sm:text-lg font-black text-mst-red">
                       {item.submoduleTitle}
                     </h4>
                     

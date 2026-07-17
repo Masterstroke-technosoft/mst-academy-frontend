@@ -359,6 +359,7 @@ export function RegisterForm() {
       <AuthShell
         title="Complete Payment"
         subtitle="Optional - activate your plan now, or do it later from your dashboard."
+        maxWidth="max-w-2xl"
       >
         <div className="mb-5 rounded-xl bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400">
           Account created! Complete your payment below to activate {selectedPlan.label}, or skip and pay later.
@@ -369,8 +370,8 @@ export function RegisterForm() {
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
             <FieldLabel>Scan to Pay</FieldLabel>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-left">
-              <div className="flex flex-col items-center gap-2 text-center shrink-0">
+            <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 text-left">
+              <div className="flex flex-col items-center justify-center gap-2 text-center shrink-0 w-full md:max-w-[200px]">
                 <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
                   <img
                     src="./MasterstrokePaymentQRCode.jpg"
@@ -386,23 +387,25 @@ export function RegisterForm() {
                 const total = base * 1.18;
 
                 return (
-                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
-                      Plan: {selectedPlan.label}
-                    </h4>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                        <span className="text-[var(--text-muted)]">Role Amount:</span>
-                        <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                        Plan: {selectedPlan.label}
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">Role Amount:</span>
+                          <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">18% GST:</span>
+                          <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                        <span className="text-[var(--text-muted)]">18% GST:</span>
-                        <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                      </div>
-                      <div className="flex justify-between pt-1">
-                        <span className="font-black text-[var(--text)]">Total Amount (Incl. GST):</span>
-                        <span className="font-black text-mst-red text-sm">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                      </div>
+                    </div>
+                    <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
+                      <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
+                      <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </div>
                 );

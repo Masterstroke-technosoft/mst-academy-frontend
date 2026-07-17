@@ -38,6 +38,7 @@ interface SubmissionItem {
   isCorrect: boolean;
   rawSubmission: any;
   submittedAt: string;
+  marks?: number;
 }
 
 export default function SubmissionReviewPage() {
@@ -194,7 +195,8 @@ export default function SubmissionReviewPage() {
                     selectedAnswer: ans.selectedAnswer || ans.submission || "",
                     isCorrect: submission.evaluated || false,
                     rawSubmission: submission,
-                    submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt)
+                    submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt),
+                    marks: ans.marks
                   });
                 }
               });
@@ -535,7 +537,7 @@ export default function SubmissionReviewPage() {
                           </span>
                           {item.isCorrect && (
                             <span className="text-xs font-bold text-[var(--text)]">
-                              Score: {item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? 0}
+                              Score: {item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? 0}{item.marks !== undefined ? ` / ${item.marks}` : ""}
                             </span>
                           )}
                         </div>
@@ -554,7 +556,7 @@ export default function SubmissionReviewPage() {
                             <button
                               onClick={() => {
                                 setPromptSubmission(item);
-                                setPromptScore(String(item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? 10));
+                                setPromptScore(String(item.rawSubmission?.score ?? item.rawSubmission?.partialScore ?? item.marks ?? 10));
                               }}
                               className="px-2.5 py-1 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold transition-colors cursor-pointer shadow-sm"
                             >
@@ -745,11 +747,15 @@ export default function SubmissionReviewPage() {
                   <input
                     type="number"
                     min="0"
+                    max={selectedSubmission.marks}
                     value={evaluationScore}
                     onChange={(e) => setEvaluationScore(Number(e.target.value))}
                     className="w-24 px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] text-sm text-[var(--text)] outline-none focus:border-mst-red transition-all"
                   />
-                  <span className="text-xs text-[var(--text-muted)] font-medium">Set the score decided by the admin for this student.</span>
+                  <span className="text-xs text-[var(--text-muted)] font-medium">
+                    {selectedSubmission.marks !== undefined ? `Out of ${selectedSubmission.marks}. ` : ""}
+                    Set the score decided by the admin for this student.
+                  </span>
                 </div>
               </div>
             </div>
@@ -767,6 +773,10 @@ export default function SubmissionReviewPage() {
                 {!selectedSubmission.isCorrect ? (
                   <button
                     onClick={() => {
+                      if (selectedSubmission.marks !== undefined && evaluationScore > selectedSubmission.marks) {
+                        showToast(`Score cannot exceed maximum marks (${selectedSubmission.marks}).`, "error");
+                        return;
+                      }
                       const item = selectedSubmission;
                       setSelectedSubmission(null);
                       handleGrade(item, true, evaluationScore);
@@ -780,6 +790,10 @@ export default function SubmissionReviewPage() {
                   <>
                     <button
                       onClick={() => {
+                        if (selectedSubmission.marks !== undefined && evaluationScore > selectedSubmission.marks) {
+                          showToast(`Score cannot exceed maximum marks (${selectedSubmission.marks}).`, "error");
+                          return;
+                        }
                         const item = selectedSubmission;
                         setSelectedSubmission(null);
                         handleGrade(item, true, evaluationScore);
@@ -839,6 +853,10 @@ export default function SubmissionReviewPage() {
                     const parsed = parseInt(promptScore, 10);
                     if (isNaN(parsed)) {
                       showToast("Please enter a valid number for the score.", "error");
+                      return;
+                    }
+                    if (promptSubmission.marks !== undefined && parsed > promptSubmission.marks) {
+                      showToast(`Score cannot exceed maximum marks (${promptSubmission.marks}).`, "error");
                       return;
                     }
                     const item = promptSubmission;

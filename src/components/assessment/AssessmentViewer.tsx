@@ -623,26 +623,58 @@ export default function AssessmentViewer({
                           : (result.answer ? result.answer.split(", ").includes(option.label) : false);
 
                         let optionBgClass = "bg-[var(--bg-muted)]/50 border-[var(--border)] text-[var(--text-muted)]";
-                        let optionTextClass = "text-[var(--text-muted)]";
+                        let optionStyle: React.CSSProperties = {};
+                        let textStyle: React.CSSProperties = {};
                         let badge = null;
 
                         if (isCorrectOption) {
-                          optionBgClass = "bg-green-500/10 border-2 border-green-500/30 text-green-600 dark:text-green-400 font-semibold";
-                          optionTextClass = "text-green-700 dark:text-green-300";
-                          badge = <span className="ml-auto text-[9px] font-black uppercase tracking-wider bg-green-500/20 text-green-700 px-2 py-0.5 rounded">Correct Answer</span>;
+                          optionBgClass = "border-2";
+                          optionStyle = {
+                            backgroundColor: "var(--tip-bg)",
+                            borderColor: "var(--tip-border)",
+                            color: "var(--tip-text)",
+                            fontWeight: "600",
+                          };
+                          textStyle = {
+                            color: "var(--tip-text)",
+                          };
+                          badge = (
+                            <span
+                              className="ml-auto text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded"
+                              style={{ backgroundColor: "var(--tip-border)", color: "var(--bg)" }}
+                            >
+                              Correct Answer
+                            </span>
+                          );
                         } else if (isUserSelected) {
-                          optionBgClass = "bg-red-500/10 border-2 border-red-500/30 text-red-600 dark:text-red-400 font-semibold";
-                          optionTextClass = "text-red-700 dark:text-red-300";
-                          badge = <span className="ml-auto text-[9px] font-black uppercase tracking-wider bg-red-500/20 text-red-700 px-2 py-0.5 rounded">Your Selection</span>;
+                          optionBgClass = "border-2";
+                          optionStyle = {
+                            backgroundColor: "var(--danger-bg)",
+                            borderColor: "var(--danger-border)",
+                            color: "var(--danger-text)",
+                            fontWeight: "600",
+                          };
+                          textStyle = {
+                            color: "var(--danger-text)",
+                          };
+                          badge = (
+                            <span
+                              className="ml-auto text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded"
+                              style={{ backgroundColor: "var(--danger-border)", color: "var(--bg)" }}
+                            >
+                              Your Selection
+                            </span>
+                          );
                         }
 
                         return (
                           <div
                             key={option.label}
                             className={`flex items-center gap-3 p-3 rounded-lg border text-xs transition duration-150 ${optionBgClass}`}
+                            style={optionStyle}
                           >
                             <span className="font-bold">{option.label}.</span>
-                            <span className={optionTextClass}>{option.text}</span>
+                            <span style={textStyle}>{option.text}</span>
                             {badge}
                           </div>
                         );
