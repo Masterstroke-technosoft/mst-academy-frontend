@@ -34,12 +34,13 @@ export default function TermsConditionsPage() {
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             Masterstroke Academy ("Academy", "Platform", "we", "our", or "us") is a product of{" "}
-            <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span>
+            <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span>
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
-            These Terms & Conditions ("Terms") govern your access to and use of Masterstroke Academy, MST
-            Blockchain ecosystem services, educational programs, certifications, validator pathways, rewards
-            programs, websites, applications, and related services (collectively referred to as the "Services").
+            These Terms & Conditions ("Terms") govern your access to and use of Masterstroke Academy,
+            blockchain-based educational services, educational programs, certifications, validator pathways,
+            rewards programs, websites, applications, and related services (collectively referred to as the
+            "Services").
           </p>
           <p className="text-[var(--text)] leading-relaxed font-semibold text-mst-red">
             By accessing, registering, enrolling, connecting a wallet, or using any part of the Services, you
@@ -64,10 +65,10 @@ export default function TermsConditionsPage() {
             <div className="space-y-3">
               {[
                 { term: "Academy", def: "refers to Masterstroke Academy." },
-                { term: "Company", def: "refers to Innoversity Innovation Pvt. Ltd." },
+                { term: "Company", def: "refers to Masterstroke Technosoft Pvt. Ltd." },
                 { term: "User", def: "refers to any individual accessing or using the Services." },
-                { term: "BridgeKey Wallet", def: "refers to the wallet solution used within the MST ecosystem." },
-                { term: "MST Blockchain", def: "refers to the public EVM-compatible blockchain ecosystem operated and supported by the Masterstroke ecosystem." },
+                { term: "Web3 Wallet", def: "refers to the wallet solution used within the supported blockchain ecosystem." },
+                { term: "Supported Blockchain Networks", def: "refers to the public EVM-compatible blockchain ecosystem operated and supported by the Masterstroke ecosystem." },
                 { term: "Certification", def: "refers to digital or blockchain-based certificates issued through the Academy." },
                 { term: "Rewards", def: "refers to incentives, recognition programs, ecosystem rewards, or other benefits distributed through the Academy." },
               ].map((item, idx) => (
@@ -174,7 +175,6 @@ export default function TermsConditionsPage() {
             <ul className="space-y-2 mb-6">
               {[
                 "Valid College Identification Card",
-                "Submission of fraudulent, altered, expired, or misleading verification documents",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-[var(--text)]">
                   <span className="text-mst-red font-bold">•</span>
@@ -184,7 +184,7 @@ export default function TermsConditionsPage() {
             </ul>
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
               <p className="text-sm text-[var(--text)] font-semibold mb-2">
-                Fraudulent submissions may result in:
+                Submission of fraudulent, altered, expired, or misleading verification documents may result in:
               </p>
               <ul className="space-y-1 ml-3">
                 {[
@@ -202,16 +202,16 @@ export default function TermsConditionsPage() {
             </div>
           </section>
 
-          {/* Section 5 - BridgeKey Wallet */}
+          {/* Section 5 - Web3 Wallet */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
             <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
                 5
               </span>
-              BridgeKey Wallet Requirement
+              Web3 Wallet Requirement
             </h2>
             <p className="text-[var(--text)] leading-relaxed mb-4">
-              Certain Academy features require users to connect a valid BridgeKey Wallet. Such features may include:
+              Certain Academy features require users to connect a compatible Web3 wallet. Such features may include:
             </p>
             <ul className="space-y-2 mb-6">
               {[
@@ -353,7 +353,7 @@ export default function TermsConditionsPage() {
                 "Completion of all modules",
                 "Participation in learning activities",
                 "Successful assessment performance",
-                "Compliance with Academy policies",
+                "Compliance with Academy policies: Assessments may be evaluated using artificial intelligence (AI). While we strive to ensure accurate evaluation, AI may occasionally make mistakes. Users are encouraged to verify important assessment responses and contact Masterstroke Academy if they believe an assessment requires further review.",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-[var(--text)]">
                   <span className="text-mst-red font-bold">•</span>
@@ -422,8 +422,8 @@ export default function TermsConditionsPage() {
               On-Chain Certifications
             </h2>
             <p className="text-[var(--text)] leading-relaxed mb-4">
-              Certain certifications may be issued and permanently recorded on the MST Blockchain. Users acknowledge
-              that:
+              Certain certifications may be issued and permanently recorded on supported blockchain networks. Users
+              acknowledge that:
             </p>
             <ul className="space-y-3">
               {[
@@ -484,7 +484,7 @@ export default function TermsConditionsPage() {
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
                     The Academy may provide educational pathways designed to prepare users for validator participation within
-                    the MST ecosystem.
+                    the supported blockchain ecosystem.
                   </p>
                   <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
                     <p className="text-sm text-[var(--text)] mb-2">
@@ -513,7 +513,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    All materials available through the Services remain the exclusive property of Innoversity Innovation Pvt. Ltd.
+                    All materials available through the Services remain the exclusive property of Masterstroke Technosoft Pvt. Ltd.
                     or its licensors.
                   </p>
                   <div className="bg-[var(--bg-muted)] rounded-lg p-4 border border-[var(--border)]">
@@ -713,7 +713,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    To the fullest extent permitted by law, Innoversity Innovation Pvt. Ltd., its directors, employees, affiliates,
+                    To the fullest extent permitted by law, Masterstroke Technosoft Pvt. Ltd., its directors, employees, affiliates,
                     contractors, and partners shall not be liable for:
                   </p>
                   <ul className="grid md:grid-cols-2 gap-2 mb-4">
@@ -748,7 +748,7 @@ export default function TermsConditionsPage() {
               content: (
                 <div className="space-y-4">
                   <p className="text-[var(--text)] leading-relaxed">
-                    Users agree to indemnify and hold harmless Innoversity Innovation Pvt. Ltd. from claims, liabilities, losses,
+                    Users agree to indemnify and hold harmless Masterstroke Technosoft Pvt. Ltd. from claims, liabilities, losses,
                     damages, costs, and expenses arising from:
                   </p>
                   <ul className="space-y-2">
@@ -868,7 +868,7 @@ export default function TermsConditionsPage() {
             <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
               <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
               <p className="text-sm text-[var(--text-muted)] mb-4">
-                <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
+                <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
               </p>
 
               <div className="space-y-4">
@@ -904,7 +904,7 @@ export default function TermsConditionsPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

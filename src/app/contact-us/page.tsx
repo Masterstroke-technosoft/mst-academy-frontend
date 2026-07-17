@@ -31,8 +31,8 @@ export default function ContactUsPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed">
             Masterstroke Academy is committed to providing quality education, technical support, and assistance
-            regarding courses, certifications, payments, wallet integration, and participation in the MST
-            Blockchain ecosystem.
+            regarding courses, certifications, payments, Web3 wallet integration, and blockchain-enabled
+            educational services.
           </p>
           <p className="text-[var(--text)] leading-relaxed mt-4">
             If you have any questions, concerns, feedback, or require assistance with your account, course access,
@@ -48,7 +48,7 @@ export default function ContactUsPage() {
           <div className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-xl p-6">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
-              <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
+              <span className="text-mst-red font-semibold">A Product of</span>Masterstroke Technosoft Pvt. Ltd.
             </p>
 
             <div className="space-y-3">
@@ -138,11 +138,9 @@ export default function ContactUsPage() {
                   "Course unlocking problems",
                   "Learning progress concerns",
                   "Module access issues",
+                  "Assessment-related queries",
+                  "AI assessment review requests",
                 ],
-              },
-              {
-                title: "Assessment-related Queries",
-                items: ["Assessment queries", "Grading concerns", "Exam scheduling"],
               },
               {
                 title: "Payments",
@@ -164,9 +162,9 @@ export default function ContactUsPage() {
                 ],
               },
               {
-                title: "Wallet & Rewards",
+                title: "Web3 Wallet & Rewards",
                 items: [
-                  "BridgeKey Wallet integration",
+                  "Web3 wallet integration",
                   "Wallet linking issues",
                   "Reward distribution concerns",
                   "Blockchain verification support",
@@ -238,15 +236,16 @@ export default function ContactUsPage() {
                 Academy will be conducted through authorized email addresses and official platform channels.
               </p>
               <p className="text-sm text-[var(--text)]">
-                Users are advised not to share passwords, private keys, seed phrases, OTPs, or other sensitive
-                credentials with anyone claiming to represent Masterstroke Academy.
+                Users are advised not to share passwords, private keys, recovery phrases, seed phrases, OTPs, or
+                other sensitive credentials with anyone claiming to represent Masterstroke Academy.
               </p>
             </div>
 
             <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
               <p className="text-sm text-[var(--text)] font-semibold">
-                ⚠️ Masterstroke Academy will never request your wallet seed phrase, private keys, banking PIN, or
-                password through email, phone calls, or messaging platforms.
+                ⚠️ Masterstroke Academy will never request your wallet recovery phrase, seed phrase, private keys,
+                banking PIN, or account password through email, phone calls, messaging platforms, or any other
+                communication channel.
               </p>
             </div>
           </div>
@@ -259,7 +258,7 @@ export default function ContactUsPage() {
           <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-6">
-              <span className="text-mst-red font-semibold">A Product of</span> Innoversity Innovation Pvt. Ltd.
+              <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
             </p>
 
             <div className="space-y-6">
@@ -301,7 +300,7 @@ export default function ContactUsPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

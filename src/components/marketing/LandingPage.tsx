@@ -557,7 +557,7 @@ export function LandingPage({
                             <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] min-h-[32px]">
                               {card.tag}
                             </p>
-                            <h3 className="mt-3 text-xl font-black text-[var(--text)]">
+                            <h3 className="mt-3 min-h-[56px] text-xl font-black text-[var(--text)]">
                               {card.title}
                             </h3>
                           </div>
