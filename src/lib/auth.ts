@@ -44,6 +44,7 @@ export interface RegisterStudentInput {
   idCardFile: File;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 export interface RegisterValidatorInput {
@@ -55,6 +56,7 @@ export interface RegisterValidatorInput {
   idCardFile?: File;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 export interface RegisterNonValidatorInput {
@@ -65,6 +67,7 @@ export interface RegisterNonValidatorInput {
   blockchainLevel?: BlockchainLevel;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 const SESSION_KEY = "mst-academy-session";
@@ -236,6 +239,9 @@ export async function registerStudent(
     if (input.transactionId) {
       formData.append("transactionId", input.transactionId);
     }
+    if (input.gstNumber) {
+      formData.append("gstNumber", input.gstNumber);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
       method: "POST",
@@ -280,6 +286,7 @@ export async function registerValidator(
       mobileNumber: input.phone,
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
+      ...(input.gstNumber ? { gstNumber: input.gstNumber } : {}),
     };
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
@@ -328,6 +335,7 @@ export async function registerNonValidator(
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
+        gstNumber: input.gstNumber,
       }),
     });
 
@@ -374,6 +382,7 @@ export async function registerWorkingProfessional(input: {
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
+        gstNumber: input.gstNumber,
       }),
     });
 

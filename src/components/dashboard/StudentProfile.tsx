@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { AuthUser } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, CheckCircle2, Copy, Save, User, AlertCircle } from "lucide-react";
+import { Camera, CheckCircle2, Copy, Save, User, AlertCircle, Trash2, Edit2 } from "lucide-react";
 
 export function StudentProfile({ user }: { user: AuthUser | null }) {
   const { updateProfile } = useAuth();
@@ -42,6 +42,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profileImageUrl || safeUser.profileImage || safeUser.profilePhoto || null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [isPhotoDeleted, setIsPhotoDeleted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -204,12 +205,19 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     const file = e.target.files?.[0];
     if (file) {
       setPhotoFile(file);
+      setIsPhotoDeleted(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhoto(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePhotoDelete = () => {
+    setPhoto(null);
+    setPhotoFile(null);
+    setIsPhotoDeleted(true);
   };
 
   const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -313,7 +321,13 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       if (formData.portfolio !== initialData.portfolio) bodyData.portfolioWebsite = formData.portfolio;
       if (formData.walletAddress !== initialData.walletAddress) bodyData.walletAddress = formData.walletAddress;
 
-      if (Object.keys(bodyData).length === 0 && !photoFile) {
+      if (isPhotoDeleted) {
+        bodyData.profileImage = "";
+        bodyData.profileImageUrl = "";
+        bodyData.profilePhoto = "";
+      }
+
+      if (Object.keys(bodyData).length === 0 && !photoFile && !isPhotoDeleted) {
         showToast("Profile updated successfully", "success");
         setSaving(false);
         return;
@@ -373,7 +387,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         const updatedGithub = data.user.githubProfile || data.user.github || "";
         const updatedPortfolio = data.user.portfolioWebsite || data.user.portfolio || "";
         const updatedWalletAddress = data.user.walletAddress || "";
-        const updatedPhoto = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo;
+        const updatedPhoto = isPhotoDeleted ? null : (data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo);
         finalPhoto = updatedPhoto;
 
         setFormData(prev => ({
@@ -394,10 +408,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           walletAddress: updatedWalletAddress,
         });
 
-        if (updatedPhoto) {
-          setPhoto(updatedPhoto);
-        }
+        setPhoto(updatedPhoto);
         setPhotoFile(null);
+        if (isPhotoDeleted) {
+          setIsPhotoDeleted(false);
+        }
       }
 
       updateProfile({
@@ -407,9 +422,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         github: formData.github,
         walletAddress: formData.walletAddress,
         portfolio: formData.portfolio,
-        profilePhoto: finalPhoto || undefined,
-        profileImage: finalPhoto || undefined,
-        profileImageUrl: finalPhoto || undefined,
+        profilePhoto: finalPhoto || "",
+        profileImage: finalPhoto || "",
+        profileImageUrl: finalPhoto || "",
       });
 
       showToast("Profile updated successfully", "success");
@@ -537,13 +552,35 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <p className="mt-1 text-sm text-[var(--text-muted)] max-w-sm">
                 Upload a professional headshot. Recommended size is 256x256 pixels. JPG or PNG allowed.
               </p>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--border)]"
-              >
-                Upload Photo
-              </button>
+              {photo ? (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--border)]"
+                  >
+                    <Edit2 size={14} />
+                    Edit Photo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePhotoDelete}
+                    className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-500/20"
+                  >
+                    <Trash2 size={14} />
+                    Delete Photo
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--border)]"
+                >
+                  <Camera size={14} />
+                  Upload Photo
+                </button>
+              )}
             </div>
           </div>
 
