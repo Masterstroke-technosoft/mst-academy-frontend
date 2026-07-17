@@ -8,8 +8,9 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
   const isDashboardOrAdmin = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   const segments = pathname.split("/").filter(Boolean);
   const isLessonPage = segments[0] === "module" && segments.length >= 3;
+  const isPortalGate = pathname === "/landing";
 
-  if ((isDashboardOrAdmin || isLessonPage) && !forceShow) return null;
+  if ((isDashboardOrAdmin || isLessonPage || isPortalGate) && !forceShow) return null;
 
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--bg-elevated)] py-6 transition-colors duration-300">

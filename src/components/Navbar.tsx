@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
 import { dashboardPath } from "@/lib/auth";
+import { PORTAL_COOKIE, PORTAL_COOKIE_MAX_AGE, EVENTS_URL } from "@/lib/portal";
 import {
   Menu,
   X,
@@ -18,12 +20,15 @@ import {
   Shield,
   Users,
   Trophy,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export function Navbar() {
   const { user, ready, logout, isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -34,6 +39,19 @@ export function Navbar() {
     : "/login";
 
   const showUserNav = mounted && ready && user;
+
+  const switchPortal = () => {
+    if (EVENTS_URL !== "#") {
+      document.cookie = `${PORTAL_COOKIE}=events; path=/; max-age=${PORTAL_COOKIE_MAX_AGE}`;
+      window.location.href = EVENTS_URL;
+      return;
+    }
+    // Events portal URL isn't configured yet - fall back to the chooser.
+    document.cookie = `${PORTAL_COOKIE}=; path=/; max-age=0`;
+    router.push("/landing");
+  };
+
+  if (pathname === "/landing") return null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
@@ -150,6 +168,15 @@ export function Navbar() {
           >
             Start Learning
           </Link>
+
+          <button
+            type="button"
+            onClick={switchPortal}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+          >
+            <ArrowLeftRight size={14} />
+            Events
+          </button>
 
           {/* Mobile menu button */}
           <button

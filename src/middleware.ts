@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { PORTAL_COOKIE, EVENTS_URL } from "@/lib/portal";
 
 const PUBLIC_PATHS = [
-  "/",
+  "/landing",
+  "/academy",
   "/login",
   "/register",
   "/plans",
@@ -17,6 +19,22 @@ const PUBLIC_PATHS = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Base URL: send known/returning visitors straight into their portal and
+  // keep the address bar on the bare domain; only first-time visitors see
+  // the /landing chooser.
+  if (pathname === "/") {
+    const hasSession = request.cookies.has("mst-session");
+    const portal = request.cookies.get(PORTAL_COOKIE)?.value;
+
+    if (hasSession || portal === "academy") {
+      return NextResponse.rewrite(new URL("/academy", request.url));
+    }
+    if (portal === "events" && EVENTS_URL !== "#") {
+      return NextResponse.redirect(EVENTS_URL);
+    }
+    return NextResponse.redirect(new URL("/landing", request.url));
+  }
 
   const isPublic = PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
