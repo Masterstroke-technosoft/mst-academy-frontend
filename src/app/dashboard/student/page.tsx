@@ -2026,6 +2026,11 @@ export default function StudentDashboardPage({
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                            e.target.value = "";
+                            return;
+                          }
                           setEditingItem({ ...editingItem, contentFileUpload: file });
                         }
                       }}
@@ -2197,6 +2202,11 @@ export default function StudentDashboardPage({
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                              e.target.value = "";
+                              return;
+                            }
                             setCurriculumModal({
                               ...curriculumModal,
                               contentFile: file.name,

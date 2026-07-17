@@ -204,6 +204,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       setPhotoFile(file);
       setIsPhotoDeleted(false);
       const reader = new FileReader();
@@ -223,6 +228,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
@@ -238,6 +248,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handleIdCardReupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
         const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
@@ -550,7 +565,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             <div>
               <h3 className="text-lg font-bold text-[var(--text)]">Profile Photo</h3>
               <p className="mt-1 text-sm text-[var(--text-muted)] max-w-sm">
-                Upload a professional headshot. Recommended size is 256x256 pixels. JPG or PNG allowed.
+                Upload a professional headshot. Recommended size is 256x256 pixels. JPG or PNG allowed. Max size 5MB.
               </p>
               {photo ? (
                 <div className="mt-4 flex flex-wrap gap-3">
@@ -855,7 +870,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             {/* Upload CV */}
             <div>
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
-                Upload CV
+                Upload CV (Max 5MB)
               </label>
               <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-2.5 opacity-70">
                 <label

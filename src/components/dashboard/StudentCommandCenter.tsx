@@ -203,6 +203,11 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       setPaymentScreenshotFile(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -2061,7 +2066,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
-                    Upload payment screenshot{" "}
+                    Upload payment screenshot (Max 5MB){" "}
                     {allocationStatus?.status === "REJECTED" && allocationStatus.paymentScreenshotUrl ? null : (
                       <span className="text-mst-red">*</span>
                     )}
