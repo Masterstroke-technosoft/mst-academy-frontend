@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpen, Calendar, ArrowRight } from "lucide-react";
 import { PORTAL_COOKIE, PORTAL_COOKIE_MAX_AGE, EVENTS_URL } from "@/lib/portal";
 
@@ -20,6 +20,10 @@ const EVENTS_NAV = ["Home", "Membership", "Impact", "Gallery"];
 export function DualPortalLanding() {
   const router = useRouter();
   const [hover, setHover] = useState<Side>(null);
+  // Touch devices never fire hover, so without this the panels would be
+  // stuck in the dim "neither side chosen" look forever. On such devices
+  // both panels default to their fully lit-up state instead.
+  const [canHover, setCanHover] = useState(true);
   const [transition, setTransition] = useState<Transition>({
     status: "idle",
     color: "transparent",
@@ -27,15 +31,24 @@ export function DualPortalLanding() {
     y: 0,
   });
 
-  const academyActive = hover === "academy";
-  const eventsActive = hover === "events";
+  useEffect(() => {
+    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
+    setCanHover(query.matches);
+    const onChange = () => setCanHover(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
 
-  const academyLayerOpacity = eventsActive ? 0.08 : academyActive ? 1 : 0.45;
-  const eventsLayerOpacity = academyActive ? 0.08 : eventsActive ? 1 : 0.45;
-  const academyScale = academyActive ? 1 : 0.94;
-  const eventsScale = eventsActive ? 1 : 0.94;
-  const academyTextColor = eventsActive ? "rgba(255,255,255,0.28)" : "#0f172a";
-  const eventsTextColor = academyActive ? "rgba(15,23,42,0.28)" : "#f3f0ff";
+  const academyActive = canHover && hover === "academy";
+  const eventsActive = canHover && hover === "events";
+  const bothActive = !canHover;
+
+  const academyLayerOpacity = bothActive ? 1 : eventsActive ? 0.08 : academyActive ? 1 : 0.45;
+  const eventsLayerOpacity = bothActive ? 1 : academyActive ? 0.08 : eventsActive ? 1 : 0.45;
+  const academyScale = bothActive || academyActive ? 1 : 0.94;
+  const eventsScale = bothActive || eventsActive ? 1 : 0.94;
+  const academyTextColor = !bothActive && eventsActive ? "rgba(255,255,255,0.28)" : "#0f172a";
+  const eventsTextColor = !bothActive && academyActive ? "rgba(15,23,42,0.28)" : "#f3f0ff";
 
   let knobTransform = "translateX(0px)";
   if (academyActive) knobTransform = "translateX(-108px)";
@@ -143,7 +156,7 @@ export function DualPortalLanding() {
           <div
             className="mt-1 w-[280px] overflow-hidden rounded-2xl bg-white transition-transform duration-500 ease-out sm:mt-3 sm:w-[340px]"
             style={{
-              boxShadow: academyActive
+              boxShadow: bothActive || academyActive
                 ? "0 30px 70px rgba(224,52,44,0.25)"
                 : "0 24px 60px rgba(0,0,0,.35)",
               transform: `scale(${academyScale})`,
@@ -226,7 +239,7 @@ export function DualPortalLanding() {
           <div
             className="mt-1 w-[280px] overflow-hidden rounded-2xl border border-white/10 bg-[#050505] transition-transform duration-500 ease-out sm:mt-3 sm:w-[340px]"
             style={{
-              boxShadow: eventsActive
+              boxShadow: bothActive || eventsActive
                 ? "0 30px 70px rgba(139,92,246,0.3)"
                 : "0 24px 60px rgba(0,0,0,.5)",
               transform: `scale(${eventsScale})`,
