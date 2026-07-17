@@ -240,7 +240,7 @@ export async function registerStudent(
       formData.append("transactionId", input.transactionId);
     }
     if (input.gstNumber) {
-      formData.append("gstNumber", input.gstNumber);
+      formData.append("GSTIN", input.gstNumber);
     }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
@@ -286,7 +286,7 @@ export async function registerValidator(
       mobileNumber: input.phone,
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
-      ...(input.gstNumber ? { gstNumber: input.gstNumber } : {}),
+      ...(input.gstNumber ? { GSTIN: input.gstNumber } : {}),
     };
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
@@ -335,7 +335,8 @@ export async function registerNonValidator(
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
-        gstNumber: input.gstNumber,
+        GSTIN: input.gstNumber,
+        mobileNumber: input.phone,
       }),
     });
 
@@ -370,6 +371,7 @@ export async function registerWorkingProfessional(input: {
   password: string;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -382,7 +384,8 @@ export async function registerWorkingProfessional(input: {
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
-        gstNumber: input.gstNumber,
+        GSTIN: input.gstNumber,
+        mobileNumber: input.phone,
       }),
     });
 
