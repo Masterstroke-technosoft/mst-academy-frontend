@@ -489,17 +489,17 @@ export function LandingPage({
                 // Format role name dynamically (e.g. VALIDATOR -> Validator Fellowship)
                 const formatRoleToTitle = (r: string) => {
                   if (!r) return "";
-                  const words = r.toLowerCase().split("_");
+                  const words = r.split("_");
                   const titleCased = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
                   if (titleCased.toLowerCase().includes("only")) {
                     return titleCased;
                   }
-                  return `${titleCased} Fellowship`;
+                  return `${titleCased}`;
                 };
 
                 // Generate detail links dynamically based on role
                 const getDetailHref = (r: string) => {
-                  const slug = r.toLowerCase().replace(/_/g, "-");
+                  const slug = r.trim().toLowerCase().replace(/[\s_]+/g, "-");
                   return `/plans/${slug}`;
                 };
 
@@ -541,15 +541,6 @@ export function LandingPage({
                 };
               });
 
-              const sortOrder = ["course_only", "non_validator", "courseonly", "validator", "student", "working_professional", "professional"];
-              cardsToRender.sort((a: any, b: any) => {
-                const indexA = sortOrder.findIndex(o => a.id.includes(o));
-                const indexB = sortOrder.findIndex(o => b.id.includes(o));
-                const posA = indexA === -1 ? 999 : indexA;
-                const posB = indexB === -1 ? 999 : indexB;
-                return posA - posB;
-              });
-
               return cardsToRender.map((card: any, i: number) => {
                 const apiPrice = card.price;
                 const apiOriginal = card.original;
@@ -566,7 +557,7 @@ export function LandingPage({
                             <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] min-h-[32px]">
                               {card.tag}
                             </p>
-                            <h3 className="mt-3 text-xl font-black text-[var(--text)]">
+                            <h3 className="mt-3 min-h-[56px] text-xl font-black text-[var(--text)]">
                               {card.title}
                             </h3>
                           </div>
@@ -609,6 +600,11 @@ export function LandingPage({
                             Explore this plan
                             <ChevronRight className="h-4 w-4" />
                           </Link>
+                          <div className="mt-2 text-right">
+                            <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                              * Exclusive of GST
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>

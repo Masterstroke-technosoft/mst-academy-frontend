@@ -10,6 +10,7 @@ export interface AuthUser {
   password?: string;
   fullName: string;
   role: UserRole;
+  backendRole?: string;
   phone?: string;
   college?: string;
   collegeOther?: string;
@@ -43,6 +44,7 @@ export interface RegisterStudentInput {
   idCardFile: File;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 export interface RegisterValidatorInput {
@@ -54,6 +56,7 @@ export interface RegisterValidatorInput {
   idCardFile?: File;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 export interface RegisterNonValidatorInput {
@@ -64,6 +67,7 @@ export interface RegisterNonValidatorInput {
   blockchainLevel?: BlockchainLevel;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }
 
 const SESSION_KEY = "mst-academy-session";
@@ -235,6 +239,9 @@ export async function registerStudent(
     if (input.transactionId) {
       formData.append("transactionId", input.transactionId);
     }
+    if (input.gstNumber) {
+      formData.append("GSTIN", input.gstNumber);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
       method: "POST",
@@ -279,6 +286,7 @@ export async function registerValidator(
       mobileNumber: input.phone,
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
+      ...(input.gstNumber ? { GSTIN: input.gstNumber } : {}),
     };
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
@@ -327,6 +335,8 @@ export async function registerNonValidator(
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
+        GSTIN: input.gstNumber,
+        mobileNumber: input.phone,
       }),
     });
 
@@ -361,6 +371,7 @@ export async function registerWorkingProfessional(input: {
   password: string;
   referralCode?: string;
   transactionId?: string;
+  gstNumber?: string;
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -373,6 +384,8 @@ export async function registerWorkingProfessional(input: {
         password: input.password,
         referralCode: input.referralCode,
         transactionId: input.transactionId,
+        GSTIN: input.gstNumber,
+        mobileNumber: input.phone,
       }),
     });
 

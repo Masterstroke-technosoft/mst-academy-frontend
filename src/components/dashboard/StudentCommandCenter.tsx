@@ -61,6 +61,8 @@ import {
 } from "lucide-react";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
 import { ReferAndEarnTab } from "@/components/dashboard/ReferAndEarnTab";
+import { SubmissionProgressTab } from "@/components/dashboard/SubmissionProgressTab";
+
 
 function PlaceholderTab({ title, icon: Icon, description }: { title: string; icon: any; description: string }) {
   return (
@@ -153,6 +155,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [allocationErrors, setAllocationErrors] = useState<Record<string, string>>({});
   const [isSubmittingAllocation, setIsSubmittingAllocation] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [showRegPopup, setShowRegPopup] = useState(false);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -200,6 +203,11 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       setPaymentScreenshotFile(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -232,7 +240,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     if (!allocationForm.accountHolderName.trim()) {
       errors.accountHolderName = "Account holder name is required";
     }
-    
+
     // Determine category automatically based on logged-in user's role
     const userRole = user?.role?.toLowerCase() || "";
     let resolvedCategory = "NON_VALIDATOR";
@@ -241,9 +249,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     } else if (userRole === "validator") {
       resolvedCategory = "VALIDATOR";
     } else if (
-      userRole === "working_professional" || 
-      userRole === "working professional" || 
-      userRole === "normal" || 
+      userRole === "working_professional" ||
+      userRole === "working professional" ||
+      userRole === "normal" ||
       userRole === "workingprofessional"
     ) {
       resolvedCategory = "WORKING_PROFESSIONAL";
@@ -331,7 +339,42 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         );
         if (isResubmit) {
           setAllocationStatus((prev) => (prev ? { ...prev, status: "PENDING", rejectionNote: null } : prev));
+        } else {
+          try {
+            const resData = await res.json();
+            const latest = resData.purchase || resData.data || resData;
+            if (latest) {
+              setAllocationStatus({
+                id: latest._id || latest.id,
+                status: latest.status || "PENDING",
+                rejectionNote: latest.rejectionNote,
+                accountHolderName: latest.accountHolderName,
+                category: latest.category,
+                amountPaid: latest.amountPaid,
+                paymentDate: latest.paymentDate,
+                transactionId: latest.transactionId,
+                paymentMethod: latest.paymentMethod,
+                additionalNotes: latest.additionalNotes,
+                paymentScreenshotUrl: latest.paymentScreenshotUrl,
+              });
+            } else {
+              setAllocationStatus({
+                id: "",
+                status: "PENDING",
+              });
+            }
+          } catch (e) {
+            console.error("Failed to parse node-purchase response:", e);
+            setAllocationStatus({
+              id: "",
+              status: "PENDING",
+            });
+          }
         }
+        setPaymentProfile({
+          isPaymentVerified: false,
+          hasTransactionId: true,
+        });
         setIsAllocationModalOpen(false);
         setAllocationForm({
           accountHolderName: "",
@@ -383,7 +426,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       // user only has to fix whatever caused the rejection.
       setAllocationForm({
         accountHolderName: allocationStatus.accountHolderName || user.fullName,
-        category: allocationStatus.category || categoryByRole[user.role?.toLowerCase()] || "",
+        category: allocationStatus.category || categoryByRole[(user.backendRole || user.role || "").toLowerCase()] || "",
         amountPaid: allocationStatus.amountPaid != null ? String(allocationStatus.amountPaid) : "",
         paymentDate: allocationStatus.paymentDate ? allocationStatus.paymentDate.slice(0, 10) : "",
         transactionId: allocationStatus.transactionId || "",
@@ -397,7 +440,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       setAllocationForm((prev) => ({
         ...prev,
         accountHolderName: prev.accountHolderName || user.fullName,
-        category: prev.category || categoryByRole[user.role?.toLowerCase()] || "",
+        category: prev.category || categoryByRole[(user.backendRole || user.role || "").toLowerCase()] || "",
       }));
     }
     setIsAllocationModalOpen(true);
@@ -406,7 +449,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const handleClaimCertificate = async () => {
     if (isClaiming) return;
     setIsClaiming(true);
-    showToast("Generating and claiming your certificate...", "success");
 
     try {
       const image = new Image();
@@ -450,7 +492,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 if (response.ok) {
                   const data = await response.json();
                   setClaimedCertificate(data.certificateImage);
-                  showToast("Certificate generated successfully!", "success");
+                  showToast("Certificate claimed successfully and sent to your email!", "success");
                   setIsClaimModalOpen(true);
                 } else {
                   console.error("Failed to upload certificate");
@@ -513,6 +555,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (hash === "#progress") return "progress";
       if (hash === "#profile") return "profile";
       if (hash === "#refer") return "refer";
+      if (hash === "#submissions") return "submissions";
     }
     return "overview";
   });
@@ -531,6 +574,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (hash === "#progress") setActiveTab("progress");
       else if (hash === "#profile") setActiveTab("profile");
       else if (hash === "#refer") setActiveTab("refer");
+      else if (hash === "#submissions") setActiveTab("submissions");
       else setActiveTab("overview");
     };
 
@@ -540,6 +584,22 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   }, []);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isNewReg = localStorage.getItem("justRegisteredCompleted");
+      if (isNewReg === "true") {
+        setShowRegPopup(true);
+      }
+    }
+  }, []);
+
+  const handleCompleteProfileClick = () => {
+    localStorage.removeItem("justRegisteredCompleted");
+    setShowRegPopup(false);
+    setActiveTab("profile");
+    window.location.hash = "#profile";
+  };
 
   useEffect(() => {
     if (!ready) return;
@@ -970,6 +1030,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
                 { href: "/learn", icon: TreePine, label: "Learning Tree" },
                 ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
+                ...(!isAdmin ? [{ id: "submissions", href: `${basePath}#submissions`, icon: BookOpen, label: "Submission Progress" }] : []),
                 ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
                 ...(isAdmin ? [
                   { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -1020,7 +1081,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                         : "Your payment could not be verified. Please resubmit with correct details."
                       : allocationStatus?.status === "PENDING"
-                        ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                        ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
                         : "Complete your payment to unlock the full curriculum."}
                   </p>
                   {allocationStatus?.status !== "PENDING" && (
@@ -1085,6 +1146,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               { id: "overview", href: basePath, icon: LayoutDashboard, label: "Overview" },
               { href: "/learn", icon: TreePine, label: "Learning Tree" },
               ...(!isAdmin ? [{ id: "progress", href: `${basePath}#progress`, icon: BarChart3, label: "Progress" }] : []),
+              ...(!isAdmin ? [{ id: "submissions", href: `${basePath}#submissions`, icon: BookOpen, label: "Submission Progress" }] : []),
               ...(!isAdmin ? [{ id: "refer", href: `${basePath}#refer`, icon: Gift, label: "Refer & Earn" }] : []),
               ...(isAdmin ? [
                 { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
@@ -1156,7 +1218,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                       : "Your payment could not be verified. Please resubmit with correct details."
                     : allocationStatus?.status === "PENDING"
-                      ? "We're verifying your payment. Your curriculum unlocks once it's approved."
+                      ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
                       : "Complete your payment to unlock the full curriculum."}
                 </p>
                 {allocationStatus?.status !== "PENDING" && (
@@ -1235,6 +1297,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   successfulReferrals={successfulReferrals}
                   withdrawUnlocked={withdrawUnlocked}
                 />
+              ) : activeTab === 'submissions' ? (
+                <SubmissionProgressTab user={user} curriculum={curriculum} />
               ) : activeTab === 'progress' ? (
                 <PlaceholderTab
                   title="Learning Progress"
@@ -1411,6 +1475,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       { label: "Completion", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                       { label: "Modules", value: `${analytics.modulesCompleted}/${analytics.totalModules}`, icon: BookOpen, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
                       { label: "Avg Score", value: analytics.averageScore > 0 ? `${analytics.averageScore}%` : "-", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
+                      { label: "Total Score", value: apiData?.totalScore !== undefined && apiData?.totalScore !== null ? `${apiData.totalScore}/2100` : "-", icon: Brain, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
                       { label: "Study Time", value: `${analytics.totalStudyHours}h`, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
                       // { label: "Focus", value: `${analytics.focusScore}%`, icon: Zap, color: "text-orange-500", bg: "bg-orange-500/10 border-orange-500/20" },
                       //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
@@ -1787,7 +1852,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
               <h3 className="text-3xl font-black text-[var(--text)] tracking-tight">Congratulations, {user.fullName}!</h3>
               <p className="mt-2 text-sm text-[var(--text-muted)] max-w-lg leading-relaxed">
-                You have successfully completed all submodules in the academy program. Your official graduation certificate has been generated successfully!
+                You have successfully completed all submodules in the academy program. Your official graduation certificate has been claimed successfully and sent to your email!
               </p>
 
               {claimedCertificate && (
@@ -1843,18 +1908,66 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </button>
             </div>
 
-            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
-              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
-              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
-                <img
-                  src="/MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[140px] w-[140px] object-contain"
-                />
+            <div className="mb-4 flex flex-col md:flex-row items-stretch justify-center gap-6 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-5 shrink-0 text-left">
+              <div className="flex flex-col items-center justify-between gap-2 text-center shrink-0 w-full md:max-w-[200px]">
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                    <img
+                      src="/MasterstrokePaymentQRCode.jpg"
+                      alt="Payment QR Code"
+                      className="h-[140px] w-[140px] object-contain"
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)] leading-normal mt-1">
+                  Already paid? Fill in the transaction details below so we can verify it.
+                </p>
               </div>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Already paid? Fill in the transaction details below so we can verify it.
-              </p>
+
+              {(() => {
+                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                let pricing = null;
+                if (roleStr === "courseonly" || roleStr === "ojt") {
+                  pricing = { name: "OJT", base: 4999 };
+                } else if (roleStr === "workingprofessional" || roleStr === "web3enthusiast" || roleStr === "normal") {
+                  pricing = { name: "Working Professional - Web3 Enthusiast", base: 24999 };
+                } else if (roleStr === "validator") {
+                  pricing = { name: "Validator", base: 9999 };
+                } else if (roleStr === "student") {
+                  pricing = { name: "Student", base: 19999 };
+                }
+
+                if (!pricing) return null;
+
+                const base = pricing.base;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                        Plan: {pricing.name}
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">Role Amount:</span>
+                          <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">18% GST:</span>
+                          <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
+                      <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
+                      <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <form onSubmit={handleAllocationSubmit} className="space-y-3">
@@ -1942,9 +2055,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   >
                     <option value="">Select Method</option>
                     <option value="UPI">UPI</option>
-                    <option value="Card">Card</option>
-                    <option value="Net Banking">Net Banking</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Online">Online</option>
                   </select>
                   {allocationErrors.paymentMethod && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
@@ -1955,7 +2066,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
-                    Upload payment screenshot{" "}
+                    Upload payment screenshot (Max 5MB){" "}
                     {allocationStatus?.status === "REJECTED" && allocationStatus.paymentScreenshotUrl ? null : (
                       <span className="text-mst-red">*</span>
                     )}
@@ -2019,6 +2130,46 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showRegPopup && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center shadow-2xl relative">
+            <button
+              onClick={() => {
+                localStorage.removeItem("justRegisteredCompleted");
+                setShowRegPopup(false);
+              }}
+              className="absolute right-4 top-4 rounded-full p-2 text-[var(--text-muted)] hover:bg-[var(--border)]/50 transition"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mst-red/10 text-mst-red mb-4">
+              <User size={32} />
+            </div>
+            <h3 className="text-xl font-black text-[var(--text)]">Complete Your Profile</h3>
+            <p className="text-sm text-[var(--text-muted)] mt-2 leading-relaxed">
+              Registration complete! Please fill in your mobile number, social links, and other details to complete your profile setup.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                onClick={handleCompleteProfileClick}
+                className="w-full rounded-2xl bg-mst-red py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 hover:brightness-110 transition-all"
+              >
+                Complete Profile
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("justRegisteredCompleted");
+                  setShowRegPopup(false);
+                }}
+                className="w-full rounded-2xl border border-[var(--border)] py-3 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--bg-muted)] transition"
+              >
+                Decide Later
+              </button>
+            </div>
           </div>
         </div>
       )}

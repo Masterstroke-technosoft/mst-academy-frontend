@@ -139,6 +139,7 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCodeInput, setReferralCodeInput] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -263,6 +264,7 @@ export function RegisterForm() {
     }
 
     const referralCode = referralCodeInput.trim() || undefined;
+    const gst = gstNumber.trim() || undefined;
 
     let result:
       | { ok: true; user: { id: string; role: string } }
@@ -283,6 +285,7 @@ export function RegisterForm() {
         idCardFile: validatorIdFile || undefined,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -313,6 +316,7 @@ export function RegisterForm() {
         idCardFile: studentIdFile,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -322,6 +326,7 @@ export function RegisterForm() {
         password,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     } else {
       result = await registerNonValidator({
@@ -331,6 +336,7 @@ export function RegisterForm() {
         phone,
         referralCode,
         transactionId: transactionId.trim() || undefined,
+        gstNumber: gst,
       });
     }
 
@@ -349,6 +355,9 @@ export function RegisterForm() {
   // Sends the user to /login once registration (and optionally payment) is done.
   function finishRegistration(paymentStatus?: "submitted") {
     logout();
+    if (typeof window !== "undefined") {
+      localStorage.setItem("justRegisteredCompleted", "true");
+    }
     const params = new URLSearchParams({ email, registered: "1" });
     if (paymentStatus) params.set("payment", paymentStatus);
     router.push(`/login?${params.toString()}`);
@@ -359,6 +368,7 @@ export function RegisterForm() {
       <AuthShell
         title="Complete Payment"
         subtitle="Optional - activate your plan now, or do it later from your dashboard."
+        maxWidth="max-w-2xl"
       >
         <div className="mb-5 rounded-xl bg-green-500/10 px-4 py-3 text-sm font-semibold text-green-700 dark:text-green-400">
           Account created! Complete your payment below to activate {selectedPlan.label}, or skip and pay later.
@@ -369,14 +379,46 @@ export function RegisterForm() {
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
             <FieldLabel>Scan to Pay</FieldLabel>
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
-                <img
-                  src="./MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[180px] w-[180px] object-contain"
-                />
+            <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 text-left">
+              <div className="flex flex-col items-center justify-center gap-2 text-center shrink-0 w-full md:max-w-[200px]">
+                <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-white p-3 shadow-md transition-transform hover:scale-[1.02]">
+                  <img
+                    src="./MasterstrokePaymentQRCode.jpg"
+                    alt="Payment QR Code"
+                    className="h-[140px] w-[140px] object-contain"
+                  />
+                </div>
               </div>
+
+              {(() => {
+                const base = selectedPlan.price;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                        Plan: {selectedPlan.label}
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">Role Amount:</span>
+                          <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">18% GST:</span>
+                          <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
+                      <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
+                      <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
@@ -610,7 +652,7 @@ export function RegisterForm() {
 
               <div>
                 <FieldLabel htmlFor="studentId" required>
-                  Student ID Card Upload
+                  Student ID Card Upload (Max 5MB)
                 </FieldLabel>
                 <div className="flex items-center gap-3">
                   <label
@@ -627,9 +669,16 @@ export function RegisterForm() {
                     type="file"
                     accept="image/*,.pdf"
                     className="hidden"
-                    onChange={(e) =>
-                      setStudentIdFile(e.target.files?.[0] ?? null)
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                        e.target.value = "";
+                        setStudentIdFile(null);
+                      } else {
+                        setStudentIdFile(file);
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -640,7 +689,7 @@ export function RegisterForm() {
             <div className="space-y-4">
               <div>
                 <FieldLabel htmlFor="validatorId" required>
-                  Validator ID Card Upload
+                  Validator ID Card Upload (Max 5MB)
                 </FieldLabel>
                 <div className="flex items-center gap-3">
                   <label
@@ -658,9 +707,16 @@ export function RegisterForm() {
                     accept="image/*,.pdf"
                     required
                     className="hidden"
-                    onChange={(e) =>
-                      setValidatorIdFile(e.target.files?.[0] ?? null)
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                        e.target.value = "";
+                        setValidatorIdFile(null);
+                      } else {
+                        setValidatorIdFile(file);
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -681,6 +737,17 @@ export function RegisterForm() {
 
           {/* Fee display */}
           <DemoFee amount={selectedPlan.price} />
+        </div>
+
+        {/* GSTIN */}
+        <div>
+          <FieldLabel htmlFor="gstNumber">GSTIN (if required)</FieldLabel>
+          <TextInput
+            id="gstNumber"
+            value={gstNumber}
+            onChange={(e) => setGstNumber(e.target.value)}
+            placeholder="Enter GSTIN (optional)"
+          />
         </div>
 
         {/* Referral Code */}

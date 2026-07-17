@@ -103,7 +103,7 @@ export function useProctoring(disabled: boolean = false) {
     startTabMonitoring(addViolation, resolveViolation);
     startFullscreenMonitoring(addViolation, resolveViolation);
     startCameraMonitoring(addViolation, resolveViolation);
-    startMicrophoneMonitoring(addViolation, resolveViolation);
+    // startMicrophoneMonitoring(addViolation, resolveViolation);
     startBlurCameraMonitoring(addViolation, resolveViolation);
 
     return () => {
@@ -112,7 +112,7 @@ export function useProctoring(disabled: boolean = false) {
       stopTabMonitoring();
       stopFullscreenMonitoring();
       stopCameraMonitoring();
-      stopMicrophoneMonitoring();
+      // stopMicrophoneMonitoring();
       stopBlurCameraMonitoring();
       exitFullscreen().catch(console.error);
     };

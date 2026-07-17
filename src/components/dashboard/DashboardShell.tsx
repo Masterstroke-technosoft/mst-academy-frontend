@@ -39,7 +39,10 @@ const getSidebarNav = (role: string, isAdmin: boolean) => [
   { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
   { href: "/learn", icon: TreePine, label: "Learning Tree" },
   ...(!isAdmin
-    ? [{ href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" }]
+    ? [
+      { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
+      { href: `/dashboard/${role}#submissions`, icon: BookOpen, label: "Submission Progress" }
+    ]
     : []),
   ...(isAdmin
     ? [

@@ -1,4 +1,7 @@
 import { notFound } from "next/navigation";
+
+/*
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ModuleDetail } from "@/components/module/ModuleDetail";
 import { getCurriculum, getModule } from "@/lib/curriculum";
@@ -48,3 +51,10 @@ export default async function ModulePage({
     />
   );
 }
+*/
+
+export default function ModulePage() {
+  notFound();
+}
+
+

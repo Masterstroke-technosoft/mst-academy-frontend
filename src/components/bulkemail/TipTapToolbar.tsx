@@ -606,7 +606,14 @@ export default function TipTapToolbar({ editor, onImageUpload }: ToolbarProps) {
         accept="image/*"
         onChange={(e) => {
           const file = e.target.files?.[0];
-          if (file && onImageUpload) onImageUpload(file);
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+              e.target.value = "";
+              return;
+            }
+            if (onImageUpload) onImageUpload(file);
+          }
           e.target.value = "";
         }}
         style={{ display: "none" }}

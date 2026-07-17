@@ -694,6 +694,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = async () => {
         const rawBase64 = reader.result as string;
@@ -788,7 +793,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
-  const needsVerification = !!userProfile && (!isPaymentVerified || ((userProfile.role?.toLowerCase() === "student" || userProfile.role?.toLowerCase() === "validator") && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
+  const needsVerification = !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -868,34 +873,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       } catch (err) {
         console.error("Error fetching submodules by module:", err);
       }
-
-      // FALLBACK: If API fails, populate with local static curriculum submodules so they aren't stuck loading
-      const currentModule = fetchedModules.find(m => String(m._id || m.id) === String(activeModuleId));
-      if (currentModule) {
-        const staticMod = getModule(currentModule.index);
-        if (staticMod && Array.isArray(staticMod.submodules)) {
-          const fallbackData = staticMod.submodules.map((sub: any, idx: number) => ({
-            _id: sub.slug || `${activeModuleId}-${idx + 1}`,
-            moduleId: String(activeModuleId),
-            index: idx + 1,
-            title: sub.title || "",
-            description: sub.subtitle || "",
-            estimatedTime: "30 minutes",
-            contentFile: sub.filename || "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            __v: 0,
-            status: "unlocked"
-          }));
-          setFetchedSubmodules((prev) => ({
-            ...prev,
-            [String(activeModuleId)]: fallbackData,
-          }));
-        }
-      }
     }
     loadSubmodules();
-  }, [baseURL, activeModuleId, fetchedModules]);
+  }, [baseURL, activeModuleId]);
 
   // Build the dynamic curriculum object
   const curriculum = useMemo(() => {
@@ -1387,10 +1367,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     );
   }
 
-  // Student ID verification only applies to the student/validator tracks, but
-  // payment verification gates every paid plan (course-only, working professional, etc).
+  // Student ID verification only applies to the student track, but
+  // payment verification gates every paid plan (course-only, validator, web3 enthusiast, etc).
   const isStudentOrValidatorRole =
-    userProfile?.role?.toLowerCase() === "student" || userProfile?.role?.toLowerCase() === "validator";
+    userProfile?.role?.toLowerCase() === "student";
 
   return (
     <div
@@ -1506,7 +1486,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) && (
+      {needsVerification && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
@@ -1533,7 +1513,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 </div>
               </div>
             )
-          ) : (!userProfile.isStudentVerified || userProfile.studentRejectionNote) ? (
+          ) : (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || userProfile.studentRejectionNote)) ? (
             <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
               {userProfile.studentRejectionNote ? (
                 <>
@@ -1590,39 +1570,57 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               }}
             />
             <div style={{ height: graphHeight, width: "100%" }}>
-              {isFetchingSubmodules ? (
-                userProfile && (!isPaymentVerified || (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote))) ? (
-                  <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6">
-                    <div className="max-w-md w-full shadow-lg rounded-2xl">
-                      {!isPaymentVerified ? (
-                        (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
-                          <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-                            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                            <div className="flex-1">
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
-                              <button
-                                type="button"
-                                onClick={openPaymentModal}
-                                className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
-                              >
-                                Pay Now
-                              </button>
-                            </div>
+              {needsVerification ? (
+                <div className="flex h-full items-start justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6 pt-20">
+                  <div className="max-w-md w-full shadow-lg rounded-2xl">
+                    {!isPaymentVerified ? (
+                      (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div className="flex-1">
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                            <button
+                              type="button"
+                              onClick={openPaymentModal}
+                              className="mt-2 rounded-lg bg-mst-red px-3 py-1.5 text-xs font-bold text-white transition hover:bg-red-700 cursor-pointer"
+                            >
+                              Pay Now
+                            </button>
                           </div>
-                        ) : (
-                          <>
-                            <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
-                            <div>
-                              <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
-                              <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
-                            </div>
-                          </>
-                        )
-                      ) : null}
-                    </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                          </div>
+                        </div>
+                      )
+                    ) : (isStudentOrValidatorRole && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)) ? (
+                      userProfile.studentRejectionNote ? (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Rejected</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>
+                              Your verification request was rejected. Reason: <span className="font-extrabold">{userProfile.studentRejectionNote}</span>. Please update your profile and re-upload your ID card.
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3.5 rounded-2xl border p-5 text-xs font-semibold backdrop-blur-md shadow-lg" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
+                          <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                          <div>
+                            <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Student Verification Pending</p>
+                            <p className="mt-1.5 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin student verification is complete, your curriculum will be unlocked.</p>
+                          </div>
+                        </div>
+                      )
+                    ) : null}
                   </div>
-                ) : null
+                </div>
               ) : isFetchingSubmodules ? (
                 <div className="flex h-full items-center justify-center bg-[var(--surface)]/10 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-4">
@@ -1666,6 +1664,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               )}
             </div>
           </div>
+          
         </div>
 
         {/* Detail panel */}
@@ -1963,18 +1962,66 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               </button>
             </div>
 
-            <div className="mb-4 flex flex-col items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-4 text-center shrink-0">
-              <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
-              <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
-                <img
-                  src="/MasterstrokePaymentQRCode.jpg"
-                  alt="Payment QR Code"
-                  className="h-[140px] w-[140px] object-contain"
-                />
+            <div className="mb-4 flex flex-col md:flex-row items-stretch justify-center gap-6 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] p-5 shrink-0 text-left">
+              <div className="flex flex-col items-center justify-between gap-2 text-center shrink-0 w-full md:max-w-[200px]">
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-xs font-bold text-[var(--text)]">Scan to Pay</p>
+                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white p-2 shadow-sm">
+                    <img
+                      src="/MasterstrokePaymentQRCode.jpg"
+                      alt="Payment QR Code"
+                      className="h-[140px] w-[140px] object-contain"
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)] leading-normal mt-1">
+                  Already paid? Fill in the transaction details below so we can verify it.
+                </p>
               </div>
-              <p className="text-[11px] text-[var(--text-muted)]">
-                Already paid? Fill in the transaction details below so we can verify it.
-              </p>
+
+              {(() => {
+                const roleStr = (user?.role || "").toLowerCase().replace(/[-_\s]/g, "");
+                let pricing = null;
+                if (roleStr === "courseonly" || roleStr === "ojt") {
+                  pricing = { name: "OJT", base: 4999 };
+                } else if (roleStr === "workingprofessional" || roleStr === "web3enthusiast" || roleStr === "normal") {
+                  pricing = { name: "Working Professional - Web3 Enthusiast", base: 24999 };
+                } else if (roleStr === "validator") {
+                  pricing = { name: "Validator", base: 9999 };
+                } else if (roleStr === "student") {
+                  pricing = { name: "Student", base: 19999 };
+                }
+
+                if (!pricing) return null;
+
+                const base = pricing.base;
+                const gst = base * 0.18;
+                const total = base * 1.18;
+
+                return (
+                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                        Plan: {pricing.name}
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">Role Amount:</span>
+                          <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                          <span className="text-[var(--text-muted)]">18% GST:</span>
+                          <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
+                      <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
+                      <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <form onSubmit={handleAllocationSubmit} className="space-y-3">
@@ -2077,9 +2124,9 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   >
                     <option value="">Select Method</option>
                     <option value="UPI">UPI</option>
-                    <option value="Card">Card</option>
-                    <option value="Net Banking">Net Banking</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Online">Online</option>
+                    {/* <option value="Net Banking">Net Banking</option>
+                    <option value="Bank Transfer">Bank Transfer</option> */}
                   </select>
                   {allocationErrors.paymentMethod && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
@@ -2090,7 +2137,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
                   <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
-                    Upload payment screenshot <span className="text-mst-red">*</span>
+                    Upload payment screenshot (Max 5MB) <span className="text-mst-red">*</span>
                   </label>
                   <div className={`flex items-center gap-3 w-full rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
                     <label
@@ -2162,4 +2209,3 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     </div>
   );
 }
-

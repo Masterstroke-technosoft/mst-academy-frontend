@@ -169,6 +169,11 @@ export default function ComposeEmailPage() {
   const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+      e.target.value = "";
+      return;
+    }
     setCsvFileName(file.name);
 
     const reader = new FileReader();
@@ -446,6 +451,11 @@ export default function ComposeEmailPage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+                    e.target.value = "";
+                    return;
+                  }
                   const reader = new FileReader();
                   reader.onload = (event) => {
                     const base64 = event.target?.result as string;

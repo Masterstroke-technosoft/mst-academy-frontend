@@ -31,12 +31,12 @@ export default function PrivacyPolicyPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed mb-4">
             <span className="font-semibold">Masterstroke Academy</span> ("Academy", "we", "our", or "us") is
-            a product of <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span>
+            a product of <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span>
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             This Privacy Policy explains how we collect, use, store, process, disclose, and protect
-            information when users access or use Masterstroke Academy, the MST Blockchain ecosystem, BridgeKey
-            Wallet integrations, educational programs, certifications, rewards systems, validator pathways,
+            information when users access or use Masterstroke Academy, blockchain ecosystem integrations, Web3
+            wallet integrations, educational programs, certifications, rewards systems, validator pathways,
             websites, applications, and related services (collectively referred to as the "Services").
           </p>
           <p className="text-[var(--text)] leading-relaxed font-semibold text-mst-red">
@@ -64,8 +64,8 @@ export default function PrivacyPolicyPage() {
                 "Register for an Academy account",
                 "Enroll in educational programs",
                 "Participate in assessments and certifications",
-                "Connect or use BridgeKey Wallet",
-                "Participate in MST Blockchain ecosystem activities",
+                "Connect or use a compatible Web3 wallet",
+                "Participate in supported blockchain ecosystem activities",
                 "Receive rewards through Academy programs",
                 "Apply for validator pathways and ecosystem opportunities",
                 "Communicate with our support team",
@@ -173,11 +173,12 @@ export default function PrivacyPolicyPage() {
                   <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                     <h4 className="font-semibold text-[var(--text)] mb-3">Wallet Information</h4>
                     <p className="text-sm text-[var(--text)] mb-3">
-                      Because Masterstroke Academy integrates with the MST ecosystem, we may collect:
+                      Because Masterstroke Academy integrates with blockchain networks and Web3 technologies,
+                      we may collect:
                     </p>
                     <ul className="space-y-2 mb-3">
                       {[
-                        "BridgeKey Wallet Address",
+                        "Web3 Wallet Address",
                         "Blockchain Wallet Address",
                         "Wallet Interaction Records",
                         "Reward Distribution Records",
@@ -291,7 +292,7 @@ export default function PrivacyPolicyPage() {
               Blockchain Information
             </h2>
             <p className="text-[var(--text)] leading-relaxed mb-4">
-              Certain Academy features operate through the MST Blockchain ecosystem. Because blockchain
+              Certain Academy features operate through supported blockchain networks. Because blockchain
               technology functions differently from traditional databases, users acknowledge that certain
               information may become permanently recorded on-chain.
             </p>
@@ -339,11 +340,11 @@ export default function PrivacyPolicyPage() {
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
                 5
               </span>
-              BridgeKey Wallet Integration
+              Web3 Wallet Integration
             </h2>
             <p className="text-[var(--text)] leading-relaxed mb-4">
-              Certain Services may require integration with BridgeKey Wallet. By connecting a wallet, users
-              acknowledge that:
+              Certain Services may require integration with a compatible Web3 wallet. By connecting a wallet,
+              users acknowledge that:
             </p>
             <ul className="space-y-3 mb-6 text-[var(--text)]">
               {[
@@ -391,7 +392,7 @@ export default function PrivacyPolicyPage() {
                     "Provide course access",
                     "Deliver educational content",
                     "Track progress",
-                    "Conduct assessments",
+                    "Conduct assessments: Assessments may be evaluated using artificial intelligence (AI). While we strive to ensure accurate evaluation, AI may occasionally make mistakes. Users are encouraged to verify important assessment responses and contact Masterstroke Academy if they believe an assessment requires further review.",
                     "Issue certifications",
                   ],
                 },
@@ -454,7 +455,7 @@ export default function PrivacyPolicyPage() {
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
                 7
               </span>
-              MST Rewards and Incentives
+              Rewards and Incentives
             </h2>
             <p className="text-[var(--text)] leading-relaxed mb-4">
               Masterstroke Academy may offer rewards, incentives, recognition programs, or ecosystem benefits
@@ -499,7 +500,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="space-y-3">
               {[
-                "Certification records may be stored on the MST Blockchain.",
+                "Certification records may be stored on supported blockchain networks.",
                 "Certification data may be publicly verifiable.",
                 "On-chain records may remain permanently available.",
                 "Blockchain entries cannot generally be altered or deleted once confirmed.",
@@ -553,7 +554,7 @@ export default function PrivacyPolicyPage() {
                 },
                 {
                   title: "Business Transfers",
-                  desc: "If Innoversity Innovation Pvt. Ltd. undergoes a merger, acquisition, restructuring, or asset transfer, user information may be transferred as part of that transaction.",
+                  desc: "If Masterstroke Technosoft Pvt. Ltd. undergoes a merger, acquisition, restructuring, or asset transfer, user information may be transferred as part of that transaction.",
                 },
               ].map((section, idx) => (
                 <div key={idx} className="bg-[var(--bg-muted)] rounded-lg p-4 border border-[var(--border)]">
@@ -794,7 +795,7 @@ export default function PrivacyPolicyPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">sarthaknimje.mst@gmail.com</p>
+                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
                 </div>
 
                 <div>
@@ -809,7 +810,7 @@ export default function PrivacyPolicyPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: 19-06-2026</p>
-          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

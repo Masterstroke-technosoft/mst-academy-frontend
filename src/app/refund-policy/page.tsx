@@ -31,7 +31,7 @@ export default function RefundPolicyPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed mb-4">
             Masterstroke Academy is a digital education platform operated by{" "}
-            <span className="font-semibold">Innoversity Innovation Pvt. Ltd.</span> Through the Academy,
+            <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span> Through the Academy,
             users gain access to educational content, assessments, blockchain certifications, ecosystem
             participation opportunities, validator learning pathways, rewards programs, and related digital
             services.
@@ -387,9 +387,9 @@ export default function RefundPolicyPage() {
             </p>
             <ul className="space-y-2 mb-6 text-[var(--text)]">
               {[
-                "A valid BridgeKey Wallet",
-                "A compatible blockchain wallet address",
-                "Participation within the MST Blockchain ecosystem",
+                "A compatible Web3 wallet",
+                "A valid blockchain wallet address",
+                "Participation within supported blockchain networks or ecosystem activities",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3">
                   <span className="text-mst-red font-bold">•</span>
@@ -401,12 +401,14 @@ export default function RefundPolicyPage() {
               Users are responsible for ensuring that wallet information submitted is accurate. Masterstroke
               Academy shall not be responsible for losses arising from:
             </p>
-            <ul className="space-y-2 text-[var(--text)]">
+            <ul className="space-y-2 mb-6 text-[var(--text)]">
               {[
                 "Incorrect wallet addresses",
                 "User wallet misconfiguration",
-                "Loss of wallet credentials",
+                "Loss of wallet credentials, private keys, or recovery phrases",
+                "Unsupported wallet software",
                 "Third-party wallet failures",
+                "Blockchain network issues beyond the Academy's control",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3">
                   <span className="text-mst-red font-bold">•</span>
@@ -414,6 +416,14 @@ export default function RefundPolicyPage() {
                 </li>
               ))}
             </ul>
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+              <p className="text-sm text-[var(--text)]">
+                Where rewards, certificates, tokens, NFTs, or other blockchain-based assets are distributed,
+                users must ensure they provide a compatible wallet capable of receiving such assets.
+                Masterstroke Academy shall not be liable for assets sent to incorrect or incompatible wallet
+                addresses.
+              </p>
+            </div>
           </section>
 
           {/* Section 11 */}
@@ -483,7 +493,7 @@ export default function RefundPolicyPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">sarthaknimje.mst@gmail.com</p>
+                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
                 </div>
 
                 <div>
@@ -513,7 +523,7 @@ export default function RefundPolicyPage() {
         {/* Last Updated */}
         <div className="mt-12 text-center text-sm text-[var(--text-muted)] pb-8">
           <p>Last Updated: January 2025</p>
-          <p>© 2025 Innoversity Innovation Pvt. Ltd. All rights reserved.</p>
+          <p>© 2025 Masterstroke Technosoft Pvt. Ltd. All rights reserved.</p>
         </div>
       </div>
     </div>

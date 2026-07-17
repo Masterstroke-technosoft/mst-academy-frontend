@@ -1,19 +1,8 @@
-import { getAllModules, getPhases } from "@/lib/curriculum";
-import { LandingPage } from "@/components/marketing/LandingPage";
+import { redirect } from "next/navigation";
 
+// Middleware resolves "/" to /landing, /academy, or the Events portal
+// depending on session/portal cookies. This is the fallback if that
+// branching is ever bypassed.
 export default function HomePage() {
-  const phases = getPhases();
-  const modules = getAllModules();
-  const submoduleCount = modules.reduce(
-    (n, m) => n + m.submodules.length,
-    0
-  );
-
-  return (
-    <LandingPage
-      phases={phases}
-      moduleCount={modules.length}
-      submoduleCount={submoduleCount}
-    />
-  );
+  redirect("/landing");
 }

@@ -11,7 +11,7 @@ export const PROGRAMME_STATS = {
   modules: 21,
   submodules: 123,
   hours: 130,
-  passThreshold: 75,
+  passThreshold: 70,
 };
 
 export const PROGRAMME_BADGES = [

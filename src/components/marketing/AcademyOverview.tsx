@@ -543,12 +543,14 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface)]/80 px-10 py-4 text-lg font-bold text-[var(--text)] backdrop-blur-md transition hover:border-mst-red"
-              >
-                Enroll Now
-              </Link>
+              {!user && (
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface)]/80 px-10 py-4 text-lg font-bold text-[var(--text)] backdrop-blur-md transition hover:border-mst-red"
+                >
+                  Enroll Now
+                </Link>
+              )}
             </div>
           </div>
 
@@ -733,9 +735,9 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "Submodule quizzes after each lesson",
+                  "Submodule assessments after each lesson",
                   "Module-end comprehensive tests",
-                  "Coding challenges with testnet deployment",
+                  // "Coding challenges with testnet deployment",
                   "Capstone project + Demo Day pitch",
                 ].map((item) => (
                   <li

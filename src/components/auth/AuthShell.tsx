@@ -5,14 +5,16 @@ export function AuthShell({
   title,
   subtitle,
   children,
+  maxWidth = "max-w-lg",
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  maxWidth?: string;
 }) {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--bg)] px-4 py-12">
-      <div className="w-full max-w-lg">
+      <div className={`w-full ${maxWidth}`}>
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-muted)] transition hover:text-mst-red"
