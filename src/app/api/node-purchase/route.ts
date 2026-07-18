@@ -53,7 +53,29 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    const contentType = request.headers.get('content-type') || '';
+    let data: any = {};
+    let screenshotUrl = '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      formData.forEach((value, key) => {
+        if (key === 'paymentScreenshot') {
+          const file = value as unknown as File;
+          if (file && typeof file !== 'string' && file.name) {
+            screenshotUrl = `/uploads/${file.name}`;
+          }
+        } else {
+          data[key] = value;
+        }
+      });
+      if (!screenshotUrl && data.paymentScreenshotUrl) {
+        screenshotUrl = data.paymentScreenshotUrl;
+      }
+    } else {
+      data = await request.json();
+      screenshotUrl = data.paymentScreenshotUrl;
+    }
     
     // Extract userId with fallbacks so it never fails validation due to client omission
     const userId = data.userId || request.headers.get('x-user-id') || '6a46530ca5731a44adfe5444';
@@ -65,12 +87,24 @@ export async function POST(request: NextRequest) {
       'paymentDate',
       'transactionId',
       'paymentMethod',
-      'paymentScreenshotUrl',
     ];
     const missing = requiredFields.filter((f) => !data[f]);
+    if (!screenshotUrl) {
+      missing.push('paymentScreenshotUrl');
+    }
     if (missing.length) {
       return NextResponse.json({ error: 'Missing fields', missing }, { status: 400 });
     }
+
+    const address = typeof data.address === 'object' && data.address !== null ? data.address : {
+      addressLine1: data.addressLine1 || '',
+      addressLine2: data.addressLine2 || '',
+      city: data.city || '',
+      district: data.district || '',
+      state: data.state || '',
+      pincode: data.pincode || '',
+      country: data.country || ''
+    };
 
     const now = new Date();
     const newPurchase = {
@@ -82,7 +116,8 @@ export async function POST(request: NextRequest) {
       paymentDate: data.paymentDate,
       transactionId: data.transactionId,
       paymentMethod: data.paymentMethod,
-      paymentScreenshotUrl: data.paymentScreenshotUrl,
+      address,
+      paymentScreenshotUrl: screenshotUrl,
       additionalNotes: data.additionalNotes || null,
       status: 'PENDING',
       rejectionNote: null,
