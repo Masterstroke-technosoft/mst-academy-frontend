@@ -467,7 +467,7 @@ export function roleLabel(role: UserRole | string): string {
       return "Web3 Enthusiast";
     case "course_only":
     case "COURSE_ONLY":
-      return "Course Only";
+      return "OJT";
     case "working_professional":
     case "working-professional":
     case "WORKING_PROFESSIONAL":

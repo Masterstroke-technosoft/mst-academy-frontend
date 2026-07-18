@@ -68,6 +68,7 @@ export default function UserManagementPage() {
             id: u.id || u._id || `user-${index}-${Math.random()}`,
             email: u.email || "No Email",
             fullName: u.fullName || u.name || "Unknown",
+            phone: u.mobileNumber || u.phone || "N/A",
             role: roleStr,
             isActive: u.isActive,
             isStudentVerified: u.studentRejectionNote ? false : u.isStudentVerified,
@@ -225,7 +226,12 @@ export default function UserManagementPage() {
   const filteredUsers = useMemo(() => {
     let result = users;
     if (filterRole !== "all") {
-      result = result.filter(u => u.role === filterRole);
+      result = result.filter(u => {
+        if (filterRole === "working_professional") {
+          return u.role === "working_professional" || u.role === "non-validator" || u.role === "working-professional";
+        }
+        return u.role === filterRole;
+      });
     }
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
@@ -316,11 +322,10 @@ export default function UserManagementPage() {
                   className="w-full appearance-none rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] pl-3 pr-10 py-2 text-sm font-medium text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
                 >
                   <option value="all">All Users</option>
-                  <option value="student">Students</option>
-                  {/* <option value="validator">Validators</option> */}
-                  <option value="course_only">Course Only</option>
+                  <option value="course_only">OJT</option>
+                  <option value="validator">Validator</option>
+                  <option value="student">Student</option>
                   <option value="working_professional">Web3 Enthusiast</option>
-                  <option value="admin">Admin</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
               </div>
@@ -356,7 +361,8 @@ export default function UserManagementPage() {
                 <tr>
                   <th className="px-3 py-3">ID</th>
                   <th className="px-3 py-3">Name</th>
-                  <th className="px-3 py-3 ">Email</th>
+                  <th className="px-3 py-3">Email</th>
+                  <th className="px-3 py-3">Mobile</th>
                   {showCollege && <th className="px-3 py-3">College</th>}
                   <th className="pl-3 pr-1 py-3 w-0 text-center">Role</th>
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
@@ -377,6 +383,9 @@ export default function UserManagementPage() {
                       </td>
                       <td className="px-3 py-4">
                         <div className="h-4 w-40 rounded bg-[var(--bg-muted)]" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-4 w-28 rounded bg-[var(--bg-muted)]" />
                       </td>
                       {showCollege && (
                         <td className="px-3 py-4">
@@ -402,7 +411,7 @@ export default function UserManagementPage() {
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={showCollege ? 9 : 8} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={showCollege ? 10 : 9} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
@@ -414,6 +423,7 @@ export default function UserManagementPage() {
                         {user.fullName || (user as any).name || "Unknown"}
                       </td>
                       <td className="px-3 py-3 break-all">{user.email}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">{(user as any).phone || "N/A"}</td>
                       {showCollege && (
                         <td className="px-3 py-3">{(user as any).collegeName || user.college || "N/A"}</td>
                       )}
