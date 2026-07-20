@@ -77,6 +77,7 @@ export function DashboardShell({
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [confirmingApproveId, setConfirmingApproveId] = useState<string | null>(null);
   const [previewScreenshotUrl, setPreviewScreenshotUrl] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectionNote, setRejectionNote] = useState("");
@@ -797,7 +798,7 @@ export function DashboardShell({
                                 <button
                                   type="button"
                                   disabled={approvingId === (req._id || req.id)}
-                                  onClick={() => handleApprovePayment(req._id || req.id)}
+                                  onClick={() => setConfirmingApproveId(req._id || req.id)}
                                   className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                                 >
                                   Approve
@@ -913,6 +914,49 @@ export function DashboardShell({
                 className="rounded-xl bg-red-600 hover:bg-red-700 px-4 py-2 text-sm font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
               >
                 {approvingId === rejectingId ? "Rejecting…" : "Confirm Rejection"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmingApproveId && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between pb-4">
+              <div>
+                <h3 className="text-lg font-black text-[var(--text)]">Approve Payment</h3>
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
+                  Are you sure you want to approve this payment request?
+                </p>
+              </div>
+              <button
+                onClick={() => setConfirmingApproveId(null)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setConfirmingApproveId(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={approvingId === confirmingApproveId}
+                onClick={async () => {
+                  const id = confirmingApproveId;
+                  setConfirmingApproveId(null);
+                  await handleApprovePayment(id);
+                }}
+                className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                {approvingId === confirmingApproveId ? "Approving…" : "Confirm"}
               </button>
             </div>
           </div>

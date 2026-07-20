@@ -7,7 +7,7 @@ export default function CourseOnlyPlanPage() {
       name="MST On Job Training (OJT) Program"
       subtitle="LEARN. BUILD. EXPERIENCE."
       hero="Gain practical industry experience by learning through real-world projects under expert mentorship. Complete your training and earn an On Job Training (OJT) Certificate aligned with the National Education Policy (NEP) 2020."
-      originalPrice={6999}
+      originalPrice={9999}
       offerPrice={4999}
       discountLabel="Foundation Offer"
       seatsLeft={58}
