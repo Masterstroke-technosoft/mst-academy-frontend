@@ -60,10 +60,11 @@ export const config = {
      * - _next/static   (build output / static files)
      * - _next/image    (image optimization endpoint)
      * - any path with a static-asset file extension (e.g. /logo.png,
-     *   /file.svg, /favicon.ico). These are served from the public/ folder
-     *   and must stay reachable before login - otherwise the auth check
-     *   redirects them to /login and they fail to load.
+     *   /file.svg, /favicon.ico, /sitemap.xml, /robots.txt). These are
+     *   served from the public/ folder and must stay reachable before
+     *   login - otherwise the auth check redirects them to /login and
+     *   they fail to load (or search engines can't crawl them).
      */
-    "/((?!api|_next/static|_next/image|.*\\.(?:png|jpe?g|gif|svg|webp|avif|ico|css|js|woff2?|ttf|map)$).*)",
+    "/((?!api|_next/static|_next/image|.*\\.(?:png|jpe?g|gif|svg|webp|avif|ico|css|js|woff2?|ttf|map|xml|txt|webmanifest|json)$).*)",
   ],
 };
