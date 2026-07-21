@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -77,6 +77,8 @@ export default function UserManagementPage() {
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
             registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
+            referralPercentage: u.referralPercentage,
+            discount: u.discount,
           };
         });
 
@@ -101,9 +103,87 @@ export default function UserManagementPage() {
   const [rejectionNote, setRejectionNote] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
 
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
+  const [updatingReferralId, setUpdatingReferralId] = useState<string | null>(null);
+  const [confirmReferralUpdate, setConfirmReferralUpdate] = useState<{ userId: string; userName: string; percentage: number } | null>(null);
+
+  const [editingDiscountUserId, setEditingDiscountUserId] = useState<string | null>(null);
+  const [editDiscountValue, setEditDiscountValue] = useState<number>(0);
+  const [updatingDiscountId, setUpdatingDiscountId] = useState<string | null>(null);
+  const [confirmDiscountUpdate, setConfirmDiscountUpdate] = useState<{ userId: string; userName: string; discount: number } | null>(null);
+
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleUpdateReferralPercentage = async (userId: string, percentage: number) => {
+    try {
+      setUpdatingReferralId(userId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/admin/users/${userId}/referral-percentage`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ referralPercentage: percentage })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update referral percentage: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === userId ? { ...u, referralPercentage: percentage } : u
+        )
+      );
+
+      showToast(data.message || "Referral percentage updated successfully", "success");
+      setEditingUserId(null);
+    } catch (error: any) {
+      showToast(error.message || "An error occurred while updating referral percentage", "error");
+    } finally {
+      setUpdatingReferralId(null);
+    }
+  };
+
+  const handleUpdateDiscount = async (userId: string, discount: number) => {
+    try {
+      setUpdatingDiscountId(userId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/admin/users/${userId}/discount`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ discount })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update discount: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === userId ? { ...u, discount: discount } : u
+        )
+      );
+
+      showToast(data.message || "Discount updated successfully", "success");
+      setEditingDiscountUserId(null);
+    } catch (error: any) {
+      showToast(error.message || "An error occurred while updating discount", "error");
+    } finally {
+      setUpdatingDiscountId(null);
+    }
   };
 
   const handleVerifyStudent = async (studentId: string, status: string = "Completed", studentRejectionNote?: string) => {
@@ -356,10 +436,9 @@ export default function UserManagementPage() {
 
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[950px] text-left text-sm text-[var(--text-muted)]">
+            <table className="w-full min-w-[1100px] text-left text-sm text-[var(--text-muted)]">
               <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                 <tr>
-                  <th className="px-3 py-3">ID</th>
                   <th className="px-3 py-3">Name</th>
                   <th className="px-3 py-3">Email</th>
                   <th className="px-3 py-3">Mobile</th>
@@ -368,6 +447,8 @@ export default function UserManagementPage() {
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
                   <th className="px-3 py-3">Verified</th>
                   <th className="px-3 py-3">Created</th>
+                  <th className="px-3 py-3 text-center">Referral Percentage</th>
+                  <th className="px-3 py-3 text-center">Discount</th>
                   <th className="px-3 py-3">Status</th>
                 </tr>
               </thead>
@@ -375,9 +456,6 @@ export default function UserManagementPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, index) => (
                     <tr key={`skeleton-${index}`} className="animate-pulse">
-                      <td className="px-3 py-4">
-                        <div className="h-4 w-16 rounded bg-[var(--bg-muted)]" />
-                      </td>
                       <td className="px-3 py-4">
                         <div className="h-4 w-28 rounded bg-[var(--bg-muted)]" />
                       </td>
@@ -405,24 +483,29 @@ export default function UserManagementPage() {
                         <div className="h-4 w-20 rounded bg-[var(--bg-muted)]" />
                       </td>
                       <td className="px-3 py-4">
-                        <div className="h-5 w-16 rounded bg-[var(--bg-muted)]" />
+                        <div className="h-4 w-12 rounded bg-[var(--bg-muted)]" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-4 w-12 rounded bg-[var(--bg-muted)]" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
                       </td>
                     </tr>
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={showCollege ? 10 : 9} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={showCollege ? 11 : 10} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
                     <tr key={user.id} className="transition-colors hover:bg-[var(--bg-muted)]/50">
-                      <td className="px-3 py-3 font-mono text-xs">{String(user.id).substring(0, 12)}</td>
                       <td className="px-3 py-3 font-bold text-[var(--text)]">
                         {user.fullName || (user as any).name || "Unknown"}
                       </td>
-                      <td className="px-3 py-3 break-all">{user.email}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">{user.email}</td>
                       <td className="px-3 py-3 whitespace-nowrap">{(user as any).phone || "N/A"}</td>
                       {showCollege && (
                         <td className="px-3 py-3">{(user as any).collegeName || user.college || "N/A"}</td>
@@ -460,8 +543,7 @@ export default function UserManagementPage() {
                               No
                             </span>
                           )}
-
-                          {((user.role === 'student' /* || user.role === 'validator' */) && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
+                          {((user.role === 'student') && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
                             <button
                               onClick={() => {
                                 setRejectionNote("");
@@ -471,19 +553,111 @@ export default function UserManagementPage() {
                               disabled={verifyingId === user.id}
                               className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
                             >
-                              {verifyingId === user.id ? 'Verifying...' : (
-                                user.studentRejectionNote ? (
-                                  (user.role as string) === 'validator' ? 'Reverify Validator' : 'Reverify Student'
-                                ) : (
-                                  (user.role as string) === 'validator' ? 'Verify Validator' : 'Verify Student'
-                                )
-                              )}
+                              {verifyingId === user.id ? 'Verifying...' : (user.studentRejectionNote ? 'Reverify Student' : 'Verify Student')}
                             </button>
                           )}
                         </div>
                       </td>
                       <td className="px-3 py-3">
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
+                        {editingUserId === user.id ? (
+                          <div className="flex items-center justify-center gap-1.5">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={editValue}
+                              onChange={(e) => setEditValue(Number(e.target.value))}
+                              className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                              disabled={updatingReferralId === user.id}
+                            />
+                            <button
+                              onClick={() => setConfirmReferralUpdate({
+                                userId: user.id,
+                                userName: user.fullName || (user as any).name || "this user",
+                                percentage: editValue
+                              })}
+                              disabled={updatingReferralId === user.id}
+                              className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                              title="Save"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => setEditingUserId(null)}
+                              disabled={updatingReferralId === user.id}
+                              className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                              title="Cancel"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 group min-h-[28px]">
+                            <span>{user.referralPercentage !== undefined ? `${user.referralPercentage}%` : "0%"}</span>
+                            <button
+                              onClick={() => {
+                                setEditingUserId(user.id);
+                                setEditValue(user.referralPercentage || 0);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                              title="Edit Referral Percentage"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
+                        {editingDiscountUserId === user.id ? (
+                           <div className="flex items-center justify-center gap-1.5">
+                             <input
+                               type="number"
+                               min="0"
+                               max="100"
+                               value={editDiscountValue}
+                               onChange={(e) => setEditDiscountValue(Number(e.target.value))}
+                               className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                               disabled={updatingDiscountId === user.id}
+                             />
+                             <button
+                               onClick={() => setConfirmDiscountUpdate({
+                                 userId: user.id,
+                                 userName: user.fullName || (user as any).name || "this user",
+                                 discount: editDiscountValue
+                               })}
+                               disabled={updatingDiscountId === user.id}
+                               className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                               title="Save"
+                             >
+                               <Check size={14} />
+                             </button>
+                             <button
+                               onClick={() => setEditingDiscountUserId(null)}
+                               disabled={updatingDiscountId === user.id}
+                               className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                               title="Cancel"
+                             >
+                               <X size={14} />
+                             </button>
+                           </div>
+                        ) : (
+                           <div className="flex items-center justify-center gap-2 group min-h-[28px]">
+                             <span>{user.discount !== undefined ? `${user.discount}%` : "0%"}</span>
+                             <button
+                               onClick={() => {
+                                 setEditingDiscountUserId(user.id);
+                                 setEditDiscountValue(user.discount || 0);
+                               }}
+                               className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                               title="Edit Discount"
+                             >
+                               <Pencil size={14} />
+                             </button>
+                           </div>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         <button
@@ -574,6 +748,64 @@ export default function UserManagementPage() {
                 }}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer ${confirmToggle.currentStatus ? "bg-mst-red hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
                   }`}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmReferralUpdate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">
+              Do you really want to update the referral percentage to <span className="font-bold text-[var(--text)]">{confirmReferralUpdate.percentage}%</span> for user <span className="font-bold text-[var(--text)]">{confirmReferralUpdate.userName}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmReferralUpdate(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdateReferralPercentage(confirmReferralUpdate.userId, confirmReferralUpdate.percentage);
+                  setConfirmReferralUpdate(null);
+                }}
+                className="rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmDiscountUpdate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">
+              Do you really want to update the discount to <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.discount}%</span> for user <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.userName}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDiscountUpdate(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdateDiscount(confirmDiscountUpdate.userId, confirmDiscountUpdate.discount);
+                  setConfirmDiscountUpdate(null);
+                }}
+                className="rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
               >
                 Yes
               </button>

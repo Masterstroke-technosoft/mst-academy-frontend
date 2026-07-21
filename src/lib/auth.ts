@@ -32,6 +32,8 @@ export interface AuthUser {
   cvFile?: string;
   cvFileName?: string;
   transactionId?: string;
+  referralPercentage?: number;
+  discount?: number;
 }
 
 export interface RegisterStudentInput {

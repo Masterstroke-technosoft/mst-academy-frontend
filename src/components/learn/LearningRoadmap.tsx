@@ -793,7 +793,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
-  const needsVerification = !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
+  const isUserAdmin = userProfile?.role?.toLowerCase() === "admin";
+  const needsVerification = !isUserAdmin && !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
