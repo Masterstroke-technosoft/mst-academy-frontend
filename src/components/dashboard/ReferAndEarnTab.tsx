@@ -28,22 +28,6 @@ function GlassCard({
   );
 }
 
-const getCoursePrice = (role: string): number => {
-  const normalizedRole = String(role || "").toLowerCase().trim();
-  if (normalizedRole === "student") {
-    return 19999;
-  }
-  if (normalizedRole === "validator") {
-    return 9999;
-  }
-  if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") {
-    return 4999;
-  }
-  if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") {
-    return 24999;
-  }
-  return 0; // fallback if unknown role
-};
 
 export function ReferAndEarnTab({
   referralCode: propReferralCode,
@@ -80,6 +64,7 @@ export function ReferAndEarnTab({
   const [dynamicReferralCode, setDynamicReferralCode] = useState(propReferralCode);
   const [dynamicReferrals, setDynamicReferrals] = useState<any[]>([]);
   const [dynamicReferralPercent, setDynamicReferralPercent] = useState<number>(0);
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -109,8 +94,60 @@ export function ReferAndEarnTab({
         console.error("Error fetching user profile in ReferAndEarnTab:", error);
       }
     };
+
+    const fetchCourseDetails = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const courseId = "6a2934912b48a13769669f8e";
+        const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const courseData = data?.course || data?.data || data;
+          if (courseData?.pricingPlans) {
+            setPricingPlans(courseData.pricingPlans);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching course details in ReferAndEarnTab:", error);
+      }
+    };
+
     fetchProfile();
+    fetchCourseDetails();
   }, []);
+
+  const getCoursePrice = (role: string): number => {
+    const normalizedRole = String(role || "").toLowerCase().trim();
+
+    if (pricingPlans && pricingPlans.length > 0) {
+      const matchedPlan = pricingPlans.find(plan => {
+        const planRole = String(plan.role || "").toLowerCase().trim();
+        if (planRole === normalizedRole) return true;
+        if (normalizedRole === "student" && planRole === "student") return true;
+        if (normalizedRole === "validator" && planRole === "validator") return true;
+        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
+            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
+        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
+            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        return false;
+      });
+
+      if (matchedPlan && matchedPlan.price !== undefined && matchedPlan.price !== null) {
+        const numPrice = typeof matchedPlan.price === "number" ? matchedPlan.price : parseInt(String(matchedPlan.price).replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(numPrice)) {
+          return numPrice;
+        }
+      }
+    }
+
+    return 0; // fallback if unknown role or API not loaded yet
+  };
 
   const referralPercent = dynamicReferralPercent || user?.referralPercentage || 0;
 

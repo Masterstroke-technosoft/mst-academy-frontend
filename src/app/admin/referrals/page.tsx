@@ -90,48 +90,84 @@ const INITIAL_REQUESTS: WithdrawalRequest[] = [
   // }
 ];
 
-const getCoursePrice = (role: string): number => {
-  const normalizedRole = String(role || "").toLowerCase().trim();
-  if (normalizedRole === "student") {
-    return 19999;
-  }
-  if (normalizedRole === "validator") {
-    return 9999;
-  }
-  if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") {
-    return 4999;
-  }
-  if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") {
-    return 24999;
-  }
-  return 0; // fallback if unknown role
-};
 
-const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
-  const referralPercent = req.referralPercentage ?? (req as any).userReferralPercentage ?? (req as any).user?.referralPercentage ?? 11;
-  const refId = ref.userId || ref.id || ref._id;
-  const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "student";
-  const price = getCoursePrice(role);
-  return Math.floor((price * referralPercent) / 100);
-};
-
-const calculateRequestPayout = (req: WithdrawalRequest, usersMap?: Map<string, string>): number => {
-  const referrals = req.referrals || [];
-  const eligibleReferrals = referrals.filter(r => r.eligible || r.status === "verified" || r.status === "Verified");
-  if (eligibleReferrals.length === 0) {
-    return req.withdrawalAmount || req.amount || 0;
-  }
-  return eligibleReferrals.reduce((sum, r) => sum + getReferralReward(req, r, usersMap), 0);
-};
 
 export default function ReferralAnalyticsPage() {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [mounted, setMounted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "warning" | "error" } | null>(null);
   const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
+
+  const getCoursePrice = (role: string): number => {
+    const normalizedRole = String(role || "").toLowerCase().trim();
+
+    if (pricingPlans && pricingPlans.length > 0) {
+      const matchedPlan = pricingPlans.find(plan => {
+        const planRole = String(plan.role || "").toLowerCase().trim();
+        if (planRole === normalizedRole) return true;
+        if (normalizedRole === "student" && planRole === "student") return true;
+        if (normalizedRole === "validator" && planRole === "validator") return true;
+        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
+            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
+        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
+            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        return false;
+      });
+
+      if (matchedPlan && matchedPlan.price !== undefined && matchedPlan.price !== null) {
+        const numPrice = typeof matchedPlan.price === "number" ? matchedPlan.price : parseInt(String(matchedPlan.price).replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(numPrice)) {
+          return numPrice;
+        }
+      }
+    }
+
+    return 0; // fallback if unknown role or API not loaded yet
+  };
+
+  const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
+    const referralPercent = req.referralPercentage ?? (req as any).userReferralPercentage ?? (req as any).user?.referralPercentage ?? 11;
+    const refId = ref.userId || ref.id || ref._id;
+    const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "student";
+    const price = getCoursePrice(role);
+    return Math.floor((price * referralPercent) / 100);
+  };
+
+  const calculateRequestPayout = (req: WithdrawalRequest, usersMap?: Map<string, string>): number => {
+    const referrals = req.referrals || [];
+    const eligibleReferrals = referrals.filter(r => r.eligible || r.status === "verified" || r.status === "Verified");
+    if (eligibleReferrals.length === 0) {
+      return req.withdrawalAmount || req.amount || 0;
+    }
+    return eligibleReferrals.reduce((sum, r) => sum + getReferralReward(req, r, usersMap), 0);
+  };
 
   useEffect(() => {
     setMounted(true);
+
+    const loadPricingPlans = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const courseId = "6a2934912b48a13769669f8e";
+        const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const courseData = data?.course || data?.data || data;
+          if (courseData?.pricingPlans) {
+            setPricingPlans(courseData.pricingPlans);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load pricing plans", err);
+      }
+    };
 
     const loadUsers = async () => {
       try {
@@ -262,6 +298,7 @@ export default function ReferralAnalyticsPage() {
       }
     };
 
+    loadPricingPlans();
     loadUsers().then(() => {
       loadRequestsAndBankDetails();
     });
