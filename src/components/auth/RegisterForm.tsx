@@ -10,6 +10,7 @@ import {
   registerStudent,
   registerValidator,
   registerWorkingProfessional,
+  getSession,
 } from "@/lib/auth";
 import {
   isValidIndianMobile,
@@ -390,9 +391,13 @@ export function RegisterForm() {
               </div>
 
               {(() => {
+                const sessionUser = getSession();
+                const discountPercent = sessionUser?.discount || 0;
                 const base = selectedPlan.price;
-                const gst = base * 0.18;
-                const total = base * 1.18;
+                const discountAmount = (base * discountPercent) / 100;
+                const discountedBase = base - discountAmount;
+                const gst = discountedBase * 0.18;
+                const total = discountedBase * 1.18;
 
                 return (
                   <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
@@ -405,6 +410,12 @@ export function RegisterForm() {
                           <span className="text-[var(--text-muted)]">Role Amount:</span>
                           <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
                         </div>
+                        {discountPercent > 0 && (
+                          <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
+                            <span>Discount ({discountPercent}%):</span>
+                            <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
                           <span className="text-[var(--text-muted)]">18% GST:</span>
                           <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>

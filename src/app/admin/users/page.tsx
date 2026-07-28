@@ -31,7 +31,17 @@ export default function UserManagementPage() {
       try {
         setLoading(true);
         let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}`, {
+        
+        let roleParam = "";
+        if (filterRole !== "all") {
+          if (filterRole === "course_only") roleParam = "COURSE_ONLY";
+          else if (filterRole === "validator") roleParam = "VALIDATOR";
+          else if (filterRole === "student") roleParam = "STUDENT";
+          else if (filterRole === "working_professional") roleParam = "WORKING_PROFESSIONAL";
+        }
+
+        const url = `${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}${roleParam ? `&role=${roleParam}` : ""}`;
+        const response = await fetch(url, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -93,7 +103,7 @@ export default function UserManagementPage() {
     };
 
     fetchUsers();
-  }, [currentPage, debouncedSearch]);
+  }, [currentPage, debouncedSearch, filterRole]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
@@ -325,11 +335,8 @@ export default function UserManagementPage() {
   }, [users, filterRole, searchQuery]);
 
   const displayedTotalPages = useMemo(() => {
-    if (filterRole !== "all" || searchQuery.trim() !== "") {
-      return Math.max(1, Math.ceil(filteredUsers.length / 10));
-    }
     return totalPages;
-  }, [filteredUsers, totalPages, filterRole, searchQuery]);
+  }, [totalPages]);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];

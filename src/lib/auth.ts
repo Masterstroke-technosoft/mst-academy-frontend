@@ -265,6 +265,7 @@ export async function registerStudent(
       college: studentData.collegeName || input.college,
       registeredAt: new Date().toISOString(),
       transactionId: studentData.transactionId || input.transactionId,
+      discount: studentData.discount,
     };
 
     setSession(authUser);
@@ -313,6 +314,7 @@ export async function registerValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: validatorData.transactionId || input.transactionId,
+      discount: validatorData.discount,
     };
 
     setSession(authUser);
@@ -356,6 +358,7 @@ export async function registerNonValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
+      discount: registeredUser.discount,
     };
 
     setSession(authUser);
@@ -405,6 +408,7 @@ export async function registerWorkingProfessional(input: {
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
+      discount: registeredUser.discount,
     };
 
     setSession(authUser);

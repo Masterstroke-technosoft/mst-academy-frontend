@@ -625,6 +625,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     paymentMethod: "",
     paymentScreenshotUrl: "",
     additionalNotes: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    district: "",
+    state: "",
+    pincode: "",
+    country: "",
   });
   const [screenshotFileName, setScreenshotFileName] = useState("");
   const [allocationErrors, setAllocationErrors] = useState<Record<string, string>>({});
@@ -728,6 +735,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     if (!allocationForm.transactionId.trim()) errors.transactionId = "Transaction ID is required";
     if (!allocationForm.paymentMethod) errors.paymentMethod = "Payment method is required";
     if (!allocationForm.paymentScreenshotUrl.trim()) errors.paymentScreenshotUrl = "Payment screenshot is required";
+    if (!allocationForm.addressLine1.trim()) errors.addressLine1 = "Address line 1 is required";
+    if (!allocationForm.city.trim()) errors.city = "City is required";
+    if (!allocationForm.district.trim()) errors.district = "District is required";
+    if (!allocationForm.state.trim()) errors.state = "State is required";
+    if (!allocationForm.pincode.trim()) errors.pincode = "Pincode is required";
+    if (!allocationForm.country.trim()) errors.country = "Country is required";
 
     if (Object.keys(errors).length > 0) {
       setAllocationErrors(errors);
@@ -747,6 +760,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         paymentMethod: allocationForm.paymentMethod,
         paymentScreenshotUrl: allocationForm.paymentScreenshotUrl,
         additionalNotes: allocationForm.additionalNotes.trim() || undefined,
+        addressLine1: allocationForm.addressLine1,
+        addressLine2: allocationForm.addressLine2,
+        city: allocationForm.city,
+        district: allocationForm.district,
+        state: allocationForm.state,
+        pincode: allocationForm.pincode,
+        country: allocationForm.country,
       };
 
       const res = await fetch(`${baseURL}/api/node-purchase`, {
@@ -769,6 +789,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           paymentMethod: "",
           paymentScreenshotUrl: "",
           additionalNotes: "",
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          district: "",
+          state: "",
+          pincode: "",
+          country: "",
         });
         setScreenshotFileName("");
       } else {
@@ -1996,8 +2023,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const gst = base * 0.18;
-                const total = base * 1.18;
+                const discountPercent = userProfile?.discount || user?.discount || 0;
+                const discountAmount = (base * discountPercent) / 100;
+                const discountedBase = base - discountAmount;
+                const gst = discountedBase * 0.18;
+                const total = discountedBase * 1.18;
 
                 return (
                   <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
@@ -2010,6 +2040,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                           <span className="text-[var(--text-muted)]">Role Amount:</span>
                           <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
                         </div>
+                        {discountPercent > 0 && (
+                          <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
+                            <span>Discount ({discountPercent}%):</span>
+                            <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
                           <span className="text-[var(--text-muted)]">18% GST:</span>
                           <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -2133,6 +2169,121 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentMethod}</p>
                   )}
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Address Line 1 <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.addressLine1}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, addressLine1: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.addressLine1 ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="123 Main Road"
+                  />
+                  {allocationErrors.addressLine1 && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.addressLine1}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Address Line 2
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.addressLine2}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, addressLine2: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
+                    placeholder="Near Central Mall"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    City <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.city}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, city: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.city ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="Mumbai"
+                  />
+                  {allocationErrors.city && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.city}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    District <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.district}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, district: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.district ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="Mumbai Suburban"
+                  />
+                  {allocationErrors.district && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.district}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    State <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.state}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, state: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.state ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="Maharashtra"
+                  />
+                  {allocationErrors.state && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.state}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                    Pincode <span className="text-mst-red">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={allocationForm.pincode}
+                    onChange={(e) => setAllocationForm({ ...allocationForm, pincode: e.target.value })}
+                    className={`w-full rounded-lg border ${allocationErrors.pincode ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                    placeholder="400001"
+                  />
+                  {allocationErrors.pincode && (
+                    <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.pincode}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
+                  Country <span className="text-mst-red">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={allocationForm.country}
+                  onChange={(e) => setAllocationForm({ ...allocationForm, country: e.target.value })}
+                  className={`w-full rounded-lg border ${allocationErrors.country ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
+                  placeholder="India"
+                />
+                {allocationErrors.country && (
+                  <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.country}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3.5">

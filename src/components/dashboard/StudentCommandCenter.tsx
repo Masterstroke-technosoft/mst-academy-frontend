@@ -139,6 +139,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const { user, ready, logout, isAdmin } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userDiscount, setUserDiscount] = useState<number>(0);
 
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
   const [allocationForm, setAllocationForm] = useState({
@@ -710,6 +711,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   useEffect(() => {
     if (!user?.id) return;
+    setUserDiscount(user?.discount || 0);
     const fetchDashboardData = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -759,6 +761,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             });
             if (data.user.role) {
               setLiveRole(data.user.role);
+            }
+            if (data.user.discount !== undefined) {
+              setUserDiscount(data.user.discount);
             }
           }
         }
@@ -2009,8 +2014,11 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const gst = base * 0.18;
-                const total = base * 1.18;
+                const discountPercent = userDiscount || 0;
+                const discountAmount = (base * discountPercent) / 100;
+                const discountedBase = base - discountAmount;
+                const gst = discountedBase * 0.18;
+                const total = discountedBase * 1.18;
 
                 return (
                   <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
@@ -2023,6 +2031,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <span className="text-[var(--text-muted)]">Role Amount:</span>
                           <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
                         </div>
+                        {discountPercent > 0 && (
+                          <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
+                            <span>Discount ({discountPercent}%):</span>
+                            <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
                           <span className="text-[var(--text-muted)]">18% GST:</span>
                           <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
