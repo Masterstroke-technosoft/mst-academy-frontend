@@ -196,7 +196,7 @@ export default function SubmissionReviewPage() {
                     isCorrect: submission.evaluated || false,
                     rawSubmission: submission,
                     submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt),
-                    marks: ans.marks
+                    marks: ans.marks || submission.totalMarks || 10
                   });
                 }
               });

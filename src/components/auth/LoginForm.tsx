@@ -74,6 +74,7 @@ export function LoginForm() {
           role: normalizeRole(rawRole),
           backendRole: rawRole,
           registeredAt: apiUser?.registeredAt || new Date().toISOString(),
+          discount: apiUser?.discount || 0,
         };
 
         setSession(loggedInUser);
