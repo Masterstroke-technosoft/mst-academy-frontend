@@ -90,13 +90,75 @@ const INITIAL_REQUESTS: WithdrawalRequest[] = [
   // }
 ];
 
+const getCoursePrice = (role: string): number => {
+  const normalizedRole = String(role || "").toLowerCase().trim();
+  if (normalizedRole === "student") {
+    return 19999;
+  }
+  if (normalizedRole === "validator") {
+    return 9999;
+  }
+  if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") {
+    return 4999;
+  }
+  if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") {
+    return 24999;
+  }
+  return 0; // fallback if unknown role
+};
+
+const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
+  const referralPercent = req.referralPercentage ?? (req as any).userReferralPercentage ?? (req as any).user?.referralPercentage ?? 11;
+  const refId = ref.userId || ref.id || ref._id;
+  const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "student";
+  const price = getCoursePrice(role);
+  return Math.floor((price * referralPercent) / 100);
+};
+
+const calculateRequestPayout = (req: WithdrawalRequest, usersMap?: Map<string, string>): number => {
+  const referrals = req.referrals || [];
+  const eligibleReferrals = referrals.filter(r => r.eligible || r.status === "verified" || r.status === "Verified");
+  if (eligibleReferrals.length === 0) {
+    return req.withdrawalAmount || req.amount || 0;
+  }
+  return eligibleReferrals.reduce((sum, r) => sum + getReferralReward(req, r, usersMap), 0);
+};
+
 export default function ReferralAnalyticsPage() {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [mounted, setMounted] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "warning" | "error" } | null>(null);
+  const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
 
   useEffect(() => {
     setMounted(true);
+
+    const loadUsers = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        const res = await fetch(`${baseURL}/api/admin/users?page=1&limit=1000`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (res.ok) {
+          const result = await res.json();
+          const rawUsers = Array.isArray(result) ? result : (result?.data?.users || result?.users || result?.data || []);
+          const m = new Map<string, string>();
+          rawUsers.forEach((u: any) => {
+            const uid = u.id || u._id;
+            if (uid) {
+              m.set(String(uid), String(u.role || ""));
+            }
+          });
+          setUsersMap(m);
+        }
+      } catch (err) {
+        console.error("Failed to load users for role mapping", err);
+      }
+    };
 
     const loadRequestsAndBankDetails = async () => {
       try {
@@ -200,7 +262,9 @@ export default function ReferralAnalyticsPage() {
       }
     };
 
-    loadRequestsAndBankDetails();
+    loadUsers().then(() => {
+      loadRequestsAndBankDetails();
+    });
   }, []);
 
   const handleConfirmRequest = async (requestId: string) => {
@@ -225,7 +289,7 @@ export default function ReferralAnalyticsPage() {
       let payloadReferrals = referrals.map((r: any) => ({
         userId: r.userId || reqObj.userId,
         name: r.name,
-        payout: r.payout || r.amount || 500,
+        payout: getReferralReward(reqObj, r, usersMap),
         status: (r.status === "verified" || r.status === "Verified" || r.eligible) ? "Verified" : r.status
       }));
 
@@ -233,7 +297,7 @@ export default function ReferralAnalyticsPage() {
         payloadReferrals = [{
           userId: reqObj.userId || "",
           name: reqObj.userName || "",
-          payout: reqObj.withdrawalAmount || reqObj.amount || 500,
+          payout: calculateRequestPayout(reqObj, usersMap),
           status: "Verified"
         }];
       }
@@ -297,7 +361,7 @@ export default function ReferralAnalyticsPage() {
       );
 
       setToast({
-        message: `Success! Payout request of ₹${reqObj?.withdrawalAmount || reqObj?.amount} for ${reqObj?.userName} has been successfully verified & confirmed.`,
+        message: `Success! Payout request of ₹${calculateRequestPayout(reqObj, usersMap)} for ${reqObj?.userName} has been successfully verified & confirmed.`,
         type: "success"
       });
       setTimeout(() => setToast(null), 4000);
@@ -426,13 +490,7 @@ export default function ReferralAnalyticsPage() {
                             </span>
                           </div>
 
-                          <div className="flex items-center">
-                            {ref.eligible ? (
-                              <span className="text-xs font-bold text-green-500 flex items-center gap-1">
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                Valid (+₹500)
-                              </span>
-                            ) : (
+                          <div className="flex items-center">                            {ref.eligible ? null : (
                               <span className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1">
                                 <XCircle className="h-3.5 w-3.5" />
                                 No Reward
@@ -444,7 +502,7 @@ export default function ReferralAnalyticsPage() {
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Confirm Action Button */}
                 {req.status !== "Confirmed" && (
                   <div className="mt-6 flex justify-end border-t border-[var(--border)]/50 pt-4">
@@ -454,7 +512,7 @@ export default function ReferralAnalyticsPage() {
                       className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] hover:bg-emerald-600 hover:shadow-xl"
                     >
                       <Check className="h-4 w-4" />
-                      Verify &amp; Confirm Request (Payout ₹{req.amount})
+                      Verify &amp; Confirm Request (Payout ₹{calculateRequestPayout(req, usersMap)})
                     </button>
                   </div>
                 )}

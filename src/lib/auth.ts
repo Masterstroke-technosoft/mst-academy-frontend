@@ -34,6 +34,7 @@ export interface AuthUser {
   transactionId?: string;
   referralPercentage?: number;
   discount?: number;
+  isPaymentVerified?: boolean;
 }
 
 export interface RegisterStudentInput {
