@@ -548,9 +548,68 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
 
-  useEffect(() => {
-    let profilePaymentVerified = false;
+  const checkPaymentStatus = async (profileUser?: any) => {
+    const activeUser = profileUser || userProfile || user;
+    const profilePaymentVerified = !!(activeUser?.isPaymentVerified || activeUser?.paymentVerified);
+    const isAdmin = activeUser?.role === "admin" || activeUser?.role === "ADMIN";
+    const fetchURL = isAdmin
+      ? `${baseURL}/api/node-purchase`
+      : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;
 
+    try {
+      const res = await fetchWithAuth(fetchURL);
+      if (res.ok) {
+        const data = await res.json();
+        let list: any[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (data?.purchase) {
+          list = [data.purchase];
+        } else if (data?.data) {
+          list = Array.isArray(data.data) ? data.data : [data.data];
+        } else if (data?.purchases) {
+          list = Array.isArray(data.purchases) ? data.purchases : [];
+        } else if (data?.status) {
+          list = [data];
+        }
+
+        if (list.length > 0) {
+          const sorted = [...list].sort((a, b) => {
+            const ta = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const tb = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return tb - ta;
+          });
+          const latest = sorted[0];
+
+          if (latest.status === "PENDING") {
+            setHasSubmittedPayment(true);
+            setIsPaymentVerified(false);
+          } else if (latest.status === "APPROVED") {
+            setHasSubmittedPayment(true);
+            setIsPaymentVerified(true);
+          } else if (latest.status === "REJECTED") {
+            setHasSubmittedPayment(false);
+            setIsPaymentVerified(false);
+          } else {
+            setHasSubmittedPayment(profilePaymentVerified);
+            setIsPaymentVerified(profilePaymentVerified);
+          }
+        } else {
+          setHasSubmittedPayment(profilePaymentVerified);
+          setIsPaymentVerified(profilePaymentVerified);
+        }
+      } else {
+        setIsPaymentVerified(profilePaymentVerified);
+        setHasSubmittedPayment(profilePaymentVerified);
+      }
+    } catch (err) {
+      console.error("Error checking payment status:", err);
+      setIsPaymentVerified(profilePaymentVerified);
+      setHasSubmittedPayment(profilePaymentVerified);
+    }
+  };
+
+  useEffect(() => {
     async function fetchProfile() {
       try {
         const res = await fetchWithAuth(`${baseURL}/api/me`);
@@ -559,56 +618,20 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           if (data?.user) {
             setUserProfile(data.user);
             if (data.user.isPaymentVerified || data.user.paymentVerified) {
-              profilePaymentVerified = true;
               setIsPaymentVerified(true);
             }
+            return data.user;
           }
         }
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }
-    }
-    async function checkPaymentStatus() {
-      const isAdmin = user?.role === "admin" || user?.role === "ADMIN";
-      if (!isAdmin) {
-        setIsPaymentVerified(profilePaymentVerified);
-        setHasSubmittedPayment(profilePaymentVerified);
-        return;
-      }
-      try {
-        const res = await fetchWithAuth(`${baseURL}/api/node-purchase`);
-        if (res.ok) {
-          const data = await res.json();
-          let list: any[] = [];
-          if (Array.isArray(data)) {
-            list = data;
-          } else if (data?.purchase) {
-            list = [data.purchase];
-          } else if (data?.data) {
-            list = Array.isArray(data.data) ? data.data : [];
-          } else if (data?.purchases) {
-            list = Array.isArray(data.purchases) ? data.purchases : [];
-          }
-          if (list.length > 0) {
-            setHasSubmittedPayment(true);
-            const isApproved = list.some(item => item.status === "APPROVED");
-            setIsPaymentVerified(isApproved || profilePaymentVerified);
-          } else {
-            setHasSubmittedPayment(false);
-            setIsPaymentVerified(profilePaymentVerified);
-          }
-        } else {
-          setIsPaymentVerified(profilePaymentVerified);
-        }
-      } catch (err) {
-        console.error("Error checking payment status:", err);
-        setIsPaymentVerified(profilePaymentVerified);
-      }
+      return null;
     }
     async function loadData() {
       if (user) {
-        await fetchProfile();
-        await checkPaymentStatus();
+        const freshUser = await fetchProfile();
+        await checkPaymentStatus(freshUser);
       }
     }
     loadData();
@@ -780,6 +803,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         showPaymentToast("Payment request submitted successfully!", "success");
         setIsAllocationModalOpen(false);
         setHasSubmittedPayment(true);
+        checkPaymentStatus();
         setAllocationForm({
           accountHolderName: "",
           category: "",
@@ -821,7 +845,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
   const isUserAdmin = userProfile?.role?.toLowerCase() === "admin";
-  const needsVerification = !isUserAdmin && !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
+  const needsVerification = !isUserAdmin && !!userProfile && !isPaymentVerified;
 
   // Fetch course phases & single phases on mount
   useEffect(() => {

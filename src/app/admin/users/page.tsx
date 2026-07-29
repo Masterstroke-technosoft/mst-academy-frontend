@@ -89,6 +89,7 @@ export default function UserManagementPage() {
             registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
             referralPercentage: u.referralPercentage,
             discount: u.discount,
+            isPaymentVerified: !!u.isPaymentVerified,
           };
         });
 
@@ -369,6 +370,7 @@ export default function UserManagementPage() {
   if (!mounted) return null;
 
   const showCollege = filterRole === "student" || filterRole === "all";
+  const showVerified = filterRole === "student" || filterRole === "all";
 
   return (
     <DashboardShell role="admin" title="User Management">
@@ -452,7 +454,8 @@ export default function UserManagementPage() {
                   {showCollege && <th className="px-3 py-3">College</th>}
                   <th className="pl-3 pr-1 py-3 w-0 text-center">Role</th>
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
-                  <th className="px-3 py-3">Verified</th>
+                  {showVerified && <th className="px-3 py-3">Verified</th>}
+                  <th className="px-3 py-3 text-center">Paid</th>
                   <th className="px-3 py-3">Created</th>
                   <th className="px-3 py-3 text-center">Referral Percentage</th>
                   <th className="px-3 py-3 text-center">Discount</th>
@@ -483,8 +486,13 @@ export default function UserManagementPage() {
                       <td className="pl-1 pr-3 py-4 text-center">
                         <div className="mx-auto h-5 w-12 rounded-full bg-[var(--bg-muted)]" />
                       </td>
-                      <td className="px-3 py-4">
-                        <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
+                      {showVerified && (
+                        <td className="px-3 py-4">
+                          <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
+                        </td>
+                      )}
+                      <td className="px-3 py-4 text-center">
+                        <div className="mx-auto h-5 w-12 rounded bg-[var(--bg-muted)]" />
                       </td>
                       <td className="px-3 py-4">
                         <div className="h-4 w-20 rounded bg-[var(--bg-muted)]" />
@@ -502,7 +510,7 @@ export default function UserManagementPage() {
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={showCollege ? 11 : 10} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={10 + (showCollege ? 1 : 0) + (showVerified ? 1 : 0)} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
@@ -531,39 +539,46 @@ export default function UserManagementPage() {
                           {user.isActive === false ? 'No' : 'Yes'}
                         </span>
                       </td>
-                      <td className="px-3 py-3">
-                        <div className="flex flex-col gap-2 items-start">
-                          {user.isStudentVerified && !user.studentRejectionNote ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
-                              Verified
-                            </span>
-                          ) : user.studentRejectionNote ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
-                              Rejected
-                            </span>
-                          ) : user.role === 'student' ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
-                              Pending
-                            </span>
+                      {showVerified && (
+                        <td className="px-3 py-3">
+                          {user.role === 'student' ? (
+                            <div className="flex flex-col gap-2 items-start">
+                              {user.isStudentVerified && !user.studentRejectionNote ? (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
+                                  Verified
+                                </span>
+                              ) : user.studentRejectionNote ? (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
+                                  Rejected
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
+                                  Pending
+                                </span>
+                              )}
+                              {(!user.isStudentVerified || !!user.studentRejectionNote) && (
+                                <button
+                                  onClick={() => {
+                                    setRejectionNote("");
+                                    setIsRejecting(false);
+                                    setVerifyUserModal(user);
+                                  }}
+                                  disabled={verifyingId === user.id}
+                                  className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
+                                >
+                                  {verifyingId === user.id ? 'Verifying...' : (user.studentRejectionNote ? 'Reverify Student' : 'Verify Student')}
+                                </button>
+                              )}
+                            </div>
                           ) : (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 whitespace-nowrap">
-                              No
-                            </span>
+                            <span className="text-[var(--text-muted)]">N/A</span>
                           )}
-                          {((user.role === 'student') && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
-                            <button
-                              onClick={() => {
-                                setRejectionNote("");
-                                setIsRejecting(false);
-                                setVerifyUserModal(user);
-                              }}
-                              disabled={verifyingId === user.id}
-                              className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
-                            >
-                              {verifyingId === user.id ? 'Verifying...' : (user.studentRejectionNote ? 'Reverify Student' : 'Verify Student')}
-                            </button>
-                          )}
-                        </div>
+                        </td>
+                      )}
+                      <td className="px-3 py-3 text-center">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isPaymentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
+                          {user.isPaymentVerified ? 'Yes' : 'No'}
+                        </span>
                       </td>
                       <td className="px-3 py-3">
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}

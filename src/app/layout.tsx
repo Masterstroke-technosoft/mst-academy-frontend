@@ -117,7 +117,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col antialiased">
+      <body className="min-h-full flex flex-col antialiased max-w-full overflow-x-hidden">
         <ThemeProvider>
           <AuthProvider>
             <Navbar />

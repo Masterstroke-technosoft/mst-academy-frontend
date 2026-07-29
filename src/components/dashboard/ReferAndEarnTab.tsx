@@ -28,6 +28,7 @@ function GlassCard({
   );
 }
 
+
 export function ReferAndEarnTab({
   referralCode: propReferralCode,
   referralLink: propReferralLink,
@@ -62,6 +63,8 @@ export function ReferAndEarnTab({
 
   const [dynamicReferralCode, setDynamicReferralCode] = useState(propReferralCode);
   const [dynamicReferrals, setDynamicReferrals] = useState<any[]>([]);
+  const [dynamicReferralPercent, setDynamicReferralPercent] = useState<number>(0);
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -82,14 +85,71 @@ export function ReferAndEarnTab({
             if (data.user.referrals) {
               setDynamicReferrals(data.user.referrals);
             }
+            if (typeof data.user.referralPercentage === 'number') {
+              setDynamicReferralPercent(data.user.referralPercentage);
+            }
           }
         }
       } catch (error) {
         console.error("Error fetching user profile in ReferAndEarnTab:", error);
       }
     };
+
+    const fetchCourseDetails = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const courseId = "6a2934912b48a13769669f8e";
+        const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const courseData = data?.course || data?.data || data;
+          if (courseData?.pricingPlans) {
+            setPricingPlans(courseData.pricingPlans);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching course details in ReferAndEarnTab:", error);
+      }
+    };
+
     fetchProfile();
+    fetchCourseDetails();
   }, []);
+
+  const getCoursePrice = (role: string): number => {
+    const normalizedRole = String(role || "").toLowerCase().trim();
+
+    if (pricingPlans && pricingPlans.length > 0) {
+      const matchedPlan = pricingPlans.find(plan => {
+        const planRole = String(plan.role || "").toLowerCase().trim();
+        if (planRole === normalizedRole) return true;
+        if (normalizedRole === "student" && planRole === "student") return true;
+        if (normalizedRole === "validator" && planRole === "validator") return true;
+        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
+            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
+        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
+            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        return false;
+      });
+
+      if (matchedPlan && matchedPlan.price !== undefined && matchedPlan.price !== null) {
+        const numPrice = typeof matchedPlan.price === "number" ? matchedPlan.price : parseInt(String(matchedPlan.price).replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(numPrice)) {
+          return numPrice;
+        }
+      }
+    }
+
+    return 0; // fallback if unknown role or API not loaded yet
+  };
+
+  const referralPercent = dynamicReferralPercent || user?.referralPercentage || 0;
 
   const referralCode = dynamicReferralCode || propReferralCode;
   //const referralLink = referralCode ? `https://masterstroke.academy/register?ref=${referralCode}` : propReferralLink;
@@ -100,15 +160,26 @@ export function ReferAndEarnTab({
       joinedAt: r.joinedAt ? new Date(r.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A",
       status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
       eligible: r.status === "verified",
+      role: r.role || "student",
     }))
     : propReferralRecords.map(r => ({
       name: r.name || "Anonymous",
       joinedAt: r.joinedAt,
       status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
       eligible: r.status === "verified",
+      role: (r as any).role || "student",
     }));
 
+  const getRecordReward = (record: any) => {
+    const price = getCoursePrice(record.role);
+    return Math.floor((price * referralPercent) / 100);
+  };
+
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
+  const totalReward = referralRecords
+    .filter(record => record.eligible)
+    .reduce((sum, record) => sum + getRecordReward(record), 0);
+
   const withdrawUnlocked = successfulReferrals >= 5;
 
   useEffect(() => {
@@ -208,7 +279,7 @@ export function ReferAndEarnTab({
             </button>
             <div className="mt-6 rounded-xl bg-emerald-500/5 px-4 py-3 text-center border border-emerald-500/10">
               <p className="text-xs text-[var(--text-muted)]">
-                Earn a flat <strong className="text-[var(--text)]">Rs 500</strong> per successful referral.
+                Earn <strong className="text-[var(--text)]">{referralPercent}%</strong> of the referee's course price per successful referral.
               </p>
             </div>
           </GlassCard>
@@ -252,7 +323,11 @@ export function ReferAndEarnTab({
                           </span>
                         </td>
                         <td className="py-4 pr-5 font-black text-[var(--text)] text-right">
-                          {record.eligible ? <span className="text-emerald-600 dark:text-emerald-400">Rs 500</span> : <span className="text-[#e31e24]">Pending</span>}
+                          {record.eligible ? (
+                            <span className="text-emerald-600 dark:text-emerald-400">Rs {getRecordReward(record)}</span>
+                          ) : (
+                            <span className="text-[#e31e24]">Pending</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -384,7 +459,7 @@ export function ReferAndEarnTab({
                     )}
                     <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
                       <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
-                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{successfulReferrals * 500}</p>
+                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{totalReward}</p>
                     </div>
                   </div>
                   <button
