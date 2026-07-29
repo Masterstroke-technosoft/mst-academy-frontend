@@ -146,7 +146,11 @@ export function ReferAndEarnTab({
       }
     }
 
-    return 0; // fallback if unknown role or API not loaded yet
+    // fallback hardcoded prices if unknown role or API not loaded yet
+    if (normalizedRole === "validator") return 9999;
+    if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") return 4999;
+    if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") return 24999;
+    return 19999; // Default to student track
   };
 
   const referralPercent = dynamicReferralPercent || user?.referralPercentage || 0;

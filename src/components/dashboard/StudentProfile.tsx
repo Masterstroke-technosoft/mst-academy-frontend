@@ -961,13 +961,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <input
                 type="text"
                 readOnly
-                value=""
-                placeholder="Coming Soon"
+                value={referralLink}
                 className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text-muted)]"
               />
               <button
                 type="button"
-                disabled={true}
+                disabled={!referralLink}
                 onClick={copyReferral}
                 className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
