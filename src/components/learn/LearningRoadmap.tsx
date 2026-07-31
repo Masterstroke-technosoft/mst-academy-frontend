@@ -545,6 +545,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const courseId = "6a2934912b48a13769669f8e";
 
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [apiDiscount, setApiDiscount] = useState<number | null>(null);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
 
@@ -628,9 +629,25 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       }
       return null;
     }
+    async function fetchDiscount() {
+      try {
+        const res = await fetch(`${baseURL}/api/me/discount`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.discountPercentage === "number") {
+            setApiDiscount(data.discountPercentage);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching discount:", err);
+      }
+    }
     async function loadData() {
       if (user) {
         const freshUser = await fetchProfile();
+        await fetchDiscount();
         await checkPaymentStatus(freshUser);
       }
     }
@@ -2047,7 +2064,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const discountPercent = userProfile?.discount || user?.discount || 0;
+                const discountPercent = apiDiscount !== null ? apiDiscount : (userProfile?.discount || user?.discount || 0);
                 const discountAmount = (base * discountPercent) / 100;
                 const discountedBase = base - discountAmount;
                 const gst = discountedBase * 0.18;

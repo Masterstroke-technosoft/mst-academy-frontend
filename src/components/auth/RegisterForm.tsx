@@ -11,6 +11,8 @@ import {
   registerValidator,
   registerWorkingProfessional,
   getSession,
+  login,
+  setSession,
 } from "@/lib/auth";
 import {
   isValidIndianMobile,
@@ -154,6 +156,29 @@ export function RegisterForm() {
 
   // Step 2: optional payment, shown only after registration succeeds.
   const [step, setStep] = useState<"form" | "payment">("form");
+  const [discountPercentage, setDiscountPercentage] = useState<number | null>(null);
+
+  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+  useEffect(() => {
+    if (step === "payment") {
+      const fetchDiscount = async () => {
+        try {
+          const response = await fetch(`${baseURL}/api/me/discount`, {
+            credentials: "include"
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (typeof data.discountPercentage === "number") {
+              setDiscountPercentage(data.discountPercentage);
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching discount:", err);
+        }
+      };
+      fetchDiscount();
+    }
+  }, [step, baseURL]);
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((p) => p.id === plan)!,
@@ -346,9 +371,39 @@ export function RegisterForm() {
       return;
     }
 
-    // Account is created; move to the optional payment step instead of
-    // signing the user in. The registration API does not issue an auth
-    // token, so the user still has to sign in for real afterwards.
+    // Auto-login to establish backend session so we can fetch discount details
+    try {
+      const loginRes = await fetch(`${baseURL}/api/auth/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (loginRes.ok) {
+        const loginData = await loginRes.json();
+        const token = loginData.accessToken || loginData.token || (loginData.data && loginData.data.token) || (loginData.data && loginData.data.accessToken);
+        if (token) {
+          localStorage.setItem("admin-token", token);
+        }
+        const apiUser = loginData?.user || loginData?.data?.user || loginData?.data || {};
+        const rawRole = apiUser?.role || loginData?.role || loginData?.data?.role || "";
+        const loggedInUser = {
+          id: apiUser?.id || `user-${Date.now()}`,
+          email: apiUser?.email || email,
+          password,
+          fullName: apiUser?.fullName || apiUser?.name || email.split("@")[0],
+          role: apiUser?.role || "student",
+          backendRole: rawRole,
+          registeredAt: apiUser?.registeredAt || new Date().toISOString(),
+          discount: apiUser?.discount || 0,
+        };
+        setSession(loggedInUser as any);
+      }
+    } catch (err) {
+      console.error("Auto-login failed:", err);
+    }
+
+    // Account is created; move to the optional payment step
     setStep("payment");
   }
 
@@ -364,6 +419,14 @@ export function RegisterForm() {
   }
 
   if (step === "payment") {
+    const sessionUser = getSession();
+    const discountPercent = discountPercentage !== null ? discountPercentage : (sessionUser?.discount || 0);
+    const base = selectedPlan.price;
+    const discountAmount = (base * discountPercent) / 100;
+    const discountedBase = base - discountAmount;
+    const gst = discountedBase * 0.18;
+    const total = discountedBase * 1.18;
+
     return (
       <AuthShell
         title="Complete Payment"
@@ -375,7 +438,7 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-4">
-          <DemoFee amount={selectedPlan.price} />
+          <DemoFee amount={base} discountedAmount={discountedBase} discountPercent={discountPercent} />
 
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)] p-5">
             <FieldLabel>Scan to Pay</FieldLabel>
@@ -390,45 +453,33 @@ export function RegisterForm() {
                 </div>
               </div>
 
-              {(() => {
-                const sessionUser = getSession();
-                const discountPercent = sessionUser?.discount || 0;
-                const base = selectedPlan.price;
-                const discountAmount = (base * discountPercent) / 100;
-                const discountedBase = base - discountAmount;
-                const gst = discountedBase * 0.18;
-                const total = discountedBase * 1.18;
-
-                return (
-                  <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
-                    <div>
-                      <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
-                        Plan: {selectedPlan.label}
-                      </h4>
-                      <div className="space-y-2 text-xs">
-                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                          <span className="text-[var(--text-muted)]">Role Amount:</span>
-                          <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
-                        </div>
-                        {discountPercent > 0 && (
-                          <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
-                            <span>Discount ({discountPercent}%):</span>
-                            <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
-                          <span className="text-[var(--text-muted)]">18% GST:</span>
-                          <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                        </div>
-                      </div>
+              <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
+                <div>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-mst-red mb-3">
+                    Plan: {selectedPlan.label}
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                      <span className="text-[var(--text-muted)]">Role Amount:</span>
+                      <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
-                      <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
-                      <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    {discountPercent > 0 && (
+                      <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
+                        <span>Discount ({discountPercent}%):</span>
+                        <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
+                      <span className="text-[var(--text-muted)]">18% GST:</span>
+                      <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </div>
-                );
-              })()}
+                </div>
+                <div className="flex justify-between items-baseline pt-3 mt-4 border-t border-[var(--border)]">
+                  <span className="font-black text-xs text-[var(--text)]">Total (Incl. GST):</span>
+                  <span className="font-black text-mst-red text-base whitespace-nowrap">₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+              </div>
             </div>
           </div>
 
