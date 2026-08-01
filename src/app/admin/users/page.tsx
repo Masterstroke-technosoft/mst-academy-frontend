@@ -435,14 +435,6 @@ export default function UserManagementPage() {
           </div>
         )}
 
-        {debugRaw && users.length === 0 && !errorMsg && !loading && (
-          <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-5 text-yellow-600 shadow-sm overflow-hidden">
-            <h3 className="font-bold text-lg mb-2">Debug Info (API responded, but 0 users extracted)</h3>
-            <p className="text-sm mb-2">The API returned the following data, but we couldn't find an array of users inside it:</p>
-            <pre className="whitespace-pre-wrap text-xs overflow-auto max-h-60 bg-black/5 p-3 rounded">{debugRaw}</pre>
-          </div>
-        )}
-
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px] text-left text-sm text-[var(--text-muted)]">
