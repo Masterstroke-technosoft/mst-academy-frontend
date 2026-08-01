@@ -46,7 +46,7 @@ if (typeof window !== "undefined" && !(window as any).__mstFetchPatched) {
             ? input.url
             : input.toString();
       const isAuthFlowEndpoint = /\/api\/auth\/(login|register|forgot-password|clear-session)/.test(url);
-      if (!isAuthFlowEndpoint && window.location.pathname !== "/login") {
+      if (!isAuthFlowEndpoint && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
         authLogout();
         window.location.href = "/login";
       }

@@ -4,7 +4,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Gift, Copy, Wallet, CheckCircle2, Sparkles } from "lucide-react";
+import { Gift, Copy, Wallet, CheckCircle2, Sparkles, Percent, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -27,6 +27,7 @@ function GlassCard({
     </div>
   );
 }
+
 
 export function ReferAndEarnTab({
   referralCode: propReferralCode,
@@ -62,6 +63,54 @@ export function ReferAndEarnTab({
 
   const [dynamicReferralCode, setDynamicReferralCode] = useState(propReferralCode);
   const [dynamicReferrals, setDynamicReferrals] = useState<any[]>([]);
+  const [dynamicReferralPercent, setDynamicReferralPercent] = useState<number>(0);
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
+
+  const [adminDiscount, setAdminDiscount] = useState<number>(0);
+  const [selfDiscount, setSelfDiscount] = useState<number>(0);
+  const [selfDiscountInput, setSelfDiscountInput] = useState<string>("0");
+  const [isUpdatingDiscount, setIsUpdatingDiscount] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleUpdateSelfDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const discountVal = parseInt(selfDiscountInput, 10);
+    if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
+      showToast("Please enter a valid discount percentage between 0 and 100.", "error");
+      return;
+    }
+    
+    try {
+      setIsUpdatingDiscount(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/me/self-discount`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ selfDiscount: discountVal }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        setSelfDiscount(discountVal);
+        showToast(data.message || "Self discount updated successfully", "success");
+      } else {
+        showToast(data.message || "Failed to update self discount", "error");
+      }
+    } catch (err: any) {
+      console.error("Error updating self discount:", err);
+      showToast("Error updating self discount: " + (err.message || String(err)), "error");
+    } finally {
+      setIsUpdatingDiscount(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -82,14 +131,84 @@ export function ReferAndEarnTab({
             if (data.user.referrals) {
               setDynamicReferrals(data.user.referrals);
             }
+            if (typeof data.user.referralPercentage === 'number') {
+              setDynamicReferralPercent(data.user.referralPercentage);
+            }
+            if (typeof data.user.discount === 'number') {
+              setAdminDiscount(data.user.discount);
+            } else if (user?.discount !== undefined) {
+              setAdminDiscount(user.discount);
+            }
+            if (typeof data.user.selfDiscount === 'number') {
+              setSelfDiscount(data.user.selfDiscount);
+              setSelfDiscountInput(String(data.user.selfDiscount));
+            }
           }
         }
       } catch (error) {
         console.error("Error fetching user profile in ReferAndEarnTab:", error);
       }
     };
+
+    const fetchCourseDetails = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const courseId = "6a2934912b48a13769669f8e";
+        const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const courseData = data?.course || data?.data || data;
+          if (courseData?.pricingPlans) {
+            setPricingPlans(courseData.pricingPlans);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching course details in ReferAndEarnTab:", error);
+      }
+    };
+
     fetchProfile();
+    fetchCourseDetails();
   }, []);
+
+  const getCoursePrice = (role: string): number => {
+    const normalizedRole = String(role || "").toLowerCase().trim();
+
+    if (pricingPlans && pricingPlans.length > 0) {
+      const matchedPlan = pricingPlans.find(plan => {
+        const planRole = String(plan.role || "").toLowerCase().trim();
+        if (planRole === normalizedRole) return true;
+        if (normalizedRole === "student" && planRole === "student") return true;
+        if (normalizedRole === "validator" && planRole === "validator") return true;
+        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
+            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
+        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
+            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        return false;
+      });
+
+      if (matchedPlan && matchedPlan.price !== undefined && matchedPlan.price !== null) {
+        const numPrice = typeof matchedPlan.price === "number" ? matchedPlan.price : parseInt(String(matchedPlan.price).replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(numPrice)) {
+          return numPrice;
+        }
+      }
+    }
+
+    // fallback hardcoded prices if unknown role or API not loaded yet
+    if (normalizedRole === "validator") return 9999;
+    if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") return 4999;
+    if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") return 24999;
+    return 19999; // Default to student track
+  };
+
+  const referralPercent = dynamicReferralPercent || user?.referralPercentage || 0;
 
   const referralCode = dynamicReferralCode || propReferralCode;
   //const referralLink = referralCode ? `https://masterstroke.academy/register?ref=${referralCode}` : propReferralLink;
@@ -100,15 +219,26 @@ export function ReferAndEarnTab({
       joinedAt: r.joinedAt ? new Date(r.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A",
       status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
       eligible: r.status === "verified",
+      role: r.role || "student",
     }))
     : propReferralRecords.map(r => ({
       name: r.name || "Anonymous",
       joinedAt: r.joinedAt,
       status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
       eligible: r.status === "verified",
+      role: (r as any).role || "student",
     }));
 
+  const getRecordReward = (record: any) => {
+    const price = getCoursePrice(record.role);
+    return Math.floor((price * referralPercent) / 100);
+  };
+
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
+  const totalReward = referralRecords
+    .filter(record => record.eligible)
+    .reduce((sum, record) => sum + getRecordReward(record), 0);
+
   const withdrawUnlocked = successfulReferrals >= 5;
 
   useEffect(() => {
@@ -208,8 +338,55 @@ export function ReferAndEarnTab({
             </button>
             <div className="mt-6 rounded-xl bg-emerald-500/5 px-4 py-3 text-center border border-emerald-500/10">
               <p className="text-xs text-[var(--text-muted)]">
-                Earn a flat <strong className="text-[var(--text)]">Rs 500</strong> per successful referral.
+                Earn <strong className="text-[var(--text)]">{referralPercent}%</strong> of the referee's course price per successful referral.
               </p>
+            </div>
+
+            <div className="mt-6 border-t border-[var(--border)] pt-6 space-y-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                  Your Discount Details
+                </p>
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-[var(--surface)] border border-[var(--border)] px-4 py-3">
+                  <span className="text-xs font-semibold text-[var(--text-muted)]">Discount Given by Admin</span>
+                  <span className="text-sm font-black text-[var(--text)]">{adminDiscount}%</span>
+                </div>
+              </div>
+
+              <div>
+                <form onSubmit={handleUpdateSelfDiscount} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="selfDiscount" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                      Self Discount
+                    </label>
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                      Active: {selfDiscount}%
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        id="selfDiscount"
+                        min="0"
+                        max="100"
+                        value={selfDiscountInput}
+                        onChange={(e) => setSelfDiscountInput(e.target.value)}
+                        className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] pl-4 pr-12 py-2.5 text-sm font-bold text-[var(--text)] outline-none transition focus:border-[var(--border-strong)]"
+                        placeholder="Set discount"
+                      />
+                      <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--text-muted)]">%</span>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isUpdatingDiscount}
+                      className="shrink-0 rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:opacity-50"
+                    >
+                      {isUpdatingDiscount ? "Saving..." : "Update"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </GlassCard>
 
@@ -252,7 +429,11 @@ export function ReferAndEarnTab({
                           </span>
                         </td>
                         <td className="py-4 pr-5 font-black text-[var(--text)] text-right">
-                          {record.eligible ? <span className="text-emerald-600 dark:text-emerald-400">Rs 500</span> : <span className="text-[#e31e24]">Pending</span>}
+                          {record.eligible ? (
+                            <span className="text-emerald-600 dark:text-emerald-400">Rs {getRecordReward(record)}</span>
+                          ) : (
+                            <span className="text-[#e31e24]">Pending</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -384,7 +565,7 @@ export function ReferAndEarnTab({
                     )}
                     <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
                       <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
-                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{successfulReferrals * 500}</p>
+                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{totalReward}</p>
                     </div>
                   </div>
                   <button
@@ -780,6 +961,28 @@ export function ReferAndEarnTab({
           </div>
         )}
       </AnimatePresence >
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className={`fixed top-24 right-6 z-[99999] flex items-center gap-3 rounded-2xl border px-5 py-3.5 shadow-2xl backdrop-blur-md transition-all ${toast.type === "success"
+              ? "border-emerald-500/25 bg-emerald-950/80 text-emerald-400"
+              : "border-red-500/25 bg-red-950/80 text-red-400"
+              }`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
+            ) : (
+              <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
+            )}
+            <span className="text-sm font-bold text-white">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
