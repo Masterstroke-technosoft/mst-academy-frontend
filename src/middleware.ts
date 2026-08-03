@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   "/terms-conditions",
   "/contact-us",
   "/legal",
+  "/blog",
 ];
 
 export function middleware(request: NextRequest) {
