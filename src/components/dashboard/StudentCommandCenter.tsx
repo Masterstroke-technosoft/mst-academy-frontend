@@ -711,7 +711,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   useEffect(() => {
     if (!user?.id) return;
-    setUserDiscount(user?.discount || 0);
     const fetchDashboardData = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -776,9 +775,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             });
             if (data.user.role) {
               setLiveRole(data.user.role);
-            }
-            if (data.user.discount !== undefined) {
-              setUserDiscount(data.user.discount);
             }
           }
         }

@@ -10,7 +10,6 @@ import {
   registerStudent,
   registerValidator,
   registerWorkingProfessional,
-  getSession,
   login,
   setSession,
 } from "@/lib/auth";
@@ -395,7 +394,7 @@ export function RegisterForm() {
           role: apiUser?.role || "student",
           backendRole: rawRole,
           registeredAt: apiUser?.registeredAt || new Date().toISOString(),
-          discount: apiUser?.discount || 0,
+          courseDiscounts: Array.isArray(apiUser?.courseDiscounts) ? apiUser.courseDiscounts : [],
         };
         setSession(loggedInUser as any);
       }
@@ -419,8 +418,7 @@ export function RegisterForm() {
   }
 
   if (step === "payment") {
-    const sessionUser = getSession();
-    const discountPercent = discountPercentage !== null ? discountPercentage : (sessionUser?.discount || 0);
+    const discountPercent = discountPercentage !== null ? discountPercentage : 0;
     const base = selectedPlan.price;
     const discountAmount = (base * discountPercent) / 100;
     const discountedBase = base - discountAmount;
