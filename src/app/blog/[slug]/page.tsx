@@ -92,7 +92,7 @@ export default function BlogPostPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-6 sm:p-10 shadow-sm"
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-4 sm:p-10 shadow-sm"
             >
               <div data-widget="post" data-token={SITE_TOKEN} data-slug={slug} />
             </motion.article>
@@ -115,20 +115,20 @@ export default function BlogPostPage() {
                   Master blockchain engineering with 21 comprehensive modules. Build smart contracts, launch dApps, and get certified on-chain.
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-                  <Link href="/academy-overview">
+                  <Link href="/academy-overview" className="w-full sm:w-auto">
                     <motion.span
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="inline-block bg-mst-red hover:bg-mst-red-dark text-white text-sm font-bold px-6 py-3 rounded-xl shadow-sm transition-colors duration-200 cursor-pointer"
+                      className="block w-full sm:inline-block bg-mst-red hover:bg-mst-red-dark text-white text-sm font-bold px-6 py-3 rounded-xl shadow-sm transition-colors duration-200 cursor-pointer text-center"
                     >
                       Explore Program
                     </motion.span>
                   </Link>
-                  <Link href="/register">
+                  <Link href="/register" className="w-full sm:w-auto">
                     <motion.span
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="inline-block border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] text-[var(--text)] text-sm font-semibold px-6 py-3 rounded-xl transition-all duration-200 cursor-pointer"
+                      className="block w-full sm:inline-block border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--bg-muted)] text-[var(--text)] text-sm font-semibold px-6 py-3 rounded-xl transition-all duration-200 cursor-pointer text-center"
                     >
                       Join Academy
                     </motion.span>
@@ -139,7 +139,7 @@ export default function BlogPostPage() {
           </div>
 
           {/* Sticky interaction sidebar */}
-          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+          <div className="lg:col-span-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 lg:sticky lg:top-24">
 
             {/* Sharing shortcuts */}
             <motion.div

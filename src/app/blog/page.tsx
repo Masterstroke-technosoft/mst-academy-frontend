@@ -161,7 +161,7 @@ export default function BlogPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.6 }}
-              className="mt-6 text-5xl sm:text-6xl font-black leading-[1.05] text-[var(--text)] tracking-tight"
+              className="mt-6 text-3xl sm:text-5xl md:text-6xl font-black leading-[1.1] sm:leading-[1.05] text-[var(--text)] tracking-tight"
             >
               Insights on Web3 &<br className="hidden sm:block" />
               <span className="text-gradient-red">decentralized learning</span>
@@ -171,7 +171,7 @@ export default function BlogPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mt-5 max-w-2xl mx-auto text-[var(--text-muted)] text-lg"
+              className="mt-5 max-w-2xl mx-auto text-[var(--text-muted)] text-base sm:text-lg"
             >
               Tutorials, product updates, and perspectives from the Masterstroke
               Academy team — for validators, builders, and everyone learning
