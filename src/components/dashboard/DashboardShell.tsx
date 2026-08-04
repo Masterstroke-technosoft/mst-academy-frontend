@@ -58,6 +58,64 @@ const getSidebarNav = (role: string, isAdmin: boolean) => [
   { href: `#profile`, icon: User, label: "Profile" },
 ];
 
+const getDiscountText = (req: any) => {
+  if (typeof req.discount === 'number' && req.discount > 0) {
+    return `(${req.discount}% dis..)`;
+  }
+  if (typeof req.discountPercentage === 'number' && req.discountPercentage > 0) {
+    return `(${req.discountPercentage}% dis..)`;
+  }
+  if (typeof req.appliedDiscount === 'number' && req.appliedDiscount > 0) {
+    return `(${req.appliedDiscount}% dis..)`;
+  }
+
+  const amount = Number(req.amountPaid);
+  if (!amount || isNaN(amount)) return "";
+
+  const bases = [4999, 9999, 19999, 24999];
+  let bestDiscount = 0;
+  let minDiff = Infinity;
+
+  for (const base of bases) {
+    const originalWithGst = base * 1.18;
+    if (amount <= originalWithGst + 50) {
+      const calculatedDiscount = ((originalWithGst - amount) / originalWithGst) * 100;
+      if (calculatedDiscount >= 0 && calculatedDiscount <= 100) {
+        const rounded = Math.round(calculatedDiscount);
+        const diff = Math.abs(calculatedDiscount - rounded);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestDiscount = rounded;
+        }
+      }
+    }
+  }
+
+  if (bestDiscount > 0 && bestDiscount < 100) {
+    return `(${bestDiscount}% dis..)`;
+  }
+
+  for (const base of bases) {
+    if (amount <= base + 50) {
+      const calculatedDiscount = ((base - amount) / base) * 100;
+      if (calculatedDiscount >= 0 && calculatedDiscount <= 100) {
+        const rounded = Math.round(calculatedDiscount);
+        const diff = Math.abs(calculatedDiscount - rounded);
+        if (diff < minDiff) {
+          minDiff = diff;
+          bestDiscount = rounded;
+        }
+      }
+    }
+  }
+
+  if (bestDiscount > 0 && bestDiscount < 100) {
+    return `(${bestDiscount}% dis..)`;
+  }
+
+  return "";
+};
+
 export function DashboardShell({
   role,
   title,
@@ -510,7 +568,7 @@ export function DashboardShell({
         {/* ---- main content ---- */}
         < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden md:ml-64" >
           <main className="flex-1 overflow-y-auto flex flex-col justify-between">
-            <div className={`mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 ${role === "admin" ? "max-w-[95vw]" : "max-w-5xl"}`}>
+            <div className={`mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 ${isAdmin ? "max-w-[95vw]" : "max-w-5xl"}`}>
               {/* mobile header */}
               <div className="mb-6 flex items-center justify-between md:hidden">
                 <div className="flex items-center gap-3">
@@ -752,6 +810,14 @@ export function DashboardShell({
                           </td>
                           <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
                             ₹{req.amountPaid}
+                            {(() => {
+                              const discountText = getDiscountText(req);
+                              return discountText ? (
+                                <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
+                                  {discountText}
+                                </span>
+                              ) : null;
+                            })()}
                           </td>
                           <td className="px-2 py-2.5 whitespace-nowrap">
                             {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}

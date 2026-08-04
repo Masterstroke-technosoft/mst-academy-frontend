@@ -524,9 +524,12 @@ export default function UserManagementPage() {
                         <td className="px-3 py-3">{(user as any).collegeName || user.college || "N/A"}</td>
                       )}
                       <td className="pl-3 pr-1 py-3 w-0 text-center">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.role === 'student' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
-                          user.role === 'validator' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' :
-                            user.role === 'admin' ? 'bg-mst-red/10 text-mst-red border border-mst-red/20' :
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.role === 'student' || user.role === 'STUDENT' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
+                          user.role === 'validator' || user.role === 'VALIDATOR' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' :
+                            (() => {
+                              const r = user.role?.toLowerCase();
+                              return r === 'admin' || r === 's_admin' || r === 'superadmin' || r === 'super_admin' || r === 'super-admin' || r === 'super admin';
+                            })() ? 'bg-mst-red/10 text-mst-red border border-mst-red/20' :
                               'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                           }`}>
                           {roleLabel(user.role)}

@@ -140,7 +140,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     };
 
     const checkPaymentStatus = async () => {
-      const isAdmin = safeUser.role === "admin" || safeUser.role === "ADMIN";
+      const r = safeUser.role?.toLowerCase();
+      const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
       if (!isAdmin) {
         setIsPaymentVerified(profilePaymentVerified);
         // For standard students, we determine if they have submitted payment based on profile status

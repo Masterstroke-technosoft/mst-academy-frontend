@@ -33,6 +33,9 @@ export function LoginForm() {
 
   function normalizeRole(role?: string): UserRole {
     const value = (role || "student").toLowerCase();
+    if (value === "admin" || value === "s_admin" || value === "superadmin" || value === "super_admin" || value === "super-admin" || value === "super admin") {
+      return "admin";
+    }
     if (value === "admin" || value === "student" || value === "validator" || value === "non-validator") {
       return value as UserRole;
     }
