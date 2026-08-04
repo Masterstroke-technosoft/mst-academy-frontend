@@ -711,8 +711,22 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
   useEffect(() => {
     if (!user?.id) return;
-    setUserDiscount(user?.discount || 0);
     const fetchDashboardData = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/me/discount`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.discountPercentage === "number") {
+            setUserDiscount(data.discountPercentage);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch dynamic discount:", error);
+      }
+
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
         const res = await fetch(`${baseURL}/api/dashboard/${user.id}`, {
@@ -761,9 +775,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             });
             if (data.user.role) {
               setLiveRole(data.user.role);
-            }
-            if (data.user.discount !== undefined) {
-              setUserDiscount(data.user.discount);
             }
           }
         }

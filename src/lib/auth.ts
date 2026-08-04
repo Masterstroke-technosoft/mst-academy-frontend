@@ -4,6 +4,12 @@ export type UserRole = "student" | "validator" | "non-validator" | "admin" | "CO
 
 export type BlockchainLevel = "Beginner" | "Intermediate" | "Expert";
 
+export interface CourseDiscount {
+  role: UserRole;
+  discount: number;
+  selfDiscount?: number;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -33,7 +39,7 @@ export interface AuthUser {
   cvFileName?: string;
   transactionId?: string;
   referralPercentage?: number;
-  discount?: number;
+  courseDiscounts?: CourseDiscount[];
   isPaymentVerified?: boolean;
 }
 
@@ -266,7 +272,6 @@ export async function registerStudent(
       college: studentData.collegeName || input.college,
       registeredAt: new Date().toISOString(),
       transactionId: studentData.transactionId || input.transactionId,
-      discount: studentData.discount,
     };
 
     setSession(authUser);
@@ -315,7 +320,6 @@ export async function registerValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: validatorData.transactionId || input.transactionId,
-      discount: validatorData.discount,
     };
 
     setSession(authUser);
@@ -359,7 +363,6 @@ export async function registerNonValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
-      discount: registeredUser.discount,
     };
 
     setSession(authUser);
@@ -409,7 +412,6 @@ export async function registerWorkingProfessional(input: {
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
-      discount: registeredUser.discount,
     };
 
     setSession(authUser);

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
 import { dashboardPath } from "@/lib/auth";
@@ -27,8 +26,6 @@ export function Navbar() {
   const { user, ready, logout, isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -41,17 +38,9 @@ export function Navbar() {
   const showUserNav = mounted && ready && user;
 
   const switchPortal = () => {
-    if (EVENTS_URL !== "#") {
-      document.cookie = `${PORTAL_COOKIE}=events; path=/; max-age=${PORTAL_COOKIE_MAX_AGE}`;
-      window.location.href = EVENTS_URL;
-      return;
-    }
-    // Events portal URL isn't configured yet - fall back to the chooser.
-    document.cookie = `${PORTAL_COOKIE}=; path=/; max-age=0`;
-    router.push("/landing");
+    document.cookie = `${PORTAL_COOKIE}=events; path=/; max-age=${PORTAL_COOKIE_MAX_AGE}`;
+    window.location.href = EVENTS_URL;
   };
-
-  if (pathname === "/landing") return null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">

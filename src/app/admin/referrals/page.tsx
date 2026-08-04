@@ -30,6 +30,7 @@ interface WithdrawalRequest {
     upi?: string;
   };
   referrals?: { name: string; status: string; eligible: boolean; userId?: string; payout?: number }[];
+  referralPercentage?: number;
 }
 
 const INITIAL_REQUESTS: WithdrawalRequest[] = [
