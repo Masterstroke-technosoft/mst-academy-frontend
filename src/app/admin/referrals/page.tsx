@@ -8,7 +8,6 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { Users, CheckCircle2, XCircle, Clock, Wallet, Check, AlertCircle } from "lucide-react";
 
 interface WithdrawalRequest {
-  referralPercentage: any;
   id: string;
   userId?: string;
   userName: string;
