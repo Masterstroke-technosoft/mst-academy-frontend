@@ -159,7 +159,9 @@ export function setSession(user: AuthUser | null) {
 
 export function isAdminUser(user?: AuthUser | null): boolean {
   const u = user ?? getSession();
-  return u?.role === "admin" || u?.role === "ADMIN";
+  if (!u) return false;
+  const r = (u.backendRole || u.role)?.toLowerCase();
+  return r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
 }
 
 export async function login(
@@ -483,6 +485,14 @@ export function roleLabel(role: UserRole | string): string {
     case "admin":
     case "ADMIN":
       return "Admin";
+    case "S_ADMIN":
+    case "s_admin":
+    case "superadmin":
+    case "SUPERADMIN":
+    case "super_admin":
+    case "SUPER_ADMIN":
+    case "super admin":
+      return "Super Admin";
     default:
       return String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase();
   }
@@ -490,6 +500,10 @@ export function roleLabel(role: UserRole | string): string {
 
 export function dashboardPath(role: UserRole | string | undefined): string {
   if (!role) return "/dashboard/non-validator";
+  const r = typeof role === "string" ? role.toLowerCase() : "";
+  if (r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin") {
+    return "/dashboard/admin";
+  }
   switch (role) {
     case "student":
     case "STUDENT":
@@ -503,9 +517,6 @@ export function dashboardPath(role: UserRole | string | undefined): string {
     case "working-professional":
     case "WORKING_PROFESSIONAL":
       return "/dashboard/working-professional";
-    case "admin":
-    case "ADMIN":
-      return "/dashboard/admin";
     default:
       return "/dashboard/non-validator";
   }
@@ -514,8 +525,9 @@ export function dashboardPath(role: UserRole | string | undefined): string {
 export function canAccessDashboard(role: UserRole | string): boolean {
   const user = getSession();
   if (!user) return false;
-  if (user.role === "admin" || user.role === "ADMIN") return true;
-  return user.role.toLowerCase() === role.toLowerCase();
+  const userRoleLower = (user.backendRole || user.role)?.toLowerCase();
+  if (userRoleLower === "admin" || userRoleLower === "s_admin" || userRoleLower === "superadmin" || userRoleLower === "super_admin" || userRoleLower === "super-admin" || userRoleLower === "super admin") return true;
+  return (user.backendRole || user.role || "").toLowerCase() === role.toLowerCase();
 }
 
 export function updateUser(id: string, updates: Partial<AuthUser>) {

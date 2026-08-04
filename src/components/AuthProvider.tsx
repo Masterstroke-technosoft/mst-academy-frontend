@@ -90,7 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ready,
         refresh,
         logout,
-        isAdmin: user?.role === "admin" || user?.role === "ADMIN",
+        isAdmin: user ? (() => {
+          const r = user.role?.toLowerCase();
+          return r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
+        })() : false,
         updateProfile,
       }}
     >

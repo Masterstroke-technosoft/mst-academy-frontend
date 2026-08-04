@@ -552,7 +552,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const checkPaymentStatus = async (profileUser?: any) => {
     const activeUser = profileUser || userProfile || user;
     const profilePaymentVerified = !!(activeUser?.isPaymentVerified || activeUser?.paymentVerified);
-    const isAdmin = activeUser?.role === "admin" || activeUser?.role === "ADMIN";
+    const r = activeUser?.role?.toLowerCase();
+    const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
     const fetchURL = isAdmin
       ? `${baseURL}/api/node-purchase`
       : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;

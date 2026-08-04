@@ -35,7 +35,7 @@ export function Navbar() {
   }, []);
 
   const dashboardHref = user
-    ? (dashboardPath(user.role) || "/dashboard/non-validator")
+    ? (dashboardPath(user.backendRole || user.role) || "/dashboard/non-validator")
     : "/login";
 
   const showUserNav = mounted && ready && user;
