@@ -7,6 +7,9 @@ import { useState, useEffect } from "react";
 import { Gift, Copy, Wallet, CheckCircle2, Sparkles, Percent, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
+import { roleLabel, type CourseDiscount, type UserRole } from "@/lib/auth";
+
+const DISCOUNT_ROLES: UserRole[] = ["student", "validator", "working_professional", "course_only"];
 
 function GlassCard({
   children,
@@ -66,8 +69,8 @@ export function ReferAndEarnTab({
   const [dynamicReferralPercent, setDynamicReferralPercent] = useState<number>(0);
   const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
-  const [adminDiscount, setAdminDiscount] = useState<number>(0);
-  const [selfDiscount, setSelfDiscount] = useState<number>(0);
+  const [courseDiscounts, setCourseDiscounts] = useState<CourseDiscount[]>([]);
+  const [selfDiscountRole, setSelfDiscountRole] = useState<UserRole>("student");
   const [selfDiscountInput, setSelfDiscountInput] = useState<string>("0");
   const [isUpdatingDiscount, setIsUpdatingDiscount] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -80,11 +83,12 @@ export function ReferAndEarnTab({
   const handleUpdateSelfDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     const discountVal = parseInt(selfDiscountInput, 10);
-    if (isNaN(discountVal) || discountVal < 0 || discountVal > 100) {
-      showToast("Please enter a valid discount percentage between 0 and 100.", "error");
+    const maxDiscount = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
+    if (isNaN(discountVal) || discountVal < 0 || discountVal > maxDiscount) {
+      showToast(`Please enter a valid discount percentage between 0 and ${maxDiscount}.`, "error");
       return;
     }
-    
+
     try {
       setIsUpdatingDiscount(true);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -94,12 +98,16 @@ export function ReferAndEarnTab({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ selfDiscount: discountVal }),
+        body: JSON.stringify({ role: selfDiscountRole, selfDiscount: discountVal }),
       });
-      
+
       const data = await response.json();
       if (response.ok) {
-        setSelfDiscount(discountVal);
+        setCourseDiscounts(prev => {
+          const withoutRole = prev.filter(cd => cd.role !== selfDiscountRole);
+          const existing = prev.find(cd => cd.role === selfDiscountRole);
+          return [...withoutRole, { role: selfDiscountRole, discount: existing?.discount || 0, selfDiscount: discountVal }];
+        });
         showToast(data.message || "Self discount updated successfully", "success");
       } else {
         showToast(data.message || "Failed to update self discount", "error");
@@ -134,15 +142,12 @@ export function ReferAndEarnTab({
             if (typeof data.user.referralPercentage === 'number') {
               setDynamicReferralPercent(data.user.referralPercentage);
             }
-            if (typeof data.user.discount === 'number') {
-              setAdminDiscount(data.user.discount);
-            } else if (user?.discount !== undefined) {
-              setAdminDiscount(user.discount);
-            }
-            if (typeof data.user.selfDiscount === 'number') {
-              setSelfDiscount(data.user.selfDiscount);
-              setSelfDiscountInput(String(data.user.selfDiscount));
-            }
+            const fetchedDiscounts: CourseDiscount[] = Array.isArray(data.user.courseDiscounts)
+              ? data.user.courseDiscounts
+              : (Array.isArray(user?.courseDiscounts) ? user.courseDiscounts : []);
+            setCourseDiscounts(fetchedDiscounts);
+            const currentEntry = fetchedDiscounts.find(cd => cd.role === selfDiscountRole);
+            setSelfDiscountInput(String(currentEntry?.selfDiscount || 0));
           }
         }
       } catch (error) {
@@ -176,6 +181,20 @@ export function ReferAndEarnTab({
     fetchProfile();
     fetchCourseDetails();
   }, []);
+
+  useEffect(() => {
+    if (user?.role && DISCOUNT_ROLES.includes(user.role as UserRole)) {
+      setSelfDiscountRole(user.role as UserRole);
+    }
+  }, [user?.role]);
+
+  const handleSelfDiscountRoleChange = (role: UserRole) => {
+    setSelfDiscountRole(role);
+    const existing = courseDiscounts.find(cd => cd.role === role);
+    setSelfDiscountInput(String(existing?.selfDiscount || 0));
+  };
+
+  const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
 
   const getCoursePrice = (role: string): number => {
     const normalizedRole = String(role || "").toLowerCase().trim();
@@ -347,9 +366,24 @@ export function ReferAndEarnTab({
                 <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                   Your Discount Details
                 </p>
+                <div className="mt-3">
+                  <label htmlFor="discountCourse" className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                    Course
+                  </label>
+                  <select
+                    id="discountCourse"
+                    value={selfDiscountRole}
+                    onChange={(e) => handleSelfDiscountRoleChange(e.target.value as UserRole)}
+                    className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-bold text-[var(--text)] outline-none transition focus:border-[var(--border-strong)] cursor-pointer"
+                  >
+                    {DISCOUNT_ROLES.map((role) => (
+                      <option key={role} value={role}>{roleLabel(role)}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-[var(--surface)] border border-[var(--border)] px-4 py-3">
                   <span className="text-xs font-semibold text-[var(--text-muted)]">Discount Given by Admin</span>
-                  <span className="text-sm font-black text-[var(--text)]">{adminDiscount}%</span>
+                  <span className="text-sm font-black text-[var(--text)]">{adminDiscountForSelectedRole}%</span>
                 </div>
               </div>
 
@@ -360,7 +394,7 @@ export function ReferAndEarnTab({
                       Self Discount
                     </label>
                     <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                      Active: {selfDiscount}%
+                      Active: {courseDiscounts.find(cd => cd.role === selfDiscountRole)?.selfDiscount || 0}%
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -369,7 +403,7 @@ export function ReferAndEarnTab({
                         type="number"
                         id="selfDiscount"
                         min="0"
-                        max="100"
+                        max={adminDiscountForSelectedRole}
                         value={selfDiscountInput}
                         onChange={(e) => setSelfDiscountInput(e.target.value)}
                         className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] pl-4 pr-12 py-2.5 text-sm font-bold text-[var(--text)] outline-none transition focus:border-[var(--border-strong)]"

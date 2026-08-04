@@ -2065,7 +2065,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const discountPercent = apiDiscount !== null ? apiDiscount : (userProfile?.discount || user?.discount || 0);
+                const discountPercent = apiDiscount !== null ? apiDiscount : 0;
                 const discountAmount = (base * discountPercent) / 100;
                 const discountedBase = base - discountAmount;
                 const gst = discountedBase * 0.18;

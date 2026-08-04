@@ -88,7 +88,7 @@ export default function UserManagementPage() {
             updatedAt: u.updatedAt,
             registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
             referralPercentage: u.referralPercentage,
-            discount: u.discount,
+            courseDiscounts: Array.isArray(u.courseDiscounts) ? u.courseDiscounts : [],
             isPaymentVerified: !!u.isPaymentVerified,
           };
         });
@@ -119,10 +119,13 @@ export default function UserManagementPage() {
   const [updatingReferralId, setUpdatingReferralId] = useState<string | null>(null);
   const [confirmReferralUpdate, setConfirmReferralUpdate] = useState<{ userId: string; userName: string; percentage: number } | null>(null);
 
+  const DISCOUNT_ROLES: UserRole[] = ["student", "validator", "working_professional", "course_only"];
+
   const [editingDiscountUserId, setEditingDiscountUserId] = useState<string | null>(null);
+  const [editDiscountRole, setEditDiscountRole] = useState<UserRole>("student");
   const [editDiscountValue, setEditDiscountValue] = useState<number>(0);
   const [updatingDiscountId, setUpdatingDiscountId] = useState<string | null>(null);
-  const [confirmDiscountUpdate, setConfirmDiscountUpdate] = useState<{ userId: string; userName: string; discount: number } | null>(null);
+  const [confirmDiscountUpdate, setConfirmDiscountUpdate] = useState<{ userId: string; userName: string; role: UserRole; discount: number } | null>(null);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -163,7 +166,7 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleUpdateDiscount = async (userId: string, discount: number) => {
+  const handleUpdateDiscount = async (userId: string, role: UserRole, discount: number) => {
     try {
       setUpdatingDiscountId(userId);
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -173,7 +176,7 @@ export default function UserManagementPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ discount })
+        body: JSON.stringify({ role, discount })
       });
 
       if (!response.ok) {
@@ -183,9 +186,12 @@ export default function UserManagementPage() {
       const data = await response.json();
 
       setUsers(prevUsers =>
-        prevUsers.map(u =>
-          u.id === userId ? { ...u, discount: discount } : u
-        )
+        prevUsers.map(u => {
+          if (u.id !== userId) return u;
+          const existing = Array.isArray(u.courseDiscounts) ? u.courseDiscounts : [];
+          const withoutRole = existing.filter(cd => cd.role !== role);
+          return { ...u, courseDiscounts: [...withoutRole, { role, discount }] };
+        })
       );
 
       showToast(data.message || "Discount updated successfully", "success");
@@ -629,44 +635,79 @@ export default function UserManagementPage() {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
                         {editingDiscountUserId === user.id ? (
-                           <div className="flex items-center justify-center gap-1.5">
-                             <input
-                               type="number"
-                               min="0"
-                               max="100"
-                               value={editDiscountValue}
-                               onChange={(e) => setEditDiscountValue(Number(e.target.value))}
-                               className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
-                               disabled={updatingDiscountId === user.id}
-                             />
-                             <button
-                               onClick={() => setConfirmDiscountUpdate({
-                                 userId: user.id,
-                                 userName: user.fullName || (user as any).name || "this user",
-                                 discount: editDiscountValue
-                               })}
-                               disabled={updatingDiscountId === user.id}
-                               className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
-                               title="Save"
-                             >
-                               <Check size={14} />
-                             </button>
-                             <button
-                               onClick={() => setEditingDiscountUserId(null)}
-                               disabled={updatingDiscountId === user.id}
-                               className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
-                               title="Cancel"
-                             >
-                               <X size={14} />
-                             </button>
+                           <div className="flex flex-col items-center justify-center gap-1.5">
+                             <div className="flex items-center justify-center gap-1.5">
+                               <select
+                                 value={editDiscountRole}
+                                 onChange={(e) => {
+                                   const role = e.target.value as UserRole;
+                                   setEditDiscountRole(role);
+                                   const existing = (user.courseDiscounts || []).find(cd => cd.role === role);
+                                   setEditDiscountValue(existing?.discount || 0);
+                                 }}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
+                               >
+                                 {DISCOUNT_ROLES.map((role) => (
+                                   <option key={role} value={role}>{roleLabel(role)}</option>
+                                 ))}
+                               </select>
+                               <input
+                                 type="number"
+                                 min="0"
+                                 max="100"
+                                 value={editDiscountValue}
+                                 onChange={(e) => setEditDiscountValue(Number(e.target.value))}
+                                 className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                                 disabled={updatingDiscountId === user.id}
+                               />
+                               <button
+                                 onClick={() => setConfirmDiscountUpdate({
+                                   userId: user.id,
+                                   userName: user.fullName || (user as any).name || "this user",
+                                   role: editDiscountRole,
+                                   discount: editDiscountValue
+                                 })}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                 title="Save"
+                               >
+                                 <Check size={14} />
+                               </button>
+                               <button
+                                 onClick={() => setEditingDiscountUserId(null)}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                 title="Cancel"
+                               >
+                                 <X size={14} />
+                               </button>
+                             </div>
                            </div>
                         ) : (
-                           <div className="flex items-center justify-center gap-2 group min-h-[28px]">
-                             <span>{user.discount !== undefined ? `${user.discount}%` : "0%"}</span>
+                           <div className="flex flex-col items-center justify-center gap-1 group min-h-[28px]">
+                             <div className="flex flex-wrap items-center justify-center gap-1">
+                               {(user.courseDiscounts && user.courseDiscounts.length > 0) ? (
+                                 user.courseDiscounts.map((cd) => (
+                                   <span
+                                     key={cd.role}
+                                     className="inline-flex items-center rounded-full bg-[var(--bg-muted)] border border-[var(--border)] px-2 py-0.5 text-[10px] font-bold text-[var(--text)]"
+                                     title={roleLabel(cd.role)}
+                                   >
+                                     {roleLabel(cd.role)}: {cd.discount}%
+                                   </span>
+                                 ))
+                               ) : (
+                                 <span className="text-[var(--text-muted)]">No discounts set</span>
+                               )}
+                             </div>
                              <button
                                onClick={() => {
                                  setEditingDiscountUserId(user.id);
-                                 setEditDiscountValue(user.discount || 0);
+                                 const defaultRole = DISCOUNT_ROLES.includes(user.role as UserRole) ? (user.role as UserRole) : "student";
+                                 setEditDiscountRole(defaultRole);
+                                 const existing = (user.courseDiscounts || []).find(cd => cd.role === defaultRole);
+                                 setEditDiscountValue(existing?.discount || 0);
                                }}
                                className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
                                title="Edit Discount"
@@ -808,7 +849,7 @@ export default function UserManagementPage() {
               Are you sure?
             </h3>
             <p className="text-sm text-[var(--text-muted)] mb-6">
-              Do you really want to update the discount to <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.discount}%</span> for user <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.userName}</span>?
+              Do you really want to set the <span className="font-bold text-[var(--text)]">{roleLabel(confirmDiscountUpdate.role)}</span> discount to <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.discount}%</span> for user <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.userName}</span>?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -819,7 +860,7 @@ export default function UserManagementPage() {
               </button>
               <button
                 onClick={() => {
-                  handleUpdateDiscount(confirmDiscountUpdate.userId, confirmDiscountUpdate.discount);
+                  handleUpdateDiscount(confirmDiscountUpdate.userId, confirmDiscountUpdate.role, confirmDiscountUpdate.discount);
                   setConfirmDiscountUpdate(null);
                 }}
                 className="rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
