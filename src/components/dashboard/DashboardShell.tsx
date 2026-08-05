@@ -68,51 +68,9 @@ const getDiscountText = (req: any) => {
   if (typeof req.appliedDiscount === 'number' && req.appliedDiscount > 0) {
     return `(${req.appliedDiscount}% dis..)`;
   }
-
-  const amount = Number(req.amountPaid);
-  if (!amount || isNaN(amount)) return "";
-
-  const bases = [4999, 9999, 19999, 24999];
-  let bestDiscount = 0;
-  let minDiff = Infinity;
-
-  for (const base of bases) {
-    const originalWithGst = base * 1.18;
-    if (amount <= originalWithGst + 50) {
-      const calculatedDiscount = ((originalWithGst - amount) / originalWithGst) * 100;
-      if (calculatedDiscount >= 0 && calculatedDiscount <= 100) {
-        const rounded = Math.round(calculatedDiscount);
-        const diff = Math.abs(calculatedDiscount - rounded);
-        if (diff < minDiff) {
-          minDiff = diff;
-          bestDiscount = rounded;
-        }
-      }
-    }
+  if (typeof req.discountPercentageApplied === 'number' && req.discountPercentageApplied > 0) {
+    return `(${req.discountPercentageApplied}% dis..)`;
   }
-
-  if (bestDiscount > 0 && bestDiscount < 100) {
-    return `(${bestDiscount}% dis..)`;
-  }
-
-  for (const base of bases) {
-    if (amount <= base + 50) {
-      const calculatedDiscount = ((base - amount) / base) * 100;
-      if (calculatedDiscount >= 0 && calculatedDiscount <= 100) {
-        const rounded = Math.round(calculatedDiscount);
-        const diff = Math.abs(calculatedDiscount - rounded);
-        if (diff < minDiff) {
-          minDiff = diff;
-          bestDiscount = rounded;
-        }
-      }
-    }
-  }
-
-  if (bestDiscount > 0 && bestDiscount < 100) {
-    return `(${bestDiscount}% dis..)`;
-  }
-
   return "";
 };
 
