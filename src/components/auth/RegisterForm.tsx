@@ -302,7 +302,7 @@ export function RegisterForm() {
       } */
 
       result = await registerValidator({
-        fullName,
+        name: fullName,
         email,
         phone,
         password,
@@ -332,7 +332,7 @@ export function RegisterForm() {
       }
 
       result = await registerStudent({
-        fullName,
+        name: fullName,
         email,
         phone,
         password,
@@ -344,7 +344,7 @@ export function RegisterForm() {
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
-        fullName,
+        name: fullName,
         email,
         phone,
         password,
@@ -354,7 +354,7 @@ export function RegisterForm() {
       });
     } else {
       result = await registerNonValidator({
-        fullName,
+        name: fullName,
         email,
         password,
         phone,

@@ -15,6 +15,7 @@ export interface AuthUser {
   email: string;
   password?: string;
   fullName: string;
+  name?: string;
   role: UserRole;
   backendRole?: string;
   phone?: string;
@@ -44,7 +45,7 @@ export interface AuthUser {
 }
 
 export interface RegisterStudentInput {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   password: string;
@@ -57,7 +58,7 @@ export interface RegisterStudentInput {
 }
 
 export interface RegisterValidatorInput {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   password: string;
@@ -69,7 +70,7 @@ export interface RegisterValidatorInput {
 }
 
 export interface RegisterNonValidatorInput {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   password: string;
@@ -238,12 +239,13 @@ export async function registerStudent(
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
     const formData = new FormData();
-    formData.append("fullName", input.fullName);
+    formData.append("name", input.name);
     formData.append("email", input.email);
     formData.append("password", input.password);
     formData.append("mobileNumber", input.phone);
     formData.append("collegeName", input.college);
     formData.append("idCardImage", input.idCardFile);
+    formData.append("role", "STUDENT");
     if (input.referralCode) {
       formData.append("referralCode", input.referralCode);
     }
@@ -254,7 +256,7 @@ export async function registerStudent(
       formData.append("GSTIN", input.gstNumber);
     }
 
-    const response = await fetch(`${baseURL}/api/auth/register-student`, {
+    const response = await fetch(`${baseURL}/api/auth/register`, {
       method: "POST",
       body: formData,
     });
@@ -268,7 +270,8 @@ export async function registerStudent(
     const authUser: AuthUser = {
       id: studentData.id || studentData._id || `user-${Date.now()}`,
       email: studentData.email || input.email,
-      fullName: studentData.name || input.fullName,
+      fullName: studentData.name || input.name || "",
+      name: studentData.name || input.name,
       role: studentData.role || "STUDENT",
       phone: studentData.mobileNumber || input.phone,
       college: studentData.collegeName || input.college,
@@ -291,16 +294,17 @@ export async function registerValidator(
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
 
     const payload = {
-      name: input.fullName,
+      name: input.name,
       email: input.email,
       password: input.password,
       mobileNumber: input.phone,
+      role: "VALIDATOR",
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
       ...(input.gstNumber ? { GSTIN: input.gstNumber } : {}),
     };
 
-    const response = await fetch(`${baseURL}/api/auth/register-validator`, {
+    const response = await fetch(`${baseURL}/api/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -317,7 +321,8 @@ export async function registerValidator(
     const authUser: AuthUser = {
       id: validatorData.id || validatorData._id || `user-${Date.now()}`,
       email: validatorData.email || input.email,
-      fullName: validatorData.name || input.fullName,
+      fullName: validatorData.name || input.name || "",
+      name: validatorData.name || input.name,
       role: validatorData.role || "VALIDATOR",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
@@ -341,9 +346,10 @@ export async function registerNonValidator(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: input.fullName,
+        name: input.name,
         email: input.email,
         password: input.password,
+        role: "COURSE_ONLY",
         referralCode: input.referralCode,
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
@@ -360,7 +366,8 @@ export async function registerNonValidator(
     const authUser: AuthUser = {
       id: registeredUser.id || registeredUser._id || `user-${Date.now()}`,
       email: registeredUser.email || input.email,
-      fullName: registeredUser.name || input.fullName,
+      fullName: registeredUser.name || input.name || "",
+      name: registeredUser.name || input.name,
       role: registeredUser.role || "COURSE_ONLY",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
@@ -376,7 +383,7 @@ export async function registerNonValidator(
 }
 
 export async function registerWorkingProfessional(input: {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   password: string;
@@ -386,13 +393,14 @@ export async function registerWorkingProfessional(input: {
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-    const response = await fetch(`${baseURL}/api/auth/register-working-professional`, {
+    const response = await fetch(`${baseURL}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: input.fullName,
+        name: input.name,
         email: input.email,
         password: input.password,
+        role: "WORKING_PROFESSIONAL",
         referralCode: input.referralCode,
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
@@ -409,7 +417,8 @@ export async function registerWorkingProfessional(input: {
     const authUser: AuthUser = {
       id: registeredUser.id || registeredUser._id || `user-${Date.now()}`,
       email: registeredUser.email || input.email,
-      fullName: registeredUser.name || input.fullName,
+      fullName: registeredUser.name || input.name || "",
+      name: registeredUser.name || input.name,
       role: registeredUser.role || "WORKING_PROFESSIONAL",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
@@ -425,7 +434,7 @@ export async function registerWorkingProfessional(input: {
 }
 
 export async function registerAdmin(input: {
-  fullName: string;
+  name: string;
   email: string;
   phone?: string;
   password: string;
@@ -437,7 +446,7 @@ export async function registerAdmin(input: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: input.fullName,
+        name: input.name,
         email: input.email,
         password: input.password,
         referralCode: input.referralCode,

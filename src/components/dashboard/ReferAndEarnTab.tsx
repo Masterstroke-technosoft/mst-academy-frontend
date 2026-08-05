@@ -83,7 +83,7 @@ export function ReferAndEarnTab({
   const handleUpdateSelfDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     const discountVal = parseInt(selfDiscountInput, 10);
-    const maxDiscount = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
+    const maxDiscount = courseDiscounts.find(cd => cd.role === selfDiscountRole.toUpperCase())?.discount || 0;
     if (isNaN(discountVal) || discountVal < 0 || discountVal > maxDiscount) {
       showToast(`Please enter a valid discount percentage between 0 and ${maxDiscount}.`, "error");
       return;
@@ -193,8 +193,8 @@ export function ReferAndEarnTab({
     const existing = courseDiscounts.find(cd => cd.role === role);
     setSelfDiscountInput(String(existing?.selfDiscount || 0));
   };
-
-  const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
+  const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role === selfDiscountRole.toUpperCase())?.discount || 0;
+  //console.log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", selfDiscountRole)
 
   const getCoursePrice = (role: string): number => {
     const normalizedRole = String(role || "").toLowerCase().trim();
