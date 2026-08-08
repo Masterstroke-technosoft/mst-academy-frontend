@@ -1,6 +1,6 @@
 "use client";
 
-export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional" | "course_only" | "working_professional";
+export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional" | "course_only" | "working_professional" | "tutor" | "TUTOR";
 
 export type BlockchainLevel = "Beginner" | "Intermediate" | "Expert";
 
@@ -486,6 +486,9 @@ export function roleLabel(role: UserRole | string): string {
     case "admin":
     case "ADMIN":
       return "Admin";
+    case "tutor":
+    case "TUTOR":
+      return "Tutor";
     case "S_ADMIN":
     case "s_admin":
     case "superadmin":
@@ -509,6 +512,9 @@ export function dashboardPath(role: UserRole | string | undefined): string {
     case "student":
     case "STUDENT":
       return "/dashboard/student";
+    case "tutor":
+    case "TUTOR":
+      return "/dashboard/tutor";
     case "validator":
     case "VALIDATOR":
       return "/dashboard/validator";

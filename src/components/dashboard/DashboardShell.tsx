@@ -35,28 +35,36 @@ const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
   { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
 ];
 
-const getSidebarNav = (role: string, isAdmin: boolean) => [
-  { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
-  { href: "/learn", icon: TreePine, label: "Learning Tree" },
-  ...(!isAdmin
-    ? [
-      { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
-      { href: `/dashboard/${role}#submissions`, icon: BookOpen, label: "Submission Progress" }
-    ]
-    : []),
-  ...(isAdmin
-    ? [
-      { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
-      { href: "/admin/users", icon: Users, label: "User Managementss" },
-      { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
-      { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
-    ]
-    : []),
-  ...(!isAdmin && role !== "admin"
-    ? [{ href: `#refer`, icon: Gift, label: "Refer & Earn" }]
-    : []),
-  { href: `#profile`, icon: User, label: "Profile" },
-];
+const getSidebarNav = (role: string, isAdmin: boolean) => {
+  if (role === "tutor" || role === "TUTOR") {
+    return [
+      { href: "/dashboard/tutor", icon: BookOpen, label: "Submission Review" },
+      { href: `#profile`, icon: User, label: "Profile" },
+    ];
+  }
+  return [
+    { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
+    { href: "/learn", icon: TreePine, label: "Learning Tree" },
+    ...(!isAdmin
+      ? [
+        { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
+        { href: `/dashboard/${role}#submissions`, icon: BookOpen, label: "Submission Progress" }
+      ]
+      : []),
+    ...(isAdmin
+      ? [
+        { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
+        { href: "/admin/users", icon: Users, label: "User Managementss" },
+        { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
+        { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
+      ]
+      : []),
+    ...(!isAdmin && role !== "admin"
+      ? [{ href: `#refer`, icon: Gift, label: "Refer & Earn" }]
+      : []),
+    { href: `#profile`, icon: User, label: "Profile" },
+  ];
+};
 
 const getDiscountText = (req: any) => {
   if (typeof req.discount === 'number' && req.discount > 0) {
@@ -362,7 +370,7 @@ export function DashboardShell({
               );
             })}
 
-            {isAdmin && (
+            {isAdmin && role !== "tutor" && role !== "TUTOR" && (
               <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
                 <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                   Admin Dashboards
@@ -386,7 +394,7 @@ export function DashboardShell({
 
           {/* bottom */}
           <div className="mt-auto border-t border-[var(--border)] px-3 py-4 space-y-1">
-            {isAdmin && (
+            {isAdmin && role !== "tutor" && role !== "TUTOR" && (
               <button
                 type="button"
                 onClick={() => {
@@ -498,7 +506,7 @@ export function DashboardShell({
                   );
                 })}
 
-                {isAdmin && (
+                {isAdmin && role !== "tutor" && role !== "TUTOR" && (
                   <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
                     <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                       Admin Dashboards
@@ -523,7 +531,7 @@ export function DashboardShell({
 
               {/* bottom */}
               <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
-                {isAdmin && (
+                {isAdmin && role !== "tutor" && role !== "TUTOR" && (
                   <button
                     type="button"
                     onClick={() => {
