@@ -38,6 +38,7 @@ interface SubmissionItem {
   rawSubmission: any;
   submittedAt: string;
   marks?: number;
+  questionText?: string;
 }
 
 export default function TutorDashboardPage() {
@@ -192,7 +193,8 @@ export default function TutorDashboardPage() {
                     isCorrect: submission.evaluated || false,
                     rawSubmission: submission,
                     submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt),
-                    marks: ans.marks || submission.totalMarks || 10
+                    marks: ans.marks || submission.totalMarks || 10,
+                    questionText: ans.questionText || ans.questionTitle || ans.question || ""
                   });
                 }
               });
@@ -330,6 +332,9 @@ export default function TutorDashboardPage() {
             <div className="h-4 bg-[var(--border)] rounded w-40"></div>
           </td>
           <td className="px-3 py-4">
+            <div className="h-4 bg-[var(--border)] rounded w-36"></div>
+          </td>
+          <td className="px-3 py-4">
             <div className="h-4 bg-[var(--border)] rounded w-28"></div>
           </td>
           <td className="px-3 py-4">
@@ -440,15 +445,16 @@ export default function TutorDashboardPage() {
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           {loading ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
+              <table className="w-full min-w-full text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[22%]">User</th>
-                    <th className="px-3 py-3 w-[22%]">Submodule</th>
-                    <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
-                    <th className="px-3 py-3 w-[15%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[7%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[15%]">User</th>
+                    <th className="px-3 py-3 w-[15%]">Submodule</th>
+                    <th className="px-3 py-3 w-[20%]">Question</th>
+                    <th className="px-3 py-3 w-[15%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[12%]">Submitted At</th>
+                    <th className="px-3 py-3 w-[11%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[12%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <TableSkeleton />
@@ -468,15 +474,16 @@ export default function TutorDashboardPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
+              <table className="w-full min-w-full text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[22%]">User</th>
-                    <th className="px-3 py-3 w-[22%]">Submodule</th>
-                    <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
-                    <th className="px-3 py-3 w-[15%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[7%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[15%]">User</th>
+                    <th className="px-3 py-3 w-[15%]">Submodule</th>
+                    <th className="px-3 py-3 w-[20%]">Question</th>
+                    <th className="px-3 py-3 w-[15%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[12%]">Submitted At</th>
+                    <th className="px-3 py-3 w-[11%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[12%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
@@ -494,6 +501,14 @@ export default function TutorDashboardPage() {
                       <td className="px-3 py-3 max-w-[200px] break-words">
                         <span className="font-semibold text-[var(--text)] text-xs sm:text-sm block line-clamp-2">
                           {item.submoduleTitle}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 max-w-[240px]">
+                        <span className="text-[var(--text)] text-xs sm:text-sm block truncate" title={item.questionText}>
+                          {item.questionText 
+                            ? item.questionText.split('\n')[0].trim()
+                            : <span className="italic text-[var(--text-muted)] text-[10px]">No question text</span>
+                          }
                         </span>
                       </td>
                       <td className="px-3 py-3 max-w-[240px]">
@@ -704,6 +719,16 @@ export default function TutorDashboardPage() {
                     <span className="text-[var(--text-muted)]">Assignment ID</span>
                     <span className="font-mono text-xs text-[var(--text)]">{selectedSubmission.assignmentId}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Question */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">Question</h4>
+                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 max-h-[200px] overflow-y-auto">
+                  <p className="text-xs sm:text-sm font-medium text-[var(--text)] whitespace-pre-wrap">
+                    {selectedSubmission.questionText || <span className="italic text-[var(--text-muted)]">No question text available</span>}
+                  </p>
                 </div>
               </div>
 
