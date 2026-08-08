@@ -36,7 +36,13 @@ export function LoginForm() {
     if (value === "admin" || value === "s_admin" || value === "superadmin" || value === "super_admin" || value === "super-admin" || value === "super admin") {
       return "admin";
     }
-    if (value === "admin" || value === "student" || value === "validator" || value === "non-validator") {
+    if (value === "tutor") {
+      return "tutor";
+    }
+    if (value === "working-professional" || value === "working_professional") {
+      return "working-professional";
+    }
+    if (value === "admin" || value === "student" || value === "validator" || value === "non-validator" || value === "tutor" || value === "working-professional") {
       return value as UserRole;
     }
     return "student";
