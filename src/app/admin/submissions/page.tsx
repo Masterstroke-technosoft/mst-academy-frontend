@@ -39,6 +39,7 @@ interface SubmissionItem {
   rawSubmission: any;
   submittedAt: string;
   marks?: number;
+  questionText?: string;
 }
 
 export default function SubmissionReviewPage() {
@@ -196,7 +197,8 @@ export default function SubmissionReviewPage() {
                     isCorrect: submission.evaluated || false,
                     rawSubmission: submission,
                     submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt),
-                    marks: ans.marks || submission.totalMarks || 10
+                    marks: ans.marks || submission.totalMarks || 10,
+                    questionText: ans.questionText || ans.statement || ans.question || ans.title || ""
                   });
                 }
               });
@@ -335,6 +337,9 @@ export default function SubmissionReviewPage() {
             <div className="h-4 bg-[var(--border)] rounded w-40"></div>
           </td>
           <td className="px-3 py-4">
+            <div className="h-4 bg-[var(--border)] rounded w-32"></div>
+          </td>
+          <td className="px-3 py-4">
             <div className="h-4 bg-[var(--border)] rounded w-28"></div>
           </td>
           <td className="px-3 py-4">
@@ -449,12 +454,13 @@ export default function SubmissionReviewPage() {
               <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[22%]">User</th>
-                    <th className="px-3 py-3 w-[22%]">Submodule</th>
-                    <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
-                    <th className="px-3 py-3 w-[15%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[7%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[18%]">User</th>
+                    <th className="px-3 py-3 w-[18%]">Submodule</th>
+                    <th className="px-3 py-3 w-[20%]">Question</th>
+                    <th className="px-3 py-3 w-[20%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[12%]">Submitted At</th>
+                    <th className="px-3 py-3 w-[8%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[5%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <TableSkeleton />
@@ -477,12 +483,13 @@ export default function SubmissionReviewPage() {
               <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[22%]">User</th>
-                    <th className="px-3 py-3 w-[22%]">Submodule</th>
-                    <th className="px-3 py-3 w-[24%]">Submitted Link/Answer</th>
-                    <th className="px-3 py-3 w-[15%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[10%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[7%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[18%]">User</th>
+                    <th className="px-3 py-3 w-[18%]">Submodule</th>
+                    <th className="px-3 py-3 w-[20%]">Question</th>
+                    <th className="px-3 py-3 w-[20%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[12%]">Submitted At</th>
+                    <th className="px-3 py-3 w-[8%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[5%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
@@ -500,6 +507,17 @@ export default function SubmissionReviewPage() {
                       <td className="px-3 py-3 max-w-[200px] break-words">
                         <span className="font-semibold text-[var(--text)] text-xs sm:text-sm block line-clamp-2">
                           {item.submoduleTitle}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3 max-w-[200px] break-words">
+                        <span className="text-[var(--text)] text-xs sm:text-sm block" title={item.questionText}>
+                          {item.questionText ? (
+                            item.questionText.length > 60 
+                              ? `${item.questionText.slice(0, 60)}...` 
+                              : item.questionText
+                          ) : (
+                            <span className="italic text-[var(--text-muted)] text-[10px]">N/A</span>
+                          )}
                         </span>
                       </td>
                       <td className="px-3 py-3 max-w-[240px]">
@@ -711,6 +729,16 @@ export default function SubmissionReviewPage() {
                     <span className="text-[var(--text-muted)]">Assignment ID</span>
                     <span className="font-mono text-xs text-[var(--text)]">{selectedSubmission.assignmentId}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Question */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">Question</h4>
+                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30">
+                  <p className="text-sm text-[var(--text)] whitespace-pre-wrap font-medium">
+                    {selectedSubmission.questionText || <span className="italic text-[var(--text-muted)]">No question text provided</span>}
+                  </p>
                 </div>
               </div>
 
