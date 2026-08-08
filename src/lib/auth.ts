@@ -163,8 +163,8 @@ export function setSession(user: AuthUser | null) {
 export function isAdminUser(user?: AuthUser | null): boolean {
   const u = user ?? getSession();
   if (!u) return false;
-  const r = (u.backendRole || u.role)?.toLowerCase();
-  return r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
+  const r = canonicalRole(u.backendRole || u.role || "");
+  return r === "admin" || r === "s-admin" || r === "superadmin" || r === "super-admin";
 }
 
 export async function login(
@@ -502,37 +502,42 @@ export function roleLabel(role: UserRole | string): string {
 
 export function dashboardPath(role: UserRole | string | undefined): string {
   if (!role) return "/dashboard/non-validator";
-  const r = typeof role === "string" ? role.toLowerCase() : "";
-  if (r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin") {
+  const r = canonicalRole(String(role));
+  if (r === "admin" || r === "s-admin" || r === "superadmin" || r === "super-admin") {
     return "/dashboard/admin";
   }
-  switch (role) {
+  switch (r) {
     case "student":
-    case "STUDENT":
       return "/dashboard/student";
     case "tutor":
-    case "TUTOR":
       return "/dashboard/tutor";
     case "validator":
-    case "VALIDATOR":
       return "/dashboard/validator";
     case "non-validator":
-    case "COURSE_ONLY":
+    case "course-only":
       return "/dashboard/non-validator";
     case "working-professional":
-    case "WORKING_PROFESSIONAL":
       return "/dashboard/working-professional";
     default:
       return "/dashboard/non-validator";
   }
 }
 
+// Backend roles arrive in several shapes for the same role (COURSE_ONLY,
+// working_professional, working-professional). Collapse them to a single
+// canonical form so a role check never fails on punctuation alone.
+function canonicalRole(role: string): string {
+  return role.trim().toLowerCase().replace(/[\s_]+/g, "-");
+}
+
 export function canAccessDashboard(role: UserRole | string): boolean {
   const user = getSession();
   if (!user) return false;
-  const userRoleLower = (user.backendRole || user.role)?.toLowerCase();
-  if (userRoleLower === "admin" || userRoleLower === "s_admin" || userRoleLower === "superadmin" || userRoleLower === "super_admin" || userRoleLower === "super-admin" || userRoleLower === "super admin") return true;
-  return (user.backendRole || user.role || "").toLowerCase() === role.toLowerCase();
+  const userRole = canonicalRole(user.backendRole || user.role || "");
+  if (userRole === "admin" || userRole === "s-admin" || userRole === "superadmin" || userRole === "super-admin") return true;
+  if (userRole === canonicalRole(role)) return true;
+  // COURSE_ONLY is the backend name for the non-validator dashboard.
+  return userRole === "course-only" && canonicalRole(role) === "non-validator";
 }
 
 export function updateUser(id: string, updates: Partial<AuthUser>) {
