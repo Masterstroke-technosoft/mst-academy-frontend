@@ -462,7 +462,7 @@ export async function registerAdmin(input: {
     const authUser: AuthUser = {
       id: adminData.id || adminData._id || `user-${Date.now()}`,
       email: adminData.email || input.email,
-      fullName: adminData.name || input.fullName,
+      fullName: adminData.name || input.name,
       role: adminData.role || "ADMIN",
       phone: input.phone,
       registeredAt: new Date().toISOString(),
