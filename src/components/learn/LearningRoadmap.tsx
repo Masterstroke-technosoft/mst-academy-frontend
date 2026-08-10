@@ -556,7 +556,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
     const fetchURL = isAdmin
       ? `${baseURL}/api/node-purchase`
-      : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;
+      : `${baseURL}/api/node-purchase/me`;
 
     try {
       const res = await fetchWithAuth(fetchURL);
