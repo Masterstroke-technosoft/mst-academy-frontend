@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X, BookOpen, Trophy, Calendar, Loader2 } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -131,6 +131,99 @@ export default function UserManagementPage() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  // State for user progress modal
+  const [viewingProgressUser, setViewingProgressUser] = useState<AuthUser | null>(null);
+  const [userProgressData, setUserProgressData] = useState<any | null>(null);
+  const [curriculumData, setCurriculumData] = useState<any[] | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(false);
+  const [progressError, setProgressError] = useState<string | null>(null);
+
+  const handleViewProgress = async (user: AuthUser) => {
+    setViewingProgressUser(user);
+    setLoadingProgress(true);
+    setProgressError(null);
+    setUserProgressData(null);
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      
+      // 1. Fetch curriculum if not already loaded
+      let currentCurriculum = curriculumData;
+      if (!currentCurriculum) {
+        const courseId = "6a2934912b48a13769669f8e";
+        const curriculumRes = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" }
+        });
+        if (curriculumRes.ok) {
+          const resData = await curriculumRes.json();
+          const rawPhases = resData.data || resData || [];
+          currentCurriculum = await Promise.all(
+            rawPhases.map(async (phase: any) => {
+              try {
+                const fullRes = await fetch(`${baseURL}/api/phases/full/${phase._id || phase.id}`, {
+                  method: "GET",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" }
+                });
+                if (fullRes.ok) {
+                  const fullData = await fullRes.json();
+                  return fullData.data || fullData;
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              return phase;
+            })
+          );
+          setCurriculumData(currentCurriculum);
+        }
+      }
+
+      // 2. Fetch User Progress
+      const progressRes = await fetch(`${baseURL}/api/dashboard/admin/user-progress/${user.id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!progressRes.ok) {
+        throw new Error(`Failed to fetch progress: ${progressRes.statusText}`);
+      }
+
+      const progressJson = await progressRes.json();
+      setUserProgressData(progressJson.data || progressJson);
+    } catch (err: any) {
+      setProgressError(err.message || "Failed to load progress data");
+    } finally {
+      setLoadingProgress(false);
+    }
+  };
+
+  const stats = useMemo(() => {
+    if (!curriculumData || !userProgressData) return null;
+    let totalModules = 0;
+    let totalSubmodules = 0;
+    
+    curriculumData.forEach((phase: any) => {
+      const modules = phase.modules || [];
+      totalModules += modules.length;
+      modules.forEach((mod: any) => {
+        totalSubmodules += (mod.submodules || []).length;
+      });
+    });
+
+    const completedModulesCount = userProgressData.completedModules?.length || 0;
+    const completedSubmodulesCount = userProgressData.completedSubmodules?.length || 0;
+
+    return {
+      totalModules,
+      totalSubmodules,
+      completedModulesCount,
+      completedSubmodulesCount,
+    };
+  }, [curriculumData, userProgressData]);
 
   const handleUpdateReferralPercentage = async (userId: string, percentage: number) => {
     try {
@@ -516,7 +609,12 @@ export default function UserManagementPage() {
                   filteredUsers.map((user) => (
                     <tr key={user.id} className="transition-colors hover:bg-[var(--bg-muted)]/50">
                       <td className="px-3 py-3 font-bold text-[var(--text)]">
-                        {user.fullName || (user as any).name || "Unknown"}
+                        <button
+                          onClick={() => handleViewProgress(user)}
+                          className="hover:underline text-left font-bold cursor-pointer text-[var(--text)]"
+                        >
+                          {user.fullName || (user as any).name || "Unknown"}
+                        </button>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">{user.email}</td>
                       <td className="px-3 py-3 whitespace-nowrap">{(user as any).phone || "N/A"}</td>
@@ -1019,6 +1117,213 @@ export default function UserManagementPage() {
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {viewingProgressUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-3xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4 shrink-0">
+              <div>
+                <h3 className="text-xl font-bold text-[var(--text)]">
+                  User Progress Roadmap
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">
+                  Viewing progress for <span className="font-semibold text-[var(--text)]">{viewingProgressUser.fullName || (viewingProgressUser as any).name || "Unknown"}</span> ({viewingProgressUser.email})
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingProgressUser(null)}
+                className="rounded-lg p-1.5 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingProgress ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-10 w-10 text-mst-red animate-spin mb-3" />
+                <p className="text-sm text-[var(--text-muted)]">Loading user progress & course details...</p>
+              </div>
+            ) : progressError ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-4">
+                <AlertCircle className="h-12 w-12 text-red-500 mb-2" />
+                <p className="text-sm font-semibold text-[var(--text)]">Error Loading Progress</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md">{progressError}</p>
+                <button
+                  onClick={() => handleViewProgress(viewingProgressUser)}
+                  className="mt-4 rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-xs font-semibold text-white transition-colors cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : userProgressData && curriculumData ? (
+              <div className="flex-1 overflow-y-auto pr-1">
+                {/* Stats Summary */}
+                {stats && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500">
+                        <BookOpen size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">Submodules Completed</div>
+                        <div className="text-2xl font-black text-[var(--text)] mt-1">
+                          {stats.completedSubmodulesCount} <span className="text-sm font-medium text-[var(--text-muted)]">/ {stats.totalSubmodules}</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] h-2 rounded-full mt-2 overflow-hidden">
+                          <div
+                            className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${stats.totalSubmodules > 0 ? (stats.completedSubmodulesCount / stats.totalSubmodules) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-500">
+                        <Trophy size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">Modules Completed</div>
+                        <div className="text-2xl font-black text-[var(--text)] mt-1">
+                          {stats.completedModulesCount} <span className="text-sm font-medium text-[var(--text-muted)]">/ {stats.totalModules}</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] h-2 rounded-full mt-2 overflow-hidden">
+                          <div
+                            className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${stats.totalModules > 0 ? (stats.completedModulesCount / stats.totalModules) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Progress Tree */}
+                <div className="space-y-6">
+                  {curriculumData.map((phase: any, pIdx: number) => {
+                    const phaseModules = phase.modules || [];
+                    
+                    // Compute phase completed counts
+                    let completedSubInPhase = 0;
+                    let totalSubInPhase = 0;
+                    phaseModules.forEach((mod: any) => {
+                      const subs = mod.submodules || [];
+                      totalSubInPhase += subs.length;
+                      subs.forEach((sub: any) => {
+                        const subId = sub.id || sub._id;
+                        const isCompleted = userProgressData.completedSubmodules?.some((cs: any) => String(cs.submoduleId) === String(subId));
+                        if (isCompleted) completedSubInPhase++;
+                      });
+                    });
+
+                    return (
+                      <div key={phase._id || phase.id || pIdx} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
+                        <div className="bg-[var(--bg-muted)]/30 px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+                          <h4 className="font-bold text-sm text-[var(--text)] flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-mst-red/10 text-mst-red flex items-center justify-center text-xs font-bold">
+                              {pIdx + 1}
+                            </span>
+                            {phase.title}
+                          </h4>
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                            {completedSubInPhase} / {totalSubInPhase} Completed
+                          </span>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                          {phaseModules.map((mod: any, mIdx: number) => {
+                            const modId = mod._id || mod.id;
+                            const isModCompleted = userProgressData.completedModules?.some((cm: any) => String(cm.moduleId) === String(modId));
+                            const completionModuleObj = userProgressData.completedModules?.find((cm: any) => String(cm.moduleId) === String(modId));
+                            const submodulesList = mod.submodules || [];
+
+                            return (
+                              <div key={modId || mIdx} className="border border-[var(--border)]/60 rounded-lg p-3 hover:bg-[var(--bg-muted)]/10 transition-colors">
+                                <div className="flex items-start justify-between gap-3 mb-3">
+                                  <div>
+                                    <h5 className="font-bold text-xs text-[var(--text)] flex items-center gap-1.5">
+                                      Module {mod.index || (mIdx + 1)}: {mod.title}
+                                    </h5>
+                                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{mod.description || 'No description'}</p>
+                                  </div>
+                                  {isModCompleted ? (
+                                    <div className="flex flex-col items-end gap-0.5">
+                                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-green-500/10 text-green-500 border border-green-500/20">
+                                        <CheckCircle2 size={10} /> Completed
+                                      </span>
+                                      {completionModuleObj?.completedAt && (
+                                        <span className="text-[9px] text-[var(--text-muted)] flex items-center gap-0.5">
+                                          <Calendar size={8} /> {new Date(completionModuleObj.completedAt).toLocaleDateString()}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--bg-muted)] text-[var(--text-muted)] border border-[var(--border)]">
+                                      In Progress
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Submodules */}
+                                {submodulesList.length > 0 && (
+                                  <div className="pl-3 border-l-2 border-[var(--border)] space-y-2 mt-2">
+                                    {submodulesList.map((sub: any, sIdx: number) => {
+                                      const subId = sub.id || sub._id;
+                                      const isSubCompleted = userProgressData.completedSubmodules?.some((cs: any) => String(cs.submoduleId) === String(subId));
+                                      const completionSubObj = userProgressData.completedSubmodules?.find((cs: any) => String(cs.submoduleId) === String(subId));
+
+                                      return (
+                                        <div key={subId || sIdx} className="flex items-center justify-between text-xs gap-3">
+                                          <span className="text-[var(--text-muted)] font-medium truncate max-w-[80%]">
+                                            {sub.index || `${mod.index || (mIdx + 1)}.${sIdx + 1}`} - {sub.title}
+                                          </span>
+                                          {isSubCompleted ? (
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                              <span className="text-emerald-500 font-bold text-[10px] flex items-center gap-0.5">
+                                                <CheckCircle2 size={10} /> Yes
+                                              </span>
+                                              {completionSubObj?.completedAt && (
+                                                <span className="text-[9px] text-[var(--text-muted)] hidden sm:inline">
+                                                  ({new Date(completionSubObj.completedAt).toLocaleDateString()})
+                                                </span>
+                                              )}
+                                            </div>
+                                          ) : (
+                                            <span className="text-[var(--text-muted)]/50 text-[10px] font-medium shrink-0">
+                                              Pending
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-12">
+                <AlertCircle className="h-12 w-12 text-amber-500 mb-2" />
+                <p className="text-sm font-semibold text-[var(--text)]">No Data Available</p>
+              </div>
+            )}
+            
+            <div className="border-t border-[var(--border)] pt-4 mt-4 flex justify-end shrink-0">
+              <button
+                onClick={() => setViewingProgressUser(null)}
+                className="rounded-xl border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
