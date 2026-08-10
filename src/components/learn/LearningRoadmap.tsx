@@ -26,6 +26,7 @@ import { getModule, getSubmodule, registerSubmoduleMetadata, registerModuleIdMap
 import {
   getModuleProgressPercent,
   getSubmoduleProgress,
+  saveSubmoduleProgress,
   getModuleStatus,
   isSubmoduleLocked,
   PASS_THRESHOLD,
@@ -528,6 +529,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const [mounted, setMounted] = useState(false);
   const [showMobileWarningPopup, setShowMobileWarningPopup] = useState(false);
+  const [progressVersion, setProgressVersion] = useState(0);
 
   const {
     activePhaseId,
@@ -654,6 +656,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     }
     loadData();
   }, [user, baseURL]);
+
+
 
   // Payment proof submission (same form + API as the dashboard's "Request Course Allocation").
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
@@ -1010,6 +1014,63 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     return { phases, modules };
   }, [initialCurriculum, fetchedPhases, fetchedModules, fetchedSubmodules]);
 
+  // Sync completed modules and submodules from backend API to localstorage
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId || curriculum.modules.length === 0) return;
+    async function syncBackendProgress() {
+      try {
+        const res = await fetch(`${baseURL}/api/dashboard/${userId}`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          let changed = false;
+
+          const completedModuleIds = (data?.completedModules || []).map((m: any) => String(m.moduleId));
+          const completedSubmoduleIds = (data?.completedSubmodules || []).map((s: any) => String(s.submoduleId));
+
+          curriculum.modules.forEach((mod) => {
+            const isModCompleted = completedModuleIds.includes(String(mod.id));
+            mod.submodules.forEach((sub) => {
+              const isSubCompleted = isModCompleted || completedSubmoduleIds.includes(String(sub.id));
+              const p = getSubmoduleProgress(mod.id, sub.slug);
+
+              if (isSubCompleted) {
+                if (!p.lessonComplete || !p.assessmentComplete) {
+                  saveSubmoduleProgress(mod.id, sub.slug, {
+                    lessonComplete: true,
+                    assessmentComplete: true,
+                    passed: true,
+                  });
+                  changed = true;
+                }
+              } else {
+                if (p.lessonComplete || p.assessmentComplete) {
+                  saveSubmoduleProgress(mod.id, sub.slug, {
+                    lessonComplete: false,
+                    assessmentComplete: false,
+                    passed: false,
+                    score: undefined,
+                    maxScore: undefined,
+                  });
+                  changed = true;
+                }
+              }
+            });
+          });
+
+          if (changed) {
+            setProgressVersion((v) => v + 1);
+          }
+        }
+      } catch (err) {
+        console.error("Error syncing backend progress:", err);
+      }
+    }
+    syncBackendProgress();
+  }, [user?.id, curriculum, baseURL]);
+
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
   const [viewportW, setViewportW] = useState(1200);
 
@@ -1289,6 +1350,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     setModule,
     setSubmodule,
     activeModule,
+    progressVersion,
   ]);
 
   const { nodes, edges } = nodesAndEdges;
