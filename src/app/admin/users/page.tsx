@@ -1155,7 +1155,7 @@ export default function UserManagementPage() {
               </div>
             ) : progressError ? (
               <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-4">
-                {progressError?.toLowerCase() === "Dashboard Not Found" ? (
+                {progressError?.toLowerCase() === "dashboard not found" ? (
                   <p className="text-sm font-semibold text-[var(--text)]">Dashboard Not Found</p>
                 ) : (
                   <>
