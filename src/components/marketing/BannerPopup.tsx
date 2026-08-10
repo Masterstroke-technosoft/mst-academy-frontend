@@ -12,7 +12,7 @@ interface BannerPopupProps {
 }
 
 export default function BannerPopup({
-  imageSrc = "/square design.png",
+  imageSrc = "/pop_up_academy2.jpg",
   destinationUrl = "https://masterstroke.academy/register?ref=BLOCKTALK",
   altText = "Banner Popup",
   delayMs = 1000
