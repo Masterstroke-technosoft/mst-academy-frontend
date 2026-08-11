@@ -41,6 +41,9 @@ export interface AuthUser {
   referralPercentage?: number;
   courseDiscounts?: CourseDiscount[];
   isPaymentVerified?: boolean;
+  isImpersonating?: boolean;
+  impersonatedBy?: string;
+  impersonatedByRole?: string;
 }
 
 export interface RegisterStudentInput {
@@ -552,4 +555,41 @@ export function updateUser(id: string, updates: Partial<AuthUser>) {
     }
   }
 }
+
+export function parseJwt(token: string) {
+  if (typeof window === "undefined") return null;
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Failed to parse JWT", e);
+    return null;
+  }
+}
+
+export function normalizeRole(role?: string): UserRole {
+  const value = (role || "student").toLowerCase();
+  if (value === "admin" || value === "s_admin" || value === "superadmin" || value === "super_admin" || value === "super-admin" || value === "super admin") {
+    return "admin";
+  }
+  if (value === "tutor") {
+    return "tutor";
+  }
+  if (value === "working-professional" || value === "working_professional") {
+    return "working-professional";
+  }
+  if (value === "admin" || value === "student" || value === "validator" || value === "non-validator" || value === "tutor" || value === "working-professional") {
+    return value as UserRole;
+  }
+  return "student";
+}
+
 

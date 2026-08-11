@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
+import { getAllUsers, type AuthUser, type UserRole, roleLabel, setSession, parseJwt, normalizeRole, dashboardPath } from "@/lib/auth";
 import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X, BookOpen, Trophy, Calendar, Loader2 } from "lucide-react";
 
 export default function UserManagementPage() {
@@ -130,6 +130,76 @@ export default function UserManagementPage() {
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
+
+  const handleImpersonate = async (targetUser: AuthUser) => {
+    try {
+      setImpersonatingId(targetUser.id);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/auth/impersonate/${targetUser.id}`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Failed to impersonate user");
+      }
+
+      const data = await response.json();
+      const newToken = data?.accessToken || data?.token || (data?.data && data.data.token) || (data?.data && data.data.accessToken) || data?.data?.accessToken;
+      
+      let impersonatedUser: AuthUser;
+      
+      if (newToken) {
+        localStorage.setItem("admin-token", newToken);
+        const payload = parseJwt(newToken);
+        impersonatedUser = {
+          id: payload?.sub || targetUser.id,
+          email: payload?.email || targetUser.email,
+          fullName: targetUser.fullName || payload?.email?.split("@")[0] || "Unknown",
+          role: normalizeRole(payload?.role || targetUser.role),
+          backendRole: payload?.role || targetUser.role,
+          isImpersonating: true,
+          impersonatedBy: payload?.impersonatedBy,
+          impersonatedByRole: payload?.impersonatedByRole,
+          registeredAt: targetUser.registeredAt || new Date().toISOString(),
+        };
+      } else {
+        // Fallback: If no token returned in response body, use the data body directly or fallback to targetUser details
+        const payload = data || {};
+        impersonatedUser = {
+          id: payload.sub || targetUser.id,
+          email: payload.email || targetUser.email,
+          fullName: targetUser.fullName || payload.email?.split("@")[0] || "Unknown",
+          role: normalizeRole(payload.role || targetUser.role),
+          backendRole: payload.role || targetUser.role,
+          isImpersonating: true,
+          impersonatedBy: payload.impersonatedBy,
+          impersonatedByRole: payload.impersonatedByRole,
+          registeredAt: targetUser.registeredAt || new Date().toISOString(),
+        };
+      }
+
+      setSession(impersonatedUser);
+      showToast("Impersonation started successfully", "success");
+      
+      // Redirect to user's dashboard in same page
+      window.location.href = dashboardPath(impersonatedUser.role);
+    } catch (err: any) {
+      showToast(err.message || "Error starting impersonation", "error");
+    } finally {
+      setImpersonatingId(null);
+    }
   };
 
   // State for user progress modal
@@ -551,6 +621,7 @@ export default function UserManagementPage() {
                   <th className="px-3 py-3 text-center">Referral Percentage</th>
                   <th className="px-3 py-3 text-center">Discount</th>
                   <th className="px-3 py-3">Status</th>
+                  <th className="px-3 py-3 text-center">Impersonate</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
@@ -597,11 +668,14 @@ export default function UserManagementPage() {
                       <td className="px-3 py-4">
                         <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
                       </td>
+                      <td className="px-3 py-4">
+                        <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
+                      </td>
                     </tr>
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={10 + (showCollege ? 1 : 0) + (showVerified ? 1 : 0)} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={11 + (showCollege ? 1 : 0) + (showVerified ? 1 : 0)} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
@@ -822,6 +896,15 @@ export default function UserManagementPage() {
                           className={`rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap ${user.isActive === false ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                         >
                           {togglingActiveId === user.id ? '...' : (user.isActive === false ? 'Unblock' : 'Block')}
+                        </button>
+                      </td>
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          onClick={() => handleImpersonate(user)}
+                          disabled={impersonatingId !== null}
+                          className="rounded-lg bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
+                        >
+                          {impersonatingId === user.id ? 'Starting...' : 'Start'}
                         </button>
                       </td>
                     </tr>

@@ -558,6 +558,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       ? `${baseURL}/api/node-purchase`
       : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;
 
+
     try {
       const res = await fetchWithAuth(fetchURL);
       if (res.ok) {

@@ -8,6 +8,9 @@ import {
   canAccessDashboard,
   roleLabel,
   type UserRole,
+  setSession,
+  parseJwt,
+  normalizeRole,
 } from "@/lib/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { StudentProfile } from "@/components/dashboard/StudentProfile";
@@ -96,6 +99,76 @@ export function DashboardShell({
   const { user, ready, logout, isAdmin } = useAuth();
   const [activeHash, setActiveHash] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [stoppingImpersonation, setStoppingImpersonation] = useState(false);
+
+  const tokenForImpersonate = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+  const decodedPayload = tokenForImpersonate ? parseJwt(tokenForImpersonate) : null;
+  const isCurrentlyImpersonating = !!(user?.isImpersonating || decodedPayload?.isImpersonating === true);
+
+  const handleStopImpersonation = async () => {
+    try {
+      setStoppingImpersonation(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/auth/stop-impersonation`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Failed to stop impersonation");
+      }
+
+      const data = await response.json();
+      const newToken = data?.accessToken || data?.token || (data?.data && data.data.token) || (data?.data && data.data.accessToken) || data?.data?.accessToken;
+      
+      let adminUser: any;
+      
+      if (newToken) {
+        localStorage.setItem("admin-token", newToken);
+        const payload = parseJwt(newToken);
+        adminUser = {
+          id: payload?.sub || "admin-live",
+          email: payload?.email || "admin4@gmail.com",
+          fullName: "Admin User",
+          role: "admin",
+          registeredAt: new Date().toISOString(),
+        };
+      } else {
+        // Fallback: If no token returned, check if the response data itself is the decoded payload
+        const payload = data || {};
+        adminUser = {
+          id: payload.sub || "admin-live",
+          email: payload.email || "admin4@gmail.com",
+          fullName: "Admin User",
+          role: "admin",
+          registeredAt: new Date().toISOString(),
+        };
+      }
+      setSession(adminUser);
+      window.location.href = "/admin/users";
+    } catch (err: any) {
+      console.error("Error stopping impersonation", err);
+      const adminUser: any = {
+        id: "admin-live",
+        email: "admin4@gmail.com",
+        fullName: "Admin User",
+        role: "admin",
+        registeredAt: new Date().toISOString(),
+      };
+      setSession(adminUser);
+      window.location.href = "/admin/users";
+    } finally {
+      setStoppingImpersonation(false);
+    }
+  };
 
   const [isApprovedPaymentModalOpen, setIsApprovedPaymentModalOpen] = useState(false);
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
@@ -365,6 +438,17 @@ export function DashboardShell({
                 Approved Payments
               </button>
             )}
+            {isCurrentlyImpersonating && (
+              <button
+                type="button"
+                onClick={handleStopImpersonation}
+                disabled={stoppingImpersonation}
+                className="flex w-full items-center gap-2 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-3 py-2 text-sm font-semibold transition cursor-pointer disabled:opacity-50"
+              >
+                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+                {stoppingImpersonation ? "Stopping..." : "Stop Impersonation"}
+              </button>
+            )}
             <button
               type="button"
               onClick={async () => {
@@ -503,6 +587,17 @@ export function DashboardShell({
                     Approved Payments
                   </button>
                 )}
+                {isCurrentlyImpersonating && (
+                  <button
+                    type="button"
+                    onClick={handleStopImpersonation}
+                    disabled={stoppingImpersonation}
+                    className="flex w-full items-center gap-2 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-3 py-2 text-sm font-semibold transition cursor-pointer disabled:opacity-50"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+                    {stoppingImpersonation ? "Stopping..." : "Stop Impersonation"}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={async () => {
@@ -533,6 +628,29 @@ export function DashboardShell({
 
         {/* ---- main content ---- */}
         < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden md:ml-64" >
+          {(() => {
+            const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+            const decodedPayload = token ? parseJwt(token) : null;
+            const isCurrentlyImpersonating = !!(user?.isImpersonating || decodedPayload?.isImpersonating === true);
+
+            if (!isCurrentlyImpersonating) return null;
+
+            return (
+              <div className="bg-indigo-600 text-white px-4 py-2.5 flex items-center justify-between shadow-sm z-30">
+                <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+                  <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                  Impersonating: <span className="underline font-bold">{user?.fullName} ({user?.email})</span>
+                </div>
+                <button
+                  onClick={handleStopImpersonation}
+                  disabled={stoppingImpersonation}
+                  className="bg-white text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {stoppingImpersonation ? "Stopping..." : "Stop Impersonation"}
+                </button>
+              </div>
+            );
+          })()}
           <main className="flex-1 overflow-y-auto flex flex-col justify-between">
             <div className={`mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 ${(isAdmin || role === "tutor" || role === "TUTOR") ? "max-w-[95vw]" : "max-w-5xl"}`}>
               {/* mobile header */}

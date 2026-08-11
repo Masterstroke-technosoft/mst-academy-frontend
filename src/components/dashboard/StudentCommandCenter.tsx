@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Curriculum } from "@/lib/types";
-import { canAccessDashboard, roleLabel } from "@/lib/auth";
+import { canAccessDashboard, roleLabel, setSession, parseJwt } from "@/lib/auth";
 import { computeStudentAnalytics } from "@/lib/student-analytics";
 import {
   ResponsiveContainer,
@@ -139,6 +139,75 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const { user, ready, logout, isAdmin } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [stoppingImpersonation, setStoppingImpersonation] = useState(false);
+
+  const tokenForImpersonate = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+  const decodedPayload = tokenForImpersonate ? parseJwt(tokenForImpersonate) : null;
+  const isCurrentlyImpersonating = !!(user?.isImpersonating || decodedPayload?.isImpersonating === true);
+
+  const handleStopImpersonation = async () => {
+    try {
+      setStoppingImpersonation(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${baseURL}/api/auth/stop-impersonation`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Failed to stop impersonation");
+      }
+
+      const data = await response.json();
+      const newToken = data?.accessToken || data?.token || (data?.data && data.data.token) || (data?.data && data.data.accessToken) || data?.data?.accessToken;
+      
+      let adminUser: any;
+      
+      if (newToken) {
+        localStorage.setItem("admin-token", newToken);
+        const payload = parseJwt(newToken);
+        adminUser = {
+          id: payload?.sub || "admin-live",
+          email: payload?.email || "admin4@gmail.com",
+          fullName: "Admin User",
+          role: "admin",
+          registeredAt: new Date().toISOString(),
+        };
+      } else {
+        const payload = data || {};
+        adminUser = {
+          id: payload.sub || "admin-live",
+          email: payload.email || "admin4@gmail.com",
+          fullName: "Admin User",
+          role: "admin",
+          registeredAt: new Date().toISOString(),
+        };
+      }
+      setSession(adminUser);
+      window.location.href = "/admin/users";
+    } catch (err: any) {
+      console.error("Error stopping impersonation", err);
+      const adminUser: any = {
+        id: "admin-live",
+        email: "admin4@gmail.com",
+        fullName: "Admin User",
+        role: "admin",
+        registeredAt: new Date().toISOString(),
+      };
+      setSession(adminUser);
+      window.location.href = "/admin/users";
+    } finally {
+      setStoppingImpersonation(false);
+    }
+  };
   const [userDiscount, setUserDiscount] = useState<number>(0);
 
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
@@ -1182,29 +1251,43 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   )}
                 </div>
               )}
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-                    await fetch(`${baseURL}/api/auth/logout`, {
-                      method: "POST",
-                      credentials: "include",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                    });
-                  } catch (e) {
-                    console.error(e);
-                  }
-                  logout();
-                  window.location.href = '/login';
-                }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
-              >
-                <LogOut size={16} />
-                Sign Out
-              </button>
+                {isCurrentlyImpersonating && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsSidebarOpen(false);
+                      await handleStopImpersonation();
+                    }}
+                    disabled={stoppingImpersonation}
+                    className="flex w-full items-center gap-2 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-3 py-2 text-sm font-semibold transition cursor-pointer disabled:opacity-50"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+                    {stoppingImpersonation ? "Stopping..." : "Stop Impersonation"}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+                      await fetch(`${baseURL}/api/auth/logout`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                      });
+                    } catch (e) {
+                      console.error(e);
+                    }
+                    logout();
+                    window.location.href = '/login';
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)]"
+                >
+                  <LogOut size={16} />
+                  Sign Out
+                </button>
             </div>
           </aside>
         </div>
@@ -1315,6 +1398,17 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   </button>
                 )}
               </div>
+            )}
+            {isCurrentlyImpersonating && (
+              <button
+                type="button"
+                onClick={handleStopImpersonation}
+                disabled={stoppingImpersonation}
+                className="flex w-full items-center gap-2 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 px-3 py-2 text-sm font-semibold transition cursor-pointer disabled:opacity-50"
+              >
+                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+                {stoppingImpersonation ? "Stopping..." : "Stop Impersonation"}
+              </button>
             )}
             <button
               type="button"
