@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import {
   BookOpen,
-  Users,
   CheckCircle2,
   AlertCircle,
   ExternalLink,
@@ -42,7 +41,7 @@ interface SubmissionItem {
   questionText?: string;
 }
 
-export default function SubmissionReviewPage() {
+export default function TutorDashboardPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
   const [submodulesMap, setSubmodulesMap] = useState<Record<string, { title: string; index: string }>>({});
@@ -149,16 +148,13 @@ export default function SubmissionReviewPage() {
           headers
         });
 
-        if (!usersResponse.ok) {
-          throw new Error(`Failed to fetch users: ${usersResponse.statusText}`);
+        if (usersResponse.ok) {
+          const usersResult = await usersResponse.json();
+          const rawUsers = Array.isArray(usersResult)
+            ? usersResult
+            : (usersResult?.data?.users || usersResult?.users || usersResult?.data || []);
+          setUsers(rawUsers);
         }
-
-        const usersResult = await usersResponse.json();
-        const rawUsers = Array.isArray(usersResult)
-          ? usersResult
-          : (usersResult?.data?.users || usersResult?.users || usersResult?.data || []);
-
-        setUsers(rawUsers);
 
         // 3. Fetch all practical submissions directly
         const allSubmissionItems: SubmissionItem[] = [];
@@ -176,7 +172,7 @@ export default function SubmissionReviewPage() {
               const answers = submission.answers || [];
               answers.forEach((ans: any) => {
                 if (ans.questionType === "PRACTICAL") {
-                  const subId = submission.submodule || submission.submoduleId || "";
+                  const subId = submission.submodule || (submission.submodule && submission.submodule._id) || submission.submoduleId || "";
                   const userObj = submission.user;
                   const uId = userObj ? (userObj._id || userObj.id || "") : "";
                   const uName = userObj ? (userObj.fullName || userObj.name || "Unknown User") : "Unknown User";
@@ -198,7 +194,7 @@ export default function SubmissionReviewPage() {
                     rawSubmission: submission,
                     submittedAt: getSubmissionTime(submission._id || submission.id, submission.createdAt || submission.updatedAt),
                     marks: ans.marks || submission.totalMarks || 10,
-                    questionText: ans.questionText || ans.statement || ans.question || ans.title || ""
+                    questionText: ans.questionText || ans.questionTitle || ans.question || ""
                   });
                 }
               });
@@ -292,7 +288,6 @@ export default function SubmissionReviewPage() {
         return matchesUser || matchesSubmodule || matchesAnswer;
       }
 
-      // Display score value too
       return true;
     });
   }, [submissions, activeTab, searchQuery]);
@@ -337,7 +332,7 @@ export default function SubmissionReviewPage() {
             <div className="h-4 bg-[var(--border)] rounded w-40"></div>
           </td>
           <td className="px-3 py-4">
-            <div className="h-4 bg-[var(--border)] rounded w-32"></div>
+            <div className="h-4 bg-[var(--border)] rounded w-36"></div>
           </td>
           <td className="px-3 py-4">
             <div className="h-4 bg-[var(--border)] rounded w-28"></div>
@@ -360,9 +355,8 @@ export default function SubmissionReviewPage() {
   );
 
   return (
-    <DashboardShell role="admin" title="Submission Review">
+    <DashboardShell role="tutor" title="Submission Review">
       <div className="space-y-6">
-
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm flex items-center gap-4">
@@ -451,16 +445,16 @@ export default function SubmissionReviewPage() {
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           {loading ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
+              <table className="w-full min-w-full text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[18%]">User</th>
-                    <th className="px-3 py-3 w-[18%]">Submodule</th>
+                    <th className="px-3 py-3 w-[15%]">User</th>
+                    <th className="px-3 py-3 w-[15%]">Submodule</th>
                     <th className="px-3 py-3 w-[20%]">Question</th>
-                    <th className="px-3 py-3 w-[20%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[15%]">Submitted Link/Answer</th>
                     <th className="px-3 py-3 w-[12%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[8%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[5%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[11%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[12%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <TableSkeleton />
@@ -480,16 +474,16 @@ export default function SubmissionReviewPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm text-[var(--text-muted)] border-collapse">
+              <table className="w-full min-w-full text-left text-sm text-[var(--text-muted)] border-collapse">
                 <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
                   <tr>
-                    <th className="px-3 py-3 w-[18%]">User</th>
-                    <th className="px-3 py-3 w-[18%]">Submodule</th>
+                    <th className="px-3 py-3 w-[15%]">User</th>
+                    <th className="px-3 py-3 w-[15%]">Submodule</th>
                     <th className="px-3 py-3 w-[20%]">Question</th>
-                    <th className="px-3 py-3 w-[20%]">Submitted Link/Answer</th>
+                    <th className="px-3 py-3 w-[15%]">Submitted Link/Answer</th>
                     <th className="px-3 py-3 w-[12%]">Submitted At</th>
-                    <th className="px-3 py-3 w-[8%] text-center">Status / Score</th>
-                    <th className="px-3 py-3 w-[5%] text-right">Actions</th>
+                    <th className="px-3 py-3 w-[11%] text-center">Status / Score</th>
+                    <th className="px-3 py-3 w-[12%] text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
@@ -509,15 +503,12 @@ export default function SubmissionReviewPage() {
                           {item.submoduleTitle}
                         </span>
                       </td>
-                      <td className="px-3 py-3 max-w-[200px] break-words">
-                        <span className="text-[var(--text)] text-xs sm:text-sm block" title={item.questionText}>
-                          {item.questionText ? (
-                            item.questionText.length > 60 
-                              ? `${item.questionText.slice(0, 60)}...` 
-                              : item.questionText
-                          ) : (
-                            <span className="italic text-[var(--text-muted)] text-[10px]">N/A</span>
-                          )}
+                      <td className="px-3 py-3 max-w-[240px]">
+                        <span className="text-[var(--text)] text-xs sm:text-sm block truncate" title={item.questionText}>
+                          {item.questionText 
+                            ? item.questionText.split('\n')[0].trim()
+                            : <span className="italic text-[var(--text-muted)] text-[10px]">No question text</span>
+                          }
                         </span>
                       </td>
                       <td className="px-3 py-3 max-w-[240px]">
@@ -670,7 +661,6 @@ export default function SubmissionReviewPage() {
       {selectedSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 shrink-0">
               <h3 className="text-lg font-bold text-[var(--text)]">
                 Review Practical Submission
@@ -735,9 +725,9 @@ export default function SubmissionReviewPage() {
               {/* Question */}
               <div className="space-y-2">
                 <h4 className="text-sm font-bold text-[var(--text)] uppercase tracking-wider">Question</h4>
-                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30">
-                  <p className="text-sm text-[var(--text)] whitespace-pre-wrap font-medium">
-                    {selectedSubmission.questionText || <span className="italic text-[var(--text-muted)]">No question text provided</span>}
+                <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 max-h-[200px] overflow-y-auto">
+                  <p className="text-xs sm:text-sm font-medium text-[var(--text)] whitespace-pre-wrap">
+                    {selectedSubmission.questionText || <span className="italic text-[var(--text-muted)]">No question text available</span>}
                   </p>
                 </div>
               </div>
@@ -782,7 +772,7 @@ export default function SubmissionReviewPage() {
                   />
                   <span className="text-xs text-[var(--text-muted)] font-medium">
                     {selectedSubmission.marks !== undefined ? `Out of ${selectedSubmission.marks}. ` : ""}
-                    Set the score decided by the admin for this student.
+                    Set the score decided by the tutor for this student.
                   </span>
                 </div>
               </div>
@@ -845,7 +835,6 @@ export default function SubmissionReviewPage() {
                 )}
               </div>
             </div>
-
           </div>
         </div>
       )}

@@ -214,8 +214,7 @@ export function getModuleProgressPercent(
     const sub = getSubmodule(moduleId, slug);
     const hasAssessment = sub?.hasAssessment ?? false;
     if (hasAssessment) {
-      if (p.lessonComplete) done += 0.5;
-      if (p.assessmentComplete) done += 0.5;
+      if (p.assessmentComplete) done += 1.0;
     } else {
       if (p.lessonComplete) done += 1.0;
     }

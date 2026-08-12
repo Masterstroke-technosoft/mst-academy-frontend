@@ -1,6 +1,6 @@
 "use client";
 
-export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional" | "course_only" | "working_professional";
+export type UserRole = "student" | "validator" | "non-validator" | "admin" | "COURSE_ONLY" | "ADMIN" | "STUDENT" | "VALIDATOR" | "WORKING_PROFESSIONAL" | "working-professional" | "course_only" | "working_professional" | "tutor" | "TUTOR";
 
 export type BlockchainLevel = "Beginner" | "Intermediate" | "Expert";
 
@@ -155,16 +155,16 @@ export function setSession(user: AuthUser | null) {
   if (user) {
     const { password: _pw, ...safe } = user;
     localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
-    document.cookie = `mst-session=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
   } else {
     localStorage.removeItem(SESSION_KEY);
-    document.cookie = "mst-session=; path=/; max-age=0";
   }
 }
 
 export function isAdminUser(user?: AuthUser | null): boolean {
   const u = user ?? getSession();
-  return u?.role === "admin" || u?.role === "ADMIN";
+  if (!u) return false;
+  const r = canonicalRole(u.backendRole || u.role || "");
+  return r === "admin" || r === "s-admin" || r === "superadmin" || r === "super-admin";
 }
 
 export async function login(
@@ -484,6 +484,17 @@ export function roleLabel(role: UserRole | string): string {
     case "admin":
     case "ADMIN":
       return "Admin";
+    case "tutor":
+    case "TUTOR":
+      return "Tutor";
+    case "S_ADMIN":
+    case "s_admin":
+    case "superadmin":
+    case "SUPERADMIN":
+    case "super_admin":
+    case "SUPER_ADMIN":
+    case "super admin":
+      return "Super Admin";
     default:
       return String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase();
   }
@@ -491,32 +502,42 @@ export function roleLabel(role: UserRole | string): string {
 
 export function dashboardPath(role: UserRole | string | undefined): string {
   if (!role) return "/dashboard/non-validator";
-  switch (role) {
+  const r = canonicalRole(String(role));
+  if (r === "admin" || r === "s-admin" || r === "superadmin" || r === "super-admin") {
+    return "/dashboard/admin";
+  }
+  switch (r) {
     case "student":
-    case "STUDENT":
       return "/dashboard/student";
+    case "tutor":
+      return "/dashboard/tutor";
     case "validator":
-    case "VALIDATOR":
       return "/dashboard/validator";
     case "non-validator":
-    case "COURSE_ONLY":
+    case "course-only":
       return "/dashboard/non-validator";
     case "working-professional":
-    case "WORKING_PROFESSIONAL":
       return "/dashboard/working-professional";
-    case "admin":
-    case "ADMIN":
-      return "/dashboard/admin";
     default:
       return "/dashboard/non-validator";
   }
 }
 
+// Backend roles arrive in several shapes for the same role (COURSE_ONLY,
+// working_professional, working-professional). Collapse them to a single
+// canonical form so a role check never fails on punctuation alone.
+function canonicalRole(role: string): string {
+  return role.trim().toLowerCase().replace(/[\s_]+/g, "-");
+}
+
 export function canAccessDashboard(role: UserRole | string): boolean {
   const user = getSession();
   if (!user) return false;
-  if (user.role === "admin" || user.role === "ADMIN") return true;
-  return user.role.toLowerCase() === role.toLowerCase();
+  const userRole = canonicalRole(user.backendRole || user.role || "");
+  if (userRole === "admin" || userRole === "s-admin" || userRole === "superadmin" || userRole === "super-admin") return true;
+  if (userRole === canonicalRole(role)) return true;
+  // COURSE_ONLY is the backend name for the non-validator dashboard.
+  return userRole === "course-only" && canonicalRole(role) === "non-validator";
 }
 
 export function updateUser(id: string, updates: Partial<AuthUser>) {

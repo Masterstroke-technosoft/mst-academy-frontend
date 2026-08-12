@@ -552,7 +552,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const checkPaymentStatus = async (profileUser?: any) => {
     const activeUser = profileUser || userProfile || user;
     const profilePaymentVerified = !!(activeUser?.isPaymentVerified || activeUser?.paymentVerified);
-    const isAdmin = activeUser?.role === "admin" || activeUser?.role === "ADMIN";
+    const r = activeUser?.role?.toLowerCase();
+    const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
     const fetchURL = isAdmin
       ? `${baseURL}/api/node-purchase`
       : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;
@@ -2166,6 +2167,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     type="date"
                     value={allocationForm.paymentDate}
                     onChange={(e) => setAllocationForm({ ...allocationForm, paymentDate: e.target.value })}
+                    max={(() => {
+                      const d = new Date();
+                      const year = d.getFullYear();
+                      const month = String(d.getMonth() + 1).padStart(2, '0');
+                      const day = String(d.getDate()).padStart(2, '0');
+                      return `${year}-${month}-${day}`;
+                    })()}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
                   />
                   {allocationErrors.paymentDate && (

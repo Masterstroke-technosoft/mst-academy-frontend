@@ -103,11 +103,15 @@ export default function ComposeEmailPage() {
       return form.csvEmails.length;
     }
     if (selectedRoles.includes('All')) {
-      return users.filter(u => u.role !== 'ADMIN' && u.role !== 'S_ADMIN').length;
+      return users.filter(u => {
+        const r = u.role?.toLowerCase();
+        return !(r === 'admin' || r === 's_admin' || r === 'superadmin' || r === 'super_admin' || r === 'super-admin' || r === 'super admin');
+      }).length;
     }
     return users.filter(u => {
       if (selectedRoles.includes('ADMIN')) {
-        return u.role === 'ADMIN' || u.role === 'S_ADMIN';
+        const r = u.role?.toLowerCase();
+        return r === 'admin' || r === 's_admin' || r === 'superadmin' || r === 'super_admin' || r === 'super-admin' || r === 'super admin';
       }
       return selectedRoles.includes(u.role);
     }).length;
