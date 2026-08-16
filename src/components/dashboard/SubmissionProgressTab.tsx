@@ -153,14 +153,14 @@ export function SubmissionProgressTab({ user, curriculum }: SubmissionProgressTa
           });
         }
 
-        if (!res.ok) {
-          // Try user-specific endpoint if general list is not accessible
-          res = await fetch(`${baseURL}/api/assignment-submissions/user/${user.id || user._id}`, {
-            method: "GET",
-            credentials: "include",
-            headers,
-          });
-        }
+        // if (!res.ok) {
+        //   // Try user-specific endpoint if general list is not accessible
+        //   res = await fetch(`${baseURL}/api/assignment-submissions/user/${user.id || user._id}`, {
+        //     method: "GET",
+        //     credentials: "include",
+        //     headers,
+        //   });
+        // }
 
         if (!res.ok) {
           // Fallback to practical list

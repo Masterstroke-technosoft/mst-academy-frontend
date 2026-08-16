@@ -731,7 +731,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const res = await fetch(`${baseURL}/api/dashboard/${user.id}`, {
+        const res = await fetch(`${baseURL}/api/dashboard`, {
           credentials: "include",
         });
         if (res.ok) {
@@ -791,7 +791,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const res = await fetch(`${baseURL}/api/node-purchase/me?id=${user.id}`, {
+        const res = await fetch(`${baseURL}/api/node-purchase/me`, {
           credentials: "include",
         });
         if (res.ok) {
