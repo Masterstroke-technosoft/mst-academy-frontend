@@ -897,6 +897,13 @@ export function RegisterForm() {
           {loading ? "Creating account..." : "Complete Registration"}
         </SubmitButton>
       </form>
+
+       <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-mst-red hover:underline">
+          Sign in
+        </Link>
+      </p>
     </AuthShell>
   );
 }
