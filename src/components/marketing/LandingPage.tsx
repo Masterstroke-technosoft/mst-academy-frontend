@@ -863,7 +863,7 @@ export function LandingPage({
           </RevealSection>
         </div>
       </section>
-      <BannerPopup />
+      {/* <BannerPopup /> */}
     </div>
   );
 }

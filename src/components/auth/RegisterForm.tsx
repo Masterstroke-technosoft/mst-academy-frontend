@@ -506,8 +506,16 @@ export function RegisterForm() {
   return (
     <AuthShell
       title="Create Account"
-      subtitle="Choose your track and price - then enroll."
+      subtitle={
+        <p className="mt-0.5 text-s text-[var(--text-muted)]">
+          Already have an account?{" "}
+          <Link href="/login" className="font-semibold text-mst-red hover:underline">
+            Sign in
+          </Link>
+        </p>
+      }
     >
+      
       {/* <div className="mb-5">
         <DemoFeeNote />
       </div> */}
@@ -889,13 +897,6 @@ export function RegisterForm() {
           {loading ? "Creating account..." : "Complete Registration"}
         </SubmitButton>
       </form>
-
-      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-        Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-mst-red hover:underline">
-          Sign in
-        </Link>
-      </p>
     </AuthShell>
   );
 }

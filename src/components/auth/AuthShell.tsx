@@ -8,7 +8,7 @@ export function AuthShell({
   maxWidth = "max-w-lg",
 }: {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   children: React.ReactNode;
   maxWidth?: string;
 }) {
@@ -29,11 +29,17 @@ export function AuthShell({
           </div>
           <div>
             <h1 className="text-2xl font-black text-[var(--text)]">{title}</h1>
-            {subtitle && (
+            {subtitle && typeof subtitle === "string" ? (
               <p className="mt-0.5 text-xs text-[var(--text-muted)] max-w-sm">{subtitle}</p>
+            ) : (
+              subtitle
             )}
           </div>
+
+
         </div>
+
+
 
         <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl shadow-black/5">
           {children}
