@@ -26,6 +26,7 @@ import {
 } from "@/lib/otp";
 import { useAuth } from "@/components/AuthProvider";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { convertINRtoUSD } from "@/lib/currency";
 import {
   AuthShell,
@@ -123,6 +124,7 @@ export function RegisterForm() {
   const searchParams = useSearchParams();
   const { logout } = useAuth();
   const { rate: usdRate } = useCurrencyRate();
+  const { getToken: getRecaptchaToken } = useRecaptcha();
 
   const [plan, setPlan] = useState<PlanId>("courseOnly");
   const [error, setError] = useState("");
@@ -251,6 +253,14 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
+    // Get reCAPTCHA token before validation
+    let recaptchaToken = "";
+    try {
+      recaptchaToken = await getRecaptchaToken();
+    } catch (err) {
+      console.warn("reCAPTCHA token fetch failed:", err);
+    }
+
     if (/\d/.test(fullName)) {
       setLoading(false);
       setError("Full name must not contain numbers.");
@@ -295,12 +305,6 @@ export function RegisterForm() {
       | { ok: false; error: string };
 
     if (plan === "validator") {
-      /* if (!validatorIdFile) {
-        setLoading(false);
-        setError("Validator ID card upload is required.");
-        return;
-      } */
-
       result = await registerValidator({
         fullName,
         email,
@@ -310,6 +314,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -341,6 +346,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -351,6 +357,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken,
       });
     } else {
       result = await registerNonValidator({
@@ -361,6 +368,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken,
       });
     }
 

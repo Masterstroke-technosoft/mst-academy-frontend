@@ -54,6 +54,7 @@ export interface RegisterStudentInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 export interface RegisterValidatorInput {
@@ -66,6 +67,7 @@ export interface RegisterValidatorInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 export interface RegisterNonValidatorInput {
@@ -77,6 +79,7 @@ export interface RegisterNonValidatorInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 const SESSION_KEY = "mst-academy-session";
@@ -251,6 +254,9 @@ export async function registerStudent(
     if (input.gstNumber) {
       formData.append("GSTIN", input.gstNumber);
     }
+    if (input.recaptchaToken) {
+      formData.append("recaptchaToken", input.recaptchaToken);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
       method: "POST",
@@ -296,6 +302,7 @@ export async function registerValidator(
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
       ...(input.gstNumber ? { GSTIN: input.gstNumber } : {}),
+      ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
     };
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
@@ -346,6 +353,7 @@ export async function registerNonValidator(
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
         mobileNumber: input.phone,
+        ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
       }),
     });
 
@@ -381,6 +389,7 @@ export async function registerWorkingProfessional(input: {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -395,6 +404,7 @@ export async function registerWorkingProfessional(input: {
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
         mobileNumber: input.phone,
+        ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
       }),
     });
 
