@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import ReCAPTCHA from "react-google-recaptcha";
 import {
   COLLEGES,
   DEMO_FEES,
@@ -26,7 +27,6 @@ import {
 } from "@/lib/otp";
 import { useAuth } from "@/components/AuthProvider";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { convertINRtoUSD } from "@/lib/currency";
 import {
   AuthShell,
@@ -124,7 +124,7 @@ export function RegisterForm() {
   const searchParams = useSearchParams();
   const { logout } = useAuth();
   const { rate: usdRate } = useCurrencyRate();
-  const { getToken: getRecaptchaToken } = useRecaptcha();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const [plan, setPlan] = useState<PlanId>("courseOnly");
   const [error, setError] = useState("");
@@ -253,12 +253,19 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
-    // Get reCAPTCHA token before validation
-    let recaptchaToken = "";
+    let recaptchaToken: string | null | undefined;
     try {
-      recaptchaToken = await getRecaptchaToken();
+      recaptchaToken = await recaptchaRef.current?.executeAsync();
+      if (!recaptchaToken) {
+        setLoading(false);
+        setError("reCAPTCHA verification failed. Please try again.");
+        return;
+      }
     } catch (err) {
-      console.warn("reCAPTCHA token fetch failed:", err);
+      setLoading(false);
+      setError("reCAPTCHA verification failed. Please try again.");
+      console.error("reCAPTCHA error:", err);
+      return;
     }
 
     if (/\d/.test(fullName)) {
@@ -314,7 +321,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
-        recaptchaToken,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -346,7 +353,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
-        recaptchaToken,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -357,7 +364,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
-        recaptchaToken,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else {
       result = await registerNonValidator({
@@ -368,11 +375,13 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
-        recaptchaToken,
+        recaptchaToken: recaptchaToken || undefined,
       });
     }
 
     setLoading(false);
+    recaptchaRef.current?.reset();
+
     if (!result.ok) {
       setError(result.error);
       return;
@@ -900,6 +909,12 @@ export function RegisterForm() {
             {error}
           </p>
         )}
+
+        <ReCAPTCHA
+          ref={recaptchaRef}
+          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+          size="invisible"
+        />
 
         <SubmitButton disabled={loading}>
           {loading ? "Creating account..." : "Complete Registration"}

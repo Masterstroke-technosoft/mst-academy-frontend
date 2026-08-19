@@ -102,10 +102,6 @@ export default function RootLayout({
             gtag('config', 'G-0BTDN5EMY4');
           `}
         </Script>
-        <Script
-          src="https://www.google.com/recaptcha/api.js"
-          strategy="afterInteractive"
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
