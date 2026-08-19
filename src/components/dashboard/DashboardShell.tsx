@@ -679,19 +679,19 @@ export function DashboardShell({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
                   <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid User</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.paidUser}</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">{paymentSummary.paidUser}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid Amount</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.totalAmount}</p>
                </div>
                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
                   <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount</p>
-                  <p className="text-xl font-black text-blue-600 dark:text-blue-400">₹{paymentSummary.totalAmount}</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.amountWithoutGst}</p>
                </div>
                <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount W/O GST</p>
-                  <p className="text-xl font-black text-amber-600 dark:text-amber-400">₹{paymentSummary.amountWithoutGst}</p>
-               </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST</p>
-                  <p className="text-xl font-black text-purple-600 dark:text-purple-400">₹{paymentSummary.GST}</p>
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST (18%)</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.GST}</p>
                </div>
             </div>
 
