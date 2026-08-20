@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -108,6 +109,18 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/1.png" type="image/png" />
         <meta name="theme-color" content="#e31e24" />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-0BTDN5EMY4"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-0BTDN5EMY4');
+          `}
+        </Script>
         <script
           dangerouslySetInnerHTML={{
             __html: `

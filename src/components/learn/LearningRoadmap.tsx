@@ -2167,6 +2167,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     type="date"
                     value={allocationForm.paymentDate}
                     onChange={(e) => setAllocationForm({ ...allocationForm, paymentDate: e.target.value })}
+                    max={(() => {
+                      const d = new Date();
+                      const year = d.getFullYear();
+                      const month = String(d.getMonth() + 1).padStart(2, '0');
+                      const day = String(d.getDate()).padStart(2, '0');
+                      return `${year}-${month}-${day}`;
+                    })()}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
                   />
                   {allocationErrors.paymentDate && (

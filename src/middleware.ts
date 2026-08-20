@@ -1,38 +1,6 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = [
-  "/academy",
-  "/login",
-  "/register",
-  "/plans",
-  "/academy-overview",
-  "/forgot-password",
-  "/privacy-policy",
-  "/refund-policy",
-  "/terms-conditions",
-  "/contact-us",
-  "/legal",
-];
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname === "/") return NextResponse.next();
-
-  const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
-  if (isPublic) return NextResponse.next();
-
-  const session = request.cookies.get("mst-session");
-  if (!session) {
-    const loginUrl = new URL("/login", request.url);
-    const search = request.nextUrl.search;
-    loginUrl.searchParams.set("next", pathname + search);
-    return NextResponse.redirect(loginUrl);
-  }
-
+export function middleware() {
   return NextResponse.next();
 }
 
