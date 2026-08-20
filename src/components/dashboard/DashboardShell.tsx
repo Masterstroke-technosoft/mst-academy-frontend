@@ -107,6 +107,12 @@ export function DashboardShell({
   const [rejectionNote, setRejectionNote] = useState("");
   const [paymentSearch, setPaymentSearch] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [paymentSummary, setPaymentSummary] = useState({
+    paidUser: 0,
+    totalAmount: 0,
+    amountWithoutGst: 0,
+    GST: 0
+  });
 
   const fetchPaymentRequests = async () => {
     setPaymentSearch("");
@@ -126,10 +132,24 @@ export function DashboardShell({
       });
       if (res.ok) {
         const data = await res.json();
+        
+        if (data && !Array.isArray(data)) {
+          setPaymentSummary({
+            paidUser: data.paidUser || data.paidAmount || 0,
+            totalAmount: data.totalAmount || 0,
+            amountWithoutGst: data.amountWithoutGst || 0,
+            GST: data.GST || 0,
+          });
+        } else {
+          setPaymentSummary({ paidUser: 0, totalAmount: 0, amountWithoutGst: 0, GST: 0 });
+        }
+
         // Handle both array responses and single purchase object responses
         let list: any[] = [];
         if (Array.isArray(data)) {
           list = data;
+        } else if (data?.transactions) {
+          list = Array.isArray(data.transactions) ? data.transactions : [];
         } else if (data?.purchase) {
           list = [data.purchase];
         } else if (data?.data) {
@@ -653,6 +673,26 @@ export function DashboardShell({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid User</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">{paymentSummary.paidUser}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid Amount</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.totalAmount}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.amountWithoutGst}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST (18%)</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.GST}</p>
+               </div>
             </div>
 
             {/* Search and Filter Controls */}

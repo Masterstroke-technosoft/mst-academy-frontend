@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import ReCAPTCHA from "react-google-recaptcha";
 import {
   COLLEGES,
   DEMO_FEES,
@@ -123,6 +124,7 @@ export function RegisterForm() {
   const searchParams = useSearchParams();
   const { logout } = useAuth();
   const { rate: usdRate } = useCurrencyRate();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const [plan, setPlan] = useState<PlanId>("courseOnly");
   const [error, setError] = useState("");
@@ -251,6 +253,21 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
+    let recaptchaToken: string | null | undefined;
+    try {
+      recaptchaToken = await recaptchaRef.current?.executeAsync();
+      if (!recaptchaToken) {
+        setLoading(false);
+        setError("reCAPTCHA verification failed. Please try again.");
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError("reCAPTCHA verification failed. Please try again.");
+      console.error("reCAPTCHA error:", err);
+      return;
+    }
+
     if (/\d/.test(fullName)) {
       setLoading(false);
       setError("Full name must not contain numbers.");
@@ -295,12 +312,6 @@ export function RegisterForm() {
       | { ok: false; error: string };
 
     if (plan === "validator") {
-      /* if (!validatorIdFile) {
-        setLoading(false);
-        setError("Validator ID card upload is required.");
-        return;
-      } */
-
       result = await registerValidator({
         fullName,
         email,
@@ -310,6 +321,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else if (plan === "student") {
       if (!studentIdFile) {
@@ -341,6 +353,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else if (plan === "normal") {
       result = await registerWorkingProfessional({
@@ -351,6 +364,7 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken: recaptchaToken || undefined,
       });
     } else {
       result = await registerNonValidator({
@@ -361,10 +375,13 @@ export function RegisterForm() {
         referralCode,
         transactionId: transactionId.trim() || undefined,
         gstNumber: gst,
+        recaptchaToken: recaptchaToken || undefined,
       });
     }
 
     setLoading(false);
+    recaptchaRef.current?.reset();
+
     if (!result.ok) {
       setError(result.error);
       return;
@@ -892,6 +909,12 @@ export function RegisterForm() {
             {error}
           </p>
         )}
+
+        <ReCAPTCHA
+          ref={recaptchaRef}
+          sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+          size="invisible"
+        />
 
         <SubmitButton disabled={loading}>
           {loading ? "Creating account..." : "Complete Registration"}
