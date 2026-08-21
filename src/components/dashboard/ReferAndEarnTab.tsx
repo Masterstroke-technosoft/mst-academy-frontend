@@ -83,7 +83,7 @@ export function ReferAndEarnTab({
   const handleUpdateSelfDiscount = async (e: React.FormEvent) => {
     e.preventDefault();
     const discountVal = parseInt(selfDiscountInput, 10);
-    const maxDiscount = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
+    const maxDiscount = courseDiscounts.find(cd => cd.role.toLowerCase() === selfDiscountRole.toLowerCase())?.discount || 0;
     if (isNaN(discountVal) || discountVal < 0 || discountVal > maxDiscount) {
       showToast(`Please enter a valid discount percentage between 0 and ${maxDiscount}.`, "error");
       return;
@@ -190,11 +190,11 @@ export function ReferAndEarnTab({
 
   const handleSelfDiscountRoleChange = (role: UserRole) => {
     setSelfDiscountRole(role);
-    const existing = courseDiscounts.find(cd => cd.role === role);
+    const existing = courseDiscounts.find(cd => cd.role.toLowerCase() === role.toLowerCase());
     setSelfDiscountInput(String(existing?.selfDiscount || 0));
   };
 
-  const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role === selfDiscountRole)?.discount || 0;
+  const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role.toLowerCase() === selfDiscountRole.toLowerCase())?.discount || 0;
 
   const getCoursePrice = (role: string): number => {
     const normalizedRole = String(role || "").toLowerCase().trim();
@@ -394,7 +394,7 @@ export function ReferAndEarnTab({
                       Self Discount
                     </label>
                     <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                      Active: {courseDiscounts.find(cd => cd.role === selfDiscountRole)?.selfDiscount || 0}%
+                      Active: {courseDiscounts.find(cd => cd.role.toLowerCase() === selfDiscountRole.toLowerCase())?.selfDiscount || 0}%
                     </span>
                   </div>
                   <div className="flex gap-2">
