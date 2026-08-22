@@ -160,26 +160,6 @@ export function RegisterForm() {
   const [discountPercentage, setDiscountPercentage] = useState<number | null>(null);
 
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-  useEffect(() => {
-    if (step === "payment") {
-      const fetchDiscount = async () => {
-        try {
-          const response = await fetch(`${baseURL}/api/me/discount`, {
-            credentials: "include"
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (typeof data.discountPercentage === "number") {
-              setDiscountPercentage(data.discountPercentage);
-            }
-          }
-        } catch (err) {
-          console.error("Error fetching discount:", err);
-        }
-      };
-      fetchDiscount();
-    }
-  }, [step, baseURL]);
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((p) => p.id === plan)!,
@@ -308,7 +288,7 @@ export function RegisterForm() {
     const gst = gstNumber.trim() || undefined;
 
     let result:
-      | { ok: true; user: { id: string; role: string } }
+      | { ok: true; user: { id: string; role: string; discountPercentage?: number } }
       | { ok: false; error: string };
 
     if (plan === "validator") {
@@ -387,36 +367,8 @@ export function RegisterForm() {
       return;
     }
 
-    // Auto-login to establish backend session so we can fetch discount details
-    try {
-      const loginRes = await fetch(`${baseURL}/api/auth/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      if (loginRes.ok) {
-        const loginData = await loginRes.json();
-        const token = loginData.accessToken || loginData.token || (loginData.data && loginData.data.token) || (loginData.data && loginData.data.accessToken);
-        if (token) {
-          localStorage.setItem("admin-token", token);
-        }
-        const apiUser = loginData?.user || loginData?.data?.user || loginData?.data || {};
-        const rawRole = apiUser?.role || loginData?.role || loginData?.data?.role || "";
-        const loggedInUser = {
-          id: apiUser?.id || `user-${Date.now()}`,
-          email: apiUser?.email || email,
-          password,
-          fullName: apiUser?.fullName || apiUser?.name || email.split("@")[0],
-          role: apiUser?.role || "student",
-          backendRole: rawRole,
-          registeredAt: apiUser?.registeredAt || new Date().toISOString(),
-          courseDiscounts: Array.isArray(apiUser?.courseDiscounts) ? apiUser.courseDiscounts : [],
-        };
-        setSession(loggedInUser as any);
-      }
-    } catch (err) {
-      console.error("Auto-login failed:", err);
+    if (result.user && typeof result.user.discountPercentage === "number") {
+      setDiscountPercentage(result.user.discountPercentage);
     }
 
     // Account is created; move to the optional payment step
@@ -501,10 +453,10 @@ export function RegisterForm() {
           <div className="space-y-3">
             <button
               type="button"
-              onClick={() => finishRegistration("submitted")}
+              onClick={() => finishRegistration()}
               className="w-full rounded-xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.99]"
             >
-              Submit Payment
+              Sign In
             </button>
 
             <button
