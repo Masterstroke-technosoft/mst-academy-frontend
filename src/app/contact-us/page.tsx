@@ -1,7 +1,13 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, Mail, Phone, MapPin, Clock } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: { absolute: 'Contact Masterstroke Academy | Blockchain Course Support, Pune' },
+  description:
+    'Contact Masterstroke Academy, Pune. Course access, payments, certification and wallet support. Mon-Sat, 10am-6pm IST. Reply within 24-48 hours.',
+  alternates: { canonical: '/contact-us' },
+};
 
 export default function ContactUsPage() {
   return (
