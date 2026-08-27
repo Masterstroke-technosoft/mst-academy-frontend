@@ -35,28 +35,52 @@ const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
   { role: "non-validator", href: "/dashboard/non-validator", label: "General User" },
 ];
 
-const getSidebarNav = (role: string, isAdmin: boolean) => [
-  { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
-  { href: "/learn", icon: TreePine, label: "Learning Tree" },
-  ...(!isAdmin
-    ? [
-      { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
-      { href: `/dashboard/${role}#submissions`, icon: BookOpen, label: "Submission Progress" }
-    ]
-    : []),
-  ...(isAdmin
-    ? [
-      { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
-      { href: "/admin/users", icon: Users, label: "User Management" },
-      { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
-      { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
-    ]
-    : []),
-  ...(!isAdmin && role !== "admin"
-    ? [{ href: `#refer`, icon: Gift, label: "Refer & Earn" }]
-    : []),
-  { href: `#profile`, icon: User, label: "Profile" },
-];
+const getSidebarNav = (role: string, isAdmin: boolean) => {
+  if (role === "tutor" || role === "TUTOR") {
+    return [
+      { href: "/dashboard/tutor", icon: BookOpen, label: "Submission Review" },
+      { href: `#profile`, icon: User, label: "Profile" },
+    ];
+  }
+  return [
+    { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
+    { href: "/learn", icon: TreePine, label: "Learning Tree" },
+    ...(!isAdmin
+      ? [
+        { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
+        { href: `/dashboard/${role}#submissions`, icon: BookOpen, label: "Submission Progress" }
+      ]
+      : []),
+    ...(isAdmin
+      ? [
+        { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
+        { href: "/admin/users", icon: Users, label: "User Managementss" },
+        { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
+        { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
+      ]
+      : []),
+    ...(!isAdmin && role !== "admin"
+      ? [{ href: `#refer`, icon: Gift, label: "Refer & Earn" }]
+      : []),
+    { href: `#profile`, icon: User, label: "Profile" },
+  ];
+};
+
+const getDiscountText = (req: any) => {
+  if (typeof req.discount === 'number' && req.discount > 0) {
+    return `(${req.discount}% dis..)`;
+  }
+  if (typeof req.discountPercentage === 'number' && req.discountPercentage > 0) {
+    return `(${req.discountPercentage}% dis..)`;
+  }
+  if (typeof req.appliedDiscount === 'number' && req.appliedDiscount > 0) {
+    return `(${req.appliedDiscount}% dis..)`;
+  }
+  if (typeof req.discountPercentageApplied === 'number' && req.discountPercentageApplied > 0) {
+    return `(${req.discountPercentageApplied}% dis..)`;
+  }
+  return "";
+};
 
 export function DashboardShell({
   role,
@@ -83,6 +107,12 @@ export function DashboardShell({
   const [rejectionNote, setRejectionNote] = useState("");
   const [paymentSearch, setPaymentSearch] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [paymentSummary, setPaymentSummary] = useState({
+    paidUser: 0,
+    totalAmount: 0,
+    amountWithoutGst: 0,
+    GST: 0
+  });
 
   const fetchPaymentRequests = async () => {
     setPaymentSearch("");
@@ -102,10 +132,24 @@ export function DashboardShell({
       });
       if (res.ok) {
         const data = await res.json();
+        
+        if (data && !Array.isArray(data)) {
+          setPaymentSummary({
+            paidUser: data.paidUser || data.paidAmount || 0,
+            totalAmount: data.totalAmount || 0,
+            amountWithoutGst: data.amountWithoutGst || 0,
+            GST: data.GST || 0,
+          });
+        } else {
+          setPaymentSummary({ paidUser: 0, totalAmount: 0, amountWithoutGst: 0, GST: 0 });
+        }
+
         // Handle both array responses and single purchase object responses
         let list: any[] = [];
         if (Array.isArray(data)) {
           list = data;
+        } else if (data?.transactions) {
+          list = Array.isArray(data.transactions) ? data.transactions : [];
         } else if (data?.purchase) {
           list = [data.purchase];
         } else if (data?.data) {
@@ -304,7 +348,7 @@ export function DashboardShell({
               );
             })}
 
-            {isAdmin && (
+            {isAdmin && role !== "tutor" && role !== "TUTOR" && (
               <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
                 <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                   Admin Dashboards
@@ -328,7 +372,7 @@ export function DashboardShell({
 
           {/* bottom */}
           <div className="mt-auto border-t border-[var(--border)] px-3 py-4 space-y-1">
-            {isAdmin && (
+            {isAdmin && role !== "tutor" && role !== "TUTOR" && (
               <button
                 type="button"
                 onClick={() => {
@@ -440,7 +484,7 @@ export function DashboardShell({
                   );
                 })}
 
-                {isAdmin && (
+                {isAdmin && role !== "tutor" && role !== "TUTOR" && (
                   <div className="mt-4 space-y-1 border-t border-[var(--border)] pt-4">
                     <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                       Admin Dashboards
@@ -465,7 +509,7 @@ export function DashboardShell({
 
               {/* bottom */}
               <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
-                {isAdmin && (
+                {isAdmin && role !== "tutor" && role !== "TUTOR" && (
                   <button
                     type="button"
                     onClick={() => {
@@ -510,7 +554,7 @@ export function DashboardShell({
         {/* ---- main content ---- */}
         < div className="relative flex min-w-0 flex-1 flex-col overflow-hidden md:ml-64" >
           <main className="flex-1 overflow-y-auto flex flex-col justify-between">
-            <div className={`mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 ${role === "admin" ? "max-w-[95vw]" : "max-w-5xl"}`}>
+            <div className={`mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 ${(isAdmin || role === "tutor" || role === "TUTOR") ? "max-w-[95vw]" : "max-w-5xl"}`}>
               {/* mobile header */}
               <div className="mb-6 flex items-center justify-between md:hidden">
                 <div className="flex items-center gap-3">
@@ -629,6 +673,26 @@ export function DashboardShell({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid User</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">{paymentSummary.paidUser}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid Amount</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.totalAmount}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.amountWithoutGst}</p>
+               </div>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST (18%)</p>
+                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.GST}</p>
+               </div>
             </div>
 
             {/* Search and Filter Controls */}
@@ -752,6 +816,14 @@ export function DashboardShell({
                           </td>
                           <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
                             ₹{req.amountPaid}
+                            {(() => {
+                              const discountText = getDiscountText(req);
+                              return discountText ? (
+                                <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
+                                  {discountText}
+                                </span>
+                              ) : null;
+                            })()}
                           </td>
                           <td className="px-2 py-2.5 whitespace-nowrap">
                             {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}

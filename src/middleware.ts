@@ -13,27 +13,9 @@ const PUBLIC_PATHS = [
   "/terms-conditions",
   "/contact-us",
   "/legal",
-  "/blog",
 ];
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname === "/") return NextResponse.next();
-
-  const isPublic = PUBLIC_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
-  if (isPublic) return NextResponse.next();
-
-  const session = request.cookies.get("mst-session");
-  if (!session) {
-    const loginUrl = new URL("/login", request.url);
-    const search = request.nextUrl.search;
-    loginUrl.searchParams.set("next", pathname + search);
-    return NextResponse.redirect(loginUrl);
-  }
-
+export function middleware() {
   return NextResponse.next();
 }
 

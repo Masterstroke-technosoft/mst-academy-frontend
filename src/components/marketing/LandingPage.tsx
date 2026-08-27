@@ -15,6 +15,8 @@ import { type LeaderboardEntry } from "@/lib/leaderboard";
 import { getSession } from "@/lib/auth";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import { convertINRtoUSD } from "@/lib/currency";
+import BannerPopup from "@/components/marketing/BannerPopup";
+
 
 interface BackendLeaderboardEntry {
   _id: string | null;
@@ -861,6 +863,7 @@ export function LandingPage({
           </RevealSection>
         </div>
       </section>
+      {/* <BannerPopup /> */}
     </div>
   );
 }

@@ -545,12 +545,73 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const courseId = "6a2934912b48a13769669f8e";
 
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [apiDiscount, setApiDiscount] = useState<number | null>(null);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
 
-  useEffect(() => {
-    let profilePaymentVerified = false;
+  const checkPaymentStatus = async (profileUser?: any) => {
+    const activeUser = profileUser || userProfile || user;
+    const profilePaymentVerified = !!(activeUser?.isPaymentVerified || activeUser?.paymentVerified);
+    const r = activeUser?.role?.toLowerCase();
+    const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
+    const fetchURL = isAdmin
+      ? `${baseURL}/api/node-purchase`
+      : `${baseURL}/api/node-purchase/me?id=${activeUser?.id || activeUser?._id}`;
 
+    try {
+      const res = await fetchWithAuth(fetchURL);
+      if (res.ok) {
+        const data = await res.json();
+        let list: any[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (data?.purchase) {
+          list = [data.purchase];
+        } else if (data?.data) {
+          list = Array.isArray(data.data) ? data.data : [data.data];
+        } else if (data?.purchases) {
+          list = Array.isArray(data.purchases) ? data.purchases : [];
+        } else if (data?.status) {
+          list = [data];
+        }
+
+        if (list.length > 0) {
+          const sorted = [...list].sort((a, b) => {
+            const ta = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const tb = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return tb - ta;
+          });
+          const latest = sorted[0];
+
+          if (latest.status === "PENDING") {
+            setHasSubmittedPayment(true);
+            setIsPaymentVerified(false);
+          } else if (latest.status === "APPROVED") {
+            setHasSubmittedPayment(true);
+            setIsPaymentVerified(true);
+          } else if (latest.status === "REJECTED") {
+            setHasSubmittedPayment(false);
+            setIsPaymentVerified(false);
+          } else {
+            setHasSubmittedPayment(profilePaymentVerified);
+            setIsPaymentVerified(profilePaymentVerified);
+          }
+        } else {
+          setHasSubmittedPayment(profilePaymentVerified);
+          setIsPaymentVerified(profilePaymentVerified);
+        }
+      } else {
+        setIsPaymentVerified(profilePaymentVerified);
+        setHasSubmittedPayment(profilePaymentVerified);
+      }
+    } catch (err) {
+      console.error("Error checking payment status:", err);
+      setIsPaymentVerified(profilePaymentVerified);
+      setHasSubmittedPayment(profilePaymentVerified);
+    }
+  };
+
+  useEffect(() => {
     async function fetchProfile() {
       try {
         const res = await fetchWithAuth(`${baseURL}/api/me`);
@@ -559,56 +620,36 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           if (data?.user) {
             setUserProfile(data.user);
             if (data.user.isPaymentVerified || data.user.paymentVerified) {
-              profilePaymentVerified = true;
               setIsPaymentVerified(true);
             }
+            return data.user;
           }
         }
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }
+      return null;
     }
-    async function checkPaymentStatus() {
-      const isAdmin = user?.role === "admin" || user?.role === "ADMIN";
-      if (!isAdmin) {
-        setIsPaymentVerified(profilePaymentVerified);
-        setHasSubmittedPayment(profilePaymentVerified);
-        return;
-      }
+    async function fetchDiscount() {
       try {
-        const res = await fetchWithAuth(`${baseURL}/api/node-purchase`);
+        const res = await fetch(`${baseURL}/api/me/discount`, {
+          credentials: "include",
+        });
         if (res.ok) {
           const data = await res.json();
-          let list: any[] = [];
-          if (Array.isArray(data)) {
-            list = data;
-          } else if (data?.purchase) {
-            list = [data.purchase];
-          } else if (data?.data) {
-            list = Array.isArray(data.data) ? data.data : [];
-          } else if (data?.purchases) {
-            list = Array.isArray(data.purchases) ? data.purchases : [];
+          if (typeof data.discountPercentage === "number") {
+            setApiDiscount(data.discountPercentage);
           }
-          if (list.length > 0) {
-            setHasSubmittedPayment(true);
-            const isApproved = list.some(item => item.status === "APPROVED");
-            setIsPaymentVerified(isApproved || profilePaymentVerified);
-          } else {
-            setHasSubmittedPayment(false);
-            setIsPaymentVerified(profilePaymentVerified);
-          }
-        } else {
-          setIsPaymentVerified(profilePaymentVerified);
         }
       } catch (err) {
-        console.error("Error checking payment status:", err);
-        setIsPaymentVerified(profilePaymentVerified);
+        console.error("Error fetching discount:", err);
       }
     }
     async function loadData() {
       if (user) {
-        await fetchProfile();
-        await checkPaymentStatus();
+        const freshUser = await fetchProfile();
+        await fetchDiscount();
+        await checkPaymentStatus(freshUser);
       }
     }
     loadData();
@@ -780,6 +821,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         showPaymentToast("Payment request submitted successfully!", "success");
         setIsAllocationModalOpen(false);
         setHasSubmittedPayment(true);
+        checkPaymentStatus();
         setAllocationForm({
           accountHolderName: "",
           category: "",
@@ -821,7 +863,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
   const isUserAdmin = userProfile?.role?.toLowerCase() === "admin";
-  const needsVerification = !isUserAdmin && !!userProfile && (!isPaymentVerified || (userProfile.role?.toLowerCase() === "student" && (!userProfile.isStudentVerified || !!userProfile.studentRejectionNote)));
+  const needsVerification = !isUserAdmin && !!userProfile && !isPaymentVerified;
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -2023,7 +2065,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const discountPercent = userProfile?.discount || user?.discount || 0;
+                const discountPercent = apiDiscount !== null ? apiDiscount : 0;
                 const discountAmount = (base * discountPercent) / 100;
                 const discountedBase = base - discountAmount;
                 const gst = discountedBase * 0.18;
@@ -2125,6 +2167,13 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     type="date"
                     value={allocationForm.paymentDate}
                     onChange={(e) => setAllocationForm({ ...allocationForm, paymentDate: e.target.value })}
+                    max={(() => {
+                      const d = new Date();
+                      const year = d.getFullYear();
+                      const month = String(d.getMonth() + 1).padStart(2, '0');
+                      const day = String(d.getDate()).padStart(2, '0');
+                      return `${year}-${month}-${day}`;
+                    })()}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
                   />
                   {allocationErrors.paymentDate && (

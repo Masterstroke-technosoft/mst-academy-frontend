@@ -32,7 +32,7 @@ export function Navbar() {
   }, []);
 
   const dashboardHref = user
-    ? (dashboardPath(user.role) || "/dashboard/non-validator")
+    ? (dashboardPath(user.backendRole || user.role) || "/dashboard/non-validator")
     : "/login";
 
   const showUserNav = mounted && ready && user;
@@ -89,11 +89,11 @@ export function Navbar() {
         </nav>
 
         {/* Right side */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
 
           {showUserNav ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Link
                 href={`${dashboardHref}#profile`}
                 onClick={() => {
@@ -101,7 +101,7 @@ export function Navbar() {
                     window.dispatchEvent(new Event('openProfile'));
                   }
                 }}
-                className="flex items-center gap-2 rounded-lg border border-white/10 px-2.5 py-2 text-xs font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10 sm:px-3.5 sm:text-sm"
+                className="flex items-center gap-1.5 rounded-lg border border-transparent sm:border-white/10 p-0.5 sm:px-3.5 sm:py-2 text-xs font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10 sm:text-sm"
               >
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-mst-red text-[10px] font-bold text-white">
                   {user.fullName?.charAt(0).toUpperCase()}
@@ -134,7 +134,7 @@ export function Navbar() {
             </div>
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
-              <Link
+              {/* <Link
                 href="/login"
                 className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10"
               >
@@ -147,13 +147,13 @@ export function Navbar() {
               >
                 <UserPlus size={14} />
                 Register
-              </Link>
+              </Link> */}
             </div>
           )}
 
           <Link
-            href="/learn"
-            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            href={showUserNav ? "/learn" : "/register"}
+            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             Start Learning
           </Link>
@@ -161,7 +161,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={switchPortal}
-            className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-2.5 py-1.5 text-[10px] font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             <ArrowLeftRight size={10} className="sm:w-3.5 sm:h-3.5" />
             Events
