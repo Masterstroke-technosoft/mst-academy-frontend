@@ -8,7 +8,7 @@ export function AuthShell({
   maxWidth = "max-w-lg",
 }: {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   children: React.ReactNode;
   maxWidth?: string;
 }) {
@@ -29,11 +29,17 @@ export function AuthShell({
           </div>
           <div>
             <h1 className="text-2xl font-black text-[var(--text)]">{title}</h1>
-            {subtitle && (
+            {subtitle && typeof subtitle === "string" ? (
               <p className="mt-0.5 text-xs text-[var(--text-muted)] max-w-sm">{subtitle}</p>
+            ) : (
+              subtitle
             )}
           </div>
+
+
         </div>
+
+
 
         <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl shadow-black/5">
           {children}
@@ -59,15 +65,30 @@ export function HighlightBox({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function DemoFee({ amount }: { amount: number }) {
+export function DemoFee({ amount, discountedAmount, discountPercent }: { amount: number; discountedAmount?: number; discountPercent?: number }) {
+  const hasDiscount = discountPercent !== undefined && discountPercent > 0 && discountedAmount !== undefined;
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)] px-4 py-3">
       <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
         Program Fee
       </p>
-      <p className="mt-1 text-2xl font-black text-mst-red">
-        ₹{amount.toLocaleString("en-IN")}
-      </p>
+      {hasDiscount ? (
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="text-2xl font-black text-mst-red">
+            ₹{discountedAmount.toLocaleString("en-IN")}
+          </span>
+          <span className="text-sm text-[var(--text-muted)] line-through">
+            ₹{amount.toLocaleString("en-IN")}
+          </span>
+          <span className="text-xs font-bold text-green-600 bg-green-500/10 px-2 py-0.5 rounded">
+            {discountPercent}% OFF
+          </span>
+        </div>
+      ) : (
+        <p className="mt-1 text-2xl font-black text-mst-red">
+          ₹{amount.toLocaleString("en-IN")}
+        </p>
+      )}
     </div>
   );
 }

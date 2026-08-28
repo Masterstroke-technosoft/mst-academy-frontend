@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X, BookOpen, Trophy, Calendar, Loader2 } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
@@ -31,7 +31,17 @@ export default function UserManagementPage() {
       try {
         setLoading(true);
         let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-        const response = await fetch(`${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}`, {
+        
+        let roleParam = "";
+        if (filterRole !== "all") {
+          if (filterRole === "course_only") roleParam = "COURSE_ONLY";
+          else if (filterRole === "validator") roleParam = "VALIDATOR";
+          else if (filterRole === "student") roleParam = "STUDENT";
+          else if (filterRole === "working_professional") roleParam = "WORKING_PROFESSIONAL";
+        }
+
+        const url = `${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}${roleParam ? `&role=${roleParam}` : ""}`;
+        const response = await fetch(url, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -77,6 +87,9 @@ export default function UserManagementPage() {
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
             registeredAt: u.registeredAt || u.createdAt || new Date().toISOString(),
+            referralPercentage: u.referralPercentage,
+            courseDiscounts: Array.isArray(u.courseDiscounts) ? u.courseDiscounts : [],
+            isPaymentVerified: !!u.isPaymentVerified,
           };
         });
 
@@ -91,7 +104,7 @@ export default function UserManagementPage() {
     };
 
     fetchUsers();
-  }, [currentPage, debouncedSearch]);
+  }, [currentPage, debouncedSearch, filterRole]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
@@ -101,9 +114,186 @@ export default function UserManagementPage() {
   const [rejectionNote, setRejectionNote] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
 
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<number>(0);
+  const [updatingReferralId, setUpdatingReferralId] = useState<string | null>(null);
+  const [confirmReferralUpdate, setConfirmReferralUpdate] = useState<{ userId: string; userName: string; percentage: number } | null>(null);
+
+  const DISCOUNT_ROLES: UserRole[] = ["student", "validator", "working_professional", "course_only"];
+
+  const [editingDiscountUserId, setEditingDiscountUserId] = useState<string | null>(null);
+  const [editDiscountRole, setEditDiscountRole] = useState<UserRole>("student");
+  const [editDiscountValue, setEditDiscountValue] = useState<number>(0);
+  const [updatingDiscountId, setUpdatingDiscountId] = useState<string | null>(null);
+  const [confirmDiscountUpdate, setConfirmDiscountUpdate] = useState<{ userId: string; userName: string; role: UserRole; discount: number } | null>(null);
+
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  // State for user progress modal
+  const [viewingProgressUser, setViewingProgressUser] = useState<AuthUser | null>(null);
+  const [userProgressData, setUserProgressData] = useState<any | null>(null);
+  const [curriculumData, setCurriculumData] = useState<any[] | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(false);
+  const [progressError, setProgressError] = useState<string | null>(null);
+
+  const handleViewProgress = async (user: AuthUser) => {
+    setViewingProgressUser(user);
+    setLoadingProgress(true);
+    setProgressError(null);
+    setUserProgressData(null);
+    try {
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      
+      // 1. Fetch curriculum if not already loaded
+      let currentCurriculum = curriculumData;
+      if (!currentCurriculum) {
+        const courseId = "6a2934912b48a13769669f8e";
+        const curriculumRes = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" }
+        });
+        if (curriculumRes.ok) {
+          const resData = await curriculumRes.json();
+          const rawPhases = resData.data || resData || [];
+          currentCurriculum = await Promise.all(
+            rawPhases.map(async (phase: any) => {
+              try {
+                const fullRes = await fetch(`${baseURL}/api/phases/full/${phase._id || phase.id}`, {
+                  method: "GET",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" }
+                });
+                if (fullRes.ok) {
+                  const fullData = await fullRes.json();
+                  return fullData.data || fullData;
+                }
+              } catch (e) {
+                console.error(e);
+              }
+              return phase;
+            })
+          );
+          setCurriculumData(currentCurriculum);
+        }
+      }
+
+      // 2. Fetch User Progress
+      const progressRes = await fetch(`${baseURL}/api/dashboard/admin/user-progress/${user.id}`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+      });
+
+      if (!progressRes.ok) {
+        throw new Error(`Failed to fetch progress: ${progressRes.statusText}`);
+      }
+
+      const progressJson = await progressRes.json();
+      setUserProgressData(progressJson.data || progressJson);
+    } catch (err: any) {
+      setProgressError(err.message || "Failed to load progress data");
+    } finally {
+      setLoadingProgress(false);
+    }
+  };
+
+  const stats = useMemo(() => {
+    if (!curriculumData || !userProgressData) return null;
+    let totalModules = 0;
+    let totalSubmodules = 0;
+    
+    curriculumData.forEach((phase: any) => {
+      const modules = phase.modules || [];
+      totalModules += modules.length;
+      modules.forEach((mod: any) => {
+        totalSubmodules += (mod.submodules || []).length;
+      });
+    });
+
+    const completedModulesCount = userProgressData.completedModules?.length || 0;
+    const completedSubmodulesCount = userProgressData.completedSubmodules?.length || 0;
+
+    return {
+      totalModules,
+      totalSubmodules,
+      completedModulesCount,
+      completedSubmodulesCount,
+    };
+  }, [curriculumData, userProgressData]);
+
+  const handleUpdateReferralPercentage = async (userId: string, percentage: number) => {
+    try {
+      setUpdatingReferralId(userId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/admin/users/${userId}/referral-percentage`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ referralPercentage: percentage })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update referral percentage: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
+          u.id === userId ? { ...u, referralPercentage: percentage } : u
+        )
+      );
+
+      showToast(data.message || "Referral percentage updated successfully", "success");
+      setEditingUserId(null);
+    } catch (error: any) {
+      showToast(error.message || "An error occurred while updating referral percentage", "error");
+    } finally {
+      setUpdatingReferralId(null);
+    }
+  };
+
+  const handleUpdateDiscount = async (userId: string, role: UserRole, discount: number) => {
+    try {
+      setUpdatingDiscountId(userId);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const response = await fetch(`${baseURL}/api/admin/users/${userId}/discount`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role, discount })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update discount: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setUsers(prevUsers =>
+        prevUsers.map(u => {
+          if (u.id !== userId) return u;
+          const existing = Array.isArray(u.courseDiscounts) ? u.courseDiscounts : [];
+          const withoutRole = existing.filter(cd => cd.role !== role);
+          return { ...u, courseDiscounts: [...withoutRole, { role, discount }] };
+        })
+      );
+
+      showToast(data.message || "Discount updated successfully", "success");
+      setEditingDiscountUserId(null);
+    } catch (error: any) {
+      showToast(error.message || "An error occurred while updating discount", "error");
+    } finally {
+      setUpdatingDiscountId(null);
+    }
   };
 
   const handleVerifyStudent = async (studentId: string, status: string = "Completed", studentRejectionNote?: string) => {
@@ -245,11 +435,8 @@ export default function UserManagementPage() {
   }, [users, filterRole, searchQuery]);
 
   const displayedTotalPages = useMemo(() => {
-    if (filterRole !== "all" || searchQuery.trim() !== "") {
-      return Math.max(1, Math.ceil(filteredUsers.length / 10));
-    }
     return totalPages;
-  }, [filteredUsers, totalPages, filterRole, searchQuery]);
+  }, [totalPages]);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -282,6 +469,7 @@ export default function UserManagementPage() {
   if (!mounted) return null;
 
   const showCollege = filterRole === "student" || filterRole === "all";
+  const showVerified = filterRole === "student" || filterRole === "all";
 
   return (
     <DashboardShell role="admin" title="User Management">
@@ -346,28 +534,22 @@ export default function UserManagementPage() {
           </div>
         )}
 
-        {debugRaw && users.length === 0 && !errorMsg && !loading && (
-          <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-5 text-yellow-600 shadow-sm overflow-hidden">
-            <h3 className="font-bold text-lg mb-2">Debug Info (API responded, but 0 users extracted)</h3>
-            <p className="text-sm mb-2">The API returned the following data, but we couldn't find an array of users inside it:</p>
-            <pre className="whitespace-pre-wrap text-xs overflow-auto max-h-60 bg-black/5 p-3 rounded">{debugRaw}</pre>
-          </div>
-        )}
-
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[950px] text-left text-sm text-[var(--text-muted)]">
+            <table className="w-full min-w-[1100px] text-left text-sm text-[var(--text-muted)]">
               <thead className="bg-[var(--bg-muted)] text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                 <tr>
-                  <th className="px-3 py-3">ID</th>
                   <th className="px-3 py-3">Name</th>
                   <th className="px-3 py-3">Email</th>
                   <th className="px-3 py-3">Mobile</th>
                   {showCollege && <th className="px-3 py-3">College</th>}
                   <th className="pl-3 pr-1 py-3 w-0 text-center">Role</th>
                   <th className="pl-1 pr-3 py-3 w-0 text-center">Active</th>
-                  <th className="px-3 py-3">Verified</th>
+                  {showVerified && <th className="px-3 py-3">Verified</th>}
+                  <th className="px-3 py-3 text-center">Paid</th>
                   <th className="px-3 py-3">Created</th>
+                  <th className="px-3 py-3 text-center">Referral Percentage</th>
+                  <th className="px-3 py-3 text-center">Discount</th>
                   <th className="px-3 py-3">Status</th>
                 </tr>
               </thead>
@@ -375,9 +557,6 @@ export default function UserManagementPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, index) => (
                     <tr key={`skeleton-${index}`} className="animate-pulse">
-                      <td className="px-3 py-4">
-                        <div className="h-4 w-16 rounded bg-[var(--bg-muted)]" />
-                      </td>
                       <td className="px-3 py-4">
                         <div className="h-4 w-28 rounded bg-[var(--bg-muted)]" />
                       </td>
@@ -398,39 +577,57 @@ export default function UserManagementPage() {
                       <td className="pl-1 pr-3 py-4 text-center">
                         <div className="mx-auto h-5 w-12 rounded-full bg-[var(--bg-muted)]" />
                       </td>
-                      <td className="px-3 py-4">
-                        <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
+                      {showVerified && (
+                        <td className="px-3 py-4">
+                          <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
+                        </td>
+                      )}
+                      <td className="px-3 py-4 text-center">
+                        <div className="mx-auto h-5 w-12 rounded bg-[var(--bg-muted)]" />
                       </td>
                       <td className="px-3 py-4">
                         <div className="h-4 w-20 rounded bg-[var(--bg-muted)]" />
                       </td>
                       <td className="px-3 py-4">
-                        <div className="h-5 w-16 rounded bg-[var(--bg-muted)]" />
+                        <div className="h-4 w-12 rounded bg-[var(--bg-muted)]" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-4 w-12 rounded bg-[var(--bg-muted)]" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-5 w-16 rounded-full bg-[var(--bg-muted)]" />
                       </td>
                     </tr>
                   ))
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={showCollege ? 10 : 9} className="px-3 py-8 text-center text-sm font-medium">
+                    <td colSpan={10 + (showCollege ? 1 : 0) + (showVerified ? 1 : 0)} className="px-3 py-8 text-center text-sm font-medium">
                       No users found.
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
                     <tr key={user.id} className="transition-colors hover:bg-[var(--bg-muted)]/50">
-                      <td className="px-3 py-3 font-mono text-xs">{String(user.id).substring(0, 12)}</td>
                       <td className="px-3 py-3 font-bold text-[var(--text)]">
-                        {user.fullName || (user as any).name || "Unknown"}
+                        <button
+                          onClick={() => handleViewProgress(user)}
+                          className="hover:underline text-left font-bold cursor-pointer text-[var(--text)]"
+                        >
+                          {user.fullName || (user as any).name || "Unknown"}
+                        </button>
                       </td>
-                      <td className="px-3 py-3 break-all">{user.email}</td>
+                      <td className="px-3 py-3 whitespace-nowrap">{user.email}</td>
                       <td className="px-3 py-3 whitespace-nowrap">{(user as any).phone || "N/A"}</td>
                       {showCollege && (
                         <td className="px-3 py-3">{(user as any).collegeName || user.college || "N/A"}</td>
                       )}
                       <td className="pl-3 pr-1 py-3 w-0 text-center">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.role === 'student' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
-                          user.role === 'validator' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' :
-                            user.role === 'admin' ? 'bg-mst-red/10 text-mst-red border border-mst-red/20' :
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.role === 'student' || user.role === 'STUDENT' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
+                          user.role === 'validator' || user.role === 'VALIDATOR' ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20' :
+                            (() => {
+                              const r = user.role?.toLowerCase();
+                              return r === 'admin' || r === 's_admin' || r === 'superadmin' || r === 'super_admin' || r === 'super-admin' || r === 'super admin';
+                            })() ? 'bg-mst-red/10 text-mst-red border border-mst-red/20' :
                               'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                           }`}>
                           {roleLabel(user.role)}
@@ -441,49 +638,182 @@ export default function UserManagementPage() {
                           {user.isActive === false ? 'No' : 'Yes'}
                         </span>
                       </td>
-                      <td className="px-3 py-3">
-                        <div className="flex flex-col gap-2 items-start">
-                          {user.isStudentVerified && !user.studentRejectionNote ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
-                              Verified
-                            </span>
-                          ) : user.studentRejectionNote ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
-                              Rejected
-                            </span>
-                          ) : user.role === 'student' ? (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
-                              Pending
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-gray-500/10 text-gray-500 border border-gray-500/20 whitespace-nowrap">
-                              No
-                            </span>
-                          )}
-
-                          {((user.role === 'student' /* || user.role === 'validator' */) && (!user.isStudentVerified || !!user.studentRejectionNote)) && (
-                            <button
-                              onClick={() => {
-                                setRejectionNote("");
-                                setIsRejecting(false);
-                                setVerifyUserModal(user);
-                              }}
-                              disabled={verifyingId === user.id}
-                              className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
-                            >
-                              {verifyingId === user.id ? 'Verifying...' : (
-                                user.studentRejectionNote ? (
-                                  (user.role as string) === 'validator' ? 'Reverify Validator' : 'Reverify Student'
-                                ) : (
-                                  (user.role as string) === 'validator' ? 'Verify Validator' : 'Verify Student'
-                                )
+                      {showVerified && (
+                        <td className="px-3 py-3">
+                          {user.role === 'student' ? (
+                            <div className="flex flex-col gap-2 items-start">
+                              {user.isStudentVerified && !user.studentRejectionNote ? (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20 whitespace-nowrap">
+                                  Verified
+                                </span>
+                              ) : user.studentRejectionNote ? (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 whitespace-nowrap">
+                                  Rejected
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 whitespace-nowrap">
+                                  Pending
+                                </span>
                               )}
-                            </button>
+                              {(!user.isStudentVerified || !!user.studentRejectionNote) && (
+                                <button
+                                  onClick={() => {
+                                    setRejectionNote("");
+                                    setIsRejecting(false);
+                                    setVerifyUserModal(user);
+                                  }}
+                                  disabled={verifyingId === user.id}
+                                  className="rounded-lg bg-amber-600 hover:bg-amber-700 px-3 py-1.5 text-xs font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm whitespace-nowrap"
+                                >
+                                  {verifyingId === user.id ? 'Verifying...' : (user.studentRejectionNote ? 'Reverify Student' : 'Verify Student')}
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[var(--text-muted)]">N/A</span>
                           )}
-                        </div>
+                        </td>
+                      )}
+                      <td className="px-3 py-3 text-center">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${user.isPaymentVerified ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
+                          {user.isPaymentVerified ? 'Yes' : 'No'}
+                        </span>
                       </td>
                       <td className="px-3 py-3">
                         {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
+                        {editingUserId === user.id ? (
+                          <div className="flex items-center justify-center gap-1.5">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={editValue}
+                              onChange={(e) => setEditValue(Number(e.target.value))}
+                              className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                              disabled={updatingReferralId === user.id}
+                            />
+                            <button
+                              onClick={() => setConfirmReferralUpdate({
+                                userId: user.id,
+                                userName: user.fullName || (user as any).name || "this user",
+                                percentage: editValue
+                              })}
+                              disabled={updatingReferralId === user.id}
+                              className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                              title="Save"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => setEditingUserId(null)}
+                              disabled={updatingReferralId === user.id}
+                              className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                              title="Cancel"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-2 group min-h-[28px]">
+                            <span>{user.referralPercentage !== undefined ? `${user.referralPercentage}%` : "0%"}</span>
+                            <button
+                              onClick={() => {
+                                setEditingUserId(user.id);
+                                setEditValue(user.referralPercentage || 0);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                              title="Edit Referral Percentage"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
+                        {editingDiscountUserId === user.id ? (
+                           <div className="flex flex-col items-center justify-center gap-1.5">
+                             <div className="flex items-center justify-center gap-1.5">
+                               <select
+                                 value={editDiscountRole}
+                                 onChange={(e) => {
+                                   const role = e.target.value as UserRole;
+                                   setEditDiscountRole(role);
+                                   const existing = (user.courseDiscounts || []).find(cd => cd.role === role);
+                                   setEditDiscountValue(existing?.discount || 0);
+                                 }}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
+                               >
+                                 {DISCOUNT_ROLES.map((role) => (
+                                   <option key={role} value={role}>{roleLabel(role)}</option>
+                                 ))}
+                               </select>
+                               <input
+                                 type="number"
+                                 min="0"
+                                 max="100"
+                                 value={editDiscountValue}
+                                 onChange={(e) => setEditDiscountValue(Number(e.target.value))}
+                                 className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                                 disabled={updatingDiscountId === user.id}
+                               />
+                               <button
+                                 onClick={() => setConfirmDiscountUpdate({
+                                   userId: user.id,
+                                   userName: user.fullName || (user as any).name || "this user",
+                                   role: editDiscountRole,
+                                   discount: editDiscountValue
+                                 })}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                 title="Save"
+                               >
+                                 <Check size={14} />
+                               </button>
+                               <button
+                                 onClick={() => setEditingDiscountUserId(null)}
+                                 disabled={updatingDiscountId === user.id}
+                                 className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                 title="Cancel"
+                               >
+                                 <X size={14} />
+                               </button>
+                             </div>
+                           </div>
+                        ) : (
+                           <div className="flex flex-col items-center justify-center gap-1 group min-h-[28px]">
+                             <div className="flex flex-wrap items-center justify-center gap-1">
+                               {(user.courseDiscounts && user.courseDiscounts.length > 0) ? (
+                                 user.courseDiscounts.map((cd) => (
+                                   <span
+                                     key={cd.role}
+                                     className="inline-flex items-center rounded-full bg-[var(--bg-muted)] border border-[var(--border)] px-2 py-0.5 text-[10px] font-bold text-[var(--text)]"
+                                     title={roleLabel(cd.role)}
+                                   >
+                                     {roleLabel(cd.role)}: {cd.discount}%
+                                   </span>
+                                 ))
+                               ) : (
+                                 <span className="text-[var(--text-muted)]">No discounts set</span>
+                               )}
+                             </div>
+                             <button
+                               onClick={() => {
+                                 setEditingDiscountUserId(user.id);
+                                 const defaultRole = DISCOUNT_ROLES.includes(user.role as UserRole) ? (user.role as UserRole) : "student";
+                                 setEditDiscountRole(defaultRole);
+                                 const existing = (user.courseDiscounts || []).find(cd => cd.role === defaultRole);
+                                 setEditDiscountValue(existing?.discount || 0);
+                               }}
+                               className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                               title="Edit Discount"
+                             >
+                               <Pencil size={14} />
+                             </button>
+                           </div>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         <button
@@ -574,6 +904,64 @@ export default function UserManagementPage() {
                 }}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer ${confirmToggle.currentStatus ? "bg-mst-red hover:bg-red-700" : "bg-emerald-600 hover:bg-emerald-700"
                   }`}
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmReferralUpdate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">
+              Do you really want to update the referral percentage to <span className="font-bold text-[var(--text)]">{confirmReferralUpdate.percentage}%</span> for user <span className="font-bold text-[var(--text)]">{confirmReferralUpdate.userName}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmReferralUpdate(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdateReferralPercentage(confirmReferralUpdate.userId, confirmReferralUpdate.percentage);
+                  setConfirmReferralUpdate(null);
+                }}
+                className="rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmDiscountUpdate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-[var(--text)] mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-[var(--text-muted)] mb-6">
+              Do you really want to set the <span className="font-bold text-[var(--text)]">{roleLabel(confirmDiscountUpdate.role)}</span> discount to <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.discount}%</span> for user <span className="font-bold text-[var(--text)]">{confirmDiscountUpdate.userName}</span>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDiscountUpdate(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleUpdateDiscount(confirmDiscountUpdate.userId, confirmDiscountUpdate.role, confirmDiscountUpdate.discount);
+                  setConfirmDiscountUpdate(null);
+                }}
+                className="rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors cursor-pointer"
               >
                 Yes
               </button>
@@ -729,6 +1117,213 @@ export default function UserManagementPage() {
                   </button>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {viewingProgressUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-3xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-4 shrink-0">
+              <div>
+                <h3 className="text-xl font-bold text-[var(--text)]">
+                  User Progress Roadmap
+                </h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">
+                  Viewing progress for <span className="font-semibold text-[var(--text)]">{viewingProgressUser.fullName || (viewingProgressUser as any).name || "Unknown"}</span> ({viewingProgressUser.email})
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingProgressUser(null)}
+                className="rounded-lg p-1.5 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingProgress ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-10 w-10 text-mst-red animate-spin mb-3" />
+                <p className="text-sm text-[var(--text-muted)]">Loading user progress & course details...</p>
+              </div>
+            ) : progressError ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center px-4">
+                <AlertCircle className="h-12 w-12 text-red-500 mb-2" />
+                <p className="text-sm font-semibold text-[var(--text)]">Error Loading Progress</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md">{progressError}</p>
+                <button
+                  onClick={() => handleViewProgress(viewingProgressUser)}
+                  className="mt-4 rounded-xl bg-mst-red hover:bg-red-700 px-4 py-2 text-xs font-semibold text-white transition-colors cursor-pointer"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : userProgressData && curriculumData ? (
+              <div className="flex-1 overflow-y-auto pr-1">
+                {/* Stats Summary */}
+                {stats && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500">
+                        <BookOpen size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">Submodules Completed</div>
+                        <div className="text-2xl font-black text-[var(--text)] mt-1">
+                          {stats.completedSubmodulesCount} <span className="text-sm font-medium text-[var(--text-muted)]">/ {stats.totalSubmodules}</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] h-2 rounded-full mt-2 overflow-hidden">
+                          <div
+                            className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${stats.totalSubmodules > 0 ? (stats.completedSubmodulesCount / stats.totalSubmodules) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex items-center gap-4">
+                      <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-500">
+                        <Trophy size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">Modules Completed</div>
+                        <div className="text-2xl font-black text-[var(--text)] mt-1">
+                          {stats.completedModulesCount} <span className="text-sm font-medium text-[var(--text-muted)]">/ {stats.totalModules}</span>
+                        </div>
+                        <div className="w-full bg-[var(--border)] h-2 rounded-full mt-2 overflow-hidden">
+                          <div
+                            className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${stats.totalModules > 0 ? (stats.completedModulesCount / stats.totalModules) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Progress Tree */}
+                <div className="space-y-6">
+                  {curriculumData.map((phase: any, pIdx: number) => {
+                    const phaseModules = phase.modules || [];
+                    
+                    // Compute phase completed counts
+                    let completedSubInPhase = 0;
+                    let totalSubInPhase = 0;
+                    phaseModules.forEach((mod: any) => {
+                      const subs = mod.submodules || [];
+                      totalSubInPhase += subs.length;
+                      subs.forEach((sub: any) => {
+                        const subId = sub.id || sub._id;
+                        const isCompleted = userProgressData.completedSubmodules?.some((cs: any) => String(cs.submoduleId) === String(subId));
+                        if (isCompleted) completedSubInPhase++;
+                      });
+                    });
+
+                    return (
+                      <div key={phase._id || phase.id || pIdx} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
+                        <div className="bg-[var(--bg-muted)]/30 px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
+                          <h4 className="font-bold text-sm text-[var(--text)] flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-mst-red/10 text-mst-red flex items-center justify-center text-xs font-bold">
+                              {pIdx + 1}
+                            </span>
+                            {phase.title}
+                          </h4>
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                            {completedSubInPhase} / {totalSubInPhase} Completed
+                          </span>
+                        </div>
+
+                        <div className="p-4 space-y-4">
+                          {phaseModules.map((mod: any, mIdx: number) => {
+                            const modId = mod._id || mod.id;
+                            const isModCompleted = userProgressData.completedModules?.some((cm: any) => String(cm.moduleId) === String(modId));
+                            const completionModuleObj = userProgressData.completedModules?.find((cm: any) => String(cm.moduleId) === String(modId));
+                            const submodulesList = mod.submodules || [];
+
+                            return (
+                              <div key={modId || mIdx} className="border border-[var(--border)]/60 rounded-lg p-3 hover:bg-[var(--bg-muted)]/10 transition-colors">
+                                <div className="flex items-start justify-between gap-3 mb-3">
+                                  <div>
+                                    <h5 className="font-bold text-xs text-[var(--text)] flex items-center gap-1.5">
+                                      Module {mod.index || (mIdx + 1)}: {mod.title}
+                                    </h5>
+                                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{mod.description || 'No description'}</p>
+                                  </div>
+                                  {isModCompleted ? (
+                                    <div className="flex flex-col items-end gap-0.5">
+                                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-green-500/10 text-green-500 border border-green-500/20">
+                                        <CheckCircle2 size={10} /> Completed
+                                      </span>
+                                      {completionModuleObj?.completedAt && (
+                                        <span className="text-[9px] text-[var(--text-muted)] flex items-center gap-0.5">
+                                          <Calendar size={8} /> {new Date(completionModuleObj.completedAt).toLocaleDateString()}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-[var(--bg-muted)] text-[var(--text-muted)] border border-[var(--border)]">
+                                      In Progress
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Submodules */}
+                                {submodulesList.length > 0 && (
+                                  <div className="pl-3 border-l-2 border-[var(--border)] space-y-2 mt-2">
+                                    {submodulesList.map((sub: any, sIdx: number) => {
+                                      const subId = sub.id || sub._id;
+                                      const isSubCompleted = userProgressData.completedSubmodules?.some((cs: any) => String(cs.submoduleId) === String(subId));
+                                      const completionSubObj = userProgressData.completedSubmodules?.find((cs: any) => String(cs.submoduleId) === String(subId));
+
+                                      return (
+                                        <div key={subId || sIdx} className="flex items-center justify-between text-xs gap-3">
+                                          <span className="text-[var(--text-muted)] font-medium truncate max-w-[80%]">
+                                            {sub.index || `${mod.index || (mIdx + 1)}.${sIdx + 1}`} - {sub.title}
+                                          </span>
+                                          {isSubCompleted ? (
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                              <span className="text-emerald-500 font-bold text-[10px] flex items-center gap-0.5">
+                                                <CheckCircle2 size={10} /> Yes
+                                              </span>
+                                              {completionSubObj?.completedAt && (
+                                                <span className="text-[9px] text-[var(--text-muted)] hidden sm:inline">
+                                                  ({new Date(completionSubObj.completedAt).toLocaleDateString()})
+                                                </span>
+                                              )}
+                                            </div>
+                                          ) : (
+                                            <span className="text-[var(--text-muted)]/50 text-[10px] font-medium shrink-0">
+                                              Pending
+                                            </span>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center py-12">
+                <AlertCircle className="h-12 w-12 text-amber-500 mb-2" />
+                <p className="text-sm font-semibold text-[var(--text)]">No Data Available</p>
+              </div>
+            )}
+            
+            <div className="border-t border-[var(--border)] pt-4 mt-4 flex justify-end shrink-0">
+              <button
+                onClick={() => setViewingProgressUser(null)}
+                className="rounded-xl border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

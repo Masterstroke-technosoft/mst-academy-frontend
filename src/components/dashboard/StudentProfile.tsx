@@ -49,6 +49,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [initialData, setInitialData] = useState({
     phone: "",
     linkedin: "",
@@ -139,7 +140,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     };
 
     const checkPaymentStatus = async () => {
-      const isAdmin = safeUser.role === "admin" || safeUser.role === "ADMIN";
+      const r = safeUser.role?.toLowerCase();
+      const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
       if (!isAdmin) {
         setIsPaymentVerified(profilePaymentVerified);
         // For standard students, we determine if they have submitted payment based on profile status
@@ -199,6 +201,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -316,14 +321,43 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.phone || formData.phone.trim() === "") {
+      newErrors.phone = "Mobile number cannot be empty.";
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = "Mobile number must be exactly 10 digits.";
+    }
+
+    if (!formData.linkedin || formData.linkedin.trim() === "") {
+      newErrors.linkedin = "LinkedIn Profile cannot be empty.";
+    }
+
+    if (!formData.github || formData.github.trim() === "") {
+      newErrors.github = "GitHub Profile cannot be empty.";
+    }
+
+    if (!formData.walletAddress || formData.walletAddress.trim() === "") {
+      newErrors.walletAddress = "Wallet Address cannot be empty.";
+    }
+
+    if (formData.portfolio && formData.portfolio.trim() !== "") {
+      const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/i;
+      if (!urlRegex.test(formData.portfolio.trim())) {
+        newErrors.portfolio = "Portfolio Website must be a valid URL.";
+      }
+    }
+
     if (/\d/.test(formData.fullName)) {
       showToast("Full name must not contain numbers.", "error");
       return;
     }
-    if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
-      showToast("Mobile number must be exactly 10 digits.", "error");
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
     setSaving(true);
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -333,7 +367,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       if (formData.phone !== initialData.phone) bodyData.mobileNumber = formData.phone;
       if (formData.github !== initialData.github) bodyData.githubProfile = formData.github;
       if (formData.linkedin !== initialData.linkedin) bodyData.linkedinProfile = formData.linkedin;
-      if (formData.portfolio !== initialData.portfolio) bodyData.portfolioWebsite = formData.portfolio;
+      if (formData.portfolio !== initialData.portfolio) {
+        bodyData.portfolioWebsite = formData.portfolio.trim() === "" ? null : formData.portfolio;
+      }
       if (formData.walletAddress !== initialData.walletAddress) bodyData.walletAddress = formData.walletAddress;
 
       if (isPhotoDeleted) {
@@ -638,14 +674,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-digit mobile number"
-                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${formData.phone && !/^\d{10}$/.test(formData.phone)
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${errors.phone
                   ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
                   : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
                   }`}
               />
-              {formData.phone && !/^\d{10}$/.test(formData.phone) && (
+              {errors.phone && (
                 <p className="mt-1 text-xs text-red-500 font-medium">
-                  Mobile number must be exactly 10 digits.
+                  {errors.phone}
                 </p>
               )}
             </div>
@@ -661,8 +697,16 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.linkedin}
                 onChange={handleChange}
                 placeholder="https://linkedin.com/in/username"
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${errors.linkedin
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                  }`}
               />
+              {errors.linkedin && (
+                <p className="mt-1 text-xs text-red-500 font-medium">
+                  {errors.linkedin}
+                </p>
+              )}
             </div>
 
             {/* GitHub */}
@@ -676,8 +720,16 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.github}
                 onChange={handleChange}
                 placeholder="https://github.com/username"
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${errors.github
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                  }`}
               />
+              {errors.github && (
+                <p className="mt-1 text-xs text-red-500 font-medium">
+                  {errors.github}
+                </p>
+              )}
             </div>
 
             {/* Portfolio */}
@@ -706,8 +758,16 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 value={formData.walletAddress}
                 onChange={handleChange}
                 placeholder="0x..."
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                className={`w-full rounded-xl border bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text)] outline-none transition ${errors.walletAddress
+                  ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-[var(--border)] focus:border-mst-red focus:ring-1 focus:ring-mst-red"
+                  }`}
               />
+              {errors.walletAddress && (
+                <p className="mt-1 text-xs text-red-500 font-medium">
+                  {errors.walletAddress}
+                </p>
+              )}
             </div>
 
             {/* User ID */}
@@ -902,13 +962,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <input
                 type="text"
                 readOnly
-                value=""
-                placeholder="Coming Soon"
+                value={referralLink}
                 className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text-muted)]"
               />
               <button
                 type="button"
-                disabled={true}
+                disabled={!referralLink}
                 onClick={copyReferral}
                 className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -33,7 +33,16 @@ export function LoginForm() {
 
   function normalizeRole(role?: string): UserRole {
     const value = (role || "student").toLowerCase();
-    if (value === "admin" || value === "student" || value === "validator" || value === "non-validator") {
+    if (value === "admin" || value === "s_admin" || value === "superadmin" || value === "super_admin" || value === "super-admin" || value === "super admin") {
+      return "admin";
+    }
+    if (value === "tutor") {
+      return "tutor";
+    }
+    if (value === "working-professional" || value === "working_professional") {
+      return "working-professional";
+    }
+    if (value === "admin" || value === "student" || value === "validator" || value === "non-validator" || value === "tutor" || value === "working-professional") {
       return value as UserRole;
     }
     return "student";
@@ -74,6 +83,7 @@ export function LoginForm() {
           role: normalizeRole(rawRole),
           backendRole: rawRole,
           registeredAt: apiUser?.registeredAt || new Date().toISOString(),
+          courseDiscounts: Array.isArray(apiUser?.courseDiscounts) ? apiUser.courseDiscounts : [],
         };
 
         setSession(loggedInUser);

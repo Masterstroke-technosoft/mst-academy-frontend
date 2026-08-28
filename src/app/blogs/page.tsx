@@ -89,7 +89,7 @@ export default function BlogIndexPage() {
           <div
             data-widget="latest-posts"
             data-token={SITE_TOKEN}
-            data-link-base="/blog"
+            data-link-base="/blogs"
             className="w-full min-h-[400px]"
           />
         </motion.div>

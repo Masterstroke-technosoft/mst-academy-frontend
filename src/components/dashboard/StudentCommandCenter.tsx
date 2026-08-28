@@ -139,6 +139,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const { user, ready, logout, isAdmin } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userDiscount, setUserDiscount] = useState<number>(0);
 
   const [isAllocationModalOpen, setIsAllocationModalOpen] = useState(false);
   const [allocationForm, setAllocationForm] = useState({
@@ -546,6 +547,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 if (response.ok) {
                   const data = await response.json();
                   setClaimedCertificate(data.certificateImage);
+                  setClaimedCertificateTxHash(data.certificateTxHash || null);
                   showToast("Certificate claimed successfully and sent to your email!", "success");
                   setIsClaimModalOpen(true);
                 } else {
@@ -678,6 +680,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const [loadingCert, setLoadingCert] = useState(true);
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const [claimedCertificate, setClaimedCertificate] = useState<string | null>(null);
+  const [claimedCertificateTxHash, setClaimedCertificateTxHash] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [paymentProfile, setPaymentProfile] = useState<{
     isPaymentVerified: boolean;
@@ -711,6 +714,21 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   useEffect(() => {
     if (!user?.id) return;
     const fetchDashboardData = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const res = await fetch(`${baseURL}/api/me/discount`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.discountPercentage === "number") {
+            setUserDiscount(data.discountPercentage);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch dynamic discount:", error);
+      }
+
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
         const res = await fetch(`${baseURL}/api/dashboard/${user.id}`, {
@@ -751,6 +769,9 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           const data = await res.json();
           if (data?.user?.certificateImage) {
             setClaimedCertificate(data.user.certificateImage);
+          }
+          if (data?.user?.certificateTxHash) {
+            setClaimedCertificateTxHash(data.user.certificateTxHash);
           }
           if (data?.user) {
             setPaymentProfile({
@@ -1513,12 +1534,25 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
                           <div className="flex shrink-0 items-center justify-start md:justify-end">
                             {claimedCertificate && certEligibility?.isCertificateEligible ? (
-                              <button
-                                onClick={() => setIsClaimModalOpen(true)}
-                                className="group relative flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer px-6 py-3.5 text-sm font-extrabold transition-all duration-300"
-                              >
-                                View Certificate
-                              </button>
+                              <div className="flex flex-col items-center md:items-end gap-2">
+                                <button
+                                  onClick={() => setIsClaimModalOpen(true)}
+                                  className="group relative flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:brightness-110 hover:-translate-y-0.5 cursor-pointer px-6 py-3.5 text-sm font-extrabold transition-all duration-300"
+                                >
+                                  View Certificate
+                                </button>
+                                {claimedCertificateTxHash && (
+                                  <a
+                                    href={`https://mstscan.com/tx/${claimedCertificateTxHash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[10px] text-emerald-500 hover:text-emerald-600 font-extrabold tracking-wide uppercase flex items-center gap-1 transition-colors"
+                                  >
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    On-Chain Verified
+                                  </a>
+                                )}
+                              </div>
                             ) : (
                               <button
                                 disabled={!certEligibility?.isCertificateEligible}
@@ -1924,12 +1958,34 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
               </p>
 
               {claimedCertificate && (
-                <div className="mt-6 w-full transition-transform duration-300 hover:scale-[1.01] flex justify-center">
+                <div className="mt-6 w-full transition-transform duration-300 hover:scale-[1.01] flex flex-col items-center">
                   <img
                     src={`${process.env.NEXT_PUBLIC_BASE_URL || ""}/${claimedCertificate}`}
                     alt="Certificate Preview"
                     className="w-full max-w-lg h-auto block shadow-md border border-[var(--border)]"
                   />
+                  {claimedCertificateTxHash && (
+                    <div className="mt-4 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 text-center max-w-lg w-full">
+                      <div className="flex items-center justify-center gap-1.5 text-xs font-black text-emerald-500 uppercase tracking-wider">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        Permanently Verified on MST Blockchain
+                      </div>
+                      <div className="mt-2 text-xs text-[var(--text-muted)] flex flex-col items-center justify-center gap-2">
+                        <div className="truncate max-w-full font-mono text-[10px] bg-[var(--surface-hover)] border border-[var(--border)] px-2 py-1 rounded">
+                          <span className="font-semibold text-[var(--text)] font-sans mr-1">Tx Hash:</span>
+                          {claimedCertificateTxHash}
+                        </div>
+                        <a
+                          href={`https://mstscan.com/tx/${claimedCertificateTxHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-amber-500 hover:text-amber-600 font-extrabold hover:underline text-[11px] shrink-0"
+                        >
+                          View on Explorer &rarr;
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -2009,8 +2065,11 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                 if (!pricing) return null;
 
                 const base = pricing.base;
-                const gst = base * 0.18;
-                const total = base * 1.18;
+                const discountPercent = userDiscount || 0;
+                const discountAmount = (base * discountPercent) / 100;
+                const discountedBase = base - discountAmount;
+                const gst = discountedBase * 0.18;
+                const total = discountedBase * 1.18;
 
                 return (
                   <div className="w-full md:w-auto min-w-[240px] flex-grow rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-left shadow-sm flex flex-col justify-between">
@@ -2023,6 +2082,12 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <span className="text-[var(--text-muted)]">Role Amount:</span>
                           <span className="font-bold text-[var(--text)]">₹{base.toLocaleString('en-IN')}</span>
                         </div>
+                        {discountPercent > 0 && (
+                          <div className="flex justify-between border-b border-[var(--border)] pb-1.5 text-green-600">
+                            <span>Discount ({discountPercent}%):</span>
+                            <span className="font-bold">-₹{discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between border-b border-[var(--border)] pb-1.5">
                           <span className="text-[var(--text-muted)]">18% GST:</span>
                           <span className="font-bold text-[var(--text)]">₹{gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>

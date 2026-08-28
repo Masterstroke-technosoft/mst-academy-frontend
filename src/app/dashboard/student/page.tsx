@@ -1324,17 +1324,17 @@ export default function StudentDashboardPage({
               {phases.map(phase => (
                 <div key={phase.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-md overflow-hidden transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_20px_rgba(227,30,36,0.05)]">
                   <div
-                    className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--border)]/30 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 cursor-pointer hover:bg-[var(--border)]/30 transition-colors"
                     onClick={() => togglePhase(phase.id)}
                   >
                     <div className="flex items-center gap-3">
-                      {expandedPhases[phase.id] ? <ChevronDown className="h-5 w-5 text-mst-red transition-transform" /> : <ChevronRight className="h-5 w-5 text-[var(--text-muted)] transition-transform" />}
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${phase.gradient} shadow-inner`}>
+                      {expandedPhases[phase.id] ? <ChevronDown className="h-5 w-5 text-mst-red transition-transform shrink-0" /> : <ChevronRight className="h-5 w-5 text-[var(--text-muted)] transition-transform shrink-0" />}
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${phase.gradient} shadow-inner shrink-0`}>
                         <LayoutList className={`h-5 w-5 ${phase.color}`} />
                       </div>
                       <h3 className="text-base font-black tracking-tight text-[var(--text)]">{phase.title}</h3>
                     </div>
-                    <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-3 w-full sm:w-auto" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => handleAddModule(phase.id)}
                         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--border)]/50 to-[var(--border)]/20 px-3 py-1.5 text-xs font-bold text-[var(--text)] shadow-sm hover:from-mst-red/20 hover:to-mst-red/5 hover:text-mst-red transition-all"
@@ -1351,22 +1351,22 @@ export default function StudentDashboardPage({
                   </div>
 
                   {expandedPhases[phase.id] && (
-                    <div className="border-t border-[var(--border)] bg-[var(--bg)]/40 p-5 space-y-3">
+                    <div className="border-t border-[var(--border)] bg-[var(--bg)]/40 p-4 sm:p-5 space-y-3">
                       {phase.modules.length === 0 ? (
-                        <p className="text-sm font-medium text-[var(--text-muted)] pl-[4.25rem] py-2">No modules yet. Add one to get started.</p>
+                        <p className="text-sm font-medium text-[var(--text-muted)] pl-4 sm:pl-[4.25rem] py-2">No modules yet. Add one to get started.</p>
                       ) : (
                         phase.modules.map((mod: any) => (
-                          <div key={mod.id} className="ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm overflow-hidden transition-all hover:border-[var(--border)]">
+                          <div key={mod.id} className="ml-0 sm:ml-[4.25rem] rounded-xl border border-[var(--border)]/60 bg-[var(--surface)] shadow-sm overflow-hidden transition-all hover:border-[var(--border)]">
                             <div
-                              className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-[var(--border)]/20 transition-colors"
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 cursor-pointer hover:bg-[var(--border)]/20 transition-colors"
                               onClick={() => toggleModule(mod.id)}
                             >
                               <div className="flex items-center gap-3">
-                                {expandedModules[mod.id] ? <ChevronDown className="h-4 w-4 text-purple-500 transition-transform" /> : <ChevronRight className="h-4 w-4 text-[var(--text-muted)] transition-transform" />}
-                                <BookOpen className="h-4 w-4 text-purple-400" />
+                                {expandedModules[mod.id] ? <ChevronDown className="h-4 w-4 text-purple-500 transition-transform shrink-0" /> : <ChevronRight className="h-4 w-4 text-[var(--text-muted)] transition-transform shrink-0" />}
+                                <BookOpen className="h-4 w-4 text-purple-400 shrink-0" />
                                 <span className="font-bold text-sm text-[var(--text)]">{mod.title}</span>
                               </div>
-                              <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-2 w-full sm:w-auto" onClick={e => e.stopPropagation()}>
                                 <button
                                   onClick={() => handleAddSubmodule(phase.id, mod.id)}
                                   className="flex items-center gap-1 rounded-md bg-[var(--border)]/40 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)] hover:bg-purple-500/10 hover:text-purple-500 transition-all"
@@ -1383,14 +1383,14 @@ export default function StudentDashboardPage({
                             </div>
 
                             {expandedModules[mod.id] && (
-                              <div className="border-t border-[var(--border)]/40 bg-gradient-to-b from-[var(--bg)]/50 to-transparent p-2 pl-[2.25rem] space-y-1">
+                              <div className="border-t border-[var(--border)]/40 bg-gradient-to-b from-[var(--bg)]/50 to-transparent p-2 pl-4 sm:pl-[2.25rem] space-y-1">
                                 {mod.submodules.length === 0 ? (
                                   <p className="text-xs font-medium text-[var(--text-muted)] py-2">No submodules added.</p>
                                 ) : (
                                   mod.submodules.map((sub: any) => (
                                     <div key={sub.id} className="group flex items-center justify-between rounded-lg p-2.5 hover:bg-[var(--surface)] border border-transparent hover:border-[var(--border)]/60 transition-all">
                                       <div className="flex items-start gap-2.5">
-                                        <FileText className="h-3.5 w-3.5 text-emerald-500 mt-0.5" />
+                                        <FileText className="h-3.5 w-3.5 text-emerald-500 mt-0.5 shrink-0" />
                                         <div>
                                           <span className="text-sm font-semibold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors block">{sub.title}</span>
                                           {sub.description && (
@@ -1404,7 +1404,7 @@ export default function StudentDashboardPage({
                                           )}
                                         </div>
                                       </div>
-                                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => handleEdit("Submodule", sub.title, phase.id, mod.id, sub.id)} className="p-1.5 text-[var(--text-muted)] hover:text-blue-500 rounded-md hover:bg-blue-500/10 transition">
                                           <Edit2 className="h-3 w-3" />
                                         </button>

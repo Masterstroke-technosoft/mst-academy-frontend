@@ -46,7 +46,7 @@ if (typeof window !== "undefined" && !(window as any).__mstFetchPatched) {
             ? input.url
             : input.toString();
       const isAuthFlowEndpoint = /\/api\/auth\/(login|register|forgot-password|clear-session)/.test(url);
-      if (!isAuthFlowEndpoint && window.location.pathname !== "/login") {
+      if (!isAuthFlowEndpoint && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
         authLogout();
         window.location.href = "/login";
       }
@@ -90,7 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ready,
         refresh,
         logout,
-        isAdmin: user?.role === "admin" || user?.role === "ADMIN",
+        isAdmin: user ? (() => {
+          const r = user.role?.toLowerCase();
+          return r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin" || r === "super-admin" || r === "super admin";
+        })() : false,
         updateProfile,
       }}
     >
