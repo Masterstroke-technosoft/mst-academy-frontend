@@ -16,6 +16,7 @@ import {
   UserPlus,
   LogIn,
   GraduationCap,
+  Newspaper,
   Shield,
   Users,
   Trophy,
@@ -76,6 +77,13 @@ export function Navbar() {
           >
             <BookOpen size={16} />
             Learning Tree
+          </Link>
+          <Link
+            href="/blogs"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--nav-text)]/70 transition hover:bg-white/10 hover:text-[var(--nav-text)]"
+          >
+            <Newspaper size={16} />
+            Blogs
           </Link>
           {showUserNav && (
             <Link
@@ -205,6 +213,14 @@ export function Navbar() {
             >
               <BookOpen size={18} />
               Learning Tree
+            </Link>
+            <Link
+              href="/blogs"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[var(--nav-text)] transition hover:bg-white/10"
+            >
+              <Newspaper size={18} />
+              Blogs
             </Link>
             <button
               type="button"

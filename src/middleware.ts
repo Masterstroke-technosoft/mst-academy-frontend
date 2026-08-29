@@ -1,6 +1,40 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { PORTAL_COOKIE, EVENTS_URL } from "@/lib/portal";
 
-export function middleware() {
+const PUBLIC_PATHS = [
+  "/",
+  "/landing",
+  "/academy",
+  "/login",
+  "/register",
+  "/plans",
+  "/blogs",
+  "/academy-overview",
+  "/forgot-password",
+  "/privacy-policy",
+  "/refund-policy",
+  "/terms-conditions",
+  "/contact-us",
+  "/legal",
+];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const isPublic = PUBLIC_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+  if (isPublic) return NextResponse.next();
+
+  const session = request.cookies.get("mst-session");
+  if (!session) {
+    const loginUrl = new URL("/login", request.url);
+    const search = request.nextUrl.search;
+    loginUrl.searchParams.set("next", pathname + search);
+    return NextResponse.redirect(loginUrl);
+  }
+
   return NextResponse.next();
 }
 
