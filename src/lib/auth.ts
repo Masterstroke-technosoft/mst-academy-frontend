@@ -85,6 +85,9 @@ export interface RegisterNonValidatorInput {
 
 const SESSION_KEY = "mst-academy-session";
 const USERS_KEY = "mst-academy-users";
+// Must match the cookie name the middleware reads.
+const SESSION_COOKIE = "mst-session";
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export const DEMO_ADMIN_EMAIL = "abc@gmail.com";
 export const DEMO_ADMIN_PASSWORD = "ABC123";
@@ -155,12 +158,32 @@ export function getSession(): AuthUser | null {
   }
 }
 
+// The middleware gates protected routes on a cookie, but the session itself
+// lives in localStorage and the backend's own session cookie is set on a
+// different origin (course-api.*), so neither is visible to middleware. Mirror
+// the session into a first-party cookie purely so navigation works.
+//
+// This is a navigation guard, NOT access control - it is client-writable by
+// design. Real enforcement stays on the backend, which rejects unauthenticated
+// API calls regardless of what this cookie says.
+function setSessionCookie(active: boolean) {
+  if (typeof document === "undefined") return;
+  if (active) {
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${SESSION_COOKIE}=1; Path=/; Max-Age=${SESSION_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
+  } else {
+    document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+  }
+}
+
 export function setSession(user: AuthUser | null) {
   if (user) {
     const { password: _pw, ...safe } = user;
     localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
+    setSessionCookie(true);
   } else {
     localStorage.removeItem(SESSION_KEY);
+    setSessionCookie(false);
   }
 }
 
