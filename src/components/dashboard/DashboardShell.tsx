@@ -25,6 +25,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Menu,
+  Newspaper,
   X,
 } from "lucide-react";
 
@@ -45,6 +46,7 @@ const getSidebarNav = (role: string, isAdmin: boolean) => {
   return [
     { href: `/dashboard/${role}`, icon: LayoutDashboard, label: "Overview" },
     { href: "/learn", icon: TreePine, label: "Learning Tree" },
+    { href: "/blogs", icon: Newspaper, label: "Blogs" },
     ...(!isAdmin
       ? [
         { href: `/dashboard/${role}#progress`, icon: BarChart3, label: "Progress" },
