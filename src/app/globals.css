@@ -148,7 +148,10 @@ body {
   user-select: none;
 }
 
-input, textarea, [contenteditable="true"], [contenteditable="true"] * {
+input,
+textarea,
+[contenteditable="true"],
+[contenteditable="true"] * {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -3203,4 +3206,147 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
   .text-display {
     font-size: 1.55rem !important;
   }
+}
+
+/* ─── Chatbot Widget Positioning & Shadow ──────────────── */
+#mst-chat-widget-container {
+  bottom: 12px !important;
+  right: 18px !important;
+}
+
+#mst-chat-thought {
+  bottom: 62px !important;
+  animation: mst-cloud-float 3.5s ease-in-out 1.7s infinite !important;
+}
+
+#mst-chat-widget-button {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  animation: mst-button-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+
+#mst-chat-widget-button:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ─── Chatbot Staggered Entrance Animations ────────────── */
+.mst-thought-dot.mst-dot-3 {
+  animation: mst-pop-dot-3 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both !important;
+}
+
+.mst-thought-dot.mst-dot-2 {
+  animation: mst-pop-dot-2 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s both !important;
+}
+
+.mst-thought-dot.mst-dot-1 {
+  animation: mst-pop-dot-1 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 1.0s both !important;
+}
+
+.mst-thought-cloud-bubble {
+  transform-origin: bottom right;
+  animation: mst-pop-cloud 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both !important;
+}
+
+@keyframes mst-button-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.1) translateY(-2px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mst-pop-dot-3 {
+  0% {
+    opacity: 0;
+    transform: translateX(4px) scale(0);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateX(4px) scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(4px) scale(1);
+  }
+}
+
+@keyframes mst-pop-dot-2 {
+  0% {
+    opacity: 0;
+    transform: translateX(2px) scale(0);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translateX(2px) scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(2px) scale(1);
+  }
+}
+
+@keyframes mst-pop-dot-1 {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mst-pop-cloud {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) translateY(12px);
+  }
+
+  65% {
+    opacity: 1;
+    transform: scale(1.08) translateY(-3px);
+  }
+
+  85% {
+    opacity: 1;
+    transform: scale(0.97) translateY(1px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+
+/* ─── Chatbot Widget Submodule Panel Suppression ───────── */
+body.submodule-panel-open #mst-chat-widget-container,
+body.submodule-panel-open #mst-chat-widget-button,
+body.submodule-panel-open #mst-chat-thought,
+body.submodule-panel-open #mst-chat-widget-window {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+  transform: scale(0.85) translateY(16px) !important;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease !important;
 }
