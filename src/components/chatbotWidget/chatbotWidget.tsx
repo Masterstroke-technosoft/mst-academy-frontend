@@ -3,8 +3,13 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const SCRIPT_ID = "mst-chatbot-script";
-const WIDGET_ID = "mst-chat-widget-container";
+const SCRIPT_ID =
+    process.env.NEXT_PUBLIC_CHATBOT_SCRIPT_ID || "mst-chatbot-script";
+const WIDGET_ID =
+    process.env.NEXT_PUBLIC_CHATBOT_WIDGET_ID || "mst-chat-widget-container";
+const WIDGET_URL =
+    process.env.NEXT_PUBLIC_CHATBOT_WIDGET_URL ||
+    "https://mst-academy-copilot.onrender.com/static/widget.js";
 
 export default function ChatBotWidget() {
     const pathname = usePathname();
@@ -22,8 +27,7 @@ export default function ChatBotWidget() {
         if (!document.getElementById(SCRIPT_ID)) {
             const script = document.createElement("script");
             script.id = SCRIPT_ID;
-            script.src =
-                "https://mst-academy-copilot.onrender.com/static/widget.js";
+            script.src = WIDGET_URL;
             script.async = true;
             document.body.appendChild(script);
         }
