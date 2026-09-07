@@ -1062,6 +1062,19 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     return activeModule.submodules.find((s) => String(s.slug) === String(activeSubmoduleSlug));
   }, [activeModule, activeSubmoduleSlug]);
 
+  useEffect(() => {
+    const isPanelOpen = Boolean(activeModule && activeSubmodule);
+    if (isPanelOpen) {
+      document.body.classList.add("submodule-panel-open");
+    } else {
+      document.body.classList.remove("submodule-panel-open");
+    }
+
+    return () => {
+      document.body.classList.remove("submodule-panel-open");
+    };
+  }, [activeModule, activeSubmodule]);
+
   const nodesAndEdges = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];

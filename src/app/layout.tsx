@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import fs from "fs";
 import path from "path";
 import orgSchema from "@/lib/schema/organization.json";
+import ChatBotWidget from "@/components/chatbotWidget/chatbotWidget";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://masterstroke.academy'),
@@ -161,6 +162,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </ThemeProvider>
+        <ChatBotWidget />
       </body>
     </html>
   );
