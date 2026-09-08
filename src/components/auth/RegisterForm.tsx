@@ -233,21 +233,6 @@ export function RegisterForm() {
     setError("");
     setLoading(true);
 
-    let recaptchaToken: string | null | undefined;
-    try {
-      recaptchaToken = await recaptchaRef.current?.executeAsync();
-      if (!recaptchaToken) {
-        setLoading(false);
-        setError("reCAPTCHA verification failed. Please try again.");
-        return;
-      }
-    } catch (err) {
-      setLoading(false);
-      setError("reCAPTCHA verification failed. Please try again.");
-      console.error("reCAPTCHA error:", err);
-      return;
-    }
-
     if (/\d/.test(fullName)) {
       setLoading(false);
       setError("Full name must not contain numbers.");
@@ -281,6 +266,21 @@ export function RegisterForm() {
     if (password !== confirmPassword) {
       setLoading(false);
       setError("Passwords do not match.");
+      return;
+    }
+
+    let recaptchaToken: string | null | undefined;
+    try {
+      recaptchaToken = await recaptchaRef.current?.executeAsync();
+      if (!recaptchaToken) {
+        setLoading(false);
+        setError("reCAPTCHA verification failed. Please try again.");
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError("reCAPTCHA verification failed. Please try again.");
+      console.error("reCAPTCHA error:", err);
       return;
     }
 
@@ -456,7 +456,7 @@ export function RegisterForm() {
               onClick={() => finishRegistration()}
               className="w-full rounded-xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.99]"
             >
-              Sign In
+              Login
             </button>
 
             <button
@@ -534,9 +534,9 @@ export function RegisterForm() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={otpLoading || !isValidEmail(email) || otpCooldownSeconds > 0}
-                className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50"
+                className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
-                {otpLoading ? "…" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
+                {otpLoading ? "Sending" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
               </button>
             )}
           </div>
@@ -579,11 +579,16 @@ export function RegisterForm() {
                 type="button"
                 onClick={handleVerifyOtp}
                 disabled={verifyOtpLoading || !otpCode}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50"
+                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
-                {verifyOtpLoading ? "…" : "Verify"}
+                {verifyOtpLoading ? "Verifying..." : "Verify"}
               </button>
             </div>
+            {error && error.includes("OTP") && (
+              <p className="mt-2 text-xs text-red-500 font-medium">
+                {error}
+              </p>
+            )}
           </div>
         )}
 

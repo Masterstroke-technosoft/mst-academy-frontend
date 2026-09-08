@@ -49,6 +49,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [initialData, setInitialData] = useState({
     phone: "",
@@ -131,6 +132,9 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               isStudentVerified: isActuallyVerified,
               studentRejectionNote: rejectionNote,
               studentVerificationStatus: data.user.studentVerificationStatus,
+              profileImage: pic || "",
+              profileImageUrl: pic || "",
+              profilePhoto: pic || "",
             });
           }
         }
@@ -210,7 +214,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
@@ -234,7 +238,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
@@ -250,11 +254,21 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     }
   };
 
+  const handleCvDelete = () => {
+    setFormData(prev => ({
+      ...prev,
+      cvFile: undefined,
+      cvFileName: ""
+    }));
+    const fileInput = document.getElementById('cvUploadInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const handleIdCardReupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
@@ -331,10 +345,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
     if (!formData.linkedin || formData.linkedin.trim() === "") {
       newErrors.linkedin = "LinkedIn Profile cannot be empty.";
+    } else if (!/^(https?:\/\/)?(www\.)?linkedin\.com\/.+$/i.test(formData.linkedin.trim())) {
+      newErrors.linkedin = "Please enter a valid LinkedIn URL.";
     }
 
     if (!formData.github || formData.github.trim() === "") {
       newErrors.github = "GitHub Profile cannot be empty.";
+    } else if (!/^(https?:\/\/)?(www\.)?github\.com\/.+$/i.test(formData.github.trim())) {
+      newErrors.github = "Please enter a valid GitHub URL.";
     }
 
     if (!formData.walletAddress || formData.walletAddress.trim() === "") {
@@ -932,14 +950,32 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Upload CV (Max 5MB)
               </label>
-              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-2.5 opacity-70">
-                <label
-                  htmlFor="cvUploadInput"
-                  className="cursor-not-allowed rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition-all shrink-0 shadow-sm"
-                >
-                  Choose File
-                </label>
-                <span className="text-sm text-[var(--text-muted)] truncate">
+              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+                {!formData.cvFileName ? (
+                  <label
+                    htmlFor="cvUploadInput"
+                    className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:border-mst-red hover:text-mst-red transition-all shrink-0 shadow-sm"
+                  >
+                    Upload CV
+                  </label>
+                ) : (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <label
+                      htmlFor="cvUploadInput"
+                      className="cursor-pointer rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-colors"
+                    >
+                      Edit
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleCvDelete}
+                      className="cursor-pointer rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500/20 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+                <span className={`text-sm truncate ${formData.cvFileName ? "text-[var(--text)] font-medium" : "text-[var(--text-muted)]"}`}>
                   {formData.cvFileName ? formData.cvFileName : "No file chosen"}
                 </span>
                 <input
@@ -947,7 +983,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   type="file"
                   accept="image/*,.pdf,.doc,.docx"
                   className="hidden"
-                  disabled
                   onChange={handleCvUpload}
                 />
               </div>
@@ -1007,8 +1042,43 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             ) : (
               <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
             )}
-            <span className="text-sm font-bold text-white">{toast.message}</span>
+            <span className="font-semibold">{toast.message}</span>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* File Size Error Modal */}
+      <AnimatePresence>
+        {fileSizeError && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setFileSizeError(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="relative w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl text-center"
+            >
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10">
+                <AlertCircle className="h-7 w-7 text-red-500" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-[var(--text)]">File Too Large</h3>
+              <p className="mb-6 text-sm text-[var(--text-muted)] leading-relaxed">
+                {fileSizeError}
+              </p>
+              <button
+                onClick={() => setFileSizeError(null)}
+                className="w-full rounded-xl bg-mst-red px-4 py-3 text-sm font-bold text-white transition hover:bg-red-600 shadow-md"
+              >
+                Okay
+              </button>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </motion.section>

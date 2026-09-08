@@ -558,12 +558,12 @@ export function ReferAndEarnTab({
 
       <AnimatePresence>
         {showWithdrawForm && (
-          <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
               onClick={() => {
                 setShowWithdrawForm(false);
                 setError(null);
@@ -809,12 +809,12 @@ export function ReferAndEarnTab({
           </div >
         )}
         {showUpdateForm && (
-          <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
               onClick={() => setShowUpdateForm(false)}
             />
             <motion.div

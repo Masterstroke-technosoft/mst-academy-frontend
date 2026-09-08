@@ -584,10 +584,11 @@ export function updateUser(id: string, updates: Partial<AuthUser>) {
   if (index !== -1) {
     users[index] = { ...users[index], ...updates };
     saveUsers(users);
-    const session = getSession();
-    if (session?.id === id) {
-      setSession(users[index]);
-    }
+  }
+  
+  const session = getSession();
+  if (session?.id === id) {
+    setSession({ ...session, ...updates });
   }
 }
 

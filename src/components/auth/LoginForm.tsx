@@ -204,12 +204,6 @@ export function LoginForm() {
             <FieldLabel htmlFor="password" required>
               Password
             </FieldLabel>
-            <Link
-              href="/forgot-password"
-              className="text-xs font-semibold text-mst-red hover:underline mb-1.5"
-            >
-              Forgot password?
-            </Link>
           </div>
           <div className="relative">
             <TextInput
@@ -241,12 +235,17 @@ export function LoginForm() {
         </SubmitButton>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[var(--text-muted)]">
-        New here?{" "}
-        <Link href="/register" className="font-semibold text-mst-red hover:underline">
-          Create an account
+      <div className="relative mt-6 flex flex-col items-start gap-3 text-sm sm:block">
+        <p className="text-left text-[var(--text-muted)]">
+          New here?{" "}
+          <Link href="/register" className="font-semibold text-mst-red hover:underline">
+            Create an account
+          </Link>
+        </p>
+        <Link href="/forgot-password" className="font-semibold text-mst-red hover:underline sm:absolute sm:right-0 sm:top-0">
+          Forgot password?
         </Link>
-      </p>
+      </div>
 
       {showLogoutModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

@@ -102,7 +102,7 @@ function GlassCard({
       style={glow ? { boxShadow: `0 0 40px ${glow}` } : undefined}
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-mst-red/10 opacity-30 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100" />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 h-full">{children}</div>
     </div>
   );
 }
@@ -1008,22 +1008,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
           const dayDate = d.getDate();
 
           let logins = activeDatesMap.has(key) ? 1 : 0;
-          if (key === selectedDate) {
-            logins = 2;
-          }
 
           let minutes = 0;
           if (activeDatesMap.has(key)) {
             const count = activeDatesMap.get(key) || 1;
-            if (totalStudyMinutes > 0) {
-              minutes = Math.round((count / totalActivityCount) * totalStudyMinutes);
-            } else {
-              minutes = count * 30;
-            }
-          }
-
-          if (key === selectedDate) {
-            minutes = Math.round(minutes * 1.5) + 15;
+            // Estimate daily study time based on activity count rather than 
+            // flawed redistribution of lifetime totalStudyMinutes.
+            minutes = count * 15;
           }
 
           return {
@@ -1101,9 +1092,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             </div>
 
             <div className="flex items-center gap-3 border-b border-[var(--border)] pb-5 pt-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
-                {user.fullName.charAt(0).toUpperCase()}
-              </div>
+              {user.profileImageUrl || user.profileImage || user.profilePhoto ? (
+                <img src={user.profileImageUrl || user.profileImage || user.profilePhoto} alt={user.fullName} className="h-10 w-10 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white shrink-0">
+                  {user.fullName.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-[var(--text)]">
                   {user.fullName}
@@ -1218,9 +1213,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       <div className="flex h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden">
         <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:fixed lg:top-16 lg:left-0 lg:flex z-20">
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
-              {user.fullName.charAt(0).toUpperCase()}
-            </div>
+            {user.profileImageUrl || user.profileImage || user.profilePhoto ? (
+              <img src={user.profileImageUrl || user.profileImage || user.profilePhoto} alt={user.fullName} className="h-10 w-10 rounded-full object-cover shrink-0" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white shrink-0">
+                {user.fullName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[var(--text)]">
                 {user.fullName}
@@ -1778,17 +1777,25 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       )}
                     </GlassCard>
 
-                    <GlassCard>
-                      <h3 className="text-sm font-black text-[var(--text)]">Weekly Study Time</h3>
-                      <div className="mt-4 h-44">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={analytics.dailyStudy}>
-                            <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                            <Bar dataKey="minutes" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={32} />
-                          </BarChart>
-                        </ResponsiveContainer>
+                    <GlassCard className="h-full">
+                      <div className="flex h-full flex-col">
+                        <h3 className="text-sm font-black text-[var(--text)]">Weekly Study Time</h3>
+                        <div className="mt-4 flex-1 min-h-[11rem]">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={analytics.dailyStudy}>
+                              <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                              <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                              <Tooltip 
+                                cursor={{ fill: 'var(--border)', opacity: 0.4 }}
+                                contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderRadius: '8px', color: 'var(--text)' }}
+                                formatter={(value: number) => [`${value} mins`, 'Study Time']}
+                                labelStyle={{ color: 'var(--text-muted)', marginBottom: '4px' }}
+                              />
+                              <Bar dataKey="minutes" fill="#e31e24" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     </GlassCard>
                   </section>

@@ -80,7 +80,7 @@ export default function ValidatorPlanPage() {
         },
         {
           q: "Is there any coding required for this plan?",
-          a: "Yes, you will need to complete technical milestones and architectural reviews to progress as a stakeholder.",
+          a: "No. No coding is required for this plan. You will complete validator-focused learning, technical milestones, and architectural reviews as part of the stakeholder journey.",
         },
       ]}
     />

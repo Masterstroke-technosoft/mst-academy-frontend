@@ -114,7 +114,7 @@ export function PlanFunnelPage({
               <Typewriter
                 strings={[
                   "Real knowledge with execution.",
-                  "Paid internship with real projects.",
+                  internshipIncluded ? "Paid internship with real projects." : (planId === "courseOnly" ? "On Job Training with real projects." : "Ecosystem contribution & ownership."),
                   "Mentorship that drives placement outcomes.",
                   "Learn. Build. Ship. Grow.",
                 ]}
@@ -215,7 +215,7 @@ export function PlanFunnelPage({
                 {fractionIncluded && (
                   <p className="flex items-start gap-2 text-sm text-[var(--text-muted)]">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mst-red" />
-                    1 node allocation with 19 years daily MSTC reward-coin participation.
+                    1 Fraction with 19 years daily MSTC reward-coin participation.
                   </p>
                 )}
                 {validatorPortalAccess && (
