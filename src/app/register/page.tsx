@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
+
+export const metadata: Metadata = {
+  title: { absolute: 'Sign Up | Masterstroke Academy' },
+  robots: { index: false, follow: true },
+};
 
 export default function RegisterPage() {
   return (

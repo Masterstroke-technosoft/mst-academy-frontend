@@ -6,7 +6,7 @@ import { getModule, getSubmodule } from "./curriculum";
 export type ModuleStatus = "locked" | "active" | "completed";
 
 function adminBypass(): boolean {
-  return true;
+  return isAdminUser();
 }
 
 export interface SubmoduleProgress {

@@ -3,9 +3,15 @@ import { getCurriculum } from "@/lib/curriculum";
 import { AcademyOverview } from "@/components/marketing/AcademyOverview";
 
 export const metadata: Metadata = {
-  title: "Curriculum Overview | Masterstroke Academy",
+  title: { absolute: 'Blockchain Course Syllabus — 21 Modules, 130+ Hours' },
   description:
-    "Explore the full Masterstroke Academy programme - 4 phases, 21 modules, 123 submodules, and 130+ hours of structured Web3 learning.",
+    'Full blockchain developer course syllabus: Solidity, DeFi, security audits, ZK proofs and RWA across 21 modules and 130+ hours. Free to browse.',
+  alternates: { canonical: '/academy-overview' },
+  openGraph: {
+    title: 'Blockchain Course Syllabus — 21 Modules, 130+ Hours',
+    description: 'Every phase, module and submodule — from fundamentals to capstone deployment and Demo Day.',
+    url: 'https://masterstroke.academy/academy-overview',
+  },
 };
 
 export default async function AcademyOverviewPage() {

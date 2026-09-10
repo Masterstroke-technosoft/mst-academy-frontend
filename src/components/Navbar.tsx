@@ -16,6 +16,7 @@ import {
   UserPlus,
   LogIn,
   GraduationCap,
+  Newspaper,
   Shield,
   Users,
   Trophy,
@@ -77,6 +78,13 @@ export function Navbar() {
             <BookOpen size={16} />
             Learning Tree
           </Link>
+          <Link
+            href="/blogs"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[var(--nav-text)]/70 transition hover:bg-white/10 hover:text-[var(--nav-text)]"
+          >
+            <Newspaper size={16} />
+            Blogs
+          </Link>
           {showUserNav && (
             <Link
               href={dashboardHref}
@@ -134,7 +142,7 @@ export function Navbar() {
             </div>
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
-              <Link
+              {/* <Link
                 href="/login"
                 className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10"
               >
@@ -147,12 +155,12 @@ export function Navbar() {
               >
                 <UserPlus size={14} />
                 Register
-              </Link>
+              </Link> */}
             </div>
           )}
 
           <Link
-            href="/learn"
+            href={showUserNav ? "/learn" : "/register"}
             className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             Start Learning
@@ -205,6 +213,14 @@ export function Navbar() {
             >
               <BookOpen size={18} />
               Learning Tree
+            </Link>
+            <Link
+              href="/blogs"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-[var(--nav-text)] transition hover:bg-white/10"
+            >
+              <Newspaper size={18} />
+              Blogs
             </Link>
             <button
               type="button"

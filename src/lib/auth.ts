@@ -41,6 +41,7 @@ export interface AuthUser {
   referralPercentage?: number;
   courseDiscounts?: CourseDiscount[];
   isPaymentVerified?: boolean;
+  discountPercentage?: number;
 }
 
 export interface RegisterStudentInput {
@@ -54,6 +55,7 @@ export interface RegisterStudentInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 export interface RegisterValidatorInput {
@@ -66,6 +68,7 @@ export interface RegisterValidatorInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 export interface RegisterNonValidatorInput {
@@ -77,10 +80,14 @@ export interface RegisterNonValidatorInput {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }
 
 const SESSION_KEY = "mst-academy-session";
 const USERS_KEY = "mst-academy-users";
+// Must match the cookie name the middleware reads.
+const SESSION_COOKIE = "mst-session";
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export const DEMO_ADMIN_EMAIL = "abc@gmail.com";
 export const DEMO_ADMIN_PASSWORD = "ABC123";
@@ -151,12 +158,32 @@ export function getSession(): AuthUser | null {
   }
 }
 
+// The middleware gates protected routes on a cookie, but the session itself
+// lives in localStorage and the backend's own session cookie is set on a
+// different origin (course-api.*), so neither is visible to middleware. Mirror
+// the session into a first-party cookie purely so navigation works.
+//
+// This is a navigation guard, NOT access control - it is client-writable by
+// design. Real enforcement stays on the backend, which rejects unauthenticated
+// API calls regardless of what this cookie says.
+function setSessionCookie(active: boolean) {
+  if (typeof document === "undefined") return;
+  if (active) {
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${SESSION_COOKIE}=1; Path=/; Max-Age=${SESSION_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
+  } else {
+    document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+  }
+}
+
 export function setSession(user: AuthUser | null) {
   if (user) {
     const { password: _pw, ...safe } = user;
     localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
+    setSessionCookie(true);
   } else {
     localStorage.removeItem(SESSION_KEY);
+    setSessionCookie(false);
   }
 }
 
@@ -251,6 +278,9 @@ export async function registerStudent(
     if (input.gstNumber) {
       formData.append("GSTIN", input.gstNumber);
     }
+    if (input.recaptchaToken) {
+      formData.append("recaptchaToken", input.recaptchaToken);
+    }
 
     const response = await fetch(`${baseURL}/api/auth/register-student`, {
       method: "POST",
@@ -272,6 +302,7 @@ export async function registerStudent(
       college: studentData.collegeName || input.college,
       registeredAt: new Date().toISOString(),
       transactionId: studentData.transactionId || input.transactionId,
+      discountPercentage: studentData.discountPercentage || 0,
     };
 
     setSession(authUser);
@@ -296,6 +327,7 @@ export async function registerValidator(
       ...(input.referralCode ? { referralCode: input.referralCode } : {}),
       ...(input.transactionId ? { transactionId: input.transactionId } : {}),
       ...(input.gstNumber ? { GSTIN: input.gstNumber } : {}),
+      ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
     };
 
     const response = await fetch(`${baseURL}/api/auth/register-validator`, {
@@ -320,6 +352,7 @@ export async function registerValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: validatorData.transactionId || input.transactionId,
+      discountPercentage: validatorData.discountPercentage || 0,
     };
 
     setSession(authUser);
@@ -346,6 +379,7 @@ export async function registerNonValidator(
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
         mobileNumber: input.phone,
+        ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
       }),
     });
 
@@ -363,6 +397,7 @@ export async function registerNonValidator(
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
+      discountPercentage: registeredUser.discountPercentage || 0,
     };
 
     setSession(authUser);
@@ -381,6 +416,7 @@ export async function registerWorkingProfessional(input: {
   referralCode?: string;
   transactionId?: string;
   gstNumber?: string;
+  recaptchaToken?: string;
 }): Promise<{ ok: true; user: AuthUser } | { ok: false; error: string }> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -395,6 +431,7 @@ export async function registerWorkingProfessional(input: {
         transactionId: input.transactionId,
         GSTIN: input.gstNumber,
         mobileNumber: input.phone,
+        ...(input.recaptchaToken ? { recaptchaToken: input.recaptchaToken } : {}),
       }),
     });
 
@@ -412,6 +449,7 @@ export async function registerWorkingProfessional(input: {
       phone: input.phone,
       registeredAt: new Date().toISOString(),
       transactionId: registeredUser.transactionId || input.transactionId,
+      discountPercentage: registeredUser.discountPercentage || 0,
     };
 
     setSession(authUser);

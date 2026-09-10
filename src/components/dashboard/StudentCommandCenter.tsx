@@ -1170,7 +1170,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                         : "Your payment could not be verified. Please resubmit with correct details."
                       : allocationStatus?.status === "PENDING"
-                        ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
+                        ? "We're verifying your payment in between working hours. Your curriculum will unlock once it's approved. Please ignore if already paid."
                         : "Complete your payment to unlock the full curriculum."}
                   </p>
                   {allocationStatus?.status !== "PENDING" && (
@@ -1307,7 +1307,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       ? `Reason: ${allocationStatus.rejectionNote}. Please resubmit with correct details.`
                       : "Your payment could not be verified. Please resubmit with correct details."
                     : allocationStatus?.status === "PENDING"
-                      ? "We're verifying your payment in between working hours. Your curriculum unlock once it's approved."
+                      ? "We're verifying your payment in between working hours. Your curriculum will unlock once it's approved. Please ignore if already paid."
                       : "Complete your payment to unlock the full curriculum."}
                 </p>
                 {allocationStatus?.status !== "PENDING" && (
