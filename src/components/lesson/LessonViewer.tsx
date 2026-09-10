@@ -29,6 +29,8 @@ import {
 } from "@/lib/progress";
 import { getLessonDisplayTitle, getCardSubmoduleTitle } from "@/lib/display-titles";
 import { resolveContentFileUrl } from "@/lib/content-file";
+import { isMobileOrTablet } from "@/lib/device";
+import { DesktopOnlyAssessmentModal } from "@/components/assessment/DesktopOnlyAssessmentModal";
 
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -322,6 +324,7 @@ export function LessonViewer({
   const [leftTocOpen, setLeftTocOpen] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
+  const [showDesktopOnlyModal, setShowDesktopOnlyModal] = useState(false);
   const [iframeHtml, setIframeHtml] = useState<string>("");
   const navRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -440,6 +443,10 @@ export function LessonViewer({
   useEffect(() => { setMounted(true); }, []);
 
   const handleAssessment = useCallback(async () => {
+    if (isMobileOrTablet()) {
+      setShowDesktopOnlyModal(true);
+      return;
+    }
     if (assessmentLoading) return;
     setAssessmentLoading(true);
     setAssessmentError(null);
@@ -1137,6 +1144,15 @@ export function LessonViewer({
           )}
         </footer>
       </div>
+      <DesktopOnlyAssessmentModal
+        isOpen={showDesktopOnlyModal}
+        onClose={() => setShowDesktopOnlyModal(false)}
+        assessmentUrl={
+          typeof window !== "undefined"
+            ? `${window.location.origin}/module/${moduleId}/${submodule._id}/assessment`
+            : undefined
+        }
+      />
     </div>
   );
 }
