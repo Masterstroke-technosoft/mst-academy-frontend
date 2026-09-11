@@ -257,7 +257,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   const handleCvDelete = () => {
     setFormData(prev => ({
       ...prev,
-      cvFile: undefined,
+      cvFile: "",
       cvFileName: ""
     }));
     const fileInput = document.getElementById('cvUploadInput') as HTMLInputElement;

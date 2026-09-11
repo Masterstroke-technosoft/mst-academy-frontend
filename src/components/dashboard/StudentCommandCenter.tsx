@@ -1789,7 +1789,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                               <Tooltip 
                                 cursor={{ fill: 'var(--border)', opacity: 0.4 }}
                                 contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderRadius: '8px', color: 'var(--text)' }}
-                                formatter={(value: number) => [`${value} mins`, 'Study Time']}
+                                formatter={(value: any) => [`${value ?? 0} mins`, 'Study Time']}
                                 labelStyle={{ color: 'var(--text-muted)', marginBottom: '4px' }}
                               />
                               <Bar dataKey="minutes" fill="#e31e24" radius={[4, 4, 0, 0]} maxBarSize={32} />
