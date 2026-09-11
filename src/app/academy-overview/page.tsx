@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getCurriculum } from "@/lib/curriculum";
 import { AcademyOverview } from "@/components/marketing/AcademyOverview";
 import { CURRICULUM_FAQS, generateFaqSchema } from "@/lib/faqs";
+import curriculumSchema from "@/lib/schema/curriculum-schema.json";
 
 export const metadata: Metadata = {
   title: { absolute: "Blockchain Course Syllabus — 21 Modules, 130+ Hours" },
@@ -63,6 +64,12 @@ export default async function AcademyOverviewPage() {
 
   return (
     <>
+      {/* Schema.org Course & BreadcrumbList Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(curriculumSchema) }}
+      />
+      {/* Schema.org FAQPage Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}

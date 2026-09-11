@@ -808,7 +808,7 @@ export function LandingPage({
       </section>
 
       {/* Trust strip */}
-      <section className="py-20 sm:py-24">
+      <section className="pt-14 pb-4 sm:pt-16 sm:pb-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection>
             <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--bg-muted)] to-[var(--surface)] p-10 sm:p-14">

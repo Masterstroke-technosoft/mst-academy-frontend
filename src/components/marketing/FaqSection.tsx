@@ -11,6 +11,23 @@ interface FaqSectionProps {
   tag?: string;
   faqs: FaqItem[];
   id?: string;
+  className?: string;
+}
+
+function renderTitleWithGradient(title?: React.ReactNode) {
+  if (!title) return null;
+  if (typeof title !== "string") return title;
+  const words = title.trim().split(" ");
+  if (words.length <= 1) {
+    return <span className="text-gradient-red">{title}</span>;
+  }
+  const lastWord = words.pop();
+  return (
+    <>
+      {words.join(" ")}{" "}
+      <span className="text-gradient-red">{lastWord}</span>
+    </>
+  );
 }
 
 export function FaqSection({
@@ -19,19 +36,20 @@ export function FaqSection({
   tag = "Got Questions?",
   faqs,
   id = "faqs",
+  className = "",
 }: FaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id={id} className="relative border-b border-[var(--border)] py-20 sm:py-28">
+    <section id={id} className={`relative border-b border-[var(--border)] pt-8 pb-16 sm:pt-10 sm:pb-24 ${className}`}>
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <RevealSection className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(227,30,36,0.2)] bg-[rgba(227,30,36,0.1)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[var(--mst-red)]">
             <Sparkles className="h-3.5 w-3.5" />
             <span>{tag}</span>
           </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-[var(--text)] sm:text-4xl lg:text-5xl">
-            {title}
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-[var(--text)] sm:text-4xl">
+            {renderTitleWithGradient(title)}
           </h2>
           <p className="mt-4 text-base text-[var(--text-muted)] sm:text-lg">
             {subtitle}

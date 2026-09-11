@@ -154,10 +154,10 @@ function Expandable({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-[var(--bg-muted)]/80"
+        className="flex w-full items-start sm:items-center gap-3 sm:gap-4 px-4 py-3.5 sm:px-5 sm:py-4 text-left transition hover:bg-[var(--bg-muted)]/80"
       >
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition mt-0.5 sm:mt-0"
           style={{
             backgroundColor: accent ? `${accent}22` : "var(--bg-muted)",
           }}
@@ -409,8 +409,8 @@ function PhaseSection({
         onToggle={() => setOpen((v) => !v)}
         accent={color}
         header={
-          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 w-full">
-            <div className="flex flex-1 min-w-0 items-start gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+            <div className="flex w-full sm:flex-1 min-w-0 items-start gap-3 sm:gap-4">
               <div
                 className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:flex"
                 style={{ backgroundColor: `${color}22` }}
@@ -424,12 +424,12 @@ function PhaseSection({
                 >
                   Phase {index + 1}
                 </p>
-                <h3 className="text-lg font-bold text-[var(--text)] sm:text-xl break-words">
+                <h3 className="text-base font-bold text-[var(--text)] sm:text-lg md:text-xl leading-snug break-words">
                   {phase.title} {phase.description ? `: ${phase.description}` : ""}
                 </h3>
               </div>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2 text-xs font-semibold">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold sm:shrink-0">
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
                 {modules.length || Number(phase.realmodulecount) || phase.moduleCount || 0} modules
               </span>
@@ -463,8 +463,8 @@ function PhaseSection({
                   open={openModules.has(modId)}
                   onToggle={() => toggleModule(modId)}
                   header={
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-3 w-full">
+                      <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-mst-red">
                           Module {moduleLabel ? ` ${moduleLabel}` : ""}
                         </p>
@@ -473,7 +473,7 @@ function PhaseSection({
                           {mod.description}
                         </p>
                       </div>
-                      <span className="rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
+                      <span className="self-start sm:self-auto shrink-0 rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
                         {subCount} lessons
                       </span>
                     </div>

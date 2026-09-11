@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCurriculum } from "@/lib/curriculum";
 import { LearningRoadmap } from "@/components/learn/LearningRoadmap";
+import learnSchema from "@/lib/schema/learn-schema.json";
 
 export const metadata: Metadata = {
   title: "Learning Tree - Interactive Blockchain Curriculum | Masterstroke Academy",
@@ -28,6 +29,12 @@ export default function LearnPage() {
 
   return (
     <>
+      {/* Schema.org LearningResource & BreadcrumbList Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(learnSchema) }}
+      />
+
       {/* Search engine crawlable semantic structure */}
       <div className="sr-only">
         <h1>Masterstroke Academy — Blockchain Learning Tree</h1>

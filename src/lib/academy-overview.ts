@@ -9,10 +9,10 @@ export const PHASE_HOURS: Record<string, { hours: number; label: string }> = {
 export const PROGRAMME_STATS = {
   phases: 4,
   modules: 21,
-  submodules: 123,
+  submodules: 123,  
   hours: 130,
   passThreshold: 70,
-};
+};  
 
 export const PROGRAMME_BADGES = [
   "EVM Compatible",

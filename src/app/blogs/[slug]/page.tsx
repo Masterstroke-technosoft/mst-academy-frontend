@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { Calendar, User, Clock, ArrowLeft, Sparkles, BookOpen } from "lucide-react";
-import { getPostBySlug, generateArticleSchema } from "@/lib/blog";
+import { getPostBySlug, generateBlogSchemas } from "@/lib/blog";
 
 const CMS_URL = process.env.NEXT_PUBLIC_CMS_API_URL || "https://cms-api.masterstroke.academy";
 const SITE_TOKEN = process.env.NEXT_PUBLIC_CMS_SITE_TOKEN || "site_token_demo_mst_academy_1785489667016";
@@ -24,37 +24,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const title = post.metaTitle || post.title || post.heading || "Blog Post";
+  const ogTitle = post.ogTitle || post.title || post.heading || title;
   const description =
     post.metaDescription ||
     post.subHeading ||
     post.excerpt ||
     post.description ||
     "Read the latest Web3, Solidity, and Blockchain development insights from Masterstroke Academy.";
+  const ogDescription = post.ogDescription || description;
 
-  const canonicalUrl = `https://masterstroke.academy/blogs/${slug}`;
-  const ogImage = post.coverImage || post.image || post.featuredImage;
+  const canonicalUrl = post.canonical || `https://masterstroke.academy/blogs/${slug}`;
+  const rawImage = post.ogImage || post.coverImage || post.image || post.featuredImage || `/api/og?title=${encodeURIComponent(ogTitle)}`;
+  const absoluteOgImage = rawImage.startsWith("http") ? rawImage : `https://masterstroke.academy${rawImage}`;
+
+  const allKeywords = [
+    ...(post.primaryKeyword ? [post.primaryKeyword] : []),
+    ...(post.supportKeywords || []),
+    ...(post.tags || []),
+  ];
 
   return {
-    title: { absolute: `${title} | Masterstroke Academy` },
+    title: { absolute: title.includes("Masterstroke Academy") ? title : `${title} | Masterstroke Academy` },
     description,
+    keywords: allKeywords.length > 0 ? allKeywords : undefined,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       type: "article",
-      title: `${title} | Masterstroke Academy`,
-      description,
+      title: ogTitle,
+      description: ogDescription,
       url: canonicalUrl,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      images: [
+        {
+          url: absoluteOgImage,
+          width: 1200,
+          height: 630,
+          alt: ogTitle,
+        },
+      ],
       publishedTime: post.publishedAt || post.createdAt,
       modifiedTime: post.updatedAt || post.modifiedAt,
       authors: typeof post.author === "string" ? [post.author] : [post.author?.name || "Masterstroke Academy"],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${title} | Masterstroke Academy`,
-      description,
-      images: ogImage ? [ogImage] : undefined,
+      title: ogTitle,
+      description: ogDescription,
+      images: [absoluteOgImage],
     },
   };
 }
@@ -86,15 +103,29 @@ export default async function BlogPostPage({ params }: Props) {
       })
     : null;
 
-  const jsonLd = generateArticleSchema(post, slug);
+  const { articleSchema, faqSchema, breadcrumbSchema } = generateBlogSchemas(post, slug);
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] selection:bg-[var(--mst-red)] selection:text-white">
       {/* Schema.org Article Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {/* Schema.org FAQPage Structured Data */}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      {/* Schema.org BreadcrumbList Structured Data */}
+      {breadcrumbSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
+      )}
 
       {/* Hero Header */}
       <header className="relative overflow-hidden border-b border-[var(--border)] bg-gradient-to-b from-[var(--bg-muted)] to-[var(--bg)] pt-20 pb-12 sm:pt-24 sm:pb-16">
@@ -178,7 +209,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </header>
 
-      {/* Featured Cover Image */}
+      {/* Featured Cover Image if available */}
       {coverImage && (
         <div className="mx-auto max-w-4xl px-4 pt-10 sm:px-6">
           <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] shadow-xl">
@@ -191,7 +222,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       )}
 
-      {/* Main Article Body (Server Rendered HTML for SEO & Instant Load) */}
+      {/* Main Article Body */}
       <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
         {content ? (
           <article
