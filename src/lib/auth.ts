@@ -502,40 +502,75 @@ export async function registerAdmin(input: {
   }
 }
 
-export function roleLabel(role: UserRole | string): string {
-  switch (role) {
-    case "student":
-    case "STUDENT":
-      return "Student";
-    case "validator":
-    case "VALIDATOR":
-      return "Validator";
-    case "non-validator":
-      return "Web3 Enthusiast";
-    case "course_only":
-    case "COURSE_ONLY":
-      return "OJT";
-    case "working_professional":
-    case "working-professional":
-    case "WORKING_PROFESSIONAL":
-      return "Web3 Enthusiast";
-    case "admin":
-    case "ADMIN":
-      return "Admin";
-    case "tutor":
-    case "TUTOR":
-      return "Tutor";
-    case "S_ADMIN":
-    case "s_admin":
-    case "superadmin":
-    case "SUPERADMIN":
-    case "super_admin":
-    case "SUPER_ADMIN":
-    case "super admin":
-      return "Super Admin";
-    default:
-      return String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase();
+export function getReferralPercentageForRole(role?: string): number {
+  if (!role) return 2.5;
+  const raw = String(role).trim().toUpperCase();
+  const normalized = raw.replace(/[-_\s]+/g, "");
+
+  // COURSE_ONLY / OJT -> 10%
+  if (raw === "COURSE_ONLY" || raw === "COURSE ONLY" || raw === "OJT" || normalized === "COURSEONLY" || normalized === "OJT") {
+    return 10;
   }
+
+  // WORKING_PROFESSIONAL / WEB3 ENTHUSIAST -> 2%
+  if (
+    raw === "WORKING_PROFESSIONAL" ||
+    raw === "WORKING PROFESSIONAL" ||
+    raw === "WEB3_ENTHUSIAST" ||
+    raw === "WEB3 ENTHUSIAST" ||
+    normalized === "WORKINGPROFESSIONAL" ||
+    normalized === "WEB3ENTHUSIAST"
+  ) {
+    return 2;
+  }
+
+  // VALIDATOR -> 5%
+  if (raw === "VALIDATOR" || normalized === "VALIDATOR") {
+    return 5;
+  }
+
+  // STUDENT -> 2.5%
+  if (raw === "STUDENT" || normalized === "STUDENT") {
+    return 2.5;
+  }
+
+  return 2.5;
+}
+
+export function roleLabel(role: UserRole | string): string {
+  if (!role) return "Student";
+  const raw = String(role).trim().toUpperCase();
+  const normalized = raw.replace(/[-_\s]+/g, "");
+
+  if (raw === "COURSE_ONLY" || raw === "COURSE ONLY" || normalized === "COURSEONLY" || raw === "OJT") {
+    return "OJT";
+  }
+  if (
+    raw === "WORKING_PROFESSIONAL" ||
+    raw === "WORKING PROFESSIONAL" ||
+    raw === "NON-VALIDATOR" ||
+    raw === "NON_VALIDATOR" ||
+    raw === "WEB3_ENTHUSIAST" ||
+    raw === "WEB3 ENTHUSIAST" ||
+    normalized === "WORKINGPROFESSIONAL" ||
+    normalized === "WEB3ENTHUSIAST" ||
+    normalized === "NONVALIDATOR"
+  ) {
+    return "Web3 Enthusiast";
+  }
+  if (raw === "VALIDATOR" || normalized === "VALIDATOR") {
+    return "Validator";
+  }
+  if (raw === "STUDENT" || normalized === "STUDENT") {
+    return "Student";
+  }
+  if (raw === "ADMIN" || raw === "S_ADMIN" || raw === "SUPERADMIN" || raw === "SUPER_ADMIN" || normalized === "SUPERADMIN") {
+    return "Admin";
+  }
+  if (raw === "TUTOR") {
+    return "Tutor";
+  }
+  return String(role).charAt(0).toUpperCase() + String(role).slice(1).toLowerCase();
 }
 
 export function dashboardPath(role: UserRole | string | undefined): string {

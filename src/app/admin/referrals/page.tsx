@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { Users, CheckCircle2, XCircle, Clock, Wallet, Check, AlertCircle } from "lucide-react";
+import { getReferralPercentageForRole } from "@/lib/auth";
 
 interface WithdrawalRequest {
   id: string;
@@ -101,18 +102,20 @@ export default function ReferralAnalyticsPage() {
   const [pricingPlans, setPricingPlans] = useState<any[]>([]);
 
   const getCoursePrice = (role: string): number => {
-    const normalizedRole = String(role || "").toLowerCase().trim();
+    const raw = String(role || "").trim().toUpperCase();
+    const normalizedRole = raw.replace(/[-_\s]+/g, "");
 
     if (pricingPlans && pricingPlans.length > 0) {
       const matchedPlan = pricingPlans.find(plan => {
-        const planRole = String(plan.role || "").toLowerCase().trim();
-        if (planRole === normalizedRole) return true;
-        if (normalizedRole === "student" && planRole === "student") return true;
-        if (normalizedRole === "validator" && planRole === "validator") return true;
-        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
-            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
-        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
-            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        const planRaw = String(plan.role || "").trim().toUpperCase();
+        const planRole = planRaw.replace(/[-_\s]+/g, "");
+        if (planRaw === raw || planRole === normalizedRole) return true;
+        if ((raw === "STUDENT" || normalizedRole === "STUDENT") && (planRaw === "STUDENT" || planRole === "STUDENT")) return true;
+        if ((raw === "VALIDATOR" || normalizedRole === "VALIDATOR") && (planRaw === "VALIDATOR" || planRole === "VALIDATOR")) return true;
+        if ((raw === "COURSE_ONLY" || raw === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") &&
+            (planRaw === "COURSE_ONLY" || planRaw === "OJT" || planRole === "COURSEONLY" || planRole === "OJT")) return true;
+        if ((raw === "WORKING_PROFESSIONAL" || raw === "WEB3_ENTHUSIAST" || normalizedRole === "WORKINGPROFESSIONAL" || normalizedRole === "WEB3ENTHUSIAST") &&
+            (planRaw === "WORKING_PROFESSIONAL" || planRaw === "WEB3_ENTHUSIAST" || planRole === "WORKINGPROFESSIONAL" || planRole === "WEB3ENTHUSIAST")) return true;
         return false;
       });
 
@@ -125,18 +128,38 @@ export default function ReferralAnalyticsPage() {
     }
 
     // fallback hardcoded prices if unknown role or API not loaded yet
-    if (normalizedRole === "validator") return 9999;
-    if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") return 4999;
-    if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") return 24999;
+    if (raw === "VALIDATOR" || normalizedRole === "VALIDATOR") return 9999;
+    if (raw === "COURSE_ONLY" || raw === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") return 4999;
+    if (raw === "WORKING_PROFESSIONAL" || raw === "WEB3_ENTHUSIAST" || normalizedRole === "WORKINGPROFESSIONAL" || normalizedRole === "WEB3ENTHUSIAST") return 24999;
     return 19999; // Default to student track
   };
 
   const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
-    const referralPercent = req.referralPercentage ?? (req as any).userReferralPercentage ?? (req as any).user?.referralPercentage ?? 11;
     const refId = ref.userId || ref.id || ref._id;
-    const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "student";
+    const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "STUDENT";
+    const roleStr = String(role || "").trim().toUpperCase();
+    const normalizedRole = roleStr.replace(/[-_\s]+/g, "");
+
+    let percentage = 2.5;
+    if (roleStr === "COURSE_ONLY" || roleStr === "COURSE ONLY" || roleStr === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") {
+      percentage = 10;
+    } else if (
+      roleStr === "WORKING_PROFESSIONAL" ||
+      roleStr === "WORKING PROFESSIONAL" ||
+      roleStr === "WEB3_ENTHUSIAST" ||
+      roleStr === "WEB3 ENTHUSIAST" ||
+      normalizedRole === "WORKINGPROFESSIONAL" ||
+      normalizedRole === "WEB3ENTHUSIAST"
+    ) {
+      percentage = 2;
+    } else if (roleStr === "VALIDATOR" || normalizedRole === "VALIDATOR") {
+      percentage = 5;
+    } else if (roleStr === "STUDENT" || normalizedRole === "STUDENT") {
+      percentage = 2.5;
+    }
+
     const price = getCoursePrice(role);
-    return Math.floor((price * referralPercent) / 100);
+    return Math.round((price * percentage) / 100);
   };
 
   const calculateRequestPayout = (req: WithdrawalRequest, usersMap?: Map<string, string>): number => {

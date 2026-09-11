@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { Gift, Copy, Wallet, CheckCircle2, Sparkles, Percent, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
-import { roleLabel, type CourseDiscount, type UserRole } from "@/lib/auth";
+import { roleLabel, getReferralPercentageForRole, type CourseDiscount, type UserRole } from "@/lib/auth";
 
 const DISCOUNT_ROLES: UserRole[] = ["student", "validator", "working_professional", "course_only"];
 
@@ -197,18 +197,20 @@ export function ReferAndEarnTab({
   const adminDiscountForSelectedRole = courseDiscounts.find(cd => cd.role.toLowerCase() === selfDiscountRole.toLowerCase())?.discount || 0;
 
   const getCoursePrice = (role: string): number => {
-    const normalizedRole = String(role || "").toLowerCase().trim();
+    const raw = String(role || "").trim().toUpperCase();
+    const normalizedRole = raw.replace(/[-_\s]+/g, "");
 
     if (pricingPlans && pricingPlans.length > 0) {
       const matchedPlan = pricingPlans.find(plan => {
-        const planRole = String(plan.role || "").toLowerCase().trim();
-        if (planRole === normalizedRole) return true;
-        if (normalizedRole === "student" && planRole === "student") return true;
-        if (normalizedRole === "validator" && planRole === "validator") return true;
-        if ((normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") &&
-            (planRole === "course_only" || planRole === "course-only" || planRole === "courseonly" || planRole === "ojt")) return true;
-        if ((normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") &&
-            (planRole === "working_professional" || planRole === "working-professional" || planRole === "workingprofessional" || planRole === "web3 enthusiast" || planRole === "web3_enthusiast")) return true;
+        const planRaw = String(plan.role || "").trim().toUpperCase();
+        const planRole = planRaw.replace(/[-_\s]+/g, "");
+        if (planRaw === raw || planRole === normalizedRole) return true;
+        if ((raw === "STUDENT" || normalizedRole === "STUDENT") && (planRaw === "STUDENT" || planRole === "STUDENT")) return true;
+        if ((raw === "VALIDATOR" || normalizedRole === "VALIDATOR") && (planRaw === "VALIDATOR" || planRole === "VALIDATOR")) return true;
+        if ((raw === "COURSE_ONLY" || raw === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") &&
+            (planRaw === "COURSE_ONLY" || planRaw === "OJT" || planRole === "COURSEONLY" || planRole === "OJT")) return true;
+        if ((raw === "WORKING_PROFESSIONAL" || raw === "WEB3_ENTHUSIAST" || normalizedRole === "WORKINGPROFESSIONAL" || normalizedRole === "WEB3ENTHUSIAST") &&
+            (planRaw === "WORKING_PROFESSIONAL" || planRaw === "WEB3_ENTHUSIAST" || planRole === "WORKINGPROFESSIONAL" || planRole === "WEB3ENTHUSIAST")) return true;
         return false;
       });
 
@@ -221,9 +223,9 @@ export function ReferAndEarnTab({
     }
 
     // fallback hardcoded prices if unknown role or API not loaded yet
-    if (normalizedRole === "validator") return 9999;
-    if (normalizedRole === "course_only" || normalizedRole === "course-only" || normalizedRole === "courseonly" || normalizedRole === "ojt") return 4999;
-    if (normalizedRole === "working_professional" || normalizedRole === "working-professional" || normalizedRole === "workingprofessional" || normalizedRole === "web3 enthusiast" || normalizedRole === "web3_enthusiast") return 24999;
+    if (raw === "VALIDATOR" || normalizedRole === "VALIDATOR") return 9999;
+    if (raw === "COURSE_ONLY" || raw === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") return 4999;
+    if (raw === "WORKING_PROFESSIONAL" || raw === "WEB3_ENTHUSIAST" || normalizedRole === "WORKINGPROFESSIONAL" || normalizedRole === "WEB3ENTHUSIAST") return 24999;
     return 19999; // Default to student track
   };
 
@@ -249,8 +251,31 @@ export function ReferAndEarnTab({
     }));
 
   const getRecordReward = (record: any) => {
-    const price = getCoursePrice(record.role);
-    return Math.floor((price * referralPercent) / 100);
+    const roleStr = String(record?.role || "").trim().toUpperCase();
+    const normalizedRole = roleStr.replace(/[-_\s]+/g, "");
+
+    // Check referee user role to determine percentage:
+    // STUDENT = 2.5%, WORKING_PROFESSIONAL = 2%, VALIDATOR = 5%, COURSE_ONLY / OJT = 10%
+    let percentage = 2.5;
+    if (roleStr === "COURSE_ONLY" || roleStr === "COURSE ONLY" || roleStr === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") {
+      percentage = 10;
+    } else if (
+      roleStr === "WORKING_PROFESSIONAL" ||
+      roleStr === "WORKING PROFESSIONAL" ||
+      roleStr === "WEB3_ENTHUSIAST" ||
+      roleStr === "WEB3 ENTHUSIAST" ||
+      normalizedRole === "WORKINGPROFESSIONAL" ||
+      normalizedRole === "WEB3ENTHUSIAST"
+    ) {
+      percentage = 2;
+    } else if (roleStr === "VALIDATOR" || normalizedRole === "VALIDATOR") {
+      percentage = 5;
+    } else if (roleStr === "STUDENT" || normalizedRole === "STUDENT") {
+      percentage = 2.5;
+    }
+
+    const price = getCoursePrice(record?.role || "STUDENT");
+    return Math.round((price * percentage) / 100);
   };
 
   const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
@@ -623,7 +648,7 @@ export function ReferAndEarnTab({
                     e.preventDefault();
                     if (!user) return;
 
-                    const amount = successfulReferrals * 500;
+                    const amount = totalReward > 0 ? totalReward : successfulReferrals * 500;
                     if (amount <= 0) {
                       setError("Withdrawal amount is 0. Cannot proceed with withdrawal.");
                       return;
@@ -676,13 +701,13 @@ export function ReferAndEarnTab({
                       }
 
                       // Create the withdrawal payout request
-                      const amount = successfulReferrals * 500;
-                      if (amount > 0) {
+                      const withdrawAmount = totalReward > 0 ? totalReward : successfulReferrals * 500;
+                      if (withdrawAmount > 0) {
                         const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
                           method: "POST",
                           credentials: "include",
                           headers,
-                          body: JSON.stringify({ amount }),
+                          body: JSON.stringify({ amount: withdrawAmount }),
                         });
                         if (!withdrawRes.ok) {
                           throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
