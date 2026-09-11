@@ -3,8 +3,17 @@ import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export const metadata: Metadata = {
-  title: { absolute: 'Sign Up | Masterstroke Academy' },
-  robots: { index: false, follow: true },
+  title: { absolute: "Free Blockchain Course India — Sign Up | Masterstroke Academy" },
+  description:
+    "Register for free to start your online blockchain course in India. Learn Solidity, smart contract development, and explore the Web3 learning tree.",
+  alternates: { canonical: "/register" },
+  openGraph: {
+    title: "Free Blockchain Course India — Sign Up | Masterstroke Academy",
+    description:
+      "Register for free to start your online blockchain course in India. Learn Solidity, smart contract development, and explore the Web3 learning tree.",
+    url: "https://masterstroke.academy/register",
+    images: [{ url: "https://masterstroke.academy/icon.png" }],
+  },
 };
 
 export default function RegisterPage() {

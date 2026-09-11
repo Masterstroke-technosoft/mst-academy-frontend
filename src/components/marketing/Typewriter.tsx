@@ -16,10 +16,16 @@ export function Typewriter({
   className = "",
 }: TypewriterProps) {
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(strings[0] ?? "");
   const [deleting, setDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const current = strings[index] ?? "";
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -39,12 +45,12 @@ export function Typewriter({
     }
 
     return () => clearTimeout(timeout);
-  }, [text, deleting, index, strings, speedMs, pauseMs]);
+  }, [text, deleting, index, strings, speedMs, pauseMs, mounted]);
 
   return (
     <span className={className}>
       {text}
-      <span className="animate-pulse text-mst-red">|</span>
+      {mounted && <span className="animate-pulse text-mst-red ml-0.5 inline-block">|</span>}
     </span>
   );
 }
