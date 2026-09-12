@@ -39,7 +39,7 @@ const serwist = new Serwist({
           const host = url.hostname.toLowerCase();
           return (
             host.includes("masterstroke.academy") ||
-            host.includes("devtunnels.ms") ||
+            host.includes("staging-course.masterstroke.academy") ||
             host.includes("railway.app") ||
             host === "localhost" ||
             host === "127.0.0.1"
@@ -56,7 +56,11 @@ const serwist = new Serwist({
         url.pathname.startsWith("/login") ||
         url.pathname.startsWith("/register") ||
         url.pathname.startsWith("/forgot-password") ||
-        url.pathname.startsWith("/admin"),
+        url.pathname.startsWith("/admin") ||
+        // All role dashboards render per-user PII (bank details, referral
+        // earnings, submissions). Note /dashboard/admin is NOT caught by the
+        // /admin prefix above, so it needs this rule too.
+        url.pathname.startsWith("/dashboard"),
       handler: new NetworkOnly(),
     },
 

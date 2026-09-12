@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "path";
 import fs from "fs";
+import withSerwistInit from "@serwist/next";
 
 try {
   const oldPath = path.resolve(process.cwd(), "old-curriculum.json");
@@ -49,8 +50,6 @@ const nextConfig: NextConfig = {
     ];
   },
 };
-
-import withSerwistInit from "@serwist/next";
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
