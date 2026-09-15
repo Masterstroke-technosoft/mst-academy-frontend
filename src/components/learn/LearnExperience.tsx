@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import type { Curriculum } from "@/lib/types";
+import type { Curriculum, ModuleMeta } from "@/lib/types";
 import { registerSubmoduleMetadata } from "@/lib/curriculum";
 import {
   getModuleStatus,
@@ -20,8 +20,10 @@ import {
   ClipboardCheck,
   Zap,
   Trophy,
+  Play,
   PlayCircle,
 } from "lucide-react";
+import { ModuleVideoModal } from "./ModuleVideoModal";
 
 const PHASE_META: Record<string, { icon: string; label: string; gradient: string; color: string; borderColor: string }> = {
   "phase-1": { icon: "🌐", label: "Foundation", gradient: "from-blue-500 to-cyan-500", color: "#3b82f6", borderColor: "border-blue-500/30" },
@@ -52,6 +54,7 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
   const [mounted, setMounted] = useState(false);
   const [expandedPhases, setExpandedPhases] = useState<Set<string>>(new Set());
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
+  const [playingModule, setPlayingModule] = useState<ModuleMeta | null>(null);
 
   const allModuleIds = curriculum.modules.map((m) => m.id);
   const moduleSlugMap = Object.fromEntries(
@@ -129,6 +132,12 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[var(--bg)]">
+      <ModuleVideoModal
+        open={Boolean(playingModule)}
+        onClose={() => setPlayingModule(null)}
+        videoUrl={playingModule?.videoUrl || ""}
+        title={playingModule ? `Module ${playingModule.id}: ${playingModule.title}` : ""}
+      />
       {/* Hero header */}
       <div className="border-b border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--bg)] to-[var(--bg-muted)]">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -222,6 +231,7 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
                     const emoji = MODULE_EMOJIS[mod.id] || "📚";
                     const isModExpanded = expandedModules.has(mod.id);
                     const locked = status === "locked";
+                    const hasVideo = Boolean(mod.videoUrl) && !locked;
 
                     return (
                       <div key={mod.id} className="relative">
@@ -229,7 +239,7 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
                         <div className="absolute -left-[calc(1rem+5px)] sm:-left-[calc(2rem+5px)] top-5 h-2.5 w-2.5 rounded-full border-2" style={{ borderColor: meta.color, background: status === "completed" ? meta.color : "var(--surface)" }} />
 
                         {/* Module card */}
-                        <div className={`rounded-xl border transition-all duration-200 ${status === "active"
+                        <div className={`relative rounded-xl border transition-all duration-200 ${status === "active"
                           ? "border-mst-red/30 bg-[var(--surface)] shadow-md"
                           : status === "completed"
                             ? "border-green-500/20 bg-[var(--surface)]"
@@ -266,6 +276,20 @@ export function LearnExperience({ curriculum }: { curriculum: Curriculum }) {
                               </div>
                             </div>
                           </button>
+
+                          {hasVideo && (
+                            <button
+                              type="button"
+                              aria-label={`Play video for Module ${mod.id}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPlayingModule(mod);
+                              }}
+                              className="absolute -bottom-3 -right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform hover:scale-110"
+                            >
+                              <Play size={16} className="ml-0.5 fill-white" />
+                            </button>
+                          )}
 
                           {/* Submodules */}
                           {isModExpanded && (

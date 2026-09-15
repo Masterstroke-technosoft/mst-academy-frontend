@@ -55,6 +55,8 @@ export interface ModuleMeta {
   description: string;
   submodules: SubmoduleMeta[];
   index?: number;
+  /** Public Cloudflare R2 URL for the module's intro/overview video, if any. */
+  videoUrl?: string;
 }
 
 export interface Phase {
