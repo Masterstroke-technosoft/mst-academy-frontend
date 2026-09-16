@@ -106,7 +106,6 @@ const PhaseCardNode = memo(function PhaseCardNode({
       animate={{
         opacity: dimmed ? 0.35 : 1,
         scale: dimmed ? 0.93 : active ? 1.02 : 1,
-        filter: dimmed ? "blur(1.4px)" : "blur(0px)",
       }}
       transition={{ type: "spring", stiffness: 220, damping: 22 }}
       onClick={() => {
@@ -215,7 +214,6 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
       animate={{
         opacity: dimmed ? 0.35 : 1,
         scale: active ? 1.03 : 1,
-        filter: dimmed ? "blur(1.2px)" : "blur(0px)",
       }}
       transition={{ type: "spring", stiffness: 220, damping: 20 }}
       className="relative"
@@ -324,7 +322,6 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
       animate={{
         opacity: dimmed ? 0.35 : 1,
         scale: active ? 1.05 : 1,
-        filter: dimmed ? "blur(1px)" : "blur(0px)",
       }}
       transition={{ type: "spring", stiffness: 240, damping: 22 }}
       onClick={() => {
@@ -398,9 +395,9 @@ function CameraController({ targetNodeIds }: { targetNodeIds: string[] }) {
         rf.fitView({
           nodes: targetNodeIds.map((id) => ({ id })) as any,
           padding: 0.12,
-          duration: 750,
+          duration: 600,
           minZoom: 0.85,
-          maxZoom: 1.1,
+          maxZoom: 1.0,
         });
       } catch {
         // ignore
@@ -527,7 +524,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const { user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
-  const [showMobileWarningPopup, setShowMobileWarningPopup] = useState(false);
 
   const {
     activePhaseId,
@@ -1114,7 +1110,14 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         }
       });
 
-      mod.submodules.forEach((sub, i) => {
+      // Progressive unlock: Show all unlocked submodules + 1 upcoming locked submodule
+      const maxVisibleIndex = Math.min(
+        mod.submodules.length - 1,
+        lastUnlockedIndex >= 0 ? lastUnlockedIndex + 1 : 0
+      );
+      const visibleSubmodules = mod.submodules.slice(0, maxVisibleIndex + 1);
+
+      visibleSubmodules.forEach((sub, i) => {
         const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
         const active = activeSubmoduleSlug === sub.slug;
         const dimmed = activeSubmoduleSlug != null && activeSubmoduleSlug !== sub.slug;
@@ -1124,7 +1127,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         nodes.push({
           id: subId,
           type: "subChip",
-          position: { x: centerX + (isMobile ? 0 : 20), y: 170 + i * subGapY },
+          position: { x: centerX + (isMobile ? 0 : 20), y: 190 + i * subGapY },
           data: {
             module: mod,
             sub,
@@ -1134,9 +1137,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             active,
             dimmed,
             onSelect: () => {
-              if (viewportW <= 1024) {
-                setShowMobileWarningPopup(true);
-              } else if (!locked) {
+              if (!locked) {
                 setSubmodule(sub.slug);
               }
             },
@@ -1144,8 +1145,6 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           } satisfies SubmoduleNodeVisual,
           draggable: false,
         });
-
-        // Edges removed per user request for a simpler look without connecting lines
       });
 
       return { nodes, edges };
@@ -1183,9 +1182,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             active: false,
             dimmed: false,
             onSelect: () => {
-              if (viewportW <= 1024) {
-                setShowMobileWarningPopup(true);
-              } else if (!locked) {
+              if (!locked) {
                 setModule(mod.id);
               }
             },
@@ -1293,26 +1290,44 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const { nodes, edges } = nodesAndEdges;
 
+  const translateExtent = useMemo(() => {
+    if (!nodes.length) return undefined;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    nodes.forEach((n) => {
+      minX = Math.min(minX, n.position.x);
+      minY = Math.min(minY, n.position.y);
+      maxX = Math.max(maxX, n.position.x + (isMobile ? 320 : 380));
+      maxY = Math.max(maxY, n.position.y + (isMobile ? 240 : 280));
+    });
+    const padX = isMobile ? 180 : 320;
+    const padY = isMobile ? 180 : 320;
+    return [
+      [minX - padX, minY - padY],
+      [maxX + padX, maxY + padY],
+    ] as [[number, number], [number, number]];
+  }, [nodes, isMobile]);
+
   const graphHeight = useMemo(() => {
     if (activeModuleId && activeModule) {
-      return Math.max(480, 220 + activeModule.submodules.length * (isMobile ? 150 : 160));
+      const subCount = nodes.filter((n) => n.type === "subChip").length;
+      return Math.max(480, 220 + subCount * (isMobile ? 150 : 160));
     }
     if (activePhaseId) {
       const count = modulesInActivePhase.length;
       if (activePhaseId === "phase-3") {
         const rows = isMobile ? count : Math.ceil(count / 2);
-        return Math.max(640, rows * 170 + 80);
+        return Math.max(640, rows * (isMobile ? 200 : 180) + 80);
       }
-      return isMobile ? 520 : 640;
+      return isMobile ? Math.max(520, count * 220 + 80) : 640;
     }
-    return isMobile ? 520 : 640;
-  }, [activeModuleId, activeModule, activePhaseId, modulesInActivePhase.length, isMobile]);
+    return isMobile ? 880 : 640;
+  }, [activeModuleId, activeModule, activePhaseId, modulesInActivePhase.length, isMobile, nodes]);
 
   const targetFitIds = useMemo(() => {
     if (activeModuleId && activeModule) {
       return [
         `module-${activeModuleId}`,
-        ...activeModule.submodules.map((sub) => `sub-${activeModuleId}-${sub.slug}`)
+        ...nodes.filter((n) => n.type === "subChip").map((n) => n.id),
       ];
     }
     if (activePhaseId) {
@@ -1322,7 +1337,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       return moduleIds;
     }
     return curriculum.phases.map((p) => `phase-${p.id}`);
-  }, [activeSubmoduleSlug, activeModuleId, activePhaseId, curriculum.phases, curriculum.modules, activeModule]);
+  }, [activeSubmoduleSlug, activeModuleId, activePhaseId, curriculum.phases, curriculum.modules, activeModule, nodes]);
 
   const nodeTypes = useMemo(
     () => ({
@@ -1609,15 +1624,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       )}
 
-      {/* Interactive Content (Blurred on mobile when warning popup is active) */}
-      <div
-        className="assignment-content"
-        style={{
-          filter: showMobileWarningPopup ? "blur(8px)" : "none",
-          transition: "filter 0.3s ease",
-          pointerEvents: showMobileWarningPopup ? "none" : "auto",
-        }}
-      >
+      {/* Interactive Content */}
+      <div className="assignment-content">
         {/* Graph - viewport height so less scrolling */}
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 pb-8 sm:px-6">
           <div
@@ -1639,7 +1647,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,85,247,0.12), transparent 70%)",
               }}
             />
-            <div style={{ height: graphHeight, width: "100%" }}>
+            <div className="h-full w-full">
               {needsVerification ? (
                 <div className="flex h-full items-start justify-center bg-[var(--surface)]/10 backdrop-blur-sm p-6 pt-20">
                   <div className="max-w-md w-full shadow-lg rounded-2xl">
@@ -1712,11 +1720,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   zoomOnPinch={false}
                   zoomOnDoubleClick={false}
                   preventScrolling={false}
-                  fitView={false}
+                  fitView={true}
+                  fitViewOptions={{ padding: 0.12 }}
                   proOptions={{ hideAttribution: true }}
-                  minZoom={isMobile ? 0.5 : 0.25}
-                  maxZoom={1.4}
-                  defaultViewport={{ x: isMobile ? 8 : 40, y: 20, zoom: isMobile ? 0.85 : 0.95 }}
+                  minZoom={0.25}
+                  maxZoom={1.5}
+                  translateExtent={translateExtent}
                 >
                   <Background
                     color={isLight ? "#d1d5db" : "#1f2937"}
@@ -1724,10 +1733,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                     variant={BackgroundVariant.Dots}
                   />
                   <Controls
+                    position="top-left"
                     className="!bg-white/70 !border-black/10 dark:!bg-[#111] !shadow-lg"
                     showInteractive={false}
                   />
-
 
                   <CameraController targetNodeIds={targetFitIds} />
                 </ReactFlow>
@@ -1981,39 +1990,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </AnimatePresence>
       </div>
 
-      {/* Mobile Warning Popup Modal */}
-      <AnimatePresence>
-        {showMobileWarningPopup && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45 backdrop-blur-[2px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/90 p-8 shadow-2xl backdrop-blur-md text-center"
-            >
-              <div className="flex flex-col items-center">
-                <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-mst-red/10 border border-mst-red/20 mb-6 animate-pulse">
-                  <Monitor className="h-8 w-8 text-mst-red" />
-                </div>
-                <h3 className="text-lg font-black text-[var(--text)]">
-                  Desktop Only Feature
-                </h3>
-                <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">
-                  The Interactive Learning Tree features and lesson workspaces are optimized for larger displays. Please open this page on a desktop computer to continue.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowMobileWarningPopup(false)}
-                  className="mt-6 w-full rounded-2xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white shadow-lg shadow-mst-red/20 hover:brightness-110 active:scale-[0.98] transition-all"
-                >
-                  Got it
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+
 
       {isAllocationModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">

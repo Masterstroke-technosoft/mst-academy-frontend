@@ -20,6 +20,8 @@ import {
   Volume2,
   VolumeOff,
   Lock,
+  Menu,
+  X,
 } from "lucide-react";
 import type { ModuleMeta, SubmoduleMeta } from "@/lib/types";
 import {
@@ -303,6 +305,275 @@ interface LessonViewerProps {
   contentFile?: string;
 }
 
+function enhanceLessonIframeHtml(rawHtml: string): string {
+  if (!rawHtml) return rawHtml;
+
+  let processed = rawHtml;
+
+  if (!processed.includes("name=\"viewport\"") && !processed.includes("name='viewport'")) {
+    if (processed.includes("<head>")) {
+      processed = processed.replace("<head>", "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+    } else if (processed.includes("<head ")) {
+      processed = processed.replace(/<head[^>]*>/, "$&<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+    } else {
+      processed = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" + processed;
+    }
+  }
+
+  const injection = `
+<style id="mst-lesson-mobile-enhancement">
+  @media (max-width: 1024px) {
+    #mst-doc-sidebar-drawer {
+      position: fixed !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: min(72vw, 255px) !important;
+      max-width: 255px !important;
+      z-index: 99999 !important;
+      transform: translateX(-100%) !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      box-shadow: none !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    #mst-doc-sidebar-drawer.mst-sidebar-open {
+      transform: translateX(0) !important;
+      box-shadow: 10px 0 40px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    #mst-sidebar-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(4px) !important;
+      -webkit-backdrop-filter: blur(4px) !important;
+      z-index: 99998 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.3s ease !important;
+      display: block !important;
+    }
+
+    #mst-sidebar-backdrop.mst-visible {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    #mst-mobile-sidebar-toggle,
+    button[class*="toggle"],
+    [class*="hamburger"],
+    .menu-btn,
+    .sidebar-btn,
+    #sidebar-toggle,
+    .sidebar-toggle,
+    .toggle-btn {
+      position: fixed !important;
+      top: 8px !important;
+      left: 8px !important;
+      z-index: 99997 !important;
+      width: 26px !important;
+      height: 26px !important;
+      min-width: 26px !important;
+      max-width: 26px !important;
+      min-height: 26px !important;
+      max-height: 26px !important;
+      padding: 0 !important;
+      border-radius: 6px !important;
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      color: #ffffff !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+
+    #mst-mobile-sidebar-toggle:active,
+    button[class*="toggle"]:active,
+    [class*="hamburger"]:active,
+    .menu-btn:active {
+      transform: scale(0.92) !important;
+    }
+
+    #mst-mobile-sidebar-toggle svg,
+    button[class*="toggle"] svg,
+    [class*="hamburger"] svg,
+    .menu-btn svg,
+    .sidebar-btn svg,
+    #sidebar-toggle svg,
+    .sidebar-toggle svg {
+      width: 14px !important;
+      height: 14px !important;
+      max-width: 14px !important;
+      max-height: 14px !important;
+    }
+
+    #mst-mobile-sidebar-toggle span,
+    button[class*="toggle"] span,
+    .menu-btn span {
+      width: 13px !important;
+      height: 2px !important;
+      margin: 1.5px 0 !important;
+    }
+
+    main, article, .main-content, #main-content, .content, #content, .lesson-container, .lesson-content {
+      margin-left: 0 !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    #mst-mobile-sidebar-toggle,
+    button[class*="toggle"],
+    [class*="hamburger"],
+    .menu-btn,
+    .sidebar-btn,
+    #sidebar-toggle,
+    .sidebar-toggle,
+    #mst-sidebar-backdrop {
+      display: none !important;
+    }
+  }
+</style>
+<script id="mst-lesson-mobile-script">
+  (function() {
+    function initMobileSidebar() {
+      var doc = document;
+      if (!doc || !doc.body) return;
+
+      function findRootSidebar() {
+        var existing = doc.getElementById('mst-doc-sidebar-drawer');
+        if (existing) return existing;
+
+        var aside = doc.querySelector('aside');
+        if (aside) return aside;
+
+        var primaryCandidates = doc.querySelectorAll('.sidebar, #sidebar, .left-panel, .navigation-sidebar, nav.toc, .toc-container');
+        for (var i = 0; i < primaryCandidates.length; i++) {
+          var el = primaryCandidates[i];
+          if (el.parentElement === doc.body || el.parentElement.tagName === 'MAIN' || el.offsetWidth < doc.body.offsetWidth * 0.6) {
+            return el;
+          }
+        }
+        return doc.querySelector('aside, .sidebar, #sidebar, nav');
+      }
+
+      var sidebar = findRootSidebar();
+      if (!sidebar) return;
+
+      sidebar.id = 'mst-doc-sidebar-drawer';
+
+      var backdrop = doc.getElementById('mst-sidebar-backdrop');
+      if (!backdrop) {
+        backdrop = doc.createElement('div');
+        backdrop.id = 'mst-sidebar-backdrop';
+        doc.body.appendChild(backdrop);
+      }
+
+      var existingToggle = doc.querySelector('button[class*="toggle"], [class*="hamburger"], .menu-btn, .sidebar-btn, #sidebar-toggle, .sidebar-toggle, .toggle-btn');
+      var toggleBtn = existingToggle || doc.getElementById('mst-mobile-sidebar-toggle');
+      if (!toggleBtn) {
+        toggleBtn = doc.createElement('button');
+        toggleBtn.id = 'mst-mobile-sidebar-toggle';
+        toggleBtn.setAttribute('type', 'button');
+        toggleBtn.setAttribute('aria-label', 'Toggle Navigation Tree');
+        toggleBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        doc.body.appendChild(toggleBtn);
+      }
+
+      toggleBtn.style.setProperty('width', '26px', 'important');
+      toggleBtn.style.setProperty('height', '26px', 'important');
+      toggleBtn.style.setProperty('min-width', '26px', 'important');
+      toggleBtn.style.setProperty('min-height', '26px', 'important');
+      toggleBtn.style.setProperty('max-width', '26px', 'important');
+      toggleBtn.style.setProperty('max-height', '26px', 'important');
+      toggleBtn.style.setProperty('border-radius', '6px', 'important');
+      toggleBtn.style.setProperty('top', '8px', 'important');
+      toggleBtn.style.setProperty('left', '8px', 'important');
+      toggleBtn.style.setProperty('padding', '0', 'important');
+
+      var innerSvgs = toggleBtn.querySelectorAll('svg');
+      for (var s = 0; s < innerSvgs.length; s++) {
+        innerSvgs[s].style.setProperty('width', '14px', 'important');
+        innerSvgs[s].style.setProperty('height', '14px', 'important');
+      }
+
+      var isOpen = false;
+
+      function updateDrawer() {
+        if (isOpen) {
+          sidebar.classList.add('mst-sidebar-open');
+          backdrop.classList.add('mst-visible');
+        } else {
+          sidebar.classList.remove('mst-sidebar-open');
+          backdrop.classList.remove('mst-visible');
+        }
+      }
+
+      toggleBtn.onclick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        isOpen = !isOpen;
+        updateDrawer();
+      };
+
+      backdrop.onclick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        isOpen = false;
+        updateDrawer();
+      };
+
+      doc.addEventListener('click', function(e) {
+        if (!isOpen) return;
+        var target = e.target;
+        if (!target) return;
+        if (sidebar.contains(target) || toggleBtn.contains(target)) return;
+        isOpen = false;
+        updateDrawer();
+      }, true);
+
+      var links = sidebar.querySelectorAll('a, button, [role="button"], li');
+      for (var j = 0; j < links.length; j++) {
+        links[j].addEventListener('click', function() {
+          if ((doc.defaultView ? doc.defaultView.innerWidth : window.innerWidth) <= 1024) {
+            isOpen = false;
+            updateDrawer();
+          }
+        });
+      }
+
+      isOpen = false;
+      updateDrawer();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMobileSidebar);
+    } else {
+      initMobileSidebar();
+    }
+  })();
+</script>
+`;
+
+  if (processed.includes("</body>")) {
+    return processed.replace("</body>", `${injection}</body>`);
+  } else if (processed.includes("</html>")) {
+    return processed.replace("</html>", `${injection}</html>`);
+  }
+  return processed + injection;
+}
+
 export function LessonViewer({
   moduleId,
   mod,
@@ -319,6 +590,7 @@ export function LessonViewer({
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const [validToc, setValidToc] = useState<{ id: string; title: string }[]>(submodule.toc || []);
   const [tocOpen, setTocOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
@@ -337,7 +609,7 @@ export function LessonViewer({
     fetch(contentUrl)
       .then((res) => res.text())
       .then((data) => {
-        setIframeHtml(data);
+        setIframeHtml(enhanceLessonIframeHtml(data));
       })
       .catch((err) => console.error("Error loading HTML content file:", err));
   }, [contentFile]);
@@ -873,18 +1145,54 @@ export function LessonViewer({
             <span />
           )}
         </footer>
+
+        <DesktopOnlyAssessmentModal
+          isOpen={showDesktopOnlyModal}
+          onClose={() => setShowDesktopOnlyModal(false)}
+          assessmentUrl={
+            typeof window !== "undefined"
+              ? `${window.location.origin}/module/${moduleId}/${submodule._id}/assessment`
+              : undefined
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] bg-[var(--bg)]" suppressHydrationWarning>
+      {/* Mobile Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Left Sidebar */}
-      <aside className="hidden w-72 shrink-0 border-r border-[var(--border)] bg-[var(--sidebar-bg)] lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:overflow-y-auto lg:self-start">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col border-r border-[var(--border)] bg-[var(--sidebar-bg)] shadow-2xl transition-transform duration-300 lg:sticky lg:top-16 lg:z-auto lg:h-[calc(100vh-4rem)] lg:w-72 lg:shrink-0 lg:shadow-none lg:translate-x-0 lg:overflow-y-auto lg:self-start ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        {/* Mobile Header Bar */}
+        <div className="flex items-center justify-between border-b border-white/10 p-4 lg:hidden">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Learning Tree</span>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white transition"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
         {/* Module info */}
         <div className="border-b border-white/10 p-5">
           <Link
             href="/learn"
+            onClick={() => setMobileSidebarOpen(false)}
             className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-mst-red transition"
           >
             <ChevronLeft size={12} />
@@ -892,6 +1200,7 @@ export function LessonViewer({
           </Link>
           <Link
             href={`/module/${moduleId}`}
+            onClick={() => setMobileSidebarOpen(false)}
             className="mt-3 block text-sm font-bold text-white hover:text-mst-red transition"
           >
             Module {moduleId}: {mod.title}
@@ -930,6 +1239,7 @@ export function LessonViewer({
                       <Link
                         key={item.id}
                         href={`/module/${moduleId}/${submodule._id}/assessment`}
+                        onClick={() => setMobileSidebarOpen(false)}
                         className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition text-white/60 hover:bg-white/5 hover:text-white`}
                       >
                         <span className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold bg-white/10 text-white/40`}>
@@ -943,7 +1253,10 @@ export function LessonViewer({
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => scrollToHeading(item.id)}
+                      onClick={() => {
+                        scrollToHeading(item.id);
+                        setMobileSidebarOpen(false);
+                      }}
                       className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition ${activeHeading === item.id
                         ? "bg-mst-red/15 text-mst-red font-semibold"
                         : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -962,8 +1275,6 @@ export function LessonViewer({
             )}
           </div>
         )}
-
-        {/* NOTE: 'All Lessons' list removed from left sidebar per UX request. */}
 
         {/* Bottom actions */}
         <div className="space-y-2 border-t border-white/10 p-4">
@@ -992,32 +1303,44 @@ export function LessonViewer({
 
         {/* Sticky header */}
         <header className="sticky top-16 z-30 flex items-start justify-between gap-4 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm px-4 py-4 lg:px-10">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-              <Link
-                href={`/module/${moduleId}`}
-                className="text-mst-red hover:underline font-medium"
-              >
-                Module {moduleId}
-              </Link>
-              <ChevronRight size={14} />
-              <span className="font-semibold text-[var(--text)]">
-                {submodule.index}
-              </span>
-            </div>
-            <h1 className="mt-1.5 text-xl font-black text-[var(--text)] lg:text-2xl">
-              {lessonTitle}
-            </h1>
-            <div className="mt-1.5 flex items-center gap-4">
-              {submodule.subtitle && (
-                <p className="text-sm text-[var(--text-muted)] max-w-2xl">
-                  {submodule.subtitle}
-                </p>
-              )}
-              <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--text-muted)]">
-                <Clock size={12} />
-                {readTime} min
-              </span>
+          <div className="flex items-start gap-3">
+            {/* Mobile Sidebar Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="mt-0.5 flex items-center justify-center rounded-lg border border-[var(--border)] p-2 text-[var(--text)] transition hover:border-mst-red hover:text-mst-red lg:hidden"
+              aria-label="Toggle Learning Tree Sidebar"
+            >
+              <Menu size={16} />
+            </button>
+
+            <div>
+              <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                <Link
+                  href={`/module/${moduleId}`}
+                  className="text-mst-red hover:underline font-medium"
+                >
+                  Module {moduleId}
+                </Link>
+                <ChevronRight size={14} />
+                <span className="font-semibold text-[var(--text)]">
+                  {submodule.index}
+                </span>
+              </div>
+              <h1 className="mt-1.5 text-xl font-black text-[var(--text)] lg:text-2xl">
+                {lessonTitle}
+              </h1>
+              <div className="mt-1.5 flex items-center gap-4">
+                {submodule.subtitle && (
+                  <p className="text-sm text-[var(--text-muted)] max-w-2xl">
+                    {submodule.subtitle}
+                  </p>
+                )}
+                <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--text-muted)]">
+                  <Clock size={12} />
+                  {readTime} min
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
