@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import orgSchema from "@/lib/schema/organization.json";
+import ChatBotWidget from "@/components/chatbotWidget/chatbotWidget";
 
 export const viewport: Viewport = {
   themeColor: '#000000',
@@ -169,6 +170,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </ThemeProvider>
+        <ChatBotWidget />
       </body>
     </html>
   );

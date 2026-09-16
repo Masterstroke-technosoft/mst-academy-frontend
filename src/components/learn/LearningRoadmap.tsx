@@ -39,6 +39,7 @@ import {
   Flame,
   Globe,
   Lock,
+  Play,
   Sparkles,
   Star,
   Trophy,
@@ -46,6 +47,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { playExpand, playNavigate, playSelect } from "@/lib/sounds";
+import { ModuleVideoModal } from "./ModuleVideoModal";
 
 type PhaseNodeVisual = {
   phaseId: string;
@@ -66,6 +68,7 @@ type ModuleNodeVisual = {
   active: boolean;
   dimmed: boolean;
   onSelect: () => void;
+  onPlayVideo?: (module: ModuleMeta) => void;
 };
 
 type SubmoduleNodeVisual = {
@@ -195,9 +198,10 @@ const PhaseCardNode = memo(function PhaseCardNode({
 });
 
 const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNodeVisual }) {
-  const { module, status, progress, locked, active, dimmed, color } = data;
+  const { module, status, progress, locked, active, dimmed, color, onPlayVideo } = data;
   const title = module.title;
   const subCount = module.submodules.length;
+  const hasVideo = Boolean(module.videoUrl) && !locked;
 
   const badge =
     status === "completed"
@@ -261,7 +265,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
               </h4>
             </div>
           </div>
-          <div className="shrink-0 mt-0.5">
+          <div className="shrink-0 mt-0.5 flex flex-col items-end gap-2">
             {status === "locked" ? (
               <Lock className="h-4 w-4 text-[var(--text-muted)]/70" />
             ) : (
@@ -271,6 +275,19 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
               >
                 {badge}
               </span>
+            )}
+            {hasVideo && (
+              <button
+                type="button"
+                aria-label={`Play video for Module ${module.index ?? module.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlayVideo?.(module);
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform hover:scale-110"
+              >
+                <Play size={13} className="ml-0.5 fill-white" />
+              </button>
             )}
           </div>
         </div>
@@ -524,6 +541,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const { user } = useAuth();
 
   const [mounted, setMounted] = useState(false);
+  const [showMobileWarningPopup, setShowMobileWarningPopup] = useState(false);
+  const [playingModule, setPlayingModule] = useState<ModuleMeta | null>(null);
 
   const {
     activePhaseId,
@@ -1000,6 +1019,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         description: m.description || "",
         submodules,
         index: m.index,
+        videoUrl: m.videoUrl || staticMod?.videoUrl || undefined,
       };
     });
 
@@ -1058,6 +1078,19 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     return activeModule.submodules.find((s) => String(s.slug) === String(activeSubmoduleSlug));
   }, [activeModule, activeSubmoduleSlug]);
 
+  useEffect(() => {
+    const isPanelOpen = Boolean(activeModule && activeSubmodule);
+    if (isPanelOpen) {
+      document.body.classList.add("submodule-panel-open");
+    } else {
+      document.body.classList.remove("submodule-panel-open");
+    }
+
+    return () => {
+      document.body.classList.remove("submodule-panel-open");
+    };
+  }, [activeModule, activeSubmodule]);
+
   const nodesAndEdges = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
@@ -1098,6 +1131,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
           active: true,
           dimmed: false,
           onSelect: () => { },
+          onPlayVideo: setPlayingModule,
         } satisfies ModuleNodeVisual,
         draggable: false,
       });
@@ -1186,6 +1220,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 setModule(mod.id);
               }
             },
+            onPlayVideo: setPlayingModule,
           } satisfies ModuleNodeVisual,
           draggable: false,
         });
@@ -1286,6 +1321,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     setModule,
     setSubmodule,
     activeModule,
+    setPlayingModule,
   ]);
 
   const { nodes, edges } = nodesAndEdges;
@@ -1462,6 +1498,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       className="relative min-h-[calc(100vh-4rem)] bg-[var(--bg)] overflow-hidden"
       onMouseMove={handleMouseMove}
     >
+      <ModuleVideoModal
+        open={Boolean(playingModule)}
+        onClose={() => setPlayingModule(null)}
+        videoUrl={playingModule?.videoUrl || ""}
+        title={playingModule ? `Module ${playingModule.index ?? playingModule.id}: ${playingModule.title}` : ""}
+      />
       {/* cinematic background */}
       <div
         className="pointer-events-none absolute inset-0 bg-grid opacity-60"

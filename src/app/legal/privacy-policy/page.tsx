@@ -31,7 +31,7 @@ export default function PrivacyPolicyPage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 mb-8">
           <p className="text-[var(--text)] leading-relaxed mb-4">
             <span className="font-semibold">Masterstroke Academy</span> ("Academy", "we", "our", or "us") is
-            a product of <span className="font-semibold">Masterstroke Technosoft Pvt. Ltd.</span>
+            a product of <span className="font-semibold"> Masterstroke Technosoft Pvt. Ltdddddd.</span>
           </p>
           <p className="text-[var(--text)] leading-relaxed mb-4">
             This Privacy Policy explains how we collect, use, store, process, disclose, and protect
