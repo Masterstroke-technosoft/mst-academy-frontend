@@ -48,9 +48,12 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2.5 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0">
-          <img
+          <Image
             src="/Acadmy Logo.png"
             alt="Masterstroke Academy"
+            width={176}
+            height={44}
+            priority
             className="h-32 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain"
           />
         </Link>
@@ -118,6 +121,7 @@ export function Navbar() {
               </Link>
               <button
                 type="button"
+                aria-label="Sign Out"
                 onClick={async () => {
                   try {
                     const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -168,6 +172,7 @@ export function Navbar() {
 
           <button
             type="button"
+            aria-label="Switch to Events Portal"
             onClick={switchPortal}
             className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
@@ -178,6 +183,7 @@ export function Navbar() {
           {/* Mobile menu button */}
           <button
             type="button"
+            aria-label="Toggle navigation menu"
             onClick={() => setMobileOpen(!mobileOpen)}
             className="rounded-lg p-1.5 text-[var(--nav-text)] transition hover:bg-white/10 lg:hidden"
           >

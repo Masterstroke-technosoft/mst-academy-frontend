@@ -141,11 +141,15 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  transition: background-color 0.25s ease, color 0.25s ease;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 input, textarea, [contenteditable="true"], [contenteditable="true"] * {
@@ -2792,24 +2796,24 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translate3d(0, 12px, 0);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale3d(0.95, 0.95, 1);
   }
 
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale3d(1, 1, 1);
   }
 }
 
@@ -2838,15 +2842,18 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.5s ease-out both;
+  animation: fade-in 0.4s ease-out both;
+  will-change: opacity;
 }
 
 .animate-slide-up {
-  animation: slide-up 0.6s ease-out both;
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 .animate-scale-in {
-  animation: scale-in 0.5s ease-out both;
+  animation: scale-in 0.4s ease-out both;
+  will-change: transform, opacity;
 }
 
 .animate-gradient {
@@ -2883,28 +2890,27 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
 }
 
 @keyframes float-orb {
-
   0%,
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   33% {
-    transform: translate(12px, -18px) scale(1.05);
+    transform: translate3d(12px, -18px, 0) scale(1.05);
   }
 
   66% {
-    transform: translate(-10px, 12px) scale(0.95);
+    transform: translate3d(-10px, 12px, 0) scale(0.95);
   }
 }
 
 @keyframes marquee {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   100% {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -2940,6 +2946,10 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
 
 .hero-orb {
   animation: float-orb 14s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout paint;
 }
 
 .hero-orb-delay-1 {
@@ -2954,6 +2964,9 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
   display: flex;
   width: max-content;
   animation: marquee 40s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 .marquee-track:hover {
@@ -2973,15 +2986,14 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
 }
 
 @keyframes mesh-drift {
-
   0%,
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
     opacity: 0.5;
   }
 
   50% {
-    transform: translate(2%, -1%) scale(1.02);
+    transform: translate3d(2%, -1%, 0) scale(1.02);
     opacity: 0.7;
   }
 }
@@ -2992,6 +3004,10 @@ input, textarea, [contenteditable="true"], [contenteditable="true"] * {
     radial-gradient(ellipse 45% 35% at 80% 20%, rgba(139, 92, 246, 0.1), transparent 50%),
     radial-gradient(ellipse 40% 30% at 60% 80%, rgba(6, 182, 212, 0.08), transparent 50%);
   animation: mesh-drift 18s ease-in-out infinite;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout paint;
 }
 
 @keyframes shimmer-slide {

@@ -19,14 +19,14 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
             <Link
               href="/refund-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
             >
               Refund Policy
             </Link>
             <span className="text-[var(--border)]">•</span>
             <Link
               href="/terms-conditions"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
             >
               Terms & Conditions
             </Link>
@@ -46,14 +46,14 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 text-xs">
             <Link
               href="/privacy-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
             >
               Privacy Policy
             </Link>
             <span className="text-[var(--border)]">•</span>
             <Link
               href="/contact-us"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors"
             >
               Contact Us
             </Link>

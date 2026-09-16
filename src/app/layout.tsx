@@ -6,8 +6,6 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import fs from "fs";
-import path from "path";
 import orgSchema from "@/lib/schema/organization.json";
 
 export const metadata: Metadata = {
@@ -73,30 +71,18 @@ export const metadata: Metadata = {
   other: { 'theme-color': '#e31e24' },
 };
 
-// Programmatically copy public/1.png to app favicon destinations and clean up default favicon
-try {
-  const publicIconPath = path.join(process.cwd(), "public", "1.png");
-  const appFaviconPath = path.join(process.cwd(), "src", "app", "favicon.ico");
-  const appIconPngPath = path.join(process.cwd(), "src", "app", "icon.png");
-
-  if (fs.existsSync(publicIconPath)) {
-    fs.copyFileSync(publicIconPath, appIconPngPath);
-    if (fs.existsSync(appFaviconPath)) {
-      fs.unlinkSync(appFaviconPath);
-    }
-  }
-} catch (error) {
-  console.error("Failed to automatically setup favicon:", error);
-}
-
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
 });
 
 export default function RootLayout({
@@ -109,11 +95,17 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/1.png" type="image/png" />
         <meta name="theme-color" content="#e31e24" />
+      </head>
+      <body className="min-h-full flex flex-col antialiased max-w-full overflow-x-hidden">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0BTDN5EMY4"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -147,12 +139,6 @@ export default function RootLayout({
               });
             `,
           }}
-        />
-      </head>
-      <body className="min-h-full flex flex-col antialiased max-w-full overflow-x-hidden">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
         <ThemeProvider>
           <AuthProvider>

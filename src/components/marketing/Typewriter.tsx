@@ -16,7 +16,7 @@ export function Typewriter({
   className = "",
 }: TypewriterProps) {
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(strings[0] ?? "");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -42,9 +42,11 @@ export function Typewriter({
   }, [text, deleting, index, strings, speedMs, pauseMs]);
 
   return (
-    <span className={className}>
+    <span className={`${className} inline-block`}>
       {text}
-      <span className="animate-pulse text-mst-red">|</span>
+      <span className="inline-block animate-pulse text-mst-red ml-0.5 select-none" aria-hidden="true">
+        |
+      </span>
     </span>
   );
 }

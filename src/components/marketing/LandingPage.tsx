@@ -15,7 +15,6 @@ import { type LeaderboardEntry } from "@/lib/leaderboard";
 import { getSession } from "@/lib/auth";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import { convertINRtoUSD } from "@/lib/currency";
-import BannerPopup from "@/components/marketing/BannerPopup";
 
 
 interface BackendLeaderboardEntry {
@@ -166,52 +165,52 @@ export function LandingPage({
   const { rate: usdRate } = useCurrencyRate();
 
   useEffect(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    const timer = setTimeout(() => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
-    fetch(`${baseUrl}/api/leaderboard`, {
-      method: "GET",
-      credentials: "include",
-      headers
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error(`Leaderboard request failed: ${r.status}`);
-        return r.json();
+      fetch(`${baseUrl}/api/leaderboard`, {
+        method: "GET",
+        credentials: "include",
+        headers
       })
-      .then((raw: BackendLeaderboardEntry[]) => {
-        const valid = raw.filter((e) => e._id != null && e.name != null);
-        const list: LeaderboardEntry[] = valid.map(mapBackendEntry);
-        list.sort((a, b) => {
-          if (b.score !== a.score) return b.score - a.score;
-          if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
-          return (a.rank ?? 999) - (b.rank ?? 999);
-        });
-        setLeaderboardEntries(list);
-      })
-      .catch((err) => {
-        console.error("Failed to load leaderboard:", err);
-        setFetchError(true);
-      })
-      .finally(() => setIsLeaderboardLoading(false));
+        .then((r) => {
+          if (!r.ok) throw new Error(`Leaderboard request failed: ${r.status}`);
+          return r.json();
+        })
+        .then((raw: BackendLeaderboardEntry[]) => {
+          const valid = raw.filter((e) => e._id != null && e.name != null);
+          const list: LeaderboardEntry[] = valid.map(mapBackendEntry);
+          list.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
+            return (a.rank ?? 999) - (b.rank ?? 999);
+          });
+          setLeaderboardEntries(list);
+        })
+        .catch(() => {
+          setFetchError(true);
+        })
+        .finally(() => setIsLeaderboardLoading(false));
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     const fetchCoursePhases = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!baseURL) return;
         const courseId = "6a2934912b48a13769669f8e";
-        //const token = "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTFkMzJmZWYwOWIxMzYzYTI3NGM1NzYiLCJlbWFpbCI6ImFkbWluNEBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3ODA1NTgxNzcsImV4cCI6MTc4MTE2Mjk3N30.k5ZoO1kSV-qGJ8NvpuloYQ9UaZMiMfoaZUFepb-0Neo";
         const response = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
           method: "GET",
           credentials: "include",
-          cache: "no-store",
           headers: {
-            "Cache-Control": "no-store",
-            "Pragma": "no-cache",
             "Content-Type": "application/json",
           }
         });
@@ -221,22 +220,18 @@ export function LandingPage({
             setLocalPhases(data.data.sort((a: any, b: any) => a.index - b.index));
           }
         }
-      } catch (error) {
-        console.error("Error fetching course phases:", error);
-      }
+      } catch {}
     };
 
     const fetchCourseDetails = async () => {
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!baseURL) return;
         const courseId = "6a2934912b48a13769669f8e";
         const response = await fetch(`${baseURL}/api/courses/${courseId}`, {
           method: "GET",
           credentials: "include",
-          cache: "no-store",
           headers: {
-            "Cache-Control": "no-store",
-            "Pragma": "no-cache",
             "Content-Type": "application/json",
           }
         });
@@ -248,13 +243,15 @@ export function LandingPage({
             setCourseDetails(data);
           }
         }
-      } catch (error) {
-        console.error("Error fetching course details:", error);
-      }
+      } catch {}
     };
 
-    fetchCoursePhases();
-    fetchCourseDetails();
+    const timer = setTimeout(() => {
+      fetchCoursePhases();
+      fetchCourseDetails();
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handlePhaseClick = async (index: number, phaseId: string) => {
@@ -271,20 +268,20 @@ export function LandingPage({
   return (
     <div className="overflow-hidden bg-[var(--bg)]">
       {/* Hero */}
-      <section className="bg-grid relative flex flex-col overflow-hidden justify-center min-h-[calc(100vh-5rem)] py-8 sm:py-12">
+      <section className="bg-grid relative flex flex-col overflow-hidden pt-12 sm:pt-16 pb-12 sm:pb-16">
         <MarketingHeroBackground tall />
 
-        <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-4 sm:px-6 z-10">
-          <div className="mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
+        <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 z-10">
+          <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
             {/* <p className="animate-fade-in inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-gradient-to-r from-mst-red/15 via-[var(--surface)]/50 to-[var(--accent-purple)]/15 px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-mst-red shadow-lg shadow-mst-red/10 backdrop-blur-md">
               <Sparkles className="h-4 w-4 animate-pulse-subtle" />
               Masterstroke Academy
             </p> */}
 
-            <div className="mt-4 sm:mt-6 min-h-[110px] sm:min-h-[130px] flex flex-col justify-center">
-              <h1 className="animate-slide-up font-black text-[var(--text)] text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1]">
+            <div className="mt-2 sm:mt-4 min-h-[95px] sm:min-h-[130px] flex flex-col justify-start">
+              <h1 className="font-black text-[var(--text)] text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.15]">
                 Master Blockchain
-                <span className="block mt-1 sm:mt-2">
+                <span className="block mt-1 sm:mt-2 h-[2.4rem] sm:h-[3.75rem] lg:h-[4.5rem] flex items-center justify-center">
                   <Typewriter
                     strings={[
                       "From Zero to Production",
@@ -294,19 +291,19 @@ export function LandingPage({
                     ]}
                     speedMs={38}
                     pauseMs={950}
-                    className="text-gradient-red animate-gradient"
+                    className="text-gradient-red animate-gradient whitespace-nowrap"
                   />
                 </span>
               </h1>
             </div>
 
-            <p className="animate-slide-up stagger-2 mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--text-muted)] sm:text-xl sm:leading-relaxed">
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--text-muted)] sm:text-xl sm:leading-relaxed">
               A structured, college-integrated programme - interactive lessons,
               live code, rigorous assessments, and a path from cryptography to
               funded founder.
             </p>
 
-            <div className="animate-slide-up stagger-3 mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="#fellowship"
                 className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-mst-red via-red-600 to-mst-red bg-[length:200%_100%] px-8 py-3.5 text-base sm:text-lg font-bold text-white shadow-xl shadow-mst-red/30 transition hover:shadow-2xl hover:shadow-mst-red/40 animate-gradient"
@@ -320,7 +317,7 @@ export function LandingPage({
             </div>
 
             {/* Inline hero stats */}
-            <div className="animate-slide-up stagger-4 mt-8 sm:mt-12 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 sm:mt-10 flex flex-wrap justify-center gap-3">
               {[
                 { v: "4", l: "Phases" },
                 { v: String(moduleCount), l: "Modules" },
@@ -344,7 +341,7 @@ export function LandingPage({
       <section className="relative overflow-hidden bg-[var(--bg)] pb-12 sm:pb-20">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] max-w-4xl h-[600px] bg-mst-red/10 blur-[100px] pointer-events-none rounded-full" />
         <div className="relative mx-auto flex w-full max-w-7xl flex-col items-center justify-center px-4 sm:px-6">
-          <div className="animate-slide-up stagger-5 mx-auto w-full max-w-5xl">
+          <div className="mx-auto w-full max-w-5xl">
             <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/50 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
               <div className="absolute inset-x-12 top-[4.5rem] hidden h-1 rounded-full bg-gradient-to-r from-[var(--accent-blue)] via-mst-red to-[var(--accent-green)] sm:block" />
               <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
@@ -464,7 +461,7 @@ export function LandingPage({
       {/* Fellowship funnel + pricing */}
       <section
         id="fellowship"
-        className="relative border-b border-[var(--border)] bg-[var(--bg)] py-24 sm:py-32"
+        className="content-visibility-auto relative border-b border-[var(--border)] bg-[var(--bg)] py-24 sm:py-32"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-3xl text-center">
@@ -736,7 +733,7 @@ export function LandingPage({
       </section>
 
       {/* Features */}
-      <section className="py-24 sm:py-32">
+      <section className="content-visibility-auto py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection className="mx-auto max-w-3xl text-center">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-mst-red">
@@ -749,21 +746,21 @@ export function LandingPage({
           </RevealSection>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, i) => (
-              <RevealSection key={feature.title} delay={i * 60}>
-                <div className="group relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8 transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl">
+            {features.map((f, i) => (
+              <RevealSection key={f.title} delay={i * 80}>
+                <div className="group relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8 transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/30 hover:shadow-2xl">
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 transition duration-500 group-hover:opacity-100`}
+                    className={`absolute inset-0 bg-gradient-to-br ${f.gradient} opacity-0 transition duration-500 group-hover:opacity-100`}
                   />
                   <div className="relative">
-                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-mst-red/10 ring-2 ring-mst-red/20">
-                      <feature.icon className="h-7 w-7 text-mst-red" />
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-mst-red/10 ring-1 ring-mst-red/20 transition-transform duration-500 group-hover:scale-110 group-hover:bg-mst-red group-hover:text-white">
+                      <f.icon className="h-7 w-7 text-mst-red transition-colors duration-500 group-hover:text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-[var(--text)]">
-                      {feature.title}
+                      {f.title}
                     </h3>
                     <p className="mt-3 text-base leading-relaxed text-[var(--text-muted)]">
-                      {feature.description}
+                      {f.description}
                     </p>
                   </div>
                 </div>
@@ -773,9 +770,8 @@ export function LandingPage({
         </div>
       </section>
 
-
       {/* Marquee */}
-      <section className="relative overflow-hidden border-y border-[var(--border)] bg-[var(--surface)] py-12">
+      <section className="content-visibility-auto relative overflow-hidden border-y border-[var(--border)] bg-[var(--surface)] py-12">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-mst-red/5 to-transparent blur-xl pointer-events-none" />
         <div className="relative">
           <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-32 bg-gradient-to-r from-[var(--surface)] to-transparent" />
@@ -793,8 +789,8 @@ export function LandingPage({
         </div>
       </section>
 
-      {/* Trust strip */}
-      <section className="py-20 sm:py-24">
+      {/* Guarantee / trust strip */}
+      <section className="content-visibility-auto py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection>
             <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--bg-muted)] to-[var(--surface)] p-10 sm:p-14">
@@ -833,7 +829,7 @@ export function LandingPage({
       </section>
 
       {/* CTA */}
-      <section className="relative overflow-hidden border-t border-[var(--border)]">
+      <section className="content-visibility-auto relative overflow-hidden border-t border-[var(--border)]">
         <MarketingHeroBackground />
         <div className="relative mx-auto max-w-4xl px-4 py-24 text-center sm:px-6 sm:py-32">
           <RevealSection>

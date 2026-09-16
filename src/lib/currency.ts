@@ -4,10 +4,18 @@ const CACHE_TTL_MS = 30 * 60 * 1000;
 let inflight: Promise<number> | null = null;
 
 async function fetchRate(): Promise<number> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/currency/inr-to-usd?amount=1`);
-  if (!res.ok) throw new Error('Currency API failed');
-  const data = await res.json();
-  return data.result as number;
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+    if (!baseUrl) return 86.5;
+    const res = await fetch(`${baseUrl}/api/currency/inr-to-usd?amount=1`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return 86.5;
+    const data = await res.json();
+    return typeof data?.result === "number" ? data.result : 86.5;
+  } catch {
+    return 86.5;
+  }
 }
 
 export async function getINRtoUSDRate(): Promise<number> {
