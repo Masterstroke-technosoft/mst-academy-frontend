@@ -881,7 +881,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
   const [fetchedSubmodules, setFetchedSubmodules] = useState<Record<string, any[]>>({});
   const isFetchingSubmodules = !!activeModuleId && !fetchedSubmodules[String(activeModuleId)];
   const isUserAdmin = userProfile?.role?.toLowerCase() === "admin";
-  const needsVerification = !isUserAdmin && !!userProfile && !isPaymentVerified;
+  const showTopVerificationBanner = !isUserAdmin && !!userProfile && !isPaymentVerified;
+  const needsVerification = false; // !isUserAdmin && !!userProfile && !isPaymentVerified;
 
   // Fetch course phases & single phases on mount
   useEffect(() => {
@@ -946,10 +947,11 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
     async function loadSubmodules() {
       try {
+        // Standard API for paid/verified users (loads all submodules)
         const res = await fetchWithAuth(`${baseURL}/api/submodules/module/${activeModuleId}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          if (json.success && Array.isArray(json.data)) {
             const sorted = [...json.data].sort((a, b) => (a.index || 0) - (b.index || 0));
             setFetchedSubmodules((prev) => ({
               ...prev,
@@ -958,9 +960,32 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
             return;
           }
         }
+
+        // If unpaid / payment verification pending, load trial submodule
+        const trialSubmoduleId = "6a362637e3e011264a0a9739";
+        const trialRes = await fetchWithAuth(`${baseURL}/api/submodules/trial/${trialSubmoduleId}`);
+        if (trialRes.ok) {
+          const trialJson = await trialRes.json();
+          if (trialJson.success && trialJson.data) {
+            const trialSub = trialJson.data;
+            if (String(trialSub.moduleId) === String(activeModuleId) || !trialSub.moduleId) {
+              setFetchedSubmodules((prev) => ({
+                ...prev,
+                [String(activeModuleId)]: [trialSub],
+              }));
+              return;
+            }
+          }
+        }
       } catch (err) {
-        console.error("Error fetching submodules by module:", err);
+        console.error("Error fetching submodules:", err);
       }
+      
+      // Fallback: if we didn't return early (error or invalid data), set to empty array to stop loading
+      setFetchedSubmodules((prev) => ({
+        ...prev,
+        [String(activeModuleId)]: [],
+      }));
     }
     loadSubmodules();
   }, [baseURL, activeModuleId]);
@@ -1115,9 +1140,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       const color = style?.color ?? "#e31e24";
       const mod = activeModule;
       const slugs = mod.submodules.map((s) => s.slug);
-      const status = getModuleStatus(mod.id, allModuleIds, slugs, getSlugs);
+      const rawStatus = getModuleStatus(mod.id, allModuleIds, slugs, getSlugs);
       const progress = getModuleProgressPercent(mod.id, slugs);
-      const moduleLocked = status === "locked";
+      const status = isPaymentVerified && rawStatus === "locked" ? "active" : rawStatus;
+      const moduleLocked = isPaymentVerified ? false : (status === "locked");
       const centerX = isMobile ? 20 : 80;
 
       nodes.push({
@@ -1141,14 +1167,14 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
       let lastUnlockedIndex = -1;
       mod.submodules.forEach((sub, i) => {
-        const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
+        const locked = isPaymentVerified ? false : isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
         if (!locked) {
           lastUnlockedIndex = i;
         }
       });
 
       mod.submodules.forEach((sub, i) => {
-        const locked = isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
+        const locked = isPaymentVerified ? false : isSubmoduleLocked(moduleLocked, i, mod.id, mod.submodules);
         const active = activeSubmoduleSlug === sub.slug;
         const dimmed = activeSubmoduleSlug != null && activeSubmoduleSlug !== sub.slug;
         const progressPct = computeProgressPctForSubmodule(mod.id, sub.slug);
@@ -1194,9 +1220,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
       modules.forEach((mod, i) => {
         const slugs = mod.submodules.map((s) => s.slug);
-        const status = getModuleStatus(mod.id, allModuleIds, slugs, getSlugs);
+        const rawStatus = getModuleStatus(mod.id, allModuleIds, slugs, getSlugs);
         const progress = getModuleProgressPercent(mod.id, slugs);
-        const locked = status === "locked";
+        const status = isPaymentVerified && rawStatus === "locked" ? "active" : rawStatus;
+        const locked = isPaymentVerified ? false : (status === "locked");
 
         const row = Math.floor(i / 2);
         const col = isMobile ? 0 : i % 2;
@@ -1323,7 +1350,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     setModule,
     setSubmodule,
     activeModule,
-    setPlayingModule,
+    isPaymentVerified,
+    setPlayingModule
   ]);
 
   const { nodes, edges } = nodesAndEdges;
@@ -1378,27 +1406,29 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
       : -1;
 
   const activeModuleStatus = activeModule
-    ? getModuleStatus(
-      activeModule.id,
-      curriculum.modules.map((m) => m.id),
-      activeModule.submodules.map((s) => s.slug),
-      (id) => curriculum.modules.find((mm) => String(mm.id) === String(id))?.submodules.map((s) => s.slug) ?? []
-    )
+    ? (isPaymentVerified
+      ? "active"
+      : getModuleStatus(
+        activeModule.id,
+        curriculum.modules.map((m) => m.id),
+        activeModule.submodules.map((s) => s.slug),
+        (id) => curriculum.modules.find((mm) => String(mm.id) === String(id))?.submodules.map((s) => s.slug) ?? []
+      ))
     : null;
 
-  const moduleLocked = activeModuleStatus === "locked";
+  const moduleLocked = isPaymentVerified ? false : (activeModuleStatus === "locked");
 
   const lastUnlockedIndex = useMemo(() => {
     if (!activeModule) return -1;
     let lastIdx = -1;
     activeModule.submodules.forEach((sub, i) => {
-      const locked = isSubmoduleLocked(moduleLocked, i, activeModule.id, activeModule.submodules);
+      const locked = isPaymentVerified ? false : isSubmoduleLocked(moduleLocked, i, activeModule.id, activeModule.submodules);
       if (!locked) {
         lastIdx = i;
       }
     });
     return lastIdx;
-  }, [activeModule, moduleLocked]);
+  }, [activeModule, moduleLocked, isPaymentVerified]);
 
   const subProgressPct =
     activeModule && activeSubmodule
@@ -1412,12 +1442,14 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
 
   const subLocked =
     activeModule && activeSubmodule
-      ? isSubmoduleLocked(
-        moduleLocked,
-        activeModule.submodules.findIndex((s) => s.slug === activeSubmodule.slug),
-        activeModule.id,
-        activeModule.submodules
-      )
+      ? (isPaymentVerified
+        ? false
+        : isSubmoduleLocked(
+          moduleLocked,
+          activeModule.submodules.findIndex((s) => s.slug === activeSubmodule.slug),
+          activeModule.id,
+          activeModule.submodules
+        ))
       : false;
 
   const detailCta = useMemo(() => {
@@ -1597,7 +1629,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         </div>
       </div>
 
-      {needsVerification && (
+      {showTopVerificationBanner && (
         <div className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
           {!isPaymentVerified ? (
             (!userProfile.transactionId || !userProfile.transactionId.trim()) && !hasSubmittedPayment ? (
@@ -1605,7 +1637,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
                 <div className="flex-1">
                   <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Pending</p>
-                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please complete your payment first to access the curriculum. Once paid, ensure your Transaction ID is updated in your profile settings.</p>
+                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Complete your payment to unlock the full curriculum.</p>
                   <button
                     type="button"
                     onClick={openPaymentModal}
@@ -1617,10 +1649,10 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
               </div>
             ) : (
               <div className="flex items-start gap-3.5 rounded-2xl border p-4 text-xs font-semibold backdrop-blur-md" style={{ backgroundColor: '#fff5f5', borderColor: '#f5c6cb' }}>
-                <Clock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#e31e24' }} />
                 <div>
                   <p className="font-bold text-sm" style={{ color: '#e31e24' }}>Payment Verification Pending</p>
-                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>Please wait some time. Once admin payment verification is complete, your curriculum will be unlocked.</p>
+                  <p className="mt-1 leading-relaxed" style={{ color: '#e31e24' }}>We&apos;re verifying your payment in between working hours. Your curriculum will unlock once it&apos;s approved. Please ignore if already paid.</p>
                 </div>
               </div>
             )

@@ -297,8 +297,9 @@ interface LessonViewerProps {
   nextSlug?: string;
   phaseId: string;
   allModuleIds: any[];
-  moduleSlugMap: Record<string | number, string[]>;
+  moduleSlugMap: Record<string, string[]>;
   contentFile?: string;
+  isTrial?: boolean;
 }
 
 export function LessonViewer({
@@ -311,6 +312,7 @@ export function LessonViewer({
   allModuleIds,
   moduleSlugMap,
   contentFile,
+  isTrial,
 }: LessonViewerProps) {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -440,6 +442,10 @@ export function LessonViewer({
   useEffect(() => { setMounted(true); }, []);
 
   const handleAssessment = useCallback(async () => {
+    if (isTrial) {
+      router.push("/register?step=payment");
+      return;
+    }
     if (assessmentLoading) return;
     setAssessmentLoading(true);
     setAssessmentError(null);
