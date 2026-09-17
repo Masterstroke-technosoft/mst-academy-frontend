@@ -2,18 +2,67 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Network, LayoutDashboard, Compass, User } from "lucide-react";
+import { useAuth } from "./AuthProvider";
+import { dashboardPath } from "@/lib/auth";
 
 export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
   const pathname = usePathname();
+  const { user, ready } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const docHeight = document.documentElement.scrollHeight;
+
+          // Always visible at the top or at the very bottom
+          if (currentScrollY < 30 || currentScrollY + windowHeight >= docHeight - 40) {
+            setIsVisible(true);
+          } else if (currentScrollY > lastScrollY && currentScrollY > 70) {
+            // Scrolling down -> hide smoothly
+            setIsVisible(false);
+          } else if (currentScrollY < lastScrollY) {
+            // Scrolling up -> show smoothly
+            setIsVisible(true);
+          }
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   const isDashboardOrAdmin = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   const segments = pathname.split("/").filter(Boolean);
   const isLessonPage = segments[0] === "module" && segments.length >= 3;
 
   if ((isDashboardOrAdmin || isLessonPage) && !forceShow) return null;
 
+  const isLoggedIn = mounted && ready && !!user;
+  const dashboardHref = user
+    ? (dashboardPath(user.backendRole || user.role) || "/dashboard/non-validator")
+    : "/login";
+
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--bg-elevated)] py-6 transition-colors duration-300">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <footer className="border-t border-[var(--border)] bg-[var(--bg-elevated)] transition-colors duration-300">
+      {/* Main Footer Links & Copyright */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 pb-20 md:pb-6">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           {/* Left Side - Legal Links */}
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
@@ -58,6 +107,73 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
               Contact Us
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Fixed Mobile Bottom Navigation Menubar (Scroll-aware, mobile only) */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--border)] bg-[var(--bg-elevated)]/95 backdrop-blur-xl py-1.5 px-2 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-in-out ${
+          isVisible ? "translate-y-0" : "translate-y-full pointer-events-none"
+        }`}
+      >
+        <div className="w-full max-w-md mx-auto grid grid-cols-3 items-center">
+          {/* Item 1: Learning Tree */}
+          <Link
+            href="/learn"
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+              pathname.startsWith("/learn")
+                ? "text-mst-red font-semibold"
+                : "text-[var(--text-muted)] hover:text-mst-red"
+            }`}
+          >
+            <Network className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+            <span className="text-[11px] leading-tight text-center truncate max-w-full">Learning Tree</span>
+          </Link>
+
+          {/* Item 2: Start Learning / Dashboard */}
+          {isLoggedIn ? (
+            <Link
+              href={dashboardHref}
+              className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+                pathname.startsWith("/dashboard")
+                  ? "text-mst-red font-semibold"
+                  : "text-[var(--text-muted)] hover:text-mst-red"
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+              <span className="text-[11px] leading-tight text-center truncate max-w-full">Dashboard</span>
+            </Link>
+          ) : (
+            <Link
+              href="/register"
+              className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+                pathname === "/register"
+                  ? "text-mst-red font-semibold"
+                  : "text-[var(--text-muted)] hover:text-mst-red"
+              }`}
+            >
+              <Compass className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+              <span className="text-[11px] leading-tight text-center truncate max-w-full">Start Learning</span>
+            </Link>
+          )}
+
+          {/* Item 3: Profile */}
+          <Link
+            href={isLoggedIn ? `${dashboardHref}#profile` : "/login"}
+            onClick={() => {
+              if (isLoggedIn && typeof window !== "undefined" && window.location.pathname === dashboardHref) {
+                window.dispatchEvent(new Event("openProfile"));
+              }
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+              (isLoggedIn && pathname.startsWith("/dashboard")) || (!isLoggedIn && pathname === "/login")
+                ? "text-mst-red font-semibold"
+                : "text-[var(--text-muted)] hover:text-mst-red"
+            }`}
+          >
+            <User className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+            <span className="text-[11px] leading-tight text-center truncate max-w-full">Profile</span>
+          </Link>
         </div>
       </div>
     </footer>
