@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Network, LayoutDashboard, Compass, User } from "lucide-react";
+import { GraduationCap, Network, LayoutDashboard, Compass, User } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 import { dashboardPath } from "@/lib/auth";
 
@@ -112,48 +112,54 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
 
       {/* Fixed Mobile Bottom Navigation Menubar (Scroll-aware, mobile only) */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--border)] bg-[var(--bg-elevated)]/95 backdrop-blur-xl py-1.5 px-2 md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-in-out ${
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--border)] bg-[var(--bg-elevated)]/95 backdrop-blur-xl md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-in-out ${
           isVisible ? "translate-y-0" : "translate-y-full pointer-events-none"
         }`}
       >
-        <div className="w-full max-w-md mx-auto grid grid-cols-3 items-center">
-          {/* Item 1: Learning Tree */}
+        <div className="mx-auto max-w-[340px] w-full px-2 flex items-center justify-between py-2">
+          {/* Item 1: Curriculum (when not logged in) / Learning Tree (when logged in) */}
           <Link
-            href="/learn"
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
-              pathname.startsWith("/learn")
+            href={isLoggedIn ? "/learn" : "/academy-overview"}
+            className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
+              (isLoggedIn && pathname.startsWith("/learn")) || (!isLoggedIn && pathname.startsWith("/academy-overview"))
                 ? "text-mst-red font-semibold"
                 : "text-[var(--text-muted)] hover:text-mst-red"
             }`}
           >
-            <Network className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
-            <span className="text-[11px] leading-tight text-center truncate max-w-full">Learning Tree</span>
+            {isLoggedIn ? (
+              <Network className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+            ) : (
+              <GraduationCap className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
+            )}
+            <span className="text-[11px] leading-tight text-center truncate w-full block">
+              {isLoggedIn ? "Learning Tree" : "Curriculum"}
+            </span>
           </Link>
 
           {/* Item 2: Start Learning / Dashboard */}
           {isLoggedIn ? (
             <Link
               href={dashboardHref}
-              className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+              className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
                 pathname.startsWith("/dashboard")
                   ? "text-mst-red font-semibold"
                   : "text-[var(--text-muted)] hover:text-mst-red"
               }`}
             >
               <LayoutDashboard className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
-              <span className="text-[11px] leading-tight text-center truncate max-w-full">Dashboard</span>
+              <span className="text-[11px] leading-tight text-center truncate w-full block">Dashboard</span>
             </Link>
           ) : (
             <Link
               href="/register"
-              className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+              className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
                 pathname === "/register"
                   ? "text-mst-red font-semibold"
                   : "text-[var(--text-muted)] hover:text-mst-red"
               }`}
             >
               <Compass className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
-              <span className="text-[11px] leading-tight text-center truncate max-w-full">Start Learning</span>
+              <span className="text-[11px] leading-tight text-center truncate w-full block">Start Learning</span>
             </Link>
           )}
 
@@ -165,14 +171,14 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
                 window.dispatchEvent(new Event("openProfile"));
               }
             }}
-            className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg transition-colors group text-center ${
+            className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
               (isLoggedIn && pathname.startsWith("/dashboard")) || (!isLoggedIn && pathname === "/login")
                 ? "text-mst-red font-semibold"
                 : "text-[var(--text-muted)] hover:text-mst-red"
             }`}
           >
             <User className="w-5 h-5 transition-transform group-hover:scale-110 mb-0.5" />
-            <span className="text-[11px] leading-tight text-center truncate max-w-full">Profile</span>
+            <span className="text-[11px] leading-tight text-center truncate w-full block">Profile</span>
           </Link>
         </div>
       </div>

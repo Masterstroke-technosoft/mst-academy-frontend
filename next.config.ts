@@ -37,6 +37,7 @@ try {
 }
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   turbopack: {
     root: path.resolve(__dirname),
   },
