@@ -1699,7 +1699,19 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                                 <Cell key={e.name} fill={e.color} />
                               ))}
                             </Pie>
-                            <Tooltip />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: 'var(--surface)',
+                                borderColor: 'var(--border)',
+                                borderRadius: '10px',
+                                color: 'var(--text)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.24)',
+                                padding: '8px 12px',
+                              }}
+                              itemStyle={{ color: 'var(--text)', fontWeight: 600 }}
+                              labelStyle={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}
+                              formatter={(value: any, name: any) => [`${value ?? 0} modules`, name]}
+                            />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
@@ -1721,7 +1733,20 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
                             <YAxis domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <Tooltip />
+                            <Tooltip
+                              cursor={{ fill: 'var(--border)', opacity: 0.25 }}
+                              contentStyle={{
+                                backgroundColor: 'var(--surface)',
+                                borderColor: 'var(--border)',
+                                borderRadius: '10px',
+                                color: 'var(--text)',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.24)',
+                                padding: '8px 12px',
+                              }}
+                              itemStyle={{ color: 'var(--text)', fontWeight: 600 }}
+                              labelStyle={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}
+                              formatter={(value: any) => [`${value ?? 0} / 100`, 'Score']}
+                            />
                             <Bar dataKey="score" radius={[4, 4, 0, 0]} fill="#e31e24" maxBarSize={28} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1803,10 +1828,18 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                               <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                               <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                               <Tooltip 
-                                cursor={{ fill: 'var(--border)', opacity: 0.4 }}
-                                contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderRadius: '8px', color: 'var(--text)' }}
+                                cursor={{ fill: 'var(--border)', opacity: 0.25 }}
+                                contentStyle={{
+                                  backgroundColor: 'var(--surface)',
+                                  borderColor: 'var(--border)',
+                                  borderRadius: '10px',
+                                  color: 'var(--text)',
+                                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.24)',
+                                  padding: '8px 12px',
+                                }}
+                                itemStyle={{ color: 'var(--text)', fontWeight: 600 }}
+                                labelStyle={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}
                                 formatter={(value: any) => [`${value ?? 0} mins`, 'Study Time']}
-                                labelStyle={{ color: 'var(--text-muted)', marginBottom: '4px' }}
                               />
                               <Bar dataKey="minutes" fill="#e31e24" radius={[4, 4, 0, 0]} maxBarSize={32} />
                             </BarChart>

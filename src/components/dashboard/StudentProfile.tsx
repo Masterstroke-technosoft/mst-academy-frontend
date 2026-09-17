@@ -6,6 +6,15 @@ import { useAuth } from "@/components/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, CheckCircle2, Copy, Save, User, AlertCircle, Trash2, Edit2 } from "lucide-react";
 
+const getResumeFileName = (urlOrName: string) => {
+  if (!urlOrName) return "";
+  if (urlOrName.startsWith("http") || urlOrName.includes("/")) {
+    const raw = urlOrName.split("/").pop()?.split("?")[0] || "";
+    return raw.replace(/^\d+-/, "") || raw;
+  }
+  return urlOrName;
+};
+
 export function StudentProfile({ user }: { user: AuthUser | null }) {
   const { updateProfile } = useAuth();
   const safeUser = user ?? {
@@ -37,12 +46,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     updatedAt: "",
     __v: 0,
     referralCode: "",
-    cvFile: safeUser.cvFile || "",
-    cvFileName: safeUser.cvFileName || "",
+    cvFile: safeUser.resumeUrl || safeUser.resume || safeUser.cvFile || "",
+    cvFileName: safeUser.cvFileName || (safeUser.resumeUrl || safeUser.resume ? getResumeFileName(safeUser.resumeUrl || safeUser.resume || "") : ""),
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profileImageUrl || safeUser.profileImage || safeUser.profilePhoto || null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [isPhotoDeleted, setIsPhotoDeleted] = useState(false);
+  const [cvFileObj, setCvFileObj] = useState<File | null>(null);
+  const [isCvDeleted, setIsCvDeleted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +68,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     github: "",
     portfolio: "",
     walletAddress: "",
+    resume: "",
   });
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -86,6 +98,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           if (data?.user) {
             const rejectionNote = data.user.studentRejectionNote || data.user.rejectionNote || "";
             const isActuallyVerified = !rejectionNote && (data.user.studentVerificationStatus === "Completed" || !!data.user.isStudentVerified);
+            const resumeVal = data.user.resumeUrl || data.user.resume || data.user.cvFile || data.user.cv || "";
+            const resumeFileNameVal = data.user.cvFileName || (resumeVal ? getResumeFileName(resumeVal) : "");
 
             setFormData(prev => ({
               ...prev,
@@ -109,8 +123,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               updatedAt: data.user.updatedAt || prev.updatedAt,
               __v: data.user.__v !== undefined ? data.user.__v : prev.__v,
               referralCode: data.user.referralCode || prev.referralCode,
-              cvFile: data.user.cvFile || prev.cvFile,
-              cvFileName: data.user.cvFileName || prev.cvFileName,
+              cvFile: resumeVal || prev.cvFile,
+              cvFileName: resumeFileNameVal || prev.cvFileName,
             }));
             setInitialData({
               phone: data.user.mobileNumber || data.user.phone || "",
@@ -118,6 +132,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               github: data.user.githubProfile || data.user.github || "",
               portfolio: data.user.portfolioWebsite || data.user.portfolio || "",
               walletAddress: data.user.walletAddress || "",
+              resume: resumeVal || "",
             });
             const pic = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto;
             if (pic) {
@@ -135,6 +150,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               profileImage: pic || "",
               profileImageUrl: pic || "",
               profilePhoto: pic || "",
+              resume: resumeVal || "",
+              resumeUrl: data.user.resumeUrl || resumeVal || "",
+              cvFile: resumeVal || "",
+              cvFileName: resumeFileNameVal || "",
             });
           }
         }
@@ -242,6 +261,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         e.target.value = "";
         return;
       }
+      setCvFileObj(file);
+      setIsCvDeleted(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
@@ -255,6 +276,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   };
 
   const handleCvDelete = () => {
+    setCvFileObj(null);
+    setIsCvDeleted(true);
     setFormData(prev => ({
       ...prev,
       cvFile: "",
@@ -396,21 +419,28 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         bodyData.profilePhoto = "";
       }
 
-      if (Object.keys(bodyData).length === 0 && !photoFile && !isPhotoDeleted) {
+      if (isCvDeleted) {
+        bodyData.resume = "";
+      }
+
+      if (Object.keys(bodyData).length === 0 && !photoFile && !cvFileObj && !isPhotoDeleted && !isCvDeleted) {
         showToast("Profile updated successfully", "success");
         setSaving(false);
         return;
       }
 
       let response;
-      if (photoFile) {
+      if (photoFile || cvFileObj) {
         const formDataToSend = new FormData();
-        formDataToSend.append("profileImage", photoFile);
+        if (photoFile) formDataToSend.append("profileImage", photoFile);
+        if (cvFileObj) formDataToSend.append("resume", cvFileObj);
         if (bodyData.mobileNumber) formDataToSend.append("mobileNumber", bodyData.mobileNumber);
         if (bodyData.githubProfile) formDataToSend.append("githubProfile", bodyData.githubProfile);
         if (bodyData.linkedinProfile) formDataToSend.append("linkedinProfile", bodyData.linkedinProfile);
         if (bodyData.portfolioWebsite) formDataToSend.append("portfolioWebsite", bodyData.portfolioWebsite);
         if (bodyData.walletAddress) formDataToSend.append("walletAddress", bodyData.walletAddress);
+        if (isPhotoDeleted) formDataToSend.append("profileImage", "");
+        if (isCvDeleted) formDataToSend.append("resume", "");
 
         const headers: Record<string, string> = {};
         if (token) {
@@ -456,6 +486,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         const updatedGithub = data.user.githubProfile || data.user.github || "";
         const updatedPortfolio = data.user.portfolioWebsite || data.user.portfolio || "";
         const updatedWalletAddress = data.user.walletAddress || "";
+        const updatedResume = data.user.resumeUrl || data.user.resume || data.user.cvFile || (isCvDeleted ? "" : formData.cvFile);
+        const updatedResumeName = data.user.cvFileName || (isCvDeleted ? "" : (cvFileObj?.name || (updatedResume ? getResumeFileName(updatedResume) : "")));
         const updatedPhoto = isPhotoDeleted ? null : (data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo);
         finalPhoto = updatedPhoto;
 
@@ -467,6 +499,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           github: updatedGithub,
           walletAddress: updatedWalletAddress,
           portfolio: updatedPortfolio,
+          cvFile: updatedResume,
+          cvFileName: updatedResumeName,
         }));
 
         setInitialData({
@@ -475,12 +509,17 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           github: updatedGithub,
           portfolio: updatedPortfolio,
           walletAddress: updatedWalletAddress,
+          resume: updatedResume,
         });
 
         setPhoto(updatedPhoto);
         setPhotoFile(null);
+        setCvFileObj(null);
         if (isPhotoDeleted) {
           setIsPhotoDeleted(false);
+        }
+        if (isCvDeleted) {
+          setIsCvDeleted(false);
         }
       }
 
@@ -494,6 +533,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         profilePhoto: finalPhoto || "",
         profileImage: finalPhoto || "",
         profileImageUrl: finalPhoto || "",
+        cvFile: formData.cvFile,
+        cvFileName: formData.cvFileName,
+        resume: formData.cvFile,
+        resumeUrl: (data?.user?.resumeUrl) || formData.cvFile,
       });
 
       showToast("Profile updated successfully", "success");

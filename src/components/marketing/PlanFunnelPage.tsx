@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   Briefcase,
@@ -63,6 +65,7 @@ export function PlanFunnelPage({
   testimonials,
   faqs,
 }: PlanFunnelPageProps) {
+  const router = useRouter();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -94,6 +97,21 @@ export function PlanFunnelPage({
           <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)]/80 p-8 shadow-xl backdrop-blur-md sm:p-12">
             <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-mst-red/10 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-purple-500/10 blur-3xl" />
+            <div className="mb-6">
+              <Link
+                href="/#pricing"
+                onClick={(e) => {
+                  if (typeof window !== "undefined" && window.history.length > 1 && document.referrer.includes(window.location.host)) {
+                    e.preventDefault();
+                    router.back();
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/80 px-3.5 py-1.5 text-xs font-bold text-[var(--text-muted)] transition-all hover:border-mst-red/40 hover:bg-mst-red/10 hover:text-mst-red group"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+                Back
+              </Link>
+            </div>
             <p className="inline-flex items-center gap-2 rounded-full border border-mst-red/30 bg-mst-red/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-mst-red">
               <Sparkles className="h-3.5 w-3.5" />
               Enrollment Funnel

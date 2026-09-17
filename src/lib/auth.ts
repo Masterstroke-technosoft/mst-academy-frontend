@@ -37,6 +37,8 @@ export interface AuthUser {
   updatedAt?: string;
   cvFile?: string;
   cvFileName?: string;
+  resume?: string;
+  resumeUrl?: string;
   transactionId?: string;
   referralPercentage?: number;
   courseDiscounts?: CourseDiscount[];
