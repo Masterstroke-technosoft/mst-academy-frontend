@@ -1,31 +1,18 @@
-import type { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/*.css$',
-          '/*.js$',
-          '/*.png$',
-          '/*.jpg$',
-          '/*.svg$',
-          '/*.webp$',
-        ],
+        allow: '/',
         disallow: [
-          '/login',
-          '/register',
-          '/dashboard',
-          '/account',
+          '/leaderboard',   // dynamic personal user data — no independent search value
           '/api/',
-          '/*?*token=',
-          '/*?*session=',
+          '/register/confirm',
         ],
       },
     ],
     sitemap: 'https://masterstroke.academy/sitemap.xml',
-    host: 'https://masterstroke.academy',
   }
 }
