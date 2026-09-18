@@ -425,7 +425,7 @@ function PhaseSection({
                   Phase {index + 1}
                 </p>
                 <h3 className="text-base font-bold text-[var(--text)] sm:text-lg md:text-xl leading-snug break-words">
-                  {phase.title} {phase.description ? `: ${phase.description}` : ""}
+                  {phase.description || phase.title}
                 </h3>
               </div>
             </div>
