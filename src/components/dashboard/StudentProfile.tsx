@@ -6,6 +6,15 @@ import { useAuth } from "@/components/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, CheckCircle2, Copy, Save, User, AlertCircle, Trash2, Edit2 } from "lucide-react";
 
+const getResumeFileName = (urlOrName: string) => {
+  if (!urlOrName) return "";
+  if (urlOrName.startsWith("http") || urlOrName.includes("/")) {
+    const raw = urlOrName.split("/").pop()?.split("?")[0] || "";
+    return raw.replace(/^\d+-/, "") || raw;
+  }
+  return urlOrName;
+};
+
 export function StudentProfile({ user }: { user: AuthUser | null }) {
   const { updateProfile } = useAuth();
   const safeUser = user ?? {
@@ -37,18 +46,21 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     updatedAt: "",
     __v: 0,
     referralCode: "",
-    cvFile: safeUser.cvFile || "",
-    cvFileName: safeUser.cvFileName || "",
+    cvFile: safeUser.resumeUrl || safeUser.resume || safeUser.cvFile || "",
+    cvFileName: safeUser.cvFileName || (safeUser.resumeUrl || safeUser.resume ? getResumeFileName(safeUser.resumeUrl || safeUser.resume || "") : ""),
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profileImageUrl || safeUser.profileImage || safeUser.profilePhoto || null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [isPhotoDeleted, setIsPhotoDeleted] = useState(false);
+  const [cvFileObj, setCvFileObj] = useState<File | null>(null);
+  const [isCvDeleted, setIsCvDeleted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [initialData, setInitialData] = useState({
     phone: "",
@@ -56,6 +68,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     github: "",
     portfolio: "",
     walletAddress: "",
+    resume: "",
   });
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -85,6 +98,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           if (data?.user) {
             const rejectionNote = data.user.studentRejectionNote || data.user.rejectionNote || "";
             const isActuallyVerified = !rejectionNote && (data.user.studentVerificationStatus === "Completed" || !!data.user.isStudentVerified);
+            const resumeVal = data.user.resumeUrl || data.user.resume || data.user.cvFile || data.user.cv || "";
+            const resumeFileNameVal = data.user.cvFileName || (resumeVal ? getResumeFileName(resumeVal) : "");
 
             setFormData(prev => ({
               ...prev,
@@ -108,8 +123,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               updatedAt: data.user.updatedAt || prev.updatedAt,
               __v: data.user.__v !== undefined ? data.user.__v : prev.__v,
               referralCode: data.user.referralCode || prev.referralCode,
-              cvFile: data.user.cvFile || prev.cvFile,
-              cvFileName: data.user.cvFileName || prev.cvFileName,
+              cvFile: resumeVal || prev.cvFile,
+              cvFileName: resumeFileNameVal || prev.cvFileName,
             }));
             setInitialData({
               phone: data.user.mobileNumber || data.user.phone || "",
@@ -117,6 +132,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               github: data.user.githubProfile || data.user.github || "",
               portfolio: data.user.portfolioWebsite || data.user.portfolio || "",
               walletAddress: data.user.walletAddress || "",
+              resume: resumeVal || "",
             });
             const pic = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto;
             if (pic) {
@@ -131,6 +147,13 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               isStudentVerified: isActuallyVerified,
               studentRejectionNote: rejectionNote,
               studentVerificationStatus: data.user.studentVerificationStatus,
+              profileImage: pic || "",
+              profileImageUrl: pic || "",
+              profilePhoto: pic || "",
+              resume: resumeVal || "",
+              resumeUrl: data.user.resumeUrl || resumeVal || "",
+              cvFile: resumeVal || "",
+              cvFileName: resumeFileNameVal || "",
             });
           }
         }
@@ -210,7 +233,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
@@ -234,10 +257,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
+      setCvFileObj(file);
+      setIsCvDeleted(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({
@@ -250,11 +275,23 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     }
   };
 
+  const handleCvDelete = () => {
+    setCvFileObj(null);
+    setIsCvDeleted(true);
+    setFormData(prev => ({
+      ...prev,
+      cvFile: "",
+      cvFileName: ""
+    }));
+    const fileInput = document.getElementById('cvUploadInput') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
   const handleIdCardReupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
+        setFileSizeError("Your file size is more than 5MB. Please upload a proper file up to 5MB.");
         e.target.value = "";
         return;
       }
@@ -331,10 +368,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
     if (!formData.linkedin || formData.linkedin.trim() === "") {
       newErrors.linkedin = "LinkedIn Profile cannot be empty.";
+    } else if (!/^(https?:\/\/)?(www\.)?linkedin\.com\/.+$/i.test(formData.linkedin.trim())) {
+      newErrors.linkedin = "Please enter a valid LinkedIn URL.";
     }
 
     if (!formData.github || formData.github.trim() === "") {
       newErrors.github = "GitHub Profile cannot be empty.";
+    } else if (!/^(https?:\/\/)?(www\.)?github\.com\/.+$/i.test(formData.github.trim())) {
+      newErrors.github = "Please enter a valid GitHub URL.";
     }
 
     if (!formData.walletAddress || formData.walletAddress.trim() === "") {
@@ -378,21 +419,28 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         bodyData.profilePhoto = "";
       }
 
-      if (Object.keys(bodyData).length === 0 && !photoFile && !isPhotoDeleted) {
+      if (isCvDeleted) {
+        bodyData.resume = "";
+      }
+
+      if (Object.keys(bodyData).length === 0 && !photoFile && !cvFileObj && !isPhotoDeleted && !isCvDeleted) {
         showToast("Profile updated successfully", "success");
         setSaving(false);
         return;
       }
 
       let response;
-      if (photoFile) {
+      if (photoFile || cvFileObj) {
         const formDataToSend = new FormData();
-        formDataToSend.append("profileImage", photoFile);
+        if (photoFile) formDataToSend.append("profileImage", photoFile);
+        if (cvFileObj) formDataToSend.append("resume", cvFileObj);
         if (bodyData.mobileNumber) formDataToSend.append("mobileNumber", bodyData.mobileNumber);
         if (bodyData.githubProfile) formDataToSend.append("githubProfile", bodyData.githubProfile);
         if (bodyData.linkedinProfile) formDataToSend.append("linkedinProfile", bodyData.linkedinProfile);
         if (bodyData.portfolioWebsite) formDataToSend.append("portfolioWebsite", bodyData.portfolioWebsite);
         if (bodyData.walletAddress) formDataToSend.append("walletAddress", bodyData.walletAddress);
+        if (isPhotoDeleted) formDataToSend.append("profileImage", "");
+        if (isCvDeleted) formDataToSend.append("resume", "");
 
         const headers: Record<string, string> = {};
         if (token) {
@@ -438,6 +486,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         const updatedGithub = data.user.githubProfile || data.user.github || "";
         const updatedPortfolio = data.user.portfolioWebsite || data.user.portfolio || "";
         const updatedWalletAddress = data.user.walletAddress || "";
+        const updatedResume = data.user.resumeUrl || data.user.resume || data.user.cvFile || (isCvDeleted ? "" : formData.cvFile);
+        const updatedResumeName = data.user.cvFileName || (isCvDeleted ? "" : (cvFileObj?.name || (updatedResume ? getResumeFileName(updatedResume) : "")));
         const updatedPhoto = isPhotoDeleted ? null : (data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo);
         finalPhoto = updatedPhoto;
 
@@ -449,6 +499,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           github: updatedGithub,
           walletAddress: updatedWalletAddress,
           portfolio: updatedPortfolio,
+          cvFile: updatedResume,
+          cvFileName: updatedResumeName,
         }));
 
         setInitialData({
@@ -457,12 +509,17 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           github: updatedGithub,
           portfolio: updatedPortfolio,
           walletAddress: updatedWalletAddress,
+          resume: updatedResume,
         });
 
         setPhoto(updatedPhoto);
         setPhotoFile(null);
+        setCvFileObj(null);
         if (isPhotoDeleted) {
           setIsPhotoDeleted(false);
+        }
+        if (isCvDeleted) {
+          setIsCvDeleted(false);
         }
       }
 
@@ -476,6 +533,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         profilePhoto: finalPhoto || "",
         profileImage: finalPhoto || "",
         profileImageUrl: finalPhoto || "",
+        cvFile: formData.cvFile,
+        cvFileName: formData.cvFileName,
+        resume: formData.cvFile,
+        resumeUrl: (data?.user?.resumeUrl) || formData.cvFile,
       });
 
       showToast("Profile updated successfully", "success");
@@ -932,14 +993,32 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Upload CV (Max 5MB)
               </label>
-              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/30 px-4 py-2.5 opacity-70">
-                <label
-                  htmlFor="cvUploadInput"
-                  className="cursor-not-allowed rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition-all shrink-0 shadow-sm"
-                >
-                  Choose File
-                </label>
-                <span className="text-sm text-[var(--text-muted)] truncate">
+              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+                {!formData.cvFileName ? (
+                  <label
+                    htmlFor="cvUploadInput"
+                    className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:border-mst-red hover:text-mst-red transition-all shrink-0 shadow-sm"
+                  >
+                    Upload CV
+                  </label>
+                ) : (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <label
+                      htmlFor="cvUploadInput"
+                      className="cursor-pointer rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-colors"
+                    >
+                      Edit
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleCvDelete}
+                      className="cursor-pointer rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500/20 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+                <span className={`text-sm truncate ${formData.cvFileName ? "text-[var(--text)] font-medium" : "text-[var(--text-muted)]"}`}>
                   {formData.cvFileName ? formData.cvFileName : "No file chosen"}
                 </span>
                 <input
@@ -947,7 +1026,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   type="file"
                   accept="image/*,.pdf,.doc,.docx"
                   className="hidden"
-                  disabled
                   onChange={handleCvUpload}
                 />
               </div>
@@ -1007,8 +1085,43 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             ) : (
               <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
             )}
-            <span className="text-sm font-bold text-white">{toast.message}</span>
+            <span className="font-semibold">{toast.message}</span>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* File Size Error Modal */}
+      <AnimatePresence>
+        {fileSizeError && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setFileSizeError(null)}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="relative w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl text-center"
+            >
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10">
+                <AlertCircle className="h-7 w-7 text-red-500" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-[var(--text)]">File Too Large</h3>
+              <p className="mb-6 text-sm text-[var(--text-muted)] leading-relaxed">
+                {fileSizeError}
+              </p>
+              <button
+                onClick={() => setFileSizeError(null)}
+                className="w-full rounded-xl bg-mst-red px-4 py-3 text-sm font-bold text-white transition hover:bg-red-600 shadow-md"
+              >
+                Okay
+              </button>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </motion.section>

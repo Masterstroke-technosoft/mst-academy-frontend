@@ -582,7 +582,7 @@ export default function ComposeEmailPage() {
               opacity: loading || form.recipientMode !== "test" ? 0.5 : 1,
             }}
           >
-            {loading ? "Sending..." : "Send Test"}
+            {loading ? "Sending" : "Send Test"}
           </button>
           {(form.recipientMode === "all" || form.recipientMode === "csv") && (
             <button
@@ -599,7 +599,7 @@ export default function ComposeEmailPage() {
                 opacity: loading || (form.recipientMode === "all" ? selectedRoles.length === 0 : form.csvEmails.length === 0) ? 0.5 : 1,
               }}
             >
-              {loading ? "Sending..." : "Send to All"}
+              {loading ? "Sending" : "Send to All"}
             </button>
           )}
         </div>
@@ -664,7 +664,7 @@ export default function ComposeEmailPage() {
                   opacity: loading ? 0.5 : 1,
                 }}
               >
-                {loading ? "Sending..." : "Confirm Send"}
+                {loading ? "Sending" : "Confirm Send"}
               </button>
             </div>
           </div>

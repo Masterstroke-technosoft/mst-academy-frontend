@@ -154,6 +154,7 @@ export function RegisterForm() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [verifyOtpLoading, setVerifyOtpLoading] = useState(false);
   const [otpCooldownSeconds, setOtpCooldownSeconds] = useState(0);
+  const [otpError, setOtpError] = useState("");
 
   // Step 2: optional payment, shown only after registration succeeds or when navigating with step=payment.
   const initialStep = searchParams.get("step") === "payment" ? "payment" : "form";
@@ -316,15 +317,16 @@ export function RegisterForm() {
 
   async function handleSendOtp() {
     setError("");
+    setOtpError("");
     if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
+      setOtpError("Please enter a valid email address.");
       return;
     }
     setOtpLoading(true);
     const result = await sendEmailOtp(email);
     setOtpLoading(false);
     if (!result.ok) {
-      setError(result.error);
+      setOtpError(result.error);
       return;
     }
     setOtpSent(true);
@@ -334,14 +336,20 @@ export function RegisterForm() {
 
   async function handleVerifyOtp() {
     setError("");
+    setOtpError("");
+    if (!otpCode || otpCode.length !== 6) {
+      setOtpError("Please enter a valid 6-digit OTP.");
+      return;
+    }
     setVerifyOtpLoading(true);
-    const isValid = await verifyEmailOtp(email, otpCode);
+    const result = await verifyEmailOtp(email, otpCode);
     setVerifyOtpLoading(false);
-    if (isValid) {
+    if (result.ok) {
       setEmailVerified(true);
       setDemoOtp("");
+      setOtpError("");
     } else {
-      setError("Invalid or expired OTP. Please try again.");
+      setOtpError(result.error || "Invalid or expired OTP. Please try again.");
     }
   }
 
@@ -349,21 +357,6 @@ export function RegisterForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    let recaptchaToken: string | null | undefined;
-    try {
-      recaptchaToken = await recaptchaRef.current?.executeAsync();
-      if (!recaptchaToken) {
-        setLoading(false);
-        setError("reCAPTCHA verification failed. Please try again.");
-        return;
-      }
-    } catch (err) {
-      setLoading(false);
-      setError("reCAPTCHA verification failed. Please try again.");
-      console.error("reCAPTCHA error:", err);
-      return;
-    }
 
     if (/\d/.test(fullName)) {
       setLoading(false);
@@ -385,7 +378,10 @@ export function RegisterForm() {
 
     if (!emailVerified && !isEmailVerified(email)) {
       setLoading(false);
-      setError("Please verify your email address with OTP first.");
+      const msg = "Please verify your email address with OTP first.";
+      setError(msg);
+      setOtpError(msg);
+      document.getElementById("email")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -398,6 +394,21 @@ export function RegisterForm() {
     if (password !== confirmPassword) {
       setLoading(false);
       setError("Passwords do not match.");
+      return;
+    }
+
+    let recaptchaToken: string | null | undefined;
+    try {
+      recaptchaToken = await recaptchaRef.current?.executeAsync();
+      if (!recaptchaToken) {
+        setLoading(false);
+        setError("reCAPTCHA verification failed. Please try again.");
+        return;
+      }
+    } catch (err) {
+      setLoading(false);
+      setError("reCAPTCHA verification failed. Please try again.");
+      console.error("reCAPTCHA error:", err);
       return;
     }
 
@@ -795,7 +806,7 @@ export function RegisterForm() {
               onClick={() => finishRegistration()}
               className="w-full rounded-xl bg-gradient-to-r from-mst-red to-red-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-mst-red/20 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.99]"
             >
-              Sign In
+              Login
             </button>
 
             <button
@@ -1189,9 +1200,11 @@ export function RegisterForm() {
                 setEmail(e.target.value);
                 setEmailVerified(false);
                 setOtpSent(false);
+                setOtpError("");
+                setError("");
               }}
               placeholder="you@example.com"
-              className={`flex-1 ${email.length > 0 && !isValidEmail(email) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
+              className={`flex-1 ${(email.length > 0 && !isValidEmail(email)) || (otpError && !otpSent) ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
               disabled={emailVerified}
             />
             {!emailVerified && (
@@ -1199,15 +1212,20 @@ export function RegisterForm() {
                 type="button"
                 onClick={handleSendOtp}
                 disabled={otpLoading || !isValidEmail(email) || otpCooldownSeconds > 0}
-                className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50"
+                className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
-                {otpLoading ? "…" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
+                {otpLoading ? "Sending" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
               </button>
             )}
           </div>
           {email.length > 0 && !isValidEmail(email) && (
             <p className="mt-1 text-xs text-red-500 font-medium">
               Please enter a valid email address.
+            </p>
+          )}
+          {otpError && !otpSent && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">
+              {otpError}
             </p>
           )}
           {emailVerified && (
@@ -1234,21 +1252,27 @@ export function RegisterForm() {
                 maxLength={6}
                 required
                 value={otpCode}
-                onChange={(e) =>
-                  setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-                }
+                onChange={(e) => {
+                  setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                  setOtpError("");
+                }}
                 placeholder="6-digit code"
-                className="flex-1 tracking-[0.3em]"
+                className={`flex-1 tracking-[0.3em] ${otpError ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}`}
               />
               <button
                 type="button"
                 onClick={handleVerifyOtp}
                 disabled={verifyOtpLoading || !otpCode}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50"
+                className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
-                {verifyOtpLoading ? "…" : "Verify"}
+                {verifyOtpLoading ? "Verifying..." : "Verify"}
               </button>
             </div>
+            {otpError && (
+              <p className="mt-2 text-xs text-red-500 font-medium">
+                {otpError}
+              </p>
+            )}
           </div>
         )}
 

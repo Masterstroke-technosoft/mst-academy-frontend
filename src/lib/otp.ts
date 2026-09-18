@@ -111,9 +111,14 @@ export async function sendEmailOtp(email: string):
       body: JSON.stringify({ email: normalized }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.success) {
-      return { ok: false, error: data.message || "Failed to send OTP" };
+      const errorMsg = Array.isArray(data?.message)
+        ? data.message.join(", ")
+        : typeof data?.message === "string"
+        ? data.message
+        : data?.error || "Failed to send OTP";
+      return { ok: false, error: errorMsg };
     }
 
     // Update rate limit counter
@@ -146,13 +151,17 @@ export async function sendEmailOtp(email: string):
 export async function verifyEmailOtp(
   email: string,
   code: string
-): Promise<boolean> {
+): Promise<{ ok: boolean; error?: string }> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") {
+    return { ok: false, error: "OTP is only available in the browser." };
+  }
 
   const normalized = email.trim().toLowerCase();
   const entered = code.replace(/\D/g, "").trim();
-  if (entered.length !== 6) return false;
+  if (entered.length !== 6) {
+    return { ok: false, error: "Please enter a valid 6-digit OTP." };
+  }
 
   try {
     const response = await fetch(`${baseUrl}/api/otp/verify`, {
@@ -161,13 +170,15 @@ export async function verifyEmailOtp(
       body: JSON.stringify({ email: normalized, otp: entered }),
     });
 
-    if (!response.ok) {
-      return false;
-    }
+    const data = await response.json().catch(() => ({}));
 
-    const data = await response.json();
-    if (!data.success) {
-      return false;
+    if (!response.ok || !data.success) {
+      const errorMsg = Array.isArray(data?.message)
+        ? data.message.join(", ")
+        : typeof data?.message === "string"
+        ? data.message
+        : data?.error || "Invalid or expired OTP. Please try again.";
+      return { ok: false, error: errorMsg };
     }
 
     sessionStorage.setItem(
@@ -175,10 +186,13 @@ export async function verifyEmailOtp(
       JSON.stringify({ email: normalized, at: Date.now() })
     );
     sessionStorage.removeItem(`${OTP_KEY}-sent`);
-    return true;
+    return { ok: true };
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return false;
+    return {
+      ok: false,
+      error: "Network error. Please check your connection.",
+    };
   }
 }
 

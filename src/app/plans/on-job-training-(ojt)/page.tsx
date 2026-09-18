@@ -72,11 +72,11 @@ export default function CourseOnlyPlanPage() {
       faqs={[
         {
           q: "Does this plan include internship?",
-          a: "No. This plan is purely course access focused for deep learning fundamentals.",
+          a: "Yes. This plan includes 2 months of On Job Training (OJT) with real-world industry projects and mentor guidance.",
         },
         {
           q: "Does this plan include MSTC rewards?",
-          a: "\long-term MSTC reward participation are included in validator, student, and Web3 Enthusiast fellowships.",
+          a: "No. MSTC rewards are not included in the OJT plan. They are available with the Validator, Student, and Web3 Enthusiast Fellowship plans.",
         },
         {
           q: "What is the current offer price?",
