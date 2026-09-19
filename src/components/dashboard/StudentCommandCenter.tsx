@@ -1598,15 +1598,17 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       //{ label: "Consistency", value: `${analytics.revisionConsistency}%`, icon: TrendingUp, color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
                       { label: "Percentile", value: `Top ${analytics.percentile}%`, icon: Trophy, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                     ].map((s, i) => (
-                      <GlassCard key={s.label} className="!p-6 flex flex-col gap-3 group cursor-default">
-                        <div className={`w-fit rounded-xl border ${s.bg} p-3 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                          <s.icon className={`h-5 w-5 ${s.color}`} />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                            {s.label}
-                          </p>
-                          <p className="mt-1 text-2xl font-black text-[var(--text)] tracking-tight">{s.value}</p>
+                      <GlassCard key={s.label} className="!p-5 group cursor-default">
+                        <div className="flex flex-col gap-2.5">
+                          <div className={`w-fit rounded-xl border ${s.bg} p-2.5 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                            <s.icon className={`h-5 w-5 ${s.color}`} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                              {s.label}
+                            </p>
+                            <p className="mt-0.5 text-2xl font-black text-[var(--text)] tracking-tight">{s.value}</p>
+                          </div>
                         </div>
                       </GlassCard>
                     ))}

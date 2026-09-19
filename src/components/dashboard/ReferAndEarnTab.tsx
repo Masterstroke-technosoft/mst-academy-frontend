@@ -229,58 +229,76 @@ export function ReferAndEarnTab({
     return 19999; // Default to student track
   };
 
-  const referralPercent = dynamicReferralPercent || user?.referralPercentage || 0;
+  const getDefaultRolePercentage = (role?: string): number => {
+    const normalized = String(role || "").toLowerCase().trim();
+    if (normalized === "ojt" || normalized === "course_only" || normalized === "course-only" || normalized === "courseonly") {
+      return 10;
+    }
+    if (normalized === "validator") {
+      return 5;
+    }
+    if (normalized === "working_professional" || normalized === "working-professional" || normalized === "workingprofessional" || normalized === "web3 enthusiast" || normalized === "web3_enthusiast" || normalized === "professional") {
+      return 2;
+    }
+    return 2.5; // student & default
+  };
+
+  const userRole = user?.role || "student";
+  const defaultUserPercent = getDefaultRolePercentage(userRole);
+  const referralPercent = (typeof dynamicReferralPercent === 'number' && dynamicReferralPercent > 0)
+    ? dynamicReferralPercent
+    : (typeof user?.referralPercentage === 'number' && user.referralPercentage > 0)
+      ? user.referralPercentage
+      : defaultUserPercent;
 
   const referralCode = dynamicReferralCode || propReferralCode;
   //const referralLink = referralCode ? `https://masterstroke.academy/register?ref=${referralCode}` : propReferralLink;
 
-  const referralRecords = dynamicReferrals.length > 0
-    ? dynamicReferrals.map(r => ({
-      name: r.name || "Anonymous",
-      joinedAt: r.joinedAt ? new Date(r.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A",
-      status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
-      eligible: r.status === "verified",
-      role: r.role || "student",
-    }))
-    : propReferralRecords.map(r => ({
-      name: r.name || "Anonymous",
-      joinedAt: r.joinedAt,
-      status: r.status === "verified" ? "Completed course" : (r.status === "nonverified" ? "In progress" : r.status),
-      eligible: r.status === "verified",
-      role: (r as any).role || "student",
-    }));
-
-  const getRecordReward = (record: any) => {
-    const roleStr = String(record?.role || "").trim().toUpperCase();
-    const normalizedRole = roleStr.replace(/[-_\s]+/g, "");
-
-    // Check referee user role to determine percentage:
-    // STUDENT = 2.5%, WORKING_PROFESSIONAL = 2%, VALIDATOR = 5%, COURSE_ONLY / OJT = 10%
-    let percentage = 2.5;
-    if (roleStr === "COURSE_ONLY" || roleStr === "COURSE ONLY" || roleStr === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") {
-      percentage = 10;
-    } else if (
-      roleStr === "WORKING_PROFESSIONAL" ||
-      roleStr === "WORKING PROFESSIONAL" ||
-      roleStr === "WEB3_ENTHUSIAST" ||
-      roleStr === "WEB3 ENTHUSIAST" ||
-      normalizedRole === "WORKINGPROFESSIONAL" ||
-      normalizedRole === "WEB3ENTHUSIAST"
-    ) {
-      percentage = 2;
-    } else if (roleStr === "VALIDATOR" || normalizedRole === "VALIDATOR") {
-      percentage = 5;
-    } else if (roleStr === "STUDENT" || normalizedRole === "STUDENT") {
-      percentage = 2.5;
-    }
-
-    const price = getCoursePrice(record?.role || "STUDENT");
-    return Math.round((price * percentage) / 100);
+  const isClaimed = (r: any) => {
+    const w = String(r?.withdrawal || "").toLowerCase().trim();
+    return w === "claim" || w === "claimed";
   };
 
-  const successfulReferrals = referralRecords.filter((record) => record.eligible).length;
+  const referralRecords = dynamicReferrals.length > 0
+    ? dynamicReferrals.map(r => ({
+        name: r.name || "Anonymous",
+        joinedAt: r.joinedAt ? new Date(r.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A",
+        status: r.status === "verified" ? "Purchased course" : (r.status === "nonverified" ? "In progress" : r.status),
+        eligible: r.status === "verified",
+        role: r.role || "student",
+        withdrawal: r.withdrawal,
+        claimed: isClaimed(r),
+      }))
+    : propReferralRecords.map(r => ({
+        name: r.name || "Anonymous",
+        joinedAt: r.joinedAt,
+        status: r.status === "verified" ? "Purchased course" : (r.status === "nonverified" ? "In progress" : r.status),
+        eligible: r.status === "verified",
+        role: (r as any).role || "student",
+        withdrawal: (r as any).withdrawal,
+        claimed: isClaimed(r),
+      }));
+
+  const getRecordReward = (record: any) => {
+    if (record.reward && typeof record.reward === 'number' && record.reward > 0) {
+      return record.reward;
+    }
+    if (record.payout && typeof record.payout === 'number' && record.payout > 0) {
+      return record.payout;
+    }
+    const price = getCoursePrice(record.role);
+    const percentToUse = (typeof dynamicReferralPercent === 'number' && dynamicReferralPercent > 0)
+      ? dynamicReferralPercent
+      : (typeof user?.referralPercentage === 'number' && user.referralPercentage > 0)
+        ? user.referralPercentage
+        : getDefaultRolePercentage(record.role);
+    const calculated = Math.round((price * percentToUse) / 100);
+    return calculated > 0 ? calculated : 500;
+  };
+
+  const successfulReferrals = referralRecords.filter((record) => record.claimed).length;
   const totalReward = referralRecords
-    .filter(record => record.eligible)
+    .filter(record => record.eligible && !record.claimed)
     .reduce((sum, record) => sum + getRecordReward(record), 0);
 
   const withdrawUnlocked = successfulReferrals >= 5;
@@ -326,7 +344,7 @@ export function ReferAndEarnTab({
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-6 sm:mt-8"
+        className="mt-6 sm:mt-8 pb-28"
       >
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
@@ -477,25 +495,41 @@ export function ReferAndEarnTab({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border)]/50">
-                    {referralRecords.map((record) => (
-                      <tr key={`${record.name}-${record.joinedAt}`} className="group transition-colors hover:bg-[var(--surface)]">
-                        <td className="py-4 pl-5 pr-3 font-bold text-[var(--text)]">{record.name}</td>
-                        {/* <td className="py-4 pr-3 text-[var(--text-muted)] font-medium">{record.joinedAt}</td> */}
-                        <td className="py-4 pr-3">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider shadow-sm ${record.eligible ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-[#e31e24]/10 text-[#e31e24] border border-[#e31e24]/20"}`}>
-                            {record.eligible ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
-                            {record.status}
-                          </span>
-                        </td>
-                        <td className="py-4 pr-5 font-black text-[var(--text)] text-right">
-                          {record.eligible ? (
-                            <span className="text-emerald-600 dark:text-emerald-400">Rs {getRecordReward(record)}</span>
-                          ) : (
-                            <span className="text-[#e31e24]">Pending</span>
-                          )}
+                    {referralRecords.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="py-8 text-center text-xs font-bold text-[var(--text-muted)]">
+                          No pending referral records found.
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      referralRecords.map((record) => (
+                        <tr key={`${record.name}-${record.joinedAt}`} className="group transition-colors hover:bg-[var(--surface)]">
+                          <td className="py-4 pl-5 pr-3 font-bold text-[var(--text)]">{record.name}</td>
+                          {/* <td className="py-4 pr-3 text-[var(--text-muted)] font-medium">{record.joinedAt}</td> */}
+                          <td className="py-4 pr-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider shadow-sm ${record.eligible ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-[#e31e24]/10 text-[#e31e24] border border-[#e31e24]/20"}`}>
+                                {record.eligible ? <CheckCircle2 className="h-3.5 w-3.5" /> : null}
+                                {record.status}
+                              </span>
+                              {record.claimed && (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Claimed
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 pr-5 font-black text-[var(--text)] text-right">
+                            {record.eligible ? (
+                              <span className="text-emerald-600 dark:text-emerald-400">Rs {getRecordReward(record)}</span>
+                            ) : (
+                              <span className="text-[#e31e24]">Pending</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -583,12 +617,12 @@ export function ReferAndEarnTab({
 
       <AnimatePresence>
         {showWithdrawForm && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+              className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
               onClick={() => {
                 setShowWithdrawForm(false);
                 setError(null);
@@ -648,7 +682,7 @@ export function ReferAndEarnTab({
                     e.preventDefault();
                     if (!user) return;
 
-                    const amount = totalReward > 0 ? totalReward : successfulReferrals * 500;
+                    const amount = totalReward > 0 ? totalReward : (successfulReferrals * 500);
                     if (amount <= 0) {
                       setError("Withdrawal amount is 0. Cannot proceed with withdrawal.");
                       return;
@@ -701,13 +735,12 @@ export function ReferAndEarnTab({
                       }
 
                       // Create the withdrawal payout request
-                      const withdrawAmount = totalReward > 0 ? totalReward : successfulReferrals * 500;
-                      if (withdrawAmount > 0) {
+                      if (amount > 0) {
                         const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
                           method: "POST",
                           credentials: "include",
                           headers,
-                          body: JSON.stringify({ amount: withdrawAmount }),
+                          body: JSON.stringify({ amount }),
                         });
                         if (!withdrawRes.ok) {
                           throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
@@ -717,8 +750,14 @@ export function ReferAndEarnTab({
                       setWithdrawRequested(true);
                       setRequestStatus("Pending");
                       setShowWithdrawForm(false);
+                      setToast({
+                        message: "Withdrawal request submitted successfully!",
+                        type: "success"
+                      });
+                      setTimeout(() => setToast(null), 4000);
                     } catch (error: any) {
                       console.error("Failed to submit withdrawal request:", error?.message ?? error);
+                      setError(error?.message || "Failed to submit withdrawal request.");
                     }
                   }}
                 >
@@ -834,12 +873,12 @@ export function ReferAndEarnTab({
           </div >
         )}
         {showUpdateForm && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+              className="fixed inset-0 bg-[var(--bg)]/80 backdrop-blur-xl"
               onClick={() => setShowUpdateForm(false)}
             />
             <motion.div

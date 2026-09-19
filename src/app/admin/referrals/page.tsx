@@ -134,41 +134,51 @@ export default function ReferralAnalyticsPage() {
     return 19999; // Default to student track
   };
 
-  const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
-    const refId = ref.userId || ref.id || ref._id;
-    const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "STUDENT";
-    const roleStr = String(role || "").trim().toUpperCase();
-    const normalizedRole = roleStr.replace(/[-_\s]+/g, "");
-
-    let percentage = 2.5;
-    if (roleStr === "COURSE_ONLY" || roleStr === "COURSE ONLY" || roleStr === "OJT" || normalizedRole === "COURSEONLY" || normalizedRole === "OJT") {
-      percentage = 10;
-    } else if (
-      roleStr === "WORKING_PROFESSIONAL" ||
-      roleStr === "WORKING PROFESSIONAL" ||
-      roleStr === "WEB3_ENTHUSIAST" ||
-      roleStr === "WEB3 ENTHUSIAST" ||
-      normalizedRole === "WORKINGPROFESSIONAL" ||
-      normalizedRole === "WEB3ENTHUSIAST"
-    ) {
-      percentage = 2;
-    } else if (roleStr === "VALIDATOR" || normalizedRole === "VALIDATOR") {
-      percentage = 5;
-    } else if (roleStr === "STUDENT" || normalizedRole === "STUDENT") {
-      percentage = 2.5;
+  const getDefaultRolePercentage = (role?: string): number => {
+    const normalized = String(role || "").toLowerCase().trim();
+    if (normalized === "ojt" || normalized === "course_only" || normalized === "course-only" || normalized === "courseonly") {
+      return 10;
     }
+    if (normalized === "validator") {
+      return 5;
+    }
+    if (normalized === "working_professional" || normalized === "working-professional" || normalized === "workingprofessional" || normalized === "web3 enthusiast" || normalized === "web3_enthusiast" || normalized === "professional") {
+      return 2;
+    }
+    return 2.5; // student & default
+  };
 
+  const isClaimed = (ref: any) => {
+    const w = String(ref?.withdrawal || "").toLowerCase().trim();
+    return w === "claim" || w === "claimed" || ref?.claimed === true;
+  };
+
+  const getReferralReward = (req: WithdrawalRequest, ref: any, usersMap?: Map<string, string>): number => {
+    if (ref.reward && typeof ref.reward === 'number' && ref.reward > 0) {
+      return ref.reward;
+    }
+    if (ref.payout && typeof ref.payout === 'number' && ref.payout > 0) {
+      return ref.payout;
+    }
+    const refId = ref.userId || ref.id || ref._id;
+    const role = (refId && usersMap ? usersMap.get(String(refId)) : null) || ref.role || "student";
+    const rawPercent = req.referralPercentage ?? (req as any).userReferralPercentage ?? (req as any).user?.referralPercentage;
+    const referralPercent = typeof rawPercent === 'number' && rawPercent > 0 ? rawPercent : getDefaultRolePercentage(role);
     const price = getCoursePrice(role);
-    return Math.round((price * percentage) / 100);
+    const calculated = Math.round((price * referralPercent) / 100);
+    return calculated > 0 ? calculated : 500;
   };
 
   const calculateRequestPayout = (req: WithdrawalRequest, usersMap?: Map<string, string>): number => {
     const referrals = req.referrals || [];
-    const eligibleReferrals = referrals.filter(r => r.eligible || r.status === "verified" || r.status === "Verified");
-    if (eligibleReferrals.length === 0) {
-      return req.withdrawalAmount || req.amount || 0;
+    if (referrals.length > 0) {
+      const unpaidEligibleReferrals = referrals.filter(
+        r => (r.eligible || r.status === "verified" || r.status === "Verified") && !isClaimed(r)
+      );
+      return unpaidEligibleReferrals.reduce((sum, r) => sum + getReferralReward(req, r, usersMap), 0);
     }
-    return eligibleReferrals.reduce((sum, r) => sum + getReferralReward(req, r, usersMap), 0);
+    if (req.status === "Confirmed") return 0;
+    return req.withdrawalAmount || req.amount || 0;
   };
 
   useEffect(() => {
@@ -337,8 +347,9 @@ export default function ReferralAnalyticsPage() {
     if (!reqObj) return;
 
     const referrals = reqObj.referrals || [];
-    const hasVerified = referrals.some(r => r.status === "verified" || r.status === "Verified" || r.eligible);
-    const hasNonVerified = referrals.some(r => r.status !== "verified" && r.status !== "Verified" && !r.eligible);
+    const unpaidReferrals = referrals.filter(r => !isClaimed(r));
+    const hasVerified = unpaidReferrals.some(r => r.status === "verified" || r.status === "Verified" || r.eligible);
+    const hasNonVerified = unpaidReferrals.some(r => r.status !== "verified" && r.status !== "Verified" && !r.eligible);
 
     if (hasVerified && hasNonVerified) {
       setToast({
@@ -351,7 +362,7 @@ export default function ReferralAnalyticsPage() {
 
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-      let payloadReferrals = referrals.map((r: any) => ({
+      let payloadReferrals = unpaidReferrals.map((r: any) => ({
         userId: r.userId || reqObj.userId,
         name: r.name,
         payout: getReferralReward(reqObj, r, usersMap),
@@ -400,15 +411,11 @@ export default function ReferralAnalyticsPage() {
       const responseData = await res.json();
       const updatedItem = responseData.data || responseData;
 
-      const finalReferrals = (updatedItem.referrals && updatedItem.referrals.length > 0)
-        ? updatedItem.referrals.map((ref: any) => ({
-            ...ref,
-            eligible: ref.status === "verified" || ref.status === "Verified"
-          }))
-        : payloadReferrals.map((ref: any) => ({
-            ...ref,
-            eligible: ref.status === "verified" || ref.status === "Verified"
-          }));
+      const finalReferrals = referrals.map((ref: any) => ({
+        ...ref,
+        eligible: ref.status === "verified" || ref.status === "Verified",
+        withdrawal: (ref.status === "verified" || ref.status === "Verified" || ref.eligible) ? "claim" : ref.withdrawal
+      }));
 
       setRequests((prev) =>
         prev.map((req) => {
@@ -487,102 +494,123 @@ export default function ReferralAnalyticsPage() {
               <p className="text-sm font-semibold">No referral withdrawal requests found.</p>
             </div>
           ) : (
-            requests.map((req) => (
-              <div
-                key={req.id}
-                className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-all duration-300 hover:border-emerald-500/30"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
-                  <div>
-                    <span className="text-sm font-bold text-[var(--text)]">{req.userName}</span>
+            requests.map((req) => {
+              const pendingPayout = calculateRequestPayout(req, usersMap);
+              const hasReferrals = (req.referrals && req.referrals.length > 0);
+              const isConfirmed = hasReferrals
+                ? (pendingPayout === 0 && req.referrals!.some(r => isClaimed(r)))
+                : (req.status === "Confirmed" && pendingPayout === 0);
+              const statusDisplay = isConfirmed ? "Confirmed" : "Pending";
+
+              return (
+                <div
+                  key={req.id}
+                  className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition-all duration-300 hover:border-emerald-500/30"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
+                    <div>
+                      <span className="text-sm font-bold text-[var(--text)]">{req.userName}</span>
+                    </div>
+
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${statusDisplay === "Confirmed"
+                      ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                      : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
+                      }`}>
+                      {statusDisplay === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+                      {statusDisplay}
+                    </span>
                   </div>
 
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${req.status === "Confirmed"
-                    ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                    : "bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse"
-                    }`}>
-                    {req.status === "Confirmed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-                    {req.status}
-                  </span>
-                </div>
-
-                <div className="grid gap-6 mt-6 md:grid-cols-2">
-                  {/* Bank Details section */}
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Bank Details</h3>
-                    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-[var(--text-muted)]">Holder Name</span>
-                        <span className="font-semibold text-[var(--text)]">{req.accountHolderName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[var(--text-muted)]">Account Number</span>
-                        <span className="font-mono font-semibold text-[var(--text)]">{req.accountNumber}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[var(--text-muted)]">IFSC Code</span>
-                        <span className="font-mono font-semibold text-[var(--text)]">{req.ifscCode}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[var(--text-muted)]">Branch</span>
-                        <span className="font-semibold text-[var(--text)]">{req.branchName}</span>
-                      </div>
-                      {req.upiId && (
-                        <div className="flex justify-between border-t border-[var(--border)]/50 pt-2">
-                          <span className="text-[var(--text-muted)]">UPI ID</span>
-                          <span className="font-semibold text-[var(--text)]">{req.upiId}</span>
+                  <div className="grid gap-6 mt-6 md:grid-cols-2">
+                    {/* Bank Details section */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Bank Details</h3>
+                      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">Holder Name</span>
+                          <span className="font-semibold text-[var(--text)]">{req.accountHolderName}</span>
                         </div>
-                      )}
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">Account Number</span>
+                          <span className="font-mono font-semibold text-[var(--text)]">{req.accountNumber}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">IFSC Code</span>
+                          <span className="font-mono font-semibold text-[var(--text)]">{req.ifscCode}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-muted)]">Branch</span>
+                          <span className="font-semibold text-[var(--text)]">{req.branchName}</span>
+                        </div>
+                        {req.upiId && (
+                          <div className="flex justify-between border-t border-[var(--border)]/50 pt-2">
+                            <span className="text-[var(--text-muted)]">UPI ID</span>
+                            <span className="font-semibold text-[var(--text)]">{req.upiId}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Referrals & Verification section */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Referrals Status</h3>
+                      <div className="space-y-2">
+                        {req.referrals?.map((ref, idx) => {
+                          const isRefClaimed = isClaimed(ref);
+                          const isVerified = ref.eligible || ref.status === "verified" || ref.status === "Verified";
+
+                          return (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 px-4 py-2.5 text-sm"
+                            >
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-[var(--text)]">{ref.name}</span>
+                                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${isVerified
+                                  ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                                  : "bg-gray-500/10 text-gray-500 border border-gray-500/20"
+                                  }`}>
+                                  {ref.status}
+                                </span>
+                                {isRefClaimed && (
+                                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Claimed
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center">
+                                {ref.eligible ? null : (
+                                  <span className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1">
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    No Reward
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Referrals & Verification section */}
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Referrals Status</h3>
-                    <div className="space-y-2">
-                      {req.referrals?.map((ref, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/30 px-4 py-2.5 text-sm"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-[var(--text)]">{ref.name}</span>
-                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${ref.eligible
-                              ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                              : "bg-gray-500/10 text-gray-500 border border-gray-500/20"
-                              }`}>
-                              {ref.status}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center">                            {ref.eligible ? null : (
-                              <span className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1">
-                                <XCircle className="h-3.5 w-3.5" />
-                                No Reward
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                  {/* Confirm Action Button */}
+                  {(!isConfirmed && pendingPayout > 0) && (
+                    <div className="mt-6 flex justify-end border-t border-[var(--border)]/50 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmRequest(req.id)}
+                        className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] hover:bg-emerald-600 hover:shadow-xl"
+                      >
+                        <Check className="h-4 w-4" />
+                        Verify &amp; Confirm Request (Payout ₹{pendingPayout})
+                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
- 
-                {/* Confirm Action Button */}
-                {req.status !== "Confirmed" && (
-                  <div className="mt-6 flex justify-end border-t border-[var(--border)]/50 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => handleConfirmRequest(req.id)}
-                      className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02] hover:bg-emerald-600 hover:shadow-xl"
-                    >
-                      <Check className="h-4 w-4" />
-                      Verify &amp; Confirm Request (Payout ₹{calculateRequestPayout(req, usersMap)})
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
