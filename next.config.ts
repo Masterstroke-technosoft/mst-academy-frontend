@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "path";
 import fs from "fs";
+import withSerwistInit from "@serwist/next";
 
 try {
   const oldPath = path.resolve(process.cwd(), "old-curriculum.json");
@@ -50,4 +51,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
+
+export default withSerwist(nextConfig);

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -6,10 +6,14 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import fs from "fs";
-import path from "path";
 import orgSchema from "@/lib/schema/organization.json";
 import ChatBotWidget from "@/components/chatbotWidget/chatbotWidget";
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://masterstroke.academy'),
@@ -26,6 +30,14 @@ export const metadata: Metadata = {
   authors: [{ name: 'Masterstroke Academy' }],
   creator: 'Masterstroke Technosoft Pvt. Ltd.',
   publisher: 'Masterstroke Technosoft Pvt. Ltd.',
+
+  manifest: '/manifest.json',
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'MST Academy',
+  },
 
   alternates: { canonical: '/' },
 
@@ -70,25 +82,7 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
-
-  other: { 'theme-color': '#e31e24' },
 };
-
-// Programmatically copy public/1.png to app favicon destinations and clean up default favicon
-try {
-  const publicIconPath = path.join(process.cwd(), "public", "1.png");
-  const appFaviconPath = path.join(process.cwd(), "src", "app", "favicon.ico");
-  const appIconPngPath = path.join(process.cwd(), "src", "app", "icon.png");
-
-  if (fs.existsSync(publicIconPath)) {
-    fs.copyFileSync(publicIconPath, appIconPngPath);
-    if (fs.existsSync(appFaviconPath)) {
-      fs.unlinkSync(appFaviconPath);
-    }
-  }
-} catch (error) {
-  console.error("Failed to automatically setup favicon:", error);
-}
 
 const inter = Inter({
   variable: "--font-inter",
@@ -109,7 +103,8 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/1.png" type="image/png" />
-        <meta name="theme-color" content="#e31e24" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0BTDN5EMY4"
           strategy="afterInteractive"
@@ -122,6 +117,19 @@ export default function RootLayout({
             gtag('config', 'G-0BTDN5EMY4');
           `}
         </Script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(err) {
+                    console.log('PWA Service Worker registration note:', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
