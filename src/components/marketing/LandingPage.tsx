@@ -541,6 +541,26 @@ export function LandingPage({
                 const originalPriceVal = plan.originalPrice || plan.discountedFrom || plan.original;
                 const original = (originalPriceVal && originalPriceVal !== plan.price) ? formatPrice(originalPriceVal) : "";
 
+                const rawBullets = Array.isArray(plan.perks) ? plan.perks : [];
+                const cleanedBullets = rawBullets
+                  .map((b: string) => {
+                    if (typeof b !== "string") return b;
+                    if (/fraction/i.test(b)) {
+                      return "1 Fraction Reward";
+                    }
+                    return b
+                      .replace(/\s*\+\s*Daily\s*\$MSTC\s*Rewards/gi, "")
+                      .replace(/\s*\+\s*Daily\s*\$MSTC/gi, "")
+                      .replace(/\s*\+\s*Daily\s*MSTC\s*Rewards/gi, "")
+                      .replace(/\s*\+\s*Daily\s*MSTC/gi, "")
+                      .replace(/Daily\s*\$MSTC\s*Rewards/gi, "")
+                      .replace(/Daily\s*\$MSTC/gi, "")
+                      .replace(/Daily\s*MSTC\s*Rewards/gi, "")
+                      .replace(/Daily\s*MSTC/gi, "")
+                      .trim();
+                  })
+                  .filter(Boolean);
+
                 return {
                   id: role.toLowerCase(),
                   detailHref,
@@ -549,7 +569,7 @@ export function LandingPage({
                   original,
                   gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
                   tag,
-                  bullets: plan.perks || [],
+                  bullets: cleanedBullets,
                 };
               });
 
