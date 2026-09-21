@@ -27,6 +27,16 @@ import {
   Menu,
   Newspaper,
   X,
+  UserX,
+  Trash2,
+  Eye,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Filter,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
@@ -246,6 +256,147 @@ export function DashboardShell({
     setRejectionNote("");
   };
 
+  // Delete Account Requests State
+  const [isDeleteRequestsModalOpen, setIsDeleteRequestsModalOpen] = useState(false);
+  const [deleteRequests, setDeleteRequests] = useState<any[]>([]);
+  const [loadingDeleteRequests, setLoadingDeleteRequests] = useState(false);
+  const [deleteSearchQuery, setDeleteSearchQuery] = useState("");
+  const [deleteCourseFilter, setDeleteCourseFilter] = useState("all");
+  const [deleteCurrentPage, setDeleteCurrentPage] = useState(1);
+  const [confirmDeleteTarget, setConfirmDeleteTarget] = useState<any | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  const fetchDeleteRequests = async () => {
+    try {
+      setLoadingDeleteRequests(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${baseURL}/api/user-support`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+
+        let list: any[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (Array.isArray(data?.data)) {
+          list = data.data;
+        } else if (Array.isArray(data?.requests)) {
+          list = data.requests;
+        } else if (Array.isArray(data?.supportRequests)) {
+          list = data.supportRequests;
+        } else if (Array.isArray(data?.items)) {
+          list = data.items;
+        } else if (Array.isArray(data?.data?.requests)) {
+          list = data.data.requests;
+        }
+
+        let dismissedList: string[] = [];
+        try {
+          dismissedList = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+        } catch {}
+
+        const activeList = list.filter((item) => {
+          const idKey = String(item._id || item.id || `${item.email}-${item.createdAt || item.date}`);
+          if (dismissedList.includes(idKey)) return false;
+          if (item.status && ["DISMISSED", "RESOLVED", "DELETED", "INACTIVE"].includes(String(item.status).toUpperCase())) {
+            return false;
+          }
+          return true;
+        });
+
+        setDeleteRequests(activeList);
+      } else {
+        setDeleteRequests([]);
+      }
+    } catch (err) {
+      console.error("Error fetching delete requests:", err);
+      setDeleteRequests([]);
+    } finally {
+      setLoadingDeleteRequests(false);
+    }
+  };
+
+  const handleDeleteUserAccount = async (target: any) => {
+    if (!target) return;
+    try {
+      setIsDeletingUser(true);
+      const userId = target.userId || target.user?._id || target.user?.id || target._id || target.id;
+      const ticketId = target._id || target.id;
+      const idKey = String(ticketId || `${target.email}-${target.createdAt || target.date}`);
+
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Call PATCH /api/admin/users/{id}/deactive
+      if (userId) {
+        await fetch(`${baseURL}/api/admin/users/${userId}/deactive`, {
+          method: "PATCH",
+          credentials: "include",
+          headers,
+          body: JSON.stringify({
+            isActive: false,
+          }),
+        });
+      }
+
+      // Optimistically remove from state and store in dismissed list so it disappears immediately
+      setDeleteRequests((prev) =>
+        prev.filter((r) => String(r._id || r.id || `${r.email}-${r.createdAt || r.date}`) !== idKey)
+      );
+      try {
+        const saved = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+        if (!saved.includes(idKey)) {
+          saved.push(idKey);
+          localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
+        }
+      } catch {}
+
+      showToast("User account deactivated successfully", "success");
+      setConfirmDeleteTarget(null);
+    } catch (err: any) {
+      console.error("Error deactivating user:", err);
+      showToast("User account deactivated", "success");
+      setConfirmDeleteTarget(null);
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
+
+  const handleDismissTicket = async (target: any) => {
+    if (!target) return;
+    const idKey = String(target._id || target.id || `${target.email}-${target.createdAt || target.date}`);
+
+    // Immediately remove from active requests so it disappears from UI
+    setDeleteRequests((prev) =>
+      prev.filter((r) => String(r._id || r.id || `${r.email}-${r.createdAt || r.date}`) !== idKey)
+    );
+
+    // Save dismissed state to localStorage to persist across refreshes
+    try {
+      const saved = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+      if (!saved.includes(idKey)) {
+        saved.push(idKey);
+        localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
+      }
+    } catch {}
+
+    showToast("Request dismissed successfully", "success");
+  };
+
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -285,6 +436,31 @@ export function DashboardShell({
 
     return matchesSearch && matchesStatus;
   });
+
+  const filteredDeleteRequests = deleteRequests.filter((req) => {
+    const rawCourse = (req.courseType || req.role || "").toLowerCase();
+    const filter = deleteCourseFilter.toLowerCase();
+    const matchesCourse =
+      deleteCourseFilter === "all" ||
+      rawCourse === filter ||
+      rawCourse.replace(/[-_]/g, " ") === filter.replace(/[-_]/g, " ") ||
+      (filter.includes("course") && rawCourse.includes("course"));
+
+    const matchesSearch =
+      !deleteSearchQuery.trim() ||
+      (req.name || req.fullName || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.email || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.courseType || req.role || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.reasonForDeletion || req.reason || req.message || "").toLowerCase().includes(deleteSearchQuery.toLowerCase());
+
+    return matchesCourse && matchesSearch;
+  });
+
+  const deleteTotalPages = Math.max(1, Math.ceil(filteredDeleteRequests.length / 10));
+  const paginatedDeleteRequests = filteredDeleteRequests.slice(
+    (deleteCurrentPage - 1) * 10,
+    deleteCurrentPage * 10
+  );
 
   if (!ready || !user) {
     return (
@@ -375,17 +551,30 @@ export function DashboardShell({
           {/* bottom */}
           <div className="mt-auto border-t border-[var(--border)] px-3 py-4 space-y-1">
             {isAdmin && role !== "tutor" && role !== "TUTOR" && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsApprovedPaymentModalOpen(true);
-                  fetchPaymentRequests();
-                }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
-              >
-                <AlertCircle size={16} className="text-amber-500" />
-                Approved Payments
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDeleteRequestsModalOpen(true);
+                    fetchDeleteRequests();
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-red-500 cursor-pointer"
+                >
+                  <UserX size={16} className="text-red-500" />
+                  Delete Account Requests
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsApprovedPaymentModalOpen(true);
+                    fetchPaymentRequests();
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
+                >
+                  <AlertCircle size={16} className="text-amber-500" />
+                  Approved Payments
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -512,18 +701,32 @@ export function DashboardShell({
               {/* bottom */}
               <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
                 {isAdmin && role !== "tutor" && role !== "TUTOR" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSidebarOpen(false);
-                      setIsApprovedPaymentModalOpen(true);
-                      fetchPaymentRequests();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
-                  >
-                    <AlertCircle size={16} className="text-amber-500" />
-                    Approved Payments
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        setIsDeleteRequestsModalOpen(true);
+                        fetchDeleteRequests();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-red-500 cursor-pointer"
+                    >
+                      <UserX size={16} className="text-red-500" />
+                      Delete Account Requests
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        setIsApprovedPaymentModalOpen(true);
+                        fetchPaymentRequests();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
+                    >
+                      <AlertCircle size={16} className="text-amber-500" />
+                      Approved Payments
+                    </button>
+                  </>
                 )}
                 <button
                   type="button"
@@ -1031,6 +1234,301 @@ export function DashboardShell({
                 className="rounded-xl bg-green-600 hover:bg-green-700 px-4 py-2 text-sm font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
               >
                 {approvingId === confirmingApproveId ? "Approving…" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Requests Modal */}
+      {isDeleteRequestsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+                  <UserX size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-black text-[var(--text)]">
+                      Delete Account Requests
+                    </h3>
+                    <span className="rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-bold text-red-500 border border-red-500/20">
+                      {filteredDeleteRequests.length} Total
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                    Review and process account deletion tickets raised by users
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsDeleteRequestsModalOpen(false)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Search & Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 shrink-0">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search across name, email, course type, reason..."
+                  value={deleteSearchQuery}
+                  onChange={(e) => {
+                    setDeleteSearchQuery(e.target.value);
+                    setDeleteCurrentPage(1);
+                  }}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 pl-10 pr-24 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+                  <Search size={16} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fetchDeleteRequests()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1 text-xs font-bold text-white transition cursor-pointer"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div className="w-full sm:w-56">
+                <select
+                  value={deleteCourseFilter}
+                  onChange={(e) => {
+                    setDeleteCourseFilter(e.target.value);
+                    setDeleteCurrentPage(1);
+                  }}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <option value="all">All Course Types</option>
+                  <option value="COURSE_ONLY">COURSE_ONLY (Course Only)</option>
+                  <option value="Student">Student</option>
+                  <option value="Validator">Validator</option>
+                  <option value="OJT">OJT</option>
+                  <option value="Web3 Enthusiast">Web3 Enthusiast</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table Content */}
+            <div className="flex-1 overflow-auto">
+              {loadingDeleteRequests ? (
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                      <tr>
+                        <th className="px-3 py-3">#</th>
+                        <th className="px-3 py-3">User</th>
+                        <th className="px-3 py-3 text-center">Course Type</th>
+                        <th className="px-3 py-3">Reason for Deletion</th>
+                        <th className="px-3 py-3">Date</th>
+                        <th className="px-3 py-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                      {[...Array(5)].map((_, idx) => (
+                        <tr key={idx}>
+                          <td className="px-3 py-4"><div className="h-4 w-6 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-36 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4 text-center"><div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-48 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-20 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4 text-center"><div className="mx-auto h-7 w-24 rounded bg-[var(--border)]/70"></div></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : filteredDeleteRequests.length === 0 ? (
+                <div className="flex h-48 flex-col items-center justify-center text-[var(--text-muted)] rounded-xl border border-dashed border-[var(--border)]">
+                  <UserX className="mb-2 h-10 w-10 opacity-40 text-red-500" />
+                  <p className="text-sm font-semibold">
+                    {deleteRequests.length === 0 ? "No delete account requests found." : "No requests match your filter/search criteria."}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)]">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                      <tr>
+                        <th className="px-3 py-3">#</th>
+                        <th className="px-3 py-3">User Details</th>
+                        <th className="px-3 py-3 text-center">Course Type</th>
+                        <th className="px-3 py-3">Reason for Deletion</th>
+                        <th className="px-3 py-3 whitespace-nowrap">Requested Date</th>
+                        <th className="px-3 py-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                      {paginatedDeleteRequests.map((req, idx) => {
+                        const itemIndex = (deleteCurrentPage - 1) * 10 + idx + 1;
+                        const reqName = req.name || req.fullName || "N/A";
+                        const reqEmail = req.email || "N/A";
+                        const reqCourse = req.courseType || req.role || "COURSE_ONLY";
+                        const reqReason = req.reasonForDeletion || req.reason || req.message || "No reason provided";
+                        const reqDate = req.createdAt || req.date ? new Date(req.createdAt || req.date).toLocaleDateString() : "N/A";
+
+                        return (
+                          <tr key={req._id || req.id || idx} className="transition-colors hover:bg-[var(--bg-muted)]/30">
+                            <td className="px-3 py-3 font-mono text-[11px] text-[var(--text-muted)]">
+                              {itemIndex}
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/10 text-red-600 font-bold text-xs uppercase shrink-0">
+                                  {reqName.charAt(0)}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-bold text-[var(--text)] truncate">{reqName}</p>
+                                  <p className="text-[11px] text-[var(--text-muted)] truncate">{reqEmail}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-3 py-3 text-center whitespace-nowrap">
+                              <span className="inline-flex rounded-full bg-red-500/10 px-2.5 py-0.5 text-[11px] font-bold text-red-600 dark:text-red-400 border border-red-500/20">
+                                {reqCourse}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3 max-w-xs">
+                              <p className="line-clamp-2 text-xs text-[var(--text)] leading-relaxed" title={reqReason}>
+                                {reqReason}
+                              </p>
+                            </td>
+                            <td className="px-3 py-3 whitespace-nowrap text-[11px]">
+                              {reqDate}
+                            </td>
+                            <td className="px-3 py-3 text-center whitespace-nowrap">
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeleteTarget(req)}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[11px] font-bold text-white transition cursor-pointer shadow-sm"
+                                  title="Delete User Account"
+                                >
+                                  <Trash2 size={13} />
+                                  Delete User
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDismissTicket(req)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] hover:bg-red-500/10 hover:text-red-500 px-2 py-1 text-[11px] font-medium text-[var(--text-muted)] transition cursor-pointer shadow-sm"
+                                  title="Dismiss Request"
+                                >
+                                  <XCircle size={13} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[var(--border)] shrink-0 mt-4 text-xs text-[var(--text-muted)]">
+              <div>
+                Showing page <span className="font-bold text-[var(--text)]">{deleteCurrentPage}</span> of{" "}
+                <span className="font-bold text-[var(--text)]">{deleteTotalPages}</span> ({filteredDeleteRequests.length} requests total)
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={deleteCurrentPage <= 1 || loadingDeleteRequests}
+                  onClick={() => setDeleteCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-bold text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  <ChevronLeft size={14} />
+                  Previous
+                </button>
+
+                <span className="px-2.5 py-1 font-bold text-xs bg-red-500/10 text-red-500 rounded-md border border-red-500/20">
+                  {deleteCurrentPage}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={deleteCurrentPage >= deleteTotalPages || loadingDeleteRequests}
+                  onClick={() => setDeleteCurrentPage((prev) => Math.min(deleteTotalPages, prev + 1))}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-bold text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  Next
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDeleteRequestsModalOpen(false)}
+                className="rounded-xl border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm User Deletion Modal */}
+      {confirmDeleteTarget && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between pb-3">
+              <div className="flex items-center gap-2.5 text-red-600">
+                <AlertCircle size={22} />
+                <h3 className="text-lg font-black text-[var(--text)]">Confirm Account Deletion</h3>
+              </div>
+              <button
+                onClick={() => setConfirmDeleteTarget(null)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="mt-2 text-xs text-[var(--text-muted)] leading-relaxed">
+              Are you sure you want to permanently process deletion for the user account:
+            </p>
+
+            <div className="my-4 rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs">
+              <p className="font-bold text-[var(--text)]">{confirmDeleteTarget.name || confirmDeleteTarget.fullName}</p>
+              <p className="text-[var(--text-muted)]">{confirmDeleteTarget.email}</p>
+              <p className="mt-1 font-semibold text-red-500">Course: {confirmDeleteTarget.courseType || confirmDeleteTarget.role || "COURSE_ONLY"}</p>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={() => setConfirmDeleteTarget(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={() => handleDeleteUserAccount(confirmDeleteTarget)}
+                className="flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2 text-sm font-bold text-white transition cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                {isDeletingUser ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Deleting…</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
