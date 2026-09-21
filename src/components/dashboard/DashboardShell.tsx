@@ -1305,10 +1305,11 @@ export function DashboardShell({
                   className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors cursor-pointer"
                 >
                   <option value="all">All Course Types</option>
-                  <option value="COURSE_ONLY">COURSE_ONLY (Course Only)</option>
-                  <option value="Student">Student</option>
-                  <option value="Validator">Validator</option>
+                  
+    
                   <option value="OJT">OJT</option>
+                  <option value="Validator">Validator</option>
+                   <option value="Student">Student</option>
                   <option value="Web3 Enthusiast">Web3 Enthusiast</option>
                 </select>
               </div>
