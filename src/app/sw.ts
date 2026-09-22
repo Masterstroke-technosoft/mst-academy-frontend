@@ -20,6 +20,16 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
+    // 0. LOCALHOST / DEV WEBPACK HOT-RELOAD CHUNKS -> STRICTLY NETWORK ONLY (NEVER CACHED)
+    {
+      matcher: ({ url }) =>
+        url.hostname === "localhost" ||
+        url.hostname === "127.0.0.1" ||
+        url.pathname.includes("/_next/static/webpack") ||
+        url.pathname.includes("/_next/static/development"),
+      handler: new NetworkOnly(),
+    },
+
     // 1. ALL ASSESSMENT & PROCTORING ROUTES -> STRICTLY NETWORK ONLY (NEVER CACHED)
     {
       matcher: ({ url }) => url.pathname.includes("/assessment"),
@@ -70,3 +80,48 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// ==========================================
+// PUSH NOTIFICATIONS EVENT HANDLERS
+// ==========================================
+
+self.addEventListener("push", (event: PushEvent) => {
+  let data: { title?: string; body?: string; url?: string; icon?: string; image?: string } = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+
+  const title = data.title || "Masterstroke Academy";
+  const options: NotificationOptions = {
+    body: data.body || "You have a new update from Masterstroke Academy.",
+    icon: data.icon || "/icons/icon-192x192.png",
+    badge: "/icons/icon-192x192.png",
+    ...(data.image ? { image: data.image } : {}),
+    data: {
+      url: data.url || "/",
+    },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event: NotificationEvent) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ("focus" in client && client.url.includes(self.location.origin)) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    }),
+  );
+});

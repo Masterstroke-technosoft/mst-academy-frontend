@@ -27,7 +27,9 @@ import {
   Menu,
   Newspaper,
   X,
+  Bell,
 } from "lucide-react";
+import { PushNotificationToggle } from "@/components/notifications/PushNotificationToggle";
 
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
   { role: "student", href: "/dashboard/student", label: "Student" },
@@ -59,6 +61,7 @@ const getSidebarNav = (role: string, isAdmin: boolean) => {
         { href: "/admin/users", icon: Users, label: "User Managementss" },
         { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
         { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
+        { href: "/admin/notifications", icon: Bell, label: "Push Notifications" },
       ]
       : []),
     ...(!isAdmin && role !== "admin"

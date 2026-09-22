@@ -8,6 +8,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import orgSchema from "@/lib/schema/organization.json";
 import ChatBotWidget from "@/components/chatbotWidget/chatbotWidget";
+import { PushNotificationPrompt } from "@/components/notifications/PushNotificationPrompt";
 
 export const viewport: Viewport = {
   themeColor: '#000000',
@@ -168,6 +169,7 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
+            <PushNotificationPrompt />
           </AuthProvider>
         </ThemeProvider>
         <ChatBotWidget />
