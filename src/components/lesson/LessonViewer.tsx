@@ -324,6 +324,20 @@ function enhanceLessonIframeHtml(rawHtml: string): string {
   const injection = `
 <style id="mst-lesson-mobile-enhancement">
   @media (max-width: 1024px) {
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-text-size-adjust: 100% !important;
+    }
+
+    *, *:before, *:after {
+      box-sizing: border-box !important;
+    }
+
     #mst-doc-sidebar-drawer {
       position: fixed !important;
       top: 0 !important;
@@ -424,12 +438,95 @@ function enhanceLessonIframeHtml(rawHtml: string): string {
       margin: 1.5px 0 !important;
     }
 
-    main, article, .main-content, #main-content, .content, #content, .lesson-container, .lesson-content {
+    /* Table, diagram, flow, router hops, and media mobile confinement */
+    table {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      border-collapse: collapse !important;
+      margin: 1.25rem 0 !important;
+    }
+
+    .table-wrap,
+    .table-container,
+    .responsive-table {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      display: block !important;
+      margin: 1.25rem 0 !important;
+    }
+
+    .diagram-container,
+    .diagram-wrap,
+    .interactive-diagram,
+    .network-diagram,
+    .interactive-container,
+    .node-network,
+    .flowchart,
+    .canvas-container,
+    .process-flow,
+    .route-diagram,
+    .packet-flow,
+    .diagram-box,
+    .diagram-card,
+    .diagram-content,
+    .diagram,
+    .interactive-card,
+    .interactive-box,
+    .step-flow,
+    .hops-container,
+    .hop-track,
+    .nodes-container,
+    .visual-box,
+    .timeline,
+    [class*="diagram"],
+    [class*="flowchart"],
+    [class*="network"],
+    [class*="router"],
+    [class*="packet"],
+    [class*="route"],
+    [class*="interactive"],
+    [class*="track"],
+    [class*="step"] {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    img, video, canvas {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    pre {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      word-break: normal !important;
+    }
+
+    code {
+      word-break: break-word !important;
+    }
+
+    main, article, .main-content, #main-content, .content, #content, .lesson-container, .lesson-content, .container, body > div {
       margin-left: 0 !important;
       padding-left: 1rem !important;
       padding-right: 1rem !important;
       width: 100% !important;
       max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
     }
   }
 
@@ -451,6 +548,52 @@ function enhanceLessonIframeHtml(rawHtml: string): string {
     function initMobileSidebar() {
       var doc = document;
       if (!doc || !doc.body) return;
+
+      function fixDiagramsAndTables() {
+        // 1. Ensure all SVGs have a viewBox so they scale down responsively if possible
+        var svgs = doc.querySelectorAll('svg');
+        for (var s = 0; s < svgs.length; s++) {
+          var svg = svgs[s];
+          var w = svg.getAttribute('width');
+          var h = svg.getAttribute('height');
+          if (w && h && !svg.getAttribute('viewBox')) {
+            var numW = parseFloat(w);
+            var numH = parseFloat(h);
+            if (!isNaN(numW) && !isNaN(numH) && numW > 0 && numH > 0) {
+              svg.setAttribute('viewBox', '0 0 ' + numW + ' ' + numH);
+            }
+          }
+        }
+
+        // 2. Wrap tables for responsive touch horizontal scrolling if not already wrapped
+        var tables = doc.querySelectorAll('table');
+        for (var t = 0; t < tables.length; t++) {
+          var tbl = tables[t];
+          if (tbl.parentElement && !tbl.parentElement.classList.contains('table-wrap') && !tbl.parentElement.classList.contains('table-container')) {
+            var wrapper = doc.createElement('div');
+            wrapper.className = 'table-wrap';
+            wrapper.style.cssText = 'width: 100% !important; max-width: 100% !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; margin: 1.25rem 0 !important;';
+            tbl.parentNode.insertBefore(wrapper, tbl);
+            wrapper.appendChild(tbl);
+          }
+        }
+
+        // 3. Find any diagram or flow containers that overflow horizontally and enable horizontal scrolling
+        var candidates = doc.querySelectorAll('[class*="diagram"], [class*="flow"], [class*="network"], [class*="router"], [class*="packet"], [class*="step"], [class*="track"], [class*="visual"], [class*="interactive"], .card, .box, div');
+        for (var c = 0; c < candidates.length; c++) {
+          var el = candidates[c];
+          if (el.id === 'mst-doc-sidebar-drawer' || el.id === 'mst-sidebar-backdrop') continue;
+          if (el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0) {
+            el.style.setProperty('overflow-x', 'auto', 'important');
+            el.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+            el.style.setProperty('max-width', '100%', 'important');
+          }
+        }
+      }
+
+      fixDiagramsAndTables();
+      setTimeout(fixDiagramsAndTables, 200);
+      setTimeout(fixDiagramsAndTables, 800);
 
       function findRootSidebar() {
         var existing = doc.getElementById('mst-doc-sidebar-drawer');
@@ -1099,14 +1242,14 @@ export function LessonViewer({
     const contentUrl = resolveContentFileUrl(contentFile);
 
     return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col bg-[var(--bg)]" suppressHydrationWarning>
+      <div className="flex h-[calc(100vh-4rem)] w-full max-w-full flex-col overflow-x-hidden bg-[var(--bg)]" suppressHydrationWarning>
         <iframe
           ref={iframeRef}
           key={contentUrl}
           srcDoc={iframeHtml}
           title={lessonTitle}
           onLoad={handleIframeLoad}
-          className="w-full flex-1 min-h-0 border-0 bg-white"
+          className="w-full min-w-0 max-w-full flex-1 min-h-0 border-0 bg-white"
         />
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 lg:px-8">
@@ -1166,7 +1309,7 @@ export function LessonViewer({
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[var(--bg)]" suppressHydrationWarning>
+    <div className="flex min-h-[calc(100vh-4rem)] w-full max-w-full overflow-x-hidden bg-[var(--bg)]" suppressHydrationWarning>
       {/* Mobile Backdrop */}
       {mobileSidebarOpen && (
         <div
@@ -1298,7 +1441,7 @@ export function LessonViewer({
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col bg-[var(--bg-elevated)]">
+      <div className="flex flex-1 min-w-0 max-w-full flex-col overflow-x-hidden bg-[var(--bg-elevated)]">
         {/* Reading progress bar */}
         <div className="h-1 w-full bg-[var(--border)]">
           <div
@@ -1392,13 +1535,13 @@ export function LessonViewer({
         )}
 
         {/* Article content */}
-        <article ref={articleRef} className="flex-1 px-4 py-8 lg:px-12 lg:py-10">
-          <div className="mx-auto max-w-4xl">
+        <article ref={articleRef} className="flex-1 min-w-0 max-w-full overflow-x-hidden px-4 py-8 lg:px-12 lg:py-10">
+          <div className="mx-auto max-w-4xl min-w-0 w-full">
             {mounted ? (
               <LessonContent html={html} />
             ) : (
               <div
-                className="lesson-content space-y-4"
+                className="lesson-content space-y-4 min-w-0 max-w-full"
                 dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
                 suppressHydrationWarning
               />
