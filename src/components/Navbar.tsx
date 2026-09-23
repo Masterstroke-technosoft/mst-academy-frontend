@@ -49,7 +49,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0 max-w-[95px] min-[380px]:max-w-[120px] sm:max-w-none">
           <img
-            src="/Acadmy Logo.png"
+            src="/Acadmy Logo.webp"
             alt="Masterstroke Academy"
             className="h-28 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain object-left"
           />
