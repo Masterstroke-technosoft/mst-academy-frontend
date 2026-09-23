@@ -281,10 +281,10 @@ export function LandingPage({
               Masterstroke Academy
             </p> */}
 
-            <div className="mt-4 sm:mt-6 min-h-[110px] sm:min-h-[130px] flex flex-col justify-center">
-              <h1 className="animate-slide-up font-black text-[var(--text)] text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1]">
+            <div className="mt-4 sm:mt-6 min-h-[130px] flex flex-col justify-center">
+              <h1 className="font-black text-[var(--text)] text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1]">
                 Master Blockchain
-                <span className="block mt-1 sm:mt-2">
+                <span className="block mt-1 sm:mt-2 min-h-[1.2em]">
                   <Typewriter
                     strings={[
                       "From Zero to Production",

@@ -44,7 +44,7 @@ export function Typewriter({
   return (
     <span className={className}>
       {text}
-      <span className="animate-pulse text-mst-red">|</span>
+      <span className="text-mst-red">|</span>
     </span>
   );
 }
