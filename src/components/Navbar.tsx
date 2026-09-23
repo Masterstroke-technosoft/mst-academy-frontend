@@ -45,16 +45,13 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2.5 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0">
+        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0 max-w-[95px] min-[380px]:max-w-[120px] sm:max-w-none">
           <img
             src="/Acadmy Logo.webp"
             alt="Masterstroke Academy"
-            width={320}
-            height={100}
-            fetchPriority="high"
-            className="h-32 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain"
+            className="h-28 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain object-left"
           />
         </Link>
 
@@ -100,8 +97,8 @@ export function Navbar() {
         </nav>
 
         {/* Right side */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          <ThemeToggle />
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <ThemeToggle className="p-1 sm:p-2" />
 
           {showUserNav ? (
             <div className="flex items-center gap-1 sm:gap-2">
@@ -143,28 +140,11 @@ export function Navbar() {
                 <LogOut size={16} />
               </button>
             </div>
-          ) : (
-            <div className="hidden items-center gap-2 sm:flex">
-              {/* <Link
-                href="/login"
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10"
-              >
-                <LogIn size={14} />
-                Sign In
-              </Link>
-              <Link
-                href="/register"
-                className="hidden items-center gap-1.5 rounded-lg border border-white/10 px-3.5 py-2 text-sm font-medium text-[var(--nav-text)] transition hover:border-mst-red/50 hover:bg-mst-red/10 lg:flex"
-              >
-                <UserPlus size={14} />
-                Register
-              </Link> */}
-            </div>
-          )}
+          ) : null}
 
           <Link
             href={showUserNav ? "/learn" : "/register"}
-            className="rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            className="rounded-lg sm:rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-1.5 py-1 text-[8px] min-[360px]:text-[9px] min-[360px]:px-2 font-bold text-white shadow-md transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             Start Learning
           </Link>
@@ -172,7 +152,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={switchPortal}
-            className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-2 py-1 text-[9px] font-bold text-white shadow-lg shadow-[var(--accent-purple)]/25 transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
+            className="flex items-center gap-0.5 sm:gap-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-[var(--accent-purple)] to-purple-600 px-1.5 py-1 text-[8px] min-[360px]:text-[9px] min-[360px]:px-2 font-bold text-white shadow-md transition hover:shadow-[var(--accent-purple)]/40 hover:brightness-110 active:scale-[0.98] sm:px-5 sm:py-2.5 sm:text-sm whitespace-nowrap"
           >
             <ArrowLeftRight size={10} className="sm:w-3.5 sm:h-3.5" />
             Events
@@ -182,9 +162,10 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="rounded-lg p-1.5 text-[var(--nav-text)] transition hover:bg-white/10 lg:hidden"
+            className="rounded-lg p-1 sm:p-2 text-[var(--nav-text)] transition hover:bg-white/10 active:scale-95 touch-manipulation cursor-pointer lg:hidden shrink-0"
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileOpen ? <X size={18} className="sm:w-5 sm:h-5" /> : <Menu size={18} className="sm:w-5 sm:h-5" />}
           </button>
         </div>
       </div>

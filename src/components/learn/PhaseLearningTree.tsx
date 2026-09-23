@@ -14,8 +14,8 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Link from "next/link";
-import { useEffect, useMemo, memo } from "react";
-import { Lock, CheckCircle2, Circle, BookOpen, Zap, Star } from "lucide-react";
+import { useEffect, useMemo, useState, memo } from "react";
+import { Lock, CheckCircle2, Circle, BookOpen, Zap, Star, Play } from "lucide-react";
 import type { Curriculum, ModuleMeta } from "@/lib/types";
 import { getPhaseTreeLayout, getPhaseEdges, getLayoutCenterX } from "@/lib/phase-layout";
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/lib/progress";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/components/AuthProvider";
+import { ModuleVideoModal } from "./ModuleVideoModal";
 
 const MODULE_EMOJIS: Record<number, string> = {
   1: "🌐", 2: "🔗", 3: "🔒", 4: "💰",
@@ -45,11 +46,13 @@ const ModuleCard = memo(function ModuleCard({
     href: string;
     phaseColor: string;
     isLight: boolean;
+    onPlayVideo?: (module: ModuleMeta) => void;
   };
 }) {
-  const { module, status, progress, href, isLight } = data;
+  const { module, status, progress, href, isLight, onPlayVideo } = data;
   const locked = status === "locked";
   const emoji = MODULE_EMOJIS[module.id] || "📚";
+  const hasVideo = Boolean(module.videoUrl) && !locked;
 
   const gradientBg = status === "active"
     ? isLight
@@ -149,6 +152,21 @@ const ModuleCard = memo(function ModuleCard({
           )}
         </div>
       </div>
+
+      {hasVideo && (
+        <button
+          type="button"
+          aria-label={`Play video for Module ${module.id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onPlayVideo?.(module);
+          }}
+          className="absolute -bottom-3 -right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform hover:scale-110"
+        >
+          <Play size={16} className="ml-0.5 fill-white" />
+        </button>
+      )}
     </div>
   );
 
@@ -202,6 +220,7 @@ export function MobileModuleList({
   const isLight = theme === "light";
   const getSlugs = (id: number) => moduleSlugMap[id] ?? [];
   const modules = curriculum.modules.filter((m) => m.phaseId === phaseId);
+  const [playingModule, setPlayingModule] = useState<ModuleMeta | null>(null);
 
   const phaseColors: Record<string, string> = {
     "phase-1": "#3b82f6",
@@ -213,12 +232,19 @@ export function MobileModuleList({
 
   return (
     <div className="flex flex-col gap-4 px-4 py-6">
+      <ModuleVideoModal
+        open={Boolean(playingModule)}
+        onClose={() => setPlayingModule(null)}
+        videoUrl={playingModule?.videoUrl || ""}
+        title={playingModule ? `Module ${playingModule.id}: ${playingModule.title}` : ""}
+      />
       {modules.map((mod, i) => {
         const slugsForMod = mod.submodules.map((s) => s.slug);
         const status = getModuleStatus(mod.id, allModuleIds, slugsForMod, getSlugs);
         const progress = getModuleProgressPercent(mod.id, slugsForMod);
         const emoji = MODULE_EMOJIS[mod.id] || "📚";
         const locked = status === "locked";
+        const hasVideo = Boolean(mod.videoUrl) && !locked;
 
         const gradientBg = status === "active"
           ? isLight
@@ -282,6 +308,21 @@ export function MobileModuleList({
                 style={{ width: `${progress}%` }}
               />
             </div>
+
+            {hasVideo && (
+              <button
+                type="button"
+                aria-label={`Play video for Module ${mod.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPlayingModule(mod);
+                }}
+                className="absolute -bottom-3 -right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black text-white shadow-lg transition-transform active:scale-95"
+              >
+                <Play size={16} className="ml-0.5 fill-white" />
+              </button>
+            )}
           </div>
         );
 
@@ -312,6 +353,7 @@ export function PhaseLearningTree({
     () => curriculum.modules.filter((m) => m.phaseId === phaseId),
     [curriculum.modules, phaseId]
   );
+  const [playingModule, setPlayingModule] = useState<ModuleMeta | null>(null);
 
   const phaseColors: Record<string, string> = {
     "phase-1": "#3b82f6",
@@ -381,6 +423,7 @@ export function PhaseLearningTree({
             href: `/module/${mod.id}`,
             phaseColor: color,
             isLight,
+            onPlayVideo: setPlayingModule,
           },
           draggable: false,
         };
@@ -424,6 +467,12 @@ export function PhaseLearningTree({
 
   return (
     <div className="h-full w-full">
+      <ModuleVideoModal
+        open={Boolean(playingModule)}
+        onClose={() => setPlayingModule(null)}
+        videoUrl={playingModule?.videoUrl || ""}
+        title={playingModule ? `Module ${playingModule.id}: ${playingModule.title}` : ""}
+      />
       <ReactFlow
         nodes={nodes}
         edges={edges}

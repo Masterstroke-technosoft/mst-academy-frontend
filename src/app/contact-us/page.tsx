@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, Mail, Phone, MapPin, Clock } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 export const metadata: Metadata = {
   title: { absolute: 'Contact Masterstroke Academy | Blockchain Course Support, Pune' },
@@ -54,7 +55,7 @@ export default function ContactUsPage() {
           <div className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-xl p-6">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
-              <span className="text-mst-red font-semibold">A Product of</span>Masterstroke Technosoft Pvt. Ltd.
+              <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
             </p>
 
             <div className="space-y-3">
@@ -63,7 +64,7 @@ export default function ContactUsPage() {
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Registered Office:</p>
                   <p className="text-[var(--text)] leading-relaxed">
-                    Kohinoor World Towers,
+                    Kohinoor World Towers T3-403,
                     <br />
                     Old Pune-Mumbai Highway,
                     <br />
@@ -97,12 +98,31 @@ export default function ContactUsPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-4">
+            {/* <div className="flex items-start gap-4">
               <Phone size={24} className="text-mst-red mt-1 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Phone:</p>
                 <a href="tel:9112228906" className="text-mst-red font-medium hover:underline text-lg">
                   9112228906
+                </a>
+              </div>
+            </div> */}
+
+            <div className="flex items-start gap-4">
+              <FaWhatsapp size={24} className="text-mst-red mt-1 flex-shrink-0" />
+
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">
+                  WhatsApp:
+                </p>
+
+                <a
+                  href="https://wa.me/919112228906"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-mst-red font-medium hover:underline text-lg"
+                >
+                  +91 91122 28906
                 </a>
               </div>
             </div>

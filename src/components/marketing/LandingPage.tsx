@@ -16,6 +16,16 @@ import { getSession } from "@/lib/auth";
 import { useCurrencyRate } from "@/hooks/useCurrencyRate";
 import { convertINRtoUSD } from "@/lib/currency";
 import BannerPopup from "@/components/marketing/BannerPopup";
+import { FaqSection } from "@/components/marketing/FaqSection";
+import { HOMEPAGE_FAQS } from "@/lib/faqs";
+
+const DEFAULT_LEADERBOARD_ENTRIES: LeaderboardEntry[] = [
+  { id: "s1", name: "Aarav K.", score: 92, modulesDone: 18, totalModules: 21, streak: 14, coins: 420 },
+  { id: "s2", name: "Diya S.", score: 88, modulesDone: 16, totalModules: 21, streak: 11, coins: 380 },
+  { id: "s3", name: "Rohan P.", score: 85, modulesDone: 15, totalModules: 21, streak: 9, coins: 310 },
+  { id: "s4", name: "Sara M.", score: 83, modulesDone: 14, totalModules: 21, streak: 8, coins: 290 },
+  { id: "s5", name: "Kabir T.", score: 80, modulesDone: 13, totalModules: 21, streak: 7, coins: 260 },
+];
 
 
 interface BackendLeaderboardEntry {
@@ -160,9 +170,9 @@ export function LandingPage({
   const [expandedPhaseDetails, setExpandedPhaseDetails] = useState<any>(null);
   const [isLoadingPhase, setIsLoadingPhase] = useState(false);
   const [courseDetails, setCourseDetails] = useState<any>(null);
-  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>(DEFAULT_LEADERBOARD_ENTRIES);
   const [fetchError, setFetchError] = useState(false);
-  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(true);
+  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(false);
   const { rate: usdRate } = useCurrencyRate();
 
   useEffect(() => {
@@ -531,6 +541,26 @@ export function LandingPage({
                 const originalPriceVal = plan.originalPrice || plan.discountedFrom || plan.original;
                 const original = (originalPriceVal && originalPriceVal !== plan.price) ? formatPrice(originalPriceVal) : "";
 
+                const rawBullets = Array.isArray(plan.perks) ? plan.perks : [];
+                const cleanedBullets = rawBullets
+                  .map((b: string) => {
+                    if (typeof b !== "string") return b;
+                    if (/fraction/i.test(b)) {
+                      return "1 Fraction Reward";
+                    }
+                    return b
+                      .replace(/\s*\+\s*Daily\s*\$MSTC\s*Rewards/gi, "")
+                      .replace(/\s*\+\s*Daily\s*\$MSTC/gi, "")
+                      .replace(/\s*\+\s*Daily\s*MSTC\s*Rewards/gi, "")
+                      .replace(/\s*\+\s*Daily\s*MSTC/gi, "")
+                      .replace(/Daily\s*\$MSTC\s*Rewards/gi, "")
+                      .replace(/Daily\s*\$MSTC/gi, "")
+                      .replace(/Daily\s*MSTC\s*Rewards/gi, "")
+                      .replace(/Daily\s*MSTC/gi, "")
+                      .trim();
+                  })
+                  .filter(Boolean);
+
                 return {
                   id: role.toLowerCase(),
                   detailHref,
@@ -539,7 +569,7 @@ export function LandingPage({
                   original,
                   gradient: "bg-gradient-to-br from-mst-red/20 via-mst-red/5 to-transparent",
                   tag,
-                  bullets: plan.perks || [],
+                  bullets: cleanedBullets,
                 };
               });
 
@@ -710,21 +740,25 @@ export function LandingPage({
         <div className="relative mx-auto grid max-w-6xl grid-cols-2 sm:grid-cols-4">
           {[
             { end: 4, suffix: "", label: "Phases" },
-            { end: moduleCount, suffix: "", label: "Modules" },
-            { end: 123, submoduleCount, suffix: "", label: "Submodules" },
+            { end: moduleCount || 21, suffix: "", label: "Modules" },
+            { end: submoduleCount || 123, suffix: "", label: "Submodules" },
             { end: 130, suffix: "+", label: "Hours" },
           ].map((stat, i) => (
             <div
               key={stat.label}
-              className={`border-[var(--border)] px-6 py-16 text-center sm:py-20 ${i > 0 ? "border-l" : ""
-                } ${statsRef.visible ? "animate-scale-in" : "opacity-0"}`}
+              className={`border-[var(--border)] px-6 py-16 text-center sm:py-20 ${
+                i > 0 ? "border-l" : ""
+              } ${statsRef.visible ? "animate-scale-in" : ""}`}
               style={{ animationDelay: `${i * 0.12}s` }}
             >
               <p className="text-4xl font-black text-gradient-red sm:text-6xl">
                 {statsRef.visible ? (
                   <AnimatedCounter end={stat.end} suffix={stat.suffix} />
                 ) : (
-                  "0"
+                  <span>
+                    {stat.end}
+                    {stat.suffix}
+                  </span>
                 )}
               </p>
               <p className="mt-3 text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
@@ -794,7 +828,7 @@ export function LandingPage({
       </section>
 
       {/* Trust strip */}
-      <section className="py-20 sm:py-24">
+      <section className="pt-14 pb-4 sm:pt-16 sm:pb-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection>
             <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--bg-muted)] to-[var(--surface)] p-10 sm:p-14">
@@ -831,6 +865,15 @@ export function LandingPage({
           </RevealSection>
         </div>
       </section>
+
+      {/* Frequently Asked Questions */}
+      <FaqSection
+        title="Frequently Asked Questions"
+        subtitle="Everything you need to know about Masterstroke Academy, our courses, certifications, and career paths."
+        tag="Got Questions?"
+        faqs={HOMEPAGE_FAQS}
+        id="faq"
+      />
 
       {/* CTA */}
       <section className="relative overflow-hidden border-t border-[var(--border)]">

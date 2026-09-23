@@ -78,27 +78,86 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
   const [prevSlug, setPrevSlug] = useState<string | undefined>();
   const [nextSlug, setNextSlug] = useState<string | undefined>();
   const [showLockModal, setShowLockModal] = useState(false);
+  const [isTrial, setIsTrial] = useState(false);
 
   useEffect(() => {
     async function loadHtml() {
       try {
         setLoading(true);
         setError(null);
+        setIsTrial(false);
 
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const subRes = await fetch(`${baseURL}/api/submodules/${slug}`, {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!subRes.ok) {
-          setShowLockModal(true);
-          throw new Error("Unable to load lesson details.");
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("admin-token") ||
+              localStorage.getItem("token") ||
+              localStorage.getItem("jwt")
+            : null;
+        const authHeaders: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          authHeaders["Authorization"] = `Bearer ${token}`;
         }
 
-        const subJson = await subRes.json();
-        const subData = subJson.data;
+        // Dynamically check payment verification status from /api/me
+        let isPaymentVerified = false;
+        let isAdmin = false;
+        try {
+          const profileRes = await fetch(`${baseURL}/api/me`, {
+            method: "GET",
+            credentials: "include",
+            headers: authHeaders,
+          });
+          if (profileRes.ok) {
+            const profileJson = await profileRes.json();
+            const u = profileJson?.user;
+            if (u) {
+              isPaymentVerified = !!(u.isPaymentVerified || u.paymentVerified);
+              const r = u.role?.toLowerCase();
+              isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin";
+            }
+          }
+        } catch (e) {
+          console.error("Error verifying payment status:", e);
+        }
+
+        const isVerified = isPaymentVerified || isAdmin;
+        let subData: any = null;
+
+        if (isVerified) {
+          // Paid / verified user -> Full access via standard submodule API
+          setIsTrial(false);
+          const subRes = await fetch(`${baseURL}/api/submodules/${slug}`, {
+            method: "GET",
+            credentials: "include",
+            headers: authHeaders,
+          });
+
+          if (subRes.ok) {
+            const subJson = await subRes.json();
+            subData = subJson.data;
+          } else {
+            setShowLockModal(true);
+            throw new Error("Unable to load lesson details.");
+          }
+        } else {
+          // Unpaid user -> ONLY trial submodule access via GET /api/submodules/trial/{slug}
+          setIsTrial(true);
+          const trialRes = await fetch(`${baseURL}/api/submodules/trial/${slug}`, {
+            method: "GET",
+            credentials: "include",
+            headers: authHeaders,
+          });
+
+          if (trialRes.ok) {
+            const trialJson = await trialRes.json();
+            subData = trialJson.data;
+          } else {
+            setShowLockModal(true);
+            throw new Error("This submodule is locked. Please complete your payment to access full course content.");
+          }
+        }
+
         if (!subData) {
           throw new Error("Lesson not found.");
         }
@@ -106,7 +165,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
         const modRes = await fetch(`${baseURL}/api/modules/full/${id}`, {
           method: "GET",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: authHeaders,
         });
 
         if (!modRes.ok) {
@@ -142,20 +201,33 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
 
         if (subData.contentFile) {
           const normalizedContentFile = normalizeContentFilePath(String(subData.contentFile));
-          setContentFile(normalizedContentFile);
-          setHtml("");
+          let htmlContent = "";
 
-          const fileRes = await fetch(`${baseURL}/${normalizedContentFile}`, {
-            credentials: "include",
-          });
+          try {
+            const fileRes = await fetch(`${baseURL}/${normalizedContentFile}`, {
+              credentials: "include",
+            });
 
-          if (fileRes.ok) {
-            const htmlText = await fileRes.text();
-            submodulePayload.toc = extractTableOfContents(htmlText);
+            if (fileRes.ok) {
+              const htmlText = await fileRes.text();
+              if (htmlText && !htmlText.includes('"statusCode":404') && !htmlText.includes('"error":"Not Found"')) {
+                htmlContent = htmlText;
+                submodulePayload.toc = extractTableOfContents(htmlText);
+              }
+            }
+          } catch (e) {
+            console.error("Error fetching content file:", e);
           }
 
-          setMockSubmodule(submodulePayload);
-          return;
+          if (htmlContent) {
+            setContentFile(normalizedContentFile);
+            setHtml(extractContent(htmlContent) || htmlContent);
+            setMockSubmodule(submodulePayload);
+            return;
+          }
+
+          setContentFile(undefined);
+          throw new Error("This lesson has no content yet.");
         }
 
         setContentFile(undefined);
@@ -239,6 +311,7 @@ export function DynamicLessonLoader({ id, slug }: DynamicLessonLoaderProps) {
       allModuleIds={[id]}
       moduleSlugMap={{ [id]: mockMod?.submodules?.data?.map((s: any) => String(s._id || s.id)) || [] }}
       contentFile={contentFile}
+      isTrial={isTrial}
     />
   );
 }

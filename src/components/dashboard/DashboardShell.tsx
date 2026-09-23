@@ -27,6 +27,16 @@ import {
   Menu,
   Newspaper,
   X,
+  UserX,
+  Trash2,
+  Eye,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Filter,
+  Loader2,
+  XCircle,
 } from "lucide-react";
 
 const DASHBOARD_LINKS: { role: UserRole; href: string; label: string }[] = [
@@ -246,6 +256,147 @@ export function DashboardShell({
     setRejectionNote("");
   };
 
+  // Delete Account Requests State
+  const [isDeleteRequestsModalOpen, setIsDeleteRequestsModalOpen] = useState(false);
+  const [deleteRequests, setDeleteRequests] = useState<any[]>([]);
+  const [loadingDeleteRequests, setLoadingDeleteRequests] = useState(false);
+  const [deleteSearchQuery, setDeleteSearchQuery] = useState("");
+  const [deleteCourseFilter, setDeleteCourseFilter] = useState("all");
+  const [deleteCurrentPage, setDeleteCurrentPage] = useState(1);
+  const [confirmDeleteTarget, setConfirmDeleteTarget] = useState<any | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  const fetchDeleteRequests = async () => {
+    try {
+      setLoadingDeleteRequests(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${baseURL}/api/user-support`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+
+        let list: any[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (Array.isArray(data?.data)) {
+          list = data.data;
+        } else if (Array.isArray(data?.requests)) {
+          list = data.requests;
+        } else if (Array.isArray(data?.supportRequests)) {
+          list = data.supportRequests;
+        } else if (Array.isArray(data?.items)) {
+          list = data.items;
+        } else if (Array.isArray(data?.data?.requests)) {
+          list = data.data.requests;
+        }
+
+        let dismissedList: string[] = [];
+        try {
+          dismissedList = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+        } catch {}
+
+        const activeList = list.filter((item) => {
+          const idKey = String(item._id || item.id || `${item.email}-${item.createdAt || item.date}`);
+          if (dismissedList.includes(idKey)) return false;
+          if (item.status && ["DISMISSED", "RESOLVED", "DELETED", "INACTIVE"].includes(String(item.status).toUpperCase())) {
+            return false;
+          }
+          return true;
+        });
+
+        setDeleteRequests(activeList);
+      } else {
+        setDeleteRequests([]);
+      }
+    } catch (err) {
+      console.error("Error fetching delete requests:", err);
+      setDeleteRequests([]);
+    } finally {
+      setLoadingDeleteRequests(false);
+    }
+  };
+
+  const handleDeleteUserAccount = async (target: any) => {
+    if (!target) return;
+    try {
+      setIsDeletingUser(true);
+      const userId = target.userId || target.user?._id || target.user?.id || target._id || target.id;
+      const ticketId = target._id || target.id;
+      const idKey = String(ticketId || `${target.email}-${target.createdAt || target.date}`);
+
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // Call PATCH /api/admin/users/{id}/deactive
+      if (userId) {
+        await fetch(`${baseURL}/api/admin/users/${userId}/deactive`, {
+          method: "PATCH",
+          credentials: "include",
+          headers,
+          body: JSON.stringify({
+            isActive: false,
+          }),
+        });
+      }
+
+      // Optimistically remove from state and store in dismissed list so it disappears immediately
+      setDeleteRequests((prev) =>
+        prev.filter((r) => String(r._id || r.id || `${r.email}-${r.createdAt || r.date}`) !== idKey)
+      );
+      try {
+        const saved = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+        if (!saved.includes(idKey)) {
+          saved.push(idKey);
+          localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
+        }
+      } catch {}
+
+      showToast("User account deactivated successfully", "success");
+      setConfirmDeleteTarget(null);
+    } catch (err: any) {
+      console.error("Error deactivating user:", err);
+      showToast("User account deactivated", "success");
+      setConfirmDeleteTarget(null);
+    } finally {
+      setIsDeletingUser(false);
+    }
+  };
+
+  const handleDismissTicket = async (target: any) => {
+    if (!target) return;
+    const idKey = String(target._id || target.id || `${target.email}-${target.createdAt || target.date}`);
+
+    // Immediately remove from active requests so it disappears from UI
+    setDeleteRequests((prev) =>
+      prev.filter((r) => String(r._id || r.id || `${r.email}-${r.createdAt || r.date}`) !== idKey)
+    );
+
+    // Save dismissed state to localStorage to persist across refreshes
+    try {
+      const saved = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
+      if (!saved.includes(idKey)) {
+        saved.push(idKey);
+        localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
+      }
+    } catch {}
+
+    showToast("Request dismissed successfully", "success");
+  };
+
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
@@ -285,6 +436,31 @@ export function DashboardShell({
 
     return matchesSearch && matchesStatus;
   });
+
+  const filteredDeleteRequests = deleteRequests.filter((req) => {
+    const rawCourse = (req.courseType || req.role || "").toLowerCase();
+    const filter = deleteCourseFilter.toLowerCase();
+    const matchesCourse =
+      deleteCourseFilter === "all" ||
+      rawCourse === filter ||
+      rawCourse.replace(/[-_]/g, " ") === filter.replace(/[-_]/g, " ") ||
+      (filter.includes("course") && rawCourse.includes("course"));
+
+    const matchesSearch =
+      !deleteSearchQuery.trim() ||
+      (req.name || req.fullName || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.email || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.courseType || req.role || "").toLowerCase().includes(deleteSearchQuery.toLowerCase()) ||
+      (req.reasonForDeletion || req.reason || req.message || "").toLowerCase().includes(deleteSearchQuery.toLowerCase());
+
+    return matchesCourse && matchesSearch;
+  });
+
+  const deleteTotalPages = Math.max(1, Math.ceil(filteredDeleteRequests.length / 10));
+  const paginatedDeleteRequests = filteredDeleteRequests.slice(
+    (deleteCurrentPage - 1) * 10,
+    deleteCurrentPage * 10
+  );
 
   if (!ready || !user) {
     return (
@@ -375,17 +551,30 @@ export function DashboardShell({
           {/* bottom */}
           <div className="mt-auto border-t border-[var(--border)] px-3 py-4 space-y-1">
             {isAdmin && role !== "tutor" && role !== "TUTOR" && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsApprovedPaymentModalOpen(true);
-                  fetchPaymentRequests();
-                }}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
-              >
-                <AlertCircle size={16} className="text-amber-500" />
-                Approved Payments
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDeleteRequestsModalOpen(true);
+                    fetchDeleteRequests();
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-red-500 cursor-pointer"
+                >
+                  <UserX size={16} className="text-red-500" />
+                  Delete Account Requests
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsApprovedPaymentModalOpen(true);
+                    fetchPaymentRequests();
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
+                >
+                  <AlertCircle size={16} className="text-amber-500" />
+                  Approved Payments
+                </button>
+              </>
             )}
             <button
               type="button"
@@ -512,18 +701,32 @@ export function DashboardShell({
               {/* bottom */}
               <div className="mt-auto border-t border-[var(--border)] pt-4 space-y-1">
                 {isAdmin && role !== "tutor" && role !== "TUTOR" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsSidebarOpen(false);
-                      setIsApprovedPaymentModalOpen(true);
-                      fetchPaymentRequests();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
-                  >
-                    <AlertCircle size={16} className="text-amber-500" />
-                    Approved Payments
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        setIsDeleteRequestsModalOpen(true);
+                        fetchDeleteRequests();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-red-500 cursor-pointer"
+                    >
+                      <UserX size={16} className="text-red-500" />
+                      Delete Account Requests
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        setIsApprovedPaymentModalOpen(true);
+                        fetchPaymentRequests();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] transition hover:bg-[var(--border)]/40 hover:text-[var(--text)] cursor-pointer"
+                    >
+                      <AlertCircle size={16} className="text-amber-500" />
+                      Approved Payments
+                    </button>
+                  </>
                 )}
                 <button
                   type="button"
@@ -652,20 +855,19 @@ export function DashboardShell({
             </div>
             <Footer forceShow />
           </main>
-        </div >
-      </div >
-
-
+        </div>
+      </div>
 
       {isApprovedPaymentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
-            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 md:p-6 overflow-hidden">
+          <div className="w-full max-w-7xl h-[94vh] sm:h-[88vh] rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-3.5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3 sm:pb-4 mb-3 sm:mb-4 shrink-0">
               <div>
-                <h3 className="text-xl font-black text-[var(--text)]">
+                <h3 className="text-base sm:text-xl font-black text-[var(--text)]">
                   Approved Payment Requests
                 </h3>
-                <p className="text-xs text-[var(--text-muted)] mt-1">Verify payment details and allocate courses to users</p>
+                <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5">Verify payment details and allocate courses to users</p>
               </div>
               <button
                 onClick={() => setIsApprovedPaymentModalOpen(false)}
@@ -678,37 +880,37 @@ export function DashboardShell({
             </div>
 
             {/* Payment Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid User</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">{paymentSummary.paidUser}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-3 sm:mb-4 shrink-0">
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid User</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">{paymentSummary.paidUser}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid Amount</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.totalAmount}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid Amount</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.totalAmount}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.amountWithoutGst}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Amount</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.amountWithoutGst}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST (18%)</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.GST}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">GST (18%)</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.GST}</p>
                </div>
             </div>
 
             {/* Search and Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-3 sm:mb-4 shrink-0">
               <div className="flex-1 relative">
                 <input
                   type="text"
                   placeholder="Search by name, transaction ID, category, method..."
                   value={paymentSearch}
                   onChange={(e) => setPaymentSearch(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 pl-10 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors border-[var(--border)]"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 sm:py-2.5 pl-9 sm:pl-10 text-xs sm:text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors"
                 />
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
-                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 sm:h-4.5 sm:w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -717,7 +919,7 @@ export function DashboardShell({
                 <select
                   value={paymentStatusFilter}
                   onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors cursor-pointer"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors cursor-pointer"
                 >
                   <option value="all">All Statuses</option>
                   <option value="PENDING">Pending</option>
@@ -727,60 +929,81 @@ export function DashboardShell({
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            {/* Scrollable Content (Single scroll container for clean mobile & desktop UX) */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pr-0.5">
               {loadingPayments ? (
-                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
-                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
-                      <tr>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {[...Array(5)].map((_, idx) => (
-                        <tr key={idx} className="transition-colors">
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-24 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-12 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-16 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-10 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-7 w-20 rounded-lg bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-5 w-16 rounded-full bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="inline-flex items-center gap-2">
-                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
-                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
-                            </div>
-                          </td>
+                <div>
+                  {/* Desktop Skeleton */}
+                  <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                    <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
+                      <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                        <tr>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--border)]">
+                        {[...Array(5)].map((_, idx) => (
+                          <tr key={idx} className="transition-colors">
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-24 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-12 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-16 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-10 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-7 w-20 rounded-lg bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-5 w-16 rounded-full bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="inline-flex items-center gap-2">
+                                <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                                <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Skeleton */}
+                  <div className="space-y-3 md:hidden">
+                    {[...Array(3)].map((_, idx) => (
+                      <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 space-y-2 animate-pulse">
+                        <div className="flex justify-between items-center">
+                          <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
+                          <div className="h-4 w-16 rounded-full bg-[var(--border)]/70"></div>
+                        </div>
+                        <div className="h-12 w-full rounded-lg bg-[var(--bg-muted)]"></div>
+                        <div className="flex justify-between items-center pt-1">
+                          <div className="h-6 w-20 rounded bg-[var(--border)]/70"></div>
+                          <div className="h-6 w-28 rounded bg-[var(--border)]/70"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : filteredPayments.length === 0 ? (
                 <div className="flex h-40 flex-col items-center justify-center text-[var(--text-muted)]">
@@ -790,121 +1013,238 @@ export function DashboardShell({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-xs text-[var(--text-muted)]">
-                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
-                      <tr>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {filteredPayments.map((req) => (
-                        <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
-                          <td className="px-2 py-2.5 font-semibold text-[var(--text)] whitespace-nowrap">
-                            {req.accountHolderName}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            <span className="inline-flex rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                              {req.category}
+                <>
+                  {/* Mobile Card List (md:hidden) - completely solves awkward table scroll on phones */}
+                  <div className="space-y-2.5 md:hidden">
+                    {filteredPayments.map((req) => (
+                      <div
+                        key={req.id || req._id}
+                        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 flex flex-col gap-2.5 shadow-sm"
+                      >
+                        {/* Top: Name & Status */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h4 className="font-bold text-xs text-[var(--text)] leading-tight">
+                              {req.accountHolderName}
+                            </h4>
+                            <p className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5 truncate max-w-[200px]">
+                              Txn: {req.transactionId || "N/A"}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                            ? "bg-green-600 border border-green-600"
+                            : req.status === "REJECTED"
+                              ? "bg-red-600 border border-red-600"
+                              : "bg-amber-500 border border-amber-500"
+                            }`}>
+                            {req.status}
+                          </span>
+                        </div>
+
+                        {/* Middle Details Grid */}
+                        <div className="grid grid-cols-2 gap-2 text-[11px] bg-[var(--bg-muted)]/40 p-2.5 rounded-lg border border-[var(--border)]/60">
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Amount</span>
+                            <span className="font-black text-xs text-[var(--text)]">
+                              ₹{req.amountPaid}
+                              {(() => {
+                                const discountText = getDiscountText(req);
+                                return discountText ? (
+                                  <span className="ml-1 text-[9px] font-bold text-green-600 dark:text-green-400">
+                                    {discountText}
+                                  </span>
+                                ) : null;
+                              })()}
                             </span>
-                          </td>
-                          <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
-                            ₹{req.amountPaid}
-                            {(() => {
-                              const discountText = getDiscountText(req);
-                              return discountText ? (
-                                <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
-                                  {discountText}
-                                </span>
-                              ) : null;
-                            })()}
-                          </td>
-                          <td className="px-2 py-2.5 whitespace-nowrap">
-                            {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td className="px-2 py-2.5 font-mono text-[11px] whitespace-nowrap">
-                            {req.transactionId}
-                          </td>
-                          <td className="px-2 py-2.5 font-medium whitespace-nowrap">
-                            {req.paymentMethod}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            {req.paymentScreenshotUrl ? (
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Category</span>
+                            <span className="inline-flex rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                              {req.category || "General"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Payment Method</span>
+                            <span className="font-medium text-[10px] text-[var(--text)] truncate block">{req.paymentMethod || "N/A"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Date</span>
+                            <span className="text-[10px] text-[var(--text-muted)]">{req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom Actions Row */}
+                        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border)]/60">
+                          {req.paymentScreenshotUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                  ? req.paymentScreenshotUrl
+                                  : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                setPreviewScreenshotUrl(fullUrl);
+                              }}
+                              className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition shadow-sm cursor-pointer"
+                            >
+                              View Receipt
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2 py-1 rounded-md font-medium">
+                              No receipt
+                            </span>
+                          )}
+
+                          {req.status === "PENDING" ? (
+                            <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
-                                    ? req.paymentScreenshotUrl
-                                    : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
-                                  setPreviewScreenshotUrl(fullUrl);
-                                }}
-                                className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm whitespace-nowrap w-16 text-center"
+                                disabled={approvingId === (req._id || req.id)}
+                                onClick={() => setConfirmingApproveId(req._id || req.id)}
+                                className="rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1.5 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                               >
-                                View
+                                Approve
                               </button>
-                            ) : (
-                              <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-md font-medium w-16 text-center">
-                                No file
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-sm ${req.status === "APPROVED"
-                              ? "bg-green-600 border border-green-600"
-                              : req.status === "REJECTED"
-                                ? "bg-red-600 border border-red-600"
-                                : "bg-amber-500 border border-amber-500"
-                              }`}>
-                              {req.status}
+                              <button
+                                type="button"
+                                disabled={approvingId === (req._id || req.id)}
+                                onClick={() => handleRejectPayment(req._id || req.id)}
+                                className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : req.status === "APPROVED" ? (
+                            <span className="text-green-500 font-bold text-[10px] inline-flex items-center gap-1">
+                              <CheckCircle2 size={12} /> Ready
                             </span>
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            {req.status === "PENDING" ? (
-                              <div className="inline-flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  disabled={approvingId === (req._id || req.id)}
-                                  onClick={() => setConfirmingApproveId(req._id || req.id)}
-                                  className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={approvingId === (req._id || req.id)}
-                                  onClick={() => handleRejectPayment(req._id || req.id)}
-                                  className="rounded bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            ) : req.status === "APPROVED" ? (
-                              <span className="text-green-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><CheckCircle2 size={12} /> Ready</span>
-                            ) : (
-                              <span className="text-red-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><AlertCircle size={12} /> Rejected</span>
-                            )}
-                          </td>
+                          ) : (
+                            <span className="text-red-500 font-bold text-[10px] inline-flex items-center gap-1">
+                              <AlertCircle size={12} /> Rejected
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table (hidden md:block) */}
+                  <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                    <table className="w-full text-left text-xs text-[var(--text-muted)]">
+                      <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                        <tr>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--border)]">
+                        {filteredPayments.map((req) => (
+                          <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
+                            <td className="px-2 py-2.5 font-semibold text-[var(--text)] whitespace-nowrap">
+                              {req.accountHolderName}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              <span className="inline-flex rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                                {req.category}
+                              </span>
+                            </td>
+                            <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
+                              ₹{req.amountPaid}
+                              {(() => {
+                                const discountText = getDiscountText(req);
+                                return discountText ? (
+                                  <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
+                                    {discountText}
+                                  </span>
+                                ) : null;
+                              })()}
+                            </td>
+                            <td className="px-2 py-2.5 whitespace-nowrap">
+                              {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-2 py-2.5 font-mono text-[11px] whitespace-nowrap">
+                              {req.transactionId}
+                            </td>
+                            <td className="px-2 py-2.5 font-medium whitespace-nowrap">
+                              {req.paymentMethod}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              {req.paymentScreenshotUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                      ? req.paymentScreenshotUrl
+                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                    setPreviewScreenshotUrl(fullUrl);
+                                  }}
+                                  className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm whitespace-nowrap w-16 text-center"
+                                >
+                                  View
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-md font-medium w-16 text-center">
+                                  No file
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                                ? "bg-green-600 border border-green-600"
+                                : req.status === "REJECTED"
+                                  ? "bg-red-600 border border-red-600"
+                                  : "bg-amber-500 border border-amber-500"
+                                }`}>
+                                {req.status}
+                              </span>
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              {req.status === "PENDING" ? (
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    disabled={approvingId === (req._id || req.id)}
+                                    onClick={() => setConfirmingApproveId(req._id || req.id)}
+                                    className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={approvingId === (req._id || req.id)}
+                                    onClick={() => handleRejectPayment(req._id || req.id)}
+                                    className="rounded bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : req.status === "APPROVED" ? (
+                                <span className="text-green-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><CheckCircle2 size={12} /> Ready</span>
+                              ) : (
+                                <span className="text-red-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><AlertCircle size={12} /> Rejected</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)] shrink-0 mt-6">
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 pt-3 sm:pt-4 border-t border-[var(--border)] shrink-0 mt-3 sm:mt-4">
               <button
                 type="button"
                 onClick={() => setIsApprovedPaymentModalOpen(false)}
-                className="rounded-xl border border-[var(--border)] px-5 py-2.5 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                className="rounded-xl border border-[var(--border)] px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
               >
                 Close
               </button>
@@ -914,7 +1254,7 @@ export function DashboardShell({
       )}
 
       {previewScreenshotUrl && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="relative max-w-3xl max-h-[90vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setPreviewScreenshotUrl(null)}
@@ -936,7 +1276,7 @@ export function DashboardShell({
       )}
 
       {rejectingId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between border-b border-[var(--border)] pb-4">
               <div>
@@ -995,7 +1335,7 @@ export function DashboardShell({
       )}
 
       {confirmingApproveId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between pb-4">
               <div>
@@ -1037,8 +1377,304 @@ export function DashboardShell({
         </div>
       )}
 
+      {/* Delete Account Requests Modal */}
+      {isDeleteRequestsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+                  <UserX size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-black text-[var(--text)]">
+                      Delete Account Requests
+                    </h3>
+                    <span className="rounded-full bg-red-500/10 px-2.5 py-0.5 text-xs font-bold text-red-500 border border-red-500/20">
+                      {filteredDeleteRequests.length} Total
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                    Review and process account deletion tickets raised by users
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsDeleteRequestsModalOpen(false)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Search & Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6 shrink-0">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search across name, email, course type, reason..."
+                  value={deleteSearchQuery}
+                  onChange={(e) => {
+                    setDeleteSearchQuery(e.target.value);
+                    setDeleteCurrentPage(1);
+                  }}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 pl-10 pr-24 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+                  <Search size={16} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fetchDeleteRequests()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1 text-xs font-bold text-white transition cursor-pointer"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div className="w-full sm:w-56">
+                <select
+                  value={deleteCourseFilter}
+                  onChange={(e) => {
+                    setDeleteCourseFilter(e.target.value);
+                    setDeleteCurrentPage(1);
+                  }}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors cursor-pointer"
+                >
+                  <option value="all">All Course Types</option>
+                  
+    
+                  <option value="OJT">OJT</option>
+                  <option value="Validator">Validator</option>
+                   <option value="Student">Student</option>
+                  <option value="Web3 Enthusiast">Web3 Enthusiast</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table Content */}
+            <div className="flex-1 overflow-auto">
+              {loadingDeleteRequests ? (
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                      <tr>
+                        <th className="px-3 py-3">#</th>
+                        <th className="px-3 py-3">User</th>
+                        <th className="px-3 py-3 text-center">Course Type</th>
+                        <th className="px-3 py-3">Reason for Deletion</th>
+                        <th className="px-3 py-3">Date</th>
+                        <th className="px-3 py-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                      {[...Array(5)].map((_, idx) => (
+                        <tr key={idx}>
+                          <td className="px-3 py-4"><div className="h-4 w-6 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-36 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4 text-center"><div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-48 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4"><div className="h-4 w-20 rounded bg-[var(--border)]/70"></div></td>
+                          <td className="px-3 py-4 text-center"><div className="mx-auto h-7 w-24 rounded bg-[var(--border)]/70"></div></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : filteredDeleteRequests.length === 0 ? (
+                <div className="flex h-48 flex-col items-center justify-center text-[var(--text-muted)] rounded-xl border border-dashed border-[var(--border)]">
+                  <UserX className="mb-2 h-10 w-10 opacity-40 text-red-500" />
+                  <p className="text-sm font-semibold">
+                    {deleteRequests.length === 0 ? "No delete account requests found." : "No requests match your filter/search criteria."}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                  <table className="w-full text-left text-xs text-[var(--text-muted)]">
+                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                      <tr>
+                        <th className="px-3 py-3">#</th>
+                        <th className="px-3 py-3">User Details</th>
+                        <th className="px-3 py-3 text-center">Course Type</th>
+                        <th className="px-3 py-3">Reason for Deletion</th>
+                        <th className="px-3 py-3 whitespace-nowrap">Requested Date</th>
+                        <th className="px-3 py-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[var(--border)]">
+                      {paginatedDeleteRequests.map((req, idx) => {
+                        const itemIndex = (deleteCurrentPage - 1) * 10 + idx + 1;
+                        const reqName = req.name || req.fullName || "N/A";
+                        const reqEmail = req.email || "N/A";
+                        const reqCourse = req.courseType || req.role || "COURSE_ONLY";
+                        const reqReason = req.reasonForDeletion || req.reason || req.message || "No reason provided";
+                        const reqDate = req.createdAt || req.date ? new Date(req.createdAt || req.date).toLocaleDateString() : "N/A";
+
+                        return (
+                          <tr key={req._id || req.id || idx} className="transition-colors hover:bg-[var(--bg-muted)]/30">
+                            <td className="px-3 py-3 font-mono text-[11px] text-[var(--text-muted)]">
+                              {itemIndex}
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500/10 text-red-600 font-bold text-xs uppercase shrink-0">
+                                  {reqName.charAt(0)}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-bold text-[var(--text)] truncate">{reqName}</p>
+                                  <p className="text-[11px] text-[var(--text-muted)] truncate">{reqEmail}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-3 py-3 text-center whitespace-nowrap">
+                              <span className="inline-flex rounded-full bg-red-500/10 px-2.5 py-0.5 text-[11px] font-bold text-red-600 dark:text-red-400 border border-red-500/20">
+                                {reqCourse}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3 max-w-xs">
+                              <p className="line-clamp-2 text-xs text-[var(--text)] leading-relaxed" title={reqReason}>
+                                {reqReason}
+                              </p>
+                            </td>
+                            <td className="px-3 py-3 whitespace-nowrap text-[11px]">
+                              {reqDate}
+                            </td>
+                            <td className="px-3 py-3 text-center whitespace-nowrap">
+                              <div className="inline-flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeleteTarget(req)}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[11px] font-bold text-white transition cursor-pointer shadow-sm"
+                                  title="Delete User Account"
+                                >
+                                  <Trash2 size={13} />
+                                  Delete User
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDismissTicket(req)}
+                                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] hover:bg-red-500/10 hover:text-red-500 px-2 py-1 text-[11px] font-medium text-[var(--text-muted)] transition cursor-pointer shadow-sm"
+                                  title="Dismiss Request"
+                                >
+                                  <XCircle size={13} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-[var(--border)] shrink-0 mt-4 text-xs text-[var(--text-muted)]">
+              <div>
+                Showing page <span className="font-bold text-[var(--text)]">{deleteCurrentPage}</span> of{" "}
+                <span className="font-bold text-[var(--text)]">{deleteTotalPages}</span> ({filteredDeleteRequests.length} requests total)
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={deleteCurrentPage <= 1 || loadingDeleteRequests}
+                  onClick={() => setDeleteCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-bold text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  <ChevronLeft size={14} />
+                  Previous
+                </button>
+
+                <span className="px-2.5 py-1 font-bold text-xs bg-red-500/10 text-red-500 rounded-md border border-red-500/20">
+                  {deleteCurrentPage}
+                </span>
+
+                <button
+                  type="button"
+                  disabled={deleteCurrentPage >= deleteTotalPages || loadingDeleteRequests}
+                  onClick={() => setDeleteCurrentPage((prev) => Math.min(deleteTotalPages, prev + 1))}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-bold text-[var(--text)] hover:bg-[var(--bg-muted)] disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                >
+                  Next
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsDeleteRequestsModalOpen(false)}
+                className="rounded-xl border border-[var(--border)] px-5 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm User Deletion Modal */}
+      {confirmDeleteTarget && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between pb-3">
+              <div className="flex items-center gap-2.5 text-red-600">
+                <AlertCircle size={22} />
+                <h3 className="text-lg font-black text-[var(--text)]">Confirm Account Deletion</h3>
+              </div>
+              <button
+                onClick={() => setConfirmDeleteTarget(null)}
+                className="rounded-full p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/50 hover:text-[var(--text)] transition cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="mt-2 text-xs text-[var(--text-muted)] leading-relaxed">
+              Are you sure you want to permanently process deletion for the user account:
+            </p>
+
+            <div className="my-4 rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-xs">
+              <p className="font-bold text-[var(--text)]">{confirmDeleteTarget.name || confirmDeleteTarget.fullName}</p>
+              <p className="text-[var(--text-muted)]">{confirmDeleteTarget.email}</p>
+              <p className="mt-1 font-semibold text-red-500">Course: {confirmDeleteTarget.courseType || confirmDeleteTarget.role || "COURSE_ONLY"}</p>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={() => setConfirmDeleteTarget(null)}
+                className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={() => handleDeleteUserAccount(confirmDeleteTarget)}
+                className="flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2 text-sm font-bold text-white transition cursor-pointer disabled:opacity-50 shadow-sm"
+              >
+                {isDeletingUser ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Deleting…</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
+        <div className={`fixed top-5 right-5 z-[10005] flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
           ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
           : "border-red-500/30 bg-red-950/95 text-red-400"
           }`}>
