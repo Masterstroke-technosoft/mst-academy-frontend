@@ -855,20 +855,19 @@ export function DashboardShell({
             </div>
             <Footer forceShow />
           </main>
-        </div >
-      </div >
-
-
+        </div>
+      </div>
 
       {isApprovedPaymentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="w-full max-w-7xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] my-8">
-            <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-6 shrink-0">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 md:p-6 overflow-hidden">
+          <div className="w-full max-w-7xl h-[94vh] sm:h-[88vh] rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-3.5 sm:p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-[var(--border)] pb-3 sm:pb-4 mb-3 sm:mb-4 shrink-0">
               <div>
-                <h3 className="text-xl font-black text-[var(--text)]">
+                <h3 className="text-base sm:text-xl font-black text-[var(--text)]">
                   Approved Payment Requests
                 </h3>
-                <p className="text-xs text-[var(--text-muted)] mt-1">Verify payment details and allocate courses to users</p>
+                <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5">Verify payment details and allocate courses to users</p>
               </div>
               <button
                 onClick={() => setIsApprovedPaymentModalOpen(false)}
@@ -881,37 +880,37 @@ export function DashboardShell({
             </div>
 
             {/* Payment Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid User</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">{paymentSummary.paidUser}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-3 sm:mb-4 shrink-0">
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid User</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">{paymentSummary.paidUser}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Paid Amount</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.totalAmount}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid Amount</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.totalAmount}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">Total Amount</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.amountWithoutGst}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Amount</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.amountWithoutGst}</p>
                </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-4 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-1">GST (18%)</p>
-                  <p className="text-xl font-black text-green-600 dark:text-green-400">₹{paymentSummary.GST}</p>
+               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">GST (18%)</p>
+                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.GST}</p>
                </div>
             </div>
 
             {/* Search and Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-3 sm:mb-4 shrink-0">
               <div className="flex-1 relative">
                 <input
                   type="text"
                   placeholder="Search by name, transaction ID, category, method..."
                   value={paymentSearch}
                   onChange={(e) => setPaymentSearch(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 pl-10 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors border-[var(--border)]"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 sm:py-2.5 pl-9 sm:pl-10 text-xs sm:text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors"
                 />
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
-                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 sm:h-4.5 sm:w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -920,7 +919,7 @@ export function DashboardShell({
                 <select
                   value={paymentStatusFilter}
                   onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors cursor-pointer"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm text-[var(--text)] focus:border-mst-red focus:outline-none transition-colors cursor-pointer"
                 >
                   <option value="all">All Statuses</option>
                   <option value="PENDING">Pending</option>
@@ -930,60 +929,81 @@ export function DashboardShell({
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            {/* Scrollable Content (Single scroll container for clean mobile & desktop UX) */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pr-0.5">
               {loadingPayments ? (
-                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
-                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
-                      <tr>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {[...Array(5)].map((_, idx) => (
-                        <tr key={idx} className="transition-colors">
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-24 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-12 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-16 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 whitespace-nowrap">
-                            <div className="h-4 w-10 rounded bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-7 w-20 rounded-lg bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="mx-auto h-5 w-16 rounded-full bg-[var(--border)]/70"></div>
-                          </td>
-                          <td className="px-2 py-4 text-center whitespace-nowrap">
-                            <div className="inline-flex items-center gap-2">
-                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
-                              <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
-                            </div>
-                          </td>
+                <div>
+                  {/* Desktop Skeleton */}
+                  <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                    <table className="w-full text-left text-xs text-[var(--text-muted)] animate-pulse">
+                      <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                        <tr>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--border)]">
+                        {[...Array(5)].map((_, idx) => (
+                          <tr key={idx} className="transition-colors">
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-24 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-5 w-20 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-12 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-16 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 whitespace-nowrap">
+                              <div className="h-4 w-10 rounded bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-7 w-20 rounded-lg bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="mx-auto h-5 w-16 rounded-full bg-[var(--border)]/70"></div>
+                            </td>
+                            <td className="px-2 py-4 text-center whitespace-nowrap">
+                              <div className="inline-flex items-center gap-2">
+                                <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                                <div className="h-7 w-14 rounded-lg bg-[var(--border)]/70"></div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Skeleton */}
+                  <div className="space-y-3 md:hidden">
+                    {[...Array(3)].map((_, idx) => (
+                      <div key={idx} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 space-y-2 animate-pulse">
+                        <div className="flex justify-between items-center">
+                          <div className="h-4 w-28 rounded bg-[var(--border)]/70"></div>
+                          <div className="h-4 w-16 rounded-full bg-[var(--border)]/70"></div>
+                        </div>
+                        <div className="h-12 w-full rounded-lg bg-[var(--bg-muted)]"></div>
+                        <div className="flex justify-between items-center pt-1">
+                          <div className="h-6 w-20 rounded bg-[var(--border)]/70"></div>
+                          <div className="h-6 w-28 rounded bg-[var(--border)]/70"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : filteredPayments.length === 0 ? (
                 <div className="flex h-40 flex-col items-center justify-center text-[var(--text-muted)]">
@@ -993,121 +1013,238 @@ export function DashboardShell({
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-                  <table className="w-full text-left text-xs text-[var(--text-muted)]">
-                    <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
-                      <tr>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
-                        <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--border)]">
-                      {filteredPayments.map((req) => (
-                        <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
-                          <td className="px-2 py-2.5 font-semibold text-[var(--text)] whitespace-nowrap">
-                            {req.accountHolderName}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            <span className="inline-flex rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                              {req.category}
+                <>
+                  {/* Mobile Card List (md:hidden) - completely solves awkward table scroll on phones */}
+                  <div className="space-y-2.5 md:hidden">
+                    {filteredPayments.map((req) => (
+                      <div
+                        key={req.id || req._id}
+                        className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 flex flex-col gap-2.5 shadow-sm"
+                      >
+                        {/* Top: Name & Status */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h4 className="font-bold text-xs text-[var(--text)] leading-tight">
+                              {req.accountHolderName}
+                            </h4>
+                            <p className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5 truncate max-w-[200px]">
+                              Txn: {req.transactionId || "N/A"}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                            ? "bg-green-600 border border-green-600"
+                            : req.status === "REJECTED"
+                              ? "bg-red-600 border border-red-600"
+                              : "bg-amber-500 border border-amber-500"
+                            }`}>
+                            {req.status}
+                          </span>
+                        </div>
+
+                        {/* Middle Details Grid */}
+                        <div className="grid grid-cols-2 gap-2 text-[11px] bg-[var(--bg-muted)]/40 p-2.5 rounded-lg border border-[var(--border)]/60">
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Amount</span>
+                            <span className="font-black text-xs text-[var(--text)]">
+                              ₹{req.amountPaid}
+                              {(() => {
+                                const discountText = getDiscountText(req);
+                                return discountText ? (
+                                  <span className="ml-1 text-[9px] font-bold text-green-600 dark:text-green-400">
+                                    {discountText}
+                                  </span>
+                                ) : null;
+                              })()}
                             </span>
-                          </td>
-                          <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
-                            ₹{req.amountPaid}
-                            {(() => {
-                              const discountText = getDiscountText(req);
-                              return discountText ? (
-                                <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
-                                  {discountText}
-                                </span>
-                              ) : null;
-                            })()}
-                          </td>
-                          <td className="px-2 py-2.5 whitespace-nowrap">
-                            {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td className="px-2 py-2.5 font-mono text-[11px] whitespace-nowrap">
-                            {req.transactionId}
-                          </td>
-                          <td className="px-2 py-2.5 font-medium whitespace-nowrap">
-                            {req.paymentMethod}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            {req.paymentScreenshotUrl ? (
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Category</span>
+                            <span className="inline-flex rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                              {req.category || "General"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Payment Method</span>
+                            <span className="font-medium text-[10px] text-[var(--text)] truncate block">{req.paymentMethod || "N/A"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">Date</span>
+                            <span className="text-[10px] text-[var(--text-muted)]">{req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom Actions Row */}
+                        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border)]/60">
+                          {req.paymentScreenshotUrl ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                  ? req.paymentScreenshotUrl
+                                  : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                setPreviewScreenshotUrl(fullUrl);
+                              }}
+                              className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition shadow-sm cursor-pointer"
+                            >
+                              View Receipt
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2 py-1 rounded-md font-medium">
+                              No receipt
+                            </span>
+                          )}
+
+                          {req.status === "PENDING" ? (
+                            <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
-                                    ? req.paymentScreenshotUrl
-                                    : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
-                                  setPreviewScreenshotUrl(fullUrl);
-                                }}
-                                className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm whitespace-nowrap w-16 text-center"
+                                disabled={approvingId === (req._id || req.id)}
+                                onClick={() => setConfirmingApproveId(req._id || req.id)}
+                                className="rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1.5 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                               >
-                                View
+                                Approve
                               </button>
-                            ) : (
-                              <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-md font-medium w-16 text-center">
-                                No file
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-sm ${req.status === "APPROVED"
-                              ? "bg-green-600 border border-green-600"
-                              : req.status === "REJECTED"
-                                ? "bg-red-600 border border-red-600"
-                                : "bg-amber-500 border border-amber-500"
-                              }`}>
-                              {req.status}
+                              <button
+                                type="button"
+                                disabled={approvingId === (req._id || req.id)}
+                                onClick={() => handleRejectPayment(req._id || req.id)}
+                                className="rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : req.status === "APPROVED" ? (
+                            <span className="text-green-500 font-bold text-[10px] inline-flex items-center gap-1">
+                              <CheckCircle2 size={12} /> Ready
                             </span>
-                          </td>
-                          <td className="px-2 py-2.5 text-center whitespace-nowrap">
-                            {req.status === "PENDING" ? (
-                              <div className="inline-flex items-center gap-1.5">
-                                <button
-                                  type="button"
-                                  disabled={approvingId === (req._id || req.id)}
-                                  onClick={() => setConfirmingApproveId(req._id || req.id)}
-                                  className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={approvingId === (req._id || req.id)}
-                                  onClick={() => handleRejectPayment(req._id || req.id)}
-                                  className="rounded bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            ) : req.status === "APPROVED" ? (
-                              <span className="text-green-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><CheckCircle2 size={12} /> Ready</span>
-                            ) : (
-                              <span className="text-red-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><AlertCircle size={12} /> Rejected</span>
-                            )}
-                          </td>
+                          ) : (
+                            <span className="text-red-500 font-bold text-[10px] inline-flex items-center gap-1">
+                              <AlertCircle size={12} /> Rejected
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table (hidden md:block) */}
+                  <div className="hidden md:block overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+                    <table className="w-full text-left text-xs text-[var(--text-muted)]">
+                      <thead className="bg-[var(--bg-muted)] text-[10px] font-bold uppercase tracking-wider text-[var(--text)] border-b border-[var(--border)]">
+                        <tr>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Account Holder</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Category</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Amount</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Date</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Txn ID</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap">Method</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Screenshot</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Status</th>
+                          <th className="px-2 py-2.5 whitespace-nowrap text-center">Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-[var(--border)]">
+                        {filteredPayments.map((req) => (
+                          <tr key={req.id || req._id} className="transition-colors hover:bg-[var(--bg-muted)]/30">
+                            <td className="px-2 py-2.5 font-semibold text-[var(--text)] whitespace-nowrap">
+                              {req.accountHolderName}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              <span className="inline-flex rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                                {req.category}
+                              </span>
+                            </td>
+                            <td className="px-2 py-2.5 font-black text-[var(--text)] text-xs whitespace-nowrap">
+                              ₹{req.amountPaid}
+                              {(() => {
+                                const discountText = getDiscountText(req);
+                                return discountText ? (
+                                  <span className="ml-1 text-[10px] font-bold text-green-600 dark:text-green-400">
+                                    {discountText}
+                                  </span>
+                                ) : null;
+                              })()}
+                            </td>
+                            <td className="px-2 py-2.5 whitespace-nowrap">
+                              {req.paymentDate ? new Date(req.paymentDate).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-2 py-2.5 font-mono text-[11px] whitespace-nowrap">
+                              {req.transactionId}
+                            </td>
+                            <td className="px-2 py-2.5 font-medium whitespace-nowrap">
+                              {req.paymentMethod}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              {req.paymentScreenshotUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const fullUrl = req.paymentScreenshotUrl.startsWith('http') || req.paymentScreenshotUrl.startsWith('data:')
+                                      ? req.paymentScreenshotUrl
+                                      : `${process.env.NEXT_PUBLIC_BASE_URL || ""}${req.paymentScreenshotUrl.startsWith('/') ? '' : '/'}${req.paymentScreenshotUrl}`;
+                                    setPreviewScreenshotUrl(fullUrl);
+                                  }}
+                                  className="inline-flex items-center justify-center font-bold text-[10px] bg-mst-red hover:bg-red-700 text-white px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm whitespace-nowrap w-16 text-center"
+                                >
+                                  View
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center justify-center text-[10px] bg-gray-500/10 text-gray-500 border border-gray-500/20 px-2.5 py-1 rounded-md font-medium w-16 text-center">
+                                  No file
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-sm ${req.status === "APPROVED"
+                                ? "bg-green-600 border border-green-600"
+                                : req.status === "REJECTED"
+                                  ? "bg-red-600 border border-red-600"
+                                  : "bg-amber-500 border border-amber-500"
+                                }`}>
+                                {req.status}
+                              </span>
+                            </td>
+                            <td className="px-2 py-2.5 text-center whitespace-nowrap">
+                              {req.status === "PENDING" ? (
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    disabled={approvingId === (req._id || req.id)}
+                                    onClick={() => setConfirmingApproveId(req._id || req.id)}
+                                    className="rounded bg-green-600 hover:bg-green-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={approvingId === (req._id || req.id)}
+                                    onClick={() => handleRejectPayment(req._id || req.id)}
+                                    className="rounded bg-red-600 hover:bg-red-700 px-2.5 py-1 text-[10px] font-bold text-white transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : req.status === "APPROVED" ? (
+                                <span className="text-green-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><CheckCircle2 size={12} /> Ready</span>
+                              ) : (
+                                <span className="text-red-500 font-bold text-[11px] inline-flex items-center gap-1 justify-center"><AlertCircle size={12} /> Rejected</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)] shrink-0 mt-6">
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 pt-3 sm:pt-4 border-t border-[var(--border)] shrink-0 mt-3 sm:mt-4">
               <button
                 type="button"
                 onClick={() => setIsApprovedPaymentModalOpen(false)}
-                className="rounded-xl border border-[var(--border)] px-5 py-2.5 text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
+                className="rounded-xl border border-[var(--border)] px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-[var(--text)] hover:bg-[var(--bg-muted)] transition-colors cursor-pointer"
               >
                 Close
               </button>
@@ -1117,7 +1254,7 @@ export function DashboardShell({
       )}
 
       {previewScreenshotUrl && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="relative max-w-3xl max-h-[90vh] bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setPreviewScreenshotUrl(null)}
@@ -1139,7 +1276,7 @@ export function DashboardShell({
       )}
 
       {rejectingId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between border-b border-[var(--border)] pb-4">
               <div>
@@ -1198,7 +1335,7 @@ export function DashboardShell({
       )}
 
       {confirmingApproveId && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-start justify-between pb-4">
               <div>
@@ -1536,7 +1673,7 @@ export function DashboardShell({
       )}
 
       {toast && (
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
+        <div className={`fixed top-5 right-5 z-[10005] flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md transition-all duration-300 ${toast.type === "success"
           ? "border-green-500/30 bg-emerald-950/95 text-emerald-400"
           : "border-red-500/30 bg-red-950/95 text-red-400"
           }`}>
