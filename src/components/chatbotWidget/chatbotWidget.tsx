@@ -22,176 +22,22 @@ const RIBBON_BUBBLE_HTML = `
 </div>
 `;
 
-const STYLE_ID = "mst-chat-override-style";
-const DYNAMIC_CSS = `
-#mst-chat-widget-container {
-    position: fixed !important;
-    bottom: 24px !important;
-    right: 24px !important;
-    left: auto !important;
-    top: auto !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    justify-content: flex-end !important;
-    width: auto !important;
-    height: auto !important;
-    max-width: calc(100vw - 48px) !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
-    pointer-events: none !important; /* ONLY allow clicks on the circle button or chat window */
-}
-
-#mst-chat-thought {
-    position: relative !important;
-    bottom: 0 !important;
-    right: 0 !important;
-    left: auto !important;
-    top: auto !important;
-    height: auto !important;
-    max-height: none !important;
-    width: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    justify-content: flex-end !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    animation: none !important;
-    transform: none !important;
-    overflow: visible !important;
-    pointer-events: none !important;
-}
-
-#mst-chat-widget-button {
-    position: relative !important;
-    width: 54px !important;
-    height: 54px !important;
-    min-width: 54px !important;
-    min-height: 54px !important;
-    border-radius: 50% !important;
-    background-color: #E53E3E !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.12) !important;
-    margin: 0 2px 0 0 !important;
-    padding: 0 !important;
-    align-self: flex-end !important;
-    pointer-events: auto !important; /* Only the circle button captures clicks */
-    cursor: pointer !important;
-    overflow: hidden !important;
-}
-
-#mst-chat-widget-window {
-    z-index: 100000 !important;
-    pointer-events: auto !important; /* Open chat window allows user interactions */
-}
-
-.mst-thought-cloud-bubble {
-    position: relative !important;
-    width: 120px !important;
-    height: 84px !important;
-    margin: 0 6px 2px 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: visible !important;
-    pointer-events: none !important;
-}
-
-.mst-thought-dots {
-    display: none !important;
-}
-
-@media (max-width: 768px) {
-    #mst-chat-widget-container {
-        bottom: 72px !important; /* Lift above mobile bottom nav (56px) */
-        right: 16px !important;
-        max-width: calc(100vw - 32px) !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        pointer-events: none !important;
-    }
-    #mst-chat-thought {
-        position: relative !important;
-        bottom: 0 !important;
-        right: 0 !important;
-        height: auto !important;
-        width: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        pointer-events: none !important;
-    }
-    .mst-thought-cloud-bubble {
-        width: 102px !important;
-        height: 72px !important;
-        margin: 0 4px 2px 0 !important;
-        pointer-events: none !important;
-    }
-    #mst-chat-widget-button {
-        width: 46px !important;
-        height: 46px !important;
-        min-width: 46px !important;
-        min-height: 46px !important;
-        margin: 0 2px 0 0 !important;
-        pointer-events: auto !important;
-    }
-    #mst-chat-widget-window {
-        position: fixed !important;
-        bottom: 12px !important;
-        right: 12px !important;
-        left: 12px !important;
-        width: calc(100vw - 24px) !important;
-        max-width: calc(100vw - 24px) !important;
-        z-index: 100000 !important;
-        pointer-events: auto !important;
-    }
-}
-
-@media (max-width: 380px) {
-    #mst-chat-widget-container {
-        bottom: 68px !important;
-        right: 12px !important;
-        max-width: calc(100vw - 24px) !important;
-    }
-    .mst-thought-cloud-bubble {
-        width: 90px !important;
-        height: 64px !important;
-        margin: 0 3px 2px 0 !important;
-    }
-    #mst-chat-widget-button {
-        width: 42px !important;
-        height: 42px !important;
-        min-width: 42px !important;
-        min-height: 42px !important;
-        margin: 0 1px 0 0 !important;
-    }
-}
-`;
-
 export default function ChatBotWidget() {
     const pathname = usePathname();
     const isAssessmentPage = pathname.endsWith("/assessment");
 
     useEffect(() => {
+        // Clean up any stale override style tag from previous sessions
+        document.getElementById("mst-chat-override-style")?.remove();
+
         if (isAssessmentPage) {
             // Remove chatbot script + widget when entering assessment
             document.getElementById(WIDGET_ID)?.remove();
             document.getElementById(SCRIPT_ID)?.remove();
-            document.getElementById(STYLE_ID)?.remove();
             return;
         }
 
-        // Inject dynamic style tag to always override remote widget.css
-        let styleTag = document.getElementById(STYLE_ID) as HTMLStyleElement | null;
-        if (!styleTag) {
-            styleTag = document.createElement("style");
-            styleTag.id = STYLE_ID;
-            styleTag.innerHTML = DYNAMIC_CSS;
-            document.head.appendChild(styleTag);
-        }
-
-        // Don't add again if already loaded
+        // Load widget script if not already present
         if (!document.getElementById(SCRIPT_ID)) {
             const script = document.createElement("script");
             script.id = SCRIPT_ID;
@@ -200,83 +46,87 @@ export default function ChatBotWidget() {
             document.body.appendChild(script);
         }
 
-        const upgradeWidget = () => {
-            // Ensure style override tag is at the very end of head
-            if (styleTag && document.head.lastElementChild !== styleTag) {
-                document.head.appendChild(styleTag);
-            }
-
-            const isMobile = window.innerWidth <= 768;
-            const isSmallMobile = window.innerWidth <= 380;
-            const offsetRight = isSmallMobile ? "12px" : isMobile ? "16px" : "24px";
-            const offsetBottom = isSmallMobile ? "68px" : isMobile ? "72px" : "24px";
-
-            const container = document.getElementById("mst-chat-widget-container");
-            if (container) {
-                container.style.setProperty("position", "fixed", "important");
-                container.style.setProperty("bottom", offsetBottom, "important");
-                container.style.setProperty("right", offsetRight, "important");
-                container.style.setProperty("left", "auto", "important");
-                container.style.setProperty("top", "auto", "important");
-                container.style.setProperty("z-index", "99999", "important");
-                container.style.setProperty("display", "flex", "important");
-                container.style.setProperty("flex-direction", "column", "important");
-                container.style.setProperty("align-items", "flex-end", "important");
-                container.style.setProperty("justify-content", "flex-end", "important");
-                container.style.setProperty("margin", "0", "important");
-                container.style.setProperty("padding", "0", "important");
-                container.style.setProperty("overflow", "visible", "important");
-                container.style.setProperty("pointer-events", "none", "important");
-            }
-
-            const thought = document.getElementById("mst-chat-thought");
-            if (thought) {
-                thought.style.setProperty("position", "relative", "important");
-                thought.style.setProperty("bottom", "0", "important");
-                thought.style.setProperty("right", "0", "important");
-                thought.style.setProperty("left", "auto", "important");
-                thought.style.setProperty("top", "auto", "important");
-                thought.style.setProperty("height", "auto", "important");
-                thought.style.setProperty("max-height", "none", "important");
-                thought.style.setProperty("width", "auto", "important");
-                thought.style.setProperty("display", "flex", "important");
-                thought.style.setProperty("flex-direction", "column", "important");
-                thought.style.setProperty("align-items", "flex-end", "important");
-                thought.style.setProperty("justify-content", "flex-end", "important");
-                thought.style.setProperty("margin", "0", "important");
-                thought.style.setProperty("padding", "0", "important");
-                thought.style.setProperty("overflow", "visible", "important");
-                thought.style.setProperty("pointer-events", "none", "important");
-            }
-
-            const chatButton = document.getElementById("mst-chat-widget-button");
-            if (chatButton) {
-                chatButton.style.setProperty("pointer-events", "auto", "important");
-                chatButton.style.setProperty("border-radius", "50%", "important");
-                chatButton.style.setProperty("cursor", "pointer", "important");
-                chatButton.style.setProperty("overflow", "hidden", "important");
-            }
-
+        const openChatWindow = () => {
             const chatWindow = document.getElementById("mst-chat-widget-window");
+            const chatThought = document.getElementById("mst-chat-thought");
+            const chatButton = document.getElementById("mst-chat-widget-button");
             if (chatWindow) {
-                chatWindow.style.setProperty("pointer-events", "auto", "important");
+                chatWindow.classList.add("mst-chat-widget-open");
+                chatWindow.style.display = "flex";
+                chatWindow.style.opacity = "1";
+                chatWindow.style.transform = "translateY(0) scale(1)";
+            }
+            if (chatThought) {
+                chatThought.classList.add("mst-thought-hidden");
+                chatThought.style.display = "none";
+            }
+            if (chatButton) {
+                chatButton.classList.add("mst-chat-widget-hidden");
+            }
+            // Focus input if available
+            setTimeout(() => {
+                const input = document.getElementById("mst-chat-widget-input") as HTMLInputElement | null;
+                input?.focus();
+            }, 100);
+        };
+
+        const closeChatWindow = () => {
+            const chatWindow = document.getElementById("mst-chat-widget-window");
+            const chatThought = document.getElementById("mst-chat-thought");
+            const chatButton = document.getElementById("mst-chat-widget-button");
+            if (chatWindow) {
+                chatWindow.classList.remove("mst-chat-widget-open");
+                chatWindow.style.display = "none";
+                chatWindow.style.opacity = "0";
+                chatWindow.style.transform = "translateY(20px) scale(0.95)";
+            }
+            if (chatThought) {
+                chatThought.classList.remove("mst-thought-hidden");
+                chatThought.style.display = "flex";
+            }
+            if (chatButton) {
+                chatButton.classList.remove("mst-chat-widget-hidden");
+                chatButton.style.display = "flex";
+            }
+        };
+
+        const upgradeWidget = () => {
+            const bubble = document.querySelector(".mst-thought-cloud-bubble");
+            if (bubble && !(bubble as any).__exact_ribbon_applied) {
+                (bubble as any).__exact_ribbon_applied = true;
+                bubble.innerHTML = RIBBON_BUBBLE_HTML;
             }
 
-            const bubble = document.querySelector(".mst-thought-cloud-bubble") as HTMLElement | null;
-            if (bubble) {
-                bubble.style.setProperty("pointer-events", "none", "important");
-                if (!(bubble as any).__exact_ribbon_applied) {
-                    (bubble as any).__exact_ribbon_applied = true;
-                    bubble.innerHTML = RIBBON_BUBBLE_HTML;
+            // Ensure click events trigger opening the bot on both mobile and desktop
+            const thought = document.getElementById("mst-chat-thought");
+            if (thought && !(thought as any).__click_attached) {
+                (thought as any).__click_attached = true;
+                thought.style.cursor = "pointer";
+                thought.style.pointerEvents = "auto";
+                thought.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openChatWindow();
+                });
+            }
 
-                    // Auto-dismiss after 5 seconds of being displayed (1.8s entrance + 5s display)
-                    setTimeout(() => {
-                        const el = document.querySelector(".mst-thought-cloud-bubble");
-                        if (el) {
-                            el.classList.add("mst-thought-dismissed");
-                        }
-                    }, 6800);
-                }
+            const button = document.getElementById("mst-chat-widget-button");
+            if (button && !(button as any).__click_attached) {
+                (button as any).__click_attached = true;
+                button.style.cursor = "pointer";
+                button.style.pointerEvents = "auto";
+                button.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openChatWindow();
+                });
+            }
+
+            const closeBtn = document.getElementById("mst-chat-widget-close");
+            if (closeBtn && !(closeBtn as any).__click_attached) {
+                (closeBtn as any).__click_attached = true;
+                closeBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    closeChatWindow();
+                });
             }
         };
 
@@ -284,13 +134,10 @@ export default function ChatBotWidget() {
             upgradeWidget();
         });
 
-        window.addEventListener("resize", upgradeWidget);
         observer.observe(document.body, { childList: true, subtree: true });
-        observer.observe(document.head, { childList: true, subtree: true });
         upgradeWidget();
 
         return () => {
-            window.removeEventListener("resize", upgradeWidget);
             observer.disconnect();
         };
     }, [isAssessmentPage]);
