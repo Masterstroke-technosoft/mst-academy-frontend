@@ -669,6 +669,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   }, [ready, user, router]);
 
   const [apiData, setApiData] = useState<any>(null);
+  const [dbModulesMap, setDbModulesMap] = useState<Record<string | number, string>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [leaderboardRank, setLeaderboardRank] = useState<number | null>(null);
   const [certEligibility, setCertEligibility] = useState<{
@@ -731,8 +732,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") || localStorage.getItem("token") || localStorage.getItem("jwt") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
         const res = await fetch(`${baseURL}/api/dashboard/${user.id}`, {
           credentials: "include",
+          headers,
         });
         if (res.ok) {
           const data = await res.json();
@@ -744,8 +751,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") || localStorage.getItem("token") || localStorage.getItem("jwt") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
         const res = await fetch(`${baseURL}/api/dashboard/certificate-eligibility`, {
           credentials: "include",
+          headers,
         });
         if (res.ok) {
           const data = await res.json();
@@ -834,7 +847,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
       try {
         const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") || localStorage.getItem("token") || localStorage.getItem("jwt") : null;
         const headers: Record<string, string> = {};
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
@@ -846,38 +859,106 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         });
         if (res.ok) {
           const raw = await res.json();
-          const valid = raw.filter((e: any) => e._id != null && e.name != null);
-          const mapped = valid.map((e: any) => {
-            const isCurrentUser = e._id === user.id || e._id === (user as any)._id || (e.email && e.email === user.email);
-            const scoreVal = e.progressPercentage ?? e.score ?? 0;
-            const totalMods = e.totalModules ?? 21;
-            const modulesDoneVal = e.modulesDone ?? Math.round((scoreVal / 100) * totalMods);
-            return {
-              id: e._id ?? "",
-              name: e.name ?? "Unknown",
-              score: scoreVal,
-              modulesDone: modulesDoneVal,
-              totalModules: totalMods,
-              streak: e.currentStreak ?? e.streak ?? 0,
-              coins: e.coins ?? 0,
-              rank: e.rank,
-              isYou: !!isCurrentUser,
-            };
+          const valid = Array.isArray(raw) ? raw.filter((e: any) => e && (e._id != null || e.id != null) && e.name != null) : [];
+          
+          const currentUserId = user.id || (user as any)._id;
+          const userEmail = user.email?.toLowerCase();
+
+          // Direct match for current user from DB leaderboard
+          const currentUserEntry = valid.find((e: any) => {
+            const entryId = e._id || e.id;
+            return (entryId && entryId === currentUserId) || (e.email && userEmail && e.email.toLowerCase() === userEmail);
           });
 
-          mapped.sort((a: any, b: any) => {
-            if (b.score !== a.score) return b.score - a.score;
-            if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
-            return (a.rank ?? 999) - (b.rank ?? 999);
-          });
+          if (currentUserEntry && currentUserEntry.rank != null && Number(currentUserEntry.rank) > 0) {
+            setLeaderboardRank(Number(currentUserEntry.rank));
+          } else {
+            const mapped = valid.map((e: any) => {
+              const entryId = e._id || e.id;
+              const isCurrentUser = (entryId && entryId === currentUserId) || (e.email && userEmail && e.email.toLowerCase() === userEmail);
+              const scoreVal = e.progressPercentage ?? e.score ?? 0;
+              const totalMods = e.totalModules ?? 21;
+              const modulesDoneVal = e.modulesDone ?? Math.round((scoreVal / 100) * totalMods);
+              return {
+                id: entryId ?? "",
+                name: e.name ?? "Unknown",
+                score: scoreVal,
+                modulesDone: modulesDoneVal,
+                totalModules: totalMods,
+                streak: e.currentStreak ?? e.streak ?? 0,
+                coins: e.coins ?? 0,
+                rank: e.rank != null && Number(e.rank) > 0 ? Number(e.rank) : undefined,
+                isYou: !!isCurrentUser,
+              };
+            });
 
-          const userIdx = mapped.findIndex((e: any) => e.isYou);
-          if (userIdx !== -1) {
-            setLeaderboardRank(userIdx + 1);
+            mapped.sort((a: any, b: any) => {
+              if (a.rank != null && b.rank != null) return a.rank - b.rank;
+              if (b.score !== a.score) return b.score - a.score;
+              if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
+              return (a.rank ?? 999) - (b.rank ?? 999);
+            });
+
+            const userIdx = mapped.findIndex((e: any) => e.isYou);
+            if (userIdx !== -1) {
+              setLeaderboardRank(mapped[userIdx].rank ?? (userIdx + 1));
+            }
           }
         }
       } catch (error) {
         console.error("Failed to fetch leaderboard for rank:", error);
+      }
+
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const courseId = "6a2934912b48a13769669f8e";
+        const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") || localStorage.getItem("token") || localStorage.getItem("jwt") : null;
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+        const phasesRes = await fetch(`${baseURL}/api/phases/course/${courseId}`, {
+          credentials: "include",
+          headers,
+        });
+        if (phasesRes.ok) {
+          const phasesData = await phasesRes.json();
+          const rawPhases = phasesData.data || phasesData || [];
+          const mapping: Record<string | number, string> = {};
+          await Promise.all(
+            rawPhases.map(async (phase: any) => {
+              try {
+                const fullRes = await fetch(`${baseURL}/api/phases/full/${phase._id || phase.id}`, {
+                  credentials: "include",
+                  headers,
+                });
+                if (fullRes.ok) {
+                  const fullData = await fullRes.json();
+                  const fullPhaseObj = fullData.data || fullData;
+                  const rawModules = fullPhaseObj.modules || [];
+                  rawModules.forEach((m: any) => {
+                    const rawTitle = (m.title || "").trim();
+                    if (rawTitle) {
+                      if (m.index !== undefined && m.index !== null) {
+                        mapping[Number(m.index)] = rawTitle;
+                        mapping[String(m.index)] = rawTitle;
+                      }
+                      if (m._id) mapping[String(m._id)] = rawTitle;
+                      if (m.id) mapping[String(m.id)] = rawTitle;
+                    }
+                  });
+                }
+              } catch (e) {
+                console.error("Failed to fetch full phase:", e);
+              }
+            })
+          );
+          if (Object.keys(mapping).length > 0) {
+            setDbModulesMap(mapping);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch database module titles:", error);
       }
     };
     fetchDashboardData();
@@ -888,7 +969,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
     const local = computeStudentAnalytics(curriculum);
     if (apiData) {
       if (apiData.courseProgress) {
-        local.overallProgress = Math.round(apiData.courseProgress.progressPercentage || 0);
+        const rawProgress = apiData.courseProgress.progressPercentage !== undefined && apiData.courseProgress.progressPercentage !== null
+          ? Number(apiData.courseProgress.progressPercentage)
+          : (apiData.progressPercentage !== undefined && apiData.progressPercentage !== null
+              ? Number(apiData.progressPercentage)
+              : (certEligibility?.totalSubmodules && certEligibility.totalSubmodules > 0
+                  ? (certEligibility.completedSubmodules / certEligibility.totalSubmodules) * 100
+                  : local.overallProgress));
+        local.overallProgress = rawProgress % 1 === 0 ? rawProgress : Math.round(rawProgress * 100) / 100;
         local.modulesCompleted = apiData.courseProgress.completedModules || 0;
         local.totalModules = apiData.courseProgress.totalModules || local.totalModules;
 
@@ -940,6 +1028,92 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         });
 
         local.phaseJourney = updatedPhaseJourney;
+
+        // Determine the actual active phase based on curriculum progress
+        const backendPhaseId = apiData.courseProgress?.currentPhaseId || apiData.courseProgress?.activePhaseId || apiData.currentPhaseId || apiData.activePhase;
+        
+        let activePhaseEntry = backendPhaseId
+          ? updatedPhaseJourney.find(p => p.phaseId === backendPhaseId)
+          : undefined;
+
+        if (!activePhaseEntry) {
+          // The active phase is the first phase marked active and not yet 100% completed
+          activePhaseEntry = updatedPhaseJourney.find(p => p.status === "active" && p.percent < 100);
+        }
+        if (!activePhaseEntry) {
+          // If no active with <100%, find the first incomplete phase
+          activePhaseEntry = updatedPhaseJourney.find(p => p.percent < 100);
+        }
+        if (!activePhaseEntry && updatedPhaseJourney.length > 0) {
+          // If all phases are 100% complete, point to the final phase
+          activePhaseEntry = updatedPhaseJourney[updatedPhaseJourney.length - 1];
+        }
+
+        if (activePhaseEntry) {
+          local.currentPhaseId = activePhaseEntry.phaseId;
+          const matchingPhase = curriculum.phases.find(ph => ph.id === activePhaseEntry.phaseId);
+          if (matchingPhase) {
+            local.currentPhaseTitle = matchingPhase.title;
+          }
+        }
+
+        // Also identify active module from backend or curriculum
+        const backendActiveModId = 
+          apiData.courseProgress?.activeModuleId ??
+          apiData.courseProgress?.currentModuleId ??
+          apiData.activeModuleId ??
+          apiData.currentModuleId;
+
+        const activeMod = (backendActiveModId != null
+          ? curriculum.modules.find(m => m.id === Number(backendActiveModId) || String(m.id) === String(backendActiveModId))
+          : undefined) || curriculum.modules.find(m => {
+          if (completedModuleIds.length > 0) {
+            return !completedModuleIds.includes(m.id);
+          }
+          return true;
+        });
+
+        if (activeMod) {
+          local.activeModuleId = activeMod.id;
+
+          const targetModId = activeMod.id;
+          const directApiTitle = 
+            apiData.activeModuleTitle ||
+            apiData.currentModuleTitle ||
+            apiData.activeModuleName ||
+            apiData.currentModuleName ||
+            (typeof apiData.currentModule === "string" ? apiData.currentModule : apiData.currentModule?.title) ||
+            (typeof apiData.activeModule === "string" ? apiData.activeModule : apiData.activeModule?.title) ||
+            apiData.courseProgress?.activeModuleTitle ||
+            apiData.courseProgress?.currentModuleTitle ||
+            apiData.courseProgress?.activeModuleName ||
+            apiData.courseProgress?.currentModuleName ||
+            (typeof apiData.courseProgress?.currentModule === "string" ? apiData.courseProgress?.currentModule : apiData.courseProgress?.currentModule?.title) ||
+            (typeof apiData.courseProgress?.activeModule === "string" ? apiData.courseProgress?.activeModule : apiData.courseProgress?.activeModule?.title);
+
+          const perfMod = Array.isArray(apiData.modulePerformance)
+            ? apiData.modulePerformance.find((item: any) => {
+                const mId = Number(item.moduleId || item.id || 0);
+                return mId === Number(targetModId);
+              })
+            : null;
+          const perfTitle = perfMod?.moduleTitle;
+
+          const dbMappedTitle = targetModId ? (dbModulesMap[targetModId] || dbModulesMap[String(targetModId)]) : undefined;
+
+          const dbTitle = directApiTitle || perfTitle || dbMappedTitle;
+          if (dbTitle && typeof dbTitle === "string" && dbTitle.trim()) {
+            local.activeModuleTitle = dbTitle.trim();
+          } else {
+            local.activeModuleTitle = activeMod.title;
+          }
+
+          if (!activePhaseEntry && activeMod.phaseId) {
+            local.currentPhaseId = activeMod.phaseId;
+            const ph = curriculum.phases.find(p => p.id === activeMod.phaseId);
+            if (ph) local.currentPhaseTitle = ph.title;
+          }
+        }
       }
       if (apiData.averageScore !== undefined && apiData.averageScore !== null) {
         local.averageScore = apiData.averageScore;
@@ -950,18 +1124,43 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
       if (apiData.percentile !== undefined && apiData.percentile !== null) {
         local.percentile = apiData.percentile;
       }
-      if (apiData.rank !== undefined && apiData.rank !== null) {
-        local.rank = apiData.rank;
+      const rawRank = apiData.rank ?? apiData.userRank ?? apiData.communityRank ?? apiData.leaderboardRank;
+      if (rawRank !== undefined && rawRank !== null) {
+        const parsed = typeof rawRank === "string" ? parseInt(rawRank.replace(/\D/g, ""), 10) : Number(rawRank);
+        if (!isNaN(parsed) && parsed > 0) {
+          local.rank = parsed;
+        }
+      } else if (leaderboardRank != null && leaderboardRank > 0) {
+        local.rank = leaderboardRank;
+      } else {
+        const totalLearners = apiData.totalLearners ?? apiData.totalUsers ?? apiData.totalStudents ?? apiData.totalLearnerCount;
+        if (totalLearners && apiData.percentile !== undefined && apiData.percentile !== null) {
+          const calculated = Math.round(Number(totalLearners) - (Number(apiData.percentile) * Number(totalLearners) / 100));
+          if (calculated > 0) {
+            local.rank = calculated;
+          }
+        }
       }
       if (apiData.currentStreak !== undefined && apiData.currentStreak !== null) {
         local.streakDays = apiData.currentStreak;
       }
       if (apiData.modulePerformance && Array.isArray(apiData.modulePerformance)) {
-        local.moduleScores = apiData.modulePerformance.map((item: any) => ({
-          name: item.moduleTitle || `M${item.moduleId}`,
-          score: item.averageScore || item.totalScore || 0,
-          moduleId: item.moduleId,
-        }));
+        local.moduleScores = apiData.modulePerformance.map((item: any) => {
+          const modId = Number(item.moduleId || item.id || 0);
+          const matchedMod = curriculum.modules.find((m) => m.id === modId);
+          const fullTitle = item.moduleTitle || (modId && (dbModulesMap[modId] || dbModulesMap[String(modId)])) || (matchedMod ? `Module ${modId}: ${matchedMod.title}` : `Module ${modId}`);
+          const rawScore = item.averageScore ?? item.percentage ?? item.scorePercentage ?? (item.maxScore && item.totalScore ? Math.round((item.totalScore / item.maxScore) * 100) : item.score ?? item.totalScore ?? 0);
+          const scorePercentage = Number(rawScore) % 1 === 0 ? Number(rawScore) : Math.round(Number(rawScore) * 100) / 100;
+          return {
+            name: `M${modId}`,
+            fullTitle,
+            score: scorePercentage,
+            scorePercentage,
+            totalScore: item.totalScore !== undefined && item.totalScore !== null ? Number(item.totalScore) : undefined,
+            maxScore: item.maxScore !== undefined && item.maxScore !== null ? Number(item.maxScore) : 100,
+            moduleId: modId,
+          };
+        });
       }
 
       if (apiData.activityDates && Array.isArray(apiData.activityDates)) {
@@ -1034,8 +1233,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
         });
       }
     }
+    if (local.activeModuleId && (dbModulesMap[local.activeModuleId] || dbModulesMap[String(local.activeModuleId)])) {
+      const dbTitle = dbModulesMap[local.activeModuleId] || dbModulesMap[String(local.activeModuleId)];
+      if (dbTitle && typeof dbTitle === "string" && dbTitle.trim()) {
+        local.activeModuleTitle = dbTitle.trim();
+      }
+    }
     return local;
-  }, [mounted, curriculum, apiData, selectedDate]);
+  }, [mounted, curriculum, apiData, selectedDate, leaderboardRank, certEligibility, dbModulesMap]);
 
   if (!ready || !user || !analytics) {
     return (
@@ -1049,6 +1254,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const referralCode = `MST-${user.id.slice(-6).toUpperCase()}`;
   const referralLink = referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/register?ref=${referralCode}` : "";
 
+  const displayRank =
+    (apiData?.rank != null && Number(apiData.rank) > 0 ? Number(apiData.rank) : null) ??
+    (apiData?.userRank != null && Number(apiData.userRank) > 0 ? Number(apiData.userRank) : null) ??
+    (apiData?.communityRank != null && Number(apiData.communityRank) > 0 ? Number(apiData.communityRank) : null) ??
+    (leaderboardRank != null && leaderboardRank > 0 ? leaderboardRank : null) ??
+    (analytics?.rank != null && analytics.rank > 0 ? analytics.rank : null) ??
+    1;
+
   const isAnotherUser = user.fullName.toLowerCase().includes("another") || user.email.toLowerCase().includes("another");
 
   const referralRecords: { name: string; joinedAt: string; status: string; eligible: boolean }[] = isAnotherUser ? [
@@ -1060,7 +1273,36 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
   const xpPct = Math.round(
     ((analytics.xp % 120) / Math.max(analytics.xpToNext, 1)) * 100
   );
-  const currentPhaseIndex = Math.max(1, analytics.phaseJourney.findIndex(p => p.phaseId === analytics.currentPhaseId) + 1);
+  const currentPhaseIndex = (() => {
+    if (!analytics) return 1;
+
+    // 1. Check currentPhaseId match in phaseJourney
+    if (analytics.currentPhaseId) {
+      const idx = analytics.phaseJourney.findIndex(p => p.phaseId === analytics.currentPhaseId);
+      if (idx !== -1) return idx + 1;
+
+      const numMatch = analytics.currentPhaseId.match(/phase-(\d+)/i);
+      if (numMatch && numMatch[1]) {
+        const n = parseInt(numMatch[1], 10);
+        if (!isNaN(n) && n > 0) return n;
+      }
+    }
+
+    // 2. Check for active phase in phaseJourney
+    const activeIdx = analytics.phaseJourney.findIndex(p => p.status === "active" && p.percent < 100);
+    if (activeIdx !== -1) return activeIdx + 1;
+
+    // 3. Check for first incomplete phase in phaseJourney
+    const incompleteIdx = analytics.phaseJourney.findIndex(p => p.percent < 100);
+    if (incompleteIdx !== -1) return incompleteIdx + 1;
+
+    // 4. If all completed, return total phases
+    if (analytics.phaseJourney.length > 0 && analytics.overallProgress >= 100) {
+      return analytics.phaseJourney.length;
+    }
+
+    return 1;
+  })();
 
   const today = new Date();
   const currentMonthDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
@@ -1425,7 +1667,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                             Phase: {analytics.currentPhaseTitle.slice(0, 28)}
                           </span>
                           <span className="flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-3.5 py-1.5 text-xs font-bold text-blue-400 shadow-sm backdrop-blur-sm transition hover:bg-blue-500/20">
-                            Rank #{leaderboardRank ?? analytics.rank}
+                            Rank #{displayRank}
                           </span>
                         </div>
                       </div>
@@ -1461,7 +1703,10 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         <div className="min-w-[150px]">
                           <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">XP Progress</p>
                           <p className="mt-1 text-2xl font-black tracking-tight text-[var(--text)]">
-                            {analytics.overallProgress}% <span className="text-sm font-bold text-[var(--text-muted)]">Complete</span>
+                            {analytics.overallProgress}%{" "}
+                            <span className="text-sm font-bold text-[var(--text-muted)]">
+                              {analytics.overallProgress >= 100 ? "Completed" : "In Progress"}
+                            </span>
                           </p>
                           <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[var(--border)]/50 shadow-inner">
                             <motion.div
@@ -1472,7 +1717,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                             />
                           </div>
                           <p className="mt-2 flex justify-between text-[11px] font-medium text-[var(--text-muted)]">
-                            <span>{100 - analytics.overallProgress}% to go</span>
+                            <span>
+                              {analytics.overallProgress >= 100
+                                ? 0
+                                : (100 - analytics.overallProgress) % 1 === 0
+                                  ? 100 - analytics.overallProgress
+                                  : Math.round((100 - analytics.overallProgress) * 100) / 100}% to go
+                            </span>
                             {analytics.overallProgress < 100 && (
                               <span className="font-bold text-[var(--text)]">Keep learning</span>
                             )}
@@ -1508,13 +1759,25 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                               <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] mb-2">
                                 <span>Submodule Completion Progress</span>
                                 <span className="text-[var(--text)]">
-                                  {certEligibility.completedSubmodules} / {certEligibility.totalSubmodules} ({Math.round((certEligibility.completedSubmodules / Math.max(1, certEligibility.totalSubmodules)) * 100)}%)
+                                  {certEligibility.completedSubmodules} / {certEligibility.totalSubmodules} (
+                                  {certEligibility.totalSubmodules > 0
+                                    ? ((certEligibility.completedSubmodules / certEligibility.totalSubmodules) * 100) % 1 === 0
+                                      ? (certEligibility.completedSubmodules / certEligibility.totalSubmodules) * 100
+                                      : Math.round(((certEligibility.completedSubmodules / certEligibility.totalSubmodules) * 100) * 100) / 100
+                                    : 0}%)
                                 </span>
                               </div>
                               <div className="h-2.5 overflow-hidden rounded-full bg-[var(--border)]/50 shadow-inner">
                                 <div
                                   className="h-full rounded-full bg-gradient-to-r from-mst-red via-purple-500 to-emerald-500 transition-all duration-1000"
-                                  style={{ width: `${Math.min(100, (certEligibility.completedSubmodules / Math.max(1, certEligibility.totalSubmodules)) * 100)}%` }}
+                                  style={{
+                                    width: `${Math.min(
+                                      100,
+                                      certEligibility.totalSubmodules > 0
+                                        ? (certEligibility.completedSubmodules / certEligibility.totalSubmodules) * 100
+                                        : 0
+                                    )}%`
+                                  }}
                                 />
                               </div>
                               <p className="mt-2 text-[11px] text-[var(--text-muted)] flex items-center gap-1.5">
@@ -1574,7 +1837,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
                   <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                     {[
-                      { label: "Completion", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
+                      { label: "Progress", value: `${analytics.overallProgress}%`, icon: Target, color: "text-mst-red", bg: "bg-mst-red/10 border-mst-red/20" },
                       { label: "Modules", value: `${analytics.modulesCompleted}/${analytics.totalModules}`, icon: BookOpen, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" },
                       { label: "Avg Score", value: analytics.averageScore > 0 ? `${analytics.averageScore}%` : "-", icon: Award, color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20" },
                       { label: "Total Score", value: apiData?.totalScore !== undefined && apiData?.totalScore !== null ? `${apiData.totalScore}/2100` : "-", icon: Brain, color: "text-purple-500", bg: "bg-purple-500/10 border-purple-500/20" },
@@ -1670,8 +1933,8 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                   <section className="mt-4 grid gap-4 lg:grid-cols-3">
                     <GlassCard className="lg:col-span-1">
                       <h3 className="text-sm font-black text-[var(--text)]">Course Completion</h3>
-                      <div className="mt-2 h-48">
-                        <ResponsiveContainer width="100%" height="100%">
+                      <div className="mt-2 h-48 w-full min-w-0">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={160}>
                           <PieChart>
                             <Pie
                               data={analytics.completionDonut}
@@ -1699,14 +1962,45 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     </GlassCard>
 
                     <GlassCard className="lg:col-span-2">
-                      <h3 className="text-sm font-black text-[var(--text)]">Module Performance</h3>
-                      <div className="mt-4 h-48">
-                        <ResponsiveContainer width="100%" height="100%">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-black text-[var(--text)]">Module Performance</h3>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Score Percentage (%)</span>
+                      </div>
+                      <div className="mt-4 h-48 w-full min-w-0">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                           <BarChart data={analytics.moduleScores.length ? analytics.moduleScores : [{ name: "-", score: 0, moduleId: 0 }]}>
                             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <YAxis domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <Tooltip />
+                            <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <Tooltip
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload as any;
+                                  return (
+                                    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-xl backdrop-blur-md">
+                                      <p className="text-xs font-black text-[var(--text)] max-w-[260px] leading-tight mb-2">
+                                        {data.fullTitle || data.name}
+                                      </p>
+                                      <div className="space-y-1 text-xs">
+                                        <p className="flex items-center justify-between gap-4 font-bold text-mst-red">
+                                          <span className="text-[var(--text-muted)] font-medium">Score Percentage:</span>
+                                          <span>{data.scorePercentage ?? data.score}%</span>
+                                        </p>
+                                        {data.totalScore !== undefined && data.totalScore !== null && (
+                                          <p className="flex items-center justify-between gap-4 text-[11px] text-[var(--text-muted)]">
+                                            <span>Total Score:</span>
+                                            <span className="font-bold text-[var(--text)]">
+                                              {data.totalScore} / {data.maxScore || 100}
+                                            </span>
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
                             <Bar dataKey="score" radius={[4, 4, 0, 0]} fill="#e31e24" maxBarSize={28} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -1894,7 +2188,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
 
                     <GlassCard glow="rgba(227,30,36,0.1)">
                       <h3 className="text-sm font-black text-[var(--text)]">Community Ranking</h3>
-                      <p className="mt-4 text-4xl font-black text-gradient-red">#{leaderboardRank ?? analytics.rank}</p>
+                      <p className="mt-4 text-4xl font-black text-gradient-red">#{displayRank}</p>
                       <p className="mt-1 text-sm text-[var(--text-muted)]">
                         Top {analytics.percentile}% of academy learners
                       </p>
@@ -1907,9 +2201,11 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <span className="text-[var(--text-muted)]">Coin balance</span>
                           <span className="font-bold text-amber-500">- $MSTC</span>
                         </p> */}
-                        <p className="flex justify-between">
-                          <span className="text-[var(--text-muted)]">Current module</span>
-                          <span className="font-bold truncate max-w-[160px]">{analytics.activeModuleTitle}</span>
+                        <p className="flex justify-between items-center gap-2">
+                          <span className="text-[var(--text-muted)] shrink-0">Current module</span>
+                          <span className="font-bold text-right truncate max-w-[190px]" title={analytics.activeModuleTitle}>
+                            {analytics.activeModuleTitle}
+                          </span>
                         </p>
                       </div>
                       <Link

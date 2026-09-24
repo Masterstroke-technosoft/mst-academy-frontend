@@ -64,7 +64,15 @@ export interface StudentAnalytics {
   percentile: number;
   rank: number;
   growthData: { week: string; score: number; progress: number }[];
-  moduleScores: { name: string; score: number; moduleId: number }[];
+  moduleScores: {
+    name: string;
+    score: number;
+    moduleId: number;
+    fullTitle?: string;
+    scorePercentage?: number;
+    totalScore?: number;
+    maxScore?: number;
+  }[];
   skillRadar: { skill: SkillKey; value: number }[];
   completionDonut: { name: string; value: number; color: string }[];
   activityHeatmap: { date: string; count: number }[];
@@ -193,10 +201,14 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
     }
   }
 
-  const overallProgress =
+  const rawOverallProgress =
     totalSubmodules > 0
-      ? Math.round((completedSubmodules / totalSubmodules) * 100)
+      ? (completedSubmodules / totalSubmodules) * 100
       : 0;
+  const overallProgress =
+    rawOverallProgress % 1 === 0
+      ? rawOverallProgress
+      : Math.round(rawOverallProgress * 100) / 100;
 
   const activeModuleId = getGlobalActiveModuleId(allModuleIds, getSlugs);
   const activeModule = modules.find((m) => m.id === activeModuleId);
@@ -244,7 +256,10 @@ export function computeStudentAnalytics(curriculum: Curriculum): StudentAnalytic
       }
       return {
         name: `M${mod.id}`,
-        score: n > 0 ? Math.round(sum / n) : getModuleProgressPercent(mod.id, mod.submodules.map((s) => s.slug)),
+        fullTitle: `Module ${mod.id}: ${mod.title}`,
+        score: n > 0 ? Math.round((sum / n) * 100) / 100 : getModuleProgressPercent(mod.id, mod.submodules.map((s) => s.slug)),
+        scorePercentage: n > 0 ? Math.round((sum / n) * 100) / 100 : getModuleProgressPercent(mod.id, mod.submodules.map((s) => s.slug)),
+        maxScore: 100,
         moduleId: mod.id,
       };
     })

@@ -63,6 +63,8 @@ export function ReferAndEarnTab({
     branchName: "",
     upiId: "",
   });
+  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
+  const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState<boolean>(false);
 
   const [dynamicReferralCode, setDynamicReferralCode] = useState(propReferralCode);
   const [dynamicReferrals, setDynamicReferrals] = useState<any[]>([]);
@@ -537,7 +539,12 @@ export function ReferAndEarnTab({
                     } catch (error) {
                       console.error("Error fetching bank details:", error);
                     }
-                    setError(null);
+                    setWithdrawAmount(totalReward > 0 ? String(totalReward) : "0");
+                    if (totalReward <= 0) {
+                      setError("Insufficient balance");
+                    } else {
+                      setError(null);
+                    }
                     setShowWithdrawForm(true);
                   }}
                   // disabled={!withdrawUnlocked}
@@ -597,9 +604,9 @@ export function ReferAndEarnTab({
                         <span>{error}</span>
                       </motion.div>
                     )}
-                    <div className="mt-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 inline-block">
-                      <p className="text-xs font-bold text-[var(--text-muted)]">Withdrawal Amount</p>
-                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">₹{totalReward}</p>
+                    <div className={`mt-3 rounded-lg border px-3 py-2 inline-block ${totalReward > 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-red-500/10 border-red-500/20"}`}>
+                      <p className="text-xs font-bold text-[var(--text-muted)]">Available Balance</p>
+                      <p className={`text-xl font-black ${totalReward > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>₹{totalReward}</p>
                     </div>
                   </div>
                   <button
@@ -623,11 +630,19 @@ export function ReferAndEarnTab({
                     e.preventDefault();
                     if (!user) return;
 
-                    const amount = successfulReferrals * 500;
-                    if (amount <= 0) {
-                      setError("Withdrawal amount is 0. Cannot proceed with withdrawal.");
+                    if (totalReward <= 0) {
+                      setError("Insufficient balance");
                       return;
                     }
+
+                    const parsedAmount = withdrawAmount !== "" ? Number(withdrawAmount) : totalReward;
+                    if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > totalReward) {
+                      setError("Insufficient balance");
+                      return;
+                    }
+
+                    setIsSubmittingWithdrawal(true);
+                    setError(null);
 
                     const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
                     const headers = {
@@ -671,33 +686,65 @@ export function ReferAndEarnTab({
                           }),
                         });
                         if (!bankRes.ok) {
-                          throw new Error(`Bank details failed: ${bankRes.status}`);
+                          const errData = await bankRes.json().catch(() => ({}));
+                          throw new Error(errData.message || `Bank details failed: ${bankRes.status}`);
                         }
                       }
 
                       // Create the withdrawal payout request
-                      const amount = successfulReferrals * 500;
-                      if (amount > 0) {
-                        const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
-                          method: "POST",
-                          credentials: "include",
-                          headers,
-                          body: JSON.stringify({ amount }),
-                        });
-                        if (!withdrawRes.ok) {
-                          throw new Error(`Withdrawal request failed: ${withdrawRes.status}`);
-                        }
+                      const withdrawRes = await fetch(`${baseURL}/api/bank-details/withdrawal`, {
+                        method: "POST",
+                        credentials: "include",
+                        headers,
+                        body: JSON.stringify({ amount: parsedAmount }),
+                      });
+                      if (!withdrawRes.ok) {
+                        const errData = await withdrawRes.json().catch(() => ({}));
+                        throw new Error(errData.message || `Withdrawal request failed: ${withdrawRes.status}`);
                       }
 
                       setWithdrawRequested(true);
                       setRequestStatus("Pending");
                       setShowWithdrawForm(false);
+                      showToast("Withdrawal request submitted successfully", "success");
                     } catch (error: any) {
                       console.error("Failed to submit withdrawal request:", error?.message ?? error);
+                      setError(error?.message || "Failed to submit withdrawal request.");
+                    } finally {
+                      setIsSubmittingWithdrawal(false);
                     }
                   }}
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2 sm:col-span-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                          Withdrawal Amount (₹)
+                        </label>
+                        <span className="text-[11px] font-bold text-[var(--text-muted)]">
+                          Available: <span className={totalReward > 0 ? "font-extrabold text-emerald-600 dark:text-emerald-400" : "font-extrabold text-red-500"}>₹{totalReward}</span>
+                        </span>
+                      </div>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        max={totalReward > 0 ? totalReward : 0}
+                        value={withdrawAmount}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setWithdrawAmount(val);
+                          const num = Number(val);
+                          if (totalReward <= 0 || isNaN(num) || num <= 0 || num > totalReward) {
+                            setError("Insufficient balance");
+                          } else {
+                            setError(null);
+                          }
+                        }}
+                        className="w-full rounded-2xl border border-[var(--border)] bg-[var(--bg-muted)]/50 px-4 py-3.5 text-sm font-medium text-[var(--text)] placeholder-[var(--text-muted)]/50 backdrop-blur-md transition-all focus:border-[var(--text)] focus:bg-[var(--surface)] focus:outline-none focus:ring-4 focus:ring-[var(--text)]/10"
+                        placeholder="Enter withdrawal amount"
+                      />
+                    </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                         Account Holder Name
@@ -793,14 +840,22 @@ export function ReferAndEarnTab({
                       />
                     </div>
                   </div>
-                  <div className="mt-8 flex justify-end pt-2 border-t border-[var(--border)]/50">
+                  <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-[var(--border)]/50">
+                    {totalReward <= 0 && (
+                      <p className="text-xs font-bold text-red-500">
+                        Insufficient balance to submit withdrawal request.
+                      </p>
+                    )}
                     <button
                       type="submit"
-                      className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[#e31e24] px-8 py-4 text-sm font-black text-white shadow-xl shadow-[#e31e24]/20 transition-all hover:scale-[1.02] hover:bg-red-600 hover:shadow-2xl sm:w-auto"
+                      disabled={totalReward <= 0 || isSubmittingWithdrawal}
+                      className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-[#e31e24] px-8 py-4 text-sm font-black text-white shadow-xl shadow-[#e31e24]/20 transition-all hover:scale-[1.02] hover:bg-red-600 hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-[#e31e24] sm:w-auto ml-auto"
                     >
                       <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
                       <CheckCircle2 className="relative z-10 h-5 w-5" />
-                      <span className="relative z-10">Confirm & Withdraw</span>
+                      <span className="relative z-10">
+                        {isSubmittingWithdrawal ? "Submitting..." : "Confirm & Withdraw"}
+                      </span>
                     </button>
                   </div>
                 </form>

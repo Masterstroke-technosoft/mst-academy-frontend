@@ -98,7 +98,7 @@ export function LeaderboardView() {
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") || localStorage.getItem("token") || localStorage.getItem("jwt") : null;
     const headers: Record<string, string> = {};
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -114,9 +114,10 @@ export function LeaderboardView() {
         return r.json();
       })
       .then((raw: BackendLeaderboardEntry[]) => {
-        const valid = raw.filter((e) => e._id != null && e.name != null);
+        const valid = Array.isArray(raw) ? raw.filter((e) => (e._id != null || (e as any).id != null) && e.name != null) : [];
         const list: LeaderboardEntry[] = valid.map(mapBackendEntry);
         list.sort((a, b) => {
+          if (a.rank != null && b.rank != null) return a.rank - b.rank;
           if (b.score !== a.score) return b.score - a.score;
           if (b.modulesDone !== a.modulesDone) return b.modulesDone - a.modulesDone;
           return (a.rank ?? 999) - (b.rank ?? 999);
@@ -221,7 +222,7 @@ export function LeaderboardView() {
                     {/* Left: Rank Box & Info */}
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border border-[var(--border)] bg-[var(--bg)] text-base sm:text-lg font-black text-[var(--text-muted)] group-hover:border-[#e31e24]/30 group-hover:bg-[#e31e24]/5 group-hover:text-[#e31e24] transition-colors ${row.isYou ? "border-[#e31e24]/30 bg-[#e31e24]/5 text-[#e31e24]" : ""}`}>
-                        #{idx + 1}
+                        #{row.rank ?? (idx + 1)}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
