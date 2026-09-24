@@ -7,6 +7,8 @@ import { CheckCircle2, XCircle, Clock, Award, CheckSquare, AlertTriangle, Play, 
 import type { AssessmentQuestion, QuestionResult, UserAnswer } from "@/lib/types";
 import { playSuccess, playError, playViolated } from "@/lib/sounds";
 import { sanitizeHtml } from "@/lib/text";
+import { isMobileOrTablet } from "@/lib/device";
+import { DesktopOnlyAssessmentModal } from "@/components/assessment/DesktopOnlyAssessmentModal";
 
 interface StoredPayload {
   results: QuestionResult[];
@@ -35,7 +37,15 @@ export function AssessmentResults({
 }) {
   const [data, setData] = useState<StoredPayload | null>(null);
   const [countdown, setCountdown] = useState(10);
+  const [showDesktopOnlyModal, setShowDesktopOnlyModal] = useState(false);
   const router = useRouter();
+
+  const handleStartOrRetake = (e: React.MouseEvent) => {
+    if (isMobileOrTablet()) {
+      e.preventDefault();
+      setShowDesktopOnlyModal(true);
+    }
+  };
 
   useEffect(() => {
     const raw = sessionStorage.getItem(`assessment-${moduleId}-${subSlug}`);
@@ -66,10 +76,20 @@ export function AssessmentResults({
         <p className="text-[var(--text-muted)] mb-4">No results found.</p>
         <Link
           href={`/module/${moduleId}/${subSlug}/assessment`}
+          onClick={handleStartOrRetake}
           className="rounded-full bg-mst-red hover:bg-mst-red-dark px-6 py-2.5 text-sm font-semibold text-white transition"
         >
           Start Assessment
         </Link>
+        <DesktopOnlyAssessmentModal
+          isOpen={showDesktopOnlyModal}
+          onClose={() => setShowDesktopOnlyModal(false)}
+          assessmentUrl={
+            typeof window !== "undefined"
+              ? `${window.location.origin}/module/${moduleId}/${subSlug}/assessment`
+              : undefined
+          }
+        />
       </div>
     );
   }
@@ -204,6 +224,7 @@ export function AssessmentResults({
         {!data.passed && (
           <Link
             href={`/module/${moduleId}/${subSlug}/assessment`}
+            onClick={handleStartOrRetake}
             className="rounded-full border-2 border-amber-500 bg-amber-500/10 hover:bg-amber-500/20 px-6 py-2.5 text-xs font-bold transition text-amber-600"
           >
             Retake Assessment
@@ -481,6 +502,15 @@ export function AssessmentResults({
           })}
         </div>
       </div>
+      <DesktopOnlyAssessmentModal
+        isOpen={showDesktopOnlyModal}
+        onClose={() => setShowDesktopOnlyModal(false)}
+        assessmentUrl={
+          typeof window !== "undefined"
+            ? `${window.location.origin}/module/${moduleId}/${subSlug}/assessment`
+            : undefined
+        }
+      />
     </div>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AuthUser } from "@/lib/auth";
 import { useAuth } from "@/components/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, CheckCircle2, Copy, Save, User, AlertCircle, Trash2, Edit2 } from "lucide-react";
+import { Camera, CheckCircle2, Copy, Save, User, AlertCircle, Trash2, Edit2, X, Loader2 } from "lucide-react";
 
 const getResumeFileName = (urlOrName: string) => {
   if (!urlOrName) return "";
@@ -70,6 +71,124 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     walletAddress: "",
     resume: "",
   });
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Delete Account modal state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteForm, setDeleteForm] = useState({
+    name: "",
+    email: "",
+    courseType: "Student",
+    reason: "",
+  });
+
+  useEffect(() => {
+    if (!isDeleteModalOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsDeleteModalOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isDeleteModalOpen]);
+
+  const getDynamicCourseType = (roleStr?: string) => {
+    if (roleStr && roleStr.trim()) return roleStr.trim();
+    if (formData.role && formData.role.trim()) return formData.role.trim();
+    if (safeUser.role && safeUser.role.trim()) return safeUser.role.trim();
+    return "COURSE_ONLY";
+  };
+
+  const handleOpenDeleteModal = () => {
+    const currentName = formData.fullName || formData.name || safeUser.fullName || "";
+    const currentEmail = formData.email || safeUser.email || "";
+    const currentRole = formData.role || safeUser.role || "";
+    setDeleteForm({
+      name: currentName,
+      email: currentEmail,
+      courseType: getDynamicCourseType(currentRole),
+      reason: "",
+    });
+    setDeleteError("");
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleRaiseDeleteTicket = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deleteForm.reason.trim()) {
+      setDeleteError("Please provide a reason for deletion.");
+      return;
+    }
+
+    try {
+      setIsSubmittingTicket(true);
+      setDeleteError("");
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const payload = {
+        name: deleteForm.name.trim(),
+        email: deleteForm.email.trim(),
+        courseType: deleteForm.courseType,
+        reasonForDeletion: deleteForm.reason.trim(),
+      };
+
+      const response = await fetch(`${baseURL}/api/user-support`, {
+        method: "POST",
+        headers,
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        let errMsg = "Failed to raise delete account ticket. Please try again.";
+        if (Array.isArray(data?.message)) {
+          errMsg = data.message.join(", ");
+        } else if (typeof data?.message === "string") {
+          errMsg = data.message;
+        } else if (data?.error) {
+          errMsg = typeof data.error === "string" ? data.error : JSON.stringify(data.error);
+        }
+        showToast(errMsg, "error");
+        setDeleteError(errMsg);
+        return;
+      }
+
+      showToast(data?.message || "Delete account ticket raised successfully. Admin will review your request.", "success");
+      setIsDeleteModalOpen(false);
+      setDeleteForm({
+        name: "",
+        email: "",
+        courseType: "Student",
+        reason: "",
+      });
+    } catch (err: any) {
+      console.error("Error raising delete account ticket:", err);
+      const errMsg = err?.message || "Network error. Failed to raise ticket.";
+      showToast(errMsg, "error");
+      setDeleteError(errMsg);
+    } finally {
+      setIsSubmittingTicket(false);
+    }
+  };
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -1055,11 +1174,19 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-[var(--border)] pt-6">
+          <div className="flex items-center justify-between border-t border-[var(--border)] pt-6">
+            <button
+              type="button"
+              onClick={handleOpenDeleteModal}
+              className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-600/10 hover:bg-red-600 px-6 py-3 font-bold text-red-600 hover:text-white transition shadow-sm active:scale-95 cursor-pointer dark:text-red-400 dark:hover:text-white"
+            >
+              <Trash2 size={18} />
+              Delete Account
+            </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-xl bg-mst-red px-8 py-3 font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-95 disabled:opacity-70"
+              className="flex items-center gap-2 rounded-xl bg-mst-red px-8 py-3 font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-95 disabled:opacity-70 cursor-pointer"
             >
               <Save size={18} />
               {saving ? "Saving..." : "Save Changes"}
@@ -1067,6 +1194,143 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           </div>
         </form>
       </div>
+
+      {/* Delete Account Modal Form rendered at root body level */}
+      {mounted && typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {isDeleteModalOpen && (
+            <div
+              className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+              onClick={() => setIsDeleteModalOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl relative my-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="absolute right-4 top-4 rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/30 hover:text-[var(--text)] transition cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500 shrink-0">
+                    <Trash2 size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-[var(--text)]">Delete Account Request</h2>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Submit a support ticket to request account deletion.
+                    </p>
+                  </div>
+                </div>
+
+                {deleteError && (
+                  <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-500">
+                    <AlertCircle size={16} className="shrink-0" />
+                    <span>{deleteError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleRaiseDeleteTicket} className="space-y-4">
+                  {/* Name (Dynamic - Read-only) */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteForm.name}
+                      disabled
+                      readOnly
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/20 px-4 py-2.5 text-sm text-[var(--text-muted)] outline-none cursor-not-allowed opacity-80"
+                    />
+                  </div>
+
+                  {/* Email (Dynamic - Read-only) */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={deleteForm.email}
+                      disabled
+                      readOnly
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/20 px-4 py-2.5 text-sm text-[var(--text-muted)] outline-none cursor-not-allowed opacity-80"
+                    />
+                  </div>
+
+                  {/* Course Type (Dynamic - Read-only) */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      Course Type
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteForm.courseType}
+                      disabled
+                      readOnly
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--border)]/20 px-4 py-2.5 text-sm text-[var(--text-muted)] outline-none cursor-not-allowed opacity-80"
+                    />
+                  </div>
+
+                  {/* Reason for Deletion */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                      Reason for Deletion <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      required
+                      placeholder="Please provide the reason for deletion..."
+                      value={deleteForm.reason}
+                      onChange={(e) => {
+                        setDeleteForm(prev => ({ ...prev, reason: e.target.value }));
+                        if (deleteError) setDeleteError("");
+                      }}
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--text)] outline-none transition focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsDeleteModalOpen(false)}
+                      disabled={isSubmittingTicket}
+                      className="rounded-xl border border-[var(--border)] px-5 py-2.5 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--border)]/20 hover:text-[var(--text)] transition disabled:opacity-50 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingTicket}
+                      className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 hover:shadow-red-600/30 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSubmittingTicket ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Raising Ticket...</span>
+                        </>
+                      ) : (
+                        <span>Raise Ticket</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Toast Notification */}
       <AnimatePresence>

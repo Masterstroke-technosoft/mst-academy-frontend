@@ -17,6 +17,54 @@ import {
   PROGRAMME_BADGES,
   PROGRAMME_STATS,
 } from "@/lib/academy-overview";
+import { FaqSection } from "@/components/marketing/FaqSection";
+import { CURRICULUM_FAQS } from "@/lib/faqs";
+
+function getPhaseModules(phase: any, index: number, allModules: any[]) {
+  if (!allModules || allModules.length === 0) return [];
+  const phaseKey = `phase-${index + 1}`;
+  const pId = String(phase._id || phase.id || "");
+
+  // 1. Direct match by phaseId
+  const direct = allModules.filter(
+    (m) =>
+      String(m.phaseId) === pId ||
+      String(m.phaseId) === phaseKey ||
+      String(m.phase) === pId ||
+      String(m.phase) === phaseKey
+  );
+  if (direct.length > 0) return direct;
+
+  // 2. Match by phase.modules list
+  if (Array.isArray(phase.modules) && phase.modules.length > 0) {
+    const ids = phase.modules.map((item: any) =>
+      typeof item === "object" ? String(item._id || item.id || item.index) : String(item)
+    );
+    const fromList = allModules.filter(
+      (m) => ids.includes(String(m.id)) || ids.includes(String(m._id)) || ids.includes(String(m.index))
+    );
+    if (fromList.length > 0) return fromList;
+  }
+
+  // 3. Fallback standard index mapping:
+  // Phase 1: Modules 1-4, Phase 2: 5-8, Phase 3: 9-17, Phase 4: 18-21
+  const phaseRanges = [
+    [1, 4],
+    [5, 8],
+    [9, 17],
+    [18, 21],
+  ];
+  const [start, end] = phaseRanges[index] || [1, 21];
+  return allModules.filter((m) => {
+    const num =
+      typeof m.id === "number"
+        ? m.id
+        : typeof m.index === "number"
+        ? m.index
+        : parseInt(String(m.id || m.index).replace(/\D/g, ""), 10);
+    return !isNaN(num) && num >= start && num <= end;
+  });
+}
 import {
   ArrowRight,
   Award,
@@ -106,10 +154,10 @@ function Expandable({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-[var(--bg-muted)]/80"
+        className="flex w-full items-start sm:items-center gap-3 sm:gap-4 px-4 py-3.5 sm:px-5 sm:py-4 text-left transition hover:bg-[var(--bg-muted)]/80"
       >
         <div
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition mt-0.5 sm:mt-0"
           style={{
             backgroundColor: accent ? `${accent}22` : "var(--bg-muted)",
           }}
@@ -363,8 +411,8 @@ function PhaseSection({
         onToggle={() => setOpen((v) => !v)}
         accent={color}
         header={
-          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 w-full">
-            <div className="flex flex-1 min-w-0 items-start gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+            <div className="flex w-full sm:flex-1 min-w-0 items-start gap-3 sm:gap-4">
               <div
                 className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl sm:flex"
                 style={{ backgroundColor: `${color}22` }}
@@ -383,7 +431,7 @@ function PhaseSection({
                 </h3>
               </div>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2 text-xs font-semibold">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold sm:shrink-0">
               <span className="rounded-full border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-1 text-[var(--text-muted)]">
                 {modules.length || Number(phase.realmodulecount) || phase.moduleCount || 0} modules
               </span>
@@ -417,8 +465,8 @@ function PhaseSection({
                   open={openModules.has(modId)}
                   onToggle={() => toggleModule(modId)}
                   header={
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-3 w-full">
+                      <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-mst-red">
                           Module {moduleLabel ? ` ${moduleLabel}` : ""}
                         </p>
@@ -427,7 +475,7 @@ function PhaseSection({
                           {mod.description}
                         </p>
                       </div>
-                      <span className="rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
+                      <span className="self-start sm:self-auto shrink-0 rounded-full bg-[var(--bg-muted)] px-3 py-1 text-xs font-semibold text-[var(--text-muted)]">
                         {subCount} lessons
                       </span>
                     </div>
@@ -702,7 +750,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               }).filter(Boolean);
               return (
                 <PhaseSection
-                  key={phase._id || phase.id}
+                  key={phase._id || phase.id || `phase-${i}`}
                   phase={phase}
                   modules={initialMods}
                   index={i}
@@ -864,6 +912,15 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
           </RevealSection>
         </div>
       </section>
+
+      {/* Frequently Asked Questions */}
+      <FaqSection
+        title="Curriculum FAQ"
+        subtitle="Common questions about our syllabus, assessments, and learning methodology."
+        tag="Got Questions?"
+        faqs={CURRICULUM_FAQS}
+        id="faq"
+      />
 
       {/* CTA */}
       <section className="relative overflow-hidden">

@@ -31,6 +31,37 @@ export default function AssessmentPage() {
     setError(null);
     const fetchAssessment = async () => {
       try {
+        // Dynamically check if user has paid / is verified
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("admin-token") ||
+              localStorage.getItem("token") ||
+              localStorage.getItem("jwt")
+            : null;
+        const authHeaders: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          authHeaders["Authorization"] = `Bearer ${token}`;
+        }
+
+        const profileRes = await fetch(`${baseUrl}/api/me`, {
+          method: "GET",
+          credentials: "include",
+          headers: authHeaders,
+        });
+
+        if (profileRes.ok) {
+          const profileJson = await profileRes.json();
+          const u = profileJson?.user;
+          const isPaymentVerified = !!(u?.isPaymentVerified || u?.paymentVerified);
+          const r = u?.role?.toLowerCase();
+          const isAdmin = r === "admin" || r === "s_admin" || r === "superadmin" || r === "super_admin";
+
+          if (!isPaymentVerified && !isAdmin) {
+            // Unpaid user trying to access assessment -> redirect to payment
+            window.location.href = "/register?step=payment";
+            return;
+          }
+        }
         // const savedAssignmentId = typeof window !== "undefined" ? localStorage.getItem("assignment-id") : null;
         // let response;
         // if (savedAssignmentId) {

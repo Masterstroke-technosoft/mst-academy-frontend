@@ -58,6 +58,14 @@ const MODULE_TITLES: Record<number, string> = {
   21: "Certification & Alumni Network",
 };
 
+/** Public Cloudflare R2 URLs for module intro/overview videos. Populate as videos are uploaded. */
+const MODULE_VIDEOS: Record<number, string> = {
+  1: "https://pub-1e923ae3eaac4e809c20f2575046895b.r2.dev/module-videos/Module%201%20F%20HB.mp4",
+  // 2: "https://<r2-public-domain>/module-2.mp4",
+  // 3: "https://<r2-public-domain>/module-3.mp4",
+  // 4: "https://<r2-public-domain>/module-4.mp4",
+};
+
 type QuestionType =
   | "mcq"
   | "true_false"
@@ -336,6 +344,7 @@ function main() {
     title: string;
     phaseId: string;
     description: string;
+    videoUrl?: string;
     submodules: {
       id: string;
       slug: string;
@@ -398,6 +407,7 @@ function main() {
       title: MODULE_TITLES[n] || `Module ${n}`,
       phaseId: phase.id,
       description: `${submodules.length} lessons covering ${MODULE_TITLES[n] || `Module ${n}`}.`,
+      videoUrl: MODULE_VIDEOS[n] || undefined,
       submodules,
     });
   }

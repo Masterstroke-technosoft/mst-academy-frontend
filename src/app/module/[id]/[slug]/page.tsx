@@ -32,10 +32,18 @@ export async function generateMetadata({
       const modJson = await modRes.json();
       const dbMod = modJson.data;
 
+      let dbSub: any = null;
       const subRes = await fetch(`${baseURL}/api/submodules/${slug}`);
-      if (!subRes.ok) return { title: "Lesson" };
-      const subJson = await subRes.json();
-      const dbSub = subJson.data;
+      if (subRes.ok) {
+        const subJson = await subRes.json();
+        dbSub = subJson.data;
+      } else {
+        const trialRes = await fetch(`${baseURL}/api/submodules/trial/${slug}`);
+        if (trialRes.ok) {
+          const trialJson = await trialRes.json();
+          dbSub = trialJson.data;
+        }
+      }
 
       if (!dbMod || !dbSub) return { title: "Lesson Not Found" };
 

@@ -15,9 +15,10 @@ export function AnimatedCounter({
   durationMs = 1400,
   className = "",
 }: AnimatedCounterProps) {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(end);
 
   useEffect(() => {
+    setValue(0);
     let frame = 0;
     const start = performance.now();
 

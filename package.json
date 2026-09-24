@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "dotenv -e .env next dev",
-    "build": "npm run ingest && next build",
+    "build:sw": "esbuild src/app/sw.ts --bundle --outfile=public/sw.js --format=iife --target=es2020 --minify",
+    "build": "npm run build:sw && npm run ingest && next build",
     "start": "dotenv -e .env next start",
     "lint": "eslint",
     "ingest": "tsx scripts/ingest.ts"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@serwist/next": "^9.5.12",
     "@tiptap/extension-color": "^3.27.3",
     "@tiptap/extension-font-family": "^3.27.3",
     "@tiptap/extension-highlight": "^3.27.3",
@@ -40,9 +42,11 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-google-recaptcha": "^3.1.0",
+    "react-icons": "^5.7.0",
     "react-syntax-highlighter": "^16.1.1",
     "recharts": "^3.8.1",
     "sanitize-html": "^2.17.4",
+    "serwist": "^9.5.12",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

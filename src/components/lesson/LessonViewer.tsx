@@ -20,6 +20,8 @@ import {
   Volume2,
   VolumeOff,
   Lock,
+  Menu,
+  X,
 } from "lucide-react";
 import type { ModuleMeta, SubmoduleMeta } from "@/lib/types";
 import {
@@ -29,6 +31,8 @@ import {
 } from "@/lib/progress";
 import { getLessonDisplayTitle, getCardSubmoduleTitle } from "@/lib/display-titles";
 import { resolveContentFileUrl } from "@/lib/content-file";
+import { isMobileOrTablet } from "@/lib/device";
+import { DesktopOnlyAssessmentModal } from "@/components/assessment/DesktopOnlyAssessmentModal";
 
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -297,8 +301,421 @@ interface LessonViewerProps {
   nextSlug?: string;
   phaseId: string;
   allModuleIds: any[];
-  moduleSlugMap: Record<string | number, string[]>;
+  moduleSlugMap: Record<string, string[]>;
   contentFile?: string;
+  isTrial?: boolean;
+}
+
+function enhanceLessonIframeHtml(rawHtml: string): string {
+  if (!rawHtml) return rawHtml;
+
+  let processed = rawHtml;
+
+  if (!processed.includes("name=\"viewport\"") && !processed.includes("name='viewport'")) {
+    if (processed.includes("<head>")) {
+      processed = processed.replace("<head>", "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+    } else if (processed.includes("<head ")) {
+      processed = processed.replace(/<head[^>]*>/, "$&<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+    } else {
+      processed = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" + processed;
+    }
+  }
+
+  const injection = `
+<style id="mst-lesson-mobile-enhancement">
+  @media (max-width: 1024px) {
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      -webkit-text-size-adjust: 100% !important;
+    }
+
+    *, *:before, *:after {
+      box-sizing: border-box !important;
+    }
+
+    #mst-doc-sidebar-drawer {
+      position: fixed !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      height: 100vh !important;
+      width: min(72vw, 255px) !important;
+      max-width: 255px !important;
+      z-index: 99999 !important;
+      transform: translateX(-100%) !important;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      box-shadow: none !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      display: block !important;
+      visibility: visible !important;
+    }
+
+    #mst-doc-sidebar-drawer.mst-sidebar-open {
+      transform: translateX(0) !important;
+      box-shadow: 10px 0 40px rgba(0, 0, 0, 0.65) !important;
+    }
+
+    #mst-sidebar-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(4px) !important;
+      -webkit-backdrop-filter: blur(4px) !important;
+      z-index: 99998 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.3s ease !important;
+      display: block !important;
+    }
+
+    #mst-sidebar-backdrop.mst-visible {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    #mst-mobile-sidebar-toggle,
+    button[class*="toggle"],
+    [class*="hamburger"],
+    .menu-btn,
+    .sidebar-btn,
+    #sidebar-toggle,
+    .sidebar-toggle,
+    .toggle-btn {
+      position: fixed !important;
+      top: 8px !important;
+      left: 8px !important;
+      z-index: 99997 !important;
+      width: 26px !important;
+      height: 26px !important;
+      min-width: 26px !important;
+      max-width: 26px !important;
+      min-height: 26px !important;
+      max-height: 26px !important;
+      padding: 0 !important;
+      border-radius: 6px !important;
+      background: #0f172a !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      color: #ffffff !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+      cursor: pointer !important;
+      transition: all 0.2s ease !important;
+    }
+
+    #mst-mobile-sidebar-toggle:active,
+    button[class*="toggle"]:active,
+    [class*="hamburger"]:active,
+    .menu-btn:active {
+      transform: scale(0.92) !important;
+    }
+
+    #mst-mobile-sidebar-toggle svg,
+    button[class*="toggle"] svg,
+    [class*="hamburger"] svg,
+    .menu-btn svg,
+    .sidebar-btn svg,
+    #sidebar-toggle svg,
+    .sidebar-toggle svg {
+      width: 14px !important;
+      height: 14px !important;
+      max-width: 14px !important;
+      max-height: 14px !important;
+    }
+
+    #mst-mobile-sidebar-toggle span,
+    button[class*="toggle"] span,
+    .menu-btn span {
+      width: 13px !important;
+      height: 2px !important;
+      margin: 1.5px 0 !important;
+    }
+
+    /* Table, diagram, flow, router hops, and media mobile confinement */
+    table {
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      border-collapse: collapse !important;
+      margin: 1.25rem 0 !important;
+    }
+
+    .table-wrap,
+    .table-container,
+    .responsive-table {
+      width: 100% !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      display: block !important;
+      margin: 1.25rem 0 !important;
+    }
+
+    .diagram-container,
+    .diagram-wrap,
+    .interactive-diagram,
+    .network-diagram,
+    .interactive-container,
+    .node-network,
+    .flowchart,
+    .canvas-container,
+    .process-flow,
+    .route-diagram,
+    .packet-flow,
+    .diagram-box,
+    .diagram-card,
+    .diagram-content,
+    .diagram,
+    .interactive-card,
+    .interactive-box,
+    .step-flow,
+    .hops-container,
+    .hop-track,
+    .nodes-container,
+    .visual-box,
+    .timeline,
+    [class*="diagram"],
+    [class*="flowchart"],
+    [class*="network"],
+    [class*="router"],
+    [class*="packet"],
+    [class*="route"],
+    [class*="interactive"],
+    [class*="track"],
+    [class*="step"] {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-sizing: border-box !important;
+    }
+
+    svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    img, video, canvas {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    pre {
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      word-break: normal !important;
+    }
+
+    code {
+      word-break: break-word !important;
+    }
+
+    main, article, .main-content, #main-content, .content, #content, .lesson-container, .lesson-content, .container, body > div {
+      margin-left: 0 !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    #mst-mobile-sidebar-toggle,
+    button[class*="toggle"],
+    [class*="hamburger"],
+    .menu-btn,
+    .sidebar-btn,
+    #sidebar-toggle,
+    .sidebar-toggle,
+    #mst-sidebar-backdrop {
+      display: none !important;
+    }
+  }
+</style>
+<script id="mst-lesson-mobile-script">
+  (function() {
+    function initMobileSidebar() {
+      var doc = document;
+      if (!doc || !doc.body) return;
+
+      function fixDiagramsAndTables() {
+        // 1. Ensure all SVGs have a viewBox so they scale down responsively if possible
+        var svgs = doc.querySelectorAll('svg');
+        for (var s = 0; s < svgs.length; s++) {
+          var svg = svgs[s];
+          var w = svg.getAttribute('width');
+          var h = svg.getAttribute('height');
+          if (w && h && !svg.getAttribute('viewBox')) {
+            var numW = parseFloat(w);
+            var numH = parseFloat(h);
+            if (!isNaN(numW) && !isNaN(numH) && numW > 0 && numH > 0) {
+              svg.setAttribute('viewBox', '0 0 ' + numW + ' ' + numH);
+            }
+          }
+        }
+
+        // 2. Wrap tables for responsive touch horizontal scrolling if not already wrapped
+        var tables = doc.querySelectorAll('table');
+        for (var t = 0; t < tables.length; t++) {
+          var tbl = tables[t];
+          if (tbl.parentElement && !tbl.parentElement.classList.contains('table-wrap') && !tbl.parentElement.classList.contains('table-container')) {
+            var wrapper = doc.createElement('div');
+            wrapper.className = 'table-wrap';
+            wrapper.style.cssText = 'width: 100% !important; max-width: 100% !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; margin: 1.25rem 0 !important;';
+            tbl.parentNode.insertBefore(wrapper, tbl);
+            wrapper.appendChild(tbl);
+          }
+        }
+
+        // 3. Find any diagram or flow containers that overflow horizontally and enable horizontal scrolling
+        var candidates = doc.querySelectorAll('[class*="diagram"], [class*="flow"], [class*="network"], [class*="router"], [class*="packet"], [class*="step"], [class*="track"], [class*="visual"], [class*="interactive"], .card, .box, div');
+        for (var c = 0; c < candidates.length; c++) {
+          var el = candidates[c];
+          if (el.id === 'mst-doc-sidebar-drawer' || el.id === 'mst-sidebar-backdrop') continue;
+          if (el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0) {
+            el.style.setProperty('overflow-x', 'auto', 'important');
+            el.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+            el.style.setProperty('max-width', '100%', 'important');
+          }
+        }
+      }
+
+      fixDiagramsAndTables();
+      setTimeout(fixDiagramsAndTables, 200);
+      setTimeout(fixDiagramsAndTables, 800);
+
+      function findRootSidebar() {
+        var existing = doc.getElementById('mst-doc-sidebar-drawer');
+        if (existing) return existing;
+
+        var aside = doc.querySelector('aside');
+        if (aside) return aside;
+
+        var primaryCandidates = doc.querySelectorAll('.sidebar, #sidebar, .left-panel, .navigation-sidebar, nav.toc, .toc-container');
+        for (var i = 0; i < primaryCandidates.length; i++) {
+          var el = primaryCandidates[i];
+          if (el.parentElement === doc.body || el.parentElement.tagName === 'MAIN' || el.offsetWidth < doc.body.offsetWidth * 0.6) {
+            return el;
+          }
+        }
+        return doc.querySelector('aside, .sidebar, #sidebar, nav');
+      }
+
+      var sidebar = findRootSidebar();
+      if (!sidebar) return;
+
+      sidebar.id = 'mst-doc-sidebar-drawer';
+
+      var backdrop = doc.getElementById('mst-sidebar-backdrop');
+      if (!backdrop) {
+        backdrop = doc.createElement('div');
+        backdrop.id = 'mst-sidebar-backdrop';
+        doc.body.appendChild(backdrop);
+      }
+
+      var existingToggle = doc.querySelector('button[class*="toggle"], [class*="hamburger"], .menu-btn, .sidebar-btn, #sidebar-toggle, .sidebar-toggle, .toggle-btn');
+      var toggleBtn = existingToggle || doc.getElementById('mst-mobile-sidebar-toggle');
+      if (!toggleBtn) {
+        toggleBtn = doc.createElement('button');
+        toggleBtn.id = 'mst-mobile-sidebar-toggle';
+        toggleBtn.setAttribute('type', 'button');
+        toggleBtn.setAttribute('aria-label', 'Toggle Navigation Tree');
+        toggleBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        doc.body.appendChild(toggleBtn);
+      }
+
+      toggleBtn.style.setProperty('width', '26px', 'important');
+      toggleBtn.style.setProperty('height', '26px', 'important');
+      toggleBtn.style.setProperty('min-width', '26px', 'important');
+      toggleBtn.style.setProperty('min-height', '26px', 'important');
+      toggleBtn.style.setProperty('max-width', '26px', 'important');
+      toggleBtn.style.setProperty('max-height', '26px', 'important');
+      toggleBtn.style.setProperty('border-radius', '6px', 'important');
+      toggleBtn.style.setProperty('top', '8px', 'important');
+      toggleBtn.style.setProperty('left', '8px', 'important');
+      toggleBtn.style.setProperty('padding', '0', 'important');
+
+      var innerSvgs = toggleBtn.querySelectorAll('svg');
+      for (var s = 0; s < innerSvgs.length; s++) {
+        innerSvgs[s].style.setProperty('width', '14px', 'important');
+        innerSvgs[s].style.setProperty('height', '14px', 'important');
+      }
+
+      var isOpen = false;
+
+      function updateDrawer() {
+        if (isOpen) {
+          sidebar.classList.add('mst-sidebar-open');
+          backdrop.classList.add('mst-visible');
+        } else {
+          sidebar.classList.remove('mst-sidebar-open');
+          backdrop.classList.remove('mst-visible');
+        }
+      }
+
+      toggleBtn.onclick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        isOpen = !isOpen;
+        updateDrawer();
+      };
+
+      backdrop.onclick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        isOpen = false;
+        updateDrawer();
+      };
+
+      doc.addEventListener('click', function(e) {
+        if (!isOpen) return;
+        var target = e.target;
+        if (!target) return;
+        if (sidebar.contains(target) || toggleBtn.contains(target)) return;
+        isOpen = false;
+        updateDrawer();
+      }, true);
+
+      var links = sidebar.querySelectorAll('a, button, [role="button"], li');
+      for (var j = 0; j < links.length; j++) {
+        links[j].addEventListener('click', function() {
+          if ((doc.defaultView ? doc.defaultView.innerWidth : window.innerWidth) <= 1024) {
+            isOpen = false;
+            updateDrawer();
+          }
+        });
+      }
+
+      isOpen = false;
+      updateDrawer();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMobileSidebar);
+    } else {
+      initMobileSidebar();
+    }
+  })();
+</script>
+`;
+
+  if (processed.includes("</body>")) {
+    return processed.replace("</body>", `${injection}</body>`);
+  } else if (processed.includes("</html>")) {
+    return processed.replace("</html>", `${injection}</html>`);
+  }
+  return processed + injection;
 }
 
 export function LessonViewer({
@@ -311,17 +728,20 @@ export function LessonViewer({
   allModuleIds,
   moduleSlugMap,
   contentFile,
+  isTrial,
 }: LessonViewerProps) {
   const articleRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const [validToc, setValidToc] = useState<{ id: string; title: string }[]>(submodule.toc || []);
   const [tocOpen, setTocOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const [leftTocOpen, setLeftTocOpen] = useState(true);
   const [assessmentLoading, setAssessmentLoading] = useState(false);
   const [assessmentError, setAssessmentError] = useState<string | null>(null);
+  const [showDesktopOnlyModal, setShowDesktopOnlyModal] = useState(false);
   const [iframeHtml, setIframeHtml] = useState<string>("");
   const navRef = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -334,7 +754,7 @@ export function LessonViewer({
     fetch(contentUrl)
       .then((res) => res.text())
       .then((data) => {
-        setIframeHtml(data);
+        setIframeHtml(enhanceLessonIframeHtml(data));
       })
       .catch((err) => console.error("Error loading HTML content file:", err));
   }, [contentFile]);
@@ -440,6 +860,14 @@ export function LessonViewer({
   useEffect(() => { setMounted(true); }, []);
 
   const handleAssessment = useCallback(async () => {
+    if (isTrial) {
+      router.push("/register?step=payment");
+      return;
+    }
+    if (isMobileOrTablet()) {
+      setShowDesktopOnlyModal(true);
+      return;
+    }
     if (assessmentLoading) return;
     setAssessmentLoading(true);
     setAssessmentError(null);
@@ -814,14 +1242,14 @@ export function LessonViewer({
     const contentUrl = resolveContentFileUrl(contentFile);
 
     return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col bg-[var(--bg)]" suppressHydrationWarning>
+      <div className="flex h-[calc(100vh-4rem)] w-full max-w-full flex-col overflow-x-hidden bg-[var(--bg)]" suppressHydrationWarning>
         <iframe
           ref={iframeRef}
           key={contentUrl}
           srcDoc={iframeHtml}
           title={lessonTitle}
           onLoad={handleIframeLoad}
-          className="w-full flex-1 min-h-0 border-0 bg-white"
+          className="w-full min-w-0 max-w-full flex-1 min-h-0 border-0 bg-white"
         />
 
         <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--surface)] px-4 py-3 lg:px-8">
@@ -866,18 +1294,54 @@ export function LessonViewer({
             <span />
           )}
         </footer>
+
+        <DesktopOnlyAssessmentModal
+          isOpen={showDesktopOnlyModal}
+          onClose={() => setShowDesktopOnlyModal(false)}
+          assessmentUrl={
+            typeof window !== "undefined"
+              ? `${window.location.origin}/module/${moduleId}/${submodule._id}/assessment`
+              : undefined
+          }
+        />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-[var(--bg)]" suppressHydrationWarning>
+    <div className="flex min-h-[calc(100vh-4rem)] w-full max-w-full overflow-x-hidden bg-[var(--bg)]" suppressHydrationWarning>
+      {/* Mobile Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
       {/* Left Sidebar */}
-      <aside className="hidden w-72 shrink-0 border-r border-[var(--border)] bg-[var(--sidebar-bg)] lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:flex-col lg:overflow-y-auto lg:self-start">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col border-r border-[var(--border)] bg-[var(--sidebar-bg)] shadow-2xl transition-transform duration-300 lg:sticky lg:top-16 lg:z-auto lg:h-[calc(100vh-4rem)] lg:w-72 lg:shrink-0 lg:shadow-none lg:translate-x-0 lg:overflow-y-auto lg:self-start ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        {/* Mobile Header Bar */}
+        <div className="flex items-center justify-between border-b border-white/10 p-4 lg:hidden">
+          <span className="text-xs font-bold uppercase tracking-wider text-white">Learning Tree</span>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white transition"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
         {/* Module info */}
         <div className="border-b border-white/10 p-5">
           <Link
             href="/learn"
+            onClick={() => setMobileSidebarOpen(false)}
             className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-mst-red transition"
           >
             <ChevronLeft size={12} />
@@ -885,6 +1349,7 @@ export function LessonViewer({
           </Link>
           <Link
             href={`/module/${moduleId}`}
+            onClick={() => setMobileSidebarOpen(false)}
             className="mt-3 block text-sm font-bold text-white hover:text-mst-red transition"
           >
             Module {moduleId}: {mod.title}
@@ -923,6 +1388,7 @@ export function LessonViewer({
                       <Link
                         key={item.id}
                         href={`/module/${moduleId}/${submodule._id}/assessment`}
+                        onClick={() => setMobileSidebarOpen(false)}
                         className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition text-white/60 hover:bg-white/5 hover:text-white`}
                       >
                         <span className={`mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9px] font-bold bg-white/10 text-white/40`}>
@@ -936,7 +1402,10 @@ export function LessonViewer({
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => scrollToHeading(item.id)}
+                      onClick={() => {
+                        scrollToHeading(item.id);
+                        setMobileSidebarOpen(false);
+                      }}
                       className={`group flex w-full items-start gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition ${activeHeading === item.id
                         ? "bg-mst-red/15 text-mst-red font-semibold"
                         : "text-white/60 hover:bg-white/5 hover:text-white"
@@ -956,8 +1425,6 @@ export function LessonViewer({
           </div>
         )}
 
-        {/* NOTE: 'All Lessons' list removed from left sidebar per UX request. */}
-
         {/* Bottom actions */}
         <div className="space-y-2 border-t border-white/10 p-4">
           <div className="flex items-center justify-between text-[10px] text-white/40 mb-1">
@@ -974,7 +1441,7 @@ export function LessonViewer({
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col bg-[var(--bg-elevated)]">
+      <div className="flex flex-1 min-w-0 max-w-full flex-col overflow-x-hidden bg-[var(--bg-elevated)]">
         {/* Reading progress bar */}
         <div className="h-1 w-full bg-[var(--border)]">
           <div
@@ -985,32 +1452,44 @@ export function LessonViewer({
 
         {/* Sticky header */}
         <header className="sticky top-16 z-30 flex items-start justify-between gap-4 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-sm px-4 py-4 lg:px-10">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-              <Link
-                href={`/module/${moduleId}`}
-                className="text-mst-red hover:underline font-medium"
-              >
-                Module {moduleId}
-              </Link>
-              <ChevronRight size={14} />
-              <span className="font-semibold text-[var(--text)]">
-                {submodule.index}
-              </span>
-            </div>
-            <h1 className="mt-1.5 text-xl font-black text-[var(--text)] lg:text-2xl">
-              {lessonTitle}
-            </h1>
-            <div className="mt-1.5 flex items-center gap-4">
-              {submodule.subtitle && (
-                <p className="text-sm text-[var(--text-muted)] max-w-2xl">
-                  {submodule.subtitle}
-                </p>
-              )}
-              <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--text-muted)]">
-                <Clock size={12} />
-                {readTime} min
-              </span>
+          <div className="flex items-start gap-3">
+            {/* Mobile Sidebar Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="mt-0.5 flex items-center justify-center rounded-lg border border-[var(--border)] p-2 text-[var(--text)] transition hover:border-mst-red hover:text-mst-red lg:hidden"
+              aria-label="Toggle Learning Tree Sidebar"
+            >
+              <Menu size={16} />
+            </button>
+
+            <div>
+              <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                <Link
+                  href={`/module/${moduleId}`}
+                  className="text-mst-red hover:underline font-medium"
+                >
+                  Module {moduleId}
+                </Link>
+                <ChevronRight size={14} />
+                <span className="font-semibold text-[var(--text)]">
+                  {submodule.index}
+                </span>
+              </div>
+              <h1 className="mt-1.5 text-xl font-black text-[var(--text)] lg:text-2xl">
+                {lessonTitle}
+              </h1>
+              <div className="mt-1.5 flex items-center gap-4">
+                {submodule.subtitle && (
+                  <p className="text-sm text-[var(--text-muted)] max-w-2xl">
+                    {submodule.subtitle}
+                  </p>
+                )}
+                <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--text-muted)]">
+                  <Clock size={12} />
+                  {readTime} min
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1056,13 +1535,13 @@ export function LessonViewer({
         )}
 
         {/* Article content */}
-        <article ref={articleRef} className="flex-1 px-4 py-8 lg:px-12 lg:py-10">
-          <div className="mx-auto max-w-4xl">
+        <article ref={articleRef} className="flex-1 min-w-0 max-w-full overflow-x-hidden px-4 py-8 lg:px-12 lg:py-10">
+          <div className="mx-auto max-w-4xl min-w-0 w-full">
             {mounted ? (
               <LessonContent html={html} />
             ) : (
               <div
-                className="lesson-content space-y-4"
+                className="lesson-content space-y-4 min-w-0 max-w-full"
                 dangerouslySetInnerHTML={{ __html: cleanHtml(html) }}
                 suppressHydrationWarning
               />
@@ -1137,6 +1616,15 @@ export function LessonViewer({
           )}
         </footer>
       </div>
+      <DesktopOnlyAssessmentModal
+        isOpen={showDesktopOnlyModal}
+        onClose={() => setShowDesktopOnlyModal(false)}
+        assessmentUrl={
+          typeof window !== "undefined"
+            ? `${window.location.origin}/module/${moduleId}/${submodule._id}/assessment`
+            : undefined
+        }
+      />
     </div>
   );
 }
