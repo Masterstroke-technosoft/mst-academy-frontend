@@ -97,18 +97,14 @@ export default function ChatBotWidget() {
                 bubble.innerHTML = RIBBON_BUBBLE_HTML;
             }
 
-            // Ensure click events trigger opening the bot on both mobile and desktop
+            // Ensure the thought cloud area ignores clicks
             const thought = document.getElementById("mst-chat-thought");
-            if (thought && !(thought as any).__click_attached) {
-                (thought as any).__click_attached = true;
-                thought.style.cursor = "pointer";
-                thought.style.pointerEvents = "auto";
-                thought.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    openChatWindow();
-                });
+            if (thought) {
+                thought.style.pointerEvents = "none";
+                thought.style.cursor = "default";
             }
 
+            // ONLY clicking directly on the circle button opens the bot
             const button = document.getElementById("mst-chat-widget-button");
             if (button && !(button as any).__click_attached) {
                 (button as any).__click_attached = true;
