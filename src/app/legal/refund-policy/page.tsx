@@ -124,8 +124,8 @@ export default function RefundPolicyPage() {
             </h2>
             <ul className="space-y-3">
               {[
-                "All purchases made through Masterstroke Academy are generally final.",
-                "Due to the nature of digital educational products, learning resources, certifications, assessments, and platform access, refunds shall not be provided once access to the purchased service has been granted.",
+                "All purchases made through Masterstroke Academy are strictly final and non-refundable.",
+                "Due to the immediate digital delivery of educational products, learning resources, certifications, assessments, and platform access, we do not provide refunds or credits for any purchases.",
                 "Users are encouraged to review course descriptions, eligibility requirements, and program details carefully before making a purchase.",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-[var(--text)]">

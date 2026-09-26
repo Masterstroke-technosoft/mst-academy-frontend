@@ -442,11 +442,11 @@ export function LandingPage({
                                 {hours ? ` · ~${hours}` : ""}
                               </span>
                             </div>
-                            <h3 className="mt-3 text-2xl font-bold leading-snug text-[var(--text)]">
+                            {/* <h3 className="mt-3 text-2xl font-bold leading-snug text-[var(--text)]">
                               {details.title}
-                            </h3>
+                            </h3> */}
                             {details.description && (
-                              <p className="mt-4 text-base text-[var(--text-muted)]">
+                              <p className="mt-4 text-base font-bold text-black">
                                 {details.description}
                               </p>
                             )}

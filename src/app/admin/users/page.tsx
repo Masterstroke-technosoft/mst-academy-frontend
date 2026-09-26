@@ -724,17 +724,32 @@ export default function UserManagementPage() {
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-2 group min-h-[28px]">
-                            <span>{user.referralPercentage !== undefined ? `${user.referralPercentage}%` : "0%"}</span>
-                            <button
-                              onClick={() => {
-                                setEditingUserId(user.id);
-                                setEditValue(user.referralPercentage || 0);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
-                              title="Edit Referral Percentage"
-                            >
-                              <Pencil size={14} />
-                            </button>
+                            {(() => {
+                              const getRoleDefault = (r?: string) => {
+                                const norm = String(r || "").toLowerCase().trim();
+                                if (norm === "ojt" || norm === "course_only" || norm === "course-only" || norm === "courseonly") return 10;
+                                if (norm === "validator") return 5;
+                                if (norm === "working_professional" || norm === "working-professional" || norm === "workingprofessional" || norm === "web3 enthusiast" || norm === "web3_enthusiast" || norm === "professional") return 2;
+                                return 2.5;
+                              };
+                              const defPct = getRoleDefault(user.role);
+                              const currentPct = user.referralPercentage && user.referralPercentage > 0 ? user.referralPercentage : defPct;
+                              return (
+                                <>
+                                  <span>{`${currentPct}%`}</span>
+                                  <button
+                                    onClick={() => {
+                                      setEditingUserId(user.id);
+                                      setEditValue(currentPct);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                                    title="Edit Referral Percentage"
+                                  >
+                                    <Pencil size={14} />
+                                  </button>
+                                </>
+                              );
+                            })()}
                           </div>
                         )}
                       </td>

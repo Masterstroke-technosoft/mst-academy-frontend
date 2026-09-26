@@ -389,7 +389,9 @@ function PhaseSection({
   }, [open, phaseId, baseURL]);
 
   const meta = PHASE_HOURS[phaseId] || PHASE_HOURS[phase.id];
-  const subCount = modules.reduce((n, m) => n + (m.submoduleCount || m.submodules?.length || 0), 0);
+  const subCount = modules.length > 0
+    ? modules.reduce((n, m) => n + (parseInt(m.submoduleCount) || m.submodules?.length || 0), 0)
+    : parseInt(phase.submoduleCount) || 0;
   const color = PHASE_COLORS[index] ?? "var(--mst-red)";
   const PhaseIcon = PHASE_ICONS[index] ?? Blocks;
 
@@ -424,8 +426,8 @@ function PhaseSection({
                 >
                   Phase {index + 1}
                 </p>
-                <h3 className="text-base font-bold text-[var(--text)] sm:text-lg md:text-xl leading-snug break-words">
-                  {phase.description || phase.title}
+                <h3 className="text-lg font-bold text-[var(--text)] sm:text-xl break-words">
+                  {phase.title} {phase.description && !phase.title.includes(phase.description) ? `: ${phase.description}` : ""}
                 </h3>
               </div>
             </div>
@@ -528,7 +530,10 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
   const moduleMap = useMemo(() => {
     const map = new Map<string, ModuleMeta>();
     if (curriculum?.modules) {
-      for (const m of curriculum.modules) map.set(String(m.id), m);
+      for (const m of curriculum.modules) {
+        const idStr = String((m as any)._id || m.id);
+        map.set(idStr, m);
+      }
     }
     return map;
   }, [curriculum?.modules]);
@@ -739,7 +744,10 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
 
           <div className="space-y-4">
             {phases.map((phase, i) => {
-              const initialMods = getPhaseModules(phase, i, curriculum?.modules || []);
+              const initialMods = (phase.modules || []).map((mRef: any) => {
+                const mIdStr = String(typeof mRef === "object" && mRef !== null ? mRef._id || mRef.id || mRef : mRef);
+                return moduleMap.get(mIdStr) || (typeof mRef === "object" && mRef !== null ? mRef : null);
+              }).filter(Boolean);
               return (
                 <PhaseSection
                   key={phase._id || phase.id || `phase-${i}`}

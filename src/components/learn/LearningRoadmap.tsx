@@ -754,6 +754,16 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
     });
   };
 
+  const handleAllocationFieldChange = (field: keyof typeof allocationForm, value: string) => {
+    setAllocationForm((prev) => ({ ...prev, [field]: value }));
+    setAllocationErrors((prev) => {
+      if (!prev[field]) return prev;
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  };
+
   const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -762,6 +772,12 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
         e.target.value = "";
         return;
       }
+      setAllocationErrors((prev) => {
+        if (!prev.paymentScreenshotUrl) return prev;
+        const newErrors = { ...prev };
+        delete newErrors.paymentScreenshotUrl;
+        return newErrors;
+      });
       const reader = new FileReader();
       reader.onloadend = async () => {
         const rawBase64 = reader.result as string;
@@ -2163,7 +2179,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.accountHolderName}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, accountHolderName: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('accountHolderName', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.accountHolderName ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="Enter account holder name"
                   />
@@ -2178,8 +2194,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   </label>
                   <select
                     value={allocationForm.category}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, category: e.target.value })}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]"
+                    onChange={(e) => handleAllocationFieldChange('category', e.target.value)}
+                    className={`w-full rounded-lg border ${allocationErrors.category ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]`}
                   >
                     <option value="">Select Category</option>
                     <option value="STUDENT">STUDENT</option>
@@ -2201,7 +2217,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="number"
                     value={allocationForm.amountPaid}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, amountPaid: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('amountPaid', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.amountPaid ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="2999"
                   />
@@ -2217,7 +2233,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="date"
                     value={allocationForm.paymentDate}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, paymentDate: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('paymentDate', e.target.value)}
                     max={(() => {
                       const d = new Date();
                       const year = d.getFullYear();
@@ -2225,7 +2241,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                       const day = String(d.getDate()).padStart(2, '0');
                       return `${year}-${month}-${day}`;
                     })()}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
+                    className={`w-full rounded-lg border ${allocationErrors.paymentDate ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                   />
                   {allocationErrors.paymentDate && (
                     <p className="mt-0.5 text-[10px] text-red-500">{allocationErrors.paymentDate}</p>
@@ -2241,7 +2257,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.transactionId}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, transactionId: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('transactionId', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.transactionId ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="UTR123456789"
                   />
@@ -2256,8 +2272,8 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   </label>
                   <select
                     value={allocationForm.paymentMethod}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, paymentMethod: e.target.value })}
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]"
+                    onChange={(e) => handleAllocationFieldChange('paymentMethod', e.target.value)}
+                    className={`w-full rounded-lg border ${allocationErrors.paymentMethod ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all text-[var(--text)]`}
                   >
                     <option value="">Select Method</option>
                     <option value="UPI">UPI</option>
@@ -2279,7 +2295,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.addressLine1}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, addressLine1: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('addressLine1', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.addressLine1 ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="123 Main Road"
                   />
@@ -2295,7 +2311,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.addressLine2}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, addressLine2: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('addressLine2', e.target.value)}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
                     placeholder="Near Central Mall"
                   />
@@ -2310,7 +2326,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.city}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, city: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('city', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.city ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="Mumbai"
                   />
@@ -2326,7 +2342,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.district}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, district: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('district', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.district ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="Mumbai Suburban"
                   />
@@ -2344,7 +2360,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.state}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, state: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('state', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.state ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="Maharashtra"
                   />
@@ -2360,7 +2376,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.pincode}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, pincode: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('pincode', e.target.value)}
                     className={`w-full rounded-lg border ${allocationErrors.pincode ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                     placeholder="400001"
                   />
@@ -2377,7 +2393,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                 <input
                   type="text"
                   value={allocationForm.country}
-                  onChange={(e) => setAllocationForm({ ...allocationForm, country: e.target.value })}
+                  onChange={(e) => handleAllocationFieldChange('country', e.target.value)}
                   className={`w-full rounded-lg border ${allocationErrors.country ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all`}
                   placeholder="India"
                 />
@@ -2421,7 +2437,7 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <input
                     type="text"
                     value={allocationForm.additionalNotes}
-                    onChange={(e) => setAllocationForm({ ...allocationForm, additionalNotes: e.target.value })}
+                    onChange={(e) => handleAllocationFieldChange('additionalNotes', e.target.value)}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 text-xs text-[var(--text)] focus:border-mst-red focus:outline-none transition-all"
                     placeholder="Payment completed successfully"
                   />

@@ -477,9 +477,13 @@ export function DashboardShell({
         <aside className="hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] md:fixed md:top-16 md:left-0 md:flex z-20">
           {/* profile */}
           <div className="flex items-center gap-3 border-b border-[var(--border)] px-5 py-5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
-              {user.fullName.charAt(0).toUpperCase()}
-            </div>
+            {user.profileImageUrl || user.profileImage || user.profilePhoto ? (
+              <img src={user.profileImageUrl || user.profileImage || user.profilePhoto} alt={user.fullName} className="h-10 w-10 rounded-full object-cover shrink-0" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white shrink-0">
+                {user.fullName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[var(--text)]">
                 {user.fullName}
@@ -626,9 +630,13 @@ export function DashboardShell({
 
               {/* profile */}
               <div className="flex items-center gap-3 border-b border-[var(--border)] pb-5 pt-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
-                  {user.fullName.charAt(0).toUpperCase()}
-                </div>
+                {user.profileImageUrl || user.profileImage || user.profilePhoto ? (
+                  <img src={user.profileImageUrl || user.profileImage || user.profilePhoto} alt={user.fullName} className="h-10 w-10 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white shrink-0">
+                    {user.fullName.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-[var(--text)]">
                     {user.fullName}
@@ -770,9 +778,13 @@ export function DashboardShell({
                   >
                     <Menu size={20} />
                   </button>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white">
-                    {user.fullName.charAt(0).toUpperCase()}
-                  </div>
+                  {user.profileImageUrl || user.profileImage || user.profilePhoto ? (
+                    <img src={user.profileImageUrl || user.profileImage || user.profilePhoto} alt={user.fullName} className="h-9 w-9 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mst-red text-sm font-bold text-white shrink-0">
+                      {user.fullName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <p className="text-sm font-semibold text-[var(--text)]">
                     {user.fullName}
                   </p>
