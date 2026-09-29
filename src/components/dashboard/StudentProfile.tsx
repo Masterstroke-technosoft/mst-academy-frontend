@@ -79,6 +79,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
   // Delete Account modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [hasDeleteTicketRequested, setHasDeleteTicketRequested] = useState(false);
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const [deleteForm, setDeleteForm] = useState({
@@ -87,6 +88,75 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     courseType: "Student",
     reason: "",
   });
+
+  const checkDeleteTicketStatus = async (userEmail?: string) => {
+    const targetEmail = (userEmail || formData.email || safeUser.email || "").trim().toLowerCase();
+    if (!targetEmail) return;
+
+    try {
+      if (typeof window !== "undefined") {
+        if (localStorage.getItem(`mst_delete_ticket_raised_${targetEmail}`) === "true") {
+          setHasDeleteTicketRequested(true);
+        }
+      }
+
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${baseURL}/api/user-support`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        let list: any[] = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (Array.isArray(data?.data)) {
+          list = data.data;
+        } else if (Array.isArray(data?.requests)) {
+          list = data.requests;
+        } else if (Array.isArray(data?.supportRequests)) {
+          list = data.supportRequests;
+        } else if (Array.isArray(data?.items)) {
+          list = data.items;
+        } else if (Array.isArray(data?.data?.requests)) {
+          list = data.data.requests;
+        }
+
+        const activeTicket = list.find((item: any) => {
+          const itemEmail = String(item.email || "").trim().toLowerCase();
+          if (itemEmail !== targetEmail) return false;
+          const status = String(item.status || "PENDING").toUpperCase();
+          return !["DISMISSED", "RESOLVED", "DELETED", "REJECTED"].includes(status);
+        });
+
+        if (activeTicket) {
+          setHasDeleteTicketRequested(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem(`mst_delete_ticket_raised_${targetEmail}`, "true");
+          }
+        }
+      }
+    } catch {
+      // Ignore network errors
+    }
+  };
+
+  useEffect(() => {
+    const targetEmail = (formData.email || safeUser.email || "").trim().toLowerCase();
+    if (targetEmail) {
+      checkDeleteTicketStatus(targetEmail);
+    }
+  }, [formData.email, safeUser.email]);
 
   useEffect(() => {
     if (!isDeleteModalOpen) return;
@@ -110,6 +180,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   };
 
   const handleOpenDeleteModal = () => {
+    if (hasDeleteTicketRequested) {
+      showToast("You have already raised a delete account ticket. Admin will review your request.", "error");
+      return;
+    }
     const currentName = formData.fullName || formData.name || safeUser.fullName || "";
     const currentEmail = formData.email || safeUser.email || "";
     const currentRole = formData.role || safeUser.role || "";
@@ -125,6 +199,10 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
 
   const handleRaiseDeleteTicket = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (hasDeleteTicketRequested) {
+      setDeleteError("A delete account ticket has already been submitted and is pending review.");
+      return;
+    }
     if (!deleteForm.reason.trim()) {
       setDeleteError("Please provide a reason for deletion.");
       return;
@@ -173,6 +251,11 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       }
 
       showToast(data?.message || "Delete account ticket raised successfully. Admin will review your request.", "success");
+      setHasDeleteTicketRequested(true);
+      const submittedEmail = (deleteForm.email || formData.email || safeUser.email || "").trim().toLowerCase();
+      if (submittedEmail && typeof window !== "undefined") {
+        localStorage.setItem(`mst_delete_ticket_raised_${submittedEmail}`, "true");
+      }
       setIsDeleteModalOpen(false);
       setDeleteForm({
         name: "",
@@ -260,6 +343,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             if (data.user.isPaymentVerified || data.user.paymentVerified) {
               profilePaymentVerified = true;
               setIsPaymentVerified(true);
+            }
+            if (data.user.email) {
+              checkDeleteTicketStatus(data.user.email);
+            }
+            if (data.user.isDeleteRequested || data.user.hasDeleteTicket || data.user.deleteRequestPending) {
+              setHasDeleteTicketRequested(true);
             }
             // Update auth provider user state with latest info
             updateProfile({
@@ -1152,7 +1241,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
           </div>
 
           {/* Referral Section */}
-          <div className="rounded-xl border border-dashed border-[var(--border)] p-4 bg-mst-red/5">
+          <div className="rounded-xl border border-dashed border-[var(--border)] p-3.5 sm:p-4 bg-mst-red/5">
             <h3 className="mb-1 text-sm font-bold text-[var(--text)]">Your Referral Link</h3>
             <p className="mb-3 text-xs text-[var(--text-muted)]">Share this link with friends & get rewarded!</p>
             <div className="flex items-center gap-2">
@@ -1160,13 +1249,13 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 type="text"
                 readOnly
                 value={referralLink}
-                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text-muted)]"
+                className="flex-1 min-w-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs sm:text-sm text-[var(--text-muted)] truncate"
               />
               <button
                 type="button"
                 disabled={!referralLink}
                 onClick={copyReferral}
-                className="flex items-center gap-2 rounded-lg bg-mst-red px-4 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-lg bg-mst-red px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                 {copied ? "Copied!" : "Copy"}
@@ -1174,19 +1263,25 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[var(--border)] pt-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 border-t border-[var(--border)] pt-6">
             <button
               type="button"
+              disabled={hasDeleteTicketRequested}
               onClick={handleOpenDeleteModal}
-              className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-600/10 hover:bg-red-600 px-6 py-3 font-bold text-red-600 hover:text-white transition shadow-sm active:scale-95 cursor-pointer dark:text-red-400 dark:hover:text-white"
+              title={hasDeleteTicketRequested ? "Delete account ticket already raised and pending review" : "Delete Account"}
+              className={`flex items-center justify-center gap-2 rounded-xl border px-4 sm:px-6 py-3 font-bold transition shadow-sm w-full sm:w-auto text-sm sm:text-base ${
+                hasDeleteTicketRequested
+                  ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-not-allowed opacity-80"
+                  : "border-red-500/30 bg-red-600/10 hover:bg-red-600 text-red-600 hover:text-white shadow-sm active:scale-95 cursor-pointer dark:text-red-400 dark:hover:text-white"
+              }`}
             >
               <Trash2 size={18} />
-              Delete Account
+              {hasDeleteTicketRequested ? "Delete Request Pending" : "Delete Account"}
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-xl bg-mst-red px-8 py-3 font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-95 disabled:opacity-70 cursor-pointer"
+              className="flex items-center justify-center gap-2 rounded-xl bg-mst-red px-6 sm:px-8 py-3 font-bold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-mst-red/40 hover:brightness-110 active:scale-95 disabled:opacity-70 cursor-pointer w-full sm:w-auto text-sm sm:text-base"
             >
               <Save size={18} />
               {saving ? "Saving..." : "Save Changes"}
@@ -1235,6 +1330,13 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-500">
                     <AlertCircle size={16} className="shrink-0" />
                     <span>{deleteError}</span>
+                  </div>
+                )}
+
+                {hasDeleteTicketRequested && (
+                  <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400">
+                    <AlertCircle size={16} className="shrink-0" />
+                    <span>A delete account ticket has already been submitted for this account and is pending review.</span>
                   </div>
                 )}
 
@@ -1289,13 +1391,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                     <textarea
                       rows={4}
                       required
+                      disabled={hasDeleteTicketRequested}
                       placeholder="Please provide the reason for deletion..."
                       value={deleteForm.reason}
                       onChange={(e) => {
                         setDeleteForm(prev => ({ ...prev, reason: e.target.value }));
                         if (deleteError) setDeleteError("");
                       }}
-                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--text)] outline-none transition focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--text)] outline-none transition focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -1311,8 +1414,8 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                     </button>
                     <button
                       type="submit"
-                      disabled={isSubmittingTicket}
-                      className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 hover:shadow-red-600/30 disabled:opacity-50 cursor-pointer"
+                      disabled={isSubmittingTicket || hasDeleteTicketRequested}
+                      className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 hover:shadow-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       {isSubmittingTicket ? (
                         <>
@@ -1320,7 +1423,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                           <span>Raising Ticket...</span>
                         </>
                       ) : (
-                        <span>Raise Ticket</span>
+                        <span>{hasDeleteTicketRequested ? "Ticket Submitted" : "Raise Ticket"}</span>
                       )}
                     </button>
                   </div>

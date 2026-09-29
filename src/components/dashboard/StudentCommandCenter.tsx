@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -1388,7 +1387,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     Command Center
                   </p>
                 </div>
-                <ThemeToggle />
               </div>
 
               {activeTab === 'profile' ? (

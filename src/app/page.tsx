@@ -28,10 +28,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const phases = getPhases();
   const modules = getAllModules();
-  const submoduleCount = modules.reduce(
-    (n, m) => n + m.submodules.length,
-    0
-  );
+  const submoduleCount = 123;
   const faqSchema = generateFaqSchema(HOMEPAGE_FAQS);
 
   return (

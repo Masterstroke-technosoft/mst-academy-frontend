@@ -21,7 +21,7 @@ import type { Curriculum, ModuleMeta, SubmoduleMeta } from "@/lib/types";
 import type { ModuleStatus } from "@/lib/progress";
 import { useTheme } from "@/components/ThemeProvider";
 import { useRoadmapStore } from "@/components/learn/roadmap/roadmapStore";
-import { getCardSubmoduleTitle } from "@/lib/display-titles";
+import { getCardModuleTitle, getCardSubmoduleTitle } from "@/lib/display-titles";
 import { getModule, getSubmodule, registerSubmoduleMetadata, registerModuleIdMapping } from "@/lib/curriculum";
 import {
   getModuleProgressPercent,
@@ -126,7 +126,7 @@ const PhaseCardNode = memo(function PhaseCardNode({
       <Handle type="source" position={Position.Left} id="left-source" className="opacity-0" />
       <Handle type="target" position={Position.Right} id="right-target" className="opacity-0" />
       <div
-        className={`group relative flex flex-col justify-between h-[180px] w-[min(100vw-3rem,420px)] max-w-[420px] sm:w-[360px] md:w-[420px] rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 backdrop-blur-md p-5 sm:p-6 shadow-lg`}
+        className={`group relative flex flex-col justify-between min-h-[160px] sm:min-h-[180px] w-[min(calc(100vw-2.5rem),420px)] max-w-[420px] sm:w-[360px] md:w-[420px] rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-[var(--surface)]/70 backdrop-blur-md p-4 sm:p-6 shadow-lg`}
         style={{
           boxShadow: active
             ? `0 18px 60px ${color}33`
@@ -137,29 +137,29 @@ const PhaseCardNode = memo(function PhaseCardNode({
         }}
       >
         <div
-          className={`absolute inset-0 -z-10 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${active ? "opacity-100" : ""
+          className={`absolute inset-0 -z-10 rounded-2xl sm:rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${active ? "opacity-100" : ""
             }`}
           style={{
             background: `linear-gradient(135deg, ${color}33, transparent 55%), radial-gradient(ellipse at 30% 30%, ${color}22, transparent 60%)`,
           }}
         />
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start gap-2.5 sm:gap-3">
               <span
-                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl"
+                className="inline-flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl mt-0.5"
                 style={{
                   background: `linear-gradient(135deg, ${color}26, transparent 60%)`,
                   border: `1px solid ${tint(color, "50")}`,
                 }}
               >
-                <Icon className="h-5 w-5" style={{ color }} />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" style={{ color }} />
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                   Phase {data.phaseId.split("-")[1]} • {phaseStyle?.label ?? "Phase"}
                 </p>
-                <h3 className="text-lg font-extrabold text-[var(--text)] line-clamp-2">{title}</h3>
+                <h3 className="mt-0.5 text-sm sm:text-lg font-extrabold text-[var(--text)] line-clamp-2 leading-snug">{title}</h3>
               </div>
             </div>
 
@@ -199,7 +199,7 @@ const PhaseCardNode = memo(function PhaseCardNode({
 
 const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNodeVisual }) {
   const { module, status, progress, locked, active, dimmed, color, onPlayVideo } = data;
-  const title = module.title;
+  const title = getCardModuleTitle(module.title);
   const subCount = module.submodules.length;
   const hasVideo = Boolean(module.videoUrl) && !locked;
 
@@ -234,7 +234,7 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
       <Handle type="target" position={Position.Left} id="left-target" className="opacity-0" />
       <Handle type="source" position={Position.Right} id="right-source" className="opacity-0" />
       <div
-        className={`w-[min(100vw-3rem,480px)] max-w-[480px] min-h-[175px] flex flex-col justify-between rounded-3xl border bg-[var(--surface)]/80 backdrop-blur-md p-6 shadow-md transition-all duration-300 ${active
+        className={`w-[min(calc(100vw-2.5rem),480px)] max-w-[480px] min-h-[160px] sm:min-h-[175px] flex flex-col justify-between rounded-2xl sm:rounded-3xl border bg-[var(--surface)]/80 backdrop-blur-md p-4 sm:p-6 shadow-md transition-all duration-300 ${active
           ? "border-[var(--border-strong)]"
           : locked
             ? "border-[var(--border)] opacity-80"
@@ -246,21 +246,21 @@ const ModuleCardNode = memo(function ModuleCardNode({ data }: { data: ModuleNode
         }}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
+          <div className="flex min-w-0 items-start gap-2.5 sm:gap-3 flex-1">
             <span
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl mt-0.5"
+              className="inline-flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl mt-0.5"
               style={{
                 background: `linear-gradient(135deg, ${color}22, transparent 60%)`,
                 border: `1px solid ${tint(color, "55")}`,
               }}
             >
-              <BookOpen className="h-5 w-5" style={{ color }} />
+              <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" style={{ color }} />
             </span>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
                 Module {module.index}
               </p>
-              <h4 className="mt-1 line-clamp-2 text-lg font-extrabold text-[var(--text)]">
+              <h4 className="mt-0.5 line-clamp-2 text-sm sm:text-lg font-extrabold text-[var(--text)] leading-snug">
                 {title}
               </h4>
             </div>
@@ -354,7 +354,7 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
       <Handle type="target" position={Position.Left} id="left-target" className="opacity-0" />
       <Handle type="source" position={Position.Right} id="right-source" className="opacity-0" />
       <div
-        className={`w-[min(100vw-3rem,400px)] max-w-[400px] rounded-2xl border bg-[var(--surface)]/80 backdrop-blur-md p-5 shadow-sm transition-all duration-300 ${active
+        className={`w-[min(calc(100vw-2.5rem),400px)] max-w-[400px] rounded-2xl border bg-[var(--surface)]/80 backdrop-blur-md p-3.5 sm:p-5 shadow-sm transition-all duration-300 ${active
           ? "border-[var(--border-strong)] shadow-xl"
           : locked
             ? "opacity-70"
@@ -366,11 +366,11 @@ const SubmoduleChipNode = memo(function SubmoduleChipNode({
         }}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
               {module.index || 1}.{index + 1}
             </p>
-            <p className="mt-1 line-clamp-2 text-base font-bold text-[var(--text)]">{title}</p>
+            <p className="mt-0.5 line-clamp-2 text-xs sm:text-base font-bold text-[var(--text)] leading-snug">{title}</p>
           </div>
           <div className="shrink-0">
             {locked ? (
@@ -464,46 +464,67 @@ function Breadcrumb({
   onBackModule: () => void;
   onResetAll: () => void;
 }) {
+  const formattedModuleTitle = moduleTitle ? getCardModuleTitle(moduleTitle) : undefined;
+  const formattedSubTitle = subTitle ? getCardSubmoduleTitle(subTitle) : undefined;
+
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/85 backdrop-blur-md px-4 py-3 shadow-sm">
-      <button
-        type="button"
-        onClick={onResetAll}
-        className="text-xs font-bold text-mst-red hover:underline"
-      >
-        Home
-      </button>
-      {phaseTitle && (
-        <>
-          <ChevronRight className="h-4 w-4 text-[var(--text-muted)]" />
-          <button
-            type="button"
-            onClick={onBackPhase}
-            className="text-xs font-bold text-[var(--text-muted)] hover:text-mst-red hover:underline"
-          >
-            {phaseTitle}
-          </button>
-        </>
-      )}
-      {moduleTitle && (
-        <>
-          <ChevronRight className="h-4 w-4 text-[var(--text-muted)]" />
-          <button
-            type="button"
-            onClick={onBackModule}
-            className="text-xs font-bold text-[var(--text-muted)] hover:text-mst-red hover:underline"
-          >
-            {moduleTitle}
-          </button>
-        </>
-      )}
-      {subTitle && (
-        <>
-          <ChevronRight className="h-4 w-4 text-[var(--text-muted)]" />
-          <span className="text-xs font-bold text-[var(--text)]">{subTitle}</span>
-        </>
-      )}
-    </div>
+    <nav
+      aria-label="Breadcrumb"
+      className="w-full max-w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-md p-3 sm:px-4 sm:py-3 shadow-sm"
+    >
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-semibold leading-relaxed">
+        <button
+          type="button"
+          onClick={onResetAll}
+          className="inline-flex items-center text-mst-red hover:underline transition-colors shrink-0 font-bold cursor-pointer"
+        >
+          Home
+        </button>
+
+        {phaseTitle && (
+          <div className="inline-flex items-center gap-1.5 min-w-0">
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
+            <button
+              type="button"
+              onClick={onBackPhase}
+              className={`transition-colors hover:text-mst-red hover:underline text-left cursor-pointer ${
+                moduleTitle || subTitle
+                  ? "text-[var(--text-muted)] font-medium"
+                  : "text-[var(--text)] font-bold"
+              }`}
+            >
+              {phaseTitle}
+            </button>
+          </div>
+        )}
+
+        {formattedModuleTitle && (
+          <div className="inline-flex items-center gap-1.5 min-w-0">
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
+            <button
+              type="button"
+              onClick={onBackModule}
+              className={`transition-colors hover:text-mst-red hover:underline text-left cursor-pointer ${
+                subTitle
+                  ? "text-[var(--text-muted)] font-medium"
+                  : "text-[var(--text)] font-bold"
+              }`}
+            >
+              {formattedModuleTitle}
+            </button>
+          </div>
+        )}
+
+        {formattedSubTitle && (
+          <div className="inline-flex items-center gap-1.5 min-w-0">
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
+            <span className="text-[var(--text)] font-bold text-left">
+              {formattedSubTitle}
+            </span>
+          </div>
+        )}
+      </div>
+    </nav>
   );
 }
 

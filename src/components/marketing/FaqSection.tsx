@@ -71,7 +71,7 @@ export function FaqSection({
                   <button
                     type="button"
                     onClick={() => setOpenIndex(isOpen ? null : i)}
-                    className="flex w-full items-center justify-between gap-4 p-5 text-left transition sm:p-6"
+                    className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left transition sm:p-6"
                   >
                     <span className="flex items-center gap-3 text-base font-bold text-[var(--text)] sm:text-lg">
                       <HelpCircle className="h-5 w-5 shrink-0 text-mst-red" />

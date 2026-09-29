@@ -393,11 +393,11 @@ export function LandingPage({
 
               {/* Expandable Curriculum Cards */}
               <div
-                className={`grid transition-all duration-700 ease-in-out ${expandedPhase !== null ? "grid-rows-[1fr] opacity-100 mt-12" : "grid-rows-[0fr] opacity-0 mt-0"
+                className={`grid transition-all duration-700 ease-in-out ${expandedPhase !== null ? "grid-rows-[1fr] opacity-100 mt-8 sm:mt-12" : "grid-rows-[0fr] opacity-0 mt-0"
                   }`}
               >
-                <div className="overflow-hidden">
-                  <div className="mx-auto max-w-2xl pt-4">
+                <div className="overflow-hidden pb-4 pt-1">
+                  <div className="mx-auto max-w-2xl pt-2 sm:pt-4">
                     {expandedPhase !== null && (() => {
                       const phase: any = localPhases[expandedPhase];
                       const details = expandedPhaseDetails || phase;
@@ -407,7 +407,7 @@ export function LandingPage({
                       const hours = details.estimatedTime ?? PHASE_HOURS[phaseId]?.hours;
                       const moduleCount = details.realmodulecount ?? details.modules?.length ?? 0;
                       return (
-                        <div className="group relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8 transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl sm:p-10">
+                        <div className="group relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-10 transition-all duration-500 hover:-translate-y-2 hover:border-mst-red/40 hover:shadow-2xl">
                           {isLoadingPhase && (
                             <div className="absolute inset-0 z-20 flex items-center justify-center bg-[var(--surface)]/50 backdrop-blur-sm">
                               <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--border)] border-t-mst-red" />
@@ -455,13 +455,13 @@ export function LandingPage({
                       );
                     })()}
                   </div>
-                  <div className="mt-10 text-center">
+                  <div className="mt-6 sm:mt-10 flex justify-center w-full px-2 py-2">
                     <Link
                       href="/academy-overview"
-                      className="group inline-flex items-center gap-2 rounded-full border-2 border-mst-red/40 bg-gradient-to-r from-mst-red/10 to-[var(--accent-purple)]/10 px-8 py-4 text-base font-bold text-mst-red transition hover:bg-mst-red hover:text-white"
+                      className="group inline-flex items-center justify-center gap-2 rounded-full border-2 border-mst-red/40 bg-gradient-to-r from-mst-red/10 to-[var(--accent-purple)]/10 px-4 py-3 sm:px-8 sm:py-4 text-xs min-[360px]:text-xs min-[400px]:text-sm sm:text-base font-bold text-mst-red transition hover:bg-mst-red hover:text-white shadow-md text-center max-w-full"
                     >
-                      View full curriculum with every submodule
-                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                      <span className="leading-snug">View full curriculum with every submodule</span>
+                      <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6 shrink-0 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
                 </div>
@@ -662,10 +662,10 @@ export function LandingPage({
               </div>
               <Link
                 href="/leaderboard"
-                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold text-[var(--text)] transition hover:border-mst-red hover:bg-[var(--bg-muted)]"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--border-strong)] bg-[var(--surface)] px-5 py-3 text-sm font-bold text-[var(--text)] transition hover:border-mst-red hover:bg-[var(--bg-muted)] w-full sm:w-auto text-center"
               >
-                View full leaderboard
-                <ArrowRight className="h-4 w-4" />
+                <span>View full leaderboard</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
             </div>
 
@@ -741,7 +741,7 @@ export function LandingPage({
           {[
             { end: 4, suffix: "", label: "Phases" },
             { end: moduleCount || 21, suffix: "", label: "Modules" },
-            { end: submoduleCount || 123, suffix: "", label: "Submodules" },
+            { end: 123, suffix: "", label: "Submodules" },
             { end: 130, suffix: "+", label: "Hours" },
           ].map((stat, i) => (
             <div

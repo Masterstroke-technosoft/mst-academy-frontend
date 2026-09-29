@@ -118,6 +118,29 @@ const isPasswordValid = (p: string) => {
   return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p) && /[^A-Za-z0-9]/.test(p);
 };
 
+const formatReferralCode = (input: string): string => {
+  if (!input) return "";
+  const val = input.trim();
+
+  // 1. If it's a URL or contains query parameter ?ref= or &ref=
+  const urlMatch = val.match(/[?&]ref=([^&#\s]+)/i);
+  if (urlMatch && urlMatch[1]) {
+    return urlMatch[1].trim();
+  }
+
+  // 2. If it contains mst- or MST- anywhere in the string, extract from mst- onwards
+  const mstIndex = val.search(/mst-/i);
+  if (mstIndex !== -1) {
+    const codeMatch = val.slice(mstIndex).match(/^[a-zA-Z0-9_-]+/);
+    if (codeMatch) {
+      return codeMatch[0].trim();
+    }
+    return val.slice(mstIndex).trim();
+  }
+
+  return val;
+};
+
 
 export function RegisterForm() {
   const router = useRouter();
@@ -292,7 +315,7 @@ export function RegisterForm() {
     }
     const ref = searchParams.get("ref");
     if (ref) {
-      setReferralCodeInput(ref);
+      setReferralCodeInput(formatReferralCode(ref));
     }
   }, [searchParams]);
 
@@ -1481,7 +1504,12 @@ export function RegisterForm() {
           <TextInput
             id="referralCode"
             value={referralCodeInput}
-            onChange={(e) => setReferralCodeInput(e.target.value)}
+            onChange={(e) => setReferralCodeInput(formatReferralCode(e.target.value))}
+            onPaste={(e) => {
+              e.preventDefault();
+              const pasted = e.clipboardData.getData("text");
+              setReferralCodeInput(formatReferralCode(pasted));
+            }}
             placeholder="Enter referral code (optional)"
           />
           <p className="mt-1 text-xs text-[var(--text-muted)]">

@@ -150,33 +150,33 @@ export function LeaderboardView() {
           <div className="flex flex-col gap-12 lg:flex-row lg:gap-16 h-full">
 
             {/* Left Side: Fixed Header & Podium */}
-            <div className="lg:w-[400px] shrink-0 pt-8 sm:pt-12 lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="lg:w-[400px] shrink-0 pt-6 sm:pt-12 lg:h-full lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <div className="text-left">
-                <span className="inline-block rounded-full bg-[#e31e24]/10 px-4 py-1.5 text-xs font-bold tracking-[0.1em] text-[#e31e24]">
+                <span className="inline-block rounded-full bg-[#e31e24]/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-bold tracking-[0.1em] text-[#e31e24]">
                   ACADEMY RANKINGS
                 </span>
-                <h1 className="mt-4 text-6xl font-black text-[#e31e24] tracking-tight">
+                <h1 className="mt-3 sm:mt-4 text-3xl sm:text-5xl lg:text-6xl font-black text-[#e31e24] tracking-tight">
                   Leaderboard
                 </h1>
-                <p className="mt-4 text-base font-medium text-[var(--text-muted)] max-w-sm leading-relaxed">
+                <p className="mt-2 sm:mt-4 text-sm sm:text-base font-medium text-[var(--text-muted)] max-w-sm leading-relaxed">
                   Top learners ranked by course progress, daily coin streaks, and module completion.
                 </p>
 
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8">
                   <Link
                     href="/learn"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#e31e24] px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-red-700 hover:scale-[1.02] shadow-sm"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-[#e31e24] px-4 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold text-white transition-all hover:bg-red-700 hover:scale-[1.02] shadow-sm w-full sm:w-auto text-center"
                   >
-                    <BookOpen className="h-4 w-4" />
-                    Climb the leaderboard - start learning
-                    <ArrowRight className="h-4 w-4" />
+                    <BookOpen className="h-4 w-4 shrink-0" />
+                    <span>Climb the leaderboard - start learning</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </Link>
                 </div>
               </div>
 
               {/* Podium */}
-              <div className="mt-12 pb-12 lg:pb-0">
-                <div className="mx-auto grid grid-cols-3 items-end gap-3 px-2 sm:px-0">
+              <div className="mt-8 sm:mt-12 pb-8 lg:pb-0">
+                <div className="mx-auto grid grid-cols-3 items-end gap-2 sm:gap-3 px-1 sm:px-0">
                   {podium.map((entry, i) => {
                     const style = PODIUM_STYLES[i];
                     if (!entry || !style) return null;
