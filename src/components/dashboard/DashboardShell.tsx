@@ -66,7 +66,7 @@ const getSidebarNav = (role: string, isAdmin: boolean) => {
     ...(isAdmin
       ? [
         { href: "/admin/submissions", icon: BookOpen, label: "Submission Review" },
-        { href: "/admin/users", icon: Users, label: "User Managementss" },
+        { href: "/admin/users", icon: Users, label: "User Management" },
         { href: "/admin/referrals", icon: BarChart3, label: "Referral Analytics" },
         { href: "/admin/bulkemail/compose", icon: BookOpen, label: "Bulk Email" },
       ]
@@ -144,7 +144,7 @@ export function DashboardShell({
       });
       if (res.ok) {
         const data = await res.json();
-        
+
         if (data && !Array.isArray(data)) {
           setPaymentSummary({
             paidUser: data.paidUser || data.paidAmount || 0,
@@ -303,7 +303,7 @@ export function DashboardShell({
         let dismissedList: string[] = [];
         try {
           dismissedList = JSON.parse(localStorage.getItem("mst_dismissed_delete_requests") || "[]");
-        } catch {}
+        } catch { }
 
         const activeList = list.filter((item) => {
           const idKey = String(item._id || item.id || `${item.email}-${item.createdAt || item.date}`);
@@ -363,7 +363,7 @@ export function DashboardShell({
           saved.push(idKey);
           localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
         }
-      } catch {}
+      } catch { }
 
       showToast("User account deactivated successfully", "success");
       setConfirmDeleteTarget(null);
@@ -392,7 +392,7 @@ export function DashboardShell({
         saved.push(idKey);
         localStorage.setItem("mst_dismissed_delete_requests", JSON.stringify(saved));
       }
-    } catch {}
+    } catch { }
 
     showToast("Request dismissed successfully", "success");
   };
@@ -893,22 +893,22 @@ export function DashboardShell({
 
             {/* Payment Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-3 sm:mb-4 shrink-0">
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid User</p>
-                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">{paymentSummary.paidUser}</p>
-               </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid Amount</p>
-                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.totalAmount}</p>
-               </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Amount</p>
-                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.amountWithoutGst}</p>
-               </div>
-               <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
-                  <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">GST (18%)</p>
-                  <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.GST}</p>
-               </div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid User</p>
+                <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">{paymentSummary.paidUser}</p>
+              </div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Paid Amount</p>
+                <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.totalAmount}</p>
+              </div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">Total Amount</p>
+                <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.amountWithoutGst}</p>
+              </div>
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-muted)]/50 p-2 sm:p-3.5 flex flex-col justify-center items-center text-center shadow-sm">
+                <p className="text-[10px] sm:text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider mb-0.5">GST (18%)</p>
+                <p className="text-sm sm:text-xl font-black text-green-600 dark:text-green-400 truncate max-w-full">₹{paymentSummary.GST}</p>
+              </div>
             </div>
 
             {/* Search and Filter Controls */}
@@ -1454,11 +1454,11 @@ export function DashboardShell({
                   className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--text)] focus:border-red-500 focus:outline-none transition-colors cursor-pointer"
                 >
                   <option value="all">All Course Types</option>
-                  
-    
+
+
                   <option value="OJT">OJT</option>
                   <option value="Validator">Validator</option>
-                   <option value="Student">Student</option>
+                  <option value="Student">Student</option>
                   <option value="Web3 Enthusiast">Web3 Enthusiast</option>
                 </select>
               </div>
