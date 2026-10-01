@@ -2428,14 +2428,14 @@ export function LearningRoadmap({ curriculum: initialCurriculum }: { curriculum:
                   <label className="mb-1 block text-[11px] font-bold text-[var(--text)]">
                     Upload payment screenshot (Max 5MB) <span className="text-mst-red">*</span>
                   </label>
-                  <div className={`flex items-center gap-3 w-full rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
+                  <div className={`flex items-center gap-3 w-full min-w-0 rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
                     <label
                       htmlFor="learnScreenshotUploadInput"
                       className="cursor-pointer rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-[10px] font-bold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
                     >
                       Choose File
                     </label>
-                    <span className="text-[10px] text-[var(--text-muted)] truncate">
+                    <span className="text-[10px] text-[var(--text-muted)] min-w-0 flex-1 truncate">
                       {screenshotFileName ? screenshotFileName : "No file chosen"}
                     </span>
                     <input

@@ -89,65 +89,14 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     reason: "",
   });
 
-  const checkDeleteTicketStatus = async (userEmail?: string) => {
+  const checkDeleteTicketStatus = (userEmail?: string) => {
     const targetEmail = (userEmail || formData.email || safeUser.email || "").trim().toLowerCase();
     if (!targetEmail) return;
 
-    try {
-      if (typeof window !== "undefined") {
-        if (localStorage.getItem(`mst_delete_ticket_raised_${targetEmail}`) === "true") {
-          setHasDeleteTicketRequested(true);
-        }
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem(`mst_delete_ticket_raised_${targetEmail}`) === "true") {
+        setHasDeleteTicketRequested(true);
       }
-
-      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-      const token = typeof window !== "undefined" ? localStorage.getItem("admin-token") : null;
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${baseURL}/api/user-support`, {
-        method: "GET",
-        credentials: "include",
-        headers,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        let list: any[] = [];
-        if (Array.isArray(data)) {
-          list = data;
-        } else if (Array.isArray(data?.data)) {
-          list = data.data;
-        } else if (Array.isArray(data?.requests)) {
-          list = data.requests;
-        } else if (Array.isArray(data?.supportRequests)) {
-          list = data.supportRequests;
-        } else if (Array.isArray(data?.items)) {
-          list = data.items;
-        } else if (Array.isArray(data?.data?.requests)) {
-          list = data.data.requests;
-        }
-
-        const activeTicket = list.find((item: any) => {
-          const itemEmail = String(item.email || "").trim().toLowerCase();
-          if (itemEmail !== targetEmail) return false;
-          const status = String(item.status || "PENDING").toUpperCase();
-          return !["DISMISSED", "RESOLVED", "DELETED", "REJECTED"].includes(status);
-        });
-
-        if (activeTicket) {
-          setHasDeleteTicketRequested(true);
-          if (typeof window !== "undefined") {
-            localStorage.setItem(`mst_delete_ticket_raised_${targetEmail}`, "true");
-          }
-        }
-      }
-    } catch {
-      // Ignore network errors
     }
   };
 
@@ -1201,34 +1150,39 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
               <label className="mb-2 block text-sm font-bold text-[var(--text-muted)]">
                 Upload CV (Max 5MB)
               </label>
-              <div className="flex items-center gap-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] px-4 py-2.5">
+              <div className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg)] p-3">
                 {!formData.cvFileName ? (
-                  <label
-                    htmlFor="cvUploadInput"
-                    className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:border-mst-red hover:text-mst-red transition-all shrink-0 shadow-sm"
-                  >
-                    Upload CV
-                  </label>
-                ) : (
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-3">
                     <label
                       htmlFor="cvUploadInput"
-                      className="cursor-pointer rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-colors"
+                      className="cursor-pointer rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:border-mst-red hover:text-mst-red transition-all shrink-0 shadow-sm"
                     >
-                      Edit
+                      Upload CV
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleCvDelete}
-                      className="cursor-pointer rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500/20 transition-colors"
-                    >
-                      Delete
-                    </button>
+                    <span className="text-sm text-[var(--text-muted)]">No file chosen</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-sm font-medium text-[var(--text)] break-all">
+                      {formData.cvFileName}
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <label
+                        htmlFor="cvUploadInput"
+                        className="cursor-pointer rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-colors"
+                      >
+                        Edit
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleCvDelete}
+                        className="cursor-pointer rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-500/20 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 )}
-                <span className={`text-sm truncate ${formData.cvFileName ? "text-[var(--text)] font-medium" : "text-[var(--text-muted)]"}`}>
-                  {formData.cvFileName ? formData.cvFileName : "No file chosen"}
-                </span>
                 <input
                   id="cvUploadInput"
                   type="file"

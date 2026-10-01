@@ -942,7 +942,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               {!user && (
                 <Link
                   href="/register"
-                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
+                  className="group inline-flex w-[210px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl sm:w-auto"
                 >
                   Create Account
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -950,7 +950,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               )}
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-8 py-3.5 font-semibold text-[var(--text)] transition hover:border-mst-red"
+                className="inline-flex w-[210px] items-center justify-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-8 py-3.5 font-semibold text-[var(--text)] transition hover:border-mst-red sm:w-auto"
               >
                 Back to Home
               </Link>

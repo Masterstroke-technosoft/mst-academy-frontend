@@ -53,8 +53,8 @@ export default function TermsConditionsPage() {
         <div className="space-y-8">
           {/* Section 1 - Definitions */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 1
               </span>
               Definitions
@@ -72,18 +72,18 @@ export default function TermsConditionsPage() {
                 { term: "Certification", def: "refers to digital or blockchain-based certificates issued through the Academy." },
                 { term: "Rewards", def: "refers to incentives, recognition programs, ecosystem rewards, or other benefits distributed through the Academy." },
               ].map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <span className="text-mst-red font-bold min-w-fit">{item.term}:</span>
-                  <span className="text-[var(--text)]">{item.def}</span>
-                </div>
+                <p key={idx} className="text-[var(--text)] leading-relaxed">
+                  <span className="text-mst-red font-bold mr-1.5">{item.term}:</span>
+                  {item.def}
+                </p>
               ))}
             </div>
           </section>
 
           {/* Section 2 - Eligibility */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 2
               </span>
               Eligibility
@@ -116,8 +116,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 3 - Account Registration */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 3
               </span>
               Account Registration
@@ -162,8 +162,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 4 - Student Verification */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 4
               </span>
               Student Verification
@@ -204,8 +204,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 5 - Web3 Wallet */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 5
               </span>
               Web3 Wallet Requirement
@@ -254,8 +254,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 6 - Course Enrollment */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 6
               </span>
               Course Enrollment and Access
@@ -308,8 +308,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 7 - Lifetime Access */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 7
               </span>
               Lifetime Access
@@ -339,8 +339,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 8 - Assessments */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 8
               </span>
               Assessments and Completion Requirements
@@ -370,8 +370,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 9 - Certifications */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 9
               </span>
               Certifications
@@ -415,8 +415,8 @@ export default function TermsConditionsPage() {
 
           {/* Section 10 - On-Chain Certifications */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 10
               </span>
               On-Chain Certifications
@@ -846,8 +846,8 @@ export default function TermsConditionsPage() {
             },
           ].map((section, idx) => (
             <section key={idx} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-              <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+              <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                   {section.num}
                 </span>
                 {section.title}
@@ -857,15 +857,15 @@ export default function TermsConditionsPage() {
           ))}
 
           {/* Contact Section */}
-          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-5 sm:p-8">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 25
               </span>
               Contact Us
             </h2>
 
-            <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)] rounded-xl p-4 sm:p-6 border border-[var(--border)]">
               <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
               <p className="text-sm text-[var(--text-muted)] mb-4">
                 <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
@@ -889,7 +889,12 @@ export default function TermsConditionsPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
+                  <a
+                    href="mailto:support@masterstroke.academy"
+                    className="text-[var(--text)] font-medium hover:text-mst-red transition-colors break-all"
+                  >
+                    support@masterstroke.academy
+                  </a>
                 </div>
 
                 <div>

@@ -176,6 +176,7 @@ export function LoginForm() {
     <AuthShell
       title="Welcome Back"
       subtitle="Sign in to continue your learning journey."
+      alignTopOnMobile
     >
       {justRegistered && (
         <p className="mb-4 rounded-lg bg-green-500/10 px-3 py-2 text-sm font-medium text-green-700 dark:text-green-400">
@@ -235,14 +236,14 @@ export function LoginForm() {
         </SubmitButton>
       </form>
 
-      <div className="relative mt-6 flex flex-col items-start gap-3 text-sm sm:block">
-        <p className="text-left text-[var(--text-muted)]">
+      <div className="mt-6 flex items-center justify-between gap-2 text-xs sm:text-sm">
+        <p className="text-[var(--text-muted)]">
           New here?{" "}
           <Link href="/register" className="font-semibold text-mst-red hover:underline">
             Create an account
           </Link>
         </p>
-        <Link href="/forgot-password" className="font-semibold text-mst-red hover:underline sm:absolute sm:right-0 sm:top-0">
+        <Link href="/forgot-password" className="font-semibold text-mst-red hover:underline whitespace-nowrap">
           Forgot password?
         </Link>
       </div>

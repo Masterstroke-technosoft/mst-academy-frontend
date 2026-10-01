@@ -345,9 +345,9 @@ export function PlanFunnelPage({
           </div>
         </RevealSection>
 
-        <div className="mt-6 sm:mt-8">
-          <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{name}</p>
-          <p className="mt-1 text-sm text-[var(--text)]">
+        <div className="mt-6 flex w-full flex-col items-center justify-center text-center sm:mt-8">
+          <p className="text-center text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">{name}</p>
+          <p className="mt-1 text-center text-sm text-[var(--text)]">
             {originalPrice && originalPrice !== offerPrice && (
               <span className="line-through text-[var(--text-muted)] mr-2">
                 {usdRate

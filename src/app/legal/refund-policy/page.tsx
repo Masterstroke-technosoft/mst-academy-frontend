@@ -45,8 +45,8 @@ export default function RefundPolicyPage() {
         <div className="space-y-8">
           {/* Section 1 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 1
               </span>
               Nature of Services
@@ -82,8 +82,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 2 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 2
               </span>
               Digital Product Acknowledgement
@@ -116,8 +116,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 3 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 3
               </span>
               Refund Policy
@@ -138,8 +138,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 4 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 4
               </span>
               Non-Refundable Services
@@ -194,8 +194,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 5 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 5
               </span>
               Cancellation Policy
@@ -226,8 +226,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 6 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 6
               </span>
               Duplicate Payments
@@ -259,8 +259,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 7 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 7
               </span>
               Payment Successful but Access Not Granted
@@ -309,8 +309,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 8 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 8
               </span>
               Technical Issues
@@ -348,8 +348,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 9 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 9
               </span>
               Rewards and Certification Eligibility
@@ -376,8 +376,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 10 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 10
               </span>
               Blockchain and Wallet Services
@@ -428,8 +428,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 11 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 11
               </span>
               Return Policy
@@ -450,8 +450,8 @@ export default function RefundPolicyPage() {
 
           {/* Section 12 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 12
               </span>
               Policy Updates
@@ -471,9 +471,9 @@ export default function RefundPolicyPage() {
           </section>
 
           {/* Section 13 - Contact */}
-          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-5 sm:p-8">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 13
               </span>
               Contact for Payment and Refund Queries
@@ -483,7 +483,7 @@ export default function RefundPolicyPage() {
               activation problems, please contact:
             </p>
 
-            <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)] rounded-xl p-4 sm:p-6 border border-[var(--border)]">
               <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
               <p className="text-sm text-[var(--text-muted)] mb-4">
                 <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt.
@@ -493,7 +493,12 @@ export default function RefundPolicyPage() {
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
+                  <a
+                    href="mailto:support@masterstroke.academy"
+                    className="text-[var(--text)] font-medium hover:text-mst-red transition-colors break-all"
+                  >
+                    support@masterstroke.academy
+                  </a>
                 </div>
 
                 <div>
