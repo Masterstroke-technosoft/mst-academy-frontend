@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       "Blockchain Developer Course India | Live Code, On-Chain Certificate | Masterstroke Academy",
   },
   description:
-    "India's most structured blockchain developer course — 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
+    "India's most structured blockchain developer course - 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
   alternates: {
     canonical: "https://masterstroke.academy/blockchain-course-india",
   },
@@ -104,7 +104,7 @@ const courseSchema = [
         "acceptedAnswer": {
           "@type": "Answer",
           "text":
-            "Live code execution on a real blockchain, an on-chain certificate, and a direct path to internships and grant funding — not just a certificate at the end.",
+            "Live code execution on a real blockchain, an on-chain certificate, and a direct path to internships and grant funding - not just a certificate at the end.",
         },
       },
     ],
@@ -134,7 +134,7 @@ const differentiators = [
     title: "Live code execution, not slides",
     badge: "Interactive Browser IDE",
     description:
-      "Every lesson includes hands-on coding directly in your browser, executed on MST Chain — an EVM-compatible hybrid Layer-1 built for India.",
+      "Every lesson includes hands-on coding directly in your browser, executed on MST Chain - an EVM-compatible hybrid Layer-1 built for India.",
     icon: Code2,
     accent: "text-mst-red",
     bg: "bg-mst-red/10",
@@ -144,7 +144,7 @@ const differentiators = [
     title: "On-chain certificate",
     badge: "Tamper-Proof Credential",
     description:
-      "Your credential is minted directly on the blockchain — publicly verifiable, tamper-proof, and unlike any paper certificate offered by traditional training institutes.",
+      "Your credential is minted directly on the blockchain - publicly verifiable, tamper-proof, and unlike any paper certificate offered by traditional training institutes.",
     icon: Award,
     accent: "text-purple-500",
     bg: "bg-purple-500/10",
@@ -154,7 +154,7 @@ const differentiators = [
     title: "PPO internship path",
     badge: "Merit-Based Pipeline",
     description:
-      "Top leaderboard performers are considered for internships with MST partner companies — your performance in the course directly opens doors.",
+      "Top leaderboard performers are considered for internships with MST partner companies - your performance in the course directly opens doors.",
     icon: Briefcase,
     accent: "text-blue-500",
     bg: "bg-blue-500/10",
@@ -164,7 +164,7 @@ const differentiators = [
     title: "$50,000 grant funding",
     badge: "Ecosystem Venture Fund",
     description:
-      "Graduate with a live capstone project and pitch it at Demo Day for MST ecosystem grant funding — turning your course project into a real startup.",
+      "Graduate with a live capstone project and pitch it at Demo Day for MST ecosystem grant funding - turning your course project into a real startup.",
     icon: Coins,
     accent: "text-amber-500",
     bg: "bg-amber-500/10",
@@ -224,7 +224,7 @@ const faqs = [
   },
   {
     q: "What makes this different from other blockchain courses in India?",
-    a: "Live code execution on a real blockchain, an on-chain certificate, and a direct path to internships and grant funding — not just a certificate at the end.",
+    a: "Live code execution on a real blockchain, an on-chain certificate, and a direct path to internships and grant funding - not just a certificate at the end.",
   },
 ];
 
@@ -272,7 +272,7 @@ export default function BlockchainCourseIndiaPage() {
               </h1>
 
               <p className="mt-6 text-base sm:text-lg leading-relaxed text-[var(--text-muted)] max-w-3xl mx-auto">
-                If you searched for a blockchain developer course in India, here&apos;s what sets Masterstroke Academy apart from every training institute, bootcamp, and online certification program you&apos;ll find: this is the only program where you write real Solidity code on a real, live blockchain — MST Chain — from your very first lesson.
+                If you searched for a blockchain developer course in India, here&apos;s what sets Masterstroke Academy apart from every training institute, bootcamp, and online certification program you&apos;ll find: this is the only program where you write real Solidity code on a real, live blockchain - MST Chain - from your very first lesson.
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -388,7 +388,7 @@ export default function BlockchainCourseIndiaPage() {
               {/* Narrative Curriculum Box */}
               <div className="mt-8 rounded-2xl border border-mst-red/30 bg-gradient-to-br from-[var(--surface)] via-[var(--bg-muted)] to-[var(--surface)] p-6 sm:p-8 shadow-sm">
                 <p className="text-sm sm:text-base leading-relaxed text-[var(--text)]/90 text-center max-w-4xl mx-auto">
-                  From cryptography fundamentals in Phase 1, through Solidity and developer tooling in Phase 2, to building a full DeFi, NFT, or DAO project as your capstone in Phase 3, and finally pitching for funding in Phase 4 — this blockchain developer course in India takes you from zero to a genuinely fundable Web3 builder.
+                  From cryptography fundamentals in Phase 1, through Solidity and developer tooling in Phase 2, to building a full DeFi, NFT, or DAO project as your capstone in Phase 3, and finally pitching for funding in Phase 4 - this blockchain developer course in India takes you from zero to a genuinely fundable Web3 builder.
                 </p>
               </div>
             </section>

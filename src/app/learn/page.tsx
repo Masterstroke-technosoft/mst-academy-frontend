@@ -37,7 +37,7 @@ export default function LearnPage() {
 
       {/* Search engine crawlable semantic structure */}
       <div className="sr-only">
-        <h1>Masterstroke Academy — Blockchain Learning Tree</h1>
+        <h1>Masterstroke Academy - Blockchain Learning Tree</h1>
         <p>
           Structured, interactive Web3 curriculum covering 4 phases, 21 modules, and 123 submodules.
         </p>

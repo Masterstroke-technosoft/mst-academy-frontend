@@ -62,27 +62,62 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--bg-elevated)] transition-colors duration-300">
       {/* Main Footer Links & Copyright */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 pb-20 md:pb-6">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-          {/* Left Side - Legal Links */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
+      <div className="mx-auto max-w-[1680px] px-4 sm:px-6 xl:pr-28 py-6 pb-24 md:py-4 md:pb-4">
+        <div className="flex flex-col items-center justify-between gap-5 md:gap-4 xl:flex-row">
+          {/* Left Side - Exploration & Knowledge Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-start">
             <Link
-              href="/refund-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              href="/about"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
             >
-              Refund Policy
+              About
             </Link>
             <span className="text-[var(--border)]">•</span>
             <Link
-              href="/terms-conditions"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              href="/faq"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
             >
-              Terms & Conditions
+              FAQ
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/glossary"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Glossary
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/testimonials"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Reviews
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/placements"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Placements
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/blockchain-course-india"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Blockchain Course India
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/compare"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Compare
             </Link>
           </div>
 
           {/* Center - Copyright */}
-          <div className="flex flex-col items-center justify-center gap-1 text-center">
+          <div className="flex flex-col items-center justify-center text-center space-y-0.5">
             <p className="text-xs text-[var(--text-muted)]">
               © 2026 Masterstroke Academy. All Rights Reserved.
             </p>
@@ -91,18 +126,32 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
             </p>
           </div>
 
-          {/* Right Side - Legal Links */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 text-xs">
+          {/* Right Side - Legal & Support Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-end">
             <Link
               href="/privacy-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
             >
               Privacy Policy
             </Link>
             <span className="text-[var(--border)]">•</span>
             <Link
+              href="/terms-conditions"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Terms & Conditions
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
+              href="/refund-policy"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+            >
+              Refund Policy
+            </Link>
+            <span className="text-[var(--border)]">•</span>
+            <Link
               href="/contact-us"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors"
+              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
             >
               Contact Us
             </Link>

@@ -20,10 +20,10 @@ import {
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Career Outcomes & Placements — Blockchain Developer Jobs After Masterstroke Academy",
+      "Career Outcomes & Placements - Blockchain Developer Jobs After Masterstroke Academy",
   },
   description:
-    "See real career outcomes from Masterstroke Academy graduates — blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
+    "See real career outcomes from Masterstroke Academy graduates - blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
   alternates: { canonical: "https://masterstroke.academy/placements" },
   robots: { index: true, follow: true },
   openGraph: {

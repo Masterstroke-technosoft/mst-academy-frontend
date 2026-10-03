@@ -16,16 +16,16 @@ import {
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Student Reviews — Masterstroke Academy Blockchain Course | Real Outcomes",
+    absolute: "Student Reviews - Masterstroke Academy Blockchain Course | Real Outcomes",
   },
   description:
-    "Read real reviews from Masterstroke Academy students — blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
+    "Read real reviews from Masterstroke Academy students - blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
   alternates: { canonical: "https://masterstroke.academy/testimonials" },
   robots: { index: true, follow: true },
   openGraph: {
     title: "Student Reviews | Masterstroke Academy",
     description:
-      "Real outcomes from real students — blockchain developer careers built on MST Chain.",
+      "Real outcomes from real students - blockchain developer careers built on MST Chain.",
     url: "https://masterstroke.academy/testimonials",
     images: [
       {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Student Reviews | Masterstroke Academy",
     description:
-      "Real outcomes from real students — blockchain developer careers built on MST Chain.",
+      "Real outcomes from real students - blockchain developer careers built on MST Chain.",
   },
 };
 
@@ -67,7 +67,7 @@ const testimonials = [
     name: "Aarav Kapoor",
     role: "Final-year B.Tech, Computer Science",
     quote:
-      "I had zero blockchain knowledge before joining. The structured phases meant I never felt lost — by Phase 3 I was deploying real smart contracts on MST Chain. The on-chain certificate is something I actually show recruiters.",
+      "I had zero blockchain knowledge before joining. The structured phases meant I never felt lost - by Phase 3 I was deploying real smart contracts on MST Chain. The on-chain certificate is something I actually show recruiters.",
     badge: "Smart Contracts • MST Chain",
     initials: "AK",
     accent: "from-red-500/20 to-orange-500/10 border-red-500/30 text-mst-red",
@@ -76,7 +76,7 @@ const testimonials = [
     name: "Diya Sharma",
     role: "Blockchain Developer, Web3 Startup",
     quote:
-      "What sets Masterstroke apart is the live code execution. Most courses show you slides — this one has you writing Solidity in the browser from day one. I got my internship offer through the leaderboard's PPO track.",
+      "What sets Masterstroke apart is the live code execution. Most courses show you slides - this one has you writing Solidity in the browser from day one. I got my internship offer through the leaderboard's PPO track.",
     badge: "Browser IDE • PPO Internship",
     initials: "DS",
     accent: "from-blue-500/20 to-cyan-500/10 border-blue-500/30 text-blue-500",
@@ -85,7 +85,7 @@ const testimonials = [
     name: "Rohan Patel",
     role: "Smart Contract Auditor",
     quote:
-      "The security auditing module alone was worth the enrollment. I learned to actually think like an attacker — reentrancy, access control, flash loan exploits. That's the skill that got me hired.",
+      "The security auditing module alone was worth the enrollment. I learned to actually think like an attacker - reentrancy, access control, flash loan exploits. That's the skill that got me hired.",
     badge: "Security Audits • Exploits",
     initials: "RP",
     accent: "from-purple-500/20 to-indigo-500/10 border-purple-500/30 text-purple-500",
