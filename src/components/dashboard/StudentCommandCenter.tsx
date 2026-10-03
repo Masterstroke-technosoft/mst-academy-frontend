@@ -1828,11 +1828,49 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                               data={analytics.dailyStudy}
-                              margin={{ top: 5, right: 5, left: 0, bottom: 0 }}
+                              margin={{ top: 8, right: 6, left: -4, bottom: 12 }}
                             >
                               <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-                              <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                              <YAxis width={20} tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                              <XAxis 
+                                dataKey="day" 
+                                interval={0} 
+                                tick={(props: any) => {
+                                  const { x, y, payload } = props;
+                                  const raw = String(payload?.value || "");
+                                  const [dayName, dayNum] = raw.split(" ");
+                                  return (
+                                    <g transform={`translate(${x},${y})`}>
+                                      <text
+                                        x={0}
+                                        y={0}
+                                        dy={9}
+                                        textAnchor="middle"
+                                        fill="var(--text-muted)"
+                                        fontSize={10}
+                                        fontWeight={600}
+                                      >
+                                        {dayName}
+                                      </text>
+                                      {dayNum && (
+                                        <text
+                                          x={0}
+                                          y={0}
+                                          dy={20}
+                                          textAnchor="middle"
+                                          fill="var(--text-muted)"
+                                          fontSize={9}
+                                          opacity={0.8}
+                                        >
+                                          {dayNum}
+                                        </text>
+                                      )}
+                                    </g>
+                                  );
+                                }}
+                                axisLine={false} 
+                                tickLine={false} 
+                              />
+                              <YAxis width={22} tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                               <Tooltip 
                                 cursor={{ fill: 'var(--border)', opacity: 0.25 }}
                                 contentStyle={{

@@ -16,13 +16,9 @@ export function AuthShell({
 }) {
   return (
     <div
-      className={`flex min-h-[calc(100vh-4rem)] justify-center bg-[var(--bg)] px-4 py-12 ${
-        alignTopOnMobile
-          ? "items-start pt-4 pb-12 sm:items-center sm:py-12"
-          : "items-center"
-      }`}
+      className={`flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--bg)] px-4 pt-6 pb-20 sm:py-12`}
     >
-      <div className={`w-full ${maxWidth}`}>
+      <div className={`w-full ${maxWidth} -translate-y-4 sm:translate-y-0`}>
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-muted)] transition hover:text-mst-red"

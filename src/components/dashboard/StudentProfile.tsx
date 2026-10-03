@@ -1263,12 +1263,12 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                 <button
                   type="button"
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="absolute right-4 top-4 rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/30 hover:text-[var(--text)] transition cursor-pointer"
+                  className="absolute right-3 top-3.5 rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--border)]/30 hover:text-[var(--text)] transition cursor-pointer"
                 >
                   <X size={20} />
                 </button>
 
-                <div className="flex items-center gap-3 mb-5">
+                <div className="flex items-center gap-3 mb-5 pr-8">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500 shrink-0">
                     <Trash2 size={20} />
                   </div>
