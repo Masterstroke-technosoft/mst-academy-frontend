@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/leaderboard',   // dynamic personal user data — no independent search value
+          '/leaderboard',   // dynamic personal user data - no independent search value
           '/api/',
           '/register/confirm',
         ],

@@ -6,7 +6,7 @@ export interface FaqItem {
 export const HOMEPAGE_FAQS: FaqItem[] = [
   {
     q: "What is Masterstroke Academy?",
-    a: "Masterstroke Academy is India's structured blockchain developer program built on MST Chain — an EVM-compatible hybrid Layer-1 blockchain. The course covers Solidity, DeFi, NFTs, DAOs, and smart contract security across 4 phases and 21 modules, with live code execution on a real blockchain.",
+    a: "Masterstroke Academy is India's structured blockchain developer program built on MST Chain - an EVM-compatible hybrid Layer-1 blockchain. The course covers Solidity, DeFi, NFTs, DAOs, and smart contract security across 4 phases and 21 modules, with live code execution on a real blockchain.",
   },
   {
     q: "Is the blockchain course free to start?",
@@ -18,7 +18,7 @@ export const HOMEPAGE_FAQS: FaqItem[] = [
   },
   {
     q: "What certificate do I receive on completing the blockchain course?",
-    a: "On completing all 4 phases and passing all assessments, you receive an on-chain certificate recorded on MST Blockchain — one of the first blockchain-native developer credentials in India, publicly verifiable without contacting the academy.",
+    a: "On completing all 4 phases and passing all assessments, you receive an on-chain certificate recorded on MST Blockchain - one of the first blockchain-native developer credentials in India, publicly verifiable without contacting the academy.",
   },
 ];
 
@@ -37,7 +37,7 @@ export const CURRICULUM_FAQS: FaqItem[] = [
   },
   {
     q: "What certificate do I get on completing the blockchain course?",
-    a: "You receive a verifiable on-chain certificate recorded on MST Blockchain — one of the first blockchain-native developer certificates in India.",
+    a: "You receive a verifiable on-chain certificate recorded on MST Blockchain - one of the first blockchain-native developer certificates in India.",
   },
   {
     q: "Can I get funding after completing the course?",
@@ -72,7 +72,7 @@ export const SITE_WIDE_FAQS: FaqItem[] = [
   },
   {
     q: "What certificate do I receive on completing the course?",
-    a: "A verifiable on-chain certificate recorded on MST Blockchain — one of the first blockchain-native developer credentials in India, publicly verifiable without contacting the academy.",
+    a: "A verifiable on-chain certificate recorded on MST Blockchain - one of the first blockchain-native developer credentials in India, publicly verifiable without contacting the academy.",
   },
   {
     q: "Can I get funding after completing the course?",

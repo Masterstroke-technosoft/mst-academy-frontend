@@ -5,22 +5,22 @@ import { CURRICULUM_FAQS, generateFaqSchema } from "@/lib/faqs";
 import curriculumSchema from "@/lib/schema/curriculum-schema.json";
 
 export const metadata: Metadata = {
-  title: { absolute: "Blockchain Course Syllabus — 21 Modules, 130+ Hours" },
+  title: { absolute: "Blockchain Course Syllabus - 21 Modules, 130+ Hours" },
   description:
     "Full blockchain developer course syllabus: Solidity, DeFi, security audits, ZK proofs and RWA across 21 modules and 130+ hours. Free to browse.",
   alternates: { canonical: "/academy-overview" },
   openGraph: {
-    title: "Blockchain Course Syllabus — 21 Modules, 130+ Hours",
+    title: "Blockchain Course Syllabus - 21 Modules, 130+ Hours",
     description:
-      "Every phase, module and submodule — from fundamentals to capstone deployment and Demo Day.",
+      "Every phase, module and submodule - from fundamentals to capstone deployment and Demo Day.",
     url: "https://masterstroke.academy/academy-overview",
     images: [{ url: "https://masterstroke.academy/icon.png" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blockchain Course Syllabus — 21 Modules, 130+ Hours",
+    title: "Blockchain Course Syllabus - 21 Modules, 130+ Hours",
     description:
-      "Every phase, module and submodule — from fundamentals to capstone deployment and Demo Day.",
+      "Every phase, module and submodule - from fundamentals to capstone deployment and Demo Day.",
     images: ["https://masterstroke.academy/icon.png"],
   },
 };
