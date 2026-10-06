@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
   BookOpen,
   Sparkles,
-  ChevronRight,
+  ChevronLeft,
   ArrowRight,
   CheckCircle2,
   Bookmark,
@@ -234,17 +234,16 @@ export default function GlossaryPage() {
           <div className="pointer-events-none absolute top-2/3 -left-32 h-72 w-72 rounded-full bg-mst-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-            {/* Breadcrumb Navigation */}
-            <nav
-              className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]"
-              aria-label="Breadcrumb"
-            >
-              <Link href="/" className="hover:text-mst-red transition-colors">
-                Home
+            {/* Back to Home Link */}
+            <div className="mb-8">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-mst-red hover:underline text-sm font-medium"
+              >
+                <ChevronLeft size={16} />
+                Back to Home
               </Link>
-              <ChevronRight size={14} className="opacity-50" />
-              <span className="text-[var(--text)] font-semibold">Glossary</span>
-            </nav>
+            </div>
 
             {/* Header Section */}
             <header className="mx-auto max-w-3xl text-center mb-12">
@@ -258,7 +257,7 @@ export default function GlossaryPage() {
               </h1>
 
               <p className="mt-6 text-base sm:text-lg leading-relaxed text-[var(--text-muted)] max-w-2xl mx-auto">
-                Clear, plain-English definitions of the terms you&apos;ll encounter throughout your blockchain development journey.
+                Clear, plain-English definitions of the terms you&apos;ll encounter throughout your blockchain development journey. Each term below can become its own page for deeper SEO reach — this hub lists them all in one place.
               </p>
             </header>
 
@@ -301,17 +300,17 @@ export default function GlossaryPage() {
                     </Link>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-center gap-6 text-xs text-[var(--text-muted)]">
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-xs text-[var(--text-muted)]">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       Live Solidity IDE
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       On-Chain Certificates
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       $50K Grants Path
                     </span>
                   </div>

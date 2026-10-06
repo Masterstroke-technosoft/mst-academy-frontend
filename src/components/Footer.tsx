@@ -91,7 +91,7 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
               href="/testimonials"
               className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
             >
-              Reviews
+              Testimonials
             </Link>
             <span className="text-[var(--border)]">•</span>
             <Link

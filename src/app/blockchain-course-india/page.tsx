@@ -7,7 +7,7 @@ import {
   Coins,
   GraduationCap,
   Sparkles,
-  ChevronRight,
+  ChevronLeft,
   ArrowRight,
   CheckCircle2,
   Layers,
@@ -186,28 +186,24 @@ const stats = [
   {
     value: "4",
     label: "Phases",
-    subtext: "From foundations to capstone launch",
     color: "text-mst-red",
     icon: Layers,
   },
   {
     value: "21",
     label: "Modules",
-    subtext: "Deep-dive blockchain curriculum",
     color: "text-blue-500",
     icon: BookOpen,
   },
   {
     value: "123",
     label: "Submodules",
-    subtext: "Granular hands-on coding lessons",
     color: "text-purple-500",
     icon: Code2,
   },
   {
     value: "130+",
     label: "Hours of Content",
-    subtext: "Self-paced and project-driven",
     color: "text-emerald-500",
     icon: Clock,
   },
@@ -245,19 +241,16 @@ export default function BlockchainCourseIndiaPage() {
           <div className="pointer-events-none absolute top-2/3 -left-32 h-72 w-72 rounded-full bg-mst-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-7xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-            {/* Breadcrumb Navigation */}
-            <nav
-              className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]"
-              aria-label="Breadcrumb"
-            >
-              <Link href="/" className="hover:text-mst-red transition-colors">
-                Home
+            {/* Back to Home Link */}
+            <div className="mb-8">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-mst-red hover:underline text-sm font-medium"
+              >
+                <ChevronLeft size={16} />
+                Back to Home
               </Link>
-              <ChevronRight size={14} className="opacity-50" />
-              <span className="text-[var(--text)] font-semibold">
-                Blockchain Course India
-              </span>
-            </nav>
+            </div>
 
             {/* Hero / Header Section */}
             <header className="mx-auto max-w-3xl text-center">
@@ -347,16 +340,9 @@ export default function BlockchainCourseIndiaPage() {
             {/* Section 2: Curriculum Snapshot */}
             <section className="mt-16 sm:mt-24">
               <div className="text-center mb-10">
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-mst-red mb-3">
-                  <BookOpen size={14} />
-                  Syllabus Highlights
-                </div>
                 <h2 className="text-2xl font-black sm:text-4xl tracking-tight text-[var(--text)]">
                   Curriculum <span className="text-mst-red">Snapshot</span>
                 </h2>
-                <p className="mt-3 text-sm sm:text-base text-[var(--text-muted)] max-w-xl mx-auto">
-                  A structured, zero-to-advanced roadmap designed for master-level Web3 proficiency.
-                </p>
               </div>
 
               {/* Stat Cards Grid */}
@@ -374,22 +360,12 @@ export default function BlockchainCourseIndiaPage() {
                       <div className={`text-3xl sm:text-4xl font-black tracking-tight ${stat.color}`}>
                         {stat.value}
                       </div>
-                      <div className="mt-1.5 text-sm font-bold text-[var(--text)]">
+                      <div className="mt-1.5 text-sm sm:text-base font-bold text-[var(--text)]">
                         {stat.label}
                       </div>
-                      <p className="mt-1 text-xs text-[var(--text-muted)]">
-                        {stat.subtext}
-                      </p>
                     </div>
                   );
                 })}
-              </div>
-
-              {/* Narrative Curriculum Box */}
-              <div className="mt-8 rounded-2xl border border-mst-red/30 bg-gradient-to-br from-[var(--surface)] via-[var(--bg-muted)] to-[var(--surface)] p-6 sm:p-8 shadow-sm">
-                <p className="text-sm sm:text-base leading-relaxed text-[var(--text)]/90 text-center max-w-4xl mx-auto">
-                  From cryptography fundamentals in Phase 1, through Solidity and developer tooling in Phase 2, to building a full DeFi, NFT, or DAO project as your capstone in Phase 3, and finally pitching for funding in Phase 4 - this blockchain developer course in India takes you from zero to a genuinely fundable Web3 builder.
-                </p>
               </div>
             </section>
 
@@ -449,17 +425,17 @@ export default function BlockchainCourseIndiaPage() {
                     </Link>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-center gap-6 text-xs text-[var(--text-muted)]">
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-xs text-[var(--text-muted)]">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       Live Solidity IDE
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       On-Chain Certificate
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       PPO Internship Track
                     </span>
                   </div>

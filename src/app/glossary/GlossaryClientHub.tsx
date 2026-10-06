@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, BookOpen, Sparkles, X, Check, Copy, ArrowUpRight } from "lucide-react";
+import { Search, BookOpen, X, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 export interface GlossaryTerm {
@@ -14,7 +14,6 @@ export interface GlossaryTerm {
 export function GlossaryClientHub({ terms }: { terms: GlossaryTerm[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLetter, setSelectedLetter] = useState<string>("ALL");
-  const [copiedTerm, setCopiedTerm] = useState<string | null>(null);
 
   // Available first letters
   const alphabet = useMemo(() => {
@@ -45,14 +44,6 @@ export function GlossaryClientHub({ terms }: { terms: GlossaryTerm[] }) {
       return matchesLetter && matchesSearch;
     });
   }, [terms, searchQuery, selectedLetter]);
-
-  const handleCopy = (term: GlossaryTerm) => {
-    navigator.clipboard.writeText(`${term.term}: ${term.definition}`);
-    setCopiedTerm(term.term);
-    setTimeout(() => {
-      setCopiedTerm(null);
-    }, 2000);
-  };
 
   return (
     <div className="space-y-10">
@@ -149,7 +140,6 @@ export function GlossaryClientHub({ terms }: { terms: GlossaryTerm[] }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredTerms.map((item, idx) => {
-            const isCopied = copiedTerm === item.term;
             return (
               <article
                 key={idx}
@@ -157,23 +147,11 @@ export function GlossaryClientHub({ terms }: { terms: GlossaryTerm[] }) {
                 className="group relative flex flex-col justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm hover:border-mst-red/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div>
-                  {/* Top Bar: Category Pill & Copy */}
+                  {/* Top Bar: Category Pill */}
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="inline-flex text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-[var(--border)] bg-[var(--bg-muted)] text-[var(--text-muted)]">
                       {item.category}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(item)}
-                      title="Copy definition"
-                      className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--bg-muted)] hover:text-mst-red transition-colors cursor-pointer opacity-80 group-hover:opacity-100"
-                    >
-                      {isCopied ? (
-                        <Check size={14} className="text-emerald-500" />
-                      ) : (
-                        <Copy size={14} />
-                      )}
-                    </button>
                   </div>
 
                   {/* Term Heading (H2/H3) */}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
   HelpCircle,
   Sparkles,
-  ChevronRight,
+  ChevronLeft,
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
@@ -213,17 +213,16 @@ export default function FaqPage() {
           <div className="pointer-events-none absolute top-2/3 -left-32 h-72 w-72 rounded-full bg-mst-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-            {/* Breadcrumb Navigation */}
-            <nav
-              className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]"
-              aria-label="Breadcrumb"
-            >
-              <Link href="/" className="hover:text-mst-red transition-colors">
-                Home
+            {/* Back to Home Link */}
+            <div className="mb-8">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-mst-red hover:underline text-sm font-medium"
+              >
+                <ChevronLeft size={16} />
+                Back to Home
               </Link>
-              <ChevronRight size={14} className="opacity-50" />
-              <span className="text-[var(--text)] font-semibold">FAQ</span>
-            </nav>
+            </div>
 
             {/* Hero / Header Section */}
             <header className="mx-auto max-w-3xl text-center mb-12">
@@ -236,8 +235,8 @@ export default function FaqPage() {
                 Frequently Asked <span className="text-mst-red">Questions</span>
               </h1>
 
-              <p className="mt-6 text-base sm:text-lg leading-relaxed text-[var(--text-muted)] max-w-2xl mx-auto">
-                Everything you need to know about Masterstroke Academy&apos;s blockchain developer program, organised by topic.
+              <p className="mt-6 text-base sm:text-lg leading-relaxed text-[var(--text-muted)] max-w-3xl mx-auto">
+                Everything you need to know about Masterstroke Academy&apos;s blockchain developer program, organised by topic. Use the content from site-wide-faq.json (already provided) for the full 20-question set below, organised into these categories.
               </p>
 
               {/* Quick Jump Category Pills */}
@@ -293,17 +292,17 @@ export default function FaqPage() {
                     </Link>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-center gap-6 text-xs text-[var(--text-muted)]">
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-xs text-[var(--text-muted)]">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       Free Registration
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       Live IDE Access
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       24/48hr Reply
                     </span>
                   </div>

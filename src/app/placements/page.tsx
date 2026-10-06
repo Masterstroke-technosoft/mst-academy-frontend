@@ -8,7 +8,7 @@ import {
   Rocket,
   TrendingUp,
   Trophy,
-  ChevronRight,
+  ChevronLeft,
   Sparkles,
   ArrowRight,
   CheckCircle2,
@@ -84,44 +84,28 @@ const placementSchema = [
 const careerPaths = [
   {
     title: "Smart Contract Developer",
-    subtitle: "Most common outcome",
     icon: Code2,
-    badge: "Solidity & DeFi",
-    salaryBadge: "₹6L – ₹12L PA (Entry)",
-    accentColor: "from-red-500/15 to-orange-500/10 border-red-500/30 text-mst-red",
     iconBg: "bg-mst-red/10 text-mst-red",
     description:
       "The most common outcome. Graduates write, test, and deploy Solidity smart contracts for DeFi protocols, NFT platforms, and enterprise blockchain projects. Entry-level salaries in India range from ₹6L to ₹12L per annum.",
   },
   {
     title: "Blockchain Security Auditor",
-    subtitle: "Highest salary potential",
     icon: ShieldCheck,
-    badge: "Vulnerability & Audits",
-    salaryBadge: "₹20L – ₹50L PA (Experienced)",
-    accentColor: "from-purple-500/15 to-indigo-500/10 border-purple-500/30 text-purple-500",
     iconBg: "bg-purple-500/10 text-purple-500",
     description:
-      "Graduates who complete the security auditing modules are well-positioned for auditing roles - reviewing smart contracts for vulnerabilities before mainnet deployment. This specialisation commands some of the highest salaries in blockchain development, ₹20L-₹50L at experienced levels.",
+      "Graduates who complete the security auditing modules are well-positioned for auditing roles — reviewing smart contracts for vulnerabilities before mainnet deployment. This specialisation commands some of the highest salaries in blockchain development, ₹20L-₹50L at experienced levels.",
   },
   {
     title: "Full-Stack Web3 Developer",
-    subtitle: "End-to-End dApp Architecture",
     icon: Layers,
-    badge: "Frontend + Contracts",
-    salaryBadge: "₹8L – ₹18L PA",
-    accentColor: "from-blue-500/15 to-cyan-500/10 border-blue-500/30 text-blue-500",
     iconBg: "bg-blue-500/10 text-blue-500",
     description:
       "Combining smart contract skills with frontend integration (React, Ethers.js, wallet connectivity), graduates in this path build complete decentralised applications end-to-end.",
   },
   {
     title: "Funded Founder",
-    subtitle: "Web3 Startup Ecosystem",
     icon: Rocket,
-    badge: "Demo Day & Grants",
-    salaryBadge: "Up to $50,000 Grant",
-    accentColor: "from-amber-500/15 to-yellow-500/10 border-amber-500/30 text-amber-500",
     iconBg: "bg-amber-500/10 text-amber-500",
     description:
       "Top capstone projects presented at Demo Day are eligible for MST ecosystem grants up to $50,000. Several graduates have used this path to launch their own Web3 startups rather than joining an existing company.",
@@ -176,17 +160,16 @@ export default function PlacementsPage() {
           <div className="pointer-events-none absolute top-2/3 -left-32 h-72 w-72 rounded-full bg-mst-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-7xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-            {/* Breadcrumbs */}
-            <nav
-              className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]"
-              aria-label="Breadcrumb"
-            >
-              <Link href="/" className="hover:text-mst-red transition-colors">
-                Home
+            {/* Back to Home Link */}
+            <div className="mb-8">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-mst-red hover:underline text-sm font-medium"
+              >
+                <ChevronLeft size={16} />
+                Back to Home
               </Link>
-              <ChevronRight size={14} className="opacity-50" />
-              <span className="text-[var(--text)] font-semibold">Placements</span>
-            </nav>
+            </div>
 
             {/* Hero / Header Section */}
             <header className="mx-auto max-w-3xl text-center">
@@ -208,16 +191,9 @@ export default function PlacementsPage() {
             {/* Section 1: Career Paths After Masterstroke Academy */}
             <section className="mt-16 sm:mt-24">
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-mst-red mb-3">
-                  <TrendingUp size={14} />
-                  Graduate Specialisations
-                </div>
                 <h2 className="text-2xl font-black sm:text-4xl tracking-tight text-[var(--text)]">
                   Career Paths After <span className="text-mst-red">Masterstroke Academy</span>
                 </h2>
-                <p className="mt-3 text-sm sm:text-base text-[var(--text-muted)] max-w-xl mx-auto">
-                  High-growth opportunities available to graduates across Web3 protocols, auditing firms, and venture ecosystems.
-                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -226,45 +202,20 @@ export default function PlacementsPage() {
                   return (
                     <div
                       key={idx}
-                      className="group relative flex flex-col justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 shadow-sm hover:border-mst-red/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                      className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 shadow-sm hover:border-mst-red/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                     >
-                      <div>
-                        {/* Header */}
-                        <div className="flex items-start justify-between gap-4 mb-5">
-                          <div className="flex items-center gap-3.5">
-                            <div className={`rounded-xl p-3 ${path.iconBg}`}>
-                              <Icon size={24} />
-                            </div>
-                            <div>
-                              <h3 className="text-lg sm:text-xl font-bold text-[var(--text)]">
-                                {path.title}
-                              </h3>
-                              <p className="text-xs text-[var(--text-muted)]">
-                                {path.subtitle}
-                              </p>
-                            </div>
-                          </div>
-                          <span className="hidden sm:inline-flex text-[11px] font-semibold px-2.5 py-1 rounded-full border bg-[var(--bg-muted)] text-[var(--text-muted)] border-[var(--border)]">
-                            {path.badge}
-                          </span>
+                      <div className="flex items-center gap-3.5 mb-4">
+                        <div className={`rounded-xl p-3 ${path.iconBg}`}>
+                          <Icon size={24} />
                         </div>
-
-                        {/* Description */}
-                        <p className="text-sm leading-relaxed text-[var(--text)]/85 mb-6">
-                          {path.description}
-                        </p>
+                        <h3 className="text-lg sm:text-xl font-bold text-[var(--text)]">
+                          {path.title}
+                        </h3>
                       </div>
 
-                      {/* Footer Salary Highlight */}
-                      <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
-                        <span className="text-xs font-medium text-[var(--text-muted)] flex items-center gap-1.5">
-                          <DollarSign size={14} className="text-mst-red" />
-                          Target Compensation
-                        </span>
-                        <span className="text-xs font-bold text-mst-red px-3 py-1 rounded-full bg-mst-red/10 border border-mst-red/20">
-                          {path.salaryBadge}
-                        </span>
-                      </div>
+                      <p className="text-sm sm:text-base leading-relaxed text-[var(--text)]/85">
+                        {path.description}
+                      </p>
                     </div>
                   );
                 })}
@@ -344,23 +295,26 @@ export default function PlacementsPage() {
                 </p>
               </div>
 
-              {/* Table Container */}
+              {/* Salary Comparison Table / Chart */}
               <div className="max-w-4xl mx-auto overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]/70">
-                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+                        <th className="py-3 sm:py-4 px-3 sm:px-6 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
                           Role
                         </th>
-                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                          Experience
+                        <th className="py-3 sm:py-4 px-2 sm:px-4 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] whitespace-nowrap">
+                          <span className="sm:hidden">Exp.</span>
+                          <span className="hidden sm:inline">Experience</span>
                         </th>
-                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                          Salary Range (India / Remote)
+                        <th className="py-3 sm:py-4 px-2 sm:px-4 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] whitespace-nowrap">
+                          <span className="sm:hidden">Salary Range</span>
+                          <span className="hidden sm:inline">Salary Range (India / Remote)</span>
                         </th>
-                        <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] text-right">
-                          Market Status
+                        <th className="py-3 sm:py-4 px-3 sm:px-6 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] text-right whitespace-nowrap">
+                          <span className="sm:hidden">Status</span>
+                          <span className="hidden sm:inline">Market Status</span>
                         </th>
                       </tr>
                     </thead>
@@ -370,15 +324,13 @@ export default function PlacementsPage() {
                           key={idx}
                           className="hover:bg-[var(--bg-muted)]/40 transition-colors"
                         >
-                          <td className="py-4 px-6 font-bold text-sm text-[var(--text)]">
-                            <div className="flex items-center gap-2">
-                              {row.role}
-                            </div>
+                          <td className="py-3.5 sm:py-4 px-3 sm:px-6 font-bold text-xs sm:text-sm text-[var(--text)]">
+                            {row.role}
                           </td>
-                          <td className="py-4 px-6 text-sm text-[var(--text-muted)]">
+                          <td className="py-3.5 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-[var(--text-muted)] whitespace-nowrap">
                             {row.experience}
                           </td>
-                          <td className="py-4 px-6 text-sm font-extrabold text-[var(--text)]">
+                          <td className="py-3.5 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-extrabold whitespace-nowrap">
                             <span
                               className={
                                 row.highlight
@@ -389,9 +341,9 @@ export default function PlacementsPage() {
                               {row.salary}
                             </span>
                           </td>
-                          <td className="py-4 px-6 text-right">
+                          <td className="py-3.5 sm:py-4 px-3 sm:px-6 text-right whitespace-nowrap">
                             <span
-                              className={`inline-flex text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                              className={`inline-flex items-center justify-center text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border whitespace-nowrap ${
                                 row.highlight
                                   ? "bg-mst-red/10 text-mst-red border-mst-red/20"
                                   : "bg-[var(--bg-muted)] text-[var(--text-muted)] border-[var(--border)]"
@@ -444,17 +396,17 @@ export default function PlacementsPage() {
                     </Link>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-center gap-6 text-xs text-[var(--text-muted)]">
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-xs text-[var(--text-muted)]">
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       PPO Internship Track
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       $50K Grants
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-emerald-500" />
+                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
                       On-Chain Verification
                     </span>
                   </div>
