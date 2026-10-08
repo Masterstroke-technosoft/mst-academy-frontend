@@ -29,8 +29,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/Academy_Logo.png",
-        width: 1200,
-        height: 630,
       },
     ],
   },
