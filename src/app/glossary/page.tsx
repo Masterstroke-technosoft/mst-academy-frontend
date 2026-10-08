@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     url: "https://masterstroke.academy/glossary",
     images: [
       {
-        url: "/api/og?title=Web3%20%26%20Blockchain%20Glossary%20%7C%20Masterstroke%20Academy",
+        url: "/Academy_Logo.png",
         width: 1200,
         height: 630,
       },
