@@ -3,19 +3,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { getAllUsers, type AuthUser, type UserRole, roleLabel } from "@/lib/auth";
-import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X, BookOpen, Trophy, Calendar, Loader2 } from "lucide-react";
+import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Search, ChevronDown, Pencil, Check, X, BookOpen, Trophy, Calendar, Loader2, Download } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
-  const [filterRole, setFilterRole] = useState<UserRole | "all">("all");
+  const [filterRole, setFilterRole] = useState<UserRole | "all" | "gift_course" | string>("all");
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [debugRaw, setDebugRaw] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,16 +34,22 @@ export default function UserManagementPage() {
       try {
         setLoading(true);
         let baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-        
+
         let roleParam = "";
         if (filterRole !== "all") {
           if (filterRole === "course_only") roleParam = "COURSE_ONLY";
           else if (filterRole === "validator") roleParam = "VALIDATOR";
           else if (filterRole === "student") roleParam = "STUDENT";
           else if (filterRole === "working_professional") roleParam = "WORKING_PROFESSIONAL";
+          else if (filterRole === "gift_course") roleParam = "GIFT_COURSE";
+          else roleParam = String(filterRole).toUpperCase();
         }
 
-        const url = `${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}${roleParam ? `&role=${roleParam}` : ""}`;
+        let dateParams = "";
+        if (fromDate) dateParams += `&startDate=${encodeURIComponent(fromDate)}&fromDate=${encodeURIComponent(fromDate)}`;
+        if (toDate) dateParams += `&endDate=${encodeURIComponent(toDate)}&toDate=${encodeURIComponent(toDate)}`;
+
+        const url = `${baseURL}/api/admin/users?page=${currentPage}&limit=10&search=${encodeURIComponent(debouncedSearch)}${roleParam ? `&role=${roleParam}` : ""}${dateParams}`;
         const response = await fetch(url, {
           method: "GET",
           credentials: "include",
@@ -104,7 +113,7 @@ export default function UserManagementPage() {
     };
 
     fetchUsers();
-  }, [currentPage, debouncedSearch, filterRole]);
+  }, [currentPage, debouncedSearch, filterRole, fromDate, toDate]);
 
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyUserModal, setVerifyUserModal] = useState<AuthUser | null>(null);
@@ -146,7 +155,7 @@ export default function UserManagementPage() {
     setUserProgressData(null);
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
-      
+
       // 1. Fetch curriculum if not already loaded
       let currentCurriculum = curriculumData;
       if (!currentCurriculum) {
@@ -195,7 +204,7 @@ export default function UserManagementPage() {
           if (errData && errData.message) {
             errorMsg = errData.message;
           }
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(errorMsg);
       }
 
@@ -212,7 +221,7 @@ export default function UserManagementPage() {
     if (!curriculumData || !userProgressData) return null;
     let totalModules = 0;
     let totalSubmodules = 0;
-    
+
     curriculumData.forEach((phase: any) => {
       const modules = phase.modules || [];
       totalModules += modules.length;
@@ -420,12 +429,76 @@ export default function UserManagementPage() {
     }
   };
 
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+      let roleParam = "";
+      if (filterRole !== "all") {
+        if (filterRole === "course_only") roleParam = "COURSE_ONLY";
+        else if (filterRole === "validator") roleParam = "VALIDATOR";
+        else if (filterRole === "student") roleParam = "STUDENT";
+        else if (filterRole === "working_professional") roleParam = "WORKING_PROFESSIONAL";
+        else if (filterRole === "gift_course") roleParam = "GIFT_COURSE";
+        else roleParam = String(filterRole).toUpperCase();
+      }
+
+      const queryParams = new URLSearchParams();
+      if (roleParam) queryParams.append("role", roleParam);
+      if (debouncedSearch || searchQuery) queryParams.append("search", debouncedSearch || searchQuery);
+      if (fromDate) {
+        queryParams.append("startDate", fromDate);
+        queryParams.append("fromDate", fromDate);
+      }
+      if (toDate) {
+        queryParams.append("endDate", toDate);
+        queryParams.append("toDate", toDate);
+      }
+      const queryString = queryParams.toString();
+
+      const exportUrl = `${baseURL}/api/admin/users/export${queryString ? `?${queryString}` : ""}`;
+
+      const response = await fetch(exportUrl, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to export CSV: ${response.statusText || response.status}`);
+      }
+
+      const blob = await response.blob();
+      const rolePrefix = filterRole !== "all" ? `${filterRole}_` : "";
+      const filename = `${rolePrefix}users_export_${new Date().toISOString().split("T")[0]}.csv`;
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      showToast("Users CSV downloaded successfully", "success");
+    } catch (err: any) {
+      console.error("Export error:", err);
+      showToast(err?.message || "Failed to export CSV", "error");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     let result = users;
     if (filterRole !== "all") {
       result = result.filter(u => {
         if (filterRole === "working_professional") {
           return u.role === "working_professional" || u.role === "non-validator" || u.role === "working-professional";
+        }
+        if (filterRole === "gift_course") {
+          const r = String(u.role || "").toLowerCase();
+          return r === "gift_course" || r === "gift-course" || r === "giftcourse" || Boolean((u as any).isGiftCourse);
         }
         return u.role === filterRole;
       });
@@ -438,8 +511,24 @@ export default function UserManagementPage() {
         (u.id || "").toLowerCase().includes(q)
       );
     }
+    if (fromDate) {
+      const fromTime = new Date(fromDate).setHours(0, 0, 0, 0);
+      result = result.filter(u => {
+        if (!u.createdAt && !u.registeredAt) return true;
+        const uTime = new Date(u.createdAt || u.registeredAt || "").getTime();
+        return isNaN(uTime) || uTime >= fromTime;
+      });
+    }
+    if (toDate) {
+      const toTime = new Date(toDate).setHours(23, 59, 59, 999);
+      result = result.filter(u => {
+        if (!u.createdAt && !u.registeredAt) return true;
+        const uTime = new Date(u.createdAt || u.registeredAt || "").getTime();
+        return isNaN(uTime) || uTime <= toTime;
+      });
+    }
     return result;
-  }, [users, filterRole, searchQuery]);
+  }, [users, filterRole, searchQuery, fromDate, toDate]);
 
   const displayedTotalPages = useMemo(() => {
     return totalPages;
@@ -521,10 +610,86 @@ export default function UserManagementPage() {
                   <option value="validator">Validator</option>
                   <option value="student">Student</option>
                   <option value="working_professional">Web3 Enthusiast</option>
+                  <option value="gift_course">Gift_course</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none" />
               </div>
             </div>
+
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-1 lg:flex-initial w-full lg:w-auto">
+              <div className="relative flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 cursor-pointer hover:border-mst-red transition-all flex-1 sm:flex-initial">
+                <Calendar size={15} className="text-[var(--text-muted)] shrink-0 pointer-events-none" />
+                <span className={`text-xs font-medium whitespace-nowrap pointer-events-none ${fromDate ? "text-[var(--text)] font-semibold" : "text-[var(--text-muted)]"}`}>
+                  {fromDate ? new Date(fromDate).toLocaleDateString() : "From"}
+                </span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  onClick={(e) => {
+                    try {
+                      (e.target as any).showPicker?.();
+                    } catch (_) { }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  title="Choose From Date"
+                />
+              </div>
+
+              <div className="relative flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg-muted)] px-3 py-2 cursor-pointer hover:border-mst-red transition-all flex-1 sm:flex-initial">
+                <Calendar size={15} className="text-[var(--text-muted)] shrink-0 pointer-events-none" />
+                <span className={`text-xs font-medium whitespace-nowrap pointer-events-none ${toDate ? "text-[var(--text)] font-semibold" : "text-[var(--text-muted)]"}`}>
+                  {toDate ? new Date(toDate).toLocaleDateString() : "To"}
+                </span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  onClick={(e) => {
+                    try {
+                      (e.target as any).showPicker?.();
+                    } catch (_) { }
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  title="Choose To Date"
+                />
+              </div>
+
+              {(fromDate || toDate) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFromDate("");
+                    setToDate("");
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg p-2 text-xs text-[var(--text-muted)] hover:text-mst-red hover:bg-[var(--bg-muted)] border border-[var(--border)] transition-all cursor-pointer shrink-0"
+                  title="Clear Date Filter"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={handleExportCSV}
+              disabled={isExporting}
+              className="flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shrink-0 whitespace-nowrap"
+              title="Export Users to CSV"
+            >
+              {isExporting ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Download size={16} />
+              )}
+              <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+            </button>
           </div>
         </div>
 
@@ -755,86 +920,86 @@ export default function UserManagementPage() {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap text-center font-semibold">
                         {editingDiscountUserId === user.id ? (
-                           <div className="flex flex-col items-center justify-center gap-1.5">
-                             <div className="flex items-center justify-center gap-1.5">
-                               <select
-                                 value={editDiscountRole}
-                                 onChange={(e) => {
-                                   const role = e.target.value as UserRole;
-                                   setEditDiscountRole(role);
-                                   const existing = (user.courseDiscounts || []).find(cd => cd.role === role);
-                                   setEditDiscountValue(existing?.discount || 0);
-                                 }}
-                                 disabled={updatingDiscountId === user.id}
-                                 className="rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
-                               >
-                                 {DISCOUNT_ROLES.map((role) => (
-                                   <option key={role} value={role}>{roleLabel(role)}</option>
-                                 ))}
-                               </select>
-                               <input
-                                 type="number"
-                                 min="0"
-                                 max="100"
-                                 value={editDiscountValue}
-                                 onChange={(e) => setEditDiscountValue(Number(e.target.value))}
-                                 className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
-                                 disabled={updatingDiscountId === user.id}
-                               />
-                               <button
-                                 onClick={() => setConfirmDiscountUpdate({
-                                   userId: user.id,
-                                   userName: user.fullName || (user as any).name || "this user",
-                                   role: editDiscountRole,
-                                   discount: editDiscountValue
-                                 })}
-                                 disabled={updatingDiscountId === user.id}
-                                 className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
-                                 title="Save"
-                               >
-                                 <Check size={14} />
-                               </button>
-                               <button
-                                 onClick={() => setEditingDiscountUserId(null)}
-                                 disabled={updatingDiscountId === user.id}
-                                 className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
-                                 title="Cancel"
-                               >
-                                 <X size={14} />
-                               </button>
-                             </div>
-                           </div>
+                          <div className="flex flex-col items-center justify-center gap-1.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <select
+                                value={editDiscountRole}
+                                onChange={(e) => {
+                                  const role = e.target.value as UserRole;
+                                  setEditDiscountRole(role);
+                                  const existing = (user.courseDiscounts || []).find(cd => cd.role === role);
+                                  setEditDiscountValue(existing?.discount || 0);
+                                }}
+                                disabled={updatingDiscountId === user.id}
+                                className="rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all cursor-pointer"
+                              >
+                                {DISCOUNT_ROLES.map((role) => (
+                                  <option key={role} value={role}>{roleLabel(role)}</option>
+                                ))}
+                              </select>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={editDiscountValue}
+                                onChange={(e) => setEditDiscountValue(Number(e.target.value))}
+                                className="w-16 rounded border border-[var(--border)] bg-[var(--bg-muted)] px-1.5 py-1 text-xs text-[var(--text)] outline-none focus:border-mst-red transition-all"
+                                disabled={updatingDiscountId === user.id}
+                              />
+                              <button
+                                onClick={() => setConfirmDiscountUpdate({
+                                  userId: user.id,
+                                  userName: user.fullName || (user as any).name || "this user",
+                                  role: editDiscountRole,
+                                  discount: editDiscountValue
+                                })}
+                                disabled={updatingDiscountId === user.id}
+                                className="rounded bg-green-600 hover:bg-green-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                title="Save"
+                              >
+                                <Check size={14} />
+                              </button>
+                              <button
+                                onClick={() => setEditingDiscountUserId(null)}
+                                disabled={updatingDiscountId === user.id}
+                                className="rounded bg-red-600 hover:bg-red-700 p-1 text-white transition-colors cursor-pointer disabled:opacity-50"
+                                title="Cancel"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          </div>
                         ) : (
-                           <div className="flex flex-col items-center justify-center gap-1 group min-h-[28px]">
-                             <div className="flex flex-wrap items-center justify-center gap-1">
-                               {(user.courseDiscounts && user.courseDiscounts.length > 0) ? (
-                                 user.courseDiscounts.map((cd) => (
-                                   <span
-                                     key={cd.role}
-                                     className="inline-flex items-center rounded-full bg-[var(--bg-muted)] border border-[var(--border)] px-2 py-0.5 text-[10px] font-bold text-[var(--text)]"
-                                     title={roleLabel(cd.role)}
-                                   >
-                                     {roleLabel(cd.role)}: {cd.discount}%
-                                   </span>
-                                 ))
-                               ) : (
-                                 <span className="text-[var(--text-muted)]">No discounts set</span>
-                               )}
-                             </div>
-                             <button
-                               onClick={() => {
-                                 setEditingDiscountUserId(user.id);
-                                 const defaultRole = DISCOUNT_ROLES.includes(user.role as UserRole) ? (user.role as UserRole) : "student";
-                                 setEditDiscountRole(defaultRole);
-                                 const existing = (user.courseDiscounts || []).find(cd => cd.role === defaultRole);
-                                 setEditDiscountValue(existing?.discount || 0);
-                               }}
-                               className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
-                               title="Edit Discount"
-                             >
-                               <Pencil size={14} />
-                             </button>
-                           </div>
+                          <div className="flex flex-col items-center justify-center gap-1 group min-h-[28px]">
+                            <div className="flex flex-wrap items-center justify-center gap-1">
+                              {(user.courseDiscounts && user.courseDiscounts.length > 0) ? (
+                                user.courseDiscounts.map((cd) => (
+                                  <span
+                                    key={cd.role}
+                                    className="inline-flex items-center rounded-full bg-[var(--bg-muted)] border border-[var(--border)] px-2 py-0.5 text-[10px] font-bold text-[var(--text)]"
+                                    title={roleLabel(cd.role)}
+                                  >
+                                    {roleLabel(cd.role)}: {cd.discount}%
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-[var(--text-muted)]">No discounts set</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => {
+                                setEditingDiscountUserId(user.id);
+                                const defaultRole = DISCOUNT_ROLES.includes(user.role as UserRole) ? (user.role as UserRole) : "student";
+                                setEditDiscountRole(defaultRole);
+                                const existing = (user.courseDiscounts || []).find(cd => cd.role === defaultRole);
+                                setEditDiscountValue(existing?.discount || 0);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-[var(--bg-muted)] text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                              title="Edit Discount"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          </div>
                         )}
                       </td>
                       <td className="px-3 py-3">
@@ -1233,7 +1398,7 @@ export default function UserManagementPage() {
                 <div className="space-y-6">
                   {curriculumData.map((phase: any, pIdx: number) => {
                     const phaseModules = phase.modules || [];
-                    
+
                     // Compute phase completed counts
                     let completedSubInPhase = 0;
                     let totalSubInPhase = 0;
@@ -1344,7 +1509,7 @@ export default function UserManagementPage() {
                 <p className="text-sm font-semibold text-[var(--text)]">No Data Available</p>
               </div>
             )}
-            
+
             <div className="border-t border-[var(--border)] pt-4 mt-4 flex justify-end shrink-0">
               <button
                 onClick={() => setViewingProgressUser(null)}
