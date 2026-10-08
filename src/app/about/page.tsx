@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     url: "https://masterstroke.academy/about",
     images: [
       {
-        url: "/api/og?title=About%20Masterstroke%20Academy",
+        url: "/Academy_Logo.png",
         width: 1200,
         height: 630,
       },

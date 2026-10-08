@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     url: "https://masterstroke.academy/compare",
     images: [
       {
-        url: "/api/og?title=Best%20Blockchain%20Course%20in%20India%202026%20%E2%80%94%20Compared",
+        url: "/Academy_Logo.png",
         width: 1200,
         height: 630,
       },
