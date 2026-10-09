@@ -20,16 +20,16 @@ import {
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Career Outcomes & Placements - Blockchain Developer Jobs After Masterstroke Academy",
+      "Career Outcomes & Placements — Blockchain Developer Jobs After Masterstroke Academy",
   },
   description:
-    "See real career outcomes from Masterstroke Academy graduates - blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
+    "See real career outcomes from Masterstroke Academy graduates — blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
   alternates: { canonical: "https://masterstroke.academy/placements" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Career Outcomes | Masterstroke Academy",
+    title: "Career Outcomes & Placements — Blockchain Developer Jobs After Masterstroke Academy",
     description:
-      "Blockchain developer roles, salary ranges, and PPO internship pathways for Masterstroke Academy graduates.",
+      "See real career outcomes from Masterstroke Academy graduates — blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
     url: "https://masterstroke.academy/placements",
     images: [
       {
@@ -41,9 +41,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Career Outcomes | Masterstroke Academy",
+    title: "Career Outcomes & Placements — Blockchain Developer Jobs After Masterstroke Academy",
     description:
-      "Blockchain developer roles, salary ranges, and PPO internship pathways for Masterstroke Academy graduates.",
+      "See real career outcomes from Masterstroke Academy graduates — blockchain developer jobs, salaries, PPO internships, and startup funding in India.",
   },
 };
 

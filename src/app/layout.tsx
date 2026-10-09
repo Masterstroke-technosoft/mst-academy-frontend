@@ -117,7 +117,9 @@ export default function RootLayout({
             gtag('config', 'G-0BTDN5EMY4');
           `}
         </Script>
-        <script
+        <Script
+          id="service-worker-registration"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
@@ -130,7 +132,9 @@ export default function RootLayout({
             `,
           }}
         />
-        <script
+        <Script
+          id="content-protection"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               document.addEventListener('copy', function(e) {
@@ -159,8 +163,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col antialiased max-w-full overflow-x-hidden">
-        <script
+        <Script
+          id="org-schema"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
         <ThemeProvider>
