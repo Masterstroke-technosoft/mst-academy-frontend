@@ -517,26 +517,22 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.phone || formData.phone.trim() === "") {
-      newErrors.phone = "Mobile number cannot be empty.";
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = "Mobile number must be exactly 10 digits.";
+    if (formData.phone && formData.phone.trim() !== "") {
+      if (!/^\d{10}$/.test(formData.phone)) {
+        newErrors.phone = "Mobile number must be exactly 10 digits.";
+      }
     }
 
-    if (!formData.linkedin || formData.linkedin.trim() === "") {
-      newErrors.linkedin = "LinkedIn Profile cannot be empty.";
-    } else if (!/^(https?:\/\/)?(www\.)?linkedin\.com\/.+$/i.test(formData.linkedin.trim())) {
-      newErrors.linkedin = "Please enter a valid LinkedIn URL.";
+    if (formData.linkedin && formData.linkedin.trim() !== "") {
+      if (!/^(https?:\/\/)?(www\.)?linkedin\.com\/.+$/i.test(formData.linkedin.trim())) {
+        newErrors.linkedin = "Please enter a valid LinkedIn URL.";
+      }
     }
 
-    if (!formData.github || formData.github.trim() === "") {
-      newErrors.github = "GitHub Profile cannot be empty.";
-    } else if (!/^(https?:\/\/)?(www\.)?github\.com\/.+$/i.test(formData.github.trim())) {
-      newErrors.github = "Please enter a valid GitHub URL.";
-    }
-
-    if (!formData.walletAddress || formData.walletAddress.trim() === "") {
-      newErrors.walletAddress = "Wallet Address cannot be empty.";
+    if (formData.github && formData.github.trim() !== "") {
+      if (!/^(https?:\/\/)?(www\.)?github\.com\/.+$/i.test(formData.github.trim())) {
+        newErrors.github = "Please enter a valid GitHub URL.";
+      }
     }
 
     if (formData.portfolio && formData.portfolio.trim() !== "") {
@@ -818,6 +814,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
             <div>
               <h3 className="text-lg font-bold text-[var(--text)]">Profile Photo</h3>
+              {console.log("Profile Photo Rendered - Without Delete Button")}
               <p className="mt-1 text-sm text-[var(--text-muted)] max-w-sm">
                 Upload a professional headshot. Recommended size is 256x256 pixels. JPG or PNG allowed. Max size 5MB.
               </p>
@@ -830,14 +827,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                   >
                     <Edit2 size={14} />
                     Edit Photo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePhotoDelete}
-                    className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-500/20"
-                  >
-                    <Trash2 size={14} />
-                    Delete Photo
                   </button>
                 </div>
               ) : (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { getAllModules, getPhases } from "@/lib/curriculum";
 import { LandingPage } from "@/components/marketing/LandingPage";
 import { HOMEPAGE_FAQS, generateFaqSchema } from "@/lib/faqs";
@@ -34,12 +35,14 @@ export default function HomePage() {
   return (
     <>
       {/* Schema.org Organization & WebSite Structured Data */}
-      <script
+      <Script
+        id="homepage-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
       />
       {/* Schema.org FAQPage Structured Data */}
-      <script
+      <Script
+        id="faq-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
