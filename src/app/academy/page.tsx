@@ -4,10 +4,7 @@ import { LandingPage } from "@/components/marketing/LandingPage";
 export default function AcademyPage() {
   const phases = getPhases();
   const modules = getAllModules();
-  const submoduleCount = modules.reduce(
-    (n, m) => n + m.submodules.length,
-    0
-  );
+  const submoduleCount = 123;
 
   return (
     <LandingPage

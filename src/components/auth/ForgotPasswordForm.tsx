@@ -215,7 +215,7 @@ export function ForgotPasswordForm() {
                 disabled={otpLoading || !isValidEmail(email) || otpCooldownSeconds > 0}
                 className="shrink-0 rounded-xl bg-[var(--bg-muted)] px-4 py-3 text-xs font-bold text-[var(--text)] transition hover:bg-mst-red/10 hover:text-mst-red disabled:opacity-50"
               >
-                {otpLoading ? "…" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
+                {otpLoading ? "Sending" : otpCooldownSeconds > 0 ? `${otpCooldownSeconds}s` : otpSent ? "Resend" : "Send OTP"}
               </button>
             )}
           </div>
@@ -255,7 +255,7 @@ export function ForgotPasswordForm() {
                 disabled={verifyOtpLoading || !otpCode}
                 className="shrink-0 rounded-xl bg-gradient-to-r from-mst-red to-red-600 px-4 py-3 text-xs font-bold text-white disabled:opacity-50"
               >
-                {verifyOtpLoading ? "…" : "Verify"}
+                {verifyOtpLoading ? "Verifying..." : "Verify"}
               </button>
             </div>
           </div>

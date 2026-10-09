@@ -104,7 +104,7 @@ export default function ContactUsPage() {
                 <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
                 <a
                   href="mailto:support@masterstroke.academy"
-                  className="text-mst-red font-medium hover:underline text-lg"
+                  className="text-mst-red font-medium hover:underline text-sm sm:text-base md:text-lg"
                 >
                   support@masterstroke.academy
                 </a>
@@ -291,10 +291,10 @@ export default function ContactUsPage() {
         </section>
 
         {/* Direct Contact Information */}
-        <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-8">
+        <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-5 sm:p-8">
           <h2 className="text-2xl font-black text-[var(--text)] mb-6">Direct Contact Information</h2>
 
-          <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
+          <div className="bg-[var(--surface)] rounded-xl p-4 sm:p-6 border border-[var(--border)]">
             <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
             <p className="text-sm text-[var(--text-muted)] mb-6">
               <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt. Ltd.
@@ -305,7 +305,7 @@ export default function ContactUsPage() {
                 <p className="text-sm font-semibold text-[var(--text-muted)] mb-2">Email:</p>
                 <a
                   href="mailto:support@masterstroke.academy"
-                  className="text-mst-red font-medium hover:underline text-lg"
+                  className="text-mst-red font-medium hover:underline text-sm sm:text-base md:text-lg"
                 >
                   support@masterstroke.academy
                 </a>

@@ -47,11 +47,11 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--nav-bg)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-2 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0 max-w-[95px] min-[380px]:max-w-[120px] sm:max-w-none">
+        <Link href="/" className="flex items-center group relative z-10 h-16 overflow-hidden shrink-0 max-w-[115px] min-[380px]:max-w-[140px] sm:max-w-none">
           <img
             src="/Acadmy Logo.webp"
             alt="Masterstroke Academy"
-            className="h-28 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain object-left"
+            className="h-32 min-[380px]:h-36 sm:h-44 w-auto -my-6 transition-transform group-hover:scale-105 object-contain object-left"
           />
         </Link>
 
@@ -98,7 +98,7 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          <ThemeToggle className="p-1 sm:p-2" />
+          <ThemeToggle />
 
           {showUserNav ? (
             <div className="flex items-center gap-1 sm:gap-2">

@@ -6,15 +6,19 @@ export function AuthShell({
   subtitle,
   children,
   maxWidth = "max-w-lg",
+  alignTopOnMobile = false,
 }: {
   title: string;
   subtitle?: React.ReactNode;
   children: React.ReactNode;
   maxWidth?: string;
+  alignTopOnMobile?: boolean;
 }) {
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--bg)] px-4 py-12">
-      <div className={`w-full ${maxWidth}`}>
+    <div
+      className={`flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[var(--bg)] px-4 pt-6 pb-20 sm:py-12`}
+    >
+      <div className={`w-full ${maxWidth} -translate-y-4 sm:translate-y-0`}>
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--text-muted)] transition hover:text-mst-red"
@@ -23,7 +27,7 @@ export function AuthShell({
           Back to home
         </Link>
 
-        <div className="mt-6 flex items-center gap-3">
+        <div className={`flex items-center gap-3 ${alignTopOnMobile ? "mt-4 sm:mt-6" : "mt-6"}`}>
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-mst-red to-red-700 shadow-lg shadow-mst-red/20">
             <GraduationCap size={24} className="text-white" />
           </div>
@@ -35,13 +39,9 @@ export function AuthShell({
               subtitle
             )}
           </div>
-
-
         </div>
 
-
-
-        <div className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl shadow-black/5">
+        <div className={`rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl shadow-black/5 ${alignTopOnMobile ? "mt-6 sm:mt-8" : "mt-8"}`}>
           {children}
         </div>
       </div>

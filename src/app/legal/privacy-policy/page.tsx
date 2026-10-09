@@ -49,8 +49,8 @@ export default function PrivacyPolicyPage() {
         <div className="space-y-8">
           {/* Section 1 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 1
               </span>
               Scope of this Privacy Policy
@@ -80,8 +80,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 2 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 2
               </span>
               Information We Collect
@@ -247,8 +247,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 3 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 3
               </span>
               Information Automatically Collected
@@ -285,8 +285,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 4 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 4
               </span>
               Blockchain Information
@@ -336,8 +336,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 5 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 5
               </span>
               Web3 Wallet Integration
@@ -373,8 +373,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 6 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 6
               </span>
               How We Use Information
@@ -451,8 +451,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 7 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 7
               </span>
               Rewards and Incentives
@@ -488,8 +488,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 8 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 8
               </span>
               Certifications and On-Chain Records
@@ -516,8 +516,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 9 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 9
               </span>
               Information Sharing
@@ -580,8 +580,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 10 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 10
               </span>
               Data Security
@@ -617,8 +617,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 11 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 11
               </span>
               Data Retention
@@ -652,8 +652,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 12 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 12
               </span>
               Account Deletion and Blockchain Limitations
@@ -684,8 +684,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 13 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 13
               </span>
               Children's Privacy
@@ -706,8 +706,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 14 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 14
               </span>
               User Responsibilities
@@ -738,8 +738,8 @@ export default function PrivacyPolicyPage() {
 
           {/* Section 15 */}
           <section className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 15
               </span>
               Changes to this Privacy Policy
@@ -759,9 +759,9 @@ export default function PrivacyPolicyPage() {
           </section>
 
           {/* Section 16 - Contact */}
-          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-8">
-            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-mst-red/20 text-mst-red font-bold">
+          <section className="bg-gradient-to-br from-mst-red/10 to-red-600/10 border border-mst-red/30 rounded-2xl p-5 sm:p-8">
+            <h2 className="text-2xl font-black text-[var(--text)] mb-6 flex items-start sm:items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-mst-red/20 text-mst-red font-bold text-sm mt-0.5 sm:mt-0">
                 16
               </span>
               Contact Us
@@ -770,7 +770,7 @@ export default function PrivacyPolicyPage() {
               For privacy-related questions, requests, or concerns, please contact:
             </p>
 
-            <div className="bg-[var(--surface)] rounded-xl p-6 border border-[var(--border)]">
+            <div className="bg-[var(--surface)] rounded-xl p-4 sm:p-6 border border-[var(--border)]">
               <h3 className="text-lg font-bold text-[var(--text)] mb-4">Masterstroke Academy</h3>
               <p className="text-sm text-[var(--text-muted)] mb-4">
                 <span className="text-mst-red font-semibold">A Product of</span> Masterstroke Technosoft Pvt.
@@ -795,7 +795,12 @@ export default function PrivacyPolicyPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-[var(--text-muted)] mb-1">Email:</p>
-                  <p className="text-[var(--text)] font-medium">support@masterstroke.academy</p>
+                  <a
+                    href="mailto:support@masterstroke.academy"
+                    className="text-[var(--text)] font-medium hover:text-mst-red transition-colors break-all"
+                  >
+                    support@masterstroke.academy
+                  </a>
                 </div>
 
                 <div>

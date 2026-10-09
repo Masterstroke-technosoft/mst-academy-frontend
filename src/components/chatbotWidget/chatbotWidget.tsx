@@ -109,8 +109,8 @@ const DYNAMIC_CSS = `
 @media (max-width: 640px) {
     #mst-chat-widget-container {
         bottom: 20px !important;
-        right: 20px !important;
-        max-width: calc(100vw - 40px) !important;
+        right: 6px !important;
+        max-width: calc(100vw - 12px) !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -148,8 +148,8 @@ const DYNAMIC_CSS = `
 @media (max-width: 380px) {
     #mst-chat-widget-container {
         bottom: 16px !important;
-        right: 16px !important;
-        max-width: calc(100vw - 32px) !important;
+        right: 4px !important;
+        max-width: calc(100vw - 8px) !important;
     }
     .mst-thought-cloud-bubble {
         width: 94px !important;
@@ -205,7 +205,7 @@ export default function ChatBotWidget() {
 
             const isMobile = window.innerWidth <= 640;
             const isSmallMobile = window.innerWidth <= 380;
-            const offsetRight = isSmallMobile ? "16px" : isMobile ? "20px" : "24px";
+            const offsetRight = isSmallMobile ? "4px" : isMobile ? "6px" : "24px";
             const offsetBottom = isSmallMobile ? "16px" : isMobile ? "20px" : "24px";
 
             const container = document.getElementById("mst-chat-widget-container");

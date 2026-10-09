@@ -225,7 +225,7 @@ function SubmoduleCard({
           {subIdText}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-[var(--text)] transition group-hover:text-mst-red">
+          <p className="font-semibold text-mst-red sm:text-[var(--text)] sm:group-hover:text-mst-red transition">
             {title}
           </p>
           <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-[var(--text-muted)]">
@@ -584,13 +584,13 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               capstone deployment, security audits, and Demo Day.
             </p>
 
-            <div className="animate-slide-up stagger-3 mt-4 flex flex-wrap items-center justify-center gap-4">
+            <div className="animate-slide-up stagger-3 mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-xs sm:max-w-none mx-auto">
               <Link
                 href="/learn"
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-mst-red to-red-600 px-10 py-4 text-lg font-bold text-white shadow-xl shadow-mst-red/30 transition hover:shadow-2xl"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 sm:px-10 py-3.5 sm:py-4 text-base sm:text-lg font-bold text-white shadow-xl shadow-mst-red/30 transition hover:shadow-2xl w-full sm:w-auto"
               >
                 <span className="btn-shimmer absolute inset-0" />
-                <span className="relative flex items-center gap-2">
+                <span className="relative flex items-center justify-center gap-2">
                   <BookOpen className="h-5 w-5" />
                   Open Learning Tree
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -599,7 +599,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               {!user && (
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface)]/80 px-10 py-4 text-lg font-bold text-[var(--text)] backdrop-blur-md transition hover:border-mst-red"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[var(--border-strong)] bg-[var(--surface)]/80 px-8 sm:px-10 py-3.5 sm:py-4 text-base sm:text-lg font-bold text-[var(--text)] backdrop-blur-md transition hover:border-mst-red w-full sm:w-auto text-center"
                 >
                   Enroll Now
                 </Link>
@@ -942,7 +942,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               {!user && (
                 <Link
                   href="/register"
-                  className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl"
+                  className="group inline-flex w-[210px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-mst-red to-red-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-mst-red/25 transition hover:shadow-xl sm:w-auto"
                 >
                   Create Account
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -950,7 +950,7 @@ export function AcademyOverview({ curriculum }: AcademyOverviewProps) {
               )}
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-8 py-3.5 font-semibold text-[var(--text)] transition hover:border-mst-red"
+                className="inline-flex w-[210px] items-center justify-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] px-8 py-3.5 font-semibold text-[var(--text)] transition hover:border-mst-red sm:w-auto"
               >
                 Back to Home
               </Link>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -1388,7 +1387,6 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                     Command Center
                   </p>
                 </div>
-                <ThemeToggle />
               </div>
 
               {activeTab === 'profile' ? (
@@ -1731,10 +1729,13 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       <h3 className="text-sm font-black text-[var(--text)]">Module Performance</h3>
                       <div className="mt-4 h-48">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={analytics.moduleScores.length ? analytics.moduleScores : [{ name: "-", score: 0, moduleId: 0 }]}>
+                          <BarChart
+                            data={analytics.moduleScores.length ? analytics.moduleScores : [{ name: "-", score: 0, moduleId: 0 }]}
+                            margin={{ top: 5, right: 5, left: 0, bottom: 0 }}
+                          >
                             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                             <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <YAxis domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                            <YAxis domain={[0, 100]} width={25} tick={{ fill: "var(--text-muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
                             <Tooltip
                               cursor={{ fill: 'var(--border)', opacity: 0.25 }}
                               contentStyle={{
@@ -1825,10 +1826,51 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                         <h3 className="text-sm font-black text-[var(--text)]">Weekly Study Time</h3>
                         <div className="mt-4 flex-1 min-h-[11rem]">
                           <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={analytics.dailyStudy}>
+                            <BarChart
+                              data={analytics.dailyStudy}
+                              margin={{ top: 8, right: 6, left: -4, bottom: 12 }}
+                            >
                               <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-                              <XAxis dataKey="day" tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
+                              <XAxis 
+                                dataKey="day" 
+                                interval={0} 
+                                tick={(props: any) => {
+                                  const { x, y, payload } = props;
+                                  const raw = String(payload?.value || "");
+                                  const [dayName, dayNum] = raw.split(" ");
+                                  return (
+                                    <g transform={`translate(${x},${y})`}>
+                                      <text
+                                        x={0}
+                                        y={0}
+                                        dy={9}
+                                        textAnchor="middle"
+                                        fill="var(--text-muted)"
+                                        fontSize={10}
+                                        fontWeight={600}
+                                      >
+                                        {dayName}
+                                      </text>
+                                      {dayNum && (
+                                        <text
+                                          x={0}
+                                          y={0}
+                                          dy={20}
+                                          textAnchor="middle"
+                                          fill="var(--text-muted)"
+                                          fontSize={9}
+                                          opacity={0.8}
+                                        >
+                                          {dayNum}
+                                        </text>
+                                      )}
+                                    </g>
+                                  );
+                                }}
+                                axisLine={false} 
+                                tickLine={false} 
+                              />
+                              <YAxis width={22} tick={{ fill: "var(--text-muted)", fontSize: 11 }} axisLine={false} tickLine={false} />
                               <Tooltip 
                                 cursor={{ fill: 'var(--border)', opacity: 0.25 }}
                                 contentStyle={{
@@ -2377,14 +2419,14 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
                       <span className="text-mst-red">*</span>
                     )}
                   </label>
-                  <div className={`flex items-center gap-3 w-full rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
+                  <div className={`flex items-center gap-3 w-full min-w-0 rounded-lg border ${allocationErrors.paymentScreenshotUrl ? 'border-red-500' : 'border-[var(--border)]'} bg-[var(--bg-muted)] px-3 py-1.5`}>
                     <label
                       htmlFor="screenshotUploadInput"
                       className="cursor-pointer rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-[10px] font-bold text-[var(--text)] hover:bg-[var(--border)] transition-all shrink-0 shadow-sm"
                     >
                       Choose File
                     </label>
-                    <span className="text-[10px] text-[var(--text-muted)] truncate">
+                    <span className="text-[10px] text-[var(--text-muted)] min-w-0 flex-1 truncate">
                       {screenshotFileName ? screenshotFileName : "No file chosen"}
                     </span>
                     <input
