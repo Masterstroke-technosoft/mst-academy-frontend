@@ -24,7 +24,9 @@ export const metadata: Metadata = {
     url: "https://masterstroke.academy/compare",
     images: [
       {
-        url: "/Academy_Logo.png",
+        url: "/Academy_Logo.jpg",
+        width: 1200,
+        height: 630,
       },
     ],
   },
