@@ -29,7 +29,7 @@ const AuthContext = createContext<AuthContextValue>({
 });
 
 // Installed at module-evaluation time (not inside a useEffect) so it is in
-// place before any descendant component's mount-time effects fire — React
+// place before any descendant component's mount-time effects fire - React
 // runs child effects before parent effects, so patching fetch from inside
 // AuthProvider's own useEffect would miss requests fired by children on
 // initial mount.

@@ -11,10 +11,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/learn`,            lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
     { url: `${base}/register`,         lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
     { url: `${base}/blogs`,            lastModified: now, priority: 0.9, changeFrequency: 'daily' },
-    { url: `${base}/contact-us`,       lastModified: now, priority: 0.4, changeFrequency: 'yearly' },
-    { url: `${base}/refund-policy`,    lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
-    { url: `${base}/terms-conditions`, lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
-    { url: `${base}/privacy-policy`,   lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
+    { url: `${base}/testimonials`,           lastModified: now, priority: 0.6, changeFrequency: 'monthly' },
+    { url: `${base}/placements`,              lastModified: now, priority: 0.7, changeFrequency: 'monthly' },
+    { url: `${base}/blockchain-course-india`, lastModified: now, priority: 0.9, changeFrequency: 'monthly' },
+    { url: `${base}/faq`,                     lastModified: now, priority: 0.8, changeFrequency: 'monthly' },
+    { url: `${base}/glossary`,                lastModified: now, priority: 0.7, changeFrequency: 'monthly' },
+    { url: `${base}/about`,                   lastModified: now, priority: 0.5, changeFrequency: 'yearly' },
+    { url: `${base}/compare`,                 lastModified: now, priority: 0.7, changeFrequency: 'monthly' },
+    { url: `${base}/contact-us`,              lastModified: now, priority: 0.4, changeFrequency: 'yearly' },
+    { url: `${base}/refund-policy`,           lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
+    { url: `${base}/terms-conditions`,        lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
+    { url: `${base}/privacy-policy`,          lastModified: now, priority: 0.2, changeFrequency: 'yearly' },
   ]
 
   const blogPages: MetadataRoute.Sitemap = FEATURED_BLOGS.map((post) => ({

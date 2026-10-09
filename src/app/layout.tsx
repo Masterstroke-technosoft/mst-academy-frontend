@@ -66,7 +66,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Masterstroke Academy — online blockchain course in India',
+        alt: 'Masterstroke Academy - online blockchain course in India',
       },
     ],
   },

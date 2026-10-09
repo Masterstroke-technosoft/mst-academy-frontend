@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const headers: Record<string, string> = {};
     
-    // Copy auth headers only — let fetch compute content-length for FormData
+    // Copy auth headers only - let fetch compute content-length for FormData
     const authHeader = req.headers.get('authorization');
     const cookieHeader = req.headers.get('cookie');
     if (authHeader) headers['authorization'] = authHeader;

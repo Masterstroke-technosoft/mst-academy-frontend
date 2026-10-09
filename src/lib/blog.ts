@@ -51,9 +51,9 @@ export const FEATURED_BLOGS: BlogPost[] = [
     heading: "How to Learn Blockchain in 2026: A Complete Roadmap",
     metaTitle: "How to Learn Blockchain in 2026: A Complete Roadmap | Masterstroke Academy",
     metaDescription:
-      "A step-by-step roadmap to learning blockchain development in 2026 — skills, tools, timeline, and how to land your first Web3 job in India.",
+      "A step-by-step roadmap to learning blockchain development in 2026 - skills, tools, timeline, and how to land your first Web3 job in India.",
     excerpt:
-      "A step-by-step roadmap to learning blockchain development in 2026 — skills, tools, timeline, and how to land your first Web3 job in India.",
+      "A step-by-step roadmap to learning blockchain development in 2026 - skills, tools, timeline, and how to land your first Web3 job in India.",
     canonical: "https://masterstroke.academy/blogs/how-to-learn-blockchain-2026-roadmap",
     ogTitle: "How to Learn Blockchain in 2026: A Complete Roadmap",
     ogDescription:
@@ -323,7 +323,7 @@ export const FEATURED_BLOGS: BlogPost[] = [
       "Explore token standards, oracle integration, regulatory frameworks, and smart contract architecture for tokenizing real estate and credit.",
     content: `
       <h2>What is Real World Asset (RWA) Tokenization?</h2>
-      <p>Real World Asset tokenization bridges traditional financial instruments—such as real estate, private credit, treasury bonds, and commodities—onto the blockchain as liquid, programmable tokens.</p>
+      <p>Real World Asset tokenization bridges traditional financial instruments-such as real estate, private credit, treasury bonds, and commodities-onto the blockchain as liquid, programmable tokens.</p>
       
       <h2>Core Architectural Components</h2>
       <p>Building an RWA protocol requires compliant permissioned tokens (ERC-3643 / ERC-1400), verified on-chain identity (KYC/AML), and real-time oracle price feeds (Chainlink/Pyth).</p>

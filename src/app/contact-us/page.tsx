@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, Mail, Phone, MapPin, Clock } from "lucide-react";
 
-function WhatsAppIcon({ size = 24, className }: { size?: number; className?: string }) {
+function WhatsAppIcon({ size = 24, className = "" }: { size?: number; className?: string }) {
   return (
     <svg
       width={size}

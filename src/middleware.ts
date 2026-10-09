@@ -17,6 +17,13 @@ const PUBLIC_PATHS = [
   "/terms-conditions",
   "/contact-us",
   "/legal",
+  "/testimonials",
+  "/placements",
+  "/blockchain-course-india",
+  "/faq",
+  "/glossary",
+  "/about",
+  "/compare",
 ];
 
 export function middleware(request: NextRequest) {
