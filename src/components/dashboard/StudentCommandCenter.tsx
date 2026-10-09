@@ -1372,7 +1372,7 @@ export function StudentCommandCenter({ curriculum }: { curriculum: Curriculum })
             aria-hidden
           />
 
-          <main className="relative z-10 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:py-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <main className="relative z-10 flex-1 overflow-y-auto px-4 py-6 pb-24 sm:px-6 lg:py-8 lg:pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="mx-auto max-w-6xl">
               <div className="mb-4 flex items-center justify-between lg:hidden border-b border-[var(--border)] pb-3">
                 <div className="flex items-center gap-3">

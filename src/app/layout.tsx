@@ -100,7 +100,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full`} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full overflow-x-hidden`} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/1.png" type="image/png" />
         <link rel="manifest" href="/manifest.json" />
