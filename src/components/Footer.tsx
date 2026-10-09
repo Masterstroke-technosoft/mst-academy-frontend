@@ -13,9 +13,19 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [currentHash, setCurrentHash] = useState("");
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== "undefined") {
+      setCurrentHash(window.location.hash);
+      const handleHashChange = () => setCurrentHash(window.location.hash);
+      window.addEventListener("hashchange", handleHashChange);
+      
+      return () => {
+        window.removeEventListener("hashchange", handleHashChange);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -52,112 +62,116 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
   const segments = pathname.split("/").filter(Boolean);
   const isLessonPage = segments[0] === "module" && segments.length >= 3;
 
-  if ((isDashboardOrAdmin || isLessonPage) && !forceShow) return null;
+  if (isLessonPage && !forceShow) return null;
 
   const isLoggedIn = mounted && ready && !!user;
   const dashboardHref = user
     ? (dashboardPath(user.backendRole || user.role) || "/dashboard/non-validator")
     : "/login";
 
+  const renderMainFooter = !isDashboardOrAdmin || forceShow;
+
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--bg-elevated)] transition-colors duration-300">
+    <footer className={renderMainFooter ? "border-t border-[var(--border)] bg-[var(--bg-elevated)] transition-colors duration-300" : ""}>
       {/* Main Footer Links & Copyright */}
-      <div className="mx-auto max-w-[1680px] px-4 sm:px-6 xl:pr-28 py-6 pb-24 md:py-4 md:pb-4">
-        <div className="flex flex-col items-center justify-between gap-5 md:gap-4 xl:flex-row">
-          {/* Left Side - Exploration & Knowledge Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-start">
-            <Link
-              href="/about"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              About
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/faq"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              FAQ
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/glossary"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Glossary
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/testimonials"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Testimonials
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/placements"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Placements
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/blockchain-course-india"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Blockchain Course India
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/compare"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Compare
-            </Link>
-          </div>
+      {renderMainFooter && (
+        <div className="mx-auto max-w-[1680px] px-4 sm:px-6 xl:pr-28 py-6 pb-24 md:py-4 md:pb-4">
+          <div className="flex flex-col items-center justify-between gap-5 md:gap-4 xl:flex-row">
+            {/* Left Side - Exploration & Knowledge Links */}
+            <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-start">
+              <Link
+                href="/about"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                About
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/faq"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                FAQ
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/glossary"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Glossary
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/testimonials"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Testimonials
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/placements"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Placements
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/blockchain-course-india"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Blockchain Course India
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/compare"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Compare
+              </Link>
+            </div>
 
-          {/* Center - Copyright */}
-          <div className="flex flex-col items-center justify-center text-center space-y-0.5">
-            <p className="text-xs text-[var(--text-muted)]">
-              © 2026 Masterstroke Academy. All Rights Reserved.
-            </p>
-            <p className="text-xs font-medium text-[var(--text)]/70">
-              Operated by Masterstroke Technosoft Private Limited.
-            </p>
-          </div>
+            {/* Center - Copyright */}
+            <div className="flex flex-col items-center justify-center text-center space-y-0.5">
+              <p className="text-xs text-[var(--text-muted)]">
+                © 2026 Masterstroke Academy. All Rights Reserved.
+              </p>
+              <p className="text-xs font-medium text-[var(--text)]/70">
+                Operated by Masterstroke Technosoft Private Limited.
+              </p>
+            </div>
 
-          {/* Right Side - Legal & Support Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-end">
-            <Link
-              href="/privacy-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Privacy Policy
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/terms-conditions"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Terms & Conditions
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/refund-policy"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Refund Policy
-            </Link>
-            <span className="text-[var(--border)]">•</span>
-            <Link
-              href="/contact-us"
-              className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
-            >
-              Contact Us
-            </Link>
+            {/* Right Side - Legal & Support Links */}
+            <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs xl:justify-end">
+              <Link
+                href="/privacy-policy"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Privacy Policy
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/terms-conditions"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Terms & Conditions
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/refund-policy"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Refund Policy
+              </Link>
+              <span className="text-[var(--border)]">•</span>
+              <Link
+                href="/contact-us"
+                className="font-medium text-mst-red hover:text-red-600 transition-colors whitespace-nowrap"
+              >
+                Contact Us
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Fixed Mobile Bottom Navigation Menubar (Scroll-aware, mobile only) */}
       <div
@@ -169,6 +183,7 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           {/* Item 1: Curriculum (when not logged in) / Learning Tree (when logged in) */}
           <Link
             href={isLoggedIn ? "/learn" : "/academy-overview"}
+            onClick={() => setCurrentHash("")}
             className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
               (isLoggedIn && pathname.startsWith("/learn")) || (!isLoggedIn && pathname.startsWith("/academy-overview"))
                 ? "text-mst-red font-semibold"
@@ -189,8 +204,15 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           {isLoggedIn ? (
             <Link
               href={dashboardHref}
+              onClick={() => {
+                if (typeof window !== "undefined" && window.location.pathname === dashboardHref) {
+                  window.location.hash = "";
+                  window.dispatchEvent(new Event("hashchange"));
+                }
+                setCurrentHash("");
+              }}
               className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
-                pathname.startsWith("/dashboard")
+                pathname.startsWith("/dashboard") && currentHash !== "#profile"
                   ? "text-mst-red font-semibold"
                   : "text-[var(--text-muted)] hover:text-mst-red"
               }`}
@@ -201,6 +223,7 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           ) : (
             <Link
               href="/register"
+              onClick={() => setCurrentHash("")}
               className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
                 pathname === "/register"
                   ? "text-mst-red font-semibold"
@@ -216,12 +239,16 @@ export function Footer({ forceShow = false }: { forceShow?: boolean } = {}) {
           <Link
             href={isLoggedIn ? `${dashboardHref}#profile` : "/login"}
             onClick={() => {
-              if (isLoggedIn && typeof window !== "undefined" && window.location.pathname === dashboardHref) {
-                window.dispatchEvent(new Event("openProfile"));
+              if (isLoggedIn && typeof window !== "undefined") {
+                if (window.location.pathname === dashboardHref) {
+                  window.location.hash = "profile";
+                  window.dispatchEvent(new Event("hashchange"));
+                }
+                setCurrentHash("#profile");
               }
             }}
             className={`w-24 flex flex-col items-center justify-center py-1 rounded-lg transition-colors group text-center shrink-0 ${
-              (isLoggedIn && pathname.startsWith("/dashboard")) || (!isLoggedIn && pathname === "/login")
+              (isLoggedIn && pathname.startsWith("/dashboard") && currentHash === "#profile") || (!isLoggedIn && pathname === "/login")
                 ? "text-mst-red font-semibold"
                 : "text-[var(--text-muted)] hover:text-mst-red"
             }`}
