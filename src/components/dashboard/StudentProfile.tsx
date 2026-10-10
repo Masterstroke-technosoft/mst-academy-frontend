@@ -52,7 +52,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
   });
   const [photo, setPhoto] = useState<string | null>(safeUser.profileImageUrl || safeUser.profileImage || safeUser.profilePhoto || null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [isPhotoDeleted, setIsPhotoDeleted] = useState(false);
   const [cvFileObj, setCvFileObj] = useState<File | null>(null);
   const [isCvDeleted, setIsCvDeleted] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -395,7 +394,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         return;
       }
       setPhotoFile(file);
-      setIsPhotoDeleted(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhoto(reader.result as string);
@@ -404,11 +402,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
     }
   };
 
-  const handlePhotoDelete = () => {
-    setPhoto(null);
-    setPhotoFile(null);
-    setIsPhotoDeleted(true);
-  };
+
 
   const handleCvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -566,17 +560,13 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
       }
       if (formData.walletAddress !== initialData.walletAddress) bodyData.walletAddress = formData.walletAddress;
 
-      if (isPhotoDeleted) {
-        bodyData.profileImage = "";
-        bodyData.profileImageUrl = "";
-        bodyData.profilePhoto = "";
-      }
+
 
       if (isCvDeleted) {
         bodyData.resume = "";
       }
 
-      if (Object.keys(bodyData).length === 0 && !photoFile && !cvFileObj && !isPhotoDeleted && !isCvDeleted) {
+      if (Object.keys(bodyData).length === 0 && !photoFile && !cvFileObj && !isCvDeleted) {
         showToast("Profile updated successfully", "success");
         setSaving(false);
         return;
@@ -592,7 +582,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         if (bodyData.linkedinProfile) formDataToSend.append("linkedinProfile", bodyData.linkedinProfile);
         if (bodyData.portfolioWebsite) formDataToSend.append("portfolioWebsite", bodyData.portfolioWebsite);
         if (bodyData.walletAddress) formDataToSend.append("walletAddress", bodyData.walletAddress);
-        if (isPhotoDeleted) formDataToSend.append("profileImage", "");
         if (isCvDeleted) formDataToSend.append("resume", "");
 
         const headers: Record<string, string> = {};
@@ -641,7 +630,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         const updatedWalletAddress = data.user.walletAddress || "";
         const updatedResume = data.user.resumeUrl || data.user.resume || data.user.cvFile || (isCvDeleted ? "" : formData.cvFile);
         const updatedResumeName = data.user.cvFileName || (isCvDeleted ? "" : (cvFileObj?.name || (updatedResume ? getResumeFileName(updatedResume) : "")));
-        const updatedPhoto = isPhotoDeleted ? null : (data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo);
+        const updatedPhoto = data.user.profileImageUrl || data.user.profileImage || data.user.profilePhoto || photo;
         finalPhoto = updatedPhoto;
 
         setFormData(prev => ({
@@ -668,9 +657,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
         setPhoto(updatedPhoto);
         setPhotoFile(null);
         setCvFileObj(null);
-        if (isPhotoDeleted) {
-          setIsPhotoDeleted(false);
-        }
+
         if (isCvDeleted) {
           setIsCvDeleted(false);
         }
@@ -814,7 +801,6 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
             </div>
             <div>
               <h3 className="text-lg font-bold text-[var(--text)]">Profile Photo</h3>
-              {console.log("Profile Photo Rendered - Without Delete Button")}
               <p className="mt-1 text-sm text-[var(--text-muted)] max-w-sm">
                 Upload a professional headshot. Recommended size is 256x256 pixels. JPG or PNG allowed. Max size 5MB.
               </p>
@@ -826,7 +812,7 @@ export function StudentProfile({ user }: { user: AuthUser | null }) {
                     className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] transition hover:bg-[var(--border)]"
                   >
                     <Edit2 size={14} />
-                    Edit Photo
+                    Update Photo
                   </button>
                 </div>
               ) : (
