@@ -15,16 +15,16 @@ import { GlossaryClientHub, type GlossaryTerm } from "./GlossaryClientHub";
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Web3 & Blockchain Glossary - Key Terms Explained | Masterstroke Academy",
+      "Web3 & Blockchain Glossary — Key Terms Explained | Masterstroke Academy",
   },
   description:
-    "Plain-English definitions of essential blockchain and Web3 terms - Solidity, DAO, Gas, EVM, Smart Contract, and more. From Masterstroke Academy.",
+    "Plain-English definitions of essential blockchain and Web3 terms — Solidity, DAO, Gas, EVM, Smart Contract, and more. From Masterstroke Academy.",
   alternates: { canonical: "https://masterstroke.academy/glossary" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Web3 & Blockchain Glossary | Masterstroke Academy",
+    title: "Web3 & Blockchain Glossary — Key Terms Explained | Masterstroke Academy",
     description:
-      "20 essential blockchain and Web3 terms explained in plain English.",
+      "Plain-English definitions of essential blockchain and Web3 terms — Solidity, DAO, Gas, EVM, Smart Contract, and more. From Masterstroke Academy.",
     url: "https://masterstroke.academy/glossary",
     images: [
       {
@@ -36,9 +36,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Web3 & Blockchain Glossary | Masterstroke Academy",
+    title: "Web3 & Blockchain Glossary — Key Terms Explained | Masterstroke Academy",
     description:
-      "20 essential blockchain and Web3 terms explained in plain English.",
+      "Plain-English definitions of essential blockchain and Web3 terms — Solidity, DAO, Gas, EVM, Smart Contract, and more. From Masterstroke Academy.",
   },
 };
 

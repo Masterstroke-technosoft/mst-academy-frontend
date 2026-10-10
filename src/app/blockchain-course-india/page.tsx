@@ -25,15 +25,15 @@ export const metadata: Metadata = {
       "Blockchain Developer Course India | Live Code, On-Chain Certificate | Masterstroke Academy",
   },
   description:
-    "India's most structured blockchain developer course - 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
+    "India's most structured blockchain developer course — 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
   alternates: {
     canonical: "https://masterstroke.academy/blockchain-course-india",
   },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Blockchain Developer Course India | Masterstroke Academy",
+    title: "Blockchain Developer Course India | Live Code, On-Chain Certificate | Masterstroke Academy",
     description:
-      "Live Solidity coding on a real blockchain. On-chain certificate. PPO internship. $50K grant path. Start free.",
+      "India's most structured blockchain developer course — 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
     url: "https://masterstroke.academy/blockchain-course-india",
     images: [
       {
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blockchain Developer Course India | Masterstroke Academy",
+    title: "Blockchain Developer Course India | Live Code, On-Chain Certificate | Masterstroke Academy",
     description:
-      "Live Solidity coding on a real blockchain. On-chain certificate. PPO internship. $50K grant path. Start free.",
+      "India's most structured blockchain developer course — 130+ hrs of live Solidity coding, on-chain certificate, PPO internship & $50K grant path. Start free.",
   },
 };
 

@@ -16,16 +16,16 @@ import {
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Student Reviews - Masterstroke Academy Blockchain Course | Real Outcomes",
+    absolute: "Student Reviews — Masterstroke Academy Blockchain Course | Real Outcomes",
   },
   description:
-    "Read real reviews from Masterstroke Academy students - blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
+    "Read real reviews from Masterstroke Academy students — blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
   alternates: { canonical: "https://masterstroke.academy/testimonials" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Student Reviews | Masterstroke Academy",
+    title: "Student Reviews — Masterstroke Academy Blockchain Course | Real Outcomes",
     description:
-      "Real outcomes from real students - blockchain developer careers built on MST Chain.",
+      "Read real reviews from Masterstroke Academy students — blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
     url: "https://masterstroke.academy/testimonials",
     images: [
       {
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Student Reviews | Masterstroke Academy",
+    title: "Student Reviews — Masterstroke Academy Blockchain Course | Real Outcomes",
     description:
-      "Real outcomes from real students - blockchain developer careers built on MST Chain.",
+      "Read real reviews from Masterstroke Academy students — blockchain developers who learned Solidity, DeFi, and Web3 development and landed internships and jobs.",
   },
 };
 

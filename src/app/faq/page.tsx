@@ -13,16 +13,16 @@ import { FaqClientHub, type FaqCategory } from "./FaqClientHub";
 export const metadata: Metadata = {
   title: {
     absolute:
-      "FAQ - Blockchain Course, Certificate & Career Questions | Masterstroke Academy",
+      "FAQ — Blockchain Course, Certificate & Career Questions | Masterstroke Academy",
   },
   description:
-    "Answers to every common question about Masterstroke Academy's blockchain developer course - curriculum, certificate, pricing, career outcomes, and MST Chain.",
+    "Answers to every common question about Masterstroke Academy's blockchain developer course — curriculum, certificate, pricing, career outcomes, and MST Chain.",
   alternates: { canonical: "https://masterstroke.academy/faq" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "FAQ | Masterstroke Academy",
+    title: "FAQ — Blockchain Course, Certificate & Career Questions | Masterstroke Academy",
     description:
-      "Every common question about the blockchain developer course, certificate, and career outcomes - answered.",
+      "Answers to every common question about Masterstroke Academy's blockchain developer course — curriculum, certificate, pricing, career outcomes, and MST Chain.",
     url: "https://masterstroke.academy/faq",
     images: [
       {
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ | Masterstroke Academy",
+    title: "FAQ — Blockchain Course, Certificate & Career Questions | Masterstroke Academy",
     description:
-      "Every common question about the blockchain developer course, certificate, and career outcomes - answered.",
+      "Answers to every common question about Masterstroke Academy's blockchain developer course — curriculum, certificate, pricing, career outcomes, and MST Chain.",
   },
 };
 

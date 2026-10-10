@@ -11,16 +11,16 @@ import {
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Best Blockchain Course in India 2026 - Compared | Masterstroke Academy",
+      "Best Blockchain Course in India 2026 — Compared | Masterstroke Academy",
   },
   description:
-    "Choosing a blockchain developer course in India means comparing curriculum depth, hands-on coding opportunities, certification value, and real career outcomes — not just price. Here's an honest, feature-by-feature comparison.",
+    "An honest comparison of leading blockchain developer courses in India — curriculum depth, live coding, certification, and career outcomes.",
   alternates: { canonical: "https://masterstroke.academy/compare" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Best Blockchain Course in India 2026 - Compared",
+    title: "Best Blockchain Course in India 2026 — Compared | Masterstroke Academy",
     description:
-      "Choosing a blockchain developer course in India means comparing curriculum depth, hands-on coding opportunities, certification value, and real career outcomes — not just price.",
+      "An honest comparison of leading blockchain developer courses in India — curriculum depth, live coding, certification, and career outcomes.",
     url: "https://masterstroke.academy/compare",
     images: [
       {
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Best Blockchain Course in India 2026 - Compared",
+    title: "Best Blockchain Course in India 2026 — Compared | Masterstroke Academy",
     description:
-      "Choosing a blockchain developer course in India means comparing curriculum depth, hands-on coding opportunities, certification value, and real career outcomes — not just price.",
+      "An honest comparison of leading blockchain developer courses in India — curriculum depth, live coding, certification, and career outcomes.",
   },
 };
 

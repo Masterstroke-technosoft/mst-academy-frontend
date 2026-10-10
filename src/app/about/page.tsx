@@ -22,16 +22,16 @@ import {
 export const metadata: Metadata = {
   title: {
     absolute:
-      "About Masterstroke Academy - India's Blockchain Developer Education Platform",
+      "About Masterstroke Academy — India's Blockchain Developer Education Platform",
   },
   description:
     "Masterstroke Academy is India's structured blockchain developer program, built on MST Chain by Masterstroke Technosoft Private Limited.",
   alternates: { canonical: "https://masterstroke.academy/about" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "About Masterstroke Academy",
+    title: "About Masterstroke Academy — India's Blockchain Developer Education Platform",
     description:
-      "India's structured blockchain developer education platform, built on MST Chain.",
+      "Masterstroke Academy is India's structured blockchain developer program, built on MST Chain by Masterstroke Technosoft Private Limited.",
     url: "https://masterstroke.academy/about",
     images: [
       {
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "About Masterstroke Academy",
+    title: "About Masterstroke Academy — India's Blockchain Developer Education Platform",
     description:
-      "India's structured blockchain developer education platform, built on MST Chain.",
+      "Masterstroke Academy is India's structured blockchain developer program, built on MST Chain by Masterstroke Technosoft Private Limited.",
   },
 };
 
